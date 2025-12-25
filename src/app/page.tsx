@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -17,10 +18,15 @@ import {
   ExternalLink,
   Youtube,
   Send,
-  ChevronRight
+  ChevronRight,
+  MessageCircle,
+  Share2,
+  Star
 } from "lucide-react"
 import postsData from "@/data/posts.json"
 import { brand } from "@/lib/brand"
+import { PostCard } from "@/components/blog/PostCard"
+import { TrendingCard } from "@/components/blog/TrendingCard"
 
 // Helper to format numbers
 function formatNumber(num: number): string {
@@ -125,8 +131,17 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-3xl blur-2xl"></div>
                 <Card className="relative glass-strong rounded-3xl overflow-hidden hover-lift">
                   <CardContent className="p-0">
-                    <div className="aspect-video bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                      <Sparkles className="w-16 h-16 text-primary/50" />
+                    <div className="aspect-video bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center relative overflow-hidden">
+                      {featuredPost.coverImage ? (
+                        <Image
+                          src={featuredPost.coverImage}
+                          alt={featuredPost.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <Sparkles className="w-16 h-16 text-primary/50" />
+                      )}
                     </div>
                     <div className="p-6 space-y-4">
                       <div className="flex items-center gap-2">
@@ -178,7 +193,7 @@ export default function Home() {
                 <TrendingUp className="w-5 h-5 text-red-500" />
               </div>
               <div>
-                <h2 className="text-2xl sm:text-3xl font-bold">🔥 ტრენდული ახლა</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold">ტრენდული ახლა</h2>
                 <p className="text-muted-foreground">ყველაზე პოპულარული სტატიები</p>
               </div>
             </div>
@@ -192,42 +207,11 @@ export default function Home() {
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {trendingPosts.slice(0, 3).map((post, index) => (
-              <Link key={post.id} href={`/blog/${post.slug}`}>
-                <Card className="group h-full hover-lift card-shine border-0 shadow-lg bg-card">
-                  <CardContent className="p-6 space-y-4">
-                    <div className="flex items-start justify-between">
-                      <span className="text-4xl font-bold text-primary/20">
-                        {String(index + 1).padStart(2, '0')}
-                      </span>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <Eye className="w-4 h-4" />
-                        {formatNumber(post.views)}
-                      </div>
-                    </div>
-                    <h3 className="text-lg font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2">
-                      {post.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {post.excerpt}
-                    </p>
-                    <div className="flex items-center justify-between pt-2">
-                      <div className="flex items-center gap-2">
-                        {post.tags.slice(0, 2).map(tag => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="flex items-center gap-1 text-red-500">
-                          <Flame className="w-3 h-3" />
-                          {formatNumber(getTotalReactions(post.reactions))}
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
+              <TrendingCard
+                key={post.id}
+                post={post as any}
+                rank={index + 1}
+              />
             ))}
           </div>
         </div>
@@ -242,7 +226,7 @@ export default function Home() {
                 <Zap className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h2 className="text-2xl sm:text-3xl font-bold">⚡ უახლესი პოსტები</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold">უახლესი პოსტები</h2>
                 <p className="text-muted-foreground">ახალი სტატიები და ტუტორიალები</p>
               </div>
             </div>
@@ -256,47 +240,13 @@ export default function Home() {
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {latestPosts.map((post) => (
-              <Link key={post.id} href={`/blog/${post.slug}`}>
-                <Card className="group h-full hover-lift card-shine border-0 shadow-lg bg-card">
-                  <CardContent className="p-0">
-                    <div className="aspect-video bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
-                      <Sparkles className="w-10 h-10 text-primary/30 group-hover:scale-110 transition-transform" />
-                    </div>
-                    <div className="p-5 space-y-3">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="text-xs">
-                          {brand.categories.find(c => c.id === post.category)?.name || post.category}
-                        </Badge>
-                        {post.trending && (
-                          <Badge className="bg-red-500/10 text-red-500 border-red-500/20 text-xs">
-                            <Flame className="w-3 h-3 mr-1" />
-                            ტრენდი
-                          </Badge>
-                        )}
-                      </div>
-                      <h3 className="font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2">
-                        {post.title}
-                      </h3>
-                      <div className="flex items-center justify-between text-sm text-muted-foreground pt-2">
-                        <div className="flex items-center gap-3">
-                          <span className="flex items-center gap-1">
-                            <Eye className="w-4 h-4" />
-                            {formatNumber(post.views)}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            {post.readingTime} წთ
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1 text-red-500">
-                          <Heart className="w-4 h-4" />
-                          {formatNumber(getTotalReactions(post.reactions))}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
+              <PostCard
+                key={post.id}
+                post={post as any}
+                showExcerpt={false}
+                showTags={true}
+                showAuthor={true}
+              />
             ))}
           </div>
         </div>
@@ -311,7 +261,7 @@ export default function Home() {
                 <Youtube className="w-5 h-5 text-red-500" />
               </div>
               <div>
-                <h2 className="text-2xl sm:text-3xl font-bold">🎬 ვიდეო კონტენტი</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold">ვიდეო კონტენტი</h2>
                 <p className="text-muted-foreground">AI ტუტორიალები და მიმოხილვები</p>
               </div>
             </div>
@@ -403,7 +353,7 @@ export default function Home() {
                 </svg>
               </div>
               <div>
-                <h2 className="text-2xl font-bold">💻 GitHub პროექტები</h2>
+                <h2 className="text-2xl font-bold">GitHub პროექტები</h2>
                 <p className="text-muted-foreground">ღია კოდის პროექტები</p>
               </div>
             </div>
@@ -417,10 +367,10 @@ export default function Home() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             {[
-              { name: "ai-chatbot-template", desc: "🤖 Next.js + OpenAI ChatGPT ჩატბოტის ტემპლეიტი", stars: 234, lang: "TypeScript" },
-              { name: "prompt-library", desc: "📚 1000+ ChatGPT პრომპტის კოლექცია", stars: 189, lang: "Markdown" },
-              { name: "make-automation-recipes", desc: "⚡ Make.com ავტომატიზაციის რეცეპტები", stars: 156, lang: "JSON" },
-              { name: "ai-image-generator", desc: "🎨 DALL-E 3 სურათების გენერატორი", stars: 98, lang: "Python" },
+              { name: "ai-chatbot-template", desc: "Next.js + OpenAI ChatGPT ჩატბოტის ტემპლეიტი", stars: 234, lang: "TypeScript" },
+              { name: "prompt-library", desc: "1000+ ChatGPT პრომპტის კოლექცია", stars: 189, lang: "Markdown" },
+              { name: "make-automation-recipes", desc: "Make.com ავტომატიზაციის რეცეპტები", stars: 156, lang: "JSON" },
+              { name: "ai-image-generator", desc: "DALL-E 3 სურათების გენერატორი", stars: 98, lang: "Python" },
             ].map((repo) => (
               <Link key={repo.name} href={`https://github.com/andrewaltair/${repo.name}`} target="_blank">
                 <Card className="group h-full hover-lift border shadow-sm hover:shadow-lg transition-all">
@@ -446,7 +396,7 @@ export default function Home() {
                         {repo.lang}
                       </span>
                       <span className="flex items-center gap-1">
-                        ⭐ {repo.stars}
+                        <Star className="w-4 h-4 text-yellow-500" /> {repo.stars}
                       </span>
                     </div>
                   </CardContent>

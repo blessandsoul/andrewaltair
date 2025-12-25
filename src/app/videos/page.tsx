@@ -12,10 +12,13 @@ import {
     Send,
     Mail,
     TrendingUp,
-    Zap
+    Zap,
+    Heart,
+    Bookmark
 } from "lucide-react"
 import videosData from "@/data/videos.json"
 import { brand } from "@/lib/brand"
+import Image from "next/image"
 
 // Helper to format numbers
 function formatNumber(num: number): string {
@@ -76,7 +79,7 @@ export default function VideosPage() {
                                 <Zap className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <h2 className="text-2xl font-bold">⚡ მოკლე ვიდეოები</h2>
+                                <h2 className="text-2xl font-bold">მოკლე ვიდეოები</h2>
                                 <p className="text-muted-foreground">60 წამში AI ხრიკები</p>
                             </div>
                         </div>
@@ -89,24 +92,52 @@ export default function VideosPage() {
                                 href={`https://youtube.com/shorts/${video.youtubeId}`}
                                 target="_blank"
                             >
-                                <Card className="group hover-lift overflow-hidden border-0 shadow-lg bg-gradient-to-br from-pink-500/10 to-red-500/10">
+                                <Card className="group border-0 shadow-lg bg-card transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02]">
                                     <CardContent className="p-0">
-                                        <div className="relative aspect-[9/16] bg-gradient-to-br from-pink-500/20 to-red-500/20">
-                                            <div className="absolute inset-0 flex items-center justify-center">
-                                                <div className="w-14 h-14 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                                    <Play className="w-6 h-6 text-red-500 fill-red-500 ml-1" />
+                                        <div className="relative aspect-[9/16] overflow-hidden rounded-xl">
+                                            {/* YouTube Thumbnail */}
+                                            <Image
+                                                src={`https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`}
+                                                alt={video.title}
+                                                fill
+                                                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                            />
+
+                                            {/* Gradient overlay */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/20" />
+
+                                            {/* Play button */}
+                                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                <div className="w-14 h-14 bg-red-600 rounded-full flex items-center justify-center shadow-lg shadow-red-500/40">
+                                                    <Play className="w-6 h-6 text-white fill-white ml-1" />
                                                 </div>
                                             </div>
-                                            <Badge className="absolute top-2 right-2 bg-black/70 text-white border-0 text-xs">
+
+                                            {/* Shorts badge */}
+                                            <Badge className="absolute top-2 left-2 bg-gradient-to-r from-pink-500 to-red-500 text-white border-0 text-xs">
+                                                <Zap className="w-3 h-3 mr-1" />
+                                                Shorts
+                                            </Badge>
+
+                                            {/* Duration badge */}
+                                            <Badge className="absolute top-2 right-2 bg-black/70 text-white border-0 text-xs backdrop-blur-sm">
                                                 {video.duration}
                                             </Badge>
-                                            <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
-                                                <h4 className="font-bold text-white text-sm line-clamp-2">
+
+                                            {/* Content overlay */}
+                                            <div className="absolute bottom-0 inset-x-0 p-3">
+                                                <h4 className="font-bold text-white text-sm line-clamp-2 mb-1">
                                                     {video.title}
                                                 </h4>
-                                                <p className="text-white/70 text-xs mt-1">
-                                                    {formatNumber(video.views)} ნახვა
-                                                </p>
+                                                <div className="flex items-center gap-2 text-white/80 text-xs">
+                                                    <span className="flex items-center gap-1">
+                                                        <Eye className="w-3 h-3" />
+                                                        {formatNumber(video.views)}
+                                                    </span>
+                                                    <span className="flex items-center gap-1">
+                                                        <Heart className="w-3 h-3 text-red-400" />
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </CardContent>
@@ -126,7 +157,7 @@ export default function VideosPage() {
                                 <Youtube className="w-5 h-5 text-red-500" />
                             </div>
                             <div>
-                                <h2 className="text-2xl font-bold">🎬 სრული ვიდეოები</h2>
+                                <h2 className="text-2xl font-bold">სრული ვიდეოები</h2>
                                 <p className="text-muted-foreground">დეტალური ტუტორიალები და მიმოხილვები</p>
                             </div>
                         </div>
@@ -139,40 +170,65 @@ export default function VideosPage() {
                                 href={`https://youtube.com/watch?v=${video.youtubeId}`}
                                 target="_blank"
                             >
-                                <Card className="group hover-lift card-shine overflow-hidden border-0 shadow-xl">
+                                <Card className="group h-full border-0 shadow-xl bg-card transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
                                     <CardContent className="p-0">
-                                        <div className="relative aspect-video bg-gradient-to-br from-red-500/10 to-orange-500/10">
+                                        <div className="relative aspect-video overflow-hidden">
+                                            {/* YouTube Thumbnail */}
+                                            <Image
+                                                src={`https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`}
+                                                alt={video.title}
+                                                fill
+                                                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                            />
+
+                                            {/* Dark overlay */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+
+                                            {/* Play Button */}
                                             <div className="absolute inset-0 flex items-center justify-center">
-                                                <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
-                                                    <Play className="w-8 h-8 text-white fill-white ml-1" />
+                                                <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-xl shadow-red-500/30 transition-all duration-300 group-hover:scale-110 group-hover:shadow-red-500/50">
+                                                    <Play className="w-7 h-7 text-white fill-white ml-1" />
                                                 </div>
                                             </div>
-                                            <Badge className="absolute top-3 right-3 bg-black/70 text-white border-0">
+
+                                            {/* Duration Badge */}
+                                            <Badge className="absolute bottom-3 right-3 bg-black/80 text-white border-0 backdrop-blur-sm">
                                                 {video.duration}
                                             </Badge>
-                                            <Badge className="absolute top-3 left-3 bg-red-600 text-white border-0">
+
+                                            {/* Category Badge */}
+                                            <Badge className="absolute top-3 left-3 bg-red-600/90 text-white border-0 backdrop-blur-sm">
                                                 {video.category}
                                             </Badge>
+
+                                            {/* Views on image */}
+                                            <div className="absolute bottom-3 left-3 flex items-center gap-1 text-white/90 text-sm">
+                                                <Eye className="w-4 h-4" />
+                                                {formatNumber(video.views)}
+                                            </div>
                                         </div>
-                                        <div className="p-6 space-y-3">
-                                            <h3 className="font-bold text-xl group-hover:text-red-500 transition-colors">
+
+                                        <div className="p-5 space-y-3">
+                                            <h3 className="font-bold text-lg group-hover:text-red-500 transition-colors line-clamp-2">
                                                 {video.title}
                                             </h3>
-                                            <p className="text-muted-foreground line-clamp-2">
+                                            <p className="text-sm text-muted-foreground line-clamp-2">
                                                 {video.description}
                                             </p>
-                                            <div className="flex items-center justify-between text-sm text-muted-foreground pt-2">
-                                                <div className="flex items-center gap-4">
+
+                                            {/* Bottom row */}
+                                            <div className="flex items-center justify-between pt-3 border-t border-border/50 text-xs text-muted-foreground">
+                                                <div className="flex items-center gap-3">
                                                     <span className="flex items-center gap-1">
-                                                        <Eye className="w-4 h-4" />
-                                                        {formatNumber(video.views)}
-                                                    </span>
-                                                    <span className="flex items-center gap-1">
-                                                        <Clock className="w-4 h-4" />
+                                                        <Clock className="w-3.5 h-3.5" />
                                                         {video.duration}
                                                     </span>
+                                                    <span>{video.publishedAt}</span>
                                                 </div>
-                                                <span>{video.publishedAt}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <Heart className="w-4 h-4 text-red-500 hover:scale-125 transition-transform cursor-pointer" />
+                                                    <Bookmark className="w-4 h-4 hover:text-primary transition-colors cursor-pointer" />
+                                                </div>
                                             </div>
                                         </div>
                                     </CardContent>

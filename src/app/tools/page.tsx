@@ -14,7 +14,33 @@ import {
     Code,
     Search,
     Zap,
-    Presentation
+    Presentation,
+    Palette,
+    FileText,
+    TrendingUp,
+    Languages,
+    Mic,
+    FileSearch,
+    Mail,
+    Headphones,
+    DollarSign,
+    Camera,
+    Globe,
+    BarChart3,
+    GraduationCap,
+    Terminal,
+    BookOpen,
+    User,
+    Bookmark,
+    Crown,
+    ArrowRight,
+    Compass,
+    Scale,
+    Wallet,
+    Blocks,
+    Gamepad2,
+    Box,
+    Wand2
 } from "lucide-react"
 import toolsData from "@/data/tools.json"
 
@@ -29,6 +55,30 @@ const categoryIcons: Record<string, any> = {
     "ავტომატიზაცია": Zap,
     "პროდუქტიულობა": Sparkles,
     "პრეზენტაცია": Presentation,
+    "დიზაინი": Palette,
+    "კონტენტი": FileText,
+    "SEO": TrendingUp,
+    "წერა": FileText,
+    "თარგმანი": Languages,
+    "ტრანსკრიფცია": Mic,
+    "დოკუმენტები": FileSearch,
+    "ელფოსტა": Mail,
+    "მომხმარებელი": Headphones,
+    "გაყიდვები": DollarSign,
+    "ფოტო რედაქცია": Camera,
+    "ვებსაიტი": Globe,
+    "ანალიტიკა": BarChart3,
+    "განათლება": GraduationCap,
+    "დეველოპერი": Terminal,
+    "კვლევა": BookOpen,
+    "ავატარი": User,
+    "ბრაუზერი": Compass,
+    "სამართალი": Scale,
+    "ფინანსები": Wallet,
+    "No-Code": Blocks,
+    "თამაშები": Gamepad2,
+    "3D": Box,
+    "VFX": Wand2,
 }
 
 // Category colors
@@ -42,6 +92,30 @@ const categoryColors: Record<string, string> = {
     "ავტომატიზაცია": "#f59e0b",
     "პროდუქტიულობა": "#6366f1",
     "პრეზენტაცია": "#f97316",
+    "დიზაინი": "#a855f7",
+    "კონტენტი": "#14b8a6",
+    "SEO": "#84cc16",
+    "წერა": "#0ea5e9",
+    "თარგმანი": "#06b6d4",
+    "ტრანსკრიფცია": "#d946ef",
+    "დოკუმენტები": "#64748b",
+    "ელფოსტა": "#ef4444",
+    "მომხმარებელი": "#22c55e",
+    "გაყიდვები": "#eab308",
+    "ფოტო რედაქცია": "#f472b6",
+    "ვებსაიტი": "#3b82f6",
+    "ანალიტიკა": "#10b981",
+    "განათლება": "#8b5cf6",
+    "დეველოპერი": "#0891b2",
+    "კვლევა": "#7c3aed",
+    "ავატარი": "#ec4899",
+    "ბრაუზერი": "#f97316",
+    "სამართალი": "#78716c",
+    "ფინანსები": "#059669",
+    "No-Code": "#8b5cf6",
+    "თამაშები": "#dc2626",
+    "3D": "#0ea5e9",
+    "VFX": "#f472b6",
 }
 
 // Pricing labels
@@ -106,7 +180,7 @@ export default function ToolsPage() {
                             <Star className="w-5 h-5 text-primary" />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold">⭐ რჩეული ინსტრუმენტები</h2>
+                            <h2 className="text-2xl font-bold">რჩეული ინსტრუმენტები</h2>
                             <p className="text-muted-foreground">ყველაზე ხშირად ვიყენებ</p>
                         </div>
                     </div>
@@ -118,31 +192,52 @@ export default function ToolsPage() {
 
                             return (
                                 <Link key={tool.id} href={tool.url} target="_blank">
-                                    <Card className="group h-full hover-lift card-shine border-0 shadow-xl overflow-hidden">
-                                        <CardContent className="p-6 space-y-4">
+                                    <Card className="group h-full border-0 shadow-xl bg-card transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
+                                        <CardContent className="p-5 space-y-4">
+                                            {/* Header */}
                                             <div className="flex items-start justify-between">
                                                 <div
-                                                    className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                                                    style={{ backgroundColor: `${categoryColors[tool.category]}15` }}
+                                                    className="w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                                                    style={{
+                                                        backgroundColor: `${categoryColors[tool.category]}15`,
+                                                        boxShadow: `0 8px 32px ${categoryColors[tool.category]}20`
+                                                    }}
                                                 >
                                                     <Icon className="w-7 h-7" style={{ color: categoryColors[tool.category] }} />
                                                 </div>
-                                                <ExternalLink className="w-5 h-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                <div className="flex items-center gap-2">
+                                                    <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 text-xs">
+                                                        <Crown className="w-3 h-3 mr-1" />
+                                                        ტოპ
+                                                    </Badge>
+                                                    <button className="w-8 h-8 rounded-full bg-muted flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-primary/10">
+                                                        <Bookmark className="w-4 h-4 text-muted-foreground" />
+                                                    </button>
+                                                </div>
                                             </div>
 
+                                            {/* Title & Description */}
                                             <div>
-                                                <h3 className="font-bold text-xl group-hover:text-primary transition-colors">
-                                                    {tool.name}
-                                                </h3>
+                                                <div className="flex items-center gap-2">
+                                                    <h3 className="font-bold text-lg group-hover:text-primary transition-colors">
+                                                        {tool.name}
+                                                    </h3>
+                                                    <div className="flex items-center gap-0.5 text-yellow-500">
+                                                        <Star className="w-3.5 h-3.5 fill-current" />
+                                                        <span className="text-xs">{tool.rating}</span>
+                                                    </div>
+                                                </div>
                                                 <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                                                     {tool.description}
                                                 </p>
                                             </div>
 
-                                            <div className="flex items-center justify-between">
+                                            {/* Footer */}
+                                            <div className="flex items-center justify-between pt-3 border-t border-border/50">
                                                 <div className="flex items-center gap-2">
                                                     <Badge
                                                         variant="secondary"
+                                                        className="text-xs"
                                                         style={{
                                                             backgroundColor: `${categoryColors[tool.category]}15`,
                                                             color: categoryColors[tool.category]
@@ -150,15 +245,11 @@ export default function ToolsPage() {
                                                     >
                                                         {tool.category}
                                                     </Badge>
-                                                    <Badge className={pricing.color}>
+                                                    <Badge className={`text-xs ${pricing.color}`}>
                                                         {pricing.label}
                                                     </Badge>
                                                 </div>
-                                                <div className="flex items-center gap-0.5">
-                                                    {[...Array(tool.rating)].map((_, i) => (
-                                                        <Star key={i} className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                                                    ))}
-                                                </div>
+                                                <ExternalLink className={`w-4 h-4 text-muted-foreground transition-all duration-300 group-hover:text-primary group-hover:translate-x-1`} />
                                             </div>
                                         </CardContent>
                                     </Card>
@@ -177,7 +268,7 @@ export default function ToolsPage() {
                             <Wrench className="w-5 h-5 text-accent" />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold">🔧 ყველა ინსტრუმენტი</h2>
+                            <h2 className="text-2xl font-bold">ყველა ინსტრუმენტი</h2>
                             <p className="text-muted-foreground">კატეგორიების მიხედვით</p>
                         </div>
                     </div>

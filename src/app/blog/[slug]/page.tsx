@@ -9,7 +9,10 @@ import {
   Calendar,
   Sparkles,
   Send,
-  User
+  User,
+  MessageCircle,
+  Share2,
+  Heart
 } from "lucide-react"
 import { ReactionBar } from "@/components/interactive/ReactionBar"
 import { ShareButtons } from "@/components/interactive/ShareButtons"
@@ -115,7 +118,19 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
               </span>
               <span className="text-sm text-muted-foreground flex items-center gap-1">
                 <Eye className="w-4 h-4" />
-                {post.views.toLocaleString()} ნახვა
+                {post.views.toLocaleString()}
+              </span>
+              <span className="text-sm text-muted-foreground flex items-center gap-1">
+                <MessageCircle className="w-4 h-4" />
+                {post.comments}
+              </span>
+              <span className="text-sm text-red-500 flex items-center gap-1">
+                <Heart className="w-4 h-4" />
+                {Object.values(post.reactions).reduce((a: number, b: number) => a + b, 0)}
+              </span>
+              <span className="text-sm text-muted-foreground flex items-center gap-1">
+                <Share2 className="w-4 h-4" />
+                {post.shares}
               </span>
             </div>
 
@@ -224,7 +239,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
       {/* Related Posts */}
       <section className="py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
-          <h2 className="text-2xl font-bold mb-8">📚 მსგავსი სტატიები</h2>
+          <h2 className="text-2xl font-bold mb-8">მსგავსი სტატიები</h2>
           <div className="grid gap-6 sm:grid-cols-2">
             {relatedPosts.map((relatedPost) => (
               <Link key={relatedPost.id} href={`/blog/${relatedPost.slug}`}>
@@ -239,15 +254,27 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                     <p className="text-sm text-muted-foreground line-clamp-2">
                       {relatedPost.excerpt}
                     </p>
-                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Eye className="w-4 h-4" />
-                        {relatedPost.views.toLocaleString()}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        {relatedPost.readingTime} წთ
-                      </span>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border/50">
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1">
+                          <Eye className="w-3.5 h-3.5" />
+                          {relatedPost.views.toLocaleString()}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MessageCircle className="w-3.5 h-3.5" />
+                          {relatedPost.comments}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1 text-red-500">
+                          <Heart className="w-3.5 h-3.5" />
+                          {Object.values(relatedPost.reactions).reduce((a: number, b: number) => a + b, 0)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Share2 className="w-3.5 h-3.5" />
+                          {relatedPost.shares}
+                        </span>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

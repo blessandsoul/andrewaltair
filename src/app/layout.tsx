@@ -83,6 +83,7 @@ export default function RootLayout({
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${notoGeorgian.variable} ${inter.variable} antialiased font-georgian`}
+        suppressHydrationWarning
       >
         <LayoutWrapper>{children}</LayoutWrapper>
       </body>

@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -14,10 +15,14 @@ import {
   Sparkles,
   ArrowRight,
   Send,
-  Mail
+  Mail,
+  MessageCircle,
+  Share2
 } from "lucide-react"
 import postsData from "@/data/posts.json"
 import { brand } from "@/lib/brand"
+import { PostCard } from "@/components/blog/PostCard"
+import { FeaturedCard } from "@/components/blog/FeaturedCard"
 
 // Helper to format numbers
 function formatNumber(num: number): string {
@@ -111,7 +116,7 @@ export default function BlogPage() {
                   <TrendingUp className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">⭐ რჩეული სტატიები</h2>
+                  <h2 className="text-2xl font-bold">რჩეული სტატიები</h2>
                   <p className="text-muted-foreground">ყველაზე საინტერესო მასალები</p>
                 </div>
               </div>
@@ -119,53 +124,7 @@ export default function BlogPage() {
 
             <div className="grid gap-8 md:grid-cols-2">
               {featuredPosts.map((post) => (
-                <Link key={post.id} href={`/blog/${post.slug}`}>
-                  <Card className="group h-full hover-lift card-shine border-0 shadow-xl bg-card overflow-hidden">
-                    <CardContent className="p-0">
-                      <div className="aspect-[2/1] bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center relative">
-                        <Sparkles className="w-16 h-16 text-primary/30 group-hover:scale-110 transition-transform" />
-                        <Badge className="absolute top-4 left-4 bg-primary text-white border-0">
-                          რჩეული
-                        </Badge>
-                      </div>
-                      <div className="p-6 space-y-4">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Badge variant="secondary">
-                            {brand.categories.find(c => c.id === post.category)?.name || post.category}
-                          </Badge>
-                          {post.trending && (
-                            <Badge className="bg-red-500/10 text-red-500 border-red-500/20">
-                              <Flame className="w-3 h-3 mr-1" />
-                              ტრენდი
-                            </Badge>
-                          )}
-                        </div>
-                        <h3 className="text-xl font-bold leading-tight group-hover:text-primary transition-colors">
-                          {post.title}
-                        </h3>
-                        <p className="text-muted-foreground line-clamp-2">
-                          {post.excerpt}
-                        </p>
-                        <div className="flex items-center justify-between pt-2 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-4">
-                            <span className="flex items-center gap-1">
-                              <Eye className="w-4 h-4" />
-                              {formatNumber(post.views)}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
-                              {post.readingTime} წთ
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1 text-red-500">
-                            <Heart className="w-4 h-4" />
-                            {formatNumber(getTotalReactions(post.reactions))}
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                <FeaturedCard key={post.id} post={post as any} />
               ))}
             </div>
           </div>
@@ -181,7 +140,7 @@ export default function BlogPage() {
                 <Sparkles className="w-5 h-5 text-accent" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold">📚 ყველა სტატია</h2>
+                <h2 className="text-2xl font-bold">ყველა სტატია</h2>
                 <p className="text-muted-foreground">სრული არქივი</p>
               </div>
             </div>
@@ -192,50 +151,13 @@ export default function BlogPage() {
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {allPosts.map((post) => (
-              <Link key={post.id} href={`/blog/${post.slug}`}>
-                <Card className="group h-full hover-lift card-shine border-0 shadow-lg bg-card">
-                  <CardContent className="p-0">
-                    <div className="aspect-video bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center relative">
-                      <Sparkles className="w-10 h-10 text-primary/30 group-hover:scale-110 transition-transform" />
-                      {post.trending && (
-                        <Badge className="absolute top-3 right-3 bg-red-500 text-white border-0 text-xs">
-                          <Flame className="w-3 h-3 mr-1" />
-                          ცხელი
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="p-5 space-y-3">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="text-xs">
-                          {brand.categories.find(c => c.id === post.category)?.name || post.category}
-                        </Badge>
-                      </div>
-                      <h3 className="font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2">
-                        {post.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {post.excerpt}
-                      </p>
-                      <div className="flex items-center justify-between text-sm text-muted-foreground pt-2">
-                        <div className="flex items-center gap-3">
-                          <span className="flex items-center gap-1">
-                            <Eye className="w-4 h-4" />
-                            {formatNumber(post.views)}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            {post.readingTime} წთ
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1 text-red-500">
-                          <Heart className="w-4 h-4" />
-                          {formatNumber(getTotalReactions(post.reactions))}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
+              <PostCard
+                key={post.id}
+                post={post as any}
+                showExcerpt={false}
+                showTags={true}
+                showAuthor={true}
+              />
             ))}
           </div>
 

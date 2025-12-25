@@ -9,6 +9,7 @@ import { SocialProofToast } from "@/components/interactive/SocialProofToast"
 import { LiveVisitorCounter } from "@/components/interactive/LiveVisitorCounter"
 import { AIChatAssistant } from "@/components/ai/AIChatAssistant"
 import { FadeTransition } from "@/components/effects/PageTransition"
+import { ScrollProgress, BackToTop } from "@/components/ui/scroll-progress"
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
@@ -73,6 +74,9 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
 
     return (
         <>
+            <ScrollProgress />
+            <BackToTop />
+
             {/* Global Effects */}
             <CursorTrail />
             <EasterEgg />

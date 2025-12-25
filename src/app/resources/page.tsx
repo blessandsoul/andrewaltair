@@ -12,7 +12,11 @@ import {
     Lightbulb,
     Send,
     Gift,
-    Lock
+    Lock,
+    Star,
+    Bookmark,
+    Users,
+    ArrowRight
 } from "lucide-react"
 import { brand } from "@/lib/brand"
 
@@ -132,7 +136,7 @@ export default function ResourcesPage() {
                             <Sparkles className="w-5 h-5 text-primary" />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold">⭐ რჩეული რესურსები</h2>
+                            <h2 className="text-2xl font-bold">რჩეული რესურსები</h2>
                             <p className="text-muted-foreground">ყველაზე პოპულარული მასალები</p>
                         </div>
                     </div>
@@ -142,37 +146,64 @@ export default function ResourcesPage() {
                             const Icon = typeIcons[resource.type] || FileText
 
                             return (
-                                <Card key={resource.id} className="group hover-lift card-shine border-0 shadow-xl overflow-hidden">
+                                <Card key={resource.id} className="group h-full border-0 shadow-xl bg-card transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
                                     <CardContent className="p-0">
-                                        <div className="aspect-[4/3] bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center relative">
-                                            <Icon className="w-16 h-16 text-primary/30 group-hover:scale-110 transition-transform" />
+                                        <div className="aspect-[4/3] bg-gradient-to-br from-primary/15 to-accent/15 flex items-center justify-center relative overflow-hidden">
+                                            {/* Animated gradient background */}
+                                            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/10 group-hover:scale-110 transition-transform duration-500" />
+
+                                            {/* Icon */}
+                                            <Icon className="w-20 h-20 text-primary/40 group-hover:scale-110 group-hover:text-primary/60 transition-all duration-300" />
+
+                                            {/* Featured badge */}
+                                            <Badge className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0">
+                                                <Star className="w-3 h-3 mr-1 fill-current" />
+                                                რჩეული
+                                            </Badge>
+
+                                            {/* Free/Premium badge */}
                                             {resource.free ? (
-                                                <Badge className="absolute top-3 right-3 bg-green-500 text-white border-0">
+                                                <Badge className="absolute top-3 right-3 bg-green-500/90 text-white border-0 backdrop-blur-sm">
                                                     <Gift className="w-3 h-3 mr-1" />
                                                     უფასო
                                                 </Badge>
                                             ) : (
-                                                <Badge className="absolute top-3 right-3 bg-amber-500 text-white border-0">
+                                                <Badge className="absolute top-3 right-3 bg-amber-500/90 text-white border-0 backdrop-blur-sm">
                                                     <Lock className="w-3 h-3 mr-1" />
                                                     პრემიუმ
                                                 </Badge>
                                             )}
+
+                                            {/* Bookmark button */}
+                                            <button className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/40">
+                                                <Bookmark className="w-4 h-4 text-white" />
+                                            </button>
                                         </div>
-                                        <div className="p-6 space-y-3">
-                                            <Badge variant="secondary">{resource.category}</Badge>
-                                            <h3 className="font-bold text-xl group-hover:text-primary transition-colors">
+
+                                        <div className="p-5 space-y-3">
+                                            <Badge variant="secondary" className="text-xs">{resource.category}</Badge>
+                                            <h3 className="font-bold text-lg group-hover:text-primary transition-colors line-clamp-2">
                                                 {resource.title}
                                             </h3>
-                                            <p className="text-muted-foreground line-clamp-2">
+                                            <p className="text-sm text-muted-foreground line-clamp-2">
                                                 {resource.description}
                                             </p>
-                                            <div className="flex items-center justify-between pt-2">
-                                                <span className="text-sm text-muted-foreground flex items-center gap-1">
-                                                    <Download className="w-4 h-4" />
-                                                    {resource.downloads} გადმოწერა
-                                                </span>
-                                                <Button size="sm" className={resource.free ? "bg-primary" : "bg-amber-500"}>
+
+                                            {/* Stats & action */}
+                                            <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                                                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                                    <span className="flex items-center gap-1">
+                                                        <Download className="w-3.5 h-3.5" />
+                                                        {resource.downloads}
+                                                    </span>
+                                                    <span className="flex items-center gap-1 text-yellow-500">
+                                                        <Star className="w-3.5 h-3.5 fill-current" />
+                                                        4.9
+                                                    </span>
+                                                </div>
+                                                <Button size="sm" className={`transition-all duration-300 ${resource.free ? "bg-primary hover:bg-primary/90" : "bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-90"}`}>
                                                     {resource.free ? "გადმოწერა" : "შეძენა"}
+                                                    <ArrowRight className="w-3.5 h-3.5 ml-1" />
                                                 </Button>
                                             </div>
                                         </div>
@@ -192,7 +223,7 @@ export default function ResourcesPage() {
                             <BookOpen className="w-5 h-5 text-accent" />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold">📚 ყველა რესურსი</h2>
+                            <h2 className="text-2xl font-bold">ყველა რესურსი</h2>
                             <p className="text-muted-foreground">{resources.length} მასალა</p>
                         </div>
                     </div>

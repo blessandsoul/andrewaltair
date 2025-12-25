@@ -20,7 +20,10 @@ import {
     CheckSquare,
     Square,
     MoreHorizontal,
-    Plus
+    Plus,
+    MessageCircle,
+    Share2,
+    Heart
 } from "lucide-react"
 import postsData from "@/data/posts.json"
 
@@ -39,6 +42,8 @@ interface Post {
     publishedAt: string
     readingTime: number
     views: number
+    comments: number
+    shares: number
     reactions: {
         fire: number
         love: number
@@ -257,9 +262,23 @@ export default function PostsPage() {
                                             <Badge variant="outline">{post.category}</Badge>
                                         </td>
                                         <td className="px-4 py-4 hidden lg:table-cell">
-                                            <div className="flex items-center gap-1 text-muted-foreground">
-                                                <Eye className="w-4 h-4" />
-                                                {formatNumber(post.views)}
+                                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                                <span className="flex items-center gap-1">
+                                                    <Eye className="w-3.5 h-3.5" />
+                                                    {formatNumber(post.views)}
+                                                </span>
+                                                <span className="flex items-center gap-1">
+                                                    <MessageCircle className="w-3.5 h-3.5" />
+                                                    {formatNumber(post.comments)}
+                                                </span>
+                                                <span className="flex items-center gap-1 text-red-500">
+                                                    <Heart className="w-3.5 h-3.5" />
+                                                    {formatNumber(Object.values(post.reactions).reduce((a, b) => a + b, 0))}
+                                                </span>
+                                                <span className="flex items-center gap-1">
+                                                    <Share2 className="w-3.5 h-3.5" />
+                                                    {formatNumber(post.shares)}
+                                                </span>
                                             </div>
                                         </td>
                                         <td className="px-4 py-4 hidden sm:table-cell">

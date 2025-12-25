@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import { cn } from "@/lib/utils"
-import { Bot, Send, X, Minimize2, Maximize2, Sparkles } from "lucide-react"
+import { Bot, Send, X, Minimize2, Maximize2, Sparkles, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -11,31 +11,6 @@ interface Message {
     role: "user" | "assistant"
     content: string
     timestamp: Date
-}
-
-// Pre-defined responses for common questions (simulated AI)
-const RESPONSES: Record<string, string> = {
-    default: "გმადლობთ კითხვისთვის! რით შემიძლია დაგეხმაროთ AI-ს თემაზე? 🤖",
-    გამარჯობა: "გამარჯობა! 👋 მე ვარ Andrew Altair-ის AI ასისტენტი. რით შემიძლია დაგეხმაროთ?",
-    hello: "გამარჯობა! 👋 მე ვარ Andrew Altair-ის AI ასისტენტი. რით შემიძლია დაგეხმაროთ?",
-    chatgpt: "ChatGPT არის OpenAI-ს მიერ შექმნილი AI ჩატბოტი. ის შესანიშნავია ტექსტის გენერაციისთვის, კითხვებზე პასუხისთვის და კოდირებაში დახმარებისთვის. გსურთ მეტი ინფორმაცია? 🤖",
-    midjourney: "Midjourney არის AI სურათების გენერატორი, რომელიც ტექსტური აღწერიდან ქმნის ვიზუალურ ხელოვნებას. ის Discord-ზე მუშაობს და შესანიშნავია კრეატიული პროექტებისთვის! 🎨",
-    პრომპტი: "კარგი პრომპტის დაწერისთვის: 1) იყავით კონკრეტული, 2) მიუთითეთ სასურველი ფორმატი, 3) მიეცით კონტექსტი, 4) სთხოვეთ ნაბიჯ-ნაბიჯ მსჯელობა. გსურთ მაგალითები? 💡",
-    სწავლა: "AI-ს სწავლის საუკეთესო გზაა პრაქტიკა! გირჩევთ: 1) წაიკითხოთ ჩემი ბლოგის სტატიები, 2) ნახოთ ვიდეო ტუტორიალები, 3) თავად ცადოთ ChatGPT და სხვა ინსტრუმენტები. 📚",
-    კონტაქტი: "Andrew Altair-თან დასაკავშირებლად ეწვიეთ კონტაქტის გვერდს ან მიწერეთ სოციალურ ქსელებში! 📧",
-    ბლოგი: "ჩვენ გვაქვს 100+ სტატია AI-ს შესახებ! პოპულარული თემებია: ChatGPT ხრიკები, Midjourney ტუტორიალები, და AI ავტომატიზაცია. რომელი თემა გაინტერესებთ? 📖",
-}
-
-function getAIResponse(message: string): string {
-    const lowerMessage = message.toLowerCase()
-
-    for (const [keyword, response] of Object.entries(RESPONSES)) {
-        if (lowerMessage.includes(keyword) && keyword !== "default") {
-            return response
-        }
-    }
-
-    return RESPONSES.default
 }
 
 export function AIChatAssistant() {
@@ -66,7 +41,7 @@ export function AIChatAssistant() {
 
     const sendMessage = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!input.trim()) return
+        if (!input.trim() || isTyping) return
 
         const userMessage: Message = {
             id: Date.now().toString(),
@@ -75,22 +50,48 @@ export function AIChatAssistant() {
             timestamp: new Date(),
         }
 
-        setMessages((prev) => [...prev, userMessage])
+        const currentMessages = [...messages, userMessage]
+        setMessages(currentMessages)
+        const userInput = input
         setInput("")
         setIsTyping(true)
 
-        // Simulate AI thinking
-        await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 1000))
+        try {
+            const response = await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    message: userInput,
+                    history: currentMessages.map(m => ({ role: m.role, content: m.content }))
+                }),
+            })
 
-        const aiResponse: Message = {
-            id: (Date.now() + 1).toString(),
-            role: "assistant",
-            content: getAIResponse(input),
-            timestamp: new Date(),
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error || "API error")
+            }
+
+            const aiResponse: Message = {
+                id: (Date.now() + 1).toString(),
+                role: "assistant",
+                content: data.response,
+                timestamp: new Date(),
+            }
+
+            setMessages((prev) => [...prev, aiResponse])
+        } catch (error) {
+            console.error("Chat error:", error)
+            const errorMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                role: "assistant",
+                content: "ბოდიში, დროებით ვერ ვპასუხობ. გთხოვთ სცადოთ თავიდან! 🙏",
+                timestamp: new Date(),
+            }
+            setMessages((prev) => [...prev, errorMessage])
+        } finally {
+            setIsTyping(false)
         }
-
-        setIsTyping(false)
-        setMessages((prev) => [...prev, aiResponse])
     }
 
     if (!isOpen) {

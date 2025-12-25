@@ -14,7 +14,10 @@ import {
     Calendar,
     ArrowUpRight,
     ArrowDownRight,
-    Flame
+    Flame,
+    MessageCircle,
+    Share2,
+    Heart
 } from "lucide-react"
 import postsData from "@/data/posts.json"
 import videosData from "@/data/videos.json"
@@ -189,9 +192,24 @@ export default function AnalyticsPage() {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="font-medium truncate text-sm">{post.title}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        {formatNumber(post.views)} ნახვა
-                                    </p>
+                                    <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                                        <span className="flex items-center gap-1">
+                                            <Eye className="w-3 h-3" />
+                                            {formatNumber(post.views)}
+                                        </span>
+                                        <span className="flex items-center gap-1">
+                                            <MessageCircle className="w-3 h-3" />
+                                            {formatNumber(post.comments)}
+                                        </span>
+                                        <span className="flex items-center gap-1 text-red-500">
+                                            <Heart className="w-3 h-3" />
+                                            {formatNumber(Object.values(post.reactions).reduce((a, b) => a + b, 0))}
+                                        </span>
+                                        <span className="flex items-center gap-1">
+                                            <Share2 className="w-3 h-3" />
+                                            {formatNumber(post.shares)}
+                                        </span>
+                                    </div>
                                 </div>
                                 <Badge variant={post.trending ? "default" : "secondary"}>
                                     {post.trending ? "Trending" : post.category}

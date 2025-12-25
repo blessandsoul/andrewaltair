@@ -23,7 +23,8 @@ import {
     GripVertical,
     X,
     RotateCcw,
-    Settings2
+    Settings2,
+    Share2
 } from "lucide-react"
 import postsData from "@/data/posts.json"
 import videosData from "@/data/videos.json"
@@ -227,9 +228,26 @@ export default function AdminDashboard() {
                                 <div key={post.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50">
                                     <div className="flex-1 min-w-0">
                                         <p className="text-sm font-medium truncate">{post.title}</p>
-                                        <p className="text-xs text-muted-foreground">{formatNumber(post.views)} ნახვა</p>
+                                        <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                                            <span className="flex items-center gap-1">
+                                                <Eye className="w-3 h-3" />
+                                                {formatNumber(post.views)}
+                                            </span>
+                                            <span className="flex items-center gap-1">
+                                                <MessageSquare className="w-3 h-3" />
+                                                {formatNumber(post.comments)}
+                                            </span>
+                                            <span className="flex items-center gap-1 text-red-500">
+                                                <Heart className="w-3 h-3" />
+                                                {formatNumber(Object.values(post.reactions).reduce((a, b) => a + b, 0))}
+                                            </span>
+                                            <span className="flex items-center gap-1">
+                                                <Share2 className="w-3 h-3" />
+                                                {formatNumber(post.shares)}
+                                            </span>
+                                        </div>
                                     </div>
-                                    {post.trending && <Badge variant="secondary" className="text-xs">🔥</Badge>}
+                                    {post.trending && <Badge variant="secondary" className="text-xs"><Flame className="w-3 h-3" /></Badge>}
                                 </div>
                             ))}
                         </CardContent>
@@ -369,8 +387,8 @@ export default function AdminDashboard() {
                                     key={widget.id}
                                     onClick={() => toggleWidget(widget.id)}
                                     className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${widget.visible
-                                            ? "bg-indigo-500 text-white"
-                                            : "bg-muted text-muted-foreground"
+                                        ? "bg-indigo-500 text-white"
+                                        : "bg-muted text-muted-foreground"
                                         }`}
                                 >
                                     {widget.title}

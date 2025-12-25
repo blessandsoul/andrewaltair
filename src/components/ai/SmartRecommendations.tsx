@@ -2,9 +2,10 @@
 
 import { cn } from "@/lib/utils"
 import Link from "next/link"
-import { Sparkles, ArrowRight, Eye, Clock } from "lucide-react"
+import { Sparkles, ArrowRight, Eye, Clock, MessageCircle, Share2, Heart } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { AnimatedCard, StaggerContainer } from "@/components/ui/animated"
 
 interface Post {
     id: string
@@ -13,8 +14,11 @@ interface Post {
     excerpt: string
     category: string
     views: number
+    comments: number
+    shares: number
     readingTime: number
     tags: string[]
+    reactions: Record<string, number>
 }
 
 interface SmartRecommendationsProps {
@@ -72,38 +76,49 @@ export function SmartRecommendations({
     if (recommendations.length === 0) return null
 
     return (
-        <div className={cn("space-y-4", className)}>
-            <div className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
-                <h3 className="font-bold">შენთვის რეკომენდირებული</h3>
-            </div>
+        <div className={cn("space-y-6", className)}>
+            <AnimatedCard animation="fade-right">
+                <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="h-5 w-5 text-primary animate-pulse" />
+                    <h3 className="font-bold text-lg">შენთვის რეკომენდირებული</h3>
+                </div>
+            </AnimatedCard>
 
-            <div className="grid gap-4 sm:grid-cols-3">
-                {recommendations.map((post) => (
+            <StaggerContainer className="grid gap-6 sm:grid-cols-3">
+                {recommendations.map((post, index) => (
                     <Link key={post.id} href={`/blog/${post.slug}`}>
-                        <Card className="h-full hover-lift card-shine">
-                            <CardContent className="p-4">
-                                <Badge variant="secondary" className="mb-2 text-xs">
+                        <Card className="h-full hover-lift card-shine border-0 shadow-lg bg-card transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group overflow-hidden">
+                            <CardContent className="p-5 flex flex-col h-full">
+                                <Badge variant="secondary" className="w-fit mb-3 text-xs bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
                                     {post.category}
                                 </Badge>
-                                <h4 className="font-medium line-clamp-2 group-hover:text-primary transition-colors">
+
+                                <h4 className="font-bold leading-tight mb-auto group-hover:text-primary transition-colors line-clamp-2">
                                     {post.title}
                                 </h4>
-                                <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                                    <span className="flex items-center gap-1">
-                                        <Eye className="h-3 w-3" />
-                                        {post.views.toLocaleString()}
-                                    </span>
-                                    <span className="flex items-center gap-1">
-                                        <Clock className="h-3 w-3" />
-                                        {post.readingTime} წთ
-                                    </span>
+
+                                {/* Stats Row */}
+                                <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/50 text-xs text-muted-foreground">
+                                    <div className="flex items-center gap-3">
+                                        <span className="flex items-center gap-1">
+                                            <Eye className="h-3 w-3" />
+                                            {post.views > 1000 ? (post.views / 1000).toFixed(1) + 'K' : post.views}
+                                        </span>
+                                        <span className="flex items-center gap-1">
+                                            <Clock className="h-3 w-3" />
+                                            {post.readingTime} წთ
+                                        </span>
+                                    </div>
+                                    <ArrowRight className="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-primary" />
                                 </div>
                             </CardContent>
+
+                            {/* Hover gradient line */}
+                            <div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-primary to-accent w-0 group-hover:w-full transition-all duration-500 ease-out" />
                         </Card>
                     </Link>
                 ))}
-            </div>
+            </StaggerContainer>
         </div>
     )
 }
