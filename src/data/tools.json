@@ -1,0 +1,127 @@
+[
+    {
+        "id": "1",
+        "name": "ChatGPT",
+        "description": "OpenAI-ს ენობრივი მოდელი - ტექსტის გენერაცია, კოდის წერა, ანალიზი",
+        "url": "https://chat.openai.com",
+        "logo": "https://cdn.oaistatic.com/assets/apple-touch-icon-180x180.png",
+        "category": "ჩატბოტები",
+        "pricing": "freemium",
+        "rating": 5,
+        "featured": true
+    },
+    {
+        "id": "2",
+        "name": "Claude",
+        "description": "Anthropic-ის AI ასისტენტი - უსაფრთხო და ინტელექტუალური",
+        "url": "https://claude.ai",
+        "logo": "https://claude.ai/favicon.ico",
+        "category": "ჩატბოტები",
+        "pricing": "freemium",
+        "rating": 5,
+        "featured": true
+    },
+    {
+        "id": "3",
+        "name": "Midjourney",
+        "description": "AI სურათების გენერატორი - ფოტორეალისტური და არტისტული სურათები",
+        "url": "https://midjourney.com",
+        "logo": "https://midjourney.com/favicon.ico",
+        "category": "სურათები",
+        "pricing": "paid",
+        "rating": 5,
+        "featured": true
+    },
+    {
+        "id": "4",
+        "name": "DALL-E 3",
+        "description": "OpenAI-ს სურათების გენერატორი ChatGPT-ში ინტეგრირებული",
+        "url": "https://openai.com/dall-e-3",
+        "logo": "https://openai.com/favicon.ico",
+        "category": "სურათები",
+        "pricing": "freemium",
+        "rating": 4
+    },
+    {
+        "id": "5",
+        "name": "Runway",
+        "description": "AI ვიდეო რედაქტორი - Gen-2 ვიდეო გენერაცია",
+        "url": "https://runwayml.com",
+        "logo": "https://runwayml.com/favicon.ico",
+        "category": "ვიდეო",
+        "pricing": "freemium",
+        "rating": 4
+    },
+    {
+        "id": "6",
+        "name": "ElevenLabs",
+        "description": "AI ხმის გენერაცია და კლონირება",
+        "url": "https://elevenlabs.io",
+        "logo": "https://elevenlabs.io/favicon.ico",
+        "category": "აუდიო",
+        "pricing": "freemium",
+        "rating": 5,
+        "featured": true
+    },
+    {
+        "id": "7",
+        "name": "Perplexity",
+        "description": "AI ძებნის სისტემა - წყაროებით პასუხები",
+        "url": "https://perplexity.ai",
+        "logo": "https://perplexity.ai/favicon.ico",
+        "category": "ძებნა",
+        "pricing": "freemium",
+        "rating": 4
+    },
+    {
+        "id": "8",
+        "name": "Notion AI",
+        "description": "AI ასისტენტი Notion-ში - ტექსტის გენერაცია და რედაქტირება",
+        "url": "https://notion.so",
+        "logo": "https://notion.so/favicon.ico",
+        "category": "პროდუქტიულობა",
+        "pricing": "paid",
+        "rating": 4
+    },
+    {
+        "id": "9",
+        "name": "Cursor",
+        "description": "AI კოდის რედაქტორი - VS Code-ზე დაფუძნებული",
+        "url": "https://cursor.sh",
+        "logo": "https://cursor.sh/favicon.ico",
+        "category": "კოდი",
+        "pricing": "freemium",
+        "rating": 5,
+        "featured": true
+    },
+    {
+        "id": "10",
+        "name": "Make.com",
+        "description": "ავტომატიზაციის პლატფორმა AI ინტეგრაციებით",
+        "url": "https://make.com",
+        "logo": "https://make.com/favicon.ico",
+        "category": "ავტომატიზაცია",
+        "pricing": "freemium",
+        "rating": 5
+    },
+    {
+        "id": "11",
+        "name": "Gamma",
+        "description": "AI პრეზენტაციების შემქმნელი",
+        "url": "https://gamma.app",
+        "logo": "https://gamma.app/favicon.ico",
+        "category": "პრეზენტაცია",
+        "pricing": "freemium",
+        "rating": 4
+    },
+    {
+        "id": "12",
+        "name": "Suno",
+        "description": "AI მუსიკის გენერატორი - შექმენი სიმღერები",
+        "url": "https://suno.ai",
+        "logo": "https://suno.ai/favicon.ico",
+        "category": "აუდიო",
+        "pricing": "freemium",
+        "rating": 4
+    }
+]
