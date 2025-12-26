@@ -10,6 +10,7 @@ import { LiveVisitorCounter } from "@/components/interactive/LiveVisitorCounter"
 import { AIChatAssistant } from "@/components/ai/AIChatAssistant"
 import { FadeTransition } from "@/components/effects/PageTransition"
 import { ScrollProgress, BackToTop } from "@/components/ui/scroll-progress"
+import { FreeTrialTimer, ActivityFeed, AIAvatar } from "@/components/engagement"
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
@@ -92,6 +93,11 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
             <SocialProofToast enabled={true} />
             <LiveVisitorCounter variant="floating" />
             <AIChatAssistant />
+
+            {/* Engagement Floating Elements */}
+            <FreeTrialTimer onUpgrade={() => window.location.href = '/pricing'} />
+            <ActivityFeed />
+            <AIAvatar showAsWidget={true} />
         </>
     )
 }

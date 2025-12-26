@@ -592,79 +592,85 @@ export default function ToolsPage() {
                                 const isFavorite = favorites.includes(tool.id)
 
                                 return (
-                                    <Card key={tool.id} className="group relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-card to-card/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
-                                        {/* Glow Effect */}
-                                        <div
-                                            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                                            style={{ background: `radial-gradient(circle at 50% 0%, ${categoryColors[tool.category]}20, transparent 70%)` }}
-                                        />
+                                    <Link key={tool.id} href={`/tools/${tool.id}`}>
+                                        <Card className="group relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-card to-card/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 h-full">
+                                            {/* Glow Effect */}
+                                            <div
+                                                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                                                style={{ background: `radial-gradient(circle at 50% 0%, ${categoryColors[tool.category]}20, transparent 70%)` }}
+                                            />
 
-                                        <CardContent className="relative p-6 space-y-4">
-                                            {/* Header */}
-                                            <div className="flex items-start justify-between">
-                                                <div className="w-14 h-14 rounded-2xl overflow-hidden bg-muted flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-                                                    <ToolLogo tool={tool} size={56} className="p-1" />
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 text-xs shadow-md">
-                                                        <Award className="w-3 h-3 mr-1" />
-                                                        ტოპ
-                                                    </Badge>
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.preventDefault()
-                                                            toggleFavorite(tool.id)
-                                                        }}
-                                                        className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center hover:bg-primary/10 transition-colors"
-                                                    >
-                                                        <Heart className={`w-4 h-4 ${isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            {/* Title & Rating */}
-                                            <div>
-                                                <div className="flex items-center gap-2">
-                                                    <h3 className="font-bold text-lg group-hover:text-primary transition-colors">
-                                                        {tool.name}
-                                                    </h3>
-                                                    <div className="flex items-center gap-0.5 text-yellow-500">
-                                                        <Star className="w-4 h-4 fill-current" />
-                                                        <span className="text-sm font-medium">{tool.rating}</span>
+                                            <CardContent className="relative p-6 space-y-4">
+                                                {/* Header */}
+                                                <div className="flex items-start justify-between">
+                                                    <div className="w-14 h-14 rounded-2xl overflow-hidden bg-muted flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                                                        <ToolLogo tool={tool} size={56} className="p-1" />
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 text-xs shadow-md">
+                                                            <Award className="w-3 h-3 mr-1" />
+                                                            ტოპ
+                                                        </Badge>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.preventDefault()
+                                                                e.stopPropagation()
+                                                                toggleFavorite(tool.id)
+                                                            }}
+                                                            className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center hover:bg-primary/10 transition-colors"
+                                                        >
+                                                            <Heart className={`w-4 h-4 ${isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
+                                                        </button>
                                                     </div>
                                                 </div>
-                                                <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                                                    {tool.description}
-                                                </p>
-                                            </div>
 
-                                            {/* Footer */}
-                                            <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                                                <div className="flex items-center gap-2">
-                                                    <Badge
-                                                        variant="secondary"
-                                                        className="text-xs"
-                                                        style={{
-                                                            backgroundColor: `${categoryColors[tool.category]}15`,
-                                                            color: categoryColors[tool.category]
-                                                        }}
-                                                    >
-                                                        {tool.category}
-                                                    </Badge>
-                                                    <Badge className={`text-xs ${pricing.color}`}>
-                                                        {pricing.label}
-                                                    </Badge>
+                                                {/* Title & Rating */}
+                                                <div>
+                                                    <div className="flex items-center gap-2">
+                                                        <h3 className="font-bold text-lg group-hover:text-primary transition-colors">
+                                                            {tool.name}
+                                                        </h3>
+                                                        <div className="flex items-center gap-0.5 text-yellow-500">
+                                                            <Star className="w-4 h-4 fill-current" />
+                                                            <span className="text-sm font-medium">{tool.rating}</span>
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                                                        {tool.description}
+                                                    </p>
                                                 </div>
-                                                <Link
-                                                    href={tool.url}
-                                                    target="_blank"
-                                                    className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-primary hover:text-primary-foreground"
-                                                >
-                                                    <ArrowUpRight className="w-4 h-4" />
-                                                </Link>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
+
+                                                {/* Footer */}
+                                                <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                                                    <div className="flex items-center gap-2">
+                                                        <Badge
+                                                            variant="secondary"
+                                                            className="text-xs"
+                                                            style={{
+                                                                backgroundColor: `${categoryColors[tool.category]}15`,
+                                                                color: categoryColors[tool.category]
+                                                            }}
+                                                        >
+                                                            {tool.category}
+                                                        </Badge>
+                                                        <Badge className={`text-xs ${pricing.color}`}>
+                                                            {pricing.label}
+                                                        </Badge>
+                                                    </div>
+                                                    <span
+                                                        onClick={(e) => {
+                                                            e.preventDefault()
+                                                            e.stopPropagation()
+                                                            window.open(tool.url, '_blank')
+                                                        }}
+                                                        className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-primary hover:text-primary-foreground cursor-pointer"
+                                                    >
+                                                        <ArrowUpRight className="w-4 h-4" />
+                                                    </span>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </Link>
                                 )
                             })}
                         </div>
@@ -739,52 +745,58 @@ export default function ToolsPage() {
                                 const isFavorite = favorites.includes(tool.id)
 
                                 return (
-                                    <Card key={tool.id} className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-                                        <CardContent className="p-5">
-                                            <div className="flex items-start gap-4">
-                                                <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted flex items-center justify-center flex-shrink-0">
-                                                    <ToolLogo tool={tool} size={48} />
-                                                </div>
+                                    <Link key={tool.id} href={`/tools/${tool.id}`}>
+                                        <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden h-full">
+                                            <CardContent className="p-5">
+                                                <div className="flex items-start gap-4">
+                                                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted flex items-center justify-center flex-shrink-0">
+                                                        <ToolLogo tool={tool} size={48} />
+                                                    </div>
 
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center justify-between">
-                                                        <h4 className="font-semibold group-hover:text-primary transition-colors truncate">
-                                                            {tool.name}
-                                                        </h4>
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.preventDefault()
-                                                                toggleFavorite(tool.id)
-                                                            }}
-                                                            className="opacity-0 group-hover:opacity-100 transition-opacity"
-                                                        >
-                                                            <Heart className={`w-4 h-4 ${isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground hover:text-red-500"}`} />
-                                                        </button>
-                                                    </div>
-                                                    <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                                                        {tool.description}
-                                                    </p>
-                                                    <div className="flex items-center gap-2 mt-3">
-                                                        <Badge className={`text-xs ${pricing.color}`}>
-                                                            {pricing.label}
-                                                        </Badge>
-                                                        <div className="flex items-center gap-0.5">
-                                                            {[...Array(tool.rating)].map((_, i) => (
-                                                                <Star key={i} className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-                                                            ))}
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center justify-between">
+                                                            <h4 className="font-semibold group-hover:text-primary transition-colors truncate">
+                                                                {tool.name}
+                                                            </h4>
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.preventDefault()
+                                                                    e.stopPropagation()
+                                                                    toggleFavorite(tool.id)
+                                                                }}
+                                                                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                                            >
+                                                                <Heart className={`w-4 h-4 ${isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground hover:text-red-500"}`} />
+                                                            </button>
                                                         </div>
-                                                        <Link
-                                                            href={tool.url}
-                                                            target="_blank"
-                                                            className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity"
-                                                        >
-                                                            <ArrowUpRight className="w-4 h-4 text-muted-foreground hover:text-primary" />
-                                                        </Link>
+                                                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                                                            {tool.description}
+                                                        </p>
+                                                        <div className="flex items-center gap-2 mt-3">
+                                                            <Badge className={`text-xs ${pricing.color}`}>
+                                                                {pricing.label}
+                                                            </Badge>
+                                                            <div className="flex items-center gap-0.5">
+                                                                {[...Array(tool.rating)].map((_, i) => (
+                                                                    <Star key={i} className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                                                                ))}
+                                                            </div>
+                                                            <span
+                                                                onClick={(e) => {
+                                                                    e.preventDefault()
+                                                                    e.stopPropagation()
+                                                                    window.open(tool.url, '_blank')
+                                                                }}
+                                                                className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                                            >
+                                                                <ArrowUpRight className="w-4 h-4 text-muted-foreground hover:text-primary" />
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
+                                            </CardContent>
+                                        </Card>
+                                    </Link>
                                 )
                             })}
                         </div>
@@ -795,23 +807,25 @@ export default function ToolsPage() {
                                 const isFavorite = favorites.includes(tool.id)
 
                                 return (
-                                    <div key={tool.id} className="group flex items-center gap-4 p-4 rounded-xl bg-card border border-border hover:border-primary/50 transition-all">
-                                        <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted flex items-center justify-center flex-shrink-0">
-                                            <ToolLogo tool={tool} size={40} />
+                                    <Link key={tool.id} href={`/tools/${tool.id}`} className="block">
+                                        <div className="group flex items-center gap-4 p-4 rounded-xl bg-card border border-border hover:border-primary/50 transition-all">
+                                            <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted flex items-center justify-center flex-shrink-0">
+                                                <ToolLogo tool={tool} size={40} />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="font-medium group-hover:text-primary transition-colors">{tool.name}</div>
+                                                <div className="text-sm text-muted-foreground truncate">{tool.description}</div>
+                                            </div>
+                                            <Badge variant="outline" className="hidden sm:inline-flex">{tool.category}</Badge>
+                                            <Badge className={`text-xs ${pricing.color}`}>{pricing.label}</Badge>
+                                            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(tool.id) }}>
+                                                <Heart className={`w-4 h-4 ${isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
+                                            </button>
+                                            <span onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.open(tool.url, '_blank') }} className="cursor-pointer">
+                                                <ArrowUpRight className="w-4 h-4 text-muted-foreground hover:text-primary" />
+                                            </span>
                                         </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="font-medium group-hover:text-primary transition-colors">{tool.name}</div>
-                                            <div className="text-sm text-muted-foreground truncate">{tool.description}</div>
-                                        </div>
-                                        <Badge variant="outline" className="hidden sm:inline-flex">{tool.category}</Badge>
-                                        <Badge className={`text-xs ${pricing.color}`}>{pricing.label}</Badge>
-                                        <button onClick={() => toggleFavorite(tool.id)}>
-                                            <Heart className={`w-4 h-4 ${isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
-                                        </button>
-                                        <Link href={tool.url} target="_blank">
-                                            <ArrowUpRight className="w-4 h-4 text-muted-foreground hover:text-primary" />
-                                        </Link>
-                                    </div>
+                                    </Link>
                                 )
                             })}
                         </div>

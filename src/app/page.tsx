@@ -27,6 +27,7 @@ import postsData from "@/data/posts.json"
 import { brand } from "@/lib/brand"
 import { PostCard } from "@/components/blog/PostCard"
 import { TrendingCard } from "@/components/blog/TrendingCard"
+import { SuccessStories, ROICalculator, PricingComparison } from "@/components/engagement"
 
 // Helper to format numbers
 function formatNumber(num: number): string {
@@ -297,6 +298,39 @@ export default function Home() {
               </Card>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Success Stories Section */}
+      <section className="py-16 lg:py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3">რას ამბობენ მომხმარებლები</h2>
+            <p className="text-muted-foreground">წარმატების ისტორიები ჩვენი საზოგადოებიდან</p>
+          </div>
+          <SuccessStories />
+        </div>
+      </section>
+
+      {/* ROI Calculator Section */}
+      <section className="py-16 lg:py-24 bg-secondary/30">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3">რამდენს დაზოგავ AI-ით?</h2>
+            <p className="text-muted-foreground">გაიგე რამდენი დროისა და ფულის დაზოგვა შეგიძლია</p>
+          </div>
+          <ROICalculator />
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="py-16 lg:py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3">აირჩიე შენი პლანი</h2>
+            <p className="text-muted-foreground">მიიღე სრული წვდომა AI-ს სამყაროზე</p>
+          </div>
+          <PricingComparison />
         </div>
       </section>
 

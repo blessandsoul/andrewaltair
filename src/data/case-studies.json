@@ -1,0 +1,158 @@
+[
+    {
+        "id": "ecommerce-automation",
+        "title": "E-commerce ავტომატიზაცია",
+        "client": "ონლაინ მაღაზია",
+        "industry": "E-commerce",
+        "duration": "2 თვე",
+        "year": 2024,
+        "challenge": "მენეჯერები დღეში 6+ საათს ხარჯავდნენ შეკვეთების დამუშავებაზე, კლიენტებთან კომუნიკაციაზე და ინვენტარის მართვაზე.",
+        "solution": "Make.com + ChatGPT ინტეგრაციით ავტომატიზებული workflow: ავტომატური შეკვეთის დადასტურება, AI ჩატბოტი კლიენტებისთვის, ინვენტარის სინქრონიზაცია.",
+        "results": [
+            {
+                "metric": "დაზოგილი დრო",
+                "value": "85%",
+                "description": "6 საათიდან 1 საათამდე"
+            },
+            {
+                "metric": "კლიენტის კმაყოფილება",
+                "value": "+40%",
+                "description": "სწრაფი პასუხების გამო"
+            },
+            {
+                "metric": "შეცდომების შემცირება",
+                "value": "95%",
+                "description": "ავტომატიზაციით"
+            }
+        ],
+        "technologies": [
+            "Make.com",
+            "ChatGPT API",
+            "Shopify",
+            "Telegram Bot"
+        ],
+        "testimonial": {
+            "text": "ჩვენი გუნდი გათავისუფლდა რუტინისგან და ახლა კრეატიულ ამოცანებზე მუშაობს. ROI პირველ თვეშივე დადებითი იყო.",
+            "author": "გიორგი ბ.",
+            "role": "E-commerce მენეჯერი"
+        },
+        "featured": true
+    },
+    {
+        "id": "content-scaling",
+        "title": "კონტენტ სკეილინგი",
+        "client": "მარკეტინგ სააგენტო",
+        "industry": "Digital Marketing",
+        "duration": "1 თვე",
+        "year": 2024,
+        "challenge": "კონტენტ გუნდი ვერ აწვდებოდა მოთხოვნებს - კვირაში 5 პოსტის ნაცვლად მხოლოდ 2-ს აკეთებდნენ.",
+        "solution": "AI-powered კონტენტ pipeline: Claude + Notion + Canva ინტეგრაცია ავტომატური იდეების გენერაციით, დრაფტების შექმნით და ვიზუალების მომზადებით.",
+        "results": [
+            {
+                "metric": "კონტენტი",
+                "value": "3x",
+                "description": "წარმოება გასამმაგდა"
+            },
+            {
+                "metric": "დრო",
+                "value": "-60%",
+                "description": "ერთ პოსტზე"
+            },
+            {
+                "metric": "engagement",
+                "value": "+25%",
+                "description": "ხარისხის გაუმჯობესებით"
+            }
+        ],
+        "technologies": [
+            "Claude API",
+            "Notion",
+            "Make.com",
+            "Canva"
+        ],
+        "testimonial": {
+            "text": "AI-მ არა მხოლოდ სიჩქარე, არამედ ხარისხიც გააუმჯობესა. ახლა ვქმნით მეტს და უკეთესს.",
+            "author": "ანა მ.",
+            "role": "Content Director"
+        },
+        "featured": true
+    },
+    {
+        "id": "customer-support-bot",
+        "title": "AI Customer Support",
+        "client": "SaaS სტარტაპი",
+        "industry": "Technology",
+        "duration": "3 კვირა",
+        "year": 2024,
+        "challenge": "მხარდაჭერის გუნდი 24/7 ვერ მუშაობდა, კლიენტები საათობით ელოდებოდნენ პასუხს.",
+        "solution": "Custom AI ჩატბოტი GPT-4 ბაზაზე, ტრენინგი კომპანიის დოკუმენტაციაზე, ინტეგრაცია Intercom-თან.",
+        "results": [
+            {
+                "metric": "ტიკეტების",
+                "value": "-70%",
+                "description": "AI-მ თავად გადაჭრა"
+            },
+            {
+                "metric": "პასუხის დრო",
+                "value": "< 1 წთ",
+                "description": "24/7 ხელმისაწვდომობა"
+            },
+            {
+                "metric": "CSAT",
+                "value": "4.8/5",
+                "description": "კმაყოფილების ზრდა"
+            }
+        ],
+        "technologies": [
+            "GPT-4",
+            "Intercom",
+            "Pinecone",
+            "Node.js"
+        ],
+        "testimonial": {
+            "text": "ჩვენმა AI ასისტენტმა პირველ თვეში 2000+ შეკითხვას უპასუხა. მხარდაჭერის გუნდი კომპლექსურ საკითხებზე ფოკუსირდა.",
+            "author": "დავით თ.",
+            "role": "CTO"
+        },
+        "featured": false
+    },
+    {
+        "id": "data-analysis",
+        "title": "მონაცემთა ანალიზის ავტომატიზაცია",
+        "client": "ფინანსური კომპანია",
+        "industry": "Finance",
+        "duration": "6 კვირა",
+        "year": 2023,
+        "challenge": "ყოველთვიური რეპორტების მომზადებას 3 დღე სჭირდებოდა, ბევრი მანუალური მუშაობით.",
+        "solution": "Python + GPT-4 ანალიტიკის pipeline: ავტომატური მონაცემების შეგროვება, ანალიზი და რეპორტის გენერაცია ნარატივით.",
+        "results": [
+            {
+                "metric": "რეპორტის დრო",
+                "value": "3 დღე → 2 სთ",
+                "description": "95% დაზოგვა"
+            },
+            {
+                "metric": "სიზუსტე",
+                "value": "99.5%",
+                "description": "ადამიანური შეცდომების გარეშე"
+            },
+            {
+                "metric": "ინსაითები",
+                "value": "+50%",
+                "description": "AI-ს მიერ ნაპოვნი"
+            }
+        ],
+        "technologies": [
+            "Python",
+            "GPT-4 API",
+            "Pandas",
+            "Google Sheets"
+        ],
+        "testimonial": {
+            "text": "AI არა მხოლოდ დროს ზოგავს, არამედ ისეთ პატერნებსაც პოულობს, რასაც ჩვენ ვერ ვხედავდით.",
+            "author": "ნინო კ.",
+            "role": "Financial Analyst"
+        },
+        "featured": false
+    }
+]
