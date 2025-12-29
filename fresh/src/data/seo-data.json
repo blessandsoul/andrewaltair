@@ -1,0 +1,553 @@
+{
+    "metaTags": [
+        {
+            "id": "meta-1",
+            "postId": "1",
+            "title": "ChatGPT-ს \"ღმერთის რეჟიმი\": 32 საიდუმლო კოდი | AI Tips",
+            "description": "თქვენი პრომპტები არის გრძელი და არეული? ისწავლეთ 32 საიდუმლო კოდი ChatGPT-ს ეფექტურად გამოსაყენებლად.",
+            "keywords": [
+                "ChatGPT",
+                "AI",
+                "პრომპტები",
+                "ხრიკები",
+                "ღმერთის რეჟიმი"
+            ],
+            "ogTitle": "ChatGPT God Mode: 32 Secret Codes",
+            "ogDescription": "Master ChatGPT with these 32 secret prompt codes",
+            "ogImage": "/images/posts/chatgpt_god_mode_1766696042704.png",
+            "twitterCard": "summary_large_image",
+            "twitterTitle": "ChatGPT God Mode 🔥",
+            "twitterDescription": "32 secret codes that change everything",
+            "twitterImage": "/images/posts/chatgpt_god_mode_1766696042704.png",
+            "canonical": "/blog/chatgpt-god-mode-32-codes",
+            "robots": "index, follow",
+            "updatedAt": "2024-12-25T10:00:00"
+        },
+        {
+            "id": "meta-2",
+            "postId": "2",
+            "title": "DALL-E 3-ის 10 საიდუმლო ხრიკი | AI Art Guide",
+            "description": "გინდათ შექმნათ ფოტორეალისტური სურათები? აი რა უნდა იცოდეთ DALL-E 3-ის შესახებ.",
+            "keywords": [
+                "DALL-E",
+                "AI Art",
+                "გენერატიული AI",
+                "დიზაინი"
+            ],
+            "ogTitle": "DALL-E 3 Secrets Revealed",
+            "ogDescription": "10 pro tricks for better AI art",
+            "ogImage": "/images/posts/dalle_secrets_1766696056966.png",
+            "twitterCard": "summary_large_image",
+            "twitterTitle": "DALL-E 3 Pro Tips 🎨",
+            "twitterDescription": "Create photorealistic images",
+            "twitterImage": "/images/posts/dalle_secrets_1766696056966.png",
+            "canonical": "/blog/dalle-3-secrets",
+            "robots": "index, follow",
+            "updatedAt": "2024-12-24T10:00:00"
+        }
+    ],
+    "sitemap": [
+        {
+            "id": "site-1",
+            "url": "/",
+            "lastmod": "2024-12-28",
+            "changefreq": "daily",
+            "priority": 1.0,
+            "enabled": true
+        },
+        {
+            "id": "site-2",
+            "url": "/blog",
+            "lastmod": "2024-12-28",
+            "changefreq": "daily",
+            "priority": 0.9,
+            "enabled": true
+        },
+        {
+            "id": "site-3",
+            "url": "/tools",
+            "lastmod": "2024-12-27",
+            "changefreq": "weekly",
+            "priority": 0.8,
+            "enabled": true
+        },
+        {
+            "id": "site-4",
+            "url": "/features",
+            "lastmod": "2024-12-26",
+            "changefreq": "weekly",
+            "priority": 0.7,
+            "enabled": true
+        },
+        {
+            "id": "site-5",
+            "url": "/blog/chatgpt-god-mode-32-codes",
+            "lastmod": "2024-12-25",
+            "changefreq": "monthly",
+            "priority": 0.8,
+            "enabled": true
+        },
+        {
+            "id": "site-6",
+            "url": "/blog/dalle-3-secrets",
+            "lastmod": "2024-12-24",
+            "changefreq": "monthly",
+            "priority": 0.8,
+            "enabled": true
+        },
+        {
+            "id": "site-7",
+            "url": "/about",
+            "lastmod": "2024-12-20",
+            "changefreq": "monthly",
+            "priority": 0.5,
+            "enabled": true
+        },
+        {
+            "id": "site-8",
+            "url": "/contact",
+            "lastmod": "2024-12-20",
+            "changefreq": "yearly",
+            "priority": 0.4,
+            "enabled": true
+        }
+    ],
+    "robotsRules": [
+        {
+            "id": "robots-1",
+            "userAgent": "*",
+            "type": "allow",
+            "path": "/",
+            "enabled": true
+        },
+        {
+            "id": "robots-2",
+            "userAgent": "*",
+            "type": "disallow",
+            "path": "/admin/",
+            "enabled": true
+        },
+        {
+            "id": "robots-3",
+            "userAgent": "*",
+            "type": "disallow",
+            "path": "/api/",
+            "enabled": true
+        },
+        {
+            "id": "robots-4",
+            "userAgent": "Googlebot",
+            "type": "allow",
+            "path": "/",
+            "enabled": true
+        },
+        {
+            "id": "robots-5",
+            "userAgent": "Bingbot",
+            "type": "allow",
+            "path": "/",
+            "enabled": true
+        },
+        {
+            "id": "robots-6",
+            "userAgent": "GPTBot",
+            "type": "disallow",
+            "path": "/",
+            "enabled": false
+        }
+    ],
+    "keywords": [
+        {
+            "id": "kw-1",
+            "keyword": "ChatGPT ხრიკები",
+            "currentPosition": 3,
+            "previousPosition": 5,
+            "searchVolume": 2400,
+            "difficulty": "medium",
+            "trend": "up",
+            "lastChecked": "2024-12-28T08:00:00",
+            "history": [
+                {
+                    "date": "2024-12-21",
+                    "position": 8
+                },
+                {
+                    "date": "2024-12-24",
+                    "position": 5
+                },
+                {
+                    "date": "2024-12-28",
+                    "position": 3
+                }
+            ]
+        },
+        {
+            "id": "kw-2",
+            "keyword": "AI ინსტრუმენტები",
+            "currentPosition": 7,
+            "previousPosition": 7,
+            "searchVolume": 5600,
+            "difficulty": "hard",
+            "trend": "stable",
+            "lastChecked": "2024-12-28T08:00:00",
+            "history": [
+                {
+                    "date": "2024-12-21",
+                    "position": 7
+                },
+                {
+                    "date": "2024-12-24",
+                    "position": 7
+                },
+                {
+                    "date": "2024-12-28",
+                    "position": 7
+                }
+            ]
+        },
+        {
+            "id": "kw-3",
+            "keyword": "DALL-E 3 tutorial",
+            "currentPosition": 2,
+            "previousPosition": 4,
+            "searchVolume": 1800,
+            "difficulty": "easy",
+            "trend": "up",
+            "lastChecked": "2024-12-28T08:00:00",
+            "history": [
+                {
+                    "date": "2024-12-21",
+                    "position": 6
+                },
+                {
+                    "date": "2024-12-24",
+                    "position": 4
+                },
+                {
+                    "date": "2024-12-28",
+                    "position": 2
+                }
+            ]
+        },
+        {
+            "id": "kw-4",
+            "keyword": "Prompt Engineering",
+            "currentPosition": 12,
+            "previousPosition": 10,
+            "searchVolume": 8900,
+            "difficulty": "hard",
+            "trend": "down",
+            "lastChecked": "2024-12-28T08:00:00",
+            "history": [
+                {
+                    "date": "2024-12-21",
+                    "position": 9
+                },
+                {
+                    "date": "2024-12-24",
+                    "position": 10
+                },
+                {
+                    "date": "2024-12-28",
+                    "position": 12
+                }
+            ]
+        },
+        {
+            "id": "kw-5",
+            "keyword": "Gemini vs ChatGPT",
+            "currentPosition": 5,
+            "previousPosition": 8,
+            "searchVolume": 3200,
+            "difficulty": "medium",
+            "trend": "up",
+            "lastChecked": "2024-12-28T08:00:00",
+            "history": [
+                {
+                    "date": "2024-12-21",
+                    "position": 11
+                },
+                {
+                    "date": "2024-12-24",
+                    "position": 8
+                },
+                {
+                    "date": "2024-12-28",
+                    "position": 5
+                }
+            ]
+        },
+        {
+            "id": "kw-6",
+            "keyword": "უფასო AI",
+            "currentPosition": 1,
+            "previousPosition": 2,
+            "searchVolume": 4100,
+            "difficulty": "easy",
+            "trend": "up",
+            "lastChecked": "2024-12-28T08:00:00",
+            "history": [
+                {
+                    "date": "2024-12-21",
+                    "position": 3
+                },
+                {
+                    "date": "2024-12-24",
+                    "position": 2
+                },
+                {
+                    "date": "2024-12-28",
+                    "position": 1
+                }
+            ]
+        }
+    ],
+    "canonicalUrls": [
+        {
+            "id": "can-1",
+            "pageUrl": "/blog/chatgpt-god-mode-32-codes",
+            "canonicalUrl": "/blog/chatgpt-god-mode-32-codes",
+            "hasDuplicate": false,
+            "status": "ok"
+        },
+        {
+            "id": "can-2",
+            "pageUrl": "/blog/dalle-3-secrets",
+            "canonicalUrl": "/blog/dalle-3-secrets",
+            "hasDuplicate": false,
+            "status": "ok"
+        },
+        {
+            "id": "can-3",
+            "pageUrl": "/posts/chatgpt-tips",
+            "canonicalUrl": "/blog/chatgpt-god-mode-32-codes",
+            "hasDuplicate": true,
+            "duplicateUrls": [
+                "/blog/chatgpt-god-mode-32-codes"
+            ],
+            "status": "warning"
+        },
+        {
+            "id": "can-4",
+            "pageUrl": "/blog/gemini-vs-chatgpt-2024",
+            "canonicalUrl": "/blog/gemini-vs-chatgpt-2024",
+            "hasDuplicate": false,
+            "status": "ok"
+        }
+    ],
+    "schemaTemplates": [
+        {
+            "id": "schema-1",
+            "name": "Blog Article",
+            "type": "Article",
+            "schema": {
+                "@context": "https://schema.org",
+                "@type": "Article",
+                "headline": "{{title}}",
+                "description": "{{description}}",
+                "image": "{{image}}",
+                "author": {
+                    "@type": "Person",
+                    "name": "Andrew Altair"
+                },
+                "publisher": {
+                    "@type": "Organization",
+                    "name": "AndrewAltair.ge"
+                },
+                "datePublished": "{{publishedAt}}",
+                "dateModified": "{{updatedAt}}"
+            },
+            "enabled": true
+        },
+        {
+            "id": "schema-2",
+            "name": "FAQ Schema",
+            "type": "FAQ",
+            "schema": {
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                "mainEntity": [
+                    {
+                        "@type": "Question",
+                        "name": "{{question1}}",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "{{answer1}}"
+                        }
+                    }
+                ]
+            },
+            "enabled": false
+        },
+        {
+            "id": "schema-3",
+            "name": "Organization",
+            "type": "Organization",
+            "schema": {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": "AndrewAltair.ge",
+                "url": "https://andrewaltair.ge",
+                "logo": "https://andrewaltair.ge/logo.png",
+                "sameAs": [
+                    "https://twitter.com/andrewaltair",
+                    "https://youtube.com/@andrewaltair"
+                ]
+            },
+            "enabled": true
+        }
+    ],
+    "brokenLinks": [
+        {
+            "id": "link-1",
+            "sourceUrl": "/blog/chatgpt-god-mode-32-codes",
+            "targetUrl": "/old-page-removed",
+            "anchorText": "დეტალები",
+            "statusCode": 404,
+            "lastChecked": "2024-12-28T06:00:00",
+            "status": "broken"
+        },
+        {
+            "id": "link-2",
+            "sourceUrl": "/blog/dalle-3-secrets",
+            "targetUrl": "https://external-site.com/broken",
+            "anchorText": "გარე ლინკი",
+            "statusCode": 404,
+            "lastChecked": "2024-12-28T06:00:00",
+            "status": "broken"
+        },
+        {
+            "id": "link-3",
+            "sourceUrl": "/tools",
+            "targetUrl": "/tool/deprecated-ai-tool",
+            "anchorText": "AI Tool",
+            "statusCode": 410,
+            "lastChecked": "2024-12-28T06:00:00",
+            "status": "ignored"
+        },
+        {
+            "id": "link-4",
+            "sourceUrl": "/about",
+            "targetUrl": "https://slow-server.com",
+            "anchorText": "პარტნიორი",
+            "statusCode": 504,
+            "lastChecked": "2024-12-28T06:00:00",
+            "status": "warning"
+        }
+    ],
+    "imageAltIssues": [
+        {
+            "id": "img-1",
+            "imageUrl": "/images/posts/chatgpt_god_mode_1766696042704.png",
+            "imageName": "chatgpt_god_mode.png",
+            "pageUrl": "/blog/chatgpt-god-mode-32-codes",
+            "currentAlt": "",
+            "suggestedAlt": "ChatGPT God Mode - 32 secret prompt codes illustration",
+            "status": "missing"
+        },
+        {
+            "id": "img-2",
+            "imageUrl": "/images/hero-bg.jpg",
+            "imageName": "hero-bg.jpg",
+            "pageUrl": "/",
+            "currentAlt": "bg",
+            "suggestedAlt": "AI Technology futuristic background with neural network visualization",
+            "status": "poor"
+        },
+        {
+            "id": "img-3",
+            "imageUrl": "/images/posts/dalle_secrets_1766696056966.png",
+            "imageName": "dalle_secrets.png",
+            "pageUrl": "/blog/dalle-3-secrets",
+            "currentAlt": "DALL-E 3 AI Art Generation Tutorial Cover Image",
+            "suggestedAlt": "",
+            "status": "good"
+        },
+        {
+            "id": "img-4",
+            "imageUrl": "/images/avatar.jpg",
+            "imageName": "avatar.jpg",
+            "pageUrl": "/about",
+            "currentAlt": "",
+            "suggestedAlt": "Andrew Altair - AI Innovator and Content Creator",
+            "status": "missing"
+        }
+    ],
+    "seoHistory": [
+        {
+            "id": "hist-1",
+            "type": "meta",
+            "action": "update",
+            "target": "ChatGPT God Mode post",
+            "changes": [
+                {
+                    "field": "title",
+                    "oldValue": "ChatGPT Tips",
+                    "newValue": "ChatGPT God Mode: 32 Secret Codes"
+                }
+            ],
+            "user": "admin",
+            "timestamp": "2024-12-28T10:30:00"
+        },
+        {
+            "id": "hist-2",
+            "type": "robots",
+            "action": "create",
+            "target": "GPTBot rule",
+            "changes": [
+                {
+                    "field": "path",
+                    "oldValue": "",
+                    "newValue": "/"
+                }
+            ],
+            "user": "admin",
+            "timestamp": "2024-12-27T15:20:00"
+        },
+        {
+            "id": "hist-3",
+            "type": "keyword",
+            "action": "create",
+            "target": "უფასო AI",
+            "changes": [
+                {
+                    "field": "keyword",
+                    "oldValue": "",
+                    "newValue": "უფასო AI"
+                }
+            ],
+            "user": "admin",
+            "timestamp": "2024-12-26T09:00:00"
+        },
+        {
+            "id": "hist-4",
+            "type": "sitemap",
+            "action": "update",
+            "target": "/blog priority",
+            "changes": [
+                {
+                    "field": "priority",
+                    "oldValue": "0.8",
+                    "newValue": "0.9"
+                }
+            ],
+            "user": "admin",
+            "timestamp": "2024-12-25T14:45:00"
+        },
+        {
+            "id": "hist-5",
+            "type": "schema",
+            "action": "update",
+            "target": "Article Schema",
+            "changes": [
+                {
+                    "field": "publisher.name",
+                    "oldValue": "AI Blog",
+                    "newValue": "AndrewAltair.ge"
+                }
+            ],
+            "user": "admin",
+            "timestamp": "2024-12-24T11:00:00"
+        }
+    ]
+}

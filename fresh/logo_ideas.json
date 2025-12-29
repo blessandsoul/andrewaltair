@@ -1,0 +1,51 @@
+{
+    "brand": "Andrew Altair",
+    "theme": "Radical / Avant-Garde / Future",
+    "concepts": [
+        {
+            "id": "concept_7",
+            "title": "Fluid Chrome / Жидкий Хром",
+            "description": "Y2K aesthetic meeting modern 3D design. A liquid metal star or abstract shape that feels tangible, expensive, and futuristic.",
+            "visual_elements": [
+                "Liquid Metal",
+                "Chrome",
+                "Distorted Typography"
+            ],
+            "colors": {
+                "primary": "#Silver",
+                "reflection": "#6366f1"
+            },
+            "generation_prompt": "3D render of a liquid chrome abstract star logo. Y2K acid graphics aesthetic. Melting metal texture, high gloss, reflection of purple and neon blue studio lighting. Floating in a dark void. Ultra-realistic, 8k, octane render, futuristic jewelry design style."
+        },
+        {
+            "id": "concept_8",
+            "title": "Brutalist Glyph / Брутализм",
+            "description": "Raw, bold, and anti-design. Thick lines, sharp angles, maybe a bit of distress or 'glitch'. Stands out by being aggressive and confident.",
+            "visual_elements": [
+                "Thick Lines",
+                "Black Letter/Gothic influence",
+                "Glitch"
+            ],
+            "colors": {
+                "primary": "#000000",
+                "background": "#FF0000"
+            },
+            "generation_prompt": "Neo-brutalist logo symbol. A heavy, thick abstract glyph resembling the letter 'A' mixed with a star. Swiss international style meets acid techno. Stark black ink on white paper. Grunge texture, sharp edges, ink trap details. Bold, aggressive, streetwear brand aesthetic."
+        },
+        {
+            "id": "concept_9",
+            "title": "Etheyreal Artifact / Эфирный Артефакт",
+            "description": "Something that looks like a rune from an advanced alien civilization or a magical sigil. Thin intricate lines, glowing, mysterious.",
+            "visual_elements": [
+                "Fine lines",
+                "Glowing geometry",
+                "Mysticism"
+            ],
+            "colors": {
+                "glow": "#22d3ee",
+                "core": "#White"
+            },
+            "generation_prompt": "Glowing magical sci-fi sigil logo. Intricate sacred geometry formed by thin glowing laser lines. Cyber-mysticism aesthetic. Cyan and violet neon light lines hovering in dark fog. Minimalist but complex structure. Final Fantasy logo style mixed with Tron."
+        }
+    ]
+}
