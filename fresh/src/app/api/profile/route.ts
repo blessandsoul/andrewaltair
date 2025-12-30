@@ -107,6 +107,7 @@ export async function GET(request: NextRequest) {
                 email: user.email,
                 fullName: user.fullName,
                 avatar: user.avatar,
+                coverImage: user.coverImage,
                 role: user.role,
                 badge: user.badge,
                 createdAt: user.createdAt,
@@ -142,19 +143,26 @@ export async function PUT(request: NextRequest) {
 
         const body = await request.json()
 
+        // Only update fields that are provided (not undefined)
+        const updateFields: Record<string, unknown> = {}
+        if (body.fullName !== undefined) updateFields.fullName = body.fullName
+        if (body.avatar !== undefined) updateFields.avatar = body.avatar
+        if (body.coverImage !== undefined) updateFields.coverImage = body.coverImage
+        if (body.bio !== undefined) updateFields.bio = body.bio
+        if (body.website !== undefined) updateFields.website = body.website
+        if (body.publicProfile !== undefined) updateFields.publicProfile = body.publicProfile
+
+        console.log("📝 Update fields:", Object.keys(updateFields))
+        console.log("🖼️ CoverImage received:", body.coverImage ? `${body.coverImage.substring(0, 50)}...` : "undefined")
+
         const user = await User.findByIdAndUpdate(
             decoded.userId,
-            {
-                $set: {
-                    fullName: body.fullName,
-                    avatar: body.avatar,
-                    bio: body.bio,
-                    website: body.website,
-                    publicProfile: body.publicProfile,
-                },
-            },
-            { new: true }
+            { $set: updateFields },
+            { new: true, runValidators: true }
         ).lean()
+
+        console.log("✅ User after update - has coverImage?", !!user?.coverImage)
+        console.log("🔍 CoverImage value:", user?.coverImage ? `${user.coverImage.substring(0, 50)}...` : "undefined")
 
         if (!user) {
             return NextResponse.json({ error: "User not found" }, { status: 404 })
@@ -167,6 +175,7 @@ export async function PUT(request: NextRequest) {
                 email: user.email,
                 fullName: user.fullName,
                 avatar: user.avatar,
+                coverImage: user.coverImage,
                 role: user.role,
                 badge: user.badge,
             },

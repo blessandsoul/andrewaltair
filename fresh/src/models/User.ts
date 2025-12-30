@@ -8,6 +8,7 @@ export interface IUser extends Document {
     password: string;
     fullName: string;
     avatar?: string;
+    coverImage?: string;
     role: 'god' | 'admin' | 'editor' | 'viewer';
     badge?: string;
     isBlocked: boolean;
@@ -54,6 +55,10 @@ const UserSchema = new Schema<IUser>(
             trim: true,
         },
         avatar: {
+            type: String,
+            default: undefined,
+        },
+        coverImage: {
             type: String,
             default: undefined,
         },
