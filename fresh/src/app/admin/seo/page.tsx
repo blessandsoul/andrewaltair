@@ -184,7 +184,7 @@ export default function SeoPage() {
 
     // Robots State
     const [robotsRules, setRobotsRules] = React.useState<RobotsRule[]>(seoData.robotsRules as RobotsRule[])
-    const [newRobotRule, setNewRobotRule] = React.useState({ userAgent: "*", type: "disallow" as const, path: "" })
+    const [newRobotRule, setNewRobotRule] = React.useState<{ userAgent: string; type: "allow" | "disallow"; path: string }>({ userAgent: "*", type: "disallow", path: "" })
 
     // Keywords State
     const [keywords, setKeywords] = React.useState<KeywordTracking[]>(seoData.keywords as KeywordTracking[])
@@ -380,7 +380,7 @@ export default function SeoPage() {
             </div>
 
             {/* Tabs */}
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs value={activeTab} defaultValue="overview" onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-11 w-full h-auto gap-1 bg-muted/50 p-1">
                     <TabsTrigger value="overview" className="text-xs px-2 py-1.5">Overview</TabsTrigger>
                     <TabsTrigger value="meta" className="text-xs px-2 py-1.5">Meta Tags</TabsTrigger>

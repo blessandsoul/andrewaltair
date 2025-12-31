@@ -85,10 +85,11 @@ export async function GET(request: NextRequest) {
         }
 
         // Social accounts (from user model if exists)
+        const userAny = user as unknown as Record<string, unknown>
         const socialAccounts = [
-            { id: "google", name: "Google", connected: !!user.googleId, icon: "Chrome", color: "bg-red-500" },
-            { id: "facebook", name: "Facebook", connected: !!user.facebookId, icon: "Facebook", color: "bg-blue-600" },
-            { id: "telegram", name: "Telegram", connected: !!user.telegramId, icon: "Send", color: "bg-sky-500" },
+            { id: "google", name: "Google", connected: !!userAny.googleId, icon: "Chrome", color: "bg-red-500" },
+            { id: "facebook", name: "Facebook", connected: !!userAny.facebookId, icon: "Facebook", color: "bg-blue-600" },
+            { id: "telegram", name: "Telegram", connected: !!userAny.telegramId, icon: "Send", color: "bg-sky-500" },
         ]
 
         // Subscriptions (mock for now)

@@ -53,7 +53,7 @@ function getTotalReactions(reactions: Record<string, number>): number {
 
 export default async function BlogPage() {
   const allPosts = await getPosts()
-  const featuredPosts = allPosts.filter((p: any) => p.featured)
+  const featuredPosts = allPosts.filter((p: { featured: boolean }) => p.featured)
 
   return (
     <div className="min-h-screen">
@@ -138,7 +138,7 @@ export default async function BlogPage() {
             </div>
 
             <div className="grid gap-8 md:grid-cols-2">
-              {featuredPosts.map((post) => (
+              {featuredPosts.map((post: { id: string }) => (
                 <FeaturedCard key={post.id} post={post as any} />
               ))}
             </div>
@@ -165,7 +165,7 @@ export default async function BlogPage() {
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {allPosts.map((post) => (
+            {allPosts.map((post: { id: string }) => (
               <PostCard
                 key={post.id}
                 post={post as any}

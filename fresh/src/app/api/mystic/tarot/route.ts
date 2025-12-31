@@ -1,28 +1,11 @@
 import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
+import { AI_CONFIG, TAROT_RULES, parseAIResponse } from "@/lib/mystic-rules"
 
 const client = new OpenAI({
     apiKey: process.env.GROQ_API_KEY,
-    baseURL: "https://api.groq.com/openai/v1",
+    baseURL: AI_CONFIG.baseURL,
 })
-
-const SPREAD_PROMPTS = {
-    three: `სამი კარტის განლაგება:
-1. წარსული - რა მოხდა, რა გავლენა მოახდინა
-2. აწმყო - სადაც ახლა ხარ, მაღმო სიტუაცია
-3. მომავალი - საით მიდიხარ, რა არის ბედისწერა`,
-    celtic: `კელტური ჯვრის განლაგება (10 კარტა):
-1. აწმყო სიტუაცია
-2. გამოწვევა/დაბრკოლება
-3. წარსული გავლენა
-4. მომავალი შესაძლებლობა
-5. შენი მიზანი
-6. გარემო ფაქტორები
-7. შენი როლი
-8. გარე გავლენა
-9. იმედები და შიშები
-10. საბოლოო შედეგი`
-}
 
 export async function POST(request: NextRequest) {
     try {
@@ -32,7 +15,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Cards are required" }, { status: 400 })
         }
 
-        const spreadPrompt = SPREAD_PROMPTS[spreadType as keyof typeof SPREAD_PROMPTS] || SPREAD_PROMPTS.three
+        const spreadPrompt = TAROT_RULES.spreads[spreadType as keyof typeof TAROT_RULES.spreads] || TAROT_RULES.spreads.three
 
         const prompt = `შენ ხარ უძველესი ტაროს მკითხავი, რომელიც საუკუნეებით დაგროვილ სიბრძნეს ფლობს.
 
@@ -50,26 +33,23 @@ ${spreadPrompt}
 
 პასუხი მხოლოდ JSON ფორმატში:
 {
-    "interpretation": "3-5 წინადადება, კარტების ურთიერთკავშირის ღრმა ანალიზი",
-    "advice": "1-2 წინადადება, პრაქტიკული რჩევა მომავლისთვის"
+    "interpretation": "${TAROT_RULES.outputFormat.interpretation}",
+    "advice": "${TAROT_RULES.outputFormat.advice}"
 }`
 
         const response = await client.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+            model: AI_CONFIG.model,
             messages: [
                 {
                     role: "system",
-                    content: `შენ ხარ ცნობილი ქართველი ტაროს ოსტატი, რომელსაც საუკუნეოვანი გამოცდილება აქვს.
-შენი კითხვები ზუსტი და გამჭრიახია.
-პასუხობ მხოლოდ ქართულად, მდიდარი და პოეტური ენით.
-აბრუნებ ᲛᲮᲝᲚᲝᲓ სუფთა JSON-ს.`
+                    content: TAROT_RULES.systemPrompt
                 },
                 {
                     role: "user",
                     content: prompt
                 }
             ],
-            temperature: 0.9,
+            temperature: AI_CONFIG.temperature,
             max_tokens: 1000,
         })
 

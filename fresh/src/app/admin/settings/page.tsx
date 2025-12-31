@@ -274,7 +274,7 @@ export default function SettingsPage() {
             </div>
 
             {/* Tabs */}
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <Tabs value={activeTab} defaultValue={activeTab} onValueChange={setActiveTab} className="space-y-6">
                 <TabsList className="flex flex-wrap h-auto gap-1 p-1 bg-muted/50">
                     {tabs.map((tab) => (
                         <TabsTrigger
@@ -382,7 +382,7 @@ export default function SettingsPage() {
                                         <button
                                             key={c.color}
                                             className={`w-10 h-10 rounded-lg transition-all ${themeSettings.primaryColor === c.color ? "ring-2 ring-offset-2 ring-offset-background" : ""}`}
-                                            style={{ backgroundColor: c.color, ringColor: c.color }}
+                                            style={{ backgroundColor: c.color }}
                                             onClick={() => setThemeSettings({ ...themeSettings, primaryColor: c.color })}
                                             title={c.name}
                                         />

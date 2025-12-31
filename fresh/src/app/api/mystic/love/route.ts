@@ -1,26 +1,11 @@
 import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
+import { AI_CONFIG, LOVE_RULES, pickRandom, parseAIResponse } from "@/lib/mystic-rules"
 
 const client = new OpenAI({
     apiKey: process.env.GROQ_API_KEY,
-    baseURL: "https://api.groq.com/openai/v1",
+    baseURL: AI_CONFIG.baseURL,
 })
-
-const LOVE_ARCHETYPES = [
-    "ცეცხლის სტიქიით — ვნებიანი და ინტენსიური",
-    "წყლის სტიქიით — ღრმა და ემოციური",
-    "ჰაერის სტიქიით — ინტელექტუალური და თავისუფალი",
-    "მიწის სტიქიით — სტაბილური და ერთგული",
-    "ეთერის სტიქიით — სულიერი და ტრანსცენდენტური"
-]
-
-const RELATIONSHIP_ASPECTS = [
-    "ემოციური თავსებადობა",
-    "ინტელექტუალური კავშირი",
-    "ვნების და მიზიდულობის დონე",
-    "გრძელვადიანი პერსპექტივა",
-    "სულიერი ჰარმონია"
-]
 
 export async function POST(request: NextRequest) {
     try {
@@ -30,8 +15,8 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Both names are required" }, { status: 400 })
         }
 
-        const archetype = LOVE_ARCHETYPES[Math.floor(Math.random() * LOVE_ARCHETYPES.length)]
-        const aspect = RELATIONSHIP_ASPECTS[Math.floor(Math.random() * RELATIONSHIP_ASPECTS.length)]
+        const archetype = pickRandom(LOVE_RULES.archetypes)
+        const aspect = pickRandom(LOVE_RULES.aspects)
 
         const prompt = `შენ ხარ სიყვარულის მისტიკოსი და ურთიერთობების ოსტატი.
 
@@ -51,32 +36,23 @@ export async function POST(request: NextRequest) {
 პასუხი მხოლოდ JSON ფორმატში:
 {
     "percentage": რიცხვი 58-დან 97-მდე,
-    "title": "პოეტური სათაური 3-5 სიტყვით",
-    "description": "რომანტიული აღწერა 3-4 წინადადებით, მეტაფორებით და ხატოვანი ენით"
+    "title": "${LOVE_RULES.outputFormat.title}",
+    "description": "${LOVE_RULES.outputFormat.description}"
 }`
 
         const response = await client.chat.completions.create({
-            model: "openai/gpt-oss-120b",
+            model: AI_CONFIG.model,
             messages: [
                 {
                     role: "system",
-                    content: `შენ ხარ ლეგენდარული ქართველი სიყვარულის მისტიკოსი. შენ ხედავ გულების ფარულ კავშირებს.
-
-შენი პასუხები:
-• რომანტიული და პოეტურია
-• სავსეა მეტაფორებით და ხატოვანი გამოთქმებით
-• ყოველთვის პოზიტიური და შთამაგონებელია
-• უნიკალურია თითოეული წყვილისთვის
-• დაწერილია მშვენიერი ქართულით
-
-აბრუნებ ᲛᲮᲝᲚᲝᲓ სუფთა JSON-ს.`
+                    content: LOVE_RULES.systemPrompt
                 },
                 {
                     role: "user",
                     content: prompt
                 }
             ],
-            temperature: 0.92,
+            temperature: AI_CONFIG.temperature,
             max_tokens: 700,
         })
 

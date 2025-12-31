@@ -1,26 +1,11 @@
 import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
+import { AI_CONFIG, HOROSCOPE_RULES, pickRandom, parseAIResponse } from "@/lib/mystic-rules"
 
 const client = new OpenAI({
     apiKey: process.env.GROQ_API_KEY,
-    baseURL: "https://api.groq.com/openai/v1",
+    baseURL: AI_CONFIG.baseURL,
 })
-
-const ASTROLOGICAL_INFLUENCES = [
-    "მთვარის ფაზების გავლენით",
-    "პლანეტარული ასპექტების გათვალისწინებით",
-    "სტიქიების ენერგიის მიხედვით",
-    "ვარსკვლავთა კონსტელაციების შუქზე",
-    "კოსმიური რიტმების ჰარმონიაში"
-]
-
-const DAY_ENERGIES = [
-    "ახალი დასაწყისების ენერგია",
-    "შემოქმედებითი ძალა",
-    "ტრანსფორმაციის პოტენციალი",
-    "სტაბილურობის საფუძვლები",
-    "ინტუიციის გაღვიძება"
-]
 
 export async function POST(request: NextRequest) {
     try {
@@ -37,8 +22,8 @@ export async function POST(request: NextRequest) {
             day: "numeric",
         })
 
-        const influence = ASTROLOGICAL_INFLUENCES[Math.floor(Math.random() * ASTROLOGICAL_INFLUENCES.length)]
-        const energy = DAY_ENERGIES[Math.floor(Math.random() * DAY_ENERGIES.length)]
+        const influence = pickRandom(HOROSCOPE_RULES.influences)
+        const energy = pickRandom(HOROSCOPE_RULES.energies)
 
         const prompt = `შენ ხარ გამოცდილი ასტროლოგი და ზოდიაქოს ექსპერტი.
 
@@ -57,34 +42,25 @@ export async function POST(request: NextRequest) {
 
 პასუხი მხოლოდ JSON ფორმატში:
 {
-    "general": "შთამაგონებელი ზოგადი პროგნოზი 3 წინადადებით",
-    "love": "რომანტიული და თბილი სიყვარულის პროგნოზი 2-3 წინადადებით",
-    "career": "მოტივაციური კარიერის პროგნოზი 2-3 წინადადებით",
-    "health": "მზრუნველი ჯანმრთელობის პროგნოზი 2 წინადადებით"
+    "general": "${HOROSCOPE_RULES.outputFormat.general}",
+    "love": "${HOROSCOPE_RULES.outputFormat.love}",
+    "career": "${HOROSCOPE_RULES.outputFormat.career}",
+    "health": "${HOROSCOPE_RULES.outputFormat.health}"
 }`
 
         const response = await client.chat.completions.create({
-            model: "openai/gpt-oss-120b",
+            model: AI_CONFIG.model,
             messages: [
                 {
                     role: "system",
-                    content: `შენ ხარ ლეგენდარული ქართველი ასტროლოგი. შენ ხედავ ვარსკვლავების ენას და კოსმიურ რიტმებს.
-
-შენი პროგნოზები:
-• უნიკალური და განუმეორებელია ყოველ დღე
-• პოეტური და ხატოვანია
-• ყოველთვის პოზიტიური და შთამაგონებელი
-• კონკრეტული და პრაქტიკული რჩევებით
-• დაწერილია მშვენიერი ქართულით
-
-აბრუნებ ᲛᲮᲝᲚᲝᲓ სუფთა JSON-ს.`
+                    content: HOROSCOPE_RULES.systemPrompt
                 },
                 {
                     role: "user",
                     content: prompt
                 }
             ],
-            temperature: 0.9,
+            temperature: AI_CONFIG.temperature,
             max_tokens: 900,
         })
 

@@ -1,26 +1,11 @@
 import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
+import { AI_CONFIG, FORTUNE_RULES, pickRandom, parseAIResponse } from "@/lib/mystic-rules"
 
 const client = new OpenAI({
     apiKey: process.env.GROQ_API_KEY,
-    baseURL: "https://api.groq.com/openai/v1",
+    baseURL: AI_CONFIG.baseURL,
 })
-
-const MYSTICAL_STYLES = [
-    "ძველბერძნული ორაკულის სტილში",
-    "კავკასიური მისტიციზმის სულისკვეთებით",
-    "აღმოსავლური სიბრძნით",
-    "კელტური დრუიდების ტრადიციით",
-    "ვარსკვლავთმრიცხველის თვალით"
-]
-
-const PREDICTION_THEMES = [
-    "პიროვნული ზრდა და თვითგანვითარება",
-    "ურთიერთობები და სოციალური კავშირები",
-    "კარიერა და წარმატება",
-    "სულიერი მოგზაურობა",
-    "ახალი შესაძლებლობები და თავგადასავალი"
-]
 
 export async function POST(request: NextRequest) {
     try {
@@ -30,8 +15,8 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Name is required" }, { status: 400 })
         }
 
-        const style = MYSTICAL_STYLES[Math.floor(Math.random() * MYSTICAL_STYLES.length)]
-        const theme = PREDICTION_THEMES[Math.floor(Math.random() * PREDICTION_THEMES.length)]
+        const style = pickRandom(FORTUNE_RULES.styles)
+        const theme = pickRandom(FORTUNE_RULES.themes)
         const currentDate = new Date().toLocaleDateString("ka-GE")
 
         const prompt = `შენ ხარ უძველესი მისტიკოსი და წინასწარმეტყველი. დღეს არის ${currentDate}.
@@ -49,33 +34,25 @@ export async function POST(request: NextRequest) {
 
 პასუხი მხოლოდ JSON ფორმატში:
 {
-    "prediction": "3-4 წინადადება, პოეტური და მისტიკური სტილით",
-    "luckyColor": "უნიკალური ფერი ქართულად (მაგ: ზურმუხტისფერი, ალისფერი, ფირუზისფერი)",
-    "luckyNumber": "რიცხვი 1-99",
-    "luckyDay": "კვირის დღე ქართულად"
+    "prediction": "${FORTUNE_RULES.outputFormat.prediction}",
+    "luckyColor": "${FORTUNE_RULES.outputFormat.luckyColor}",
+    "luckyNumber": "${FORTUNE_RULES.outputFormat.luckyNumber}",
+    "luckyDay": "${FORTUNE_RULES.outputFormat.luckyDay}"
 }`
 
         const response = await client.chat.completions.create({
-            model: "openai/gpt-oss-120b",
+            model: AI_CONFIG.model,
             messages: [
                 {
                     role: "system",
-                    content: `შენ ხარ ლეგენდარული ქართველი მისტიკოსი და მკითხავი. შენი სიტყვები ძალაუფლებით და სიბრძნით არის სავსე. 
-
-შენი პასუხები:
-• ყოველთვის უნიკალური და განუმეორებელია
-• დაწერილია მშვენიერი, პოეტური ქართულით
-• შეიცავს მეტაფორებს და ხატოვან გამოთქმებს
-• გრამატიკულად უზადოა
-
-აბრუნებ ᲛᲮᲝᲚᲝᲓ სუფთა JSON-ს, არანაირი დამატებითი ტექსტის გარეშე.`
+                    content: FORTUNE_RULES.systemPrompt
                 },
                 {
                     role: "user",
                     content: prompt
                 }
             ],
-            temperature: 0.95,
+            temperature: AI_CONFIG.temperature,
             max_tokens: 800,
         })
 

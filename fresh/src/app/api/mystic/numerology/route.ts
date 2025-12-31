@@ -1,24 +1,16 @@
 import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
+import { AI_CONFIG, NUMEROLOGY_RULES, parseAIResponse } from "@/lib/mystic-rules"
 
 const client = new OpenAI({
     apiKey: process.env.GROQ_API_KEY,
-    baseURL: "https://api.groq.com/openai/v1",
+    baseURL: AI_CONFIG.baseURL,
 })
 
-const NUMBER_MEANINGS: Record<number, string> = {
-    1: "ლიდერობა, დამოუკიდებლობა, ინოვაცია",
-    2: "პარტნიორობა, დიპლომატია, მგრძნობელობა",
-    3: "კრეატიულობა, გამომხატველობა, ოპტიმიზმი",
-    4: "სტაბილურობა, შრომისმოყვარეობა, პრაქტიკულობა",
-    5: "თავისუფლება, ცვლილება, თავგადასავალი",
-    6: "ზრუნვა, პასუხისმგებლობა, ჰარმონია",
-    7: "სულიერება, ანალიზი, სიღრმე",
-    8: "ძალაუფლება, მატერიალური წარმატება, ამბიცია",
-    9: "ჰუმანიზმი, სიბრძნე, დასრულება",
-    11: "ინტუიცია, სულიერი ხედვა, შთაგონება",
-    22: "მასტერ-მშენებლობა, დიდი მიზნები",
-    33: "სულიერი ოსტატობა, უანგარო სიყვარული",
+// Функция для получения значения числа из централизованных правил
+function getNumberMeaning(num: number): string {
+    const meanings = NUMEROLOGY_RULES.meanings as Record<number, string>
+    return meanings[num] || "უნიკალური ენერგია"
 }
 
 export async function POST(request: NextRequest) {
@@ -38,8 +30,8 @@ export async function POST(request: NextRequest) {
 დაბადების თარიღი: ${birthDate}
 
 გამოთვლილი რიცხვები:
-- სიცოცხლის გზა: ${lifePath} (${NUMBER_MEANINGS[lifePath] || "უნიკალური ენერგია"})
-- ბედისწერა: ${destiny} (${NUMBER_MEANINGS[destiny] || "უნიკალური ენერგია"})
+- სიცოცხლის გზა: ${lifePath} (${getNumberMeaning(lifePath)})
+- ბედისწერა: ${destiny} (${getNumberMeaning(destiny)})
 - სულის სურვილი: ${soul}
 - პიროვნება: ${personality}
 - პირადი წელი ${currentYear}: ${personalYear}
@@ -54,26 +46,23 @@ export async function POST(request: NextRequest) {
 
 პასუხი მხოლოდ JSON ფორმატში:
 {
-    "interpretation": "3-4 წინადადება რიცხვების მნიშვნელობისა და მათი კომბინაციის შესახებ",
-    "yearForecast": "2-3 წინადადება ${currentYear} წლის პროგნოზით პირადი წლის რიცხვის მიხედვით"
+    "interpretation": "${NUMEROLOGY_RULES.outputFormat.interpretation}",
+    "yearForecast": "${NUMEROLOGY_RULES.outputFormat.yearForecast}"
 }`
 
         const response = await client.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+            model: AI_CONFIG.model,
             messages: [
                 {
                     role: "system",
-                    content: `შენ ხარ ცნობილი ქართველი ნუმეროლოგი.
-შენი ანალიზი ზუსტი და შთამაგონებელია.
-პასუხობ მხოლოდ ქართულად.
-აბრუნებ ᲛᲮᲝᲚᲝᲓ სუფთა JSON-ს.`
+                    content: NUMEROLOGY_RULES.systemPrompt
                 },
                 {
                     role: "user",
                     content: prompt
                 }
             ],
-            temperature: 0.85,
+            temperature: AI_CONFIG.temperature,
             max_tokens: 800,
         })
 
@@ -90,7 +79,7 @@ export async function POST(request: NextRequest) {
         }
 
         return NextResponse.json({
-            interpretation: `შენი სიცოცხლის გზის რიცხვი ${lifePath} მიგითითებს ${NUMBER_MEANINGS[lifePath] || "უნიკალურ"} ენერგიაზე. ბედისწერის რიცხვი ${destiny} კი შენს ცხოვრების მისიას განსაზღვრავს.`,
+            interpretation: `შენი სიცოცხლის გზის რიცხვი ${lifePath} მიგითითებს ${getNumberMeaning(lifePath)} ენერგიაზე. ბედისწერის რიცხვი ${destiny} კი შენს ცხოვრების მისიას განსაზღვრავს.`,
             yearForecast: `${currentYear} წელი პირადი წელი ${personalYear} გთავაზობს ${personalYear <= 5 ? 'აქტიურ მოქმედებას და ახალ შესაძლებლობებს' : 'რეფლექსიას და სიღრმისეულ განვითარებას'}.`
         })
 

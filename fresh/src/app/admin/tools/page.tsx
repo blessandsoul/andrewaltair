@@ -250,7 +250,7 @@ export default function ToolsPage() {
                 <p className="text-muted-foreground mt-1">Backup, cache, და სხვა ინსტრუმენტები</p>
             </div>
 
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <Tabs value={activeTab} defaultValue={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="flex flex-wrap h-auto gap-1">
                     <TabsTrigger value="overview">მიმოხილვა</TabsTrigger>
                     <TabsTrigger value="database">Database</TabsTrigger>

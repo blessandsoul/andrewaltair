@@ -148,7 +148,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
               </span>
               <span className="text-sm text-red-500 flex items-center gap-1">
                 <Heart className="w-4 h-4" />
-                {Object.values(post.reactions).reduce((a: number, b: number) => a + b, 0)}
+                {(Object.values(post.reactions) as number[]).reduce((a, b) => a + b, 0)}
               </span>
               <span className="text-sm text-muted-foreground flex items-center gap-1">
                 <Share2 className="w-4 h-4" />
@@ -165,7 +165,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
             </p>
 
             <div className="flex flex-wrap gap-2">
-              {post.tags.map(tag => (
+              {post.tags.map((tag: string) => (
                 <Badge key={tag} variant="outline" className="text-xs">
                   #{tag}
                 </Badge>
@@ -281,7 +281,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 w-[90%] max-w-6xl">
           <h2 className="text-2xl font-bold mb-8">მსგავსი სტატიები</h2>
           <div className="grid gap-6 sm:grid-cols-2">
-            {relatedPosts.map((relatedPost) => (
+            {relatedPosts.map((relatedPost: { id: string; slug: string; title: string; excerpt: string; category: string; views: number; comments: number; reactions: Record<string, number>; shares: number }) => (
               <Link key={relatedPost.id} href={`/blog/${relatedPost.slug}`}>
                 <Card className="h-full hover-lift card-shine border-0 shadow-lg group">
                   <CardContent className="p-6 space-y-3">
@@ -308,7 +308,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                       <div className="flex items-center gap-3">
                         <span className="flex items-center gap-1 text-red-500">
                           <Heart className="w-3.5 h-3.5" />
-                          {Object.values(relatedPost.reactions).reduce((a: number, b: number) => a + b, 0)}
+                          {(Object.values(relatedPost.reactions) as number[]).reduce((a, b) => a + b, 0)}
                         </span>
                         <span className="flex items-center gap-1">
                           <Share2 className="w-3.5 h-3.5" />

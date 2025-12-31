@@ -1,26 +1,11 @@
 import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
+import { AI_CONFIG, DREAM_RULES, pickRandom, parseAIResponse } from "@/lib/mystic-rules"
 
 const client = new OpenAI({
     apiKey: process.env.GROQ_API_KEY,
-    baseURL: "https://api.groq.com/openai/v1",
+    baseURL: AI_CONFIG.baseURL,
 })
-
-const INTERPRETATION_SCHOOLS = [
-    "იუნგიანური ფსიქოანალიზის",
-    "ძველი ქართული სიზმართმეტყველების",
-    "არქეტიპული ფსიქოლოგიის",
-    "მისტიკური სიმბოლიზმის",
-    "შამანური ტრადიციის"
-]
-
-const DREAM_FOCUSES = [
-    "ქვეცნობიერის მესიჯები",
-    "ემოციური დამუშავება",
-    "მომავლის ნიშნები",
-    "შინაგანი კონფლიქტები",
-    "სულიერი განვითარება"
-]
 
 export async function POST(request: NextRequest) {
     try {
@@ -30,8 +15,8 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Dream description is required" }, { status: 400 })
         }
 
-        const school = INTERPRETATION_SCHOOLS[Math.floor(Math.random() * INTERPRETATION_SCHOOLS.length)]
-        const focus = DREAM_FOCUSES[Math.floor(Math.random() * DREAM_FOCUSES.length)]
+        const school = pickRandom(DREAM_RULES.schools)
+        const focus = pickRandom(DREAM_RULES.focuses)
 
         const prompt = `შენ ხარ სიზმრების ოსტატი და ფსიქოანალიტიკოსი.
 
@@ -52,31 +37,22 @@ export async function POST(request: NextRequest) {
     "symbols": [
         {"word": "სიმბოლო", "meaning": "ღრმა ფსიქოლოგიური ახსნა 2 წინადადებით", "category": "ბუნება/მოქმედება/ცხოველი/ადგილი/სიმბოლო/ადამიანი"}
     ],
-    "generalMessage": "პოეტური და შთამაგონებელი ზოგადი ინტერპრეტაცია 4-5 წინადადებით"
+    "generalMessage": "${DREAM_RULES.outputFormat.generalMessage}"
 }`
 
         const response = await client.chat.completions.create({
-            model: "openai/gpt-oss-120b",
+            model: AI_CONFIG.model,
             messages: [
                 {
                     role: "system",
-                    content: `შენ ხარ ლეგენდარული სიზმრების მკითხავი და ფსიქოანალიტიკოსი. შენ ხედავ ქვეცნობიერის საიდუმლოებებს.
-
-შენი ინტერპრეტაციები:
-• ღრმა და მნიშვნელოვანია
-• ფსიქოლოგიურად დასაბუთებულია
-• პოეტური და ხატოვანია
-• ყოველთვის შთამაგონებელი და გამაბედავი
-• დაწერილია მშვენიერი ქართულით
-
-აბრუნებ ᲛᲮᲝᲚᲝᲓ სუფთა JSON-ს.`
+                    content: DREAM_RULES.systemPrompt
                 },
                 {
                     role: "user",
                     content: prompt
                 }
             ],
-            temperature: 0.88,
+            temperature: AI_CONFIG.temperature,
             max_tokens: 1000,
         })
 

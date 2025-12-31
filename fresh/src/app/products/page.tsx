@@ -48,7 +48,7 @@ const categoryLabels: Record<string, string> = {
 
 export default async function ProductsPage() {
     const productsData = await getProducts()
-    const categories = [...new Set(productsData.map((p: { category: string }) => p.category))]
+    const categories: string[] = [...new Set(productsData.map((p: { category: string }) => p.category))]
 
     return (
         <div className="min-h-screen">

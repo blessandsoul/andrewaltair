@@ -13,7 +13,7 @@ export function AboutMystic() {
             <div className="relative rounded-2xl sm:rounded-3xl bg-[#12121a] border border-white/10 overflow-hidden">
                 {/* Header banner */}
                 <div className="h-24 sm:h-32 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20" />
+                    <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
                     <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#12121a] to-transparent" />
                 </div>
 
