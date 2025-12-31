@@ -1,13 +1,6 @@
-/**
- * Profile Feature - Profile Header Component
- * Cover image, avatar, user info, and quick actions
- */
-
-"use client"
-
 import * as React from "react"
 import Link from "next/link"
-import { Camera, Shield, LogOut, Sparkles, User } from "lucide-react"
+import { Camera, Shield, LogOut, Move, Check, X, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useAuth, ROLE_CONFIG } from "@/lib/auth"
@@ -23,23 +16,34 @@ export function ProfileHeader({ onAvatarChange, onCoverChange, onLogout }: Profi
     const { user, isGod, isAdmin, logout } = useAuth()
     const avatarInputRef = React.useRef<HTMLInputElement>(null)
     const coverInputRef = React.useRef<HTMLInputElement>(null)
+    const coverRef = React.useRef<HTMLDivElement>(null)
 
-    // Local state for images
+    // Local state for images & positioning
     const [avatarImage, setAvatarImage] = React.useState<string | undefined>(user?.avatar)
     const [coverImage, setCoverImage] = React.useState<string | null>(null)
+    const [isRepositioning, setIsRepositioning] = React.useState(false)
+    const [coverOffsetY, setCoverOffsetY] = React.useState(50) // default to center
+    const [originalOffsetY, setOriginalOffsetY] = React.useState(50)
+
+    // Use refs for drag tracking to avoid stale closure issues
+    const isDragging = React.useRef(false)
+    const dragStartY = React.useRef(0)
+    const dragStartOffset = React.useRef(50)
 
     // Update avatar when user changes
     React.useEffect(() => {
         setAvatarImage(user?.avatar)
     }, [user?.avatar])
 
-    // Update cover image when user data loads
+    // Update cover image & offset when user data loads
     React.useEffect(() => {
-        // This will be populated from API response via ProfileShell
         if (user?.coverImage) {
             setCoverImage(user.coverImage)
         }
-    }, [user?.coverImage])
+        if (user?.coverOffsetY !== undefined) {
+            setCoverOffsetY(user.coverOffsetY)
+        }
+    }, [user?.coverImage, user?.coverOffsetY])
 
     if (!user) return null
 
@@ -52,7 +56,6 @@ export function ProfileHeader({ onAvatarChange, onCoverChange, onLogout }: Profi
         const file = e.target.files?.[0]
         if (file && onAvatarChange) {
             onAvatarChange(file, (base64) => {
-                // Update local state immediately
                 setAvatarImage(base64)
             })
         }
@@ -62,11 +65,90 @@ export function ProfileHeader({ onAvatarChange, onCoverChange, onLogout }: Profi
         const file = e.target.files?.[0]
         if (file && onCoverChange) {
             onCoverChange(file, (base64) => {
-                // Update local state immediately
                 setCoverImage(base64)
+                setCoverOffsetY(50) // Reset to center on new upload
+                // Also save the reset offset
+                saveCoverPosition(50)
             })
         }
     }
+
+    const startReposition = () => {
+        setIsRepositioning(true)
+        setOriginalOffsetY(coverOffsetY)
+    }
+
+    const cancelReposition = () => {
+        setIsRepositioning(false)
+        setCoverOffsetY(originalOffsetY)
+        isDragging.current = false
+    }
+
+    const saveCoverPosition = async (offset?: number) => {
+        const finalOffset = offset !== undefined ? offset : coverOffsetY
+        setIsRepositioning(false)
+        isDragging.current = false
+
+        try {
+            const token = localStorage.getItem("auth_token")
+            if (!token) return
+
+            await fetch("/api/profile", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ coverOffsetY: finalOffset }),
+            })
+        } catch (error) {
+            console.error("Failed to save cover position", error)
+        }
+    }
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        if (!isRepositioning) return
+        e.preventDefault()
+        e.stopPropagation()
+
+        isDragging.current = true
+        dragStartY.current = e.clientY
+        dragStartOffset.current = coverOffsetY
+    }
+
+    // Handle global mouse events for drag
+    React.useEffect(() => {
+        const handleGlobalMouseMove = (e: MouseEvent) => {
+            if (!isDragging.current || !isRepositioning || !coverRef.current) return
+
+            const deltaY = e.clientY - dragStartY.current
+            const containerHeight = coverRef.current.offsetHeight
+            const percentChange = (deltaY / containerHeight) * 100
+
+            // Invert: dragging down shows top of image (lower %)
+            const newOffset = dragStartOffset.current - percentChange
+            const clampedOffset = Math.min(100, Math.max(0, newOffset))
+
+            setCoverOffsetY(clampedOffset)
+        }
+
+        const handleGlobalMouseUp = () => {
+            if (isDragging.current) {
+                isDragging.current = false
+                setOriginalOffsetY(coverOffsetY)
+            }
+        }
+
+        if (isRepositioning) {
+            window.addEventListener('mousemove', handleGlobalMouseMove)
+            window.addEventListener('mouseup', handleGlobalMouseUp)
+        }
+
+        return () => {
+            window.removeEventListener('mousemove', handleGlobalMouseMove)
+            window.removeEventListener('mouseup', handleGlobalMouseUp)
+        }
+    }, [isRepositioning, coverOffsetY])
 
     const handleLogoutClick = () => {
         logout()
@@ -76,22 +158,71 @@ export function ProfileHeader({ onAvatarChange, onCoverChange, onLogout }: Profi
     return (
         <>
             {/* Cover Image */}
-            <div className="relative h-48 md:h-64 bg-gradient-to-r from-primary via-accent to-primary overflow-hidden">
+            <div
+                ref={coverRef}
+                className={cn(
+                    "relative h-48 md:h-64 bg-gradient-to-r from-primary via-accent to-primary overflow-hidden select-none",
+                    isRepositioning && "cursor-move"
+                )}
+                onMouseDown={handleMouseDown}
+            >
                 {coverImage ? (
-                    <img src={coverImage} alt="Cover" className="w-full h-full object-cover" />
+                    <img
+                        src={coverImage}
+                        alt="Cover"
+                        className="w-full h-full object-cover transition-none"
+                        style={{ objectPosition: `center ${coverOffsetY}%` }}
+                    />
                 ) : (
                     <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary opacity-80" />
                 )}
                 <div className="absolute inset-0 bg-black/20" />
 
-                {/* Cover upload button */}
-                <button
-                    onClick={handleCoverClick}
-                    className="absolute bottom-4 right-4 flex items-center gap-2 px-4 py-2 bg-black/50 hover:bg-black/70 text-white rounded-lg backdrop-blur-sm transition-colors"
-                >
-                    <Camera className="w-4 h-4" />
-                    ფონის შეცვლა
-                </button>
+                {/* Cover Actions */}
+                <div className="absolute bottom-4 right-4 flex items-center gap-2">
+                    {isRepositioning ? (
+                        <>
+                            <Button
+                                onClick={() => saveCoverPosition()}
+                                variant="default"
+                                size="sm"
+                                className="gap-2 bg-green-600 hover:bg-green-700"
+                            >
+                                <Check className="w-4 h-4" />
+                                შენახვა
+                            </Button>
+                            <Button
+                                onClick={cancelReposition}
+                                variant="destructive"
+                                size="sm"
+                                className="gap-2"
+                            >
+                                <X className="w-4 h-4" />
+                                გაუქმება
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            {coverImage && (
+                                <button
+                                    onClick={startReposition}
+                                    className="flex items-center gap-2 px-4 py-2 bg-black/50 hover:bg-black/70 text-white rounded-lg backdrop-blur-sm transition-colors text-sm font-medium"
+                                >
+                                    <Move className="w-4 h-4" />
+                                    პოზიცია
+                                </button>
+                            )}
+                            <button
+                                onClick={handleCoverClick}
+                                className="flex items-center gap-2 px-4 py-2 bg-black/50 hover:bg-black/70 text-white rounded-lg backdrop-blur-sm transition-colors text-sm font-medium"
+                            >
+                                <Camera className="w-4 h-4" />
+                                ფონის შეცვლა
+                            </button>
+                        </>
+                    )}
+                </div>
+
                 <input
                     ref={coverInputRef}
                     type="file"
@@ -100,16 +231,7 @@ export function ProfileHeader({ onAvatarChange, onCoverChange, onLogout }: Profi
                     onChange={handleCoverFileChange}
                 />
 
-                {/* Logo link */}
-                <Link href="/" className="absolute top-4 left-4 flex items-center gap-2 group">
-                    <div className="relative">
-                        <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-white/10 rounded-xl blur-md" />
-                        <div className="relative w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-white shadow-lg">
-                            <Sparkles className="w-5 h-5" />
-                        </div>
-                    </div>
-                    <span className="font-bold text-xl text-white drop-shadow-lg">Andrew Altair</span>
-                </Link>
+                {/* NOTE: Username/Logo removed as requested */}
             </div>
 
             <div className="max-w-4xl mx-auto px-4 relative z-10 -mt-16">

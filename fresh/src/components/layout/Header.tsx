@@ -30,6 +30,7 @@ const contentItems = [
 const servicesItems = [
   { href: "/tools", label: "AI ინსტრუმენტები", icon: Wrench, description: "რეიტინგები და მიმოხილვები" },
   { href: "/mystic", label: "მისტიკური AI", icon: Sparkles, description: "AI პრედიქციები" },
+  { href: "/new-features", label: "ახალი ფუნქციები", icon: Sparkles, description: "20 კონვერსიის კომპონენტი" },
   { href: "/services", label: "კონსულტაცია", icon: Briefcase, description: "AI კონსალტინგი" },
   { href: "/products", label: "პროდუქტები", icon: ShoppingBag, description: "კურსები და ტემპლეიტები" },
   { href: "/quiz", label: "AI ქვიზი", icon: HelpCircle, description: "იპოვე შენი AI" },

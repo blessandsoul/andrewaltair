@@ -66,6 +66,8 @@ export async function GET(request: Request) {
                 email: user.email,
                 fullName: user.fullName,
                 avatar: user.avatar,
+                coverImage: user.coverImage,
+                coverOffsetY: user.coverOffsetY,
                 role: user.role,
                 badge: user.badge,
                 createdAt: user.createdAt.toISOString(),

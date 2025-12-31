@@ -9,6 +9,7 @@ export interface IUser extends Document {
     fullName: string;
     avatar?: string;
     coverImage?: string;
+    coverOffsetY?: number;
     role: 'god' | 'admin' | 'editor' | 'viewer';
     badge?: string;
     isBlocked: boolean;
@@ -18,6 +19,19 @@ export interface IUser extends Document {
     lastLogin?: Date;
     createdAt: Date;
     updatedAt: Date;
+    credits: number;
+    mysteryBox: {
+        lastClaimedAt?: Date;
+        streak: number;
+    };
+    gamification: {
+        xp: number;
+        level: number;
+        streak: number;
+        completedQuests: string[];
+        completedLessons: string[];
+        unlockedSkills: string[];
+    };
     comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -62,6 +76,10 @@ const UserSchema = new Schema<IUser>(
             type: String,
             default: undefined,
         },
+        coverOffsetY: {
+            type: Number,
+            default: 0,
+        },
         role: {
             type: String,
             enum: ['god', 'admin', 'editor', 'viewer'],
@@ -90,6 +108,23 @@ const UserSchema = new Schema<IUser>(
         lastLogin: {
             type: Date,
             default: undefined,
+        },
+        // Gamification & Conversion Features
+        credits: {
+            type: Number,
+            default: 0,
+        },
+        mysteryBox: {
+            lastClaimedAt: { type: Date },
+            streak: { type: Number, default: 0 },
+        },
+        gamification: {
+            xp: { type: Number, default: 0 },
+            level: { type: Number, default: 1 },
+            streak: { type: Number, default: 0 },
+            completedQuests: [{ type: String }],
+            completedLessons: [{ type: String }],
+            unlockedSkills: { type: [String], default: ['prompt-basics'] },
         },
     },
     {

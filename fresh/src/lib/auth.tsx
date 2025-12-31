@@ -9,6 +9,8 @@ export interface User {
     email: string
     fullName: string
     avatar?: string
+    coverImage?: string
+    coverOffsetY?: number
     role: "god" | "admin" | "editor" | "viewer"
     badge?: string
     createdAt: string

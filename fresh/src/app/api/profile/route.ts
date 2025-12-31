@@ -108,6 +108,7 @@ export async function GET(request: NextRequest) {
                 fullName: user.fullName,
                 avatar: user.avatar,
                 coverImage: user.coverImage,
+                coverOffsetY: user.coverOffsetY,
                 role: user.role,
                 badge: user.badge,
                 createdAt: user.createdAt,
@@ -148,21 +149,16 @@ export async function PUT(request: NextRequest) {
         if (body.fullName !== undefined) updateFields.fullName = body.fullName
         if (body.avatar !== undefined) updateFields.avatar = body.avatar
         if (body.coverImage !== undefined) updateFields.coverImage = body.coverImage
+        if (body.coverOffsetY !== undefined) updateFields.coverOffsetY = body.coverOffsetY
         if (body.bio !== undefined) updateFields.bio = body.bio
         if (body.website !== undefined) updateFields.website = body.website
         if (body.publicProfile !== undefined) updateFields.publicProfile = body.publicProfile
-
-        console.log("📝 Update fields:", Object.keys(updateFields))
-        console.log("🖼️ CoverImage received:", body.coverImage ? `${body.coverImage.substring(0, 50)}...` : "undefined")
 
         const user = await User.findByIdAndUpdate(
             decoded.userId,
             { $set: updateFields },
             { new: true, runValidators: true }
         ).lean()
-
-        console.log("✅ User after update - has coverImage?", !!user?.coverImage)
-        console.log("🔍 CoverImage value:", user?.coverImage ? `${user.coverImage.substring(0, 50)}...` : "undefined")
 
         if (!user) {
             return NextResponse.json({ error: "User not found" }, { status: 404 })
@@ -176,6 +172,7 @@ export async function PUT(request: NextRequest) {
                 fullName: user.fullName,
                 avatar: user.avatar,
                 coverImage: user.coverImage,
+                coverOffsetY: user.coverOffsetY,
                 role: user.role,
                 badge: user.badge,
             },
