@@ -2,30 +2,33 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {
-    ArrowLeft,
-    Eye,
-    Calendar,
-    Clock,
-    ThumbsUp,
-    Share2,
-    Sparkles,
-    Play
-} from "lucide-react"
+import { TbArrowLeft, TbEye, TbCalendar, TbClock, TbThumbUp, TbShare, TbSparkles, TbPlayerPlay } from "react-icons/tb"
 import { Comments } from "@/components/interactive/Comments"
 import { ShareButtons } from "@/components/interactive/ShareButtons"
 import { ReactionBar } from "@/components/interactive/ReactionBar"
 import { brand } from "@/lib/brand"
 
+// TbVideo interface
+interface TbVideo {
+    id: string
+    youtubeId: string
+    title: string
+    description: string
+    category: string
+    duration: string
+    views: number
+    publishedAt: string
+}
+
 // Fetch video from MongoDB API
-async function getVideo(id: string) {
+async function getVideo(id: string): Promise<TbVideo | null> {
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/videos?limit=50`, {
             cache: 'no-store'
         })
         if (res.ok) {
             const data = await res.json()
-            return (data.videos || []).find((v: { id?: string, youtubeId: string }) => v.id === id || v.youtubeId === id)
+            return (data.videos || []).find((v: TbVideo) => v.id === id || v.youtubeId === id) || null
         }
     } catch (error) {
         console.error('Error fetching video:', error)
@@ -34,14 +37,14 @@ async function getVideo(id: string) {
 }
 
 // Get related videos from MongoDB
-async function getRelatedVideos(currentId: string) {
+async function getRelatedVideos(currentId: string): Promise<TbVideo[]> {
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/videos?limit=5`, {
             cache: 'no-store'
         })
         if (res.ok) {
             const data = await res.json()
-            return (data.videos || []).filter((v: { id?: string, youtubeId: string }) => v.id !== currentId && v.youtubeId !== currentId).slice(0, 4)
+            return (data.videos || []).filter((v: TbVideo) => v.id !== currentId && v.youtubeId !== currentId).slice(0, 4)
         }
     } catch (error) {
         console.error('Error fetching related videos:', error)
@@ -65,7 +68,7 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
                     </p>
                     <Button asChild>
                         <Link href="/videos">
-                            <ArrowLeft className="w-4 h-4 mr-2" />
+                            <TbArrowLeft className="w-4 h-4 mr-2" />
                             ვიდეოებზე დაბრუნება
                         </Link>
                     </Button>
@@ -87,7 +90,7 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
 
     return (
         <div className="min-h-screen">
-            {/* Video Player Section */}
+            {/* TbVideo Player Section */}
             <section className="pt-4 pb-8">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
                     {/* Back Button */}
@@ -95,11 +98,11 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
                         href="/videos"
                         className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4"
                     >
-                        <ArrowLeft className="w-4 h-4" />
+                        <TbArrowLeft className="w-4 h-4" />
                         ვიდეოებზე დაბრუნება
                     </Link>
 
-                    {/* Video Player */}
+                    {/* TbVideo Player */}
                     <div className="relative aspect-video rounded-xl overflow-hidden shadow-2xl bg-black">
                         <iframe
                             src={`https://www.youtube.com/embed/${video.youtubeId}?rel=0&modestbranding=1`}
@@ -110,7 +113,7 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
                         />
                     </div>
 
-                    {/* Video Info */}
+                    {/* TbVideo Info */}
                     <div className="mt-6 space-y-4">
                         {/* Category & Stats */}
                         <div className="flex items-center gap-3 flex-wrap">
@@ -118,15 +121,15 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
                                 {video.category}
                             </Badge>
                             <span className="text-sm text-muted-foreground flex items-center gap-1">
-                                <Calendar className="w-4 h-4" />
+                                <TbCalendar className="w-4 h-4" />
                                 {video.publishedAt}
                             </span>
                             <span className="text-sm text-muted-foreground flex items-center gap-1">
-                                <Clock className="w-4 h-4" />
+                                <TbClock className="w-4 h-4" />
                                 {video.duration}
                             </span>
                             <span className="text-sm text-muted-foreground flex items-center gap-1">
-                                <Eye className="w-4 h-4" />
+                                <TbEye className="w-4 h-4" />
                                 {video.views.toLocaleString()} ნახვა
                             </span>
                         </div>
@@ -144,14 +147,14 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
                         {/* Author */}
                         <div className="flex items-center gap-4 pt-4 border-t border-border">
                             <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center">
-                                <Sparkles className="w-6 h-6 text-white" />
+                                <TbSparkles className="w-6 h-6 text-white" />
                             </div>
                             <div className="flex-1">
                                 <div className="font-semibold">Andrew Altair</div>
                                 <div className="text-sm text-muted-foreground">AI ინოვატორი და კონტენტ კრეატორი</div>
                             </div>
                             <Button variant="default" className="gap-2">
-                                <ThumbsUp className="w-4 h-4" />
+                                <TbThumbUp className="w-4 h-4" />
                                 გამოწერა
                             </Button>
                         </div>
@@ -198,7 +201,7 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
                                                         className="w-full h-full object-cover"
                                                     />
                                                     <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 hover:opacity-100 transition-opacity">
-                                                        <Play className="w-8 h-8 text-white" />
+                                                        <TbPlayerPlay className="w-8 h-8 text-white" />
                                                     </div>
                                                     <span className="absolute bottom-1 right-1 bg-black/80 text-white text-xs px-1.5 py-0.5 rounded font-medium">
                                                         {relatedVideo.duration}
@@ -214,15 +217,15 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
                                                     </h4>
                                                     <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                                                         <span className="flex items-center gap-1">
-                                                            <Eye className="w-3 h-3" />
+                                                            <TbEye className="w-3 h-3" />
                                                             {relatedVideo.views.toLocaleString()}
                                                         </span>
                                                         <span className="flex items-center gap-1">
-                                                            <Clock className="w-3 h-3" />
+                                                            <TbClock className="w-3 h-3" />
                                                             {relatedVideo.duration}
                                                         </span>
                                                         <span className="flex items-center gap-1">
-                                                            <Calendar className="w-3 h-3" />
+                                                            <TbCalendar className="w-3 h-3" />
                                                             {relatedVideo.publishedAt}
                                                         </span>
                                                     </div>
@@ -249,8 +252,8 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
                             გამოიწერე YouTube არხი და მიიღე ახალი AI ვიდეოები პირველმა
                         </p>
                         <Button size="lg" className="bg-white text-primary hover:bg-white/90" asChild>
-                            <a href="https://youtube.com/@AndrewAltair" target="_blank" rel="noopener noreferrer">
-                                <Play className="w-4 h-4 mr-2" />
+                            <a href="https://www.youtube.com/@AndrewAltair" target="_blank" rel="noopener noreferrer">
+                                <TbPlayerPlay className="w-4 h-4 mr-2" />
                                 YouTube გამოწერა
                             </a>
                         </Button>

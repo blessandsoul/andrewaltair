@@ -14,30 +14,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import {
-    MessageSquare,
-    Search,
-    Trash2,
-    Heart,
-    Clock,
-    Reply,
-    CheckCircle,
-    XCircle,
-    Edit3,
-    Shield,
-    Mail,
-    User,
-    ChevronLeft,
-    ChevronRight,
-    ArrowUpDown,
-    Calendar,
-    Send,
-    Ban,
-    Settings,
-    X,
-    ChevronDown,
-    ChevronUp
-} from "lucide-react"
+import { TbMessage, TbSearch, TbTrash, TbHeart, TbClock, TbArrowBackUp, TbCircleCheck, TbCircleX, TbEdit, TbShield, TbMail, TbUser, TbChevronLeft, TbChevronRight, TbArrowsUpDown, TbCalendar, TbSend, TbBan, TbSettings, TbX, TbChevronDown, TbChevronUp } from "react-icons/tb"
 
 // 🎭 სასაცილო ავატარები კომენტატორებისთვის
 const funnyAvatars = [
@@ -293,7 +270,7 @@ export default function CommentsPage() {
         fetchComments()
     }, [])
 
-    // 1. Admin Reply
+    // 1. Admin TbArrowBackUp
     const [replyingTo, setReplyingTo] = React.useState<string | null>(null)
     const [replyContent, setReplyContent] = React.useState("")
 
@@ -446,7 +423,7 @@ export default function CommentsPage() {
         }
     }
 
-    // 1. Admin Reply Handler with API
+    // 1. Admin TbArrowBackUp Handler with API
     const handleSendReply = async (parentId: string) => {
         if (!replyContent.trim()) return
         const parent = comments.find(c => c.id === parentId)
@@ -478,7 +455,7 @@ export default function CommentsPage() {
                 setComments([...comments, newReply])
             }
         } catch (error) {
-            console.error('Reply error:', error)
+            console.error('TbArrowBackUp error:', error)
         }
         setReplyingTo(null)
         setReplyContent("")
@@ -574,7 +551,7 @@ export default function CommentsPage() {
         setBlacklistedWords(blacklistedWords.filter(w => w !== word))
     }
 
-    // 7. Ban Author Handler
+    // 7. TbBan Author Handler
     const handleBanAuthor = (author: string) => {
         setBannedAuthors(prev => {
             const newSet = new Set(prev)
@@ -614,7 +591,7 @@ export default function CommentsPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold flex items-center gap-3">
-                        <MessageSquare className="w-8 h-8 text-primary" />
+                        <TbMessage className="w-8 h-8 text-primary" />
                         კომენტარების მართვა
                     </h1>
                     <p className="text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
@@ -639,7 +616,7 @@ export default function CommentsPage() {
                         size="sm"
                         onClick={() => setShowSpamSettings(true)}
                     >
-                        <Shield className="w-4 h-4 mr-1" />
+                        <TbShield className="w-4 h-4 mr-1" />
                         სპამ ფილტრი
                     </Button>
 
@@ -649,7 +626,7 @@ export default function CommentsPage() {
                         size="sm"
                         onClick={() => setShowEmailSettings(true)}
                     >
-                        <Mail className="w-4 h-4 mr-1" />
+                        <TbMail className="w-4 h-4 mr-1" />
                         შეტყობინებები
                     </Button>
                 </div>
@@ -673,7 +650,7 @@ export default function CommentsPage() {
                                 : "hover:bg-muted"
                                 }`}
                         >
-                            <Calendar className="w-3 h-3 inline mr-1" />
+                            <TbCalendar className="w-3 h-3 inline mr-1" />
                             {item.label}
                         </button>
                     ))}
@@ -704,7 +681,7 @@ export default function CommentsPage() {
                 <div className="flex items-center gap-2">
                     <Select value={sortBy} onValueChange={(value: "date" | "likes" | "author") => setSortBy(value)}>
                         <SelectTrigger className="w-[140px]">
-                            <ArrowUpDown className="w-4 h-4 mr-2" />
+                            <TbArrowsUpDown className="w-4 h-4 mr-2" />
                             <SelectValue placeholder="დალაგება" />
                         </SelectTrigger>
                         <SelectContent>
@@ -718,13 +695,13 @@ export default function CommentsPage() {
                         size="icon"
                         onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
                     >
-                        {sortOrder === "asc" ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        {sortOrder === "asc" ? <TbChevronUp className="w-4 h-4" /> : <TbChevronDown className="w-4 h-4" />}
                     </Button>
                 </div>
 
-                {/* Search */}
+                {/* TbSearch */}
                 <div className="relative flex-1 min-w-[200px]">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <TbSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                         placeholder="ძიება..."
                         value={searchQuery}
@@ -743,15 +720,15 @@ export default function CommentsPage() {
                         </span>
                         <div className="flex gap-2">
                             <Button size="sm" variant="outline" className="text-green-500" onClick={handleBulkApprove}>
-                                <CheckCircle className="w-4 h-4 mr-1" />
+                                <TbCircleCheck className="w-4 h-4 mr-1" />
                                 დამტკიცება
                             </Button>
                             <Button size="sm" variant="outline" className="text-yellow-500" onClick={handleBulkReject}>
-                                <XCircle className="w-4 h-4 mr-1" />
+                                <TbCircleX className="w-4 h-4 mr-1" />
                                 უარყოფა
                             </Button>
                             <Button size="sm" variant="destructive" onClick={handleBulkDelete}>
-                                <Trash2 className="w-4 h-4 mr-1" />
+                                <TbTrash className="w-4 h-4 mr-1" />
                                 წაშლა
                             </Button>
                         </div>
@@ -823,14 +800,14 @@ export default function CommentsPage() {
                                                 onClick={() => setViewingAuthor(comment.author)}
                                                 className="font-semibold hover:text-primary transition-colors flex items-center gap-1"
                                             >
-                                                <User className="w-3 h-3" />
+                                                <TbUser className="w-3 h-3" />
                                                 {comment.author}
                                             </button>
                                             {comment.author === "Admin" && (
                                                 <Badge variant="secondary" className="text-xs">ადმინი</Badge>
                                             )}
                                             <span className="text-sm text-muted-foreground flex items-center gap-1">
-                                                <Clock className="w-3 h-3" />
+                                                <TbClock className="w-3 h-3" />
                                                 {timeAgo(comment.createdAt)}
                                             </span>
                                             {!comment.isApproved && !isSpam && (
@@ -840,7 +817,7 @@ export default function CommentsPage() {
                                             )}
                                             {isSpam && (
                                                 <Badge variant="destructive">
-                                                    <Shield className="w-3 h-3 mr-1" />
+                                                    <TbShield className="w-3 h-3 mr-1" />
                                                     სპამი
                                                 </Badge>
                                             )}
@@ -876,7 +853,7 @@ export default function CommentsPage() {
                                         <div className="flex items-center justify-between mt-4">
                                             <div className="flex items-center gap-4 text-sm text-muted-foreground">
                                                 <span className="flex items-center gap-1">
-                                                    <Heart className="w-4 h-4" />
+                                                    <TbHeart className="w-4 h-4" />
                                                     {comment.likes}
                                                 </span>
                                                 {/* 10. Thread Toggle */}
@@ -885,21 +862,21 @@ export default function CommentsPage() {
                                                         onClick={() => toggleThread(comment.id)}
                                                         className="flex items-center gap-1 hover:text-foreground transition-colors"
                                                     >
-                                                        <MessageSquare className="w-4 h-4" />
+                                                        <TbMessage className="w-4 h-4" />
                                                         {replies.length} პასუხი
-                                                        {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                                                        {isExpanded ? <TbChevronUp className="w-3 h-3" /> : <TbChevronDown className="w-3 h-3" />}
                                                     </button>
                                                 )}
                                             </div>
 
                                             <div className="flex gap-2 flex-wrap">
-                                                {/* 1. Reply Button */}
+                                                {/* 1. TbArrowBackUp Button */}
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => setReplyingTo(comment.id)}
                                                 >
-                                                    <Reply className="w-4 h-4 mr-1" />
+                                                    <TbArrowBackUp className="w-4 h-4 mr-1" />
                                                     პასუხი
                                                 </Button>
 
@@ -912,7 +889,7 @@ export default function CommentsPage() {
                                                         setEditContent(comment.content)
                                                     }}
                                                 >
-                                                    <Edit3 className="w-4 h-4 mr-1" />
+                                                    <TbEdit className="w-4 h-4 mr-1" />
                                                     რედაქტირება
                                                 </Button>
 
@@ -923,7 +900,7 @@ export default function CommentsPage() {
                                                         className="text-green-500 hover:text-green-600"
                                                         onClick={() => handleApprove(comment.id)}
                                                     >
-                                                        <CheckCircle className="w-4 h-4 mr-1" />
+                                                        <TbCircleCheck className="w-4 h-4 mr-1" />
                                                         დამტკიცება
                                                     </Button>
                                                 ) : (
@@ -933,7 +910,7 @@ export default function CommentsPage() {
                                                         className="text-yellow-500 hover:text-yellow-600"
                                                         onClick={() => handleReject(comment.id)}
                                                     >
-                                                        <XCircle className="w-4 h-4 mr-1" />
+                                                        <TbCircleX className="w-4 h-4 mr-1" />
                                                         უარყოფა
                                                     </Button>
                                                 )}
@@ -943,12 +920,12 @@ export default function CommentsPage() {
                                                     className="text-destructive hover:text-destructive"
                                                     onClick={() => setDeleteConfirm(comment.id)}
                                                 >
-                                                    <Trash2 className="w-4 h-4" />
+                                                    <TbTrash className="w-4 h-4" />
                                                 </Button>
                                             </div>
                                         </div>
 
-                                        {/* 1. Reply Form */}
+                                        {/* 1. TbArrowBackUp Form */}
                                         {replyingTo === comment.id && (
                                             <div className="mt-4 p-4 bg-muted/50 rounded-lg space-y-3">
                                                 <Textarea
@@ -959,7 +936,7 @@ export default function CommentsPage() {
                                                 />
                                                 <div className="flex gap-2">
                                                     <Button size="sm" onClick={() => handleSendReply(comment.id)}>
-                                                        <Send className="w-4 h-4 mr-1" />
+                                                        <TbSend className="w-4 h-4 mr-1" />
                                                         გაგზავნა
                                                     </Button>
                                                     <Button size="sm" variant="outline" onClick={() => setReplyingTo(null)}>
@@ -993,7 +970,7 @@ export default function CommentsPage() {
                                                             <p className="text-sm mt-1">{reply.content}</p>
                                                             <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                                                                 <span className="flex items-center gap-1">
-                                                                    <Heart className="w-3 h-3" />
+                                                                    <TbHeart className="w-3 h-3" />
                                                                     {reply.likes}
                                                                 </span>
                                                                 <Button
@@ -1002,7 +979,7 @@ export default function CommentsPage() {
                                                                     className="h-6 text-xs text-destructive"
                                                                     onClick={() => handleDelete(reply.id)}
                                                                 >
-                                                                    <Trash2 className="w-3 h-3 mr-1" />
+                                                                    <TbTrash className="w-3 h-3 mr-1" />
                                                                     წაშლა
                                                                 </Button>
                                                             </div>
@@ -1021,7 +998,7 @@ export default function CommentsPage() {
                 {paginatedComments.length === 0 && (
                     <Card>
                         <CardContent className="py-12 text-center text-muted-foreground">
-                            <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                            <TbMessage className="w-12 h-12 mx-auto mb-4 opacity-50" />
                             <p>კომენტარები ვერ მოიძებნა</p>
                         </CardContent>
                     </Card>
@@ -1037,7 +1014,7 @@ export default function CommentsPage() {
                         disabled={currentPage === 1}
                         onClick={() => setCurrentPage(p => p - 1)}
                     >
-                        <ChevronLeft className="w-4 h-4" />
+                        <TbChevronLeft className="w-4 h-4" />
                     </Button>
                     <div className="flex items-center gap-1">
                         {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
@@ -1057,7 +1034,7 @@ export default function CommentsPage() {
                         disabled={currentPage === totalPages}
                         onClick={() => setCurrentPage(p => p + 1)}
                     >
-                        <ChevronRight className="w-4 h-4" />
+                        <TbChevronRight className="w-4 h-4" />
                     </Button>
                 </div>
             )}
@@ -1090,11 +1067,11 @@ export default function CommentsPage() {
                     <Card className="w-full max-w-md">
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle className="flex items-center gap-2">
-                                <Shield className="w-5 h-5" />
+                                <TbShield className="w-5 h-5" />
                                 სპამ ფილტრის პარამეტრები
                             </CardTitle>
                             <Button variant="ghost" size="icon" onClick={() => setShowSpamSettings(false)}>
-                                <X className="w-4 h-4" />
+                                <TbX className="w-4 h-4" />
                             </Button>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -1115,7 +1092,7 @@ export default function CommentsPage() {
                                     <Badge key={word} variant="secondary" className="flex items-center gap-1">
                                         {word}
                                         <button onClick={() => handleRemoveBlacklistWord(word)}>
-                                            <X className="w-3 h-3" />
+                                            <TbX className="w-3 h-3" />
                                         </button>
                                     </Badge>
                                 ))}
@@ -1131,11 +1108,11 @@ export default function CommentsPage() {
                     <Card className="w-full max-w-md">
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle className="flex items-center gap-2">
-                                <Mail className="w-5 h-5" />
+                                <TbMail className="w-5 h-5" />
                                 Email შეტყობინებები
                             </CardTitle>
                             <Button variant="ghost" size="icon" onClick={() => setShowEmailSettings(false)}>
-                                <X className="w-4 h-4" />
+                                <TbX className="w-4 h-4" />
                             </Button>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -1182,7 +1159,7 @@ export default function CommentsPage() {
                                 )}
                             </CardTitle>
                             <Button variant="ghost" size="icon" onClick={() => setViewingAuthor(null)}>
-                                <X className="w-4 h-4" />
+                                <TbX className="w-4 h-4" />
                             </Button>
                         </CardHeader>
                         <CardContent className="flex-1 overflow-y-auto space-y-4">
@@ -1202,7 +1179,7 @@ export default function CommentsPage() {
                                     size="sm"
                                     onClick={() => handleBanAuthor(viewingAuthor)}
                                 >
-                                    <Ban className="w-4 h-4 mr-1" />
+                                    <TbBan className="w-4 h-4 mr-1" />
                                     {bannedAuthors.has(viewingAuthor) ? "განბლოკვა" : "დაბლოკვა"}
                                 </Button>
                             </div>
@@ -1217,7 +1194,7 @@ export default function CommentsPage() {
                                                 <span>{comment.postTitle}</span>
                                                 <span>{timeAgo(comment.createdAt)}</span>
                                                 <span className="flex items-center gap-1">
-                                                    <Heart className="w-3 h-3" />
+                                                    <TbHeart className="w-3 h-3" />
                                                     {comment.likes}
                                                 </span>
                                             </div>

@@ -54,6 +54,8 @@ export async function POST(req: NextRequest) {
                 level: 1,
                 streak: 0,
                 unlockedSkills: ['prompt-basics'],
+                completedQuests: [],
+                completedLessons: []
             };
         }
 

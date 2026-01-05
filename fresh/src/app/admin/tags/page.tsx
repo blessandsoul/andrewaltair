@@ -14,31 +14,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import {
-    Tag,
-    Plus,
-    Trash2,
-    Edit2,
-    Check,
-    X,
-    Search,
-    Hash,
-    TrendingUp,
-    TrendingDown,
-    ArrowUpDown,
-    ChevronDown,
-    ChevronUp,
-    Palette,
-    FileText,
-    Merge,
-    BarChart3,
-    Eye,
-    Download,
-    Upload,
-    Sparkles,
-    Calendar,
-    ExternalLink
-} from "lucide-react"
+import { TbTag, TbPlus, TbTrash, TbEdit, TbCheck, TbX, TbSearch, TbHash, TbTrendingUp, TbTrendingDown, TbArrowsUpDown, TbChevronDown, TbChevronUp, TbPalette, TbFileText, TbGitMerge, TbChartBar, TbEye, TbDownload, TbUpload, TbSparkles, TbCalendar, TbExternalLink } from "react-icons/tb"
 
 interface TagItem {
     id: string
@@ -231,9 +207,9 @@ export default function TagsPage() {
     const [sortBy, setSortBy] = React.useState<"name" | "count" | "date">("count")
     const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("desc")
 
-    // Merge
-    const [mergeMode, setMergeMode] = React.useState(false)
-    const [mergeTarget, setMergeTarget] = React.useState<string | null>(null)
+    // TbGitMerge
+    const [mergeMode, setTbGitMergeMode] = React.useState(false)
+    const [mergeTarget, setTbGitMergeTarget] = React.useState<string | null>(null)
 
     // Stats modal
     const [viewingStats, setViewingStats] = React.useState<string | null>(null)
@@ -391,8 +367,8 @@ export default function TagsPage() {
         }
     }
 
-    // Merge tags
-    const handleMerge = () => {
+    // TbGitMerge tags
+    const handleTbGitMerge = () => {
         if (!mergeTarget || selectedTags.size < 2) return
 
         const targetTag = tags.find(t => t.id === mergeTarget)
@@ -417,8 +393,8 @@ export default function TagsPage() {
         )
 
         setSelectedTags(new Set())
-        setMergeMode(false)
-        setMergeTarget(null)
+        setTbGitMergeMode(false)
+        setTbGitMergeTarget(null)
     }
 
     // Export tags
@@ -468,7 +444,7 @@ export default function TagsPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold flex items-center gap-3">
-                        <Tag className="w-8 h-8 text-indigo-500" />
+                        <TbTag className="w-8 h-8 text-indigo-500" />
                         თეგები
                     </h1>
                     <p className="text-muted-foreground mt-1">
@@ -479,7 +455,7 @@ export default function TagsPage() {
                 <div className="flex gap-2 flex-wrap">
                     {/* Export Button */}
                     <Button variant="outline" size="sm" onClick={handleExport}>
-                        <Download className="w-4 h-4 mr-1" />
+                        <TbDownload className="w-4 h-4 mr-1" />
                         ექსპორტი
                     </Button>
 
@@ -487,7 +463,7 @@ export default function TagsPage() {
                     <label>
                         <Button variant="outline" size="sm" asChild>
                             <span>
-                                <Upload className="w-4 h-4 mr-1" />
+                                <TbUpload className="w-4 h-4 mr-1" />
                                 იმპორტი
                             </span>
                         </Button>
@@ -501,7 +477,7 @@ export default function TagsPage() {
 
                     {/* Add Tag Button */}
                     <Button onClick={() => setShowNewTagForm(true)}>
-                        <Plus className="w-4 h-4 mr-1" />
+                        <TbPlus className="w-4 h-4 mr-1" />
                         ახალი თეგი
                     </Button>
                 </div>
@@ -512,7 +488,7 @@ export default function TagsPage() {
                 <Card className="border-primary/50">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-lg flex items-center gap-2">
-                            <Sparkles className="w-5 h-5" />
+                            <TbSparkles className="w-5 h-5" />
                             ახალი თეგის დამატება
                         </CardTitle>
                     </CardHeader>
@@ -522,7 +498,7 @@ export default function TagsPage() {
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">სახელი</label>
                                 <div className="relative">
-                                    <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                    <TbHash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                     <Input
                                         placeholder="თეგის სახელი..."
                                         value={newTagName}
@@ -571,7 +547,7 @@ export default function TagsPage() {
                                         onClick={() => setShowColorPicker(showColorPicker === "new" ? null : "new")}
                                     >
                                         <div className={`w-4 h-4 rounded-full ${newTagColor}`} />
-                                        <Palette className="w-4 h-4" />
+                                        <TbPalette className="w-4 h-4" />
                                     </Button>
                                     {showColorPicker === "new" && (
                                         <div className="absolute z-50 bg-card border rounded-lg p-2 shadow-lg">
@@ -610,7 +586,7 @@ export default function TagsPage() {
                                 გაუქმება
                             </Button>
                             <Button onClick={addTag} disabled={!newTagName.trim()}>
-                                <Plus className="w-4 h-4 mr-1" />
+                                <TbPlus className="w-4 h-4 mr-1" />
                                 დამატება
                             </Button>
                         </div>
@@ -620,9 +596,9 @@ export default function TagsPage() {
 
             {/* Filters & Sort */}
             <div className="flex flex-col sm:flex-row gap-4">
-                {/* Search */}
+                {/* TbSearch */}
                 <div className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <TbSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                         placeholder="ძიება..."
                         value={searchQuery}
@@ -635,7 +611,7 @@ export default function TagsPage() {
                 <div className="flex items-center gap-2">
                     <Select value={sortBy} onValueChange={(value: "name" | "count" | "date") => setSortBy(value)}>
                         <SelectTrigger className="w-[140px]">
-                            <ArrowUpDown className="w-4 h-4 mr-2" />
+                            <TbArrowsUpDown className="w-4 h-4 mr-2" />
                             <SelectValue placeholder="დალაგება" />
                         </SelectTrigger>
                         <SelectContent>
@@ -649,18 +625,18 @@ export default function TagsPage() {
                         size="icon"
                         onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
                     >
-                        {sortOrder === "asc" ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        {sortOrder === "asc" ? <TbChevronUp className="w-4 h-4" /> : <TbChevronDown className="w-4 h-4" />}
                     </Button>
                 </div>
 
-                {/* Merge Button */}
+                {/* TbGitMerge Button */}
                 {selectedTags.size >= 2 && (
                     <Button
                         variant="outline"
-                        onClick={() => setMergeMode(true)}
+                        onClick={() => setTbGitMergeMode(true)}
                         className="text-indigo-500"
                     >
-                        <Merge className="w-4 h-4 mr-1" />
+                        <TbGitMerge className="w-4 h-4 mr-1" />
                         გაერთიანება ({selectedTags.size})
                     </Button>
                 )}
@@ -675,7 +651,7 @@ export default function TagsPage() {
                         </span>
                         <div className="flex gap-2">
                             <Button size="sm" variant="destructive" onClick={handleBulkDelete}>
-                                <Trash2 className="w-4 h-4 mr-1" />
+                                <TbTrash className="w-4 h-4 mr-1" />
                                 წაშლა
                             </Button>
                         </div>
@@ -683,12 +659,12 @@ export default function TagsPage() {
                 </Card>
             )}
 
-            {/* Merge Mode */}
+            {/* TbGitMerge Mode */}
             {mergeMode && (
                 <Card className="bg-indigo-500/10 border-indigo-500/30">
                     <CardContent className="py-4 space-y-3">
                         <p className="font-medium flex items-center gap-2">
-                            <Merge className="w-5 h-5" />
+                            <TbGitMerge className="w-5 h-5" />
                             აირჩიეთ სამიზნე თეგი (დანარჩენები გაერთიანდება მასში):
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -699,7 +675,7 @@ export default function TagsPage() {
                                         key={id}
                                         variant={mergeTarget === id ? "default" : "outline"}
                                         size="sm"
-                                        onClick={() => setMergeTarget(id)}
+                                        onClick={() => setTbGitMergeTarget(id)}
                                     >
                                         <span className="mr-1">{tag.icon}</span>
                                         {tag.name}
@@ -708,10 +684,10 @@ export default function TagsPage() {
                             })}
                         </div>
                         <div className="flex gap-2">
-                            <Button onClick={handleMerge} disabled={!mergeTarget}>
+                            <Button onClick={handleTbGitMerge} disabled={!mergeTarget}>
                                 გაერთიანება
                             </Button>
-                            <Button variant="outline" onClick={() => { setMergeMode(false); setMergeTarget(null) }}>
+                            <Button variant="outline" onClick={() => { setTbGitMergeMode(false); setTbGitMergeTarget(null) }}>
                                 გაუქმება
                             </Button>
                         </div>
@@ -833,14 +809,14 @@ export default function TagsPage() {
                                                 size="sm"
                                                 onClick={() => saveEdit(tag.id)}
                                             >
-                                                <Check className="w-4 h-4 text-green-500" />
+                                                <TbCheck className="w-4 h-4 text-green-500" />
                                             </Button>
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={() => setEditingId(null)}
                                             >
-                                                <X className="w-4 h-4" />
+                                                <TbX className="w-4 h-4" />
                                             </Button>
                                         </div>
                                     </div>
@@ -849,8 +825,8 @@ export default function TagsPage() {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2">
                                                 <p className="font-medium truncate">{tag.name}</p>
-                                                {tag.trend === "up" && <TrendingUp className="w-3 h-3 text-green-500" />}
-                                                {tag.trend === "down" && <TrendingDown className="w-3 h-3 text-red-500" />}
+                                                {tag.trend === "up" && <TbTrendingUp className="w-3 h-3 text-green-500" />}
+                                                {tag.trend === "down" && <TbTrendingDown className="w-3 h-3 text-red-500" />}
                                             </div>
                                             <p className="text-xs text-muted-foreground">/{tag.slug}</p>
                                             {tag.description && (
@@ -860,14 +836,14 @@ export default function TagsPage() {
                                             )}
                                             <div className="flex items-center gap-3 mt-2">
                                                 <Badge variant="secondary" className="gap-1">
-                                                    <TrendingUp className="w-3 h-3" />
+                                                    <TbTrendingUp className="w-3 h-3" />
                                                     {tag.count}
                                                 </Badge>
                                                 <button
                                                     onClick={() => setViewingPosts(tag.id)}
                                                     className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
                                                 >
-                                                    <FileText className="w-3 h-3" />
+                                                    <TbFileText className="w-3 h-3" />
                                                     {tag.posts.length} პოსტი
                                                 </button>
                                             </div>
@@ -880,7 +856,7 @@ export default function TagsPage() {
                                                 onClick={() => setViewingStats(tag.id)}
                                                 title="სტატისტიკა"
                                             >
-                                                <BarChart3 className="w-3 h-3" />
+                                                <TbChartBar className="w-3 h-3" />
                                             </Button>
                                             <Button
                                                 variant="ghost"
@@ -889,7 +865,7 @@ export default function TagsPage() {
                                                 onClick={() => startEdit(tag)}
                                                 title="რედაქტირება"
                                             >
-                                                <Edit2 className="w-3 h-3" />
+                                                <TbEdit className="w-3 h-3" />
                                             </Button>
                                             <Button
                                                 variant="ghost"
@@ -898,7 +874,7 @@ export default function TagsPage() {
                                                 onClick={() => setDeleteConfirm(tag.id)}
                                                 title="წაშლა"
                                             >
-                                                <Trash2 className="w-3 h-3" />
+                                                <TbTrash className="w-3 h-3" />
                                             </Button>
                                         </div>
                                     </>
@@ -912,7 +888,7 @@ export default function TagsPage() {
             {filteredTags.length === 0 && (
                 <Card>
                     <CardContent className="p-8 text-center text-muted-foreground">
-                        <Tag className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                        <TbTag className="w-12 h-12 mx-auto mb-3 opacity-50" />
                         თეგები ვერ მოიძებნა
                     </CardContent>
                 </Card>
@@ -924,7 +900,7 @@ export default function TagsPage() {
                     <Card className="w-full max-w-md">
                         <CardHeader>
                             <CardTitle className="text-destructive flex items-center gap-2">
-                                <Trash2 className="w-5 h-5" />
+                                <TbTrash className="w-5 h-5" />
                                 წაშლის დადასტურება
                             </CardTitle>
                         </CardHeader>
@@ -952,11 +928,11 @@ export default function TagsPage() {
                     <Card className="w-full max-w-md">
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle className="flex items-center gap-2">
-                                <BarChart3 className="w-5 h-5" />
+                                <TbChartBar className="w-5 h-5" />
                                 სტატისტიკა: {viewingTag.name}
                             </CardTitle>
                             <Button variant="ghost" size="icon" onClick={() => setViewingStats(null)}>
-                                <X className="w-4 h-4" />
+                                <TbX className="w-4 h-4" />
                             </Button>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -974,7 +950,7 @@ export default function TagsPage() {
                                 <div className="flex justify-between text-sm">
                                     <span className="text-muted-foreground">შექმნის თარიღი:</span>
                                     <span className="flex items-center gap-1">
-                                        <Calendar className="w-3 h-3" />
+                                        <TbCalendar className="w-3 h-3" />
                                         {viewingTag.createdAt}
                                     </span>
                                 </div>
@@ -985,8 +961,8 @@ export default function TagsPage() {
                                 <div className="flex justify-between text-sm">
                                     <span className="text-muted-foreground">ტრენდი:</span>
                                     <span className="flex items-center gap-1">
-                                        {viewingTag.trend === "up" && <><TrendingUp className="w-4 h-4 text-green-500" /> იზრდება</>}
-                                        {viewingTag.trend === "down" && <><TrendingDown className="w-4 h-4 text-red-500" /> მცირდება</>}
+                                        {viewingTag.trend === "up" && <><TbTrendingUp className="w-4 h-4 text-green-500" /> იზრდება</>}
+                                        {viewingTag.trend === "down" && <><TbTrendingDown className="w-4 h-4 text-red-500" /> მცირდება</>}
                                         {viewingTag.trend === "stable" && <>სტაბილური</>}
                                     </span>
                                 </div>
@@ -1002,11 +978,11 @@ export default function TagsPage() {
                     <Card className="w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col">
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle className="flex items-center gap-2">
-                                <FileText className="w-5 h-5" />
+                                <TbFileText className="w-5 h-5" />
                                 პოსტები: {viewingPostsTag.name}
                             </CardTitle>
                             <Button variant="ghost" size="icon" onClick={() => setViewingPosts(null)}>
-                                <X className="w-4 h-4" />
+                                <TbX className="w-4 h-4" />
                             </Button>
                         </CardHeader>
                         <CardContent className="flex-1 overflow-y-auto space-y-2">
@@ -1019,7 +995,7 @@ export default function TagsPage() {
                                     <div key={post.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                                         <span className="text-sm">{post.title}</span>
                                         <Button variant="ghost" size="sm">
-                                            <ExternalLink className="w-3 h-3 mr-1" />
+                                            <TbExternalLink className="w-3 h-3 mr-1" />
                                             ნახვა
                                         </Button>
                                     </div>

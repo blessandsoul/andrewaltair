@@ -6,19 +6,7 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-    LogIn,
-    Mail,
-    Lock,
-    Eye,
-    EyeOff,
-    Sparkles,
-    ArrowRight,
-    Github,
-    Chrome,
-    User,
-    AlertCircle
-} from "lucide-react"
+import { TbLogin, TbMail, TbLock, TbEye, TbEyeOff, TbSparkles, TbArrowRight, TbBrandGithub, TbBrandChrome, TbUser, TbAlertCircle } from "react-icons/tb"
 import { useAuth } from "@/lib/auth"
 
 export default function LoginPage() {
@@ -70,7 +58,7 @@ export default function LoginPage() {
                         <div className="relative">
                             <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent rounded-xl blur-md opacity-50 group-hover:opacity-75 transition-opacity" />
                             <div className="relative w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center text-white shadow-lg">
-                                <Sparkles className="w-6 h-6" />
+                                <TbSparkles className="w-6 h-6" />
                             </div>
                         </div>
                         <div className="text-left">
@@ -83,7 +71,7 @@ export default function LoginPage() {
                 <Card className="border-border/50 shadow-xl backdrop-blur-sm">
                     <CardHeader className="text-center space-y-2">
                         <CardTitle className="text-2xl flex items-center justify-center gap-2">
-                            <LogIn className="w-6 h-6 text-primary" />
+                            <TbLogin className="w-6 h-6 text-primary" />
                             შესვლა
                         </CardTitle>
                         <CardDescription>
@@ -95,7 +83,7 @@ export default function LoginPage() {
                             {/* Error Message */}
                             {error && (
                                 <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 flex items-center gap-2 text-sm text-destructive">
-                                    <AlertCircle className="w-4 h-4 shrink-0" />
+                                    <TbAlertCircle className="w-4 h-4 shrink-0" />
                                     {error}
                                 </div>
                             )}
@@ -103,7 +91,7 @@ export default function LoginPage() {
                             {/* Username */}
                             <div className="space-y-2">
                                 <label className="text-sm font-medium flex items-center gap-2">
-                                    <User className="w-4 h-4 text-muted-foreground" />
+                                    <TbUser className="w-4 h-4 text-muted-foreground" />
                                     მომხმარებლის სახელი
                                 </label>
                                 <Input
@@ -117,7 +105,7 @@ export default function LoginPage() {
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
                                     <label className="text-sm font-medium flex items-center gap-2">
-                                        <Lock className="w-4 h-4 text-muted-foreground" />
+                                        <TbLock className="w-4 h-4 text-muted-foreground" />
                                         პაროლი
                                     </label>
                                     <Link href="/forgot-password" className="text-xs text-primary hover:underline">
@@ -137,7 +125,7 @@ export default function LoginPage() {
                                         onClick={() => setShowPassword(!showPassword)}
                                         className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                                     >
-                                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        {showPassword ? <TbEyeOff className="w-4 h-4" /> : <TbEye className="w-4 h-4" />}
                                     </button>
                                 </div>
                             </div>
@@ -164,7 +152,7 @@ export default function LoginPage() {
                                 ) : (
                                     <>
                                         შესვლა
-                                        <ArrowRight className="w-4 h-4" />
+                                        <TbArrowRight className="w-4 h-4" />
                                     </>
                                 )}
                             </Button>
@@ -182,11 +170,11 @@ export default function LoginPage() {
                             {/* Social Login */}
                             <div className="grid grid-cols-2 gap-3">
                                 <Button variant="outline" type="button" className="gap-2">
-                                    <Chrome className="w-4 h-4" />
+                                    <TbBrandChrome className="w-4 h-4" />
                                     Google
                                 </Button>
                                 <Button variant="outline" type="button" className="gap-2">
-                                    <Github className="w-4 h-4" />
+                                    <TbBrandGithub className="w-4 h-4" />
                                     GitHub
                                 </Button>
                             </div>

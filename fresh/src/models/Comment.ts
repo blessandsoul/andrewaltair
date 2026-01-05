@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IComment extends Document {
     _id: mongoose.Types.ObjectId;
-    postId: mongoose.Types.ObjectId;
+    postId: string; // Changed to string to support both posts and tools
     author: {
         name: string;
         email?: string;
@@ -21,8 +21,7 @@ export interface IComment extends Document {
 const CommentSchema = new Schema<IComment>(
     {
         postId: {
-            type: Schema.Types.ObjectId,
-            ref: 'Post',
+            type: String,
             required: [true, 'Post ID is required'],
             index: true,
         },

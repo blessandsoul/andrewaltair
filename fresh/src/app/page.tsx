@@ -5,24 +5,24 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import {
-  ArrowRight,
-  Mail,
-  TrendingUp,
-  Sparkles,
-  Play,
-  Eye,
-  Clock,
-  Flame,
-  Heart,
-  Zap,
-  ExternalLink,
-  Youtube,
-  Send,
-  ChevronRight,
-  MessageCircle,
-  Share2,
-  Star
-} from "lucide-react"
+  TbArrowRight,
+  TbMail,
+  TbTrendingUp,
+  TbSparkles,
+  TbPlayerPlay,
+  TbEye,
+  TbClock,
+  TbFlame,
+  TbHeart,
+  TbBolt,
+  TbExternalLink,
+  TbBrandYoutube,
+  TbSend,
+  TbChevronRight,
+  TbMessage,
+  TbShare,
+  TbStar
+} from "react-icons/tb"
 import { brand } from "@/lib/brand"
 import { PostCard } from "@/components/blog/PostCard"
 import { TrendingCard } from "@/components/blog/TrendingCard"
@@ -66,7 +66,11 @@ function getTotalReactions(reactions: Record<string, number>): number {
 
 export default async function Home() {
   const postsData = await getPosts()
-  const featuredPost = postsData.find((p: any) => p.featured && p.trending)
+  // Find a specific featured post or fallback to a random one
+  let heroPost = postsData.find((p: any) => p.featured && p.trending)
+  if (!heroPost && postsData.length > 0) {
+    heroPost = postsData[Math.floor(Math.random() * postsData.length)]
+  }
   const trendingPosts = postsData.filter((p: any) => p.trending)
   const latestPosts = postsData.slice(0, 6)
 
@@ -115,7 +119,7 @@ export default async function Home() {
                 >
                   <Link href="/blog">
                     წაიკითხე ბლოგი
-                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                    <TbArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </Button>
                 <Button
@@ -125,7 +129,7 @@ export default async function Home() {
                   asChild
                 >
                   <Link href="/videos">
-                    <Play className="w-5 h-5 mr-2" />
+                    <TbPlayerPlay className="w-5 h-5 mr-2" />
                     უყურე ვიდეოებს
                   </Link>
                 </Button>
@@ -151,52 +155,71 @@ export default async function Home() {
             </div>
 
             {/* Featured Post Card */}
-            {featuredPost && (
+            {heroPost && (
               <div className="relative animate-in fade-in slide-in-from-right-4 duration-700 delay-300">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-3xl blur-2xl"></div>
-                <Card className="relative glass-strong rounded-3xl overflow-hidden hover-lift">
+                <Card className="relative glass-strong rounded-3xl overflow-hidden hover-lift group">
                   <CardContent className="p-0">
                     <div className="aspect-video bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center relative overflow-hidden">
-                      {featuredPost.coverImage ? (
+                      {heroPost.coverImage ? (
                         <Image
-                          src={featuredPost.coverImage}
-                          alt={featuredPost.title}
+                          src={heroPost.coverImage}
+                          alt={heroPost.title}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                       ) : (
-                        <Sparkles className="w-16 h-16 text-primary/50" />
+                        <TbSparkles className="w-16 h-16 text-primary/50" />
                       )}
-                    </div>
-                    <div className="p-6 space-y-4">
-                      <div className="flex items-center gap-2">
-                        <Badge className="bg-red-500/10 text-red-500 border-red-500/20">
-                          <Flame className="w-3 h-3 mr-1" />
-                          ტრენდული
+
+                      {/* Dark gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                      {/* Badges on TbPhoto */}
+                      <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+                        {heroPost.trending && (
+                          <Badge className="bg-red-500 text-white border-0 backdrop-blur-md">
+                            <TbFlame className="w-3 h-3 mr-1" />
+                            ტრენდული
+                          </Badge>
+                        )}
+                        <Badge variant="outline" className="bg-white/10 text-white border-white/20 backdrop-blur-md w-fit">
+                          {heroPost.category || 'ბლოგი'}
                         </Badge>
-                        <Badge variant="outline">AI ხრიკები</Badge>
                       </div>
-                      <h3 className="text-xl font-bold leading-tight line-clamp-2">
-                        {featuredPost.title}
-                      </h3>
-                      <p className="text-muted-foreground line-clamp-2">
-                        {featuredPost.excerpt}
-                      </p>
-                      <div className="flex items-center justify-between pt-2">
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Eye className="w-4 h-4" />
-                            {formatNumber(featuredPost.views)}
+
+                      {/* Stats on TbPhoto */}
+                      <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between z-10 text-white/90 text-sm">
+                        <div className="flex items-center gap-4">
+                          <span className="flex items-center gap-1.5">
+                            <TbEye className="w-4 h-4" />
+                            {formatNumber(heroPost.views)}
                           </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            {featuredPost.readingTime} წთ
+                          <span className="flex items-center gap-1.5">
+                            <TbHeart className="w-4 h-4 text-red-500 fill-red-500" />
+                            {formatNumber(getTotalReactions(heroPost.reactions))}
                           </span>
                         </div>
-                        <Button variant="ghost" size="sm" className="text-primary" asChild>
-                          <Link href={`/blog/${featuredPost.slug}`}>
-                            წაიკითხე
-                            <ChevronRight className="w-4 h-4 ml-1" />
+                        <span className="flex items-center gap-1.5">
+                          <TbClock className="w-4 h-4" />
+                          {heroPost.readingTime} წთ
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-6 space-y-4">
+                      <h3 className="text-xl font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+                        {heroPost.title}
+                      </h3>
+                      <p className="text-muted-foreground line-clamp-2">
+                        {heroPost.excerpt}
+                      </p>
+
+                      <div className="pt-2">
+                        <Button variant="ghost" size="sm" className="text-primary p-0 h-auto hover:bg-transparent hover:text-primary/80" asChild>
+                          <Link href={`/blog/${heroPost.slug}`} className="group/link flex items-center">
+                            წაიკითხე სრულად
+                            <TbChevronRight className="w-4 h-4 ml-1 group-hover/link:translate-x-1 transition-transform" />
                           </Link>
                         </Button>
                       </div>
@@ -215,7 +238,7 @@ export default async function Home() {
           <div className="flex items-center justify-between mb-10">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-red-500" />
+                <TbTrendingUp className="w-5 h-5 text-red-500" />
               </div>
               <div>
                 <h2 className="text-2xl sm:text-3xl font-bold">ტრენდული ახლა</h2>
@@ -225,7 +248,7 @@ export default async function Home() {
             <Button variant="ghost" asChild>
               <Link href="/blog?sort=trending">
                 ყველა
-                <ArrowRight className="w-4 h-4 ml-1" />
+                <TbArrowRight className="w-4 h-4 ml-1" />
               </Link>
             </Button>
           </div>
@@ -248,7 +271,7 @@ export default async function Home() {
           <div className="flex items-center justify-between mb-10">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                <Zap className="w-5 h-5 text-primary" />
+                <TbBolt className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <h2 className="text-2xl sm:text-3xl font-bold">უახლესი პოსტები</h2>
@@ -258,7 +281,7 @@ export default async function Home() {
             <Button variant="outline" asChild>
               <Link href="/blog">
                 ყველა სტატია
-                <ArrowRight className="w-4 h-4 ml-1" />
+                <TbArrowRight className="w-4 h-4 ml-1" />
               </Link>
             </Button>
           </div>
@@ -277,13 +300,13 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Video Preview Section */}
+      {/* TbVideo Preview Section */}
       <section className="py-16 lg:py-24 bg-secondary/30">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="flex items-center justify-between mb-10">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center">
-                <Youtube className="w-5 h-5 text-red-500" />
+                <TbBrandYoutube className="w-5 h-5 text-red-500" />
               </div>
               <div>
                 <h2 className="text-2xl sm:text-3xl font-bold">ვიდეო კონტენტი</h2>
@@ -293,7 +316,7 @@ export default async function Home() {
             <Button variant="ghost" asChild>
               <Link href="/videos">
                 ყველა ვიდეო
-                <ArrowRight className="w-4 h-4 ml-1" />
+                <TbArrowRight className="w-4 h-4 ml-1" />
               </Link>
             </Button>
           </div>
@@ -305,7 +328,7 @@ export default async function Home() {
                   <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-accent/20">
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="w-14 h-14 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                        <Play className="w-6 h-6 text-primary fill-primary ml-1" />
+                        <TbPlayerPlay className="w-6 h-6 text-primary fill-primary ml-1" />
                       </div>
                     </div>
                     <Badge className="absolute top-2 right-2 bg-black/70 text-white border-0">
@@ -336,7 +359,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ROI Calculator Section */}
+      {/* ROI TbCalculator Section */}
       <section className="py-16 lg:py-24 bg-secondary/30">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="text-center mb-10">
@@ -366,7 +389,7 @@ export default async function Home() {
         <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl text-center text-white">
           <div className="space-y-8">
             <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-2">
-              <Mail className="w-4 h-4" />
+              <TbMail className="w-4 h-4" />
               <span className="text-sm font-medium">შეუერთდი 15K+ გამომწერს</span>
             </div>
 
@@ -380,7 +403,7 @@ export default async function Home() {
 
             <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <div className="relative flex-1">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40" />
+                <TbMail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40" />
                 <Input
                   type="email"
                   placeholder="შენი ელ-ფოსტა"
@@ -388,7 +411,7 @@ export default async function Home() {
                 />
               </div>
               <Button size="lg" className="bg-white text-primary hover:bg-white/90 h-12 px-8">
-                <Send className="w-4 h-4 mr-2" />
+                <TbSend className="w-4 h-4 mr-2" />
                 გამოწერა
               </Button>
             </div>
@@ -418,7 +441,7 @@ export default async function Home() {
             <Link href="https://github.com/andrewaltair" target="_blank">
               <Button variant="outline" className="gap-2">
                 ყველა პროექტი
-                <ExternalLink className="w-4 h-4" />
+                <TbExternalLink className="w-4 h-4" />
               </Button>
             </Link>
           </div>
@@ -442,7 +465,7 @@ export default async function Home() {
                           {repo.desc}
                         </p>
                       </div>
-                      <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                      <TbExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                     </div>
                     <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
@@ -454,7 +477,7 @@ export default async function Home() {
                         {repo.lang}
                       </span>
                       <span className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-yellow-500" /> {repo.stars}
+                        <TbStar className="w-4 h-4 text-yellow-500" /> {repo.stars}
                       </span>
                     </div>
                   </CardContent>
@@ -473,11 +496,11 @@ export default async function Home() {
           </div>
           <div className="flex flex-wrap items-center justify-center gap-6">
             {[
-              { name: 'YouTube', icon: Youtube, color: 'text-red-500', followers: '25K' },
-              { name: 'Instagram', icon: Sparkles, color: 'text-pink-500', followers: '15K' },
-              { name: 'Facebook', icon: Sparkles, color: 'text-blue-500', followers: '10K' },
-              { name: 'TikTok', icon: Sparkles, color: 'text-foreground', followers: '8K' },
-              { name: 'Telegram', icon: Send, color: 'text-sky-500', followers: '5K' },
+              { name: 'YouTube', icon: TbBrandYoutube, color: 'text-red-500', followers: '25K' },
+              { name: 'Instagram', icon: TbSparkles, color: 'text-pink-500', followers: '15K' },
+              { name: 'Facebook', icon: TbSparkles, color: 'text-blue-500', followers: '10K' },
+              { name: 'TikTok', icon: TbSparkles, color: 'text-foreground', followers: '8K' },
+              { name: 'Telegram', icon: TbSend, color: 'text-sky-500', followers: '5K' },
             ].map((social) => (
               <Link
                 key={social.name}
@@ -489,7 +512,7 @@ export default async function Home() {
                   <div className="font-medium group-hover:text-primary transition-colors">{social.name}</div>
                   <div className="text-sm text-muted-foreground">{social.followers} გამომწერი</div>
                 </div>
-                <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                <TbExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
               </Link>
             ))}
           </div>

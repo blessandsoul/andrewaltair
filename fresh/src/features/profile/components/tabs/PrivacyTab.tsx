@@ -5,7 +5,7 @@
 "use client"
 
 import * as React from "react"
-import { Users, EyeIcon } from "lucide-react"
+import { TbUsers, TbEye } from "react-icons/tb"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { SettingToggle } from "../shared/SettingToggle"
 import { useAuth } from "@/lib/auth"
@@ -30,7 +30,7 @@ export function PrivacyTab() {
         <Card className="border-border/50 shadow-xl backdrop-blur-sm">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Users className="w-5 h-5 text-primary" />
+                    <TbUsers className="w-5 h-5 text-primary" />
                     პროფილის ხილვადობა
                 </CardTitle>
                 <CardDescription>მართეთ ვინ ხედავს თქვენს ინფორმაციას</CardDescription>
@@ -79,7 +79,7 @@ export function PrivacyTab() {
                 {settings.profileVisible && user && (
                     <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
                         <p className="text-sm text-primary flex items-center gap-2">
-                            <EyeIcon className="w-4 h-4" />
+                            <TbEye className="w-4 h-4" />
                             თქვენი პროფილი ხელმისაწვდომია: altair.ge/@{user.username}
                         </p>
                     </div>

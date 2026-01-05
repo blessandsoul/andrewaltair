@@ -3,18 +3,7 @@
 import * as React from "react"
 import { createPortal } from "react-dom"
 import { Button } from "@/components/ui/button"
-import {
-    X,
-    ChevronRight,
-    ChevronLeft,
-    Sparkles,
-    LayoutDashboard,
-    FileText,
-    BarChart3,
-    Settings,
-    Keyboard,
-    CheckCircle
-} from "lucide-react"
+import { TbX, TbChevronRight, TbChevronLeft, TbSparkles, TbLayoutDashboard, TbFileText, TbChartBar, TbSettings, TbKeyboard, TbCircleCheck } from "react-icons/tb"
 
 interface TourStep {
     target: string
@@ -29,35 +18,35 @@ const tourSteps: TourStep[] = [
         target: "[data-tour='dashboard']",
         title: "მოგესალმებით Dashboard-ში! 🎉",
         description: "აქ ნახავთ თქვენი საიტის მთავარ სტატისტიკას და ბოლო აქტივობებს.",
-        icon: <LayoutDashboard className="w-6 h-6" />,
+        icon: <TbLayoutDashboard className="w-6 h-6" />,
         position: "bottom"
     },
     {
         target: "[data-tour='content']",
         title: "კონტენტის მართვა",
         description: "შექმენით და დაარედაქტირეთ პოსტები, ვიდეოები და მედია ფაილები.",
-        icon: <FileText className="w-6 h-6" />,
+        icon: <TbFileText className="w-6 h-6" />,
         position: "right"
     },
     {
         target: "[data-tour='analytics']",
         title: "ანალიტიკა",
         description: "თვალყურს ადევნეთ ნახვებს, რეაქციებს და მომხმარებლების აქტივობას.",
-        icon: <BarChart3 className="w-6 h-6" />,
+        icon: <TbChartBar className="w-6 h-6" />,
         position: "right"
     },
     {
         target: "[data-tour='settings']",
         title: "პარამეტრები",
         description: "მოირგეთ საიტის კონფიგურაცია, თემა და უსაფრთხოების პარამეტრები.",
-        icon: <Settings className="w-6 h-6" />,
+        icon: <TbSettings className="w-6 h-6" />,
         position: "right"
     },
     {
         target: "[data-tour='shortcuts']",
         title: "კლავიატურის მალსახმობები",
         description: "გამოიყენეთ ⌘K ძიებისთვის, ⌘S შენახვისთვის და ⌘N ახალი პოსტისთვის.",
-        icon: <Keyboard className="w-6 h-6" />,
+        icon: <TbKeyboard className="w-6 h-6" />,
         position: "top"
     }
 ]
@@ -140,7 +129,7 @@ export function OnboardingTour({ onComplete, isOpen }: OnboardingTourProps) {
                                 onClick={handleSkip}
                                 className="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground"
                             >
-                                <X className="w-5 h-5" />
+                                <TbX className="w-5 h-5" />
                             </button>
                         </div>
                         <h2 className="text-xl font-bold mt-4">{step.title}</h2>
@@ -171,7 +160,7 @@ export function OnboardingTour({ onComplete, isOpen }: OnboardingTourProps) {
                         <div className="flex gap-2">
                             {currentStep > 0 && (
                                 <Button variant="outline" size="sm" onClick={handlePrev}>
-                                    <ChevronLeft className="w-4 h-4 mr-1" />
+                                    <TbChevronLeft className="w-4 h-4 mr-1" />
                                     უკან
                                 </Button>
                             )}
@@ -182,13 +171,13 @@ export function OnboardingTour({ onComplete, isOpen }: OnboardingTourProps) {
                             >
                                 {currentStep === tourSteps.length - 1 ? (
                                     <>
-                                        <CheckCircle className="w-4 h-4 mr-1" />
+                                        <TbCircleCheck className="w-4 h-4 mr-1" />
                                         დასრულება
                                     </>
                                 ) : (
                                     <>
                                         შემდეგი
-                                        <ChevronRight className="w-4 h-4 ml-1" />
+                                        <TbChevronRight className="w-4 h-4 ml-1" />
                                     </>
                                 )}
                             </Button>

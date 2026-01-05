@@ -25,13 +25,13 @@ import {
 } from '@/components/conversion';
 
 const COMPONENTS = [
-    { id: 'mystery-box', name: 'Mystery Box', Component: MysteryBox },
+    { id: 'mystery-box', name: 'Mystery TbBox', Component: MysteryBox },
     { id: 'deals', name: 'Limited Time Deals', Component: LimitedTimeDeals },
     { id: 'lessons', name: 'Micro Lessons', Component: MicroLessons },
     { id: 'quests', name: 'AI Quest Journey', Component: AIQuestJourney },
     { id: 'skills', name: 'Skill Tree', Component: SkillTree },
     { id: 'snapshot', name: 'Progress Snapshot', Component: ProgressSnapshot },
-    { id: 'calculator', name: 'Savings Calculator', Component: SavingsCalculator },
+    { id: 'calculator', name: 'Savings TbCalculator', Component: SavingsCalculator },
     { id: 'playground', name: 'Prompt Playground', Component: PromptPlayground },
     { id: 'health', name: 'AI Health Score', Component: AIHealthScore },
     { id: 'casestudy', name: 'Case Study Builder', Component: CaseStudyBuilder },

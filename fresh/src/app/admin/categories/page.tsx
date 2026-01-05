@@ -13,159 +13,91 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import {
-    FolderOpen,
-    Plus,
-    Trash2,
-    Edit2,
-    Check,
-    X,
-    Search,
-    Palette,
-    FileText,
-    GripVertical,
-    Download,
-    Upload,
-    AlertTriangle,
-    Calendar,
-    Link2,
-    ChevronDown,
-    ChevronRight,
-    Eye,
-    BarChart3,
-    // Icons for picker
-    Sparkles,
-    Zap,
-    Brain,
-    Bot,
-    Cpu,
-    Code,
-    Terminal,
-    Lightbulb,
-    BookOpen,
-    GraduationCap,
-    Newspaper,
-    Megaphone,
-    Star,
-    Heart,
-    Trophy,
-    Target,
-    Rocket,
-    Wand2,
-    Layers,
-    Settings,
-    Globe,
-    Shield,
-    Lock,
-    Key,
-    Users,
-    MessageSquare,
-    Mail,
-    Bell,
-    Camera,
-    Image,
-    Video,
-    Music,
-    Headphones,
-    Gamepad2,
-    Smartphone,
-    Laptop,
-    Monitor,
-    Wifi,
-    Cloud,
-    Database,
-    Server,
-    HardDrive,
-    Folder,
-    File,
-    FileCode,
-    FileImage,
-    FileVideo,
-    Palette as PaletteIcon,
-    Brush,
-    PenTool,
-    Wrench
-} from "lucide-react"
+    TbFolderOpen, TbPlus, TbTrash, TbEdit, TbCheck, TbX, TbSearch, TbPalette, TbFileText, TbGripVertical, TbDownload, TbUpload, TbAlertTriangle, TbCalendar, TbExternalLink, TbChevronDown, TbChevronRight, TbEye, TbChartBar, TbLink, // Icons for picker
+    TbSparkles, TbBolt, TbBrain, TbRobot, TbCpu, TbCode, TbTerminal, TbBulb, TbBook, TbSchool, TbNews, TbSpeakerphone, TbStar, TbHeart, TbTrophy, TbTarget, TbRocket, TbWand, TbStack2, TbSettings, TbWorld, TbShield, TbLock, TbKey, TbUsers, TbMessage, TbMail, TbBell, TbCamera, TbPhoto, TbVideo, TbMusic, TbHeadphones, TbDeviceGamepad2, TbDeviceMobile, TbDeviceLaptop, TbDeviceDesktop, TbWifi, TbCloud, TbDatabase, TbServer, TbDeviceSdCard, TbFolder, TbFile, TbFileCode, TbPalette as PaletteIcon, TbBrush, TbPencil, TbTool
+} from "react-icons/tb"
+import Link from "next/link"
 
 // Icon options with Lucide icons - comprehensive list
 const iconOptions = [
     // AI & Tech
-    { name: "Sparkles", icon: Sparkles },
-    { name: "Zap", icon: Zap },
-    { name: "Brain", icon: Brain },
-    { name: "Bot", icon: Bot },
-    { name: "Cpu", icon: Cpu },
-    { name: "Code", icon: Code },
-    { name: "Terminal", icon: Terminal },
-    { name: "Wand2", icon: Wand2 },
+    { name: "TbSparkles", icon: TbSparkles },
+    { name: "TbBolt", icon: TbBolt },
+    { name: "Brain", icon: TbBrain },
+    { name: "Bot", icon: TbRobot },
+    { name: "TbCpu", icon: TbCpu },
+    { name: "TbCode", icon: TbCode },
+    { name: "TbTerminal", icon: TbTerminal },
+    { name: "TbWand", icon: TbWand },
     // Education
-    { name: "Lightbulb", icon: Lightbulb },
-    { name: "BookOpen", icon: BookOpen },
-    { name: "GraduationCap", icon: GraduationCap },
+    { name: "TbBulb", icon: TbBulb },
+    { name: "TbBook", icon: TbBook },
+    { name: "TbSchool", icon: TbSchool },
     // Content
-    { name: "Newspaper", icon: Newspaper },
-    { name: "Megaphone", icon: Megaphone },
-    { name: "FileText", icon: FileText },
-    { name: "File", icon: File },
-    { name: "FileCode", icon: FileCode },
-    { name: "FileImage", icon: FileImage },
-    { name: "FileVideo", icon: FileVideo },
+    { name: "TbNews", icon: TbNews },
+    { name: "TbSpeakerphone", icon: TbSpeakerphone },
+    { name: "TbFileText", icon: TbFileText },
+    { name: "File", icon: TbFile },
+    { name: "TbFileCode", icon: TbFileCode },
+    { name: "TbPhoto", icon: TbPhoto },
+    { name: "TbVideo", icon: TbVideo },
     // Social
-    { name: "Star", icon: Star },
-    { name: "Heart", icon: Heart },
-    { name: "Trophy", icon: Trophy },
-    { name: "Target", icon: Target },
-    { name: "Rocket", icon: Rocket },
-    { name: "Users", icon: Users },
-    { name: "MessageSquare", icon: MessageSquare },
-    { name: "Mail", icon: Mail },
-    { name: "Bell", icon: Bell },
+    { name: "Star", icon: TbStar },
+    { name: "Heart", icon: TbHeart },
+    { name: "Trophy", icon: TbTrophy },
+    { name: "Target", icon: TbTarget },
+    { name: "Rocket", icon: TbRocket },
+    { name: "Users", icon: TbUsers },
+    { name: "TbMessage", icon: TbMessage },
+    { name: "TbMail", icon: TbMail },
+    { name: "Bell", icon: TbBell },
     // Media
-    { name: "Camera", icon: Camera },
-    { name: "Image", icon: Image },
-    { name: "Video", icon: Video },
-    { name: "Music", icon: Music },
-    { name: "Headphones", icon: Headphones },
-    { name: "Gamepad2", icon: Gamepad2 },
+    { name: "TbCamera", icon: TbCamera },
+    { name: "Image", icon: TbPhoto },
+    { name: "TbVideo", icon: TbVideo },
+    { name: "TbMusic", icon: TbMusic },
+    { name: "TbHeadphones", icon: TbHeadphones },
+    { name: "TbDeviceGamepad2", icon: TbDeviceGamepad2 },
     // Devices
-    { name: "Laptop", icon: Laptop },
-    { name: "Monitor", icon: Monitor },
-    { name: "Smartphone", icon: Smartphone },
+    { name: "Laptop", icon: TbDeviceLaptop },
+    { name: "Monitor", icon: TbDeviceDesktop },
+    { name: "Smartphone", icon: TbDeviceMobile },
     // Cloud & Data
-    { name: "Cloud", icon: Cloud },
-    { name: "Database", icon: Database },
-    { name: "Server", icon: Server },
-    { name: "HardDrive", icon: HardDrive },
-    { name: "Wifi", icon: Wifi },
+    { name: "Cloud", icon: TbCloud },
+    { name: "Database", icon: TbDatabase },
+    { name: "Server", icon: TbServer },
+    { name: "TbDeviceSdCard", icon: TbDeviceSdCard },
+    { name: "TbWifi", icon: TbWifi },
     // Files & Folders
-    { name: "Folder", icon: Folder },
-    { name: "FolderOpen", icon: FolderOpen },
-    { name: "Layers", icon: Layers },
+    { name: "TbFolder", icon: TbFolder },
+    { name: "TbFolderOpen", icon: TbFolderOpen },
+    { name: "TbStack2", icon: TbStack2 },
     // Settings & Tools
-    { name: "Settings", icon: Settings },
-    { name: "Wrench", icon: Wrench },
-    { name: "PenTool", icon: PenTool },
-    { name: "Brush", icon: Brush },
-    { name: "Palette", icon: PaletteIcon },
+    { name: "Settings", icon: TbSettings },
+    { name: "TbTool", icon: TbTool },
+    { name: "TbPencil", icon: TbPencil },
+    { name: "Brush", icon: TbBrush },
+    { name: "TbPalette", icon: PaletteIcon },
     // Security
-    { name: "Shield", icon: Shield },
-    { name: "Lock", icon: Lock },
-    { name: "Key", icon: Key },
+    { name: "Shield", icon: TbShield },
+    { name: "Lock", icon: TbLock },
+    { name: "Key", icon: TbKey },
     // Web
-    { name: "Globe", icon: Globe },
+    { name: "TbWorld", icon: TbWorld },
     // UI
-    { name: "Search", icon: Search },
-    { name: "Eye", icon: Eye },
-    { name: "Calendar", icon: Calendar },
-    { name: "Download", icon: Download },
-    { name: "Upload", icon: Upload },
-    { name: "Link2", icon: Link2 },
-    { name: "BarChart3", icon: BarChart3 },
-    { name: "AlertTriangle", icon: AlertTriangle },
-    { name: "Plus", icon: Plus },
-    { name: "Check", icon: Check },
-    { name: "X", icon: X },
-    { name: "Edit2", icon: Edit2 },
-    { name: "Trash2", icon: Trash2 },
+    { name: "TbSearch", icon: TbSearch },
+    { name: "Eye", icon: TbEye },
+    { name: "Calendar", icon: TbCalendar },
+    { name: "Download", icon: TbDownload },
+    { name: "Upload", icon: TbUpload },
+    { name: "TbExternalLink", icon: TbExternalLink },
+    { name: "TbChartBar", icon: TbChartBar },
+    { name: "AlertTriangle", icon: TbAlertTriangle },
+    { name: "Plus", icon: TbPlus },
+    { name: "Check", icon: TbCheck },
+    { name: "X", icon: TbX },
+    { name: "TbEdit", icon: TbEdit },
+    { name: "Trash2", icon: TbTrash },
 ]
 
 interface Category {
@@ -195,16 +127,16 @@ const colorOptions = [
 
 const sampleCategories: Category[] = [
     { id: "1", name: "AI Tools", slug: "ai-tools", description: "ხელოვნური ინტელექტის ინსტრუმენტები", count: 15, color: "#6366f1", icon: "Bot", createdAt: "2024-12-01", updatedAt: "2024-12-20" },
-    { id: "2", name: "ტუტორიალები", slug: "tutorials", description: "სასწავლო მასალები", count: 12, color: "#22c55e", icon: "BookOpen", createdAt: "2024-12-05", updatedAt: "2024-12-18" },
-    { id: "3", name: "სიახლეები", slug: "news", description: "AI სფეროს სიახლეები", count: 8, color: "#3b82f6", icon: "Newspaper", createdAt: "2024-12-10", updatedAt: "2024-12-25" },
-    { id: "4", name: "რჩევები", slug: "tips", description: "პრაქტიკული რჩევები", count: 10, color: "#f97316", icon: "Lightbulb", createdAt: "2024-12-12", updatedAt: "2024-12-22" },
+    { id: "2", name: "ტუტორიალები", slug: "tutorials", description: "სასწავლო მასალები", count: 12, color: "#22c55e", icon: "TbBook", createdAt: "2024-12-05", updatedAt: "2024-12-18" },
+    { id: "3", name: "სიახლეები", slug: "news", description: "AI სფეროს სიახლეები", count: 8, color: "#3b82f6", icon: "TbNews", createdAt: "2024-12-10", updatedAt: "2024-12-25" },
+    { id: "4", name: "რჩევები", slug: "tips", description: "პრაქტიკული რჩევები", count: 10, color: "#f97316", icon: "TbBulb", createdAt: "2024-12-12", updatedAt: "2024-12-22" },
     { id: "5", name: "მიმოხილვები", slug: "reviews", description: "პროდუქტების მიმოხილვები", count: 6, color: "#a855f7", icon: "Star", createdAt: "2024-12-15", updatedAt: "2024-12-27" },
 ]
 
 // Get icon component by name
 function getIconComponent(iconName: string) {
     const found = iconOptions.find(i => i.name === iconName)
-    return found ? found.icon : Folder
+    return found ? found.icon : TbFolder
 }
 
 export default function CategoriesPage() {
@@ -222,7 +154,7 @@ export default function CategoriesPage() {
         slug: "",
         description: "",
         color: "#6366f1",
-        icon: "Folder",
+        icon: "TbFolder",
         parentId: ""
     })
 
@@ -286,7 +218,7 @@ export default function CategoriesPage() {
                     updatedAt: now
                 }
                 setCategories([...categories, newCategory])
-                setFormData({ name: "", slug: "", description: "", color: "#6366f1", icon: "Folder", parentId: "" })
+                setFormData({ name: "", slug: "", description: "", color: "#6366f1", icon: "TbFolder", parentId: "" })
                 setShowAddForm(false)
             }
         } catch (error) {
@@ -361,7 +293,7 @@ export default function CategoriesPage() {
                         : c
                 ))
                 setEditingId(null)
-                setFormData({ name: "", slug: "", description: "", color: "#6366f1", icon: "Folder", parentId: "" })
+                setFormData({ name: "", slug: "", description: "", color: "#6366f1", icon: "TbFolder", parentId: "" })
             }
         } catch (error) {
             console.error('Save edit error:', error)
@@ -396,7 +328,7 @@ export default function CategoriesPage() {
                     <div className="flex items-center justify-between">
                         <h3 className="font-bold text-lg">აირჩიე Icon</h3>
                         <Button variant="ghost" size="icon" onClick={() => setShowIconPicker(false)}>
-                            <X className="w-4 h-4" />
+                            <TbX className="w-4 h-4" />
                         </Button>
                     </div>
                     <div className="grid grid-cols-8 gap-2 max-h-64 overflow-y-auto">
@@ -426,7 +358,7 @@ export default function CategoriesPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold flex items-center gap-3">
-                        <FolderOpen className="w-8 h-8 text-indigo-500" />
+                        <TbFolderOpen className="w-8 h-8 text-indigo-500" />
                         კატეგორიები
                     </h1>
                     <p className="text-muted-foreground mt-1">
@@ -435,21 +367,21 @@ export default function CategoriesPage() {
                 </div>
                 <div className="flex gap-2 flex-wrap">
                     <Button variant="outline" size="sm" onClick={() => setShowStats(!showStats)} className="gap-2">
-                        <BarChart3 className="w-4 h-4" />
+                        <TbChartBar className="w-4 h-4" />
                         სტატისტიკა
                     </Button>
 
                     {selectedCategories.length > 0 && (
                         <Button variant="destructive" size="sm" onClick={handleBulkDelete} className="gap-2">
-                            <Trash2 className="w-4 h-4" />
+                            <TbTrash className="w-4 h-4" />
                             წაშლა ({selectedCategories.length})
                         </Button>
                     )}
                     <Button onClick={() => {
-                        setFormData({ name: "", slug: "", description: "", color: "#6366f1", icon: "Folder", parentId: "" })
+                        setFormData({ name: "", slug: "", description: "", color: "#6366f1", icon: "TbFolder", parentId: "" })
                         setShowAddForm(true)
                     }} className="gap-2">
-                        <Plus className="w-4 h-4" />
+                        <TbPlus className="w-4 h-4" />
                         ახალი
                     </Button>
                 </div>
@@ -500,7 +432,7 @@ export default function CategoriesPage() {
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium flex items-center gap-1">
-                                    <Link2 className="w-3 h-3" />
+                                    <TbLink className="w-3 h-3" />
                                     Slug
                                 </label>
                                 <Input
@@ -546,7 +478,7 @@ export default function CategoriesPage() {
                                 >
                                     {React.createElement(getIconComponent(formData.icon), { className: "w-5 h-5" })}
                                     <span className="text-sm">{formData.icon}</span>
-                                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                                    <TbChevronDown className="w-4 h-4 text-muted-foreground" />
                                 </button>
                             </div>
 
@@ -586,9 +518,9 @@ export default function CategoriesPage() {
                 </Card>
             )}
 
-            {/* Search */}
+            {/* TbSearch */}
             <div className="relative max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <TbSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                     placeholder="ძიება..."
                     value={searchQuery}
@@ -614,7 +546,7 @@ export default function CategoriesPage() {
                                         onChange={() => toggleSelect(cat.id)}
                                         className="w-4 h-4 rounded border-border"
                                     />
-                                    <GripVertical className="w-5 h-5 text-muted-foreground cursor-grab" />
+                                    <TbGripVertical className="w-5 h-5 text-muted-foreground cursor-grab" />
                                     <div
                                         className="w-10 h-10 rounded-lg flex items-center justify-center"
                                         style={{ backgroundColor: cat.color + "20" }}
@@ -633,11 +565,11 @@ export default function CategoriesPage() {
                                         <p className="text-sm text-muted-foreground truncate">{cat.description}</p>
                                     </div>
                                     <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground">
-                                        <Calendar className="w-3 h-3" />
+                                        <TbCalendar className="w-3 h-3" />
                                         {cat.updatedAt}
                                     </div>
                                     <Badge variant="secondary" className="gap-1">
-                                        <FileText className="w-3 h-3" />
+                                        <TbFileText className="w-3 h-3" />
                                         {cat.count} პოსტი
                                     </Badge>
                                     <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
@@ -647,7 +579,7 @@ export default function CategoriesPage() {
                                             className="h-8 w-8"
                                             onClick={() => startEdit(cat)}
                                         >
-                                            <Edit2 className="w-4 h-4" />
+                                            <TbEdit className="w-4 h-4" />
                                         </Button>
                                         <Button
                                             variant="ghost"
@@ -655,7 +587,7 @@ export default function CategoriesPage() {
                                             className="h-8 w-8 text-destructive"
                                             onClick={() => setShowDeleteConfirm(cat.id)}
                                         >
-                                            <Trash2 className="w-4 h-4" />
+                                            <TbTrash className="w-4 h-4" />
                                         </Button>
                                     </div>
                                 </div>
@@ -679,7 +611,7 @@ export default function CategoriesPage() {
                     <Card className="w-full max-w-md mx-4">
                         <CardContent className="p-6 text-center space-y-4">
                             <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto">
-                                <AlertTriangle className="w-8 h-8 text-red-500" />
+                                <TbAlertTriangle className="w-8 h-8 text-red-500" />
                             </div>
                             <h3 className="text-xl font-bold">წაშლის დადასტურება</h3>
                             <p className="text-muted-foreground">
@@ -705,11 +637,11 @@ export default function CategoriesPage() {
                         <CardContent className="p-6 space-y-6">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-xl font-bold flex items-center gap-2">
-                                    <Edit2 className="w-5 h-5 text-primary" />
+                                    <TbEdit className="w-5 h-5 text-primary" />
                                     კატეგორიის რედაქტირება
                                 </h3>
                                 <Button variant="ghost" size="icon" onClick={() => setEditingId(null)}>
-                                    <X className="w-4 h-4" />
+                                    <TbX className="w-4 h-4" />
                                 </Button>
                             </div>
 
@@ -724,7 +656,7 @@ export default function CategoriesPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium flex items-center gap-1">
-                                        <Link2 className="w-3 h-3" />
+                                        <TbLink className="w-3 h-3" />
                                         Slug
                                     </label>
                                     <Input
@@ -771,7 +703,7 @@ export default function CategoriesPage() {
                                     >
                                         {React.createElement(getIconComponent(formData.icon), { className: "w-5 h-5" })}
                                         <span className="text-sm">{formData.icon}</span>
-                                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                                        <TbChevronDown className="w-4 h-4 text-muted-foreground" />
                                     </button>
                                 </div>
 

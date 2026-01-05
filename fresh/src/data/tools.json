@@ -15,7 +15,7 @@
         "name": "Claude",
         "description": "Anthropic-ის სუპერ-ინტელექტუალური AI ასისტენტი 200K ტოკენის კონტექსტით. იდეალურია გრძელი დოკუმენტების ანალიზისთვის, კოდის რევიუსთვის, აკადემიური კვლევისთვის. Constitutional AI ტექნოლოგია უზრუნველყოფს უსაფრთხო და ეთიკურ პასუხებს.",
         "url": "https://claude.ai",
-        "logo": "https://claude.ai/images/claude_app_icon.png",
+        "logo": "https://www.anthropic.com/images/icons/apple-touch-icon.png",
         "category": "ჩატბოტები",
         "pricing": "freemium",
         "rating": 5,
@@ -47,7 +47,7 @@
         "name": "Perplexity",
         "description": "AI-ზე დაფუძნებული ძებნის რევოლუცია! ყველა პასუხს ახლავს წყაროები და ციტატები. Pro Search ფუნქცია აკეთებს 10+ ძებნას ერთ კითხვაზე. იდეალურია აკადემიური კვლევისთვის, ფაქტების შემოწმებისთვის და სიღრმისეული ანალიზისთვის.",
         "url": "https://perplexity.ai",
-        "logo": "https://www.perplexity.ai/favicon.svg",
+        "logo": "https://ppl-ai-public.s3.amazonaws.com/static/newlogogreenbg.png",
         "category": "ძებნა",
         "pricing": "freemium",
         "rating": 5,
@@ -58,7 +58,7 @@
         "name": "You.com",
         "description": "პირადი AI საძიებო სისტემა კონფიდენციალურობის დაცვით. YouChat, YouWrite, YouCode და YouImagine - ერთ პლატფორმაზე. აერთიანებს ვებ-ძებნას, AI ჩატს, კოდის დახმარებას და სურათების გენერაციას.",
         "url": "https://you.com",
-        "logo": "https://you.com/favicon/favicon-32x32.png",
+        "logo": "https://you.com/favicon-96x96.png",
         "category": "ძებნა",
         "pricing": "freemium",
         "rating": 4
@@ -68,7 +68,7 @@
         "name": "Phind",
         "description": "დეველოპერების საყვარელი AI ძებნა! ოპტიმიზირებულია პროგრამირების კითხვებზე პასუხისთვის. აკავშირებს Stack Overflow-ს, GitHub-ს და დოკუმენტაციებს. VS Code ექსტენშენი ხელმისაწვდომია. უფასო GPT-4 ხარისხის პასუხები კოდზე.",
         "url": "https://phind.com",
-        "logo": "https://www.phind.com/images/favicon.png",
+        "logo": "https://www.phind.com/images/favicon-96x96.png",
         "category": "ძებნა",
         "pricing": "freemium",
         "rating": 4
@@ -78,7 +78,7 @@
         "name": "Kagi",
         "description": "რეკლამების-გარეშე პრემიუმ საძიებო სისტემა ჩაშენებული AI-ით. Summarize ფუნქცია ასინთეზებს გრძელ სტატიებს. Privacy-first მიდგომა - არ აგროვებს მონაცემებს. სრულად კასტომიზაცია და ფილტრები ყველა საიტზე.",
         "url": "https://kagi.com",
-        "logo": "https://kagi.com/favicon.ico",
+        "logo": "/images/tool-logos/kagi.png",
         "category": "ძებნა",
         "pricing": "paid",
         "rating": 4
@@ -99,7 +99,7 @@
         "name": "DALL-E 3",
         "description": "OpenAI-ს უახლესი სურათების გენერატორი ChatGPT-ში ინტეგრირებული. ზუსტად მისდევს ტექსტურ ინსტრუქციებს და აჩვენებს ტექსტს სურათებზე. იდეალურია ილუსტრაციებისთვის, მარკეტინგისთვის და კრეატიული პროექტებისთვის.",
         "url": "https://openai.com/dall-e-3",
-        "logo": "https://openai.com/favicon.ico",
+        "logo": "https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg",
         "category": "სურათები",
         "pricing": "freemium",
         "rating": 5
@@ -109,7 +109,7 @@
         "name": "Stable Diffusion",
         "description": "ღია კოდის AI სურათების გენერატორი - გადმოწერე და გაუშვი ლოკალურად სრულიად უფასოდ! SDXL და SD 3.0 მოდელები უზრუნველყოფს პროფესიონალურ ხარისხს. Automatic1111, ComfyUI ინტერფეისები. აქტიური Community, ათასობით მოდელი და LoRA.",
         "url": "https://stability.ai",
-        "logo": "https://stability.ai/favicon.ico",
+        "logo": "https://stability.ai/apple-touch-icon.png",
         "category": "სურათები",
         "pricing": "freemium",
         "rating": 5
@@ -119,7 +119,7 @@
         "name": "Leonardo.AI",
         "description": "პროფესიონალური AI არტ და გეიმ-ასეტების გენერატორი. Image2Image, Realtime Canvas, AI Canvas ფუნქციებით. იდეალურია გეიმ-დეველოპერებისთვის და კომერციული პროექტებისთვის. უფასო გეგმა დღეში 150 ტოკენით.",
         "url": "https://leonardo.ai",
-        "logo": "https://leonardo.ai/favicon.ico",
+        "logo": "https://leonardo.ai/apple-touch-icon.png",
         "category": "სურათები",
         "pricing": "freemium",
         "rating": 4
@@ -129,7 +129,7 @@
         "name": "Adobe Firefly",
         "description": "Adobe-ს ეთიკური AI გენერატორი - მხოლოდ ლიცენზირებულ მასალაზე დატრენინგებული! ინტეგრირებულია Photoshop, Illustrator, Express-ში. Generative Fill, Text Effects, Structure Reference ფუნქციები. კომერციულად უსაფრთხო.",
         "url": "https://firefly.adobe.com",
-        "logo": "https://www.adobe.com/favicon.ico",
+        "logo": "/images/tool-logos/adobe_firefly.png",
         "category": "სურათები",
         "pricing": "freemium",
         "rating": 5
@@ -139,7 +139,7 @@
         "name": "Ideogram",
         "description": "AI გენერატორი რომელიც რეალურად კითხულობს ტექსტს! ლოგოები, პოსტერები, ტიპოგრაფია - ყველაფერი სადაც ტექსტი მნიშვნელოვანია. უფასო 100 გენერაცია დღეში. Magic Prompt ფუნქცია აპტიმიზირებს პრომპტებს.",
         "url": "https://ideogram.ai",
-        "logo": "https://ideogram.ai/favicon.ico",
+        "logo": "https://ideogram.ai/apple-touch-icon.png",
         "category": "სურათები",
         "pricing": "freemium",
         "rating": 4
@@ -149,7 +149,7 @@
         "name": "Playground AI",
         "description": "სრულიად უფასო AI სურათების პლატფორმა 1000+ თავისუფალი გენერაციით დღეში! Mixed Image Editing, Canvas რეჟიმი, სტილების არჩევანი. დამწყებთათვის იდეალური - მარტივი ინტერფეისი და სწრაფი შედეგები.",
         "url": "https://playground.ai",
-        "logo": "https://playground.ai/favicon.ico",
+        "logo": "https://playground.ai/apple-touch-icon.png",
         "category": "სურათები",
         "pricing": "freemium",
         "rating": 4
@@ -159,7 +159,7 @@
         "name": "Canva AI",
         "description": "მსოფლიოში ყველაზე პოპულარული დიზაინ-პლატფორმა AI სუპერ-ძალებით! Magic Design, Magic Write, Background Remover, Text-to-Image. მილიონობით შაბლონი სოციალური მედიისთვის, პრეზენტაციებისთვის, ვიდეოსთვის. გუნდური თანამშრომლობა.",
         "url": "https://canva.com",
-        "logo": "https://static.canva.com/static/images/favicon.ico",
+        "logo": "https://static.canva.com/static/images/canva_logo.svg",
         "category": "დიზაინი",
         "pricing": "freemium",
         "rating": 5,
@@ -180,7 +180,7 @@
         "name": "Framer AI",
         "description": "ვებსაიტების დიზაინი AI-თი",
         "url": "https://framer.com",
-        "logo": "https://framer.com/favicon.ico",
+        "logo": "https://framer.com/apple-touch-icon.png",
         "category": "დიზაინი",
         "pricing": "freemium",
         "rating": 4
@@ -190,7 +190,7 @@
         "name": "Looka",
         "description": "AI ლოგოს დიზაინი",
         "url": "https://looka.com",
-        "logo": "https://looka.com/favicon.ico",
+        "logo": "/images/tool-logos/looka.png",
         "category": "დიზაინი",
         "pricing": "paid",
         "rating": 4
@@ -200,7 +200,7 @@
         "name": "Brandmark",
         "description": "AI ლოგო გენერატორი",
         "url": "https://brandmark.io",
-        "logo": "https://brandmark.io/favicon.ico",
+        "logo": "/images/tool-logos/brandmark.png",
         "category": "დიზაინი",
         "pricing": "paid",
         "rating": 4
@@ -210,7 +210,7 @@
         "name": "Khroma",
         "description": "AI ფერების პალიტრა",
         "url": "https://khroma.co",
-        "logo": "https://khroma.co/favicon.ico",
+        "logo": "/images/tool-logos/khroma.png",
         "category": "დიზაინი",
         "pricing": "free",
         "rating": 4
@@ -220,7 +220,7 @@
         "name": "Runway",
         "description": "AI ვიდეო რედაქტორი Gen-2",
         "url": "https://runwayml.com",
-        "logo": "https://runwayml.com/favicon.ico",
+        "logo": "https://runwayml.com/apple-touch-icon.png",
         "category": "ვიდეო",
         "pricing": "freemium",
         "rating": 5,
@@ -231,7 +231,7 @@
         "name": "Pika",
         "description": "AI ვიდეო გენერატორი",
         "url": "https://pika.art",
-        "logo": "https://pika.art/favicon.ico",
+        "logo": "https://pika.art/apple-touch-icon.png",
         "category": "ვიდეო",
         "pricing": "freemium",
         "rating": 5
@@ -241,7 +241,7 @@
         "name": "Synthesia",
         "description": "AI ავატარებით ვიდეოები",
         "url": "https://synthesia.io",
-        "logo": "https://www.synthesia.io/favicon.ico",
+        "logo": "https://www.synthesia.io/apple-touch-icon.png",
         "category": "ვიდეო",
         "pricing": "paid",
         "rating": 5
@@ -251,7 +251,7 @@
         "name": "HeyGen",
         "description": "AI ვიდეო პერსონალიზაცია",
         "url": "https://heygen.com",
-        "logo": "https://www.heygen.com/favicon.ico",
+        "logo": "https://www.heygen.com/apple-touch-icon.png",
         "category": "ვიდეო",
         "pricing": "paid",
         "rating": 5
@@ -261,7 +261,7 @@
         "name": "D-ID",
         "description": "AI მოსაუბრე ავატარები",
         "url": "https://d-id.com",
-        "logo": "https://www.d-id.com/favicon.ico",
+        "logo": "https://www.d-id.com/apple-touch-icon.png",
         "category": "ვიდეო",
         "pricing": "freemium",
         "rating": 4
@@ -271,7 +271,7 @@
         "name": "Lumen5",
         "description": "ტექსტიდან ვიდეო",
         "url": "https://lumen5.com",
-        "logo": "https://lumen5.com/favicon.ico",
+        "logo": "/images/tool-logos/lumen5.png",
         "category": "ვიდეო",
         "pricing": "freemium",
         "rating": 4
@@ -281,7 +281,7 @@
         "name": "InVideo",
         "description": "AI ვიდეო რედაქტორი",
         "url": "https://invideo.io",
-        "logo": "https://invideo.io/favicon.ico",
+        "logo": "/images/tool-logos/invideo.png",
         "category": "ვიდეო",
         "pricing": "freemium",
         "rating": 4
@@ -291,7 +291,7 @@
         "name": "Descript",
         "description": "ვიდეო და პოდკასტი AI-თი",
         "url": "https://descript.com",
-        "logo": "https://www.descript.com/favicon.ico",
+        "logo": "/images/tool-logos/descript.png",
         "category": "ვიდეო",
         "pricing": "freemium",
         "rating": 5
@@ -301,7 +301,7 @@
         "name": "Opus Clip",
         "description": "ვიდეოდან კლიპები",
         "url": "https://opus.pro",
-        "logo": "https://www.opus.pro/favicon.ico",
+        "logo": "/images/tool-logos/opus_clip.png",
         "category": "ვიდეო",
         "pricing": "freemium",
         "rating": 4
@@ -311,7 +311,7 @@
         "name": "ElevenLabs",
         "description": "AI ხმის გენერაცია",
         "url": "https://elevenlabs.io",
-        "logo": "https://elevenlabs.io/favicon.ico",
+        "logo": "https://elevenlabs.io/apple-touch-icon.png",
         "category": "აუდიო",
         "pricing": "freemium",
         "rating": 5,
@@ -322,7 +322,7 @@
         "name": "Suno",
         "description": "AI მუსიკის გენერატორი",
         "url": "https://suno.ai",
-        "logo": "https://suno.ai/favicon.ico",
+        "logo": "https://suno.com/apple-touch-icon.png",
         "category": "აუდიო",
         "pricing": "freemium",
         "rating": 5
@@ -332,7 +332,7 @@
         "name": "Udio",
         "description": "AI მუსიკის შექმნა",
         "url": "https://udio.com",
-        "logo": "https://www.udio.com/favicon.ico",
+        "logo": "/images/tool-logos/udio.png",
         "category": "აუდიო",
         "pricing": "freemium",
         "rating": 5
@@ -342,7 +342,7 @@
         "name": "Murf.ai",
         "description": "AI გახმოვანება",
         "url": "https://murf.ai",
-        "logo": "https://murf.ai/favicon.ico",
+        "logo": "https://murf.ai/apple-touch-icon.png",
         "category": "აუდიო",
         "pricing": "freemium",
         "rating": 4
@@ -352,7 +352,7 @@
         "name": "Play.ht",
         "description": "AI ტექსტიდან ხმა",
         "url": "https://play.ht",
-        "logo": "https://play.ht/favicon.ico",
+        "logo": "/images/tool-logos/play_ht.png",
         "category": "აუდიო",
         "pricing": "freemium",
         "rating": 4
@@ -362,7 +362,7 @@
         "name": "Speechify",
         "description": "ტექსტის წაკითხვა",
         "url": "https://speechify.com",
-        "logo": "https://speechify.com/favicon.ico",
+        "logo": "/images/tool-logos/speechify.png",
         "category": "აუდიო",
         "pricing": "freemium",
         "rating": 4
@@ -372,7 +372,7 @@
         "name": "Resemble.AI",
         "description": "AI ხმის კლონირება",
         "url": "https://resemble.ai",
-        "logo": "https://www.resemble.ai/favicon.ico",
+        "logo": "/images/tool-logos/resemble_ai.png",
         "category": "აუდიო",
         "pricing": "paid",
         "rating": 4
@@ -382,7 +382,7 @@
         "name": "AIVA",
         "description": "AI მუსიკის კომპოზიტორი",
         "url": "https://aiva.ai",
-        "logo": "https://www.aiva.ai/favicon.ico",
+        "logo": "/images/tool-logos/aiva.png",
         "category": "აუდიო",
         "pricing": "freemium",
         "rating": 4
@@ -392,7 +392,7 @@
         "name": "Soundraw",
         "description": "AI თავისუფალი მუსიკა",
         "url": "https://soundraw.io",
-        "logo": "https://soundraw.io/favicon.ico",
+        "logo": "/images/tool-logos/soundraw.png",
         "category": "აუდიო",
         "pricing": "paid",
         "rating": 4
@@ -402,7 +402,7 @@
         "name": "Cursor",
         "description": "AI კოდის რედაქტორი",
         "url": "https://cursor.sh",
-        "logo": "https://cursor.sh/favicon.ico",
+        "logo": "https://www.cursor.com/favicon-96x96.png",
         "category": "კოდი",
         "pricing": "freemium",
         "rating": 5,
@@ -424,7 +424,7 @@
         "name": "Codeium",
         "description": "უფასო AI კოდი",
         "url": "https://codeium.com",
-        "logo": "https://codeium.com/favicon.ico",
+        "logo": "https://codeium.com/apple-touch-icon.png",
         "category": "კოდი",
         "pricing": "freemium",
         "rating": 5
@@ -434,7 +434,7 @@
         "name": "Tabnine",
         "description": "AI ავტოკომპლიტი",
         "url": "https://tabnine.com",
-        "logo": "https://www.tabnine.com/favicon.ico",
+        "logo": "https://www.tabnine.com/apple-touch-icon.png",
         "category": "კოდი",
         "pricing": "freemium",
         "rating": 4
@@ -444,7 +444,7 @@
         "name": "Replit AI",
         "description": "AI კოდირება ბრაუზერში",
         "url": "https://replit.com",
-        "logo": "https://replit.com/public/icons/favicon.ico",
+        "logo": "https://replit.com/public/icons/favicon-196.png",
         "category": "კოდი",
         "pricing": "freemium",
         "rating": 4
@@ -494,7 +494,7 @@
         "name": "Notion AI",
         "description": "AI ასისტენტი Notion-ში",
         "url": "https://notion.so",
-        "logo": "https://www.notion.so/images/favicon.ico",
+        "logo": "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png",
         "category": "პროდუქტიულობა",
         "pricing": "paid",
         "rating": 5,
@@ -505,7 +505,7 @@
         "name": "Mem.ai",
         "description": "AI ჩანაწერები",
         "url": "https://mem.ai",
-        "logo": "https://mem.ai/favicon.ico",
+        "logo": "https://mem.ai/apple-touch-icon.png",
         "category": "პროდუქტიულობა",
         "pricing": "freemium",
         "rating": 4
@@ -575,7 +575,7 @@
         "name": "Make.com",
         "description": "ავტომატიზაცია AI-თი",
         "url": "https://make.com",
-        "logo": "https://www.make.com/favicon.ico",
+        "logo": "https://images.ctfassets.net/un655fb9wln6/OHdMEd3n0IpPEdoEHg4d4/d1e2a3f3d9b5c3d5e3f5a3c5d5e3f5a3/make-logo.svg",
         "category": "ავტომატიზაცია",
         "pricing": "freemium",
         "rating": 5,
@@ -586,7 +586,7 @@
         "name": "Zapier AI",
         "description": "AI ბოტები",
         "url": "https://zapier.com",
-        "logo": "https://zapier.com/favicon.ico",
+        "logo": "https://zapier.com/favicon-192.png",
         "category": "ავტომატიზაცია",
         "pricing": "freemium",
         "rating": 5
@@ -596,7 +596,7 @@
         "name": "n8n",
         "description": "ღია კოდის ავტომატიზაცია",
         "url": "https://n8n.io",
-        "logo": "https://n8n.io/favicon.ico",
+        "logo": "https://n8n.io/apple-touch-icon.png",
         "category": "ავტომატიზაცია",
         "pricing": "freemium",
         "rating": 4
@@ -636,7 +636,7 @@
         "name": "Gamma",
         "description": "AI პრეზენტაციები",
         "url": "https://gamma.app",
-        "logo": "https://gamma.app/favicon.ico",
+        "logo": "https://gamma.app/apple-touch-icon.png",
         "category": "პრეზენტაცია",
         "pricing": "freemium",
         "rating": 5,
@@ -647,7 +647,7 @@
         "name": "Beautiful.ai",
         "description": "AI პრეზენტაციის დიზაინი",
         "url": "https://beautiful.ai",
-        "logo": "https://www.beautiful.ai/favicon.ico",
+        "logo": "https://www.beautiful.ai/apple-touch-icon.png",
         "category": "პრეზენტაცია",
         "pricing": "paid",
         "rating": 4
@@ -657,7 +657,7 @@
         "name": "Tome",
         "description": "AI სტორითელინგი",
         "url": "https://tome.app",
-        "logo": "https://tome.app/favicon.ico",
+        "logo": "https://tome.app/apple-touch-icon.png",
         "category": "პრეზენტაცია",
         "pricing": "freemium",
         "rating": 4
@@ -687,7 +687,7 @@
         "name": "Jasper",
         "description": "AI მარკეტინგი",
         "url": "https://jasper.ai",
-        "logo": "https://www.jasper.ai/favicon.ico",
+        "logo": "https://www.jasper.ai/hubfs/jasper-ai-logo-square.png",
         "category": "კონტენტი",
         "pricing": "paid",
         "rating": 5,
@@ -698,7 +698,7 @@
         "name": "Copy.ai",
         "description": "AI კოპირაიტინგი",
         "url": "https://copy.ai",
-        "logo": "https://www.copy.ai/favicon.ico",
+        "logo": "https://www.copy.ai/apple-touch-icon.png",
         "category": "კონტენტი",
         "pricing": "freemium",
         "rating": 4
@@ -708,7 +708,7 @@
         "name": "Writesonic",
         "description": "AI ბლოგი და რეკლამა",
         "url": "https://writesonic.com",
-        "logo": "https://writesonic.com/favicon.ico",
+        "logo": "https://writesonic.com/apple-touch-icon.png",
         "category": "კონტენტი",
         "pricing": "freemium",
         "rating": 4
@@ -768,7 +768,7 @@
         "name": "Surfer SEO",
         "description": "AI SEO ოპტიმიზაცია",
         "url": "https://surferseo.com",
-        "logo": "https://surferseo.com/favicon.ico",
+        "logo": "https://surferseo.com/apple-touch-icon.png",
         "category": "SEO",
         "pricing": "paid",
         "rating": 5
@@ -808,7 +808,7 @@
         "name": "Grammarly",
         "description": "AI გრამატიკა",
         "url": "https://grammarly.com",
-        "logo": "https://static.grammarly.com/assets/files/favicon.ico",
+        "logo": "https://static.grammarly.com/assets/files/3016ae73a5209c6fc58ade6e8cc24d3f/grammarly_square_logo.png",
         "category": "წერა",
         "pricing": "freemium",
         "rating": 5,
@@ -839,7 +839,7 @@
         "name": "DeepL",
         "description": "AI თარგმანი",
         "url": "https://deepl.com",
-        "logo": "https://static.deepl.com/img/favicon/favicon.ico",
+        "logo": "https://static.deepl.com/img/logo/deepl-logo-blue.svg",
         "category": "თარგმანი",
         "pricing": "freemium",
         "rating": 5,
@@ -890,7 +890,7 @@
         "name": "Otter.ai",
         "description": "შეხვედრების ჩაწერა",
         "url": "https://otter.ai",
-        "logo": "https://otter.ai/favicon.ico",
+        "logo": "https://otter.ai/apple-touch-icon.png",
         "category": "ტრანსკრიფცია",
         "pricing": "freemium",
         "rating": 5
@@ -1190,7 +1190,7 @@
         "name": "Krisp",
         "description": "ხმაურის მოცილება",
         "url": "https://krisp.ai",
-        "logo": "https://krisp.ai/favicon.ico",
+        "logo": "https://krisp.ai/apple-touch-icon.png",
         "category": "აუდიო",
         "pricing": "freemium",
         "rating": 5
@@ -1670,7 +1670,7 @@
         "name": "Hugging Face",
         "description": "AI მოდელების ჰაბი",
         "url": "https://huggingface.co",
-        "logo": "https://huggingface.co/favicon.ico",
+        "logo": "https://huggingface.co/front/assets/huggingface_logo-noborder.svg",
         "category": "დეველოპერი",
         "pricing": "freemium",
         "rating": 5,
@@ -2161,7 +2161,7 @@
         "name": "Sora",
         "description": "OpenAI-ს AI ვიდეო გენერატორი",
         "url": "https://openai.com/sora",
-        "logo": "https://openai.com/favicon.ico",
+        "logo": "https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg",
         "category": "ვიდეო",
         "pricing": "paid",
         "rating": 5,
@@ -6028,31 +6028,11 @@
         "rating": 5
     },
     {
-        "id": "602",
-        "name": "Lovable",
-        "description": "AI full-stack აპლიკაციების შემქმნელი",
-        "url": "https://lovable.dev",
-        "logo": "https://lovable.dev/favicon.ico",
-        "category": "კოდი",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "603",
-        "name": "Bolt.new",
-        "description": "AI ვებ აპლიკაციების გენერატორი",
-        "url": "https://bolt.new",
-        "logo": "https://bolt.new/favicon.ico",
-        "category": "კოდი",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
         "id": "604",
         "name": "v0.dev",
         "description": "Vercel-ის AI UI გენერატორი",
         "url": "https://v0.dev",
-        "logo": "https://v0.dev/favicon.ico",
+        "logo": "https://v0.dev/assets/icon-dark.png",
         "category": "კოდი",
         "pricing": "freemium",
         "rating": 5,
@@ -6109,36 +6089,6 @@
         "rating": 4
     },
     {
-        "id": "610",
-        "name": "Durable",
-        "description": "AI ვებსაიტების შემქმნელი ბიზნესისთვის",
-        "url": "https://durable.co",
-        "logo": "https://durable.co/favicon.ico",
-        "category": "ვებსაიტი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "611",
-        "name": "10Web",
-        "description": "AI WordPress ვებსაიტები",
-        "url": "https://10web.io",
-        "logo": "https://10web.io/favicon.ico",
-        "category": "ვებსაიტი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "612",
-        "name": "Hostinger AI",
-        "description": "AI ვებსაიტების შემქმნელი",
-        "url": "https://hostinger.com/ai-website-builder",
-        "logo": "https://www.hostinger.com/favicon.ico",
-        "category": "ვებსაიტი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
         "id": "613",
         "name": "Jimdo",
         "description": "AI მცირე ბიზნესის ვებსაიტები",
@@ -6154,16 +6104,6 @@
         "description": "AI ვებსაიტების შემქმნელი",
         "url": "https://bookmark.com",
         "logo": "https://www.bookmark.com/favicon.ico",
-        "category": "ვებსაიტი",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "615",
-        "name": "Mixo",
-        "description": "AI ლენდინგ გვერდები სტარტაპებისთვის",
-        "url": "https://mixo.io",
-        "logo": "https://mixo.io/favicon.ico",
         "category": "ვებსაიტი",
         "pricing": "freemium",
         "rating": 4
@@ -6197,16 +6137,6 @@
         "category": "ვებსაიტი",
         "pricing": "paid",
         "rating": 4
-    },
-    {
-        "id": "619",
-        "name": "Framer AI",
-        "description": "AI ვებ დიზაინი და პაბლიშინგი",
-        "url": "https://framer.com/features/ai",
-        "logo": "https://framer.com/favicon.ico",
-        "category": "ვებსაიტი",
-        "pricing": "freemium",
-        "rating": 5
     },
     {
         "id": "620",
@@ -6309,26 +6239,6 @@
         "rating": 5
     },
     {
-        "id": "630",
-        "name": "Ready Player Me",
-        "description": "AI 3D ავატარები",
-        "url": "https://readyplayer.me",
-        "logo": "https://readyplayer.me/favicon.ico",
-        "category": "ავატარი",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "631",
-        "name": "Lensa",
-        "description": "AI ავატარების გენერატორი",
-        "url": "https://prisma-ai.com/lensa",
-        "logo": "https://prisma-ai.com/favicon.ico",
-        "category": "ავატარი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
         "id": "632",
         "name": "Dawn AI",
         "description": "AI პორტრეტები და ავატარები",
@@ -6365,16 +6275,6 @@
         "url": "https://toonme.com",
         "logo": "https://toonme.com/favicon.ico",
         "category": "ავატარი",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "636",
-        "name": "Artbreeder",
-        "description": "AI პორტრეტების შერწყმა",
-        "url": "https://artbreeder.com",
-        "logo": "https://www.artbreeder.com/favicon.ico",
-        "category": "სურათები",
         "pricing": "freemium",
         "rating": 4
     },
@@ -6499,17 +6399,6 @@
         "rating": 5
     },
     {
-        "id": "649",
-        "name": "Adobe Firefly",
-        "description": "Adobe-ს AI გენერატორი",
-        "url": "https://firefly.adobe.com",
-        "logo": "https://firefly.adobe.com/favicon.ico",
-        "category": "სურათები",
-        "pricing": "freemium",
-        "rating": 5,
-        "featured": true
-    },
-    {
         "id": "650",
         "name": "Photoshop AI",
         "description": "Adobe Photoshop AI ფუნქციები",
@@ -6600,16 +6489,6 @@
         "rating": 4
     },
     {
-        "id": "659",
-        "name": "Figma AI",
-        "description": "Figma AI დიზაინის ფუნქციები",
-        "url": "https://figma.com/ai",
-        "logo": "https://www.figma.com/favicon.ico",
-        "category": "დიზაინი",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
         "id": "660",
         "name": "Sketch AI",
         "description": "Sketch AI ასისტენტი",
@@ -6670,16 +6549,6 @@
         "rating": 4
     },
     {
-        "id": "666",
-        "name": "Kaiber",
-        "description": "AI მუსიკალური ვიდეოები",
-        "url": "https://kaiber.ai",
-        "logo": "https://kaiber.ai/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
         "id": "667",
         "name": "Pika 1.0",
         "description": "AI ვიდეო გენერაცია",
@@ -6705,26 +6574,6 @@
         "description": "AI ვიდეო შემქმნელი",
         "url": "https://invideo.io/ai",
         "logo": "https://invideo.io/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "670",
-        "name": "Pictory",
-        "description": "AI ვიდეო ტექსტიდან",
-        "url": "https://pictory.ai",
-        "logo": "https://pictory.ai/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "671",
-        "name": "Fliki",
-        "description": "AI ვიდეო და აუდიო",
-        "url": "https://fliki.ai",
-        "logo": "https://fliki.ai/favicon.ico",
         "category": "ვიდეო",
         "pricing": "freemium",
         "rating": 4
@@ -6760,36 +6609,6 @@
         "rating": 4
     },
     {
-        "id": "675",
-        "name": "Colossyan",
-        "description": "AI ვიდეო სწავლებისთვის",
-        "url": "https://colossyan.com",
-        "logo": "https://www.colossyan.com/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "676",
-        "name": "Hour One",
-        "description": "AI ვიდეო პრეზენტატორები",
-        "url": "https://hourone.ai",
-        "logo": "https://hourone.ai/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "677",
-        "name": "Lumen5",
-        "description": "AI ვიდეო მარკეტინგი",
-        "url": "https://lumen5.com",
-        "logo": "https://lumen5.com/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
         "id": "678",
         "name": "Magisto",
         "description": "AI ვიდეო რედაქტორი",
@@ -6800,36 +6619,6 @@
         "rating": 4
     },
     {
-        "id": "679",
-        "name": "Veed.io",
-        "description": "AI ონლაინ ვიდეო რედაქტორი",
-        "url": "https://veed.io",
-        "logo": "https://www.veed.io/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "680",
-        "name": "Kapwing",
-        "description": "AI ვიდეო რედაქტორი გუნდებისთვის",
-        "url": "https://kapwing.com",
-        "logo": "https://www.kapwing.com/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "681",
-        "name": "Remove.bg",
-        "description": "AI ფონის მოცილება",
-        "url": "https://remove.bg",
-        "logo": "https://www.remove.bg/favicon.ico",
-        "category": "ფოტო რედაქცია",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
         "id": "682",
         "name": "Unscreen",
         "description": "AI ვიდეო ფონის მოცილება",
@@ -6838,26 +6627,6 @@
         "category": "ვიდეო",
         "pricing": "freemium",
         "rating": 4
-    },
-    {
-        "id": "683",
-        "name": "Cleanup.pictures",
-        "description": "AI ობიექტების წაშლა",
-        "url": "https://cleanup.pictures",
-        "logo": "https://cleanup.pictures/favicon.ico",
-        "category": "ფოტო რედაქცია",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "684",
-        "name": "PhotoRoom",
-        "description": "AI პროდუქტის ფოტოები",
-        "url": "https://photoroom.com",
-        "logo": "https://www.photoroom.com/favicon.ico",
-        "category": "ფოტო რედაქცია",
-        "pricing": "freemium",
-        "rating": 5
     },
     {
         "id": "685",
@@ -6885,16 +6654,6 @@
         "description": "AI ფოტოების გაუმჯობესება",
         "url": "https://vanceai.com",
         "logo": "https://www.vanceai.com/favicon.ico",
-        "category": "ფოტო რედაქცია",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "688",
-        "name": "Remini",
-        "description": "AI ფოტო რესტორაცია",
-        "url": "https://remini.ai",
-        "logo": "https://www.remini.ai/favicon.ico",
         "category": "ფოტო რედაქცია",
         "pricing": "freemium",
         "rating": 4
@@ -7000,16 +6759,6 @@
         "rating": 4
     },
     {
-        "id": "699",
-        "name": "Trint",
-        "description": "AI მედია ტრანსკრიფცია",
-        "url": "https://trint.com",
-        "logo": "https://trint.com/favicon.ico",
-        "category": "ტრანსკრიფცია",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
         "id": "700",
         "name": "Temi",
         "description": "სწრაფი AI ტრანსკრიფცია",
@@ -7018,26 +6767,6 @@
         "category": "ტრანსკრიფცია",
         "pricing": "paid",
         "rating": 4
-    },
-    {
-        "id": "701",
-        "name": "Duolingo Max",
-        "description": "AI ენების სწავლება GPT-4-ით",
-        "url": "https://duolingo.com",
-        "logo": "https://duolingo.com/favicon.ico",
-        "category": "განათლება",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "702",
-        "name": "Quizlet AI",
-        "description": "AI ფლეშქარდები და სწავლება",
-        "url": "https://quizlet.com",
-        "logo": "https://quizlet.com/favicon.ico",
-        "category": "განათლება",
-        "pricing": "freemium",
-        "rating": 5
     },
     {
         "id": "703",
@@ -7120,26 +6849,6 @@
         "rating": 4
     },
     {
-        "id": "711",
-        "name": "LangChain",
-        "description": "AI აპლიკაციების ფრეიმვორკი",
-        "url": "https://langchain.com",
-        "logo": "https://www.langchain.com/favicon.ico",
-        "category": "AI აგენტები",
-        "pricing": "free",
-        "rating": 5
-    },
-    {
-        "id": "712",
-        "name": "LlamaIndex",
-        "description": "AI მონაცემთა ფრეიმვორკი",
-        "url": "https://llamaindex.ai",
-        "logo": "https://www.llamaindex.ai/favicon.ico",
-        "category": "AI აგენტები",
-        "pricing": "free",
-        "rating": 5
-    },
-    {
         "id": "713",
         "name": "Semantic Kernel",
         "description": "Microsoft-ის AI SDK",
@@ -7200,26 +6909,6 @@
         "rating": 4
     },
     {
-        "id": "719",
-        "name": "Activepieces",
-        "description": "ღია კოდის ავტომატიზაცია",
-        "url": "https://activepieces.com",
-        "logo": "https://www.activepieces.com/favicon.ico",
-        "category": "ავტომატიზაცია",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "720",
-        "name": "n8n",
-        "description": "ღია კოდის workflow ავტომატიზაცია",
-        "url": "https://n8n.io",
-        "logo": "https://n8n.io/favicon.ico",
-        "category": "ავტომატიზაცია",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
         "id": "721",
         "name": "Windmill",
         "description": "ღია კოდის სკრიპტების ავტომატიზაცია",
@@ -7250,16 +6939,6 @@
         "rating": 4
     },
     {
-        "id": "724",
-        "name": "Obviously AI",
-        "description": "AI No-code ML პროგნოზები",
-        "url": "https://obviously.ai",
-        "logo": "https://www.obviously.ai/favicon.ico",
-        "category": "ანალიტიკა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
         "id": "725",
         "name": "MindsDB",
         "description": "AI მონაცემთა ბაზის ინტეგრაცია",
@@ -7268,16 +6947,6 @@
         "category": "ანალიტიკა",
         "pricing": "freemium",
         "rating": 4
-    },
-    {
-        "id": "726",
-        "name": "ThoughtSpot",
-        "description": "AI ბიზნეს ინტელიჯენსი",
-        "url": "https://thoughtspot.com",
-        "logo": "https://www.thoughtspot.com/favicon.ico",
-        "category": "ანალიტიკა",
-        "pricing": "paid",
-        "rating": 5
     },
     {
         "id": "727",
@@ -7330,36 +6999,6 @@
         "rating": 5
     },
     {
-        "id": "732",
-        "name": "Intercom Fin",
-        "description": "AI მომხმარებლის მხარდაჭერა",
-        "url": "https://intercom.com/fin",
-        "logo": "https://www.intercom.com/favicon.ico",
-        "category": "მომხმარებელი",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "733",
-        "name": "Zendesk AI",
-        "description": "AI მომხმარებლის სერვისი",
-        "url": "https://zendesk.com/ai",
-        "logo": "https://www.zendesk.com/favicon.ico",
-        "category": "მომხმარებელი",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "734",
-        "name": "Freshdesk AI",
-        "description": "AI მხარდაჭერის პლატფორმა",
-        "url": "https://freshworks.com/freshdesk",
-        "logo": "https://www.freshworks.com/favicon.ico",
-        "category": "მომხმარებელი",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
         "id": "735",
         "name": "Help Scout AI",
         "description": "AI მხარდაჭერის ინსტრუმენტი",
@@ -7390,16 +7029,6 @@
         "rating": 4
     },
     {
-        "id": "738",
-        "name": "Tidio AI",
-        "description": "AI ჩატბოტი ვებსაიტებისთვის",
-        "url": "https://tidio.com",
-        "logo": "https://www.tidio.com/favicon.ico",
-        "category": "მომხმარებელი",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
         "id": "739",
         "name": "Drift AI",
         "description": "AI გაყიდვების ჩატი",
@@ -7418,16 +7047,6 @@
         "category": "გაყიდვები",
         "pricing": "paid",
         "rating": 4
-    },
-    {
-        "id": "741",
-        "name": "Apollo.io",
-        "description": "AI გაყიდვების ინტელიჯენსი",
-        "url": "https://apollo.io",
-        "logo": "https://www.apollo.io/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "freemium",
-        "rating": 5
     },
     {
         "id": "742",
@@ -7600,16 +7219,6 @@
         "rating": 4
     },
     {
-        "id": "759",
-        "name": "Opus Clip",
-        "description": "AI ვიდეო კლიპები TikTok-ისთვის",
-        "url": "https://opus.pro",
-        "logo": "https://www.opus.pro/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
         "id": "760",
         "name": "Vidyo.ai",
         "description": "AI ვიდეო repurposing",
@@ -7647,16 +7256,6 @@
         "logo": "https://www.castmagic.io/favicon.ico",
         "category": "აუდიო",
         "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "764",
-        "name": "Podcastle",
-        "description": "AI პოდკასტის შექმნა",
-        "url": "https://podcastle.ai",
-        "logo": "https://podcastle.ai/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "freemium",
         "rating": 4
     },
     {
@@ -7740,26 +7339,6 @@
         "rating": 5
     },
     {
-        "id": "773",
-        "name": "Scale AI",
-        "description": "AI მონაცემთა პლატფორმა",
-        "url": "https://scale.com",
-        "logo": "https://scale.com/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "774",
-        "name": "Weights & Biases",
-        "description": "AI ML ექსპერიმენტები",
-        "url": "https://wandb.ai",
-        "logo": "https://wandb.ai/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
         "id": "775",
         "name": "Determined AI",
         "description": "AI ML ინფრასტრუქტურა",
@@ -7825,16 +7404,6 @@
         "description": "Stability AI მოდელების API",
         "url": "https://platform.stability.ai",
         "logo": "https://stability.ai/favicon.ico",
-        "category": "AI Labs",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "782",
-        "name": "Replicate",
-        "description": "AI მოდელების API",
-        "url": "https://replicate.com",
-        "logo": "https://replicate.com/favicon.ico",
         "category": "AI Labs",
         "pricing": "paid",
         "rating": 5
@@ -7950,26 +7519,6 @@
         "rating": 5
     },
     {
-        "id": "794",
-        "name": "Together AI",
-        "description": "ღია მოდელების API",
-        "url": "https://together.ai",
-        "logo": "https://www.together.ai/favicon.ico",
-        "category": "AI Labs",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "795",
-        "name": "Groq",
-        "description": "სწრაფი AI ინფერენსი",
-        "url": "https://groq.com",
-        "logo": "https://groq.com/favicon.ico",
-        "category": "AI Labs",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
         "id": "796",
         "name": "Cerebras",
         "description": "AI ჩიპების კომპანია",
@@ -8020,103 +7569,12 @@
         "rating": 4
     },
     {
-        "id": "801",
-        "name": "Codeium",
-        "description": "უფასო AI კოდის ავტოკომპლიტი",
-        "url": "https://codeium.com",
-        "logo": "https://codeium.com/favicon.ico",
-        "category": "კოდი",
-        "pricing": "free",
-        "rating": 5
-    },
-    {
-        "id": "802",
-        "name": "Tabnine",
-        "description": "AI კოდის ასისტენტი გუნდებისთვის",
-        "url": "https://tabnine.com",
-        "logo": "https://www.tabnine.com/favicon.ico",
-        "category": "კოდი",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "803",
-        "name": "Amazon CodeWhisperer",
-        "description": "AWS-ის AI კოდირების ასისტენტი",
-        "url": "https://aws.amazon.com/codewhisperer",
-        "logo": "https://aws.amazon.com/favicon.ico",
-        "category": "კოდი",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "804",
-        "name": "Sourcegraph Cody",
-        "description": "AI კოდის ძებნა და გენერაცია",
-        "url": "https://sourcegraph.com/cody",
-        "logo": "https://sourcegraph.com/favicon.ico",
-        "category": "კოდი",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "805",
-        "name": "Pieces",
-        "description": "AI კოდის სნიპეტების მენეჯერი",
-        "url": "https://pieces.app",
-        "logo": "https://pieces.app/favicon.ico",
-        "category": "კოდი",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "806",
-        "name": "Mintlify",
-        "description": "AI დოკუმენტაციის გენერატორი",
-        "url": "https://mintlify.com",
-        "logo": "https://mintlify.com/favicon.ico",
-        "category": "დოკუმენტები",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "807",
-        "name": "Swimm",
-        "description": "AI კოდის დოკუმენტაცია",
-        "url": "https://swimm.io",
-        "logo": "https://swimm.io/favicon.ico",
-        "category": "დოკუმენტები",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
         "id": "808",
         "name": "GitBook AI",
         "description": "AI დოკუმენტაციის პლატფორმა",
         "url": "https://gitbook.com",
         "logo": "https://www.gitbook.com/favicon.ico",
         "category": "დოკუმენტები",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "809",
-        "name": "Notion AI",
-        "description": "ნოუშენის ჩაშენებული AI",
-        "url": "https://notion.so/product/ai",
-        "logo": "https://www.notion.so/favicon.ico",
-        "category": "პროდუქტიულობა",
-        "pricing": "paid",
-        "rating": 5,
-        "featured": true
-    },
-    {
-        "id": "810",
-        "name": "Mem AI",
-        "description": "AI ჩანაწერების აპლიკაცია",
-        "url": "https://mem.ai",
-        "logo": "https://mem.ai/favicon.ico",
-        "category": "პროდუქტიულობა",
         "pricing": "freemium",
         "rating": 4
     },
@@ -8128,36 +7586,6 @@
         "logo": "https://www.taskade.com/favicon.ico",
         "category": "პროდუქტიულობა",
         "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "812",
-        "name": "ClickUp AI",
-        "description": "AI პროდუქტიულობის პლატფორმა",
-        "url": "https://clickup.com/ai",
-        "logo": "https://clickup.com/favicon.ico",
-        "category": "პროდუქტიულობა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "813",
-        "name": "Monday AI",
-        "description": "AI სამუშაო მენეჯმენტი",
-        "url": "https://monday.com/products/ai",
-        "logo": "https://monday.com/favicon.ico",
-        "category": "პროდუქტიულობა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "814",
-        "name": "Asana Intelligence",
-        "description": "AI პროექტების მართვა",
-        "url": "https://asana.com/product/ai",
-        "logo": "https://asana.com/favicon.ico",
-        "category": "პროდუქტიულობა",
-        "pricing": "paid",
         "rating": 4
     },
     {
@@ -8191,143 +7619,12 @@
         "rating": 4
     },
     {
-        "id": "818",
-        "name": "Motion",
-        "description": "AI კალენდარი და დავალებები",
-        "url": "https://usemotion.com",
-        "logo": "https://www.usemotion.com/favicon.ico",
-        "category": "კალენდარი",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "819",
-        "name": "Clockwise",
-        "description": "AI კალენდრის მენეჯერი",
-        "url": "https://clockwise.com",
-        "logo": "https://www.clockwise.com/favicon.ico",
-        "category": "კალენდარი",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
         "id": "820",
         "name": "Trevor AI",
         "description": "AI დღის დაგეგმვა",
         "url": "https://trevorai.com",
         "logo": "https://www.trevorai.com/favicon.ico",
         "category": "კალენდარი",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "821",
-        "name": "Lex",
-        "description": "AI წერის ასისტენტი",
-        "url": "https://lex.page",
-        "logo": "https://lex.page/favicon.ico",
-        "category": "წერა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "822",
-        "name": "Sudowrite",
-        "description": "AI მწერლებისთვის",
-        "url": "https://sudowrite.com",
-        "logo": "https://www.sudowrite.com/favicon.ico",
-        "category": "წერა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "823",
-        "name": "NovelAI",
-        "description": "AI სტორი გენერატორი",
-        "url": "https://novelai.net",
-        "logo": "https://novelai.net/favicon.ico",
-        "category": "წერა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "824",
-        "name": "Rytr",
-        "description": "AI კონტენტ რაიტერი",
-        "url": "https://rytr.me",
-        "logo": "https://rytr.me/favicon.ico",
-        "category": "წერა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "825",
-        "name": "Writesonic",
-        "description": "AI მარკეტინგის კონტენტი",
-        "url": "https://writesonic.com",
-        "logo": "https://writesonic.com/favicon.ico",
-        "category": "წერა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "826",
-        "name": "Copy.ai",
-        "description": "AI კოპირაიტინგი",
-        "url": "https://copy.ai",
-        "logo": "https://www.copy.ai/favicon.ico",
-        "category": "წერა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "827",
-        "name": "Anyword",
-        "description": "AI მარკეტინგის ტექსტები",
-        "url": "https://anyword.com",
-        "logo": "https://www.anyword.com/favicon.ico",
-        "category": "წერა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "828",
-        "name": "Wordtune",
-        "description": "AI წინადადებების რედაქტორი",
-        "url": "https://wordtune.com",
-        "logo": "https://www.wordtune.com/favicon.ico",
-        "category": "წერა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "829",
-        "name": "QuillBot",
-        "description": "AI პერიფრაზირება",
-        "url": "https://quillbot.com",
-        "logo": "https://quillbot.com/favicon.ico",
-        "category": "წერა",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "830",
-        "name": "Grammarly",
-        "description": "AI გრამატიკის შემოწმება",
-        "url": "https://grammarly.com",
-        "logo": "https://www.grammarly.com/favicon.ico",
-        "category": "წერა",
-        "pricing": "freemium",
-        "rating": 5,
-        "featured": true
-    },
-    {
-        "id": "831",
-        "name": "ProWritingAid",
-        "description": "AI წერის გაუმჯობესება",
-        "url": "https://prowritingaid.com",
-        "logo": "https://prowritingaid.com/favicon.ico",
-        "category": "წერა",
         "pricing": "freemium",
         "rating": 4
     },
@@ -8347,16 +7644,6 @@
         "description": "AI წერის ასისტენტი",
         "url": "https://linguix.com",
         "logo": "https://linguix.com/favicon.ico",
-        "category": "წერა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "834",
-        "name": "Sapling",
-        "description": "AI ბიზნეს წერა",
-        "url": "https://sapling.ai",
-        "logo": "https://sapling.ai/favicon.ico",
         "category": "წერა",
         "pricing": "freemium",
         "rating": 4
@@ -8392,36 +7679,6 @@
         "rating": 5
     },
     {
-        "id": "838",
-        "name": "Shortwave",
-        "description": "AI Gmail კლიენტი",
-        "url": "https://shortwave.com",
-        "logo": "https://www.shortwave.com/favicon.ico",
-        "category": "ელფოსტა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "839",
-        "name": "SaneBox",
-        "description": "AI ელფოსტის ფილტრაცია",
-        "url": "https://sanebox.com",
-        "logo": "https://www.sanebox.com/favicon.ico",
-        "category": "ელფოსტა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "840",
-        "name": "Lavender",
-        "description": "AI გაყიდვების ელფოსტა",
-        "url": "https://lavender.ai",
-        "logo": "https://www.lavender.ai/favicon.ico",
-        "category": "ელფოსტა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
         "id": "841",
         "name": "Regie.ai",
         "description": "AI გაყიდვების outreach",
@@ -8430,36 +7687,6 @@
         "category": "გაყიდვები",
         "pricing": "paid",
         "rating": 4
-    },
-    {
-        "id": "842",
-        "name": "Outreach",
-        "description": "AI გაყიდვების პლატფორმა",
-        "url": "https://outreach.io",
-        "logo": "https://www.outreach.io/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "843",
-        "name": "Salesloft",
-        "description": "AI გაყიდვების engagement",
-        "url": "https://salesloft.com",
-        "logo": "https://www.salesloft.com/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "844",
-        "name": "Gong",
-        "description": "AI გაყიდვების ზარების ანალიზი",
-        "url": "https://gong.io",
-        "logo": "https://www.gong.io/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "paid",
-        "rating": 5
     },
     {
         "id": "845",
@@ -8472,16 +7699,6 @@
         "rating": 4
     },
     {
-        "id": "846",
-        "name": "Clari",
-        "description": "AI გაყიდვების პროგნოზი",
-        "url": "https://clari.com",
-        "logo": "https://www.clari.com/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
         "id": "847",
         "name": "People.ai",
         "description": "AI გაყიდვების ინტელიჯენსი",
@@ -8489,36 +7706,6 @@
         "logo": "https://people.ai/favicon.ico",
         "category": "გაყიდვები",
         "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "848",
-        "name": "6sense",
-        "description": "AI B2B intent data",
-        "url": "https://6sense.com",
-        "logo": "https://6sense.com/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "849",
-        "name": "ZoomInfo",
-        "description": "AI B2B მონაცემთა ბაზა",
-        "url": "https://zoominfo.com",
-        "logo": "https://www.zoominfo.com/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "850",
-        "name": "Clearbit",
-        "description": "AI B2B მონაცემები",
-        "url": "https://clearbit.com",
-        "logo": "https://clearbit.com/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "freemium",
         "rating": 4
     },
     {
@@ -8612,26 +7799,6 @@
         "rating": 5
     },
     {
-        "id": "860",
-        "name": "Brex AI",
-        "description": "AI ფინანსური მართვა",
-        "url": "https://brex.com",
-        "logo": "https://www.brex.com/favicon.ico",
-        "category": "ფინანსები",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "861",
-        "name": "Ramp",
-        "description": "AI ხარჯების მართვა",
-        "url": "https://ramp.com",
-        "logo": "https://ramp.com/favicon.ico",
-        "category": "ფინანსები",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
         "id": "862",
         "name": "Pilot",
         "description": "AI ბუღალტერია",
@@ -8657,16 +7824,6 @@
         "description": "AI ფინანსური დეშბორდი",
         "url": "https://digits.com",
         "logo": "https://www.digits.com/favicon.ico",
-        "category": "ფინანსები",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "865",
-        "name": "Vic.ai",
-        "description": "AI ინვოისების დამუშავება",
-        "url": "https://vic.ai",
-        "logo": "https://www.vic.ai/favicon.ico",
         "category": "ფინანსები",
         "pricing": "paid",
         "rating": 4
@@ -8722,16 +7879,6 @@
         "rating": 4
     },
     {
-        "id": "871",
-        "name": "Harvey AI",
-        "description": "AI იურისტებისთვის",
-        "url": "https://harvey.ai",
-        "logo": "https://www.harvey.ai/favicon.ico",
-        "category": "სამართალი",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
         "id": "872",
         "name": "CoCounsel",
         "description": "AI იურიდიული ასისტენტი",
@@ -8757,16 +7904,6 @@
         "description": "AI კონტრაქტები",
         "url": "https://juro.com",
         "logo": "https://www.juro.com/favicon.ico",
-        "category": "სამართალი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "875",
-        "name": "Spellbook",
-        "description": "AI კონტრაქტების შედგენა",
-        "url": "https://spellbook.legal",
-        "logo": "https://www.spellbook.legal/favicon.ico",
         "category": "სამართალი",
         "pricing": "paid",
         "rating": 4
@@ -8812,17 +7949,6 @@
         "rating": 5
     },
     {
-        "id": "880",
-        "name": "Sora",
-        "description": "OpenAI-ს AI ვიდეო გენერატორი",
-        "url": "https://openai.com/sora",
-        "logo": "https://openai.com/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "paid",
-        "rating": 5,
-        "featured": true
-    },
-    {
         "id": "881",
         "name": "Kling",
         "description": "ჩინური AI ვიდეო გენერატორი",
@@ -8841,36 +7967,6 @@
         "category": "ვიდეო",
         "pricing": "freemium",
         "rating": 5
-    },
-    {
-        "id": "883",
-        "name": "Haiper",
-        "description": "AI ვიდეო გენერაცია",
-        "url": "https://haiper.ai",
-        "logo": "https://haiper.ai/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "884",
-        "name": "Pixverse",
-        "description": "AI ვიდეო შემქმნელი",
-        "url": "https://pixverse.ai",
-        "logo": "https://app.pixverse.ai/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "885",
-        "name": "Minimax",
-        "description": "ჩინური AI ვიდეო და აუდიო",
-        "url": "https://hailuoai.video",
-        "logo": "https://hailuoai.video/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "freemium",
-        "rating": 4
     },
     {
         "id": "886",
@@ -8903,97 +7999,6 @@
         "rating": 4
     },
     {
-        "id": "889",
-        "name": "Genmo",
-        "description": "AI ვიდეო და 3D",
-        "url": "https://genmo.ai",
-        "logo": "https://www.genmo.ai/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "890",
-        "name": "Morph Studio",
-        "description": "AI სინემატიკური ვიდეო",
-        "url": "https://morphstudio.com",
-        "logo": "https://www.morphstudio.com/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "891",
-        "name": "Suno",
-        "description": "AI მუსიკის გენერატორი",
-        "url": "https://suno.com",
-        "logo": "https://suno.com/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "freemium",
-        "rating": 5,
-        "featured": true
-    },
-    {
-        "id": "892",
-        "name": "Udio",
-        "description": "AI მუსიკის შექმნა",
-        "url": "https://udio.com",
-        "logo": "https://www.udio.com/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "893",
-        "name": "Stable Audio",
-        "description": "Stability AI მუსიკა",
-        "url": "https://stableaudio.com",
-        "logo": "https://www.stableaudio.com/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "894",
-        "name": "AIVA",
-        "description": "AI კომპოზიტორი",
-        "url": "https://aiva.ai",
-        "logo": "https://www.aiva.ai/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "895",
-        "name": "Amper Music",
-        "description": "AI მუსიკის პროდუქცია",
-        "url": "https://ampermusic.com",
-        "logo": "https://www.ampermusic.com/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "896",
-        "name": "Boomy",
-        "description": "AI სიმღერების შექმნა",
-        "url": "https://boomy.com",
-        "logo": "https://boomy.com/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "897",
-        "name": "Soundraw",
-        "description": "AI royalty-free მუსიკა",
-        "url": "https://soundraw.io",
-        "logo": "https://soundraw.io/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
         "id": "898",
         "name": "Beatoven",
         "description": "AI ფონური მუსიკა",
@@ -9021,56 +8026,6 @@
         "logo": "https://www.harmonai.org/favicon.ico",
         "category": "აუდიო",
         "pricing": "free",
-        "rating": 4
-    },
-    {
-        "id": "901",
-        "name": "Murf AI",
-        "description": "AI ხმოვანი voice-over",
-        "url": "https://murf.ai",
-        "logo": "https://murf.ai/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "902",
-        "name": "Resemble AI",
-        "description": "AI ხმის კლონირება",
-        "url": "https://resemble.ai",
-        "logo": "https://www.resemble.ai/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "903",
-        "name": "Speechify",
-        "description": "AI text-to-speech აპი",
-        "url": "https://speechify.com",
-        "logo": "https://speechify.com/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "904",
-        "name": "NaturalReader",
-        "description": "AI ტექსტის წაკითხვა",
-        "url": "https://naturalreaders.com",
-        "logo": "https://www.naturalreaders.com/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "905",
-        "name": "Listnr",
-        "description": "AI პოდკასტის ხმა",
-        "url": "https://listnr.ai",
-        "logo": "https://listnr.ai/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "freemium",
         "rating": 4
     },
     {
@@ -9110,56 +8065,6 @@
         "url": "https://voiceover.fm",
         "logo": "https://www.voiceover.fm/favicon.ico",
         "category": "აუდიო",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "910",
-        "name": "Play.ht",
-        "description": "AI ხმის გენერატორი",
-        "url": "https://play.ht",
-        "logo": "https://play.ht/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "911",
-        "name": "Meshy",
-        "description": "AI 3D მოდელები ტექსტიდან",
-        "url": "https://meshy.ai",
-        "logo": "https://www.meshy.ai/favicon.ico",
-        "category": "3D",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "912",
-        "name": "Luma AI",
-        "description": "3D სკანირება iPhone-ით",
-        "url": "https://lumalabs.ai",
-        "logo": "https://lumalabs.ai/favicon.ico",
-        "category": "3D",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "913",
-        "name": "Spline AI",
-        "description": "AI 3D დიზაინი ვებზე",
-        "url": "https://spline.design",
-        "logo": "https://spline.design/favicon.ico",
-        "category": "3D",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "914",
-        "name": "Kaedim",
-        "description": "AI 2D-დან 3D-მდე",
-        "url": "https://kaedim3d.com",
-        "logo": "https://www.kaedim3d.com/favicon.ico",
-        "category": "3D",
         "pricing": "paid",
         "rating": 4
     },
@@ -9228,21 +8133,11 @@
         "name": "Runway ML",
         "description": "AI ვიდეო VFX სტუდია",
         "url": "https://runwayml.com",
-        "logo": "https://runwayml.com/favicon.ico",
+        "logo": "https://runwayml.com/apple-touch-icon.png",
         "category": "VFX",
         "pricing": "freemium",
         "rating": 5,
         "featured": true
-    },
-    {
-        "id": "922",
-        "name": "Topaz Labs",
-        "description": "AI ვიდეო enhancement",
-        "url": "https://topazlabs.com",
-        "logo": "https://www.topazlabs.com/favicon.ico",
-        "category": "VFX",
-        "pricing": "paid",
-        "rating": 5
     },
     {
         "id": "923",
@@ -9275,16 +8170,6 @@
         "rating": 4
     },
     {
-        "id": "926",
-        "name": "Scenario",
-        "description": "AI გეიმის ასეტები",
-        "url": "https://scenario.com",
-        "logo": "https://www.scenario.com/favicon.ico",
-        "category": "თამაშები",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
         "id": "927",
         "name": "Latitude",
         "description": "AI სტორი თამაშები",
@@ -9305,41 +8190,11 @@
         "rating": 5
     },
     {
-        "id": "929",
-        "name": "Convai",
-        "description": "AI თამაშის პერსონაჟები",
-        "url": "https://convai.com",
-        "logo": "https://www.convai.com/favicon.ico",
-        "category": "თამაშები",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
         "id": "930",
         "name": "Charisma.ai",
         "description": "AI ინტერაქტიული სტორები",
         "url": "https://charisma.ai",
         "logo": "https://charisma.ai/favicon.ico",
-        "category": "თამაშები",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "931",
-        "name": "Promethean AI",
-        "description": "AI 3D სცენების დიზაინი",
-        "url": "https://prometheanai.com",
-        "logo": "https://www.prometheanai.com/favicon.ico",
-        "category": "თამაშები",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "932",
-        "name": "Ludo AI",
-        "description": "AI თამაშების იდეები",
-        "url": "https://ludo.ai",
-        "logo": "https://ludo.ai/favicon.ico",
         "category": "თამაშები",
         "pricing": "freemium",
         "rating": 4
@@ -9395,16 +8250,6 @@
         "rating": 4
     },
     {
-        "id": "938",
-        "name": "Rephrase.ai",
-        "description": "AI ავატარის ვიდეო",
-        "url": "https://rephrase.ai",
-        "logo": "https://www.rephrase.ai/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
         "id": "939",
         "name": "Bhuman",
         "description": "AI მასობრივი ვიდეო",
@@ -9425,61 +8270,11 @@
         "rating": 4
     },
     {
-        "id": "941",
-        "name": "Glean",
-        "description": "AI enterprise ძებნა",
-        "url": "https://glean.com",
-        "logo": "https://www.glean.com/favicon.ico",
-        "category": "ძებნა",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "942",
-        "name": "Algolia",
-        "description": "AI ძებნის API",
-        "url": "https://algolia.com",
-        "logo": "https://www.algolia.com/favicon.ico",
-        "category": "ძებნა",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "943",
-        "name": "Coveo",
-        "description": "AI enterprise ძებნა",
-        "url": "https://coveo.com",
-        "logo": "https://www.coveo.com/favicon.ico",
-        "category": "ძებნა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
         "id": "944",
         "name": "Elastic",
         "description": "AI და Elasticsearch",
         "url": "https://elastic.co",
         "logo": "https://www.elastic.co/favicon.ico",
-        "category": "ძებნა",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "945",
-        "name": "Pinecone",
-        "description": "AI ვექტორული ბაზა",
-        "url": "https://pinecone.io",
-        "logo": "https://www.pinecone.io/favicon.ico",
-        "category": "ძებნა",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "946",
-        "name": "Weaviate",
-        "description": "ღია კოდის ვექტორული DB",
-        "url": "https://weaviate.io",
-        "logo": "https://weaviate.io/favicon.ico",
         "category": "ძებნა",
         "pricing": "freemium",
         "rating": 5
@@ -9500,16 +8295,6 @@
         "description": "ღია კოდის ვექტორული DB",
         "url": "https://milvus.io",
         "logo": "https://milvus.io/favicon.ico",
-        "category": "ძებნა",
-        "pricing": "free",
-        "rating": 4
-    },
-    {
-        "id": "949",
-        "name": "Chroma",
-        "description": "AI embedding ბაზა",
-        "url": "https://trychroma.com",
-        "logo": "https://www.trychroma.com/favicon.ico",
         "category": "ძებნა",
         "pricing": "free",
         "rating": 4
@@ -9555,51 +8340,11 @@
         "rating": 4
     },
     {
-        "id": "954",
-        "name": "Coda AI",
-        "description": "AI დოკუმენტების პლატფორმა",
-        "url": "https://coda.io",
-        "logo": "https://coda.io/favicon.ico",
-        "category": "დოკუმენტები",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
         "id": "955",
         "name": "Almanac",
         "description": "AI დოკუმენტის workflow",
         "url": "https://almanac.io",
         "logo": "https://almanac.io/favicon.ico",
-        "category": "დოკუმენტები",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "956",
-        "name": "Slite",
-        "description": "AI გუნდის ცოდნის ბაზა",
-        "url": "https://slite.com",
-        "logo": "https://slite.com/favicon.ico",
-        "category": "დოკუმენტები",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "957",
-        "name": "Guru",
-        "description": "AI ცოდნის მენეჯმენტი",
-        "url": "https://getguru.com",
-        "logo": "https://www.getguru.com/favicon.ico",
-        "category": "დოკუმენტები",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "958",
-        "name": "Tettra",
-        "description": "AI გუნდის wiki",
-        "url": "https://tettra.com",
-        "logo": "https://tettra.com/favicon.ico",
         "category": "დოკუმენტები",
         "pricing": "freemium",
         "rating": 4
@@ -9615,102 +8360,11 @@
         "rating": 4
     },
     {
-        "id": "960",
-        "name": "Nuclino",
-        "description": "AI გუნდის ცოდნა",
-        "url": "https://nuclino.com",
-        "logo": "https://www.nuclino.com/favicon.ico",
-        "category": "დოკუმენტები",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "961",
-        "name": "Gamma",
-        "description": "AI პრეზენტაციების შემქმნელი",
-        "url": "https://gamma.app",
-        "logo": "https://gamma.app/favicon.ico",
-        "category": "პრეზენტაცია",
-        "pricing": "freemium",
-        "rating": 5,
-        "featured": true
-    },
-    {
-        "id": "962",
-        "name": "Beautiful.ai",
-        "description": "AI პრეზენტაციის დიზაინი",
-        "url": "https://beautiful.ai",
-        "logo": "https://www.beautiful.ai/favicon.ico",
-        "category": "პრეზენტაცია",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "963",
-        "name": "Pitch",
-        "description": "AI პრეზენტაცია გუნდებისთვის",
-        "url": "https://pitch.com",
-        "logo": "https://pitch.com/favicon.ico",
-        "category": "პრეზენტაცია",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "964",
-        "name": "Slidebean",
-        "description": "AI pitch deck",
-        "url": "https://slidebean.com",
-        "logo": "https://slidebean.com/favicon.ico",
-        "category": "პრეზენტაცია",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "965",
-        "name": "Tome",
-        "description": "AI სტორიტელინგი",
-        "url": "https://tome.app",
-        "logo": "https://tome.app/favicon.ico",
-        "category": "პრეზენტაცია",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "966",
-        "name": "Decktopus",
-        "description": "AI პრეზენტაცია",
-        "url": "https://decktopus.com",
-        "logo": "https://www.decktopus.com/favicon.ico",
-        "category": "პრეზენტაცია",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "967",
-        "name": "SlidesAI",
-        "description": "AI Google Slides",
-        "url": "https://slidesai.io",
-        "logo": "https://www.slidesai.io/favicon.ico",
-        "category": "პრეზენტაცია",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
         "id": "968",
         "name": "Sendsteps",
         "description": "AI ინტერაქტიული პრეზენტაცია",
         "url": "https://sendsteps.com",
         "logo": "https://www.sendsteps.com/favicon.ico",
-        "category": "პრეზენტაცია",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "969",
-        "name": "Prezi AI",
-        "description": "AI ვიზუალური პრეზენტაცია",
-        "url": "https://prezi.com",
-        "logo": "https://prezi.com/favicon.ico",
         "category": "პრეზენტაცია",
         "pricing": "freemium",
         "rating": 4
@@ -9736,17 +8390,6 @@
         "rating": 5
     },
     {
-        "id": "972",
-        "name": "Jasper",
-        "description": "AI მარკეტინგის კონტენტი",
-        "url": "https://jasper.ai",
-        "logo": "https://www.jasper.ai/favicon.ico",
-        "category": "მარკეტინგი",
-        "pricing": "paid",
-        "rating": 5,
-        "featured": true
-    },
-    {
         "id": "973",
         "name": "Phrasee",
         "description": "AI ელფოსტის კოპი",
@@ -9767,31 +8410,11 @@
         "rating": 4
     },
     {
-        "id": "975",
-        "name": "Albert AI",
-        "description": "AI რეკლამის ოპტიმიზაცია",
-        "url": "https://albert.ai",
-        "logo": "https://albert.ai/favicon.ico",
-        "category": "რეკლამა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
         "id": "976",
         "name": "Adext",
         "description": "AI რეკლამის მართვა",
         "url": "https://adext.ai",
         "logo": "https://www.adext.ai/favicon.ico",
-        "category": "რეკლამა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "977",
-        "name": "Pattern89",
-        "description": "AI სოციალური რეკლამა",
-        "url": "https://pattern89.com",
-        "logo": "https://www.pattern89.com/favicon.ico",
         "category": "რეკლამა",
         "pricing": "paid",
         "rating": 4
@@ -9807,92 +8430,12 @@
         "rating": 4
     },
     {
-        "id": "979",
-        "name": "Pencil",
-        "description": "AI რეკლამის კრეატივები",
-        "url": "https://trypencil.com",
-        "logo": "https://www.trypencil.com/favicon.ico",
-        "category": "რეკლამა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
         "id": "980",
         "name": "Omneky",
         "description": "AI omnichannel რეკლამა",
         "url": "https://omneky.com",
         "logo": "https://www.omneky.com/favicon.ico",
         "category": "რეკლამა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "981",
-        "name": "Surfer SEO",
-        "description": "AI SEO კონტენტის ოპტიმიზაცია",
-        "url": "https://surferseo.com",
-        "logo": "https://surferseo.com/favicon.ico",
-        "category": "SEO",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "982",
-        "name": "Clearscope",
-        "description": "AI SEO კონტენტი",
-        "url": "https://clearscope.io",
-        "logo": "https://www.clearscope.io/favicon.ico",
-        "category": "SEO",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "983",
-        "name": "MarketMuse",
-        "description": "AI კონტენტის სტრატეგია",
-        "url": "https://marketmuse.com",
-        "logo": "https://www.marketmuse.com/favicon.ico",
-        "category": "SEO",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "984",
-        "name": "Frase",
-        "description": "AI SEO კონტენტი",
-        "url": "https://frase.io",
-        "logo": "https://www.frase.io/favicon.ico",
-        "category": "SEO",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "985",
-        "name": "NeuronWriter",
-        "description": "AI SEO ასისტენტი",
-        "url": "https://neuronwriter.com",
-        "logo": "https://neuronwriter.com/favicon.ico",
-        "category": "SEO",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "986",
-        "name": "Scalenut",
-        "description": "AI SEO და კონტენტი",
-        "url": "https://scalenut.com",
-        "logo": "https://www.scalenut.com/favicon.ico",
-        "category": "SEO",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "987",
-        "name": "SE Ranking",
-        "description": "AI SEO პლატფორმა",
-        "url": "https://seranking.com",
-        "logo": "https://seranking.com/favicon.ico",
-        "category": "SEO",
         "pricing": "paid",
         "rating": 4
     },
@@ -9907,46 +8450,6 @@
         "rating": 4
     },
     {
-        "id": "989",
-        "name": "GrowthBar",
-        "description": "AI SEO ზრდა",
-        "url": "https://growthbarseo.com",
-        "logo": "https://www.growthbarseo.com/favicon.ico",
-        "category": "SEO",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "990",
-        "name": "Dashword",
-        "description": "AI SEO კონტენტის brief",
-        "url": "https://dashword.com",
-        "logo": "https://www.dashword.com/favicon.ico",
-        "category": "SEO",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "991",
-        "name": "Whisper",
-        "description": "OpenAI-ს სპიჩ რეკოგნიშენი",
-        "url": "https://openai.com/whisper",
-        "logo": "https://openai.com/favicon.ico",
-        "category": "ტრანსკრიფცია",
-        "pricing": "free",
-        "rating": 5
-    },
-    {
-        "id": "992",
-        "name": "Assembly AI",
-        "description": "AI ტრანსკრიფციის API",
-        "url": "https://assemblyai.com",
-        "logo": "https://www.assemblyai.com/favicon.ico",
-        "category": "ტრანსკრიფცია",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
         "id": "993",
         "name": "Deepgram",
         "description": "AI სპიჩის API",
@@ -9957,52 +8460,12 @@
         "rating": 5
     },
     {
-        "id": "994",
-        "name": "Rev AI",
-        "description": "AI ტრანსკრიფცია",
-        "url": "https://rev.ai",
-        "logo": "https://www.rev.ai/favicon.ico",
-        "category": "ტრანსკრიფცია",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "995",
-        "name": "Sonix",
-        "description": "AI ავტომატური ტრანსკრიფცია",
-        "url": "https://sonix.ai",
-        "logo": "https://sonix.ai/favicon.ico",
-        "category": "ტრანსკრიფცია",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "996",
-        "name": "Verbit",
-        "description": "AI enterprise ტრანსკრიფცია",
-        "url": "https://verbit.ai",
-        "logo": "https://verbit.ai/favicon.ico",
-        "category": "ტრანსკრიფცია",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
         "id": "997",
         "name": "Fireflies",
         "description": "AI შეხვედრის ტრანსკრიფცია",
         "url": "https://fireflies.ai",
         "logo": "https://fireflies.ai/favicon.ico",
         "category": "ტრანსკრიფცია",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "998",
-        "name": "Krisp",
-        "description": "AI ხმაურის გაუქმება",
-        "url": "https://krisp.ai",
-        "logo": "https://krisp.ai/favicon.ico",
-        "category": "აუდიო",
         "pricing": "freemium",
         "rating": 5
     },
@@ -10017,91 +8480,11 @@
         "rating": 5
     },
     {
-        "id": "1000",
-        "name": "Tactiq",
-        "description": "AI შეხვედრის ტრანსკრიფცია",
-        "url": "https://tactiq.io",
-        "logo": "https://tactiq.io/favicon.ico",
-        "category": "ტრანსკრიფცია",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1001",
-        "name": "Anthropic Console",
-        "description": "Claude API-ს მართვის პანელი დეველოპერებისთვის. API კლავიშების გენერაცია, usage მონიტორინგი, billing მართვა.",
-        "url": "https://console.anthropic.com",
-        "logo": "https://console.anthropic.com/favicon.ico",
-        "category": "დეველოპერი",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "1002",
-        "name": "Together AI",
-        "description": "ღია კოდის LLM-ების ჰოსტინგი და fine-tuning. Llama, Mistral, და სხვა მოდელების გაშვება.",
-        "url": "https://together.ai",
-        "logo": "https://together.ai/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "1003",
-        "name": "Groq",
-        "description": "უსწრაფესი AI inference - LPU ტექნოლოგია. Llama და Mixtral 10x სწრაფად.",
-        "url": "https://groq.com",
-        "logo": "https://groq.com/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1004",
-        "name": "Fireworks AI",
-        "description": "სწრაფი და იაფი LLM inference. Function calling, JSON mode, streaming.",
-        "url": "https://fireworks.ai",
-        "logo": "https://fireworks.ai/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1005",
-        "name": "Anyscale",
-        "description": "Ray-ზე დაფუძნებული AI პლატფორმა. Fine-tuning, inference, scaling.",
-        "url": "https://anyscale.com",
-        "logo": "https://anyscale.com/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1006",
-        "name": "Modal",
-        "description": "Serverless AI infrastructure. GPU-ების დინამიური გამოყოფა, cold start-ის გარეშე.",
-        "url": "https://modal.com",
-        "logo": "https://modal.com/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
         "id": "1007",
         "name": "RunPod",
         "description": "GPU cloud computing. Stable Diffusion, LLM training, inference.",
         "url": "https://runpod.io",
         "logo": "https://runpod.io/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1008",
-        "name": "Lambda Labs",
-        "description": "AI-ისთვის GPU სერვერები. H100, A100 GPU-ები on-demand.",
-        "url": "https://lambdalabs.com",
-        "logo": "https://lambdalabs.com/favicon.ico",
         "category": "ML პლატფორმა",
         "pricing": "paid",
         "rating": 4
@@ -10117,16 +8500,6 @@
         "rating": 4
     },
     {
-        "id": "1010",
-        "name": "Baseten",
-        "description": "ML მოდელების production deployment. Auto-scaling, monitoring.",
-        "url": "https://baseten.co",
-        "logo": "https://baseten.co/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
         "id": "1011",
         "name": "Devin AI",
         "description": "პირველი AI software engineer. კოდის წერა, debugging, deployment ავტონომიურად.",
@@ -10134,46 +8507,6 @@
         "logo": "https://cognition-labs.com/favicon.ico",
         "category": "AI აგენტები",
         "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "1012",
-        "name": "AutoGPT",
-        "description": "ავტონომიური AI აგენტი GPT-4-ზე. ამოცანების თვით-დაყოფა და შესრულება.",
-        "url": "https://autogpt.net",
-        "logo": "https://autogpt.net/favicon.ico",
-        "category": "AI აგენტები",
-        "pricing": "free",
-        "rating": 4
-    },
-    {
-        "id": "1013",
-        "name": "AgentGPT",
-        "description": "ბრაუზერში მოქმედი AI აგენტი. ვებ-ინტერფეისით მართვა.",
-        "url": "https://agentgpt.reworkd.ai",
-        "logo": "https://agentgpt.reworkd.ai/favicon.ico",
-        "category": "AI აგენტები",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1014",
-        "name": "SuperAGI",
-        "description": "ღია კოდის AI აგენტების framework. მრავალი აგენტის ორკესტრაცია.",
-        "url": "https://superagi.com",
-        "logo": "https://superagi.com/favicon.ico",
-        "category": "AI აგენტები",
-        "pricing": "free",
-        "rating": 4
-    },
-    {
-        "id": "1015",
-        "name": "CrewAI",
-        "description": "AI აგენტების გუნდის შექმნა. როლებით და კოლაბორაციით.",
-        "url": "https://crewai.com",
-        "logo": "https://crewai.com/favicon.ico",
-        "category": "AI აგენტები",
-        "pricing": "freemium",
         "rating": 5
     },
     {
@@ -10185,16 +8518,6 @@
         "category": "AI აგენტები",
         "pricing": "free",
         "rating": 4
-    },
-    {
-        "id": "1017",
-        "name": "Autogen",
-        "description": "Microsoft-ის მრავალ-აგენტური framework. აგენტების შეთანხმებული მუშაობა.",
-        "url": "https://microsoft.github.io/autogen",
-        "logo": "https://microsoft.github.io/autogen/favicon.ico",
-        "category": "AI აგენტები",
-        "pricing": "free",
-        "rating": 5
     },
     {
         "id": "1018",
@@ -10214,16 +8537,6 @@
         "logo": "https://dust.tt/favicon.ico",
         "category": "AI აგენტები",
         "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1020",
-        "name": "Relevance AI",
-        "description": "No-code AI აგენტების პლატფორმა. ბიზნეს პროცესების ავტომატიზაცია.",
-        "url": "https://relevanceai.com",
-        "logo": "https://relevanceai.com/favicon.ico",
-        "category": "AI აგენტები",
-        "pricing": "freemium",
         "rating": 4
     },
     {
@@ -10277,36 +8590,6 @@
         "rating": 5
     },
     {
-        "id": "1026",
-        "name": "Character.AI",
-        "description": "AI პერსონაჟებთან საუბარი. ისტორიული, ფიქციური, ცნობილი პერსონები.",
-        "url": "https://character.ai",
-        "logo": "https://character.ai/favicon.ico",
-        "category": "ჩატბოტები",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1027",
-        "name": "Poe",
-        "description": "Quora-ს AI პლატფორმა. Claude, GPT, Llama ერთ ადგილას.",
-        "url": "https://poe.com",
-        "logo": "https://poe.com/favicon.ico",
-        "category": "ჩატბოტები",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1028",
-        "name": "Replika",
-        "description": "AI მეგობარი და თანმხლები. ემოციური მხარდაჭერა 24/7.",
-        "url": "https://replika.com",
-        "logo": "https://replika.com/favicon.ico",
-        "category": "ჩატბოტები",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
         "id": "1029",
         "name": "Chai",
         "description": "AI ჩატბოტების პლატფორმა. მრავალფეროვანი პერსონაჟები.",
@@ -10347,92 +8630,12 @@
         "rating": 5
     },
     {
-        "id": "1033",
-        "name": "Krea AI",
-        "description": "Real-time AI image generation. ცოცხალი გენერაცია ხატვისას.",
-        "url": "https://krea.ai",
-        "logo": "https://krea.ai/favicon.ico",
-        "category": "სურათები",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
         "id": "1034",
         "name": "Magnific AI",
         "description": "AI upscaler და enhancer. სურათების 16x გადიდება ხარისხის შენარჩუნებით.",
         "url": "https://magnific.ai",
         "logo": "https://magnific.ai/favicon.ico",
         "category": "ფოტო რედაქცია",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "1035",
-        "name": "Topaz Labs",
-        "description": "AI ფოტო და ვიდეო გაუმჯობესება. Denoise, sharpen, upscale.",
-        "url": "https://topazlabs.com",
-        "logo": "https://topazlabs.com/favicon.ico",
-        "category": "ფოტო რედაქცია",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "1036",
-        "name": "Luminar Neo",
-        "description": "AI photo editor Skylum-ისგან. Sky replacement, relighting.",
-        "url": "https://skylum.com/luminar",
-        "logo": "https://skylum.com/favicon.ico",
-        "category": "ფოტო რედაქცია",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1037",
-        "name": "Remini",
-        "description": "AI ფოტოების აღდგენა და გაუმჯობესება. ძველი ფოტოების რესტავრაცია.",
-        "url": "https://remini.ai",
-        "logo": "https://remini.ai/favicon.ico",
-        "category": "ფოტო რედაქცია",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1038",
-        "name": "Photoroom",
-        "description": "AI background removal და ფოტო რედაქტირება. E-commerce-ისთვის.",
-        "url": "https://photoroom.com",
-        "logo": "https://photoroom.com/favicon.ico",
-        "category": "ფოტო რედაქცია",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1039",
-        "name": "Remove.bg",
-        "description": "ფონის ავტომატური წაშლა. API ინტეგრაცია ხელმისაწვდომი.",
-        "url": "https://remove.bg",
-        "logo": "https://remove.bg/favicon.ico",
-        "category": "ფოტო რედაქცია",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1040",
-        "name": "Clipdrop",
-        "description": "Stability AI-ის ფოტო ინსტრუმენტები. Cleanup, relight, upscale.",
-        "url": "https://clipdrop.co",
-        "logo": "https://clipdrop.co/favicon.ico",
-        "category": "ფოტო რედაქცია",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1041",
-        "name": "Sora",
-        "description": "OpenAI-ს text-to-video მოდელი. რეალისტური ვიდეოების გენერაცია.",
-        "url": "https://openai.com/sora",
-        "logo": "https://openai.com/favicon.ico",
-        "category": "ვიდეო",
         "pricing": "paid",
         "rating": 5
     },
@@ -10447,51 +8650,11 @@
         "rating": 5
     },
     {
-        "id": "1043",
-        "name": "Kling AI",
-        "description": "ჩინური text-to-video AI. 2-წუთამდე ვიდეოების გენერაცია.",
-        "url": "https://klingai.com",
-        "logo": "https://klingai.com/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
         "id": "1044",
         "name": "Vidu AI",
         "description": "ჩინური text-to-video. 4K ვიდეო გენერაცია.",
         "url": "https://vidu.studio",
         "logo": "https://vidu.studio/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1045",
-        "name": "Haiper",
-        "description": "AI ვიდეო გენერატორი. სწრაფი და ხარისხიანი შედეგები.",
-        "url": "https://haiper.ai",
-        "logo": "https://haiper.ai/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1046",
-        "name": "Luma Dream Machine",
-        "description": "Text და image to video. რეალისტური მოძრაობა და ფიზიკა.",
-        "url": "https://lumalabs.ai/dream-machine",
-        "logo": "https://lumalabs.ai/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1047",
-        "name": "Genmo",
-        "description": "AI ვიდეო და 3D გენერაცია. Creative ინსტრუმენტები.",
-        "url": "https://genmo.ai",
-        "logo": "https://genmo.ai/favicon.ico",
         "category": "ვიდეო",
         "pricing": "freemium",
         "rating": 4
@@ -10507,16 +8670,6 @@
         "rating": 4
     },
     {
-        "id": "1049",
-        "name": "Kaiber",
-        "description": "AI ვიდეო ტრანსფორმაცია. მუსიკის ვიზუალიზაცია.",
-        "url": "https://kaiber.ai",
-        "logo": "https://kaiber.ai/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
         "id": "1050",
         "name": "Viggle AI",
         "description": "AI character animation. პერსონაჟების ანიმაცია ვიდეოში.",
@@ -10524,66 +8677,6 @@
         "logo": "https://viggle.ai/favicon.ico",
         "category": "ვიდეო",
         "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1051",
-        "name": "Stable Audio",
-        "description": "Stability AI-ს მუსიკის გენერატორი. Text-to-music.",
-        "url": "https://stableaudio.com",
-        "logo": "https://stableaudio.com/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1052",
-        "name": "Riffusion",
-        "description": "AI მუსიკა spectrograms-ით. უნიკალური მიდგომა.",
-        "url": "https://riffusion.com",
-        "logo": "https://riffusion.com/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "free",
-        "rating": 4
-    },
-    {
-        "id": "1053",
-        "name": "Loudly",
-        "description": "AI მუსიკა ვიდეოებისთვის. Royalty-free tracks.",
-        "url": "https://loudly.com",
-        "logo": "https://loudly.com/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1054",
-        "name": "Beatoven.ai",
-        "description": "AI მუსიკა კონტენტისთვის. Mood-based generation.",
-        "url": "https://beatoven.ai",
-        "logo": "https://beatoven.ai/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1055",
-        "name": "Boomy",
-        "description": "AI მუსიკის შექმნა და გამოქვეყნება Spotify-ზე.",
-        "url": "https://boomy.com",
-        "logo": "https://boomy.com/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1056",
-        "name": "Amper Music",
-        "description": "AI კომპოზიტორი. კორპორატიული მუსიკა.",
-        "url": "https://ampermusic.com",
-        "logo": "https://ampermusic.com/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "paid",
         "rating": 4
     },
     {
@@ -10597,66 +8690,6 @@
         "rating": 4
     },
     {
-        "id": "1058",
-        "name": "Voice.ai",
-        "description": "Real-time ხმის შეცვლა. Gaming და streaming.",
-        "url": "https://voice.ai",
-        "logo": "https://voice.ai/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1059",
-        "name": "Voicemod",
-        "description": "ხმის მოდიფიკატორი და soundboard. Streamers-თვის.",
-        "url": "https://voicemod.net",
-        "logo": "https://voicemod.net/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1060",
-        "name": "Kits.AI",
-        "description": "AI voice conversion და cloning. მუსიკოსებისთვის.",
-        "url": "https://kits.ai",
-        "logo": "https://kits.ai/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1061",
-        "name": "Windsurf",
-        "description": "Codeium-ის AI IDE. Flow-based coding experience.",
-        "url": "https://codeium.com/windsurf",
-        "logo": "https://codeium.com/favicon.ico",
-        "category": "კოდი",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1062",
-        "name": "Zed",
-        "description": "სწრაფი კოდ ედიტორი AI-ით. Rust-ზე დაწერილი.",
-        "url": "https://zed.dev",
-        "logo": "https://zed.dev/favicon.ico",
-        "category": "კოდი",
-        "pricing": "free",
-        "rating": 5
-    },
-    {
-        "id": "1063",
-        "name": "Supermaven",
-        "description": "სწრაფი AI autocomplete. 300k token context.",
-        "url": "https://supermaven.com",
-        "logo": "https://supermaven.com/favicon.ico",
-        "category": "კოდი",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
         "id": "1064",
         "name": "Continue.dev",
         "description": "ღია კოდის AI coding assistant. VS Code და JetBrains.",
@@ -10665,16 +8698,6 @@
         "category": "კოდი",
         "pricing": "free",
         "rating": 5
-    },
-    {
-        "id": "1065",
-        "name": "Aider",
-        "description": "AI pair programming terminal-ში. Git integration.",
-        "url": "https://aider.chat",
-        "logo": "https://aider.chat/favicon.ico",
-        "category": "კოდი",
-        "pricing": "free",
-        "rating": 4
     },
     {
         "id": "1066",
@@ -10697,16 +8720,6 @@
         "rating": 4
     },
     {
-        "id": "1068",
-        "name": "Snyk",
-        "description": "AI security scanning. Vulnerability detection.",
-        "url": "https://snyk.io",
-        "logo": "https://snyk.io/favicon.ico",
-        "category": "კოდი",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
         "id": "1069",
         "name": "DeepCode",
         "description": "AI კოდის review და bug detection.",
@@ -10714,66 +8727,6 @@
         "logo": "https://deepcode.ai/favicon.ico",
         "category": "კოდი",
         "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1070",
-        "name": "Mintlify",
-        "description": "AI documentation გენერატორი. კოდიდან docs.",
-        "url": "https://mintlify.com",
-        "logo": "https://mintlify.com/favicon.ico",
-        "category": "დოკუმენტები",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1071",
-        "name": "v0.dev",
-        "description": "Vercel-ის AI UI generator. React კომპონენტები.",
-        "url": "https://v0.dev",
-        "logo": "https://v0.dev/favicon.ico",
-        "category": "ვებსაიტი",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1072",
-        "name": "Bolt.new",
-        "description": "StackBlitz-ის AI web dev. Full-stack apps ბრაუზერში.",
-        "url": "https://bolt.new",
-        "logo": "https://bolt.new/favicon.ico",
-        "category": "ვებსაიტი",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1073",
-        "name": "Lovable",
-        "description": "AI-first web development. Full-stack applications.",
-        "url": "https://lovable.dev",
-        "logo": "https://lovable.dev/favicon.ico",
-        "category": "ვებსაიტი",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1074",
-        "name": "Durable",
-        "description": "AI website builder. 30 წამში ვებსაიტი.",
-        "url": "https://durable.co",
-        "logo": "https://durable.co/favicon.ico",
-        "category": "ვებსაიტი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1075",
-        "name": "10Web",
-        "description": "AI WordPress builder. Automated website creation.",
-        "url": "https://10web.io",
-        "logo": "https://10web.io/favicon.ico",
-        "category": "ვებსაიტი",
-        "pricing": "paid",
         "rating": 4
     },
     {
@@ -10795,26 +8748,6 @@
         "category": "ვებსაიტი",
         "pricing": "freemium",
         "rating": 4
-    },
-    {
-        "id": "1078",
-        "name": "Webflow AI",
-        "description": "AI-powered visual development.",
-        "url": "https://webflow.com",
-        "logo": "https://webflow.com/favicon.ico",
-        "category": "ვებსაიტი",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1079",
-        "name": "Relume",
-        "description": "AI wireframe და sitemap generator. Figma-სთან ინტეგრაცია.",
-        "url": "https://relume.io",
-        "logo": "https://relume.io/favicon.ico",
-        "category": "დიზაინი",
-        "pricing": "paid",
-        "rating": 5
     },
     {
         "id": "1080",
@@ -10897,86 +8830,6 @@
         "rating": 4
     },
     {
-        "id": "1088",
-        "name": "AdCreative.ai",
-        "description": "AI რეკლამების დიზაინი. Conversion-optimized.",
-        "url": "https://adcreative.ai",
-        "logo": "https://adcreative.ai/favicon.ico",
-        "category": "რეკლამა",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "1089",
-        "name": "Pencil",
-        "description": "AI ad generation. Creative automation.",
-        "url": "https://pencil.ai",
-        "logo": "https://pencil.ai/favicon.ico",
-        "category": "რეკლამა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1090",
-        "name": "Omneky",
-        "description": "AI ad personalization. Multivariate testing.",
-        "url": "https://omneky.com",
-        "logo": "https://omneky.com/favicon.ico",
-        "category": "რეკლამა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1091",
-        "name": "Phrasee",
-        "description": "AI marketing copywriting. Email subject lines.",
-        "url": "https://phrasee.co",
-        "logo": "https://phrasee.co/favicon.ico",
-        "category": "მარკეტინგი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1092",
-        "name": "Persado",
-        "description": "AI marketing language platform. Emotional targeting.",
-        "url": "https://persado.com",
-        "logo": "https://persado.com/favicon.ico",
-        "category": "მარკეტინგი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1093",
-        "name": "GrowthBar",
-        "description": "AI SEO tool. Blog outlines და content.",
-        "url": "https://growthbarseo.com",
-        "logo": "https://growthbarseo.com/favicon.ico",
-        "category": "SEO",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1094",
-        "name": "Neuronwriter",
-        "description": "AI content optimization. NLP-based SEO.",
-        "url": "https://neuronwriter.com",
-        "logo": "https://neuronwriter.com/favicon.ico",
-        "category": "SEO",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1095",
-        "name": "Scalenut",
-        "description": "AI content marketing platform. Research to writing.",
-        "url": "https://scalenut.com",
-        "logo": "https://scalenut.com/favicon.ico",
-        "category": "კონტენტი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
         "id": "1096",
         "name": "Koala",
         "description": "AI article writer. SEO-optimized long-form.",
@@ -11037,102 +8890,12 @@
         "rating": 4
     },
     {
-        "id": "1102",
-        "name": "Elicit",
-        "description": "AI research assistant. Paper analysis და synthesis.",
-        "url": "https://elicit.com",
-        "logo": "https://elicit.com/favicon.ico",
-        "category": "კვლევა",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1103",
-        "name": "Consensus",
-        "description": "AI academic search. Scientific papers.",
-        "url": "https://consensus.app",
-        "logo": "https://consensus.app/favicon.ico",
-        "category": "კვლევა",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1104",
-        "name": "Semantic Scholar",
-        "description": "AI-powered academic search engine.",
-        "url": "https://semanticscholar.org",
-        "logo": "https://semanticscholar.org/favicon.ico",
-        "category": "კვლევა",
-        "pricing": "free",
-        "rating": 5
-    },
-    {
         "id": "1105",
         "name": "Scite.ai",
         "description": "Smart citations და claims verification.",
         "url": "https://scite.ai",
         "logo": "https://scite.ai/favicon.ico",
         "category": "კვლევა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1106",
-        "name": "ResearchRabbit",
-        "description": "AI paper discovery. Citation networks.",
-        "url": "https://researchrabbit.ai",
-        "logo": "https://researchrabbit.ai/favicon.ico",
-        "category": "კვლევა",
-        "pricing": "free",
-        "rating": 5
-    },
-    {
-        "id": "1107",
-        "name": "Scholarcy",
-        "description": "AI paper summarization. Key takeaways.",
-        "url": "https://scholarcy.com",
-        "logo": "https://scholarcy.com/favicon.ico",
-        "category": "კვლევა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1108",
-        "name": "Explain Paper",
-        "description": "AI paper explanation. Complex concepts simplified.",
-        "url": "https://explainpaper.com",
-        "logo": "https://explainpaper.com/favicon.ico",
-        "category": "კვლევა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1109",
-        "name": "Humata",
-        "description": "AI PDF chat. Document Q&A.",
-        "url": "https://humata.ai",
-        "logo": "https://humata.ai/favicon.ico",
-        "category": "დოკუმენტები",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1110",
-        "name": "ChatPDF",
-        "description": "PDF-თან საუბარი AI-ით.",
-        "url": "https://chatpdf.com",
-        "logo": "https://chatpdf.com/favicon.ico",
-        "category": "დოკუმენტები",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1111",
-        "name": "Docsumo",
-        "description": "AI document processing. Invoice extraction.",
-        "url": "https://docsumo.com",
-        "logo": "https://docsumo.com/favicon.ico",
-        "category": "დოკუმენტები",
         "pricing": "paid",
         "rating": 4
     },
@@ -11147,16 +8910,6 @@
         "rating": 4
     },
     {
-        "id": "1113",
-        "name": "Nanonets",
-        "description": "AI OCR და document processing.",
-        "url": "https://nanonets.com",
-        "logo": "https://nanonets.com/favicon.ico",
-        "category": "დოკუმენტები",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
         "id": "1114",
         "name": "Hebbia",
         "description": "AI document search. Enterprise knowledge.",
@@ -11165,46 +8918,6 @@
         "category": "დოკუმენტები",
         "pricing": "paid",
         "rating": 5
-    },
-    {
-        "id": "1115",
-        "name": "Glean",
-        "description": "Enterprise AI search. Internal knowledge.",
-        "url": "https://glean.com",
-        "logo": "https://glean.com/favicon.ico",
-        "category": "ძებნა",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "1116",
-        "name": "Guru",
-        "description": "AI knowledge management. Team wiki.",
-        "url": "https://getguru.com",
-        "logo": "https://getguru.com/favicon.ico",
-        "category": "პროდუქტიულობა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1117",
-        "name": "Slite",
-        "description": "AI team documentation. Knowledge base.",
-        "url": "https://slite.com",
-        "logo": "https://slite.com/favicon.ico",
-        "category": "პროდუქტიულობა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1118",
-        "name": "Tettra",
-        "description": "AI knowledge base. Team answers.",
-        "url": "https://tettra.com",
-        "logo": "https://tettra.com/favicon.ico",
-        "category": "პროდუქტიულობა",
-        "pricing": "paid",
-        "rating": 4
     },
     {
         "id": "1119",
@@ -11234,56 +8947,6 @@
         "logo": "https://legalesedecoder.com/favicon.ico",
         "category": "სამართალი",
         "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1122",
-        "name": "Harvey AI",
-        "description": "AI for lawyers. Legal research.",
-        "url": "https://harvey.ai",
-        "logo": "https://harvey.ai/favicon.ico",
-        "category": "სამართალი",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "1123",
-        "name": "Casetext",
-        "description": "AI legal research. CoCounsel.",
-        "url": "https://casetext.com",
-        "logo": "https://casetext.com/favicon.ico",
-        "category": "სამართალი",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "1124",
-        "name": "Spellbook",
-        "description": "AI contract drafting. Legal templates.",
-        "url": "https://spellbook.legal",
-        "logo": "https://spellbook.legal/favicon.ico",
-        "category": "სამართალი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1125",
-        "name": "Ironclad",
-        "description": "AI contract lifecycle management.",
-        "url": "https://ironcladapp.com",
-        "logo": "https://ironcladapp.com/favicon.ico",
-        "category": "სამართალი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1126",
-        "name": "DoNotPay",
-        "description": "AI lawyer. Fight corporations.",
-        "url": "https://donotpay.com",
-        "logo": "https://donotpay.com/favicon.ico",
-        "category": "სამართალი",
-        "pricing": "paid",
         "rating": 4
     },
     {
@@ -11317,16 +8980,6 @@
         "rating": 4
     },
     {
-        "id": "1130",
-        "name": "ThoughtSpot",
-        "description": "AI-powered analytics. Natural language queries.",
-        "url": "https://thoughtspot.com",
-        "logo": "https://thoughtspot.com/favicon.ico",
-        "category": "ანალიტიკა",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
         "id": "1131",
         "name": "Akkio",
         "description": "No-code AI for analytics.",
@@ -11347,76 +9000,6 @@
         "rating": 4
     },
     {
-        "id": "1133",
-        "name": "Obviously AI",
-        "description": "No-code machine learning.",
-        "url": "https://obviously.ai",
-        "logo": "https://obviously.ai/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1134",
-        "name": "DataRobot",
-        "description": "Enterprise AI platform. AutoML.",
-        "url": "https://datarobot.com",
-        "logo": "https://datarobot.com/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "1135",
-        "name": "H2O.ai",
-        "description": "Open source ML platform.",
-        "url": "https://h2o.ai",
-        "logo": "https://h2o.ai/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1136",
-        "name": "Weights & Biases",
-        "description": "ML experiment tracking.",
-        "url": "https://wandb.ai",
-        "logo": "https://wandb.ai/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1137",
-        "name": "Neptune.ai",
-        "description": "ML metadata store. Experiment tracking.",
-        "url": "https://neptune.ai",
-        "logo": "https://neptune.ai/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1138",
-        "name": "Comet ML",
-        "description": "ML experiment management.",
-        "url": "https://comet.com",
-        "logo": "https://comet.com/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1139",
-        "name": "MLflow",
-        "description": "Open source ML lifecycle.",
-        "url": "https://mlflow.org",
-        "logo": "https://mlflow.org/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "free",
-        "rating": 5
-    },
-    {
         "id": "1140",
         "name": "Kubeflow",
         "description": "ML on Kubernetes.",
@@ -11425,46 +9008,6 @@
         "category": "ML პლატფორმა",
         "pricing": "free",
         "rating": 4
-    },
-    {
-        "id": "1141",
-        "name": "HuggingFace",
-        "description": "AI community და models hub.",
-        "url": "https://huggingface.co",
-        "logo": "https://huggingface.co/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1142",
-        "name": "Roboflow",
-        "description": "Computer vision platform.",
-        "url": "https://roboflow.com",
-        "logo": "https://roboflow.com/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1143",
-        "name": "Labelbox",
-        "description": "AI data labeling platform.",
-        "url": "https://labelbox.com",
-        "logo": "https://labelbox.com/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1144",
-        "name": "Scale AI",
-        "description": "Data labeling და AI infrastructure.",
-        "url": "https://scale.com",
-        "logo": "https://scale.com/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "paid",
-        "rating": 5
     },
     {
         "id": "1145",
@@ -11487,36 +9030,6 @@
         "rating": 4
     },
     {
-        "id": "1147",
-        "name": "Teachable Machine",
-        "description": "Google-ის no-code ML.",
-        "url": "https://teachablemachine.withgoogle.com",
-        "logo": "https://teachablemachine.withgoogle.com/favicon.ico",
-        "category": "ML პლატფორმა",
-        "pricing": "free",
-        "rating": 4
-    },
-    {
-        "id": "1148",
-        "name": "Intercom Fin",
-        "description": "AI customer service agent.",
-        "url": "https://intercom.com/fin",
-        "logo": "https://intercom.com/favicon.ico",
-        "category": "მომხმარებელი",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "1149",
-        "name": "Zendesk AI",
-        "description": "AI customer support.",
-        "url": "https://zendesk.com",
-        "logo": "https://zendesk.com/favicon.ico",
-        "category": "მომხმარებელი",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
         "id": "1150",
         "name": "Freshdesk Freddy",
         "description": "AI helpdesk assistant.",
@@ -11525,16 +9038,6 @@
         "category": "მომხმარებელი",
         "pricing": "paid",
         "rating": 4
-    },
-    {
-        "id": "1151",
-        "name": "Ada",
-        "description": "AI customer service automation.",
-        "url": "https://ada.cx",
-        "logo": "https://ada.cx/favicon.ico",
-        "category": "მომხმარებელი",
-        "pricing": "paid",
-        "rating": 5
     },
     {
         "id": "1152",
@@ -11567,126 +9070,6 @@
         "rating": 4
     },
     {
-        "id": "1155",
-        "name": "Drift",
-        "description": "Conversational marketing AI.",
-        "url": "https://drift.com",
-        "logo": "https://drift.com/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1156",
-        "name": "Qualified",
-        "description": "AI pipeline generation.",
-        "url": "https://qualified.com",
-        "logo": "https://qualified.com/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1157",
-        "name": "Gong",
-        "description": "AI revenue intelligence.",
-        "url": "https://gong.io",
-        "logo": "https://gong.io/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "1158",
-        "name": "Chorus",
-        "description": "AI conversation intelligence.",
-        "url": "https://chorus.ai",
-        "logo": "https://chorus.ai/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1159",
-        "name": "Clari",
-        "description": "AI revenue platform.",
-        "url": "https://clari.com",
-        "logo": "https://clari.com/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1160",
-        "name": "People.ai",
-        "description": "AI revenue operations.",
-        "url": "https://people.ai",
-        "logo": "https://people.ai/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1161",
-        "name": "Outreach",
-        "description": "AI sales engagement.",
-        "url": "https://outreach.io",
-        "logo": "https://outreach.io/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "1162",
-        "name": "Salesloft",
-        "description": "AI sales engagement platform.",
-        "url": "https://salesloft.com",
-        "logo": "https://salesloft.com/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1163",
-        "name": "Apollo.io",
-        "description": "AI sales intelligence.",
-        "url": "https://apollo.io",
-        "logo": "https://apollo.io/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1164",
-        "name": "ZoomInfo",
-        "description": "AI B2B data platform.",
-        "url": "https://zoominfo.com",
-        "logo": "https://zoominfo.com/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "1165",
-        "name": "Clearbit",
-        "description": "AI data enrichment.",
-        "url": "https://clearbit.com",
-        "logo": "https://clearbit.com/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1166",
-        "name": "6sense",
-        "description": "AI account engagement.",
-        "url": "https://6sense.com",
-        "logo": "https://6sense.com/favicon.ico",
-        "category": "მარკეტინგი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
         "id": "1167",
         "name": "Demandbase",
         "description": "AI account-based marketing.",
@@ -11695,26 +9078,6 @@
         "category": "მარკეტინგი",
         "pricing": "paid",
         "rating": 4
-    },
-    {
-        "id": "1168",
-        "name": "HubSpot AI",
-        "description": "AI CRM და marketing.",
-        "url": "https://hubspot.com",
-        "logo": "https://hubspot.com/favicon.ico",
-        "category": "მარკეტინგი",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1169",
-        "name": "Salesforce Einstein",
-        "description": "AI for CRM.",
-        "url": "https://salesforce.com/einstein",
-        "logo": "https://salesforce.com/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "paid",
-        "rating": 5
     },
     {
         "id": "1170",
@@ -11732,26 +9095,6 @@
         "description": "AI sales assistant.",
         "url": "https://pipedrive.com",
         "logo": "https://pipedrive.com/favicon.ico",
-        "category": "გაყიდვები",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1172",
-        "name": "Lavender",
-        "description": "AI email coach for sales.",
-        "url": "https://lavender.ai",
-        "logo": "https://lavender.ai/favicon.ico",
-        "category": "ელფოსტა",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1173",
-        "name": "Regie.ai",
-        "description": "AI sales content.",
-        "url": "https://regie.ai",
-        "logo": "https://regie.ai/favicon.ico",
         "category": "გაყიდვები",
         "pricing": "paid",
         "rating": 4
@@ -11777,242 +9120,12 @@
         "rating": 4
     },
     {
-        "id": "1176",
-        "name": "Lemlist",
-        "description": "AI email personalization.",
-        "url": "https://lemlist.com",
-        "logo": "https://lemlist.com/favicon.ico",
-        "category": "ელფოსტა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1177",
-        "name": "Mailchimp AI",
-        "description": "AI marketing automation.",
-        "url": "https://mailchimp.com",
-        "logo": "https://mailchimp.com/favicon.ico",
-        "category": "ელფოსტა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1178",
-        "name": "Superhuman",
-        "description": "AI email client.",
-        "url": "https://superhuman.com",
-        "logo": "https://superhuman.com/favicon.ico",
-        "category": "ელფოსტა",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "1179",
-        "name": "Sanebox",
-        "description": "AI email management.",
-        "url": "https://sanebox.com",
-        "logo": "https://sanebox.com/favicon.ico",
-        "category": "ელფოსტა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1180",
-        "name": "Shortwave",
-        "description": "AI email for teams.",
-        "url": "https://shortwave.com",
-        "logo": "https://shortwave.com/favicon.ico",
-        "category": "ელფოსტა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1181",
-        "name": "Flowrite",
-        "description": "AI email writing.",
-        "url": "https://flowrite.com",
-        "logo": "https://flowrite.com/favicon.ico",
-        "category": "ელფოსტა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1182",
-        "name": "Compose AI",
-        "description": "AI writing autocomplete.",
-        "url": "https://compose.ai",
-        "logo": "https://compose.ai/favicon.ico",
-        "category": "წერა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
         "id": "1183",
         "name": "Hyperwrite",
         "description": "AI writing assistant.",
         "url": "https://hyperwriteai.com",
         "logo": "https://hyperwriteai.com/favicon.ico",
         "category": "წერა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1184",
-        "name": "Lex",
-        "description": "AI word processor.",
-        "url": "https://lex.page",
-        "logo": "https://lex.page/favicon.ico",
-        "category": "წერა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1185",
-        "name": "Jenni AI",
-        "description": "AI writing for students.",
-        "url": "https://jenni.ai",
-        "logo": "https://jenni.ai/favicon.ico",
-        "category": "წერა",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1186",
-        "name": "Moonbeam",
-        "description": "AI long-form writing.",
-        "url": "https://gomoonbeam.com",
-        "logo": "https://gomoonbeam.com/favicon.ico",
-        "category": "წერა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1187",
-        "name": "Sudowrite",
-        "description": "AI fiction writing.",
-        "url": "https://sudowrite.com",
-        "logo": "https://sudowrite.com/favicon.ico",
-        "category": "წერა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1188",
-        "name": "NovelAI",
-        "description": "AI storytelling.",
-        "url": "https://novelai.net",
-        "logo": "https://novelai.net/favicon.ico",
-        "category": "წერა",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1189",
-        "name": "AI Dungeon",
-        "description": "AI text adventure game.",
-        "url": "https://aidungeon.com",
-        "logo": "https://aidungeon.com/favicon.ico",
-        "category": "თამაშები",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1190",
-        "name": "Scenario",
-        "description": "AI game asset generation.",
-        "url": "https://scenario.com",
-        "logo": "https://scenario.com/favicon.ico",
-        "category": "თამაშები",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1191",
-        "name": "Ludo.ai",
-        "description": "AI game design.",
-        "url": "https://ludo.ai",
-        "logo": "https://ludo.ai/favicon.ico",
-        "category": "თამაშები",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1192",
-        "name": "Promethean AI",
-        "description": "AI virtual world building.",
-        "url": "https://prometheanai.com",
-        "logo": "https://prometheanai.com/favicon.ico",
-        "category": "თამაშები",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1193",
-        "name": "Inworld",
-        "description": "AI NPCs. Character engine.",
-        "url": "https://inworld.ai",
-        "logo": "https://inworld.ai/favicon.ico",
-        "category": "თამაშები",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1194",
-        "name": "Ready Player Me",
-        "description": "AI avatars for games.",
-        "url": "https://readyplayer.me",
-        "logo": "https://readyplayer.me/favicon.ico",
-        "category": "ავატარი",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1195",
-        "name": "Meshy",
-        "description": "AI 3D model generation.",
-        "url": "https://meshy.ai",
-        "logo": "https://meshy.ai/favicon.ico",
-        "category": "3D",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1196",
-        "name": "Luma AI",
-        "description": "3D capture and generation.",
-        "url": "https://lumalabs.ai",
-        "logo": "https://lumalabs.ai/favicon.ico",
-        "category": "3D",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1197",
-        "name": "Spline AI",
-        "description": "AI 3D design in browser.",
-        "url": "https://spline.design",
-        "logo": "https://spline.design/favicon.ico",
-        "category": "3D",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1198",
-        "name": "Kaedim",
-        "description": "2D to 3D AI.",
-        "url": "https://kaedim3d.com",
-        "logo": "https://kaedim3d.com/favicon.ico",
-        "category": "3D",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1199",
-        "name": "CSM",
-        "description": "AI 3D world generation.",
-        "url": "https://csm.ai",
-        "logo": "https://csm.ai/favicon.ico",
-        "category": "3D",
         "pricing": "freemium",
         "rating": 4
     },
@@ -12027,112 +9140,12 @@
         "rating": 4
     },
     {
-        "id": "1201",
-        "name": "Repurpose.io",
-        "description": "AI content repurposing. Cross-platform.",
-        "url": "https://repurpose.io",
-        "logo": "https://repurpose.io/favicon.ico",
-        "category": "კონტენტი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1202",
-        "name": "Pictory",
-        "description": "AI video from text. Blog to video.",
-        "url": "https://pictory.ai",
-        "logo": "https://pictory.ai/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1203",
-        "name": "Vidyo.ai",
-        "description": "AI video clips. Long to short.",
-        "url": "https://vidyo.ai",
-        "logo": "https://vidyo.ai/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
         "id": "1204",
         "name": "Klap",
         "description": "AI YouTube to TikTok clips.",
         "url": "https://klap.app",
         "logo": "https://klap.app/favicon.ico",
         "category": "ვიდეო",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1205",
-        "name": "Munch",
-        "description": "AI content repurposing. Viral clips.",
-        "url": "https://getmunch.com",
-        "logo": "https://getmunch.com/favicon.ico",
-        "category": "ვიდეო",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1206",
-        "name": "Predis.ai",
-        "description": "AI social media content.",
-        "url": "https://predis.ai",
-        "logo": "https://predis.ai/favicon.ico",
-        "category": "მარკეტინგი",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1207",
-        "name": "Lately",
-        "description": "AI social media management.",
-        "url": "https://lately.ai",
-        "logo": "https://lately.ai/favicon.ico",
-        "category": "მარკეტინგი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1208",
-        "name": "Sprout Social",
-        "description": "AI social media suite.",
-        "url": "https://sproutsocial.com",
-        "logo": "https://sproutsocial.com/favicon.ico",
-        "category": "მარკეტინგი",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "1209",
-        "name": "Hootsuite",
-        "description": "AI social media management.",
-        "url": "https://hootsuite.com",
-        "logo": "https://hootsuite.com/favicon.ico",
-        "category": "მარკეტინგი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1210",
-        "name": "Buffer",
-        "description": "AI social scheduling.",
-        "url": "https://buffer.com",
-        "logo": "https://buffer.com/favicon.ico",
-        "category": "მარკეტინგი",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1211",
-        "name": "Publer",
-        "description": "AI social media scheduler.",
-        "url": "https://publer.io",
-        "logo": "https://publer.io/favicon.ico",
-        "category": "მარკეტინგი",
         "pricing": "freemium",
         "rating": 4
     },
@@ -12164,16 +9177,6 @@
         "logo": "https://vistasocial.com/favicon.ico",
         "category": "მარკეტინგი",
         "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1215",
-        "name": "SocialBee",
-        "description": "AI content scheduling.",
-        "url": "https://socialbee.com",
-        "logo": "https://socialbee.com/favicon.ico",
-        "category": "მარკეტინგი",
-        "pricing": "paid",
         "rating": 4
     },
     {
@@ -12227,16 +9230,6 @@
         "rating": 4
     },
     {
-        "id": "1221",
-        "name": "Duolingo Max",
-        "description": "AI language learning.",
-        "url": "https://duolingo.com",
-        "logo": "https://duolingo.com/favicon.ico",
-        "category": "განათლება",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
         "id": "1222",
         "name": "ELSA",
         "description": "AI English pronunciation.",
@@ -12287,26 +9280,6 @@
         "rating": 4
     },
     {
-        "id": "1227",
-        "name": "Photomath",
-        "description": "AI math solver.",
-        "url": "https://photomath.com",
-        "logo": "https://photomath.com/favicon.ico",
-        "category": "განათლება",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1228",
-        "name": "Mathway",
-        "description": "AI math problem solver.",
-        "url": "https://mathway.com",
-        "logo": "https://mathway.com/favicon.ico",
-        "category": "განათლება",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
         "id": "1229",
         "name": "Symbolab",
         "description": "AI math step-by-step.",
@@ -12317,26 +9290,6 @@
         "rating": 4
     },
     {
-        "id": "1230",
-        "name": "Quizlet AI",
-        "description": "AI flashcards და study.",
-        "url": "https://quizlet.com",
-        "logo": "https://quizlet.com/favicon.ico",
-        "category": "განათლება",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1231",
-        "name": "Anki AI",
-        "description": "AI spaced repetition.",
-        "url": "https://apps.ankiweb.net",
-        "logo": "https://apps.ankiweb.net/favicon.ico",
-        "category": "განათლება",
-        "pricing": "free",
-        "rating": 5
-    },
-    {
         "id": "1232",
         "name": "Knowji",
         "description": "AI vocabulary learning.",
@@ -12345,16 +9298,6 @@
         "category": "განათლება",
         "pricing": "paid",
         "rating": 4
-    },
-    {
-        "id": "1233",
-        "name": "Coursera AI",
-        "description": "AI learning recommendations.",
-        "url": "https://coursera.org",
-        "logo": "https://coursera.org/favicon.ico",
-        "category": "განათლება",
-        "pricing": "freemium",
-        "rating": 5
     },
     {
         "id": "1234",
@@ -12375,16 +9318,6 @@
         "category": "განათლება",
         "pricing": "paid",
         "rating": 4
-    },
-    {
-        "id": "1236",
-        "name": "DeepL",
-        "description": "AI translation. 30+ languages.",
-        "url": "https://deepl.com",
-        "logo": "https://deepl.com/favicon.ico",
-        "category": "თარგმანი",
-        "pricing": "freemium",
-        "rating": 5
     },
     {
         "id": "1237",
@@ -12417,16 +9350,6 @@
         "rating": 4
     },
     {
-        "id": "1240",
-        "name": "Unbabel",
-        "description": "AI business translation.",
-        "url": "https://unbabel.com",
-        "logo": "https://unbabel.com/favicon.ico",
-        "category": "თარგმანი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
         "id": "1241",
         "name": "Lilt",
         "description": "AI enterprise translation.",
@@ -12447,26 +9370,6 @@
         "rating": 4
     },
     {
-        "id": "1243",
-        "name": "Phrase",
-        "description": "AI localization platform.",
-        "url": "https://phrase.com",
-        "logo": "https://phrase.com/favicon.ico",
-        "category": "თარგმანი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1244",
-        "name": "Lokalise",
-        "description": "AI translation management.",
-        "url": "https://lokalise.com",
-        "logo": "https://lokalise.com/favicon.ico",
-        "category": "თარგმანი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
         "id": "1245",
         "name": "Transifex",
         "description": "AI localization.",
@@ -12474,146 +9377,6 @@
         "logo": "https://transifex.com/favicon.ico",
         "category": "თარგმანი",
         "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1246",
-        "name": "Reclaim",
-        "description": "AI calendar scheduling.",
-        "url": "https://reclaim.ai",
-        "logo": "https://reclaim.ai/favicon.ico",
-        "category": "კალენდარი",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1247",
-        "name": "Motion",
-        "description": "AI task & calendar.",
-        "url": "https://usemotion.com",
-        "logo": "https://usemotion.com/favicon.ico",
-        "category": "კალენდარი",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "1248",
-        "name": "Clockwise",
-        "description": "AI calendar optimization.",
-        "url": "https://clockwise.com",
-        "logo": "https://clockwise.com/favicon.ico",
-        "category": "კალენდარი",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1249",
-        "name": "Cal.com",
-        "description": "Open source scheduling.",
-        "url": "https://cal.com",
-        "logo": "https://cal.com/favicon.ico",
-        "category": "კალენდარი",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1250",
-        "name": "Calendly",
-        "description": "Meeting scheduling.",
-        "url": "https://calendly.com",
-        "logo": "https://calendly.com/favicon.ico",
-        "category": "კალენდარი",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1251",
-        "name": "Doodle",
-        "description": "AI meeting polls.",
-        "url": "https://doodle.com",
-        "logo": "https://doodle.com/favicon.ico",
-        "category": "კალენდარი",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1252",
-        "name": "SavvyCal",
-        "description": "Smart scheduling.",
-        "url": "https://savvycal.com",
-        "logo": "https://savvycal.com/favicon.ico",
-        "category": "კალენდარი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1253",
-        "name": "Vimcal",
-        "description": "Fast calendar.",
-        "url": "https://vimcal.com",
-        "logo": "https://vimcal.com/favicon.ico",
-        "category": "კალენდარი",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1254",
-        "name": "Fantastical",
-        "description": "AI calendar app.",
-        "url": "https://fantastical.app",
-        "logo": "https://fantastical.app/favicon.ico",
-        "category": "კალენდარი",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
-        "id": "1255",
-        "name": "Raycast",
-        "description": "AI productivity launcher.",
-        "url": "https://raycast.com",
-        "logo": "https://raycast.com/favicon.ico",
-        "category": "პროდუქტიულობა",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1256",
-        "name": "Alfred",
-        "description": "AI Mac productivity.",
-        "url": "https://alfredapp.com",
-        "logo": "https://alfredapp.com/favicon.ico",
-        "category": "პროდუქტიულობა",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1257",
-        "name": "Krisp",
-        "description": "AI noise cancellation.",
-        "url": "https://krisp.ai",
-        "logo": "https://krisp.ai/favicon.ico",
-        "category": "აუდიო",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1258",
-        "name": "Otter.ai",
-        "description": "AI meeting transcription.",
-        "url": "https://otter.ai",
-        "logo": "https://otter.ai/favicon.ico",
-        "category": "ტრანსკრიფცია",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
-        "id": "1259",
-        "name": "Trint",
-        "description": "AI transcription.",
-        "url": "https://trint.com",
-        "logo": "https://trint.com/favicon.ico",
-        "category": "ტრანსკრიფცია",
-        "pricing": "paid",
         "rating": 4
     },
     {
@@ -12627,46 +9390,6 @@
         "rating": 5
     },
     {
-        "id": "1261",
-        "name": "Sonix",
-        "description": "AI automated transcription.",
-        "url": "https://sonix.ai",
-        "logo": "https://sonix.ai/favicon.ico",
-        "category": "ტრანსკრიფცია",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1262",
-        "name": "Happy Scribe",
-        "description": "AI transcription & subtitles.",
-        "url": "https://happyscribe.com",
-        "logo": "https://happyscribe.com/favicon.ico",
-        "category": "ტრანსკრიფცია",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1263",
-        "name": "Grain",
-        "description": "AI meeting highlights.",
-        "url": "https://grain.com",
-        "logo": "https://grain.com/favicon.ico",
-        "category": "ტრანსკრიფცია",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
-        "id": "1264",
-        "name": "Fireflies.ai",
-        "description": "AI meeting assistant.",
-        "url": "https://fireflies.ai",
-        "logo": "https://fireflies.ai/favicon.ico",
-        "category": "ტრანსკრიფცია",
-        "pricing": "freemium",
-        "rating": 5
-    },
-    {
         "id": "1265",
         "name": "Fathom",
         "description": "AI meeting recorder.",
@@ -12675,16 +9398,6 @@
         "category": "ტრანსკრიფცია",
         "pricing": "freemium",
         "rating": 5
-    },
-    {
-        "id": "1266",
-        "name": "tl;dv",
-        "description": "AI meeting notes.",
-        "url": "https://tldv.io",
-        "logo": "https://tldv.io/favicon.ico",
-        "category": "ტრანსკრიფცია",
-        "pricing": "freemium",
-        "rating": 4
     },
     {
         "id": "1267",
@@ -12707,16 +9420,6 @@
         "rating": 4
     },
     {
-        "id": "1269",
-        "name": "Notta",
-        "description": "AI transcription.",
-        "url": "https://notta.ai",
-        "logo": "https://notta.ai/favicon.ico",
-        "category": "ტრანსკრიფცია",
-        "pricing": "freemium",
-        "rating": 4
-    },
-    {
         "id": "1270",
         "name": "Vocol.ai",
         "description": "AI meeting collaboration.",
@@ -12727,36 +9430,6 @@
         "rating": 4
     },
     {
-        "id": "1271",
-        "name": "HireVue",
-        "description": "AI video interviewing.",
-        "url": "https://hirevue.com",
-        "logo": "https://hirevue.com/favicon.ico",
-        "category": "HR",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1272",
-        "name": "Pymetrics",
-        "description": "AI hiring assessments.",
-        "url": "https://pymetrics.ai",
-        "logo": "https://pymetrics.ai/favicon.ico",
-        "category": "HR",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1273",
-        "name": "Eightfold",
-        "description": "AI talent intelligence.",
-        "url": "https://eightfold.ai",
-        "logo": "https://eightfold.ai/favicon.ico",
-        "category": "HR",
-        "pricing": "paid",
-        "rating": 5
-    },
-    {
         "id": "1274",
         "name": "Phenom",
         "description": "AI talent experience.",
@@ -12765,36 +9438,6 @@
         "category": "HR",
         "pricing": "paid",
         "rating": 4
-    },
-    {
-        "id": "1275",
-        "name": "Beamery",
-        "description": "AI talent management.",
-        "url": "https://beamery.com",
-        "logo": "https://beamery.com/favicon.ico",
-        "category": "HR",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1276",
-        "name": "Textio",
-        "description": "AI job post optimization.",
-        "url": "https://textio.com",
-        "logo": "https://textio.com/favicon.ico",
-        "category": "HR",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1277",
-        "name": "Paradox",
-        "description": "AI recruiting assistant.",
-        "url": "https://paradox.ai",
-        "logo": "https://paradox.ai/favicon.ico",
-        "category": "HR",
-        "pricing": "paid",
-        "rating": 5
     },
     {
         "id": "1278",
@@ -12877,26 +9520,6 @@
         "rating": 4
     },
     {
-        "id": "1286",
-        "name": "15Five",
-        "description": "AI performance reviews.",
-        "url": "https://15five.com",
-        "logo": "https://15five.com/favicon.ico",
-        "category": "HR",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
-        "id": "1287",
-        "name": "Culture Amp",
-        "description": "AI employee analytics.",
-        "url": "https://cultureamp.com",
-        "logo": "https://cultureamp.com/favicon.ico",
-        "category": "HR",
-        "pricing": "paid",
-        "rating": 4
-    },
-    {
         "id": "1288",
         "name": "Leena AI",
         "description": "AI HR assistant.",
@@ -12905,16 +9528,6 @@
         "category": "HR",
         "pricing": "paid",
         "rating": 4
-    },
-    {
-        "id": "1289",
-        "name": "Socratic",
-        "description": "Google AI homework help.",
-        "url": "https://socratic.org",
-        "logo": "https://socratic.org/favicon.ico",
-        "category": "განათლება",
-        "pricing": "free",
-        "rating": 5
     },
     {
         "id": "1290",
@@ -12935,16 +9548,6 @@
         "category": "განათლება",
         "pricing": "paid",
         "rating": 4
-    },
-    {
-        "id": "1292",
-        "name": "Gradescope",
-        "description": "AI grading.",
-        "url": "https://gradescope.com",
-        "logo": "https://gradescope.com/favicon.ico",
-        "category": "განათლება",
-        "pricing": "paid",
-        "rating": 5
     },
     {
         "id": "1293",

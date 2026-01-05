@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sword, Shield, Trophy, Star, Check, ChevronRight, Lock, Sparkles } from 'lucide-react';
+import { TbSword, TbShield, TbTrophy, TbStar, TbCheck, TbChevronRight, TbLock, TbSparkles } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 
@@ -110,7 +110,7 @@ function QuestCard({
 
                     {/* XP Badge */}
                     <div className="flex items-center gap-1 px-3 py-1.5 bg-yellow-500/20 rounded-full shrink-0">
-                        <Star className="w-4 h-4 text-yellow-400" />
+                        <TbStar className="w-4 h-4 text-yellow-400" />
                         <span className="text-sm font-bold text-yellow-400">{quest.totalXp}</span>
                     </div>
                 </div>
@@ -134,7 +134,7 @@ function QuestCard({
                                         `bg-gradient-to-r ${config.color} text-white hover:opacity-90 transition-opacity`
                                     )}
                                 >
-                                    <Sword className="w-5 h-5" />
+                                    <TbSword className="w-5 h-5" />
                                     დაიწყე კვესტი
                                 </button>
                             ) : (
@@ -168,8 +168,8 @@ function QuestCard({
                                                             ? "bg-gray-700 text-gray-400"
                                                             : "bg-purple-600 text-white"
                                                 )}>
-                                                    {isCompleted ? <Check className="w-4 h-4" /> :
-                                                        isLocked ? <Lock className="w-4 h-4" /> : index + 1}
+                                                    {isCompleted ? <TbCheck className="w-4 h-4" /> :
+                                                        isLocked ? <TbLock className="w-4 h-4" /> : index + 1}
                                                 </div>
 
                                                 <div className="flex-1 min-w-0">
@@ -283,7 +283,7 @@ export default function AIQuestJourney() {
     if (!user) {
         return (
             <div className="text-center p-8 border border-white/10 rounded-2xl bg-white/5">
-                <Sword className="w-12 h-12 mx-auto mb-4 text-purple-400" />
+                <TbSword className="w-12 h-12 mx-auto mb-4 text-purple-400" />
                 <h3 className="text-xl font-bold mb-2">⚔️ AI კვესტები</h3>
                 <p className="text-gray-400">გაიარე ავტორიზაცია კვესტების დასაწყებად</p>
             </div>
@@ -304,7 +304,7 @@ export default function AIQuestJourney() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-purple-500/20 rounded-lg">
-                        <Sword className="w-6 h-6 text-purple-400" />
+                        <TbSword className="w-6 h-6 text-purple-400" />
                     </div>
                     <div>
                         <h2 className="text-2xl font-bold text-white">AI კვესტები</h2>
@@ -315,11 +315,11 @@ export default function AIQuestJourney() {
                 {/* Stats */}
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/20 rounded-full">
-                        <Trophy className="w-4 h-4 text-green-400" />
+                        <TbTrophy className="w-4 h-4 text-green-400" />
                         <span className="text-sm font-bold text-green-400">{completedQuests}</span>
                     </div>
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-500/20 rounded-full">
-                        <Sparkles className="w-4 h-4 text-yellow-400" />
+                        <TbSparkles className="w-4 h-4 text-yellow-400" />
                         <span className="text-sm font-bold text-yellow-400">{totalXpEarned} XP</span>
                     </div>
                 </div>
@@ -328,7 +328,7 @@ export default function AIQuestJourney() {
             {/* Quests */}
             {quests.length === 0 ? (
                 <div className="text-center p-8 border border-white/10 rounded-2xl bg-white/5">
-                    <Shield className="w-12 h-12 mx-auto mb-4 text-gray-500" />
+                    <TbShield className="w-12 h-12 mx-auto mb-4 text-gray-500" />
                     <p className="text-gray-400">კვესტები მალე გამოჩნდება</p>
                 </div>
             ) : (

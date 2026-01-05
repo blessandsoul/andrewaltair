@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
-import { Users, Mail, MessageSquare, TrendingUp } from "lucide-react"
+import { TbUsers, TbMail, TbMessage, TbTrendingUp } from "react-icons/tb"
 
 interface Toast {
     id: number
@@ -23,10 +23,10 @@ const names = [
 ]
 
 const actions = [
-    { type: "subscribe", template: "{name} ახლახანს გამოიწერა!", icon: Mail },
-    { type: "reading", template: "{name} {city}-დან კითხულობს", icon: Users },
-    { type: "comment", template: "{name}-მ დატოვა კომენტარი", icon: MessageSquare },
-    { type: "trending", template: "ეს სტატია ტრენდშია! 🔥", icon: TrendingUp },
+    { type: "subscribe", template: "{name} ახლახანს გამოიწერა!", icon: TbMail },
+    { type: "reading", template: "{name} {city}-დან კითხულობს", icon: TbUsers },
+    { type: "comment", template: "{name}-მ დატოვა კომენტარი", icon: TbMessage },
+    { type: "trending", template: "ეს სტატია ტრენდშია! 🔥", icon: TbTrendingUp },
 ]
 
 export function SocialProofToast({ enabled = true }: { enabled?: boolean }) {
@@ -82,13 +82,13 @@ export function SocialProofToast({ enabled = true }: { enabled?: boolean }) {
     const getIcon = (type: Toast["type"]) => {
         switch (type) {
             case "subscribe":
-                return <Mail className="h-4 w-4 text-primary" />
+                return <TbMail className="h-4 w-4 text-primary" />
             case "reading":
-                return <Users className="h-4 w-4 text-accent" />
+                return <TbUsers className="h-4 w-4 text-accent" />
             case "comment":
-                return <MessageSquare className="h-4 w-4 text-green-500" />
+                return <TbMessage className="h-4 w-4 text-green-500" />
             case "trending":
-                return <TrendingUp className="h-4 w-4 text-red-500" />
+                return <TbTrendingUp className="h-4 w-4 text-red-500" />
         }
     }
 

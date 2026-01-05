@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Star, Lock, Check, Flame } from 'lucide-react';
+import { TbTrophy, TbStar, TbLock, TbCheck, TbFlame } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 
@@ -71,7 +71,7 @@ export default function SeasonPass() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-lg">
-                        <Trophy className="w-6 h-6 text-yellow-400" />
+                        <TbTrophy className="w-6 h-6 text-yellow-400" />
                     </div>
                     <div>
                         <h2 className="text-2xl font-bold text-white">სეზონის პასპორტი</h2>
@@ -81,7 +81,7 @@ export default function SeasonPass() {
 
                 {!isPremium && (
                     <button className="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-xl font-medium text-sm hover:opacity-90 transition-opacity flex items-center gap-2">
-                        <Star className="w-4 h-4" />
+                        <TbStar className="w-4 h-4" />
                         პრემიუმ
                     </button>
                 )}
@@ -91,7 +91,7 @@ export default function SeasonPass() {
             <div className="p-4 rounded-xl bg-gradient-to-r from-purple-900/30 to-pink-900/30 border border-purple-500/30">
                 <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                        <Flame className="w-5 h-5 text-orange-400" />
+                        <TbFlame className="w-5 h-5 text-orange-400" />
                         <span className="text-white font-medium">დონე {currentTier}</span>
                     </div>
                     <span className="text-gray-300 text-sm">{userXp} / {nextTier?.xpRequired || 'MAX'} XP</span>
@@ -136,7 +136,7 @@ export default function SeasonPass() {
                                     ? "bg-gradient-to-br from-green-500 to-emerald-600"
                                     : "bg-gray-700"
                             )}>
-                                {isUnlocked ? tier.icon : <Lock className="w-5 h-5 text-gray-400" />}
+                                {isUnlocked ? tier.icon : <TbLock className="w-5 h-5 text-gray-400" />}
                             </div>
 
                             {/* Info */}
@@ -157,7 +157,7 @@ export default function SeasonPass() {
                                 {isUnlocked ? (
                                     canClaim ? (
                                         <div className="flex items-center gap-1 text-green-400">
-                                            <Check className="w-4 h-4" />
+                                            <TbCheck className="w-4 h-4" />
                                             <span className="text-sm">მიღებული</span>
                                         </div>
                                     ) : (

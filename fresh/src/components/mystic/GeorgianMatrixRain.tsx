@@ -78,7 +78,7 @@ export function GeorgianMatrixRain() {
                     ctx.fillText(char.char, char.x, char.y)
                 }
 
-                // Move character
+                // TbArrowsMove character
                 char.y += char.speed
 
                 // Random character change

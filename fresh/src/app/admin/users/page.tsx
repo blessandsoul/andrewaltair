@@ -13,39 +13,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import {
-    Users,
-    Shield,
-    UserPlus,
-    Trash2,
-    Edit2,
-    Check,
-    X,
-    Search,
-    Clock,
-    Activity,
-    LogIn,
-    LogOut,
-    Key,
-    Monitor,
-    Smartphone,
-    Mail,
-    Lock,
-    User,
-    Eye,
-    EyeOff,
-    ChevronUp,
-    ChevronDown,
-    ChevronLeft,
-    ChevronRight,
-    Download,
-    Ban,
-    Unlock,
-    ShieldCheck,
-    ShieldOff,
-    MoreHorizontal,
-    Power
-} from "lucide-react"
+import { TbUsers, TbShield, TbUserPlus, TbTrash, TbEdit, TbCheck, TbX, TbSearch, TbClock, TbActivity, TbLogin, TbLogout, TbKey, TbDeviceDesktop, TbDeviceMobile, TbMail, TbLock, TbUser, TbEye, TbEyeOff, TbChevronUp, TbChevronDown, TbChevronLeft, TbChevronRight, TbDownload, TbBan, TbLockOpen, TbShieldCheck, TbShieldOff, TbDots, TbPower } from "react-icons/tb"
 
 interface UserType {
     id: string
@@ -95,7 +63,7 @@ const sampleActivity: ActivityLog[] = [
 ]
 
 const sampleLoginHistory: LoginHistory[] = [
-    { id: "1", user: "Andrew Altair", ip: "192.168.1.1", device: "Desktop", browser: "Chrome 120", timestamp: "2024-12-25 14:30", status: "success" },
+    { id: "1", user: "Andrew Altair", ip: "192.168.1.1", device: "Desktop", browser: "TbBrandChrome 120", timestamp: "2024-12-25 14:30", status: "success" },
     { id: "2", user: "Andrew Altair", ip: "192.168.1.1", device: "Mobile", browser: "Safari", timestamp: "2024-12-24 10:15", status: "success" },
     { id: "3", user: "Unknown", ip: "45.67.89.12", device: "Desktop", browser: "Firefox", timestamp: "2024-12-23 22:45", status: "failed" },
 ]
@@ -460,7 +428,7 @@ export default function UsersPage() {
             <div className="flex items-center gap-1">
                 {children}
                 {sortField === field && (
-                    sortDirection === "asc" ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+                    sortDirection === "asc" ? <TbChevronUp className="w-4 h-4" /> : <TbChevronDown className="w-4 h-4" />
                 )}
             </div>
         </th>
@@ -472,7 +440,7 @@ export default function UsersPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold flex items-center gap-3">
-                        <Users className="w-8 h-8 text-indigo-500" />
+                        <TbUsers className="w-8 h-8 text-indigo-500" />
                         მომხმარებლები
                     </h1>
                     <p className="text-muted-foreground mt-1">
@@ -481,11 +449,11 @@ export default function UsersPage() {
                 </div>
                 <div className="flex gap-2">
                     <Button variant="outline" className="gap-2" onClick={exportToCSV}>
-                        <Download className="w-4 h-4" />
+                        <TbDownload className="w-4 h-4" />
                         ექსპორტი
                     </Button>
                     <Button className="gap-2" onClick={() => setShowAddModal(true)}>
-                        <UserPlus className="w-4 h-4" />
+                        <TbUserPlus className="w-4 h-4" />
                         დამატება
                     </Button>
                 </div>
@@ -494,9 +462,9 @@ export default function UsersPage() {
             {/* Tabs */}
             <div className="flex gap-2 border-b">
                 {[
-                    { id: "users", label: "მომხმარებლები", icon: Users },
-                    { id: "activity", label: "აქტივობა", icon: Activity },
-                    { id: "logins", label: "შესვლების ისტორია", icon: Clock },
+                    { id: "users", label: "მომხმარებლები", icon: TbUsers },
+                    { id: "activity", label: "აქტივობა", icon: TbActivity },
+                    { id: "logins", label: "შესვლების ისტორია", icon: TbClock },
                 ].map((tab) => (
                     <button
                         key={tab.id}
@@ -518,7 +486,7 @@ export default function UsersPage() {
                     {/* Filters */}
                     <div className="flex flex-wrap gap-4 items-center">
                         <div className="relative flex-1 min-w-[200px] max-w-sm">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <TbSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input
                                 placeholder="ძიება..."
                                 value={searchQuery}
@@ -562,11 +530,11 @@ export default function UsersPage() {
                                     მნახველი
                                 </Button>
                                 <Button size="sm" variant="outline" onClick={bulkBlock}>
-                                    <Ban className="w-4 h-4 mr-1" />
+                                    <TbBan className="w-4 h-4 mr-1" />
                                     დაბლოკვა
                                 </Button>
                                 <Button size="sm" variant="destructive" onClick={bulkDelete}>
-                                    <Trash2 className="w-4 h-4 mr-1" />
+                                    <TbTrash className="w-4 h-4 mr-1" />
                                     წაშლა
                                 </Button>
                             </div>
@@ -659,9 +627,9 @@ export default function UsersPage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 {user.twoFA ? (
-                                                    <ShieldCheck className="w-5 h-5 text-green-500" />
+                                                    <TbShieldCheck className="w-5 h-5 text-green-500" />
                                                 ) : (
-                                                    <ShieldOff className="w-5 h-5 text-muted-foreground" />
+                                                    <TbShieldOff className="w-5 h-5 text-muted-foreground" />
                                                 )}
                                             </td>
                                             <td className="px-6 py-4">
@@ -672,7 +640,7 @@ export default function UsersPage() {
                                                         className="h-8 w-8"
                                                         onClick={() => { setSelectedUser(user); setShowEditModal(true) }}
                                                     >
-                                                        <Edit2 className="w-4 h-4" />
+                                                        <TbEdit className="w-4 h-4" />
                                                     </Button>
                                                     <Button
                                                         variant="ghost"
@@ -681,9 +649,9 @@ export default function UsersPage() {
                                                         onClick={() => toggleBlock(user.id)}
                                                     >
                                                         {user.status === "blocked" ? (
-                                                            <Unlock className="w-4 h-4 text-green-500" />
+                                                            <TbLockOpen className="w-4 h-4 text-green-500" />
                                                         ) : (
-                                                            <Ban className="w-4 h-4 text-orange-500" />
+                                                            <TbBan className="w-4 h-4 text-orange-500" />
                                                         )}
                                                     </Button>
                                                     <Button
@@ -692,7 +660,7 @@ export default function UsersPage() {
                                                         className="h-8 w-8 text-destructive"
                                                         onClick={() => deleteUser(user.id)}
                                                     >
-                                                        <Trash2 className="w-4 h-4" />
+                                                        <TbTrash className="w-4 h-4" />
                                                     </Button>
                                                 </div>
                                             </td>
@@ -728,7 +696,7 @@ export default function UsersPage() {
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 disabled={currentPage === 1}
                             >
-                                <ChevronLeft className="w-4 h-4" />
+                                <TbChevronLeft className="w-4 h-4" />
                             </Button>
                             {Array.from({ length: totalPages }, (_, i) => i + 1).slice(
                                 Math.max(0, currentPage - 3),
@@ -749,7 +717,7 @@ export default function UsersPage() {
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
                             >
-                                <ChevronRight className="w-4 h-4" />
+                                <TbChevronRight className="w-4 h-4" />
                             </Button>
                         </div>
                     </div>
@@ -771,9 +739,9 @@ export default function UsersPage() {
                                             activity.type === "login" ? "bg-indigo-500/10 text-indigo-500" :
                                                 "bg-gray-500/10 text-gray-500"
                                     }`}>
-                                    {activity.type === "login" ? <LogIn className="w-4 h-4" /> :
-                                        activity.type === "logout" ? <LogOut className="w-4 h-4" /> :
-                                            <Activity className="w-4 h-4" />}
+                                    {activity.type === "login" ? <TbLogin className="w-4 h-4" /> :
+                                        activity.type === "logout" ? <TbLogout className="w-4 h-4" /> :
+                                            <TbActivity className="w-4 h-4" />}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="font-medium">
@@ -811,9 +779,9 @@ export default function UsersPage() {
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
                                                 {login.device === "Desktop" ? (
-                                                    <Monitor className="w-4 h-4 text-muted-foreground" />
+                                                    <TbDeviceDesktop className="w-4 h-4 text-muted-foreground" />
                                                 ) : (
-                                                    <Smartphone className="w-4 h-4 text-muted-foreground" />
+                                                    <TbDeviceMobile className="w-4 h-4 text-muted-foreground" />
                                                 )}
                                                 <span className="text-sm">{login.browser}</span>
                                             </div>
@@ -892,40 +860,40 @@ function AddUserModal({ onClose, onAdd }: {
             <Card className="w-full max-w-md" onClick={(e) => e.stopPropagation()}>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
-                        <UserPlus className="w-5 h-5 text-indigo-500" />
+                        <TbUserPlus className="w-5 h-5 text-indigo-500" />
                         ახალი მომხმარებელი
                     </CardTitle>
-                    <Button variant="ghost" size="icon" onClick={onClose}><X className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="icon" onClick={onClose}><TbX className="w-4 h-4" /></Button>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium flex items-center gap-2"><User className="w-4 h-4 text-muted-foreground" />სახელი</label>
+                            <label className="text-sm font-medium flex items-center gap-2"><TbUser className="w-4 h-4 text-muted-foreground" />სახელი</label>
                             <Input placeholder="სრული სახელი" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
                             {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium flex items-center gap-2"><Mail className="w-4 h-4 text-muted-foreground" />ელ.ფოსტა</label>
+                            <label className="text-sm font-medium flex items-center gap-2"><TbMail className="w-4 h-4 text-muted-foreground" />ელ.ფოსტა</label>
                             <Input type="email" placeholder="email@example.com" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
                             {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium flex items-center gap-2"><Lock className="w-4 h-4 text-muted-foreground" />პაროლი</label>
+                            <label className="text-sm font-medium flex items-center gap-2"><TbLock className="w-4 h-4 text-muted-foreground" />პაროლი</label>
                             <div className="relative">
                                 <Input type={showPassword ? "text" : "password"} placeholder="მინიმუმ 6 სიმბოლო" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
                                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                    {showPassword ? <TbEyeOff className="w-4 h-4" /> : <TbEye className="w-4 h-4" />}
                                 </button>
                             </div>
                             {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium flex items-center gap-2"><Lock className="w-4 h-4 text-muted-foreground" />პაროლის დადასტურება</label>
+                            <label className="text-sm font-medium flex items-center gap-2"><TbLock className="w-4 h-4 text-muted-foreground" />პაროლის დადასტურება</label>
                             <Input type={showPassword ? "text" : "password"} placeholder="გაიმეორეთ პაროლი" value={formData.confirmPassword} onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })} />
                             {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium flex items-center gap-2"><Shield className="w-4 h-4 text-muted-foreground" />როლი</label>
+                            <label className="text-sm font-medium flex items-center gap-2"><TbShield className="w-4 h-4 text-muted-foreground" />როლი</label>
                             <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value as UserType["role"] })}>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
@@ -937,7 +905,7 @@ function AddUserModal({ onClose, onAdd }: {
                         </div>
                         <div className="flex justify-end gap-2 pt-4">
                             <Button type="button" variant="outline" onClick={onClose}>გაუქმება</Button>
-                            <Button type="submit" className="gap-2"><Check className="w-4 h-4" />რეგისტრაცია</Button>
+                            <Button type="submit" className="gap-2"><TbCheck className="w-4 h-4" />რეგისტრაცია</Button>
                         </div>
                     </form>
                 </CardContent>
@@ -959,8 +927,8 @@ function EditUserModal({ user, onClose, onSave }: { user: UserType; onClose: () 
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
             <Card className="w-full max-w-md" onClick={(e) => e.stopPropagation()}>
                 <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle className="flex items-center gap-2"><Edit2 className="w-5 h-5 text-indigo-500" />რედაქტირება</CardTitle>
-                    <Button variant="ghost" size="icon" onClick={onClose}><X className="w-4 h-4" /></Button>
+                    <CardTitle className="flex items-center gap-2"><TbEdit className="w-5 h-5 text-indigo-500" />რედაქტირება</CardTitle>
+                    <Button variant="ghost" size="icon" onClick={onClose}><TbX className="w-4 h-4" /></Button>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
@@ -985,7 +953,7 @@ function EditUserModal({ user, onClose, onSave }: { user: UserType; onClose: () 
                         </div>
                         <div className="flex justify-end gap-2 pt-4">
                             <Button type="button" variant="outline" onClick={onClose}>გაუქმება</Button>
-                            <Button type="submit" className="gap-2"><Check className="w-4 h-4" />შენახვა</Button>
+                            <Button type="submit" className="gap-2"><TbCheck className="w-4 h-4" />შენახვა</Button>
                         </div>
                     </form>
                 </CardContent>
@@ -1001,7 +969,7 @@ function ProfileModal({ user, onClose, onToggle2FA, onForceLogout }: { user: Use
             <Card className="w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>პროფილი</CardTitle>
-                    <Button variant="ghost" size="icon" onClick={onClose}><X className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="icon" onClick={onClose}><TbX className="w-4 h-4" /></Button>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="flex items-center gap-4">
@@ -1039,7 +1007,7 @@ function ProfileModal({ user, onClose, onToggle2FA, onForceLogout }: { user: Use
                     <div className="space-y-3">
                         <div className="flex items-center justify-between p-4 rounded-lg border">
                             <div className="flex items-center gap-3">
-                                {user.twoFA ? <ShieldCheck className="w-5 h-5 text-green-500" /> : <ShieldOff className="w-5 h-5 text-muted-foreground" />}
+                                {user.twoFA ? <TbShieldCheck className="w-5 h-5 text-green-500" /> : <TbShieldOff className="w-5 h-5 text-muted-foreground" />}
                                 <div>
                                     <p className="font-medium">ორფაქტორიანი ავთენტიფიკაცია</p>
                                     <p className="text-sm text-muted-foreground">{user.twoFA ? "ჩართულია" : "გამორთულია"}</p>
@@ -1051,7 +1019,7 @@ function ProfileModal({ user, onClose, onToggle2FA, onForceLogout }: { user: Use
                         </div>
 
                         <Button variant="outline" className="w-full gap-2" onClick={onForceLogout} disabled={user.sessions === 0}>
-                            <Power className="w-4 h-4" />
+                            <TbPower className="w-4 h-4" />
                             ყველა სესიის დასრულება ({user.sessions})
                         </Button>
                     </div>

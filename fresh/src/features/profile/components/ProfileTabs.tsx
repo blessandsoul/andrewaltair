@@ -7,37 +7,28 @@
 
 import * as React from "react"
 import { useQueryState, parseAsStringLiteral } from "nuqs"
-import {
-    User,
-    History,
-    BarChart3,
-    Link2,
-    Users,
-    Image,
-    Bookmark,
-    Shield,
-    Settings,
-    type LucideIcon,
-} from "lucide-react"
+import { TbUser, TbHistory, TbChartBar, TbUsers, TbPhoto, TbBookmark, TbShield, TbSettings, TbExternalLink } from "react-icons/tb"
 import { cn } from "@/lib/utils"
 import { PROFILE_TABS, type ProfileTab } from "../types"
+
+type IconType = React.ComponentType<{ className?: string }>
 
 interface Tab {
     id: ProfileTab
     label: string
-    icon: LucideIcon
+    icon: IconType
 }
 
 const tabs: Tab[] = [
-    { id: "profile", label: "პროფილი", icon: User },
-    { id: "activity", label: "აქტივობა", icon: History },
-    { id: "stats", label: "სტატისტიკა", icon: BarChart3 },
-    { id: "social", label: "სოც. ქსელები", icon: Link2 },
-    { id: "privacy", label: "კონფიდენციალურობა", icon: Users },
-    { id: "media", label: "მედია", icon: Image },
-    { id: "subscriptions", label: "გამოწერები", icon: Bookmark },
-    { id: "security", label: "უსაფრთხოება", icon: Shield },
-    { id: "preferences", label: "პარამეტრები", icon: Settings },
+    { id: "profile", label: "პროფილი", icon: TbUser },
+    { id: "activity", label: "აქტივობა", icon: TbHistory },
+    { id: "stats", label: "სტატისტიკა", icon: TbChartBar },
+    { id: "social", label: "სოც. ქსელები", icon: TbExternalLink },
+    { id: "privacy", label: "კონფიდენციალურობა", icon: TbUsers },
+    { id: "media", label: "მედია", icon: TbPhoto },
+    { id: "subscriptions", label: "გამოწერები", icon: TbBookmark },
+    { id: "security", label: "უსაფრთხოება", icon: TbShield },
+    { id: "preferences", label: "პარამეტრები", icon: TbSettings },
 ]
 
 interface ProfileTabsProps {

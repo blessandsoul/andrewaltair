@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Moon, Star, RefreshCw, Sparkles, TreePine, Footprints, PawPrint, Home, User, Loader2 } from "lucide-react"
+import { TbMoon, TbStar, TbRefresh, TbSparkles, TbTree, TbWalk, TbPaw, TbHome, TbUser, TbLoader2 } from "react-icons/tb"
 
 interface DreamSymbol {
     word: string
@@ -15,13 +15,13 @@ interface DreamResult {
     generalMessage: string
 }
 
-const categoryIcons: Record<string, { icon: typeof Star; color: string }> = {
-    "ბუნება": { icon: TreePine, color: "text-green-400 bg-green-500/20" },
-    "მოქმედება": { icon: Footprints, color: "text-orange-400 bg-orange-500/20" },
-    "ცხოველი": { icon: PawPrint, color: "text-amber-400 bg-amber-500/20" },
-    "ადგილი": { icon: Home, color: "text-blue-400 bg-blue-500/20" },
-    "სიმბოლო": { icon: Sparkles, color: "text-purple-400 bg-purple-500/20" },
-    "ადამიანი": { icon: User, color: "text-cyan-400 bg-cyan-500/20" },
+const categoryIcons: Record<string, { icon: typeof TbStar; color: string }> = {
+    "ბუნება": { icon: TbTree, color: "text-green-400 bg-green-500/20" },
+    "მოქმედება": { icon: TbWalk, color: "text-orange-400 bg-orange-500/20" },
+    "ცხოველი": { icon: TbPaw, color: "text-amber-400 bg-amber-500/20" },
+    "ადგილი": { icon: TbHome, color: "text-blue-400 bg-blue-500/20" },
+    "სიმბოლო": { icon: TbSparkles, color: "text-purple-400 bg-purple-500/20" },
+    "ადამიანი": { icon: TbUser, color: "text-cyan-400 bg-cyan-500/20" },
 }
 
 export function DreamInterpreter() {
@@ -78,10 +78,10 @@ export function DreamInterpreter() {
                                     <div className="absolute inset-0 bg-blue-500/30 rounded-full blur-2xl animate-pulse" />
                                     <div className="relative w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-full bg-gradient-to-br from-blue-300 via-cyan-400 to-blue-500 p-1">
                                         <div className="w-full h-full rounded-full bg-[#12121a] flex items-center justify-center">
-                                            <Moon className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-blue-400" />
+                                            <TbMoon className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-blue-400" />
                                         </div>
                                     </div>
-                                    <Star className="absolute -right-1 -top-1 sm:-right-2 sm:-top-1 w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-yellow-300 fill-yellow-300" />
+                                    <TbStar className="absolute -right-1 -top-1 sm:-right-2 sm:-top-1 w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-yellow-300 fill-yellow-300" />
                                 </div>
                             </div>
 
@@ -103,13 +103,13 @@ export function DreamInterpreter() {
                             >
                                 {isInterpreting ? (
                                     <span className="flex items-center gap-2 sm:gap-3">
-                                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                                        <TbLoader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                                         <span className="hidden sm:inline">AI ანალიზი...</span>
                                         <span className="sm:hidden">იტვირთება...</span>
                                     </span>
                                 ) : (
                                     <span className="flex items-center gap-2 sm:gap-3">
-                                        <Moon className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        <TbMoon className="w-4 h-4 sm:w-5 sm:h-5" />
                                         ახსენი
                                     </span>
                                 )}
@@ -121,7 +121,7 @@ export function DreamInterpreter() {
                             {result.symbols && result.symbols.length > 0 && (
                                 <div className="space-y-2 sm:space-y-3">
                                     <h3 className="text-xs sm:text-sm font-medium text-gray-400 flex items-center gap-1.5 sm:gap-2">
-                                        <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 fill-yellow-400" />
+                                        <TbStar className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 fill-yellow-400" />
                                         სიმბოლოები ({result.symbols.length})
                                     </h3>
                                     <div className="space-y-2">
@@ -152,7 +152,7 @@ export function DreamInterpreter() {
                             {/* General interpretation */}
                             <div className="p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
                                 <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-                                    <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
+                                    <TbSparkles className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
                                     <h3 className="text-base sm:text-lg font-bold text-white">ინტერპრეტაცია</h3>
                                 </div>
                                 <p className="text-sm sm:text-base text-gray-300 leading-relaxed">{result.generalMessage}</p>
@@ -163,7 +163,7 @@ export function DreamInterpreter() {
                                 variant="outline"
                                 className="w-full h-10 sm:h-12 rounded-lg sm:rounded-xl border-white/10 text-white hover:bg-white/5 bg-transparent text-sm sm:text-base"
                             >
-                                <RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
+                                <TbRefresh className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
                                 სხვა სიზმარი
                             </Button>
                         </div>

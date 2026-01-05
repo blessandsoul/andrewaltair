@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { cn } from "@/lib/utils"
-import { Bot, Sparkles, Palette, Code, Brain, Briefcase, X, ChevronRight } from "lucide-react"
+import { TbRobot, TbSparkles, TbPalette, TbCode, TbBrain, TbBriefcase, TbX, TbChevronRight } from "react-icons/tb"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 
@@ -21,7 +21,7 @@ const ASSISTANTS: AssistantType[] = [
         id: "general",
         name: "ანდრია",
         description: "ზოგადი AI ასისტენტი",
-        icon: <Sparkles className="h-5 w-5" />,
+        icon: <TbSparkles className="h-5 w-5" />,
         color: "from-primary to-accent",
         systemPrompt: "ზოგადი AI ასისტენტი",
         welcomeMessage: "გამარჯობა! 👋 მე ვარ ანდრია, შენი AI ასისტენტი. რითი დაგეხმარო?"
@@ -30,7 +30,7 @@ const ASSISTANTS: AssistantType[] = [
         id: "chatgpt",
         name: "ChatGPT ექსპერტი",
         description: "ChatGPT-ს გამოყენების სპეციალისტი",
-        icon: <Brain className="h-5 w-5" />,
+        icon: <TbBrain className="h-5 w-5" />,
         color: "from-green-500 to-emerald-600",
         systemPrompt: "ChatGPT ექსპერტი",
         welcomeMessage: "გამარჯობა! 🤖 მე ვარ ChatGPT ექსპერტი. დაგეხმარები პრომპტების წერასა და ChatGPT-ს ეფექტურად გამოყენებაში!"
@@ -39,7 +39,7 @@ const ASSISTANTS: AssistantType[] = [
         id: "midjourney",
         name: "Midjourney სპეციალისტი",
         description: "AI არტის და გენერაციის ექსპერტი",
-        icon: <Palette className="h-5 w-5" />,
+        icon: <TbPalette className="h-5 w-5" />,
         color: "from-purple-500 to-pink-600",
         systemPrompt: "Midjourney და AI არტის სპეციალისტი",
         welcomeMessage: "გამარჯობა! 🎨 მე ვარ Midjourney სპეციალისტი. დაგეხმარები AI-ით ხელოვნების შექმნაში!"
@@ -48,7 +48,7 @@ const ASSISTANTS: AssistantType[] = [
         id: "developer",
         name: "AI პროგრამისტი",
         description: "კოდირებისა და დეველოპმენტის დახმარება",
-        icon: <Code className="h-5 w-5" />,
+        icon: <TbCode className="h-5 w-5" />,
         color: "from-blue-500 to-cyan-600",
         systemPrompt: "AI პროგრამისტი და ტექნიკური კონსულტანტი",
         welcomeMessage: "გამარჯობა! 💻 მე ვარ AI პროგრამისტი. დაგეხმარები კოდირებასა და ტექნიკურ საკითხებში!"
@@ -57,7 +57,7 @@ const ASSISTANTS: AssistantType[] = [
         id: "business",
         name: "ბიზნეს კონსულტანტი",
         description: "AI ბიზნესში გამოყენების რჩევები",
-        icon: <Briefcase className="h-5 w-5" />,
+        icon: <TbBriefcase className="h-5 w-5" />,
         color: "from-amber-500 to-orange-600",
         systemPrompt: "AI ბიზნეს კონსულტანტი",
         welcomeMessage: "გამარჯობა! 📈 მე ვარ AI ბიზნეს კონსულტანტი. დაგეხმარები AI-ს შენს ბიზნესში ინტეგრაციაში!"
@@ -162,7 +162,7 @@ export function AIAssistantSelector() {
                 onClick={() => setIsOpen(true)}
                 className="fixed bottom-20 right-4 z-50 h-12 px-4 rounded-full bg-gradient-to-r from-primary to-accent text-white shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center gap-2 text-sm font-medium"
             >
-                <Bot className="h-5 w-5" />
+                <TbRobot className="h-5 w-5" />
                 აირჩიე AI ასისტენტი
             </button>
         )
@@ -194,7 +194,7 @@ export function AIAssistantSelector() {
                             onClick={closeChat}
                             className="p-1.5 rounded-full hover:bg-white/20 transition-colors"
                         >
-                            <X className="h-4 w-4" />
+                            <TbX className="h-4 w-4" />
                         </button>
                     </div>
                 </div>
@@ -258,14 +258,14 @@ export function AIAssistantSelector() {
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-primary to-accent text-white">
                 <div className="flex items-center gap-2">
-                    <Bot className="h-5 w-5" />
+                    <TbRobot className="h-5 w-5" />
                     <h3 className="font-bold text-sm">აირჩიე AI ასისტენტი</h3>
                 </div>
                 <button
                     onClick={() => setIsOpen(false)}
                     className="p-1.5 rounded-full hover:bg-white/20 transition-colors"
                 >
-                    <X className="h-4 w-4" />
+                    <TbX className="h-4 w-4" />
                 </button>
             </div>
 
@@ -284,7 +284,7 @@ export function AIAssistantSelector() {
                             <h4 className="font-medium text-sm">{assistant.name}</h4>
                             <p className="text-xs text-muted-foreground truncate">{assistant.description}</p>
                         </div>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <TbChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                     </button>
                 ))}
             </div>

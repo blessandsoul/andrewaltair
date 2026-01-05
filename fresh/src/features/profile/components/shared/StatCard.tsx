@@ -6,11 +6,12 @@
 "use client"
 
 import * as React from "react"
-import { type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+type IconType = React.ComponentType<{ className?: string }>
+
 interface StatCardProps {
-    icon: LucideIcon
+    icon: IconType
     value: string | number
     label: string
     color: "blue" | "green" | "purple" | "red" | "yellow"

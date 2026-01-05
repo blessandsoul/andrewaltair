@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ka">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Coding - ქართული ვერსია</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Georgian:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Highlight.js for code syntax highlighting -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+</head>
+
+<body>
+
+    <button class="mobile-toggle" id="mobileToggle">☰</button>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <span>✨ Vibe Coding</span>
+        </div>
+        <div id="nav-container">
+            <!-- Navigation will be injected here via JS -->
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="article-container" id="content">
+            <!-- Content will be injected here via JS -->
+            <div style="text-align: center; margin-top: 100px;">
+                <h1>იტვირთება...</h1>
+            </div>
+        </div>
+    </main>
+
+    <!-- Load data first -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

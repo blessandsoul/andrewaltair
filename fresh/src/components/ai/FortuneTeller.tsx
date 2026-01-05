@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Sparkles, Star, RefreshCw, Palette, Hash, Calendar, Loader2 } from "lucide-react"
+import { TbSparkles, TbStar, TbRefresh, TbPalette, TbHash, TbCalendar, TbLoader2 } from "react-icons/tb"
 
 interface FortunePrediction {
     prediction: string
@@ -70,7 +70,7 @@ export function FortuneTeller() {
                                     <div className="absolute inset-0 bg-purple-500/30 rounded-full blur-2xl animate-pulse" />
                                     <div className="relative w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-full bg-gradient-to-br from-purple-400 via-violet-500 to-indigo-600 p-1">
                                         <div className="w-full h-full rounded-full bg-[#12121a] flex items-center justify-center">
-                                            <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-purple-400" />
+                                            <TbSparkles className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-purple-400" />
                                         </div>
                                     </div>
                                 </div>
@@ -107,13 +107,13 @@ export function FortuneTeller() {
                             >
                                 {isRevealing ? (
                                     <span className="flex items-center gap-2 sm:gap-3">
-                                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                                        <TbLoader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                                         <span className="hidden sm:inline">AI კითხულობს...</span>
                                         <span className="sm:hidden">იტვირთება...</span>
                                     </span>
                                 ) : (
                                     <span className="flex items-center gap-2 sm:gap-3">
-                                        <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        <TbSparkles className="w-4 h-4 sm:w-5 sm:h-5" />
                                         გაიგე მომავალი
                                     </span>
                                 )}
@@ -125,7 +125,7 @@ export function FortuneTeller() {
                             <div className="p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20">
                                 <div className="flex items-start gap-3 sm:gap-4">
                                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-purple-500/20 flex items-center justify-center flex-shrink-0">
-                                        <Star className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+                                        <TbStar className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
                                     </div>
                                     <div>
                                         <h3 className="text-base sm:text-lg font-semibold text-white mb-1.5 sm:mb-2">
@@ -140,21 +140,21 @@ export function FortuneTeller() {
                             <div className="grid grid-cols-3 gap-2 sm:gap-3">
                                 <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/5 border border-white/5 text-center">
                                     <div className="w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-2 sm:mb-3 rounded-lg sm:rounded-xl bg-pink-500/20 flex items-center justify-center">
-                                        <Palette className="w-4 h-4 sm:w-5 sm:h-5 text-pink-400" />
+                                        <TbPalette className="w-4 h-4 sm:w-5 sm:h-5 text-pink-400" />
                                     </div>
                                     <div className="text-[10px] sm:text-xs text-gray-500 mb-0.5 sm:mb-1">ფერი</div>
                                     <div className="text-white font-medium text-xs sm:text-sm truncate">{result.luckyColor}</div>
                                 </div>
                                 <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/5 border border-white/5 text-center">
                                     <div className="w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-2 sm:mb-3 rounded-lg sm:rounded-xl bg-blue-500/20 flex items-center justify-center">
-                                        <Hash className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
+                                        <TbHash className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
                                     </div>
                                     <div className="text-[10px] sm:text-xs text-gray-500 mb-0.5 sm:mb-1">რიცხვი</div>
                                     <div className="text-white font-medium text-xs sm:text-sm">{result.luckyNumber}</div>
                                 </div>
                                 <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/5 border border-white/5 text-center">
                                     <div className="w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-2 sm:mb-3 rounded-lg sm:rounded-xl bg-green-500/20 flex items-center justify-center">
-                                        <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+                                        <TbCalendar className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
                                     </div>
                                     <div className="text-[10px] sm:text-xs text-gray-500 mb-0.5 sm:mb-1">დღე</div>
                                     <div className="text-white font-medium text-xs sm:text-sm truncate">{result.luckyDay}</div>
@@ -166,7 +166,7 @@ export function FortuneTeller() {
                                 variant="outline"
                                 className="w-full h-10 sm:h-12 rounded-lg sm:rounded-xl border-white/10 text-white hover:bg-white/5 bg-transparent text-sm sm:text-base"
                             >
-                                <RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
+                                <TbRefresh className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
                                 ხელახლა
                             </Button>
                         </div>

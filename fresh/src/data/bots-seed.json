@@ -1,0 +1,41 @@
+[
+  {
+    "name": "კონტენტის მაგისტრი",
+    "codename": "CONTENT_MASTER",
+    "version": "2.1",
+    "description": "პროფესიონალური კონტენტის შექმნა სოციალური მედიისთვის. ქმნის ჩართულ პოსტებს, სტორიებს და რეელებს რომლებიც იზიდავენ აუდიტორიას.",
+    "shortDescription": "სოციალური მედიის კონტენტის ექსპერტი",
+    "category": "content",
+    "tier": "free",
+    "price": 0,
+    "icon": "MessageCircle",
+    "color": "from-blue-500 to-cyan-500",
+    "features": ["Instagram, Facebook, TikTok პოსტები", "ჰეშთეგების გენერაცია", "სტორი იდეები", "რეელების სცენარები", "ჩართულობის ოპტიმიზაცია"],
+    "rating": 4.8,
+    "downloads": 15420,
+    "likes": 892,
+    "isNew": true,
+    "isFeatured": false,
+    "targetAudience": ["მარკეტოლოგები", "SMM სპეციალისტები", "ბლოგერები"],
+    "languages": ["ქართული", "English", "Русский"],
+    "purchasedToday": 23,
+    "responseTime": "2",
+    "timeSaved": 15,
+    "moneySaved": 500,
+    "creator": {
+      "name": "გიორგი მელაძე",
+      "verified": true,
+      "totalSales": 1250,
+      "rating": 4.9
+    },
+    "guarantees": {
+      "moneyBack": 30,
+      "freeUpdates": true,
+      "support": {
+        "type": "24/7 ჩატი",
+        "responseTime": "< 2 საათი",
+        "languages": ["ქართული", "English"]
+      }
+    }
+  }
+]

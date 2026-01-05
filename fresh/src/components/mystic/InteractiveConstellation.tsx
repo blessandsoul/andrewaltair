@@ -87,7 +87,7 @@ export function InteractiveConstellation() {
                 const dy = star.y - mouse.y
                 const dist = Math.sqrt(dx * dx + dy * dy)
 
-                // Stars glow more when mouse is near
+                // TbStars glow more when mouse is near
                 const glow = dist < mouseRadius ? 1 + (1 - dist / mouseRadius) * 2 : 1
                 const size = star.size * glow
 

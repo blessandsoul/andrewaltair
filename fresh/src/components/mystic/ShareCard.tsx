@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Download, Share2, Instagram, Copy, Check, Sparkles } from "lucide-react"
+import { TbDownload, TbShare, TbBrandInstagram, TbCopy, TbCheck, TbSparkles } from "react-icons/tb"
 
 interface ShareCardProps {
     toolName: string
@@ -78,7 +78,7 @@ export function ShareCard({ toolName, prediction, userName, date, gradient = "fr
                 <div className="relative z-10">
                     {/* Header */}
                     <div className="flex items-center gap-2 mb-4">
-                        <Sparkles className="w-5 h-5 text-white/90" />
+                        <TbSparkles className="w-5 h-5 text-white/90" />
                         <span className="text-white/90 font-semibold">{toolName}</span>
                     </div>
 
@@ -113,7 +113,7 @@ export function ShareCard({ toolName, prediction, userName, date, gradient = "fr
                         <span className="animate-pulse">...</span>
                     ) : (
                         <>
-                            <Download className="w-3.5 h-3.5 mr-1.5" />
+                            <TbDownload className="w-3.5 h-3.5 mr-1.5" />
                             ჩამოტვირთვა
                         </>
                     )}
@@ -125,12 +125,12 @@ export function ShareCard({ toolName, prediction, userName, date, gradient = "fr
                 >
                     {isCopied ? (
                         <>
-                            <Check className="w-3.5 h-3.5 mr-1.5 text-green-400" />
+                            <TbCheck className="w-3.5 h-3.5 mr-1.5 text-green-400" />
                             დაკოპირდა
                         </>
                     ) : (
                         <>
-                            <Copy className="w-3.5 h-3.5 mr-1.5" />
+                            <TbCopy className="w-3.5 h-3.5 mr-1.5" />
                             კოპირება
                         </>
                     )}
@@ -139,14 +139,14 @@ export function ShareCard({ toolName, prediction, userName, date, gradient = "fr
                     onClick={handleShare}
                     className="h-10 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white border-0 text-xs"
                 >
-                    <Share2 className="w-3.5 h-3.5 mr-1.5" />
+                    <TbShare className="w-3.5 h-3.5 mr-1.5" />
                     გაზიარება
                 </Button>
             </div>
 
             {/* Instagram tip */}
             <div className="flex items-center gap-2 p-3 rounded-xl bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-500/20">
-                <Instagram className="w-4 h-4 text-pink-400 flex-shrink-0" />
+                <TbBrandInstagram className="w-4 h-4 text-pink-400 flex-shrink-0" />
                 <p className="text-xs text-gray-400">
                     ჩამოტვირთე და გააზიარე Instagram Story-ზე!
                 </p>

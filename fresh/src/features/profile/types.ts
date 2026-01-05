@@ -82,16 +82,4 @@ export interface ProfileData {
     socialAccounts: SocialAccount[]
 }
 
-// Form Data
-export interface ProfileFormData {
-    fullName: string
-    email: string
-    username: string
-    bio: string
-}
-
-export interface PasswordFormData {
-    currentPassword: string
-    newPassword: string
-    confirmPassword: string
-}
+// NOTE: ProfileFormData and PasswordFormData types are exported from schemas.ts (Zod-inferred)

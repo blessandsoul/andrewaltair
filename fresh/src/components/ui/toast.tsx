@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from "lucide-react"
+import { TbX, TbCircleCheck, TbAlertCircle, TbInfoCircle, TbAlertTriangle } from "react-icons/tb"
 
 interface ToastProps {
     id: string
@@ -14,10 +14,10 @@ interface ToastProps {
 
 function Toast({ id, type, title, message, onClose }: ToastProps) {
     const icons = {
-        success: <CheckCircle className="w-5 h-5 text-green-500" />,
-        error: <AlertCircle className="w-5 h-5 text-red-500" />,
-        info: <Info className="w-5 h-5 text-blue-500" />,
-        warning: <AlertTriangle className="w-5 h-5 text-yellow-500" />,
+        success: <TbCircleCheck className="w-5 h-5 text-green-500" />,
+        error: <TbAlertCircle className="w-5 h-5 text-red-500" />,
+        info: <TbInfoCircle className="w-5 h-5 text-blue-500" />,
+        warning: <TbAlertTriangle className="w-5 h-5 text-yellow-500" />,
     }
 
     const bgColors = {
@@ -42,7 +42,7 @@ function Toast({ id, type, title, message, onClose }: ToastProps) {
                 onClick={() => onClose(id)}
                 className="p-1 rounded-md hover:bg-secondary transition-colors"
             >
-                <X className="w-4 h-4 text-muted-foreground" />
+                <TbX className="w-4 h-4 text-muted-foreground" />
             </button>
         </div>
     )

@@ -5,19 +5,7 @@ import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-    UserPlus,
-    Mail,
-    Lock,
-    Eye,
-    EyeOff,
-    Sparkles,
-    ArrowRight,
-    Github,
-    Chrome,
-    User,
-    Check
-} from "lucide-react"
+import { TbUserPlus, TbMail, TbLock, TbEye, TbEyeOff, TbSparkles, TbArrowRight, TbBrandGithub, TbBrandChrome, TbUser, TbCheck } from "react-icons/tb"
 
 export default function RegisterPage() {
     const [formData, setFormData] = React.useState({
@@ -108,7 +96,7 @@ export default function RegisterPage() {
                         <div className="relative">
                             <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent rounded-xl blur-md opacity-50 group-hover:opacity-75 transition-opacity" />
                             <div className="relative w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center text-white shadow-lg">
-                                <Sparkles className="w-6 h-6" />
+                                <TbSparkles className="w-6 h-6" />
                             </div>
                         </div>
                         <div className="text-left">
@@ -121,7 +109,7 @@ export default function RegisterPage() {
                 <Card className="border-border/50 shadow-xl backdrop-blur-sm">
                     <CardHeader className="text-center space-y-2">
                         <CardTitle className="text-2xl flex items-center justify-center gap-2">
-                            <UserPlus className="w-6 h-6 text-primary" />
+                            <TbUserPlus className="w-6 h-6 text-primary" />
                             რეგისტრაცია
                         </CardTitle>
                         <CardDescription>
@@ -133,7 +121,7 @@ export default function RegisterPage() {
                             {/* Name */}
                             <div className="space-y-2">
                                 <label className="text-sm font-medium flex items-center gap-2">
-                                    <User className="w-4 h-4 text-muted-foreground" />
+                                    <TbUser className="w-4 h-4 text-muted-foreground" />
                                     სრული სახელი
                                 </label>
                                 <Input
@@ -148,7 +136,7 @@ export default function RegisterPage() {
                             {/* Email */}
                             <div className="space-y-2">
                                 <label className="text-sm font-medium flex items-center gap-2">
-                                    <Mail className="w-4 h-4 text-muted-foreground" />
+                                    <TbMail className="w-4 h-4 text-muted-foreground" />
                                     ელ.ფოსტა
                                 </label>
                                 <Input
@@ -164,7 +152,7 @@ export default function RegisterPage() {
                             {/* Password */}
                             <div className="space-y-2">
                                 <label className="text-sm font-medium flex items-center gap-2">
-                                    <Lock className="w-4 h-4 text-muted-foreground" />
+                                    <TbLock className="w-4 h-4 text-muted-foreground" />
                                     პაროლი
                                 </label>
                                 <div className="relative">
@@ -180,7 +168,7 @@ export default function RegisterPage() {
                                         onClick={() => setShowPassword(!showPassword)}
                                         className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                                     >
-                                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        {showPassword ? <TbEyeOff className="w-4 h-4" /> : <TbEye className="w-4 h-4" />}
                                     </button>
                                 </div>
                                 {/* Password strength */}
@@ -204,7 +192,7 @@ export default function RegisterPage() {
                             {/* Confirm Password */}
                             <div className="space-y-2">
                                 <label className="text-sm font-medium flex items-center gap-2">
-                                    <Lock className="w-4 h-4 text-muted-foreground" />
+                                    <TbLock className="w-4 h-4 text-muted-foreground" />
                                     პაროლის დადასტურება
                                 </label>
                                 <Input
@@ -225,7 +213,7 @@ export default function RegisterPage() {
                                     className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${acceptTerms ? "bg-primary border-primary text-white" : "border-input"
                                         } ${errors.terms ? "border-destructive" : ""}`}
                                 >
-                                    {acceptTerms && <Check className="w-3 h-3" />}
+                                    {acceptTerms && <TbCheck className="w-3 h-3" />}
                                 </button>
                                 <p className="text-sm text-muted-foreground">
                                     ვეთანხმები{" "}
@@ -251,7 +239,7 @@ export default function RegisterPage() {
                                 ) : (
                                     <>
                                         რეგისტრაცია
-                                        <ArrowRight className="w-4 h-4" />
+                                        <TbArrowRight className="w-4 h-4" />
                                     </>
                                 )}
                             </Button>
@@ -269,11 +257,11 @@ export default function RegisterPage() {
                             {/* Social Login */}
                             <div className="grid grid-cols-2 gap-3">
                                 <Button variant="outline" type="button" className="gap-2">
-                                    <Chrome className="w-4 h-4" />
+                                    <TbBrandChrome className="w-4 h-4" />
                                     Google
                                 </Button>
                                 <Button variant="outline" type="button" className="gap-2">
-                                    <Github className="w-4 h-4" />
+                                    <TbBrandGithub className="w-4 h-4" />
                                     GitHub
                                 </Button>
                             </div>

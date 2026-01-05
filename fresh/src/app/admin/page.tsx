@@ -7,59 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
-import {
-    FileText,
-    Video,
-    Eye,
-    TrendingUp,
-    Flame,
-    Heart,
-    MessageSquare,
-    Zap,
-    Plus,
-    ArrowRight,
-    Clock,
-    BarChart3,
-    Sparkles,
-    Calendar,
-    GripVertical,
-    X,
-    RotateCcw,
-    Settings2,
-    Share2,
-    Search,
-    Bell,
-    RefreshCw,
-    Database,
-    Server,
-    Activity,
-    HardDrive,
-    Wifi,
-    WifiOff,
-    CheckCircle2,
-    AlertTriangle,
-    XCircle,
-    Trash2,
-    Download,
-    Upload,
-    Globe,
-    Users,
-    Image,
-    Layers,
-    ListTodo,
-    CalendarDays,
-    Star,
-    PieChart,
-    LineChart,
-    LayoutGrid,
-    LayoutList,
-    Columns,
-    Maximize2,
-    Minimize2,
-    Command,
-    Filter,
-    MapPin
-} from "lucide-react"
+import { TbFileText, TbVideo, TbEye, TbTrendingUp, TbFlame, TbHeart, TbMessage, TbBolt, TbPlus, TbArrowRight, TbClock, TbChartBar, TbSparkles, TbCalendar, TbGripVertical, TbX, TbRefresh, TbSettings, TbShare, TbSearch, TbBell, TbDatabase, TbServer, TbActivity, TbDeviceSdCard, TbWifi, TbWifiOff, TbCircleCheck, TbAlertTriangle, TbCircleX, TbTrash, TbDownload, TbUpload, TbWorld, TbUsers, TbPhoto, TbStack2, TbListCheck, TbCalendarEvent, TbStar, TbChartPie, TbChartLine, TbLayoutGrid, TbLayoutList, TbColumns, TbMaximize, TbMinimize, TbCommand, TbFilter, TbMapPin } from "react-icons/tb"
 import {
     LineChart as RechartsLineChart,
     Line,
@@ -80,7 +28,7 @@ import {
 // Date range types
 type DateRange = "today" | "week" | "month" | "year" | "all"
 
-// Post/Video interfaces for MongoDB data
+// Post/TbVideo interfaces for MongoDB data
 interface Post {
     id: string
     title: string
@@ -201,10 +149,10 @@ const defaultNotifications: Notification[] = [
 
 // Mock activity data
 const recentActivity = [
-    { type: "comment", message: "ახალი კომენტარი პოსტზე", time: "5 წთ წინ", icon: MessageSquare },
-    { type: "view", message: "+500 ნახვა ბოლო საათში", time: "1 სთ წინ", icon: Eye },
-    { type: "trending", message: "პოსტი გახდა trending", time: "2 სთ წინ", icon: Flame },
-    { type: "reaction", message: "+50 ახალი რეაქცია", time: "3 სთ წინ", icon: Heart },
+    { type: "comment", message: "ახალი კომენტარი პოსტზე", time: "5 წთ წინ", icon: TbMessage },
+    { type: "view", message: "+500 ნახვა ბოლო საათში", time: "1 სთ წინ", icon: TbEye },
+    { type: "trending", message: "პოსტი გახდა trending", time: "2 სთ წინ", icon: TbFlame },
+    { type: "reaction", message: "+50 ახალი რეაქცია", time: "3 სთ წინ", icon: TbHeart },
 ]
 
 // Chart data
@@ -330,7 +278,7 @@ export default function AdminDashboard() {
     }, [])
     const [newTaskText, setNewTaskText] = React.useState("")
 
-    // Search
+    // TbSearch
     const [searchQuery, setSearchQuery] = React.useState("")
     const [searchResults, setSearchResults] = React.useState<any[]>([])
     const [isSearching, setIsSearching] = React.useState(false)
@@ -367,7 +315,7 @@ export default function AdminDashboard() {
         return () => clearInterval(interval)
     }, [isLive])
 
-    // Keyboard shortcut for search (Ctrl+K)
+    // TbKeyboard shortcut for search (Ctrl+K)
     React.useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.ctrlKey && e.key === "k") {
@@ -379,7 +327,7 @@ export default function AdminDashboard() {
         return () => window.removeEventListener("keydown", handleKeyDown)
     }, [])
 
-    // Search function
+    // TbSearch function
     const handleSearch = (query: string) => {
         setSearchQuery(query)
         if (query.length < 2) {
@@ -522,7 +470,7 @@ export default function AdminDashboard() {
         {
             title: "პოსტები",
             value: stats.totalPosts,
-            icon: <FileText className="w-5 h-5" />,
+            icon: <TbFileText className="w-5 h-5" />,
             color: "from-blue-500 to-indigo-500",
             bgColor: "bg-blue-500",
             badge: `${stats.featuredPosts} featured`,
@@ -531,7 +479,7 @@ export default function AdminDashboard() {
         {
             title: "ვიდეოები",
             value: stats.totalVideos,
-            icon: <Video className="w-5 h-5" />,
+            icon: <TbVideo className="w-5 h-5" />,
             color: "from-red-500 to-pink-500",
             bgColor: "bg-red-500",
             badge: `${videosData.filter(v => v.type === "short").length} shorts`,
@@ -540,7 +488,7 @@ export default function AdminDashboard() {
         {
             title: "ნახვები",
             value: formatNumber(stats.totalViews + liveStats.views),
-            icon: <Eye className="w-5 h-5" />,
+            icon: <TbEye className="w-5 h-5" />,
             color: "from-green-500 to-emerald-500",
             bgColor: "bg-green-500",
             badge: isLive ? "🔴 Live" : "ჯამური",
@@ -549,7 +497,7 @@ export default function AdminDashboard() {
         {
             title: "რეაქციები",
             value: formatNumber(stats.totalReactions + liveStats.reactions),
-            icon: <Heart className="w-5 h-5" />,
+            icon: <TbHeart className="w-5 h-5" />,
             color: "from-orange-500 to-amber-500",
             bgColor: "bg-orange-500",
             badge: `${stats.trendingPosts} trending`,
@@ -559,12 +507,12 @@ export default function AdminDashboard() {
 
     // Quick actions
     const quickActions = [
-        { icon: Trash2, label: "ქეშის გასუფთავება", color: "bg-red-500" },
-        { icon: RefreshCw, label: "სოციალური სინქრონ.", color: "bg-blue-500" },
-        { icon: Database, label: "ბექაპი", color: "bg-green-500" },
-        { icon: MessageSquare, label: "მოდერაცია", color: "bg-yellow-500", badge: 5 },
-        { icon: Download, label: "რეპორტი", color: "bg-purple-500" },
-        { icon: Globe, label: "SEO შემოწმება", color: "bg-indigo-500" },
+        { icon: TbTrash, label: "ქეშის გასუფთავება", color: "bg-red-500" },
+        { icon: TbRefresh, label: "სოციალური სინქრონ.", color: "bg-blue-500" },
+        { icon: TbDatabase, label: "ბექაპი", color: "bg-green-500" },
+        { icon: TbMessage, label: "მოდერაცია", color: "bg-yellow-500", badge: 5 },
+        { icon: TbDownload, label: "რეპორტი", color: "bg-purple-500" },
+        { icon: TbWorld, label: "SEO შემოწმება", color: "bg-indigo-500" },
     ]
 
     // Get widget size class
@@ -594,7 +542,7 @@ export default function AdminDashboard() {
                     <Card className="bg-gradient-to-r from-indigo-500/5 to-purple-500/5 border-indigo-500/20">
                         <CardContent className="p-4">
                             <div className="flex flex-wrap items-center gap-2">
-                                <Filter className="w-4 h-4 text-indigo-500" />
+                                <TbFilter className="w-4 h-4 text-indigo-500" />
                                 <span className="text-sm font-medium mr-2">პერიოდი:</span>
                                 {[
                                     { value: "today", label: "დღეს" },
@@ -659,13 +607,13 @@ export default function AdminDashboard() {
                     </div>
                 )
 
-            // Feature 6: Global Search
+            // Feature 6: Global TbSearch
             case "search":
                 return (
                     <Card>
                         <CardContent className="p-4">
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                <TbSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                 <Input
                                     id="global-search"
                                     placeholder="მოძებნე კონტენტი... (Ctrl+K)"
@@ -678,7 +626,7 @@ export default function AdminDashboard() {
                                         onClick={() => { setSearchQuery(""); setSearchResults([]) }}
                                         className="absolute right-3 top-1/2 -translate-y-1/2"
                                     >
-                                        <X className="w-4 h-4 text-muted-foreground" />
+                                        <TbX className="w-4 h-4 text-muted-foreground" />
                                     </button>
                                 )}
                             </div>
@@ -691,9 +639,9 @@ export default function AdminDashboard() {
                                             className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50"
                                         >
                                             {result.type === "post" ? (
-                                                <FileText className="w-4 h-4 text-indigo-500" />
+                                                <TbFileText className="w-4 h-4 text-indigo-500" />
                                             ) : (
-                                                <Video className="w-4 h-4 text-red-500" />
+                                                <TbVideo className="w-4 h-4 text-red-500" />
                                             )}
                                             <span className="text-sm truncate">{result.title}</span>
                                             <Badge variant="outline" className="ml-auto text-xs">
@@ -705,7 +653,7 @@ export default function AdminDashboard() {
                             )}
                             {isSearching && (
                                 <div className="mt-3 text-center text-sm text-muted-foreground">
-                                    <RefreshCw className="w-4 h-4 animate-spin inline mr-2" />
+                                    <TbRefresh className="w-4 h-4 animate-spin inline mr-2" />
                                     იძებნება...
                                 </div>
                             )}
@@ -719,7 +667,7 @@ export default function AdminDashboard() {
                     <Card>
                         <CardHeader className="pb-2">
                             <CardTitle className="text-base flex items-center gap-2">
-                                <Zap className="w-4 h-4 text-yellow-500" />
+                                <TbBolt className="w-4 h-4 text-yellow-500" />
                                 სწრაფი მოქმედებები
                             </CardTitle>
                         </CardHeader>
@@ -754,7 +702,7 @@ export default function AdminDashboard() {
                         <Card className="lg:col-span-2">
                             <CardHeader className="pb-2">
                                 <CardTitle className="text-base flex items-center gap-2">
-                                    <LineChart className="w-4 h-4 text-indigo-500" />
+                                    <TbChartLine className="w-4 h-4 text-indigo-500" />
                                     ნახვები & რეაქციები
                                 </CardTitle>
                             </CardHeader>
@@ -783,7 +731,7 @@ export default function AdminDashboard() {
                         <Card>
                             <CardHeader className="pb-2">
                                 <CardTitle className="text-base flex items-center gap-2">
-                                    <PieChart className="w-4 h-4 text-purple-500" />
+                                    <TbChartPie className="w-4 h-4 text-purple-500" />
                                     კონტენტის განაწილება
                                 </CardTitle>
                             </CardHeader>
@@ -818,7 +766,7 @@ export default function AdminDashboard() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <CardTitle className="text-base flex items-center gap-2">
-                                <Bell className="w-4 h-4 text-blue-500" />
+                                <TbBell className="w-4 h-4 text-blue-500" />
                                 შეტყობინებები
                                 {unreadCount > 0 && (
                                     <Badge variant="destructive" className="ml-1">{unreadCount}</Badge>
@@ -846,10 +794,10 @@ export default function AdminDashboard() {
                                                 notification.type === "user" ? "bg-green-500/20 text-green-500" :
                                                     "bg-purple-500/20 text-purple-500"
                                             }`}>
-                                            {notification.type === "alert" ? <AlertTriangle className="w-3 h-3" /> :
-                                                notification.type === "comment" ? <MessageSquare className="w-3 h-3" /> :
-                                                    notification.type === "user" ? <Users className="w-3 h-3" /> :
-                                                        <Server className="w-3 h-3" />}
+                                            {notification.type === "alert" ? <TbAlertTriangle className="w-3 h-3" /> :
+                                                notification.type === "comment" ? <TbMessage className="w-3 h-3" /> :
+                                                    notification.type === "user" ? <TbUsers className="w-3 h-3" /> :
+                                                        <TbServer className="w-3 h-3" />}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm truncate">{notification.message}</p>
@@ -871,7 +819,7 @@ export default function AdminDashboard() {
                     <Card>
                         <CardHeader className="pb-2">
                             <CardTitle className="text-base flex items-center gap-2">
-                                <Activity className="w-4 h-4 text-green-500" />
+                                <TbActivity className="w-4 h-4 text-green-500" />
                                 სისტემის სტატუსი
                             </CardTitle>
                         </CardHeader>
@@ -879,15 +827,15 @@ export default function AdminDashboard() {
                             {/* Server Status */}
                             <div className="flex items-center justify-between">
                                 <span className="text-sm flex items-center gap-2">
-                                    <Server className="w-4 h-4" />
+                                    <TbServer className="w-4 h-4" />
                                     სერვერი
                                 </span>
                                 <Badge variant={systemHealth.serverStatus === "online" ? "default" : "destructive"}
                                     className={systemHealth.serverStatus === "online" ? "bg-green-500" : ""}>
                                     {systemHealth.serverStatus === "online" ? (
-                                        <><Wifi className="w-3 h-3 mr-1" /> ონლაინ</>
+                                        <><TbWifi className="w-3 h-3 mr-1" /> ონლაინ</>
                                     ) : (
-                                        <><WifiOff className="w-3 h-3 mr-1" /> ოფლაინ</>
+                                        <><TbWifiOff className="w-3 h-3 mr-1" /> ოფლაინ</>
                                     )}
                                 </Badge>
                             </div>
@@ -895,7 +843,7 @@ export default function AdminDashboard() {
                             {/* Response Time */}
                             <div className="flex items-center justify-between">
                                 <span className="text-sm flex items-center gap-2">
-                                    <Clock className="w-4 h-4" />
+                                    <TbClock className="w-4 h-4" />
                                     Response Time
                                 </span>
                                 <span className="text-sm font-medium">{systemHealth.responseTime}ms</span>
@@ -905,7 +853,7 @@ export default function AdminDashboard() {
                             <div className="space-y-1">
                                 <div className="flex items-center justify-between text-sm">
                                     <span className="flex items-center gap-2">
-                                        <Activity className="w-4 h-4" />
+                                        <TbActivity className="w-4 h-4" />
                                         მეხსიერება
                                     </span>
                                     <span>{systemHealth.memoryUsage}%</span>
@@ -924,7 +872,7 @@ export default function AdminDashboard() {
                             <div className="space-y-1">
                                 <div className="flex items-center justify-between text-sm">
                                     <span className="flex items-center gap-2">
-                                        <HardDrive className="w-4 h-4" />
+                                        <TbDeviceSdCard className="w-4 h-4" />
                                         დისკი
                                     </span>
                                     <span>{systemHealth.diskSpace}%</span>
@@ -958,7 +906,7 @@ export default function AdminDashboard() {
                     <Card>
                         <CardHeader className="pb-2">
                             <CardTitle className="text-base flex items-center gap-2">
-                                <Star className="w-4 h-4 text-yellow-500" />
+                                <TbStar className="w-4 h-4 text-yellow-500" />
                                 ტოპ კონტენტი
                             </CardTitle>
                         </CardHeader>
@@ -987,7 +935,7 @@ export default function AdminDashboard() {
                                     <div key={i} className="space-y-1">
                                         <div className="flex items-center justify-between text-xs">
                                             <span className="flex items-center gap-1">
-                                                <MapPin className="w-3 h-3" />
+                                                <TbMapPin className="w-3 h-3" />
                                                 {source.source}
                                             </span>
                                             <span>{source.percentage}%</span>
@@ -1011,7 +959,7 @@ export default function AdminDashboard() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <CardTitle className="text-base flex items-center gap-2">
-                                <ListTodo className="w-4 h-4 text-purple-500" />
+                                <TbListCheck className="w-4 h-4 text-purple-500" />
                                 დავალებები
                                 <Badge variant="secondary">{tasks.filter(t => !t.completed).length}</Badge>
                             </CardTitle>
@@ -1027,7 +975,7 @@ export default function AdminDashboard() {
                                     className="h-8 text-sm"
                                 />
                                 <Button size="sm" onClick={addTask} className="h-8">
-                                    <Plus className="w-4 h-4" />
+                                    <TbPlus className="w-4 h-4" />
                                 </Button>
                             </div>
 
@@ -1053,7 +1001,7 @@ export default function AdminDashboard() {
                                                 task.priority === "medium" ? "საშუალო" : "დაბალი"}
                                         </Badge>
                                         <button onClick={() => deleteTask(task.id)}>
-                                            <X className="w-4 h-4 text-muted-foreground hover:text-red-500" />
+                                            <TbX className="w-4 h-4 text-muted-foreground hover:text-red-500" />
                                         </button>
                                     </div>
                                 ))}
@@ -1067,12 +1015,12 @@ export default function AdminDashboard() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <CardTitle className="text-base flex items-center gap-2">
-                                <FileText className="w-4 h-4 text-indigo-500" />
+                                <TbFileText className="w-4 h-4 text-indigo-500" />
                                 ბოლო პოსტები
                             </CardTitle>
                             <Link href="/admin/posts">
                                 <Button variant="ghost" size="sm" className="h-7 text-xs">
-                                    ყველა <ArrowRight className="w-3 h-3 ml-1" />
+                                    ყველა <TbArrowRight className="w-3 h-3 ml-1" />
                                 </Button>
                             </Link>
                         </CardHeader>
@@ -1083,24 +1031,24 @@ export default function AdminDashboard() {
                                         <p className="text-sm font-medium truncate">{post.title}</p>
                                         <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
                                             <span className="flex items-center gap-1">
-                                                <Eye className="w-3 h-3" />
+                                                <TbEye className="w-3 h-3" />
                                                 {formatNumber(post.views)}
                                             </span>
                                             <span className="flex items-center gap-1">
-                                                <MessageSquare className="w-3 h-3" />
+                                                <TbMessage className="w-3 h-3" />
                                                 {formatNumber(post.comments || 0)}
                                             </span>
                                             <span className="flex items-center gap-1 text-red-500">
-                                                <Heart className="w-3 h-3" />
+                                                <TbHeart className="w-3 h-3" />
                                                 {formatNumber(Object.values(post.reactions || {}).reduce((a, b) => a + b, 0))}
                                             </span>
                                             <span className="flex items-center gap-1">
-                                                <Share2 className="w-3 h-3" />
+                                                <TbShare className="w-3 h-3" />
                                                 {formatNumber(post.shares || 0)}
                                             </span>
                                         </div>
                                     </div>
-                                    {post.trending && <Badge variant="secondary" className="text-xs"><Flame className="w-3 h-3" /></Badge>}
+                                    {post.trending && <Badge variant="secondary" className="text-xs"><TbFlame className="w-3 h-3" /></Badge>}
                                 </div>
                             ))}
                         </CardContent>
@@ -1112,7 +1060,7 @@ export default function AdminDashboard() {
                     <Card>
                         <CardHeader className="pb-2">
                             <CardTitle className="text-base flex items-center gap-2">
-                                <TrendingUp className="w-4 h-4 text-green-500" />
+                                <TbTrendingUp className="w-4 h-4 text-green-500" />
                                 აქტივობა
                             </CardTitle>
                         </CardHeader>
@@ -1137,12 +1085,12 @@ export default function AdminDashboard() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <CardTitle className="text-base flex items-center gap-2">
-                                <Video className="w-4 h-4 text-red-500" />
+                                <TbVideo className="w-4 h-4 text-red-500" />
                                 ბოლო ვიდეოები
                             </CardTitle>
                             <Link href="/admin/videos">
                                 <Button variant="ghost" size="sm" className="h-7 text-xs">
-                                    ყველა <ArrowRight className="w-3 h-3 ml-1" />
+                                    ყველა <TbArrowRight className="w-3 h-3 ml-1" />
                                 </Button>
                             </Link>
                         </CardHeader>
@@ -1164,7 +1112,7 @@ export default function AdminDashboard() {
                     <Card className="bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border-indigo-500/20">
                         <CardContent className="p-4 flex items-center gap-4">
                             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                                <BarChart3 className="w-5 h-5 text-white" />
+                                <TbChartBar className="w-5 h-5 text-white" />
                             </div>
                             <div className="flex-1">
                                 <p className="font-medium">დეტალური ანალიტიკა</p>
@@ -1183,7 +1131,7 @@ export default function AdminDashboard() {
                     <Card className="border-dashed">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-base flex items-center gap-2">
-                                <LayoutGrid className="w-4 h-4 text-indigo-500" />
+                                <TbLayoutGrid className="w-4 h-4 text-indigo-500" />
                                 განლაგების პარამეტრები
                             </CardTitle>
                         </CardHeader>
@@ -1214,7 +1162,7 @@ export default function AdminDashboard() {
                                         onClick={() => setCompactView(!compactView)}
                                         className="h-8"
                                     >
-                                        {compactView ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                                        {compactView ? <TbMinimize className="w-4 h-4" /> : <TbMaximize className="w-4 h-4" />}
                                     </Button>
                                 </div>
                             </div>
@@ -1234,12 +1182,12 @@ export default function AdminDashboard() {
                 <div>
                     <h1 className="text-3xl font-bold flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                            <Sparkles className="w-5 h-5 text-white" />
+                            <TbSparkles className="w-5 h-5 text-white" />
                         </div>
                         მოგესალმებით!
                     </h1>
                     <p className="text-muted-foreground mt-1 flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
+                        <TbCalendar className="w-4 h-4" />
                         {new Date().toLocaleDateString('ka-GE', {
                             weekday: 'long',
                             year: 'numeric',
@@ -1256,12 +1204,12 @@ export default function AdminDashboard() {
                         onClick={() => setIsCustomizing(!isCustomizing)}
                         className="gap-2"
                     >
-                        <Settings2 className="w-4 h-4" />
+                        <TbSettings className="w-4 h-4" />
                         {isCustomizing ? "დასრულება" : "მორგება"}
                     </Button>
                     <Link href="/admin/content">
                         <Button className="gap-2 bg-gradient-to-r from-indigo-500 to-purple-600">
-                            <Plus className="w-4 h-4" />
+                            <TbPlus className="w-4 h-4" />
                             ახალი პოსტი
                         </Button>
                     </Link>
@@ -1275,7 +1223,7 @@ export default function AdminDashboard() {
                         <div className="flex items-center justify-between mb-3">
                             <p className="font-medium">ვიჯეტების მართვა</p>
                             <Button variant="ghost" size="sm" onClick={resetWidgets} className="gap-1 text-xs">
-                                <RotateCcw className="w-3 h-3" />
+                                <TbRefresh className="w-3 h-3" />
                                 აღდგენა
                             </Button>
                         </div>
@@ -1318,7 +1266,7 @@ export default function AdminDashboard() {
                     >
                         {isCustomizing && (
                             <div className="flex items-center gap-2 mb-2 text-muted-foreground">
-                                <GripVertical className="w-4 h-4" />
+                                <TbGripVertical className="w-4 h-4" />
                                 <span className="text-xs">{widget.title}</span>
                             </div>
                         )}
@@ -1329,3 +1277,4 @@ export default function AdminDashboard() {
         </div>
     )
 }
+

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Calculator, Clock, DollarSign, TrendingUp, Zap, Users } from 'lucide-react'
+import { TbCalculator, TbClock, TbCurrencyDollar, TbTrendingUp, TbBolt, TbUsers } from "react-icons/tb"
 import { Button } from '@/components/ui/button'
 
 interface ROICalculatorProps {
@@ -50,7 +50,7 @@ export function ROICalculator({ onUpgrade }: ROICalculatorProps) {
                 {/* Header */}
                 <div className="relative flex items-center gap-4 mb-6">
                     <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl shadow-lg shadow-emerald-500/30">
-                        <Calculator className="w-6 h-6 text-white" />
+                        <TbCalculator className="w-6 h-6 text-white" />
                     </div>
                     <div>
                         <h2 className="text-xl font-bold text-white">ROI კალკულატორი</h2>
@@ -64,7 +64,7 @@ export function ROICalculator({ onUpgrade }: ROICalculatorProps) {
                     <div>
                         <div className="flex justify-between mb-2">
                             <label className="text-white/80 text-sm flex items-center gap-2">
-                                <Clock className="w-4 h-4 text-emerald-400" />
+                                <TbClock className="w-4 h-4 text-emerald-400" />
                                 რეპეტიტიურ დავალებებზე დახარჯული საათი / კვირაში
                             </label>
                             <span className="text-emerald-400 font-bold">{hoursPerWeek}სთ</span>
@@ -83,7 +83,7 @@ export function ROICalculator({ onUpgrade }: ROICalculatorProps) {
                     <div>
                         <div className="flex justify-between mb-2">
                             <label className="text-white/80 text-sm flex items-center gap-2">
-                                <DollarSign className="w-4 h-4 text-emerald-400" />
+                                <TbCurrencyDollar className="w-4 h-4 text-emerald-400" />
                                 საათობრივი ტარიფი (₾)
                             </label>
                             <span className="text-emerald-400 font-bold">₾{hourlyRate}</span>
@@ -102,7 +102,7 @@ export function ROICalculator({ onUpgrade }: ROICalculatorProps) {
                     <div>
                         <div className="flex justify-between mb-2">
                             <label className="text-white/80 text-sm flex items-center gap-2">
-                                <Users className="w-4 h-4 text-emerald-400" />
+                                <TbUsers className="w-4 h-4 text-emerald-400" />
                                 გუნდის ზომა
                             </label>
                             <span className="text-emerald-400 font-bold">{teamSize} ადამიანი</span>
@@ -142,7 +142,7 @@ export function ROICalculator({ onUpgrade }: ROICalculatorProps) {
                 {/* ROI Message */}
                 <div className="relative bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-xl p-4 mb-6 border border-emerald-500/20">
                     <div className="flex items-center gap-3">
-                        <TrendingUp className="w-6 h-6 text-emerald-400" />
+                        <TbTrendingUp className="w-6 h-6 text-emerald-400" />
                         <div>
                             <p className="text-white font-semibold">
                                 Premium ღირს ₾9.99/თვეში — შენ დაზოგავ ₾{Math.round(monthlySavings)}!
@@ -159,7 +159,7 @@ export function ROICalculator({ onUpgrade }: ROICalculatorProps) {
                     onClick={onUpgrade}
                     className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold shadow-lg shadow-emerald-500/30 h-12"
                 >
-                    <Zap className="w-5 h-5 mr-2" />
+                    <TbBolt className="w-5 h-5 mr-2" />
                     დაიწყე დაზოგვა Premium-ით
                 </Button>
 

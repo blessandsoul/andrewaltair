@@ -5,7 +5,7 @@
 "use client"
 
 import * as React from "react"
-import { Shield, Lock, Eye, EyeOff } from "lucide-react"
+import { TbShield, TbLock, TbEye, TbEyeOff } from "react-icons/tb"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -25,7 +25,7 @@ export function SecurityTab() {
         const result = passwordFormSchema.safeParse(passwordData)
         if (!result.success) {
             const fieldErrors: Partial<Record<keyof PasswordFormData, string>> = {}
-            result.error.errors.forEach((err) => {
+            result.error.issues.forEach((err) => {
                 if (err.path[0]) {
                     fieldErrors[err.path[0] as keyof PasswordFormData] = err.message
                 }
@@ -42,7 +42,7 @@ export function SecurityTab() {
         <Card className="border-border/50 shadow-xl backdrop-blur-sm">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Shield className="w-5 h-5 text-primary" />
+                    <TbShield className="w-5 h-5 text-primary" />
                     უსაფრთხოება
                 </CardTitle>
                 <CardDescription>მართეთ თქვენი პაროლი და უსაფრთხოების პარამეტრები</CardDescription>
@@ -51,7 +51,7 @@ export function SecurityTab() {
                 {/* Password Change */}
                 <div className="p-4 rounded-lg border border-border">
                     <h3 className="font-medium mb-4 flex items-center gap-2">
-                        <Lock className="w-4 h-4" />
+                        <TbLock className="w-4 h-4" />
                         პაროლის შეცვლა
                     </h3>
                     <div className="space-y-4">
@@ -70,7 +70,7 @@ export function SecurityTab() {
                                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                                 >
-                                    {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                    {showCurrentPassword ? <TbEyeOff className="w-4 h-4" /> : <TbEye className="w-4 h-4" />}
                                 </button>
                             </div>
                             {errors.currentPassword && <p className="text-sm text-destructive">{errors.currentPassword}</p>}
@@ -91,7 +91,7 @@ export function SecurityTab() {
                                     onClick={() => setShowNewPassword(!showNewPassword)}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                                 >
-                                    {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                    {showNewPassword ? <TbEyeOff className="w-4 h-4" /> : <TbEye className="w-4 h-4" />}
                                 </button>
                             </div>
                             {errors.newPassword && <p className="text-sm text-destructive">{errors.newPassword}</p>}
@@ -109,7 +109,7 @@ export function SecurityTab() {
                         </div>
 
                         <Button onClick={handlePasswordChange} className="gap-2">
-                            <Lock className="w-4 h-4" />
+                            <TbLock className="w-4 h-4" />
                             პაროლის შეცვლა
                         </Button>
                     </div>
@@ -120,7 +120,7 @@ export function SecurityTab() {
                     <div className="flex items-center justify-between">
                         <div>
                             <h3 className="font-medium flex items-center gap-2">
-                                <Shield className="w-4 h-4" />
+                                <TbShield className="w-4 h-4" />
                                 ორფაქტორიანი ავთენტიფიკაცია
                             </h3>
                             <p className="text-sm text-muted-foreground mt-1">
@@ -139,7 +139,7 @@ export function SecurityTab() {
                             <div className="flex items-center gap-3">
                                 <div className="w-2 h-2 bg-green-500 rounded-full" />
                                 <div>
-                                    <p className="font-medium text-sm">Windows • Chrome</p>
+                                    <p className="font-medium text-sm">Windows • TbBrandChrome</p>
                                     <p className="text-xs text-muted-foreground">თბილისი, საქართველო • ახლა</p>
                                 </div>
                             </div>

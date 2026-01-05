@@ -5,7 +5,7 @@
 "use client"
 
 import * as React from "react"
-import { BarChart3, Clock, MousePointerClick, Wrench, Heart, TrendingUp } from "lucide-react"
+import { TbChartBar, TbClock, TbClick, TbTool, TbHeart, TbTrendingUp } from "react-icons/tb"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { StatCard } from "../shared/StatCard"
 import { StatsSkeleton } from "../shared/ProfileSkeleton"
@@ -21,7 +21,7 @@ export function StatsTab({ stats, isLoading = false }: StatsTabProps) {
         <Card className="border-border/50 shadow-xl backdrop-blur-sm">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="w-5 h-5 text-primary" />
+                    <TbChartBar className="w-5 h-5 text-primary" />
                     სტატისტიკა
                 </CardTitle>
                 <CardDescription>თქვენი გამოყენების სტატისტიკა</CardDescription>
@@ -36,25 +36,25 @@ export function StatsTab({ stats, isLoading = false }: StatsTabProps) {
                         {/* Quick Stats */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <StatCard
-                                icon={Clock}
+                                icon={TbClock}
                                 value={stats.totalTimeSpent}
                                 label="ჯამური დრო"
                                 color="blue"
                             />
                             <StatCard
-                                icon={MousePointerClick}
+                                icon={TbClick}
                                 value={stats.sessionsCount}
                                 label="სესიები"
                                 color="green"
                             />
                             <StatCard
-                                icon={Wrench}
+                                icon={TbTool}
                                 value={stats.toolsUsed}
                                 label="ინსტრუმენტი"
                                 color="purple"
                             />
                             <StatCard
-                                icon={Heart}
+                                icon={TbHeart}
                                 value={stats.likesGiven}
                                 label="მოწონება"
                                 color="red"
@@ -64,7 +64,7 @@ export function StatsTab({ stats, isLoading = false }: StatsTabProps) {
                         {/* Top Sections */}
                         <div className="p-4 rounded-lg border border-border">
                             <h3 className="font-medium mb-4 flex items-center gap-2">
-                                <TrendingUp className="w-4 h-4" />
+                                <TbTrendingUp className="w-4 h-4" />
                                 ტოპ სექციები
                             </h3>
                             <div className="space-y-3">

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, Zap, Tag, Check, AlertCircle, Users } from 'lucide-react';
+import { TbClock, TbBolt, TbTag, TbCheck, TbAlertCircle, TbUsers } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 
@@ -42,7 +42,7 @@ function CountdownTimer({ expiresAt }: { expiresAt: string }) {
 
     return (
         <div className="flex items-center gap-1 text-sm font-mono">
-            <Clock className="w-4 h-4 text-orange-400" />
+            <TbClock className="w-4 h-4 text-orange-400" />
             <span className="text-orange-300">
                 {String(timeLeft.hours).padStart(2, '0')}:
                 {String(timeLeft.minutes).padStart(2, '0')}:
@@ -81,7 +81,7 @@ function DealCard({ deal, onClaim, claiming, claimed }: {
 
             {/* Category */}
             <div className="flex items-center gap-2 mb-3">
-                <Tag className="w-4 h-4 text-purple-400" />
+                <TbTag className="w-4 h-4 text-purple-400" />
                 <span className="text-xs text-purple-300 uppercase tracking-wide">
                     {deal.category}
                 </span>
@@ -109,7 +109,7 @@ function DealCard({ deal, onClaim, claiming, claimed }: {
                     "flex items-center gap-1",
                     urgency ? "text-red-400" : "text-gray-400"
                 )}>
-                    <Users className="w-4 h-4" />
+                    <TbUsers className="w-4 h-4" />
                     <span>{slotsLeft} დარჩენილია</span>
                 </div>
             </div>
@@ -141,19 +141,19 @@ function DealCard({ deal, onClaim, claiming, claimed }: {
             >
                 {claimed ? (
                     <>
-                        <Check className="w-4 h-4" />
+                        <TbCheck className="w-4 h-4" />
                         მიღებულია
                     </>
                 ) : slotsLeft === 0 ? (
                     <>
-                        <AlertCircle className="w-4 h-4" />
+                        <TbAlertCircle className="w-4 h-4" />
                         ამოიწურა
                     </>
                 ) : claiming ? (
                     <span className="animate-pulse">იტვირთება...</span>
                 ) : (
                     <>
-                        <Zap className="w-4 h-4" />
+                        <TbBolt className="w-4 h-4" />
                         მიიღე შეთავაზება
                     </>
                 )}
@@ -227,7 +227,7 @@ export default function LimitedTimeDeals() {
     if (!user) {
         return (
             <div className="text-center p-8 border border-white/10 rounded-2xl bg-white/5">
-                <Zap className="w-12 h-12 mx-auto mb-4 text-purple-400" />
+                <TbBolt className="w-12 h-12 mx-auto mb-4 text-purple-400" />
                 <h3 className="text-xl font-bold mb-2">🔥 შეზღუდული შეთავაზებები</h3>
                 <p className="text-gray-400">გაიარე ავტორიზაცია შეთავაზებების სანახავად</p>
             </div>
@@ -237,7 +237,7 @@ export default function LimitedTimeDeals() {
     if (deals.length === 0) {
         return (
             <div className="text-center p-8 border border-white/10 rounded-2xl bg-white/5">
-                <Clock className="w-12 h-12 mx-auto mb-4 text-gray-500" />
+                <TbClock className="w-12 h-12 mx-auto mb-4 text-gray-500" />
                 <h3 className="text-xl font-bold mb-2">მალე!</h3>
                 <p className="text-gray-400">ახალი შეთავაზებები მალე გამოჩნდება</p>
             </div>
@@ -248,7 +248,7 @@ export default function LimitedTimeDeals() {
         <div className="space-y-6">
             <div className="flex items-center gap-3 mb-6">
                 <div className="p-2 bg-orange-500/20 rounded-lg">
-                    <Zap className="w-6 h-6 text-orange-400" />
+                    <TbBolt className="w-6 h-6 text-orange-400" />
                 </div>
                 <div>
                     <h2 className="text-2xl font-bold text-white">შეზღუდული შეთავაზებები</h2>

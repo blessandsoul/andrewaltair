@@ -5,36 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-    Video,
-    Search,
-    Edit,
-    Trash2,
-    Eye,
-    Clock,
-    Play,
-    X,
-    Save,
-    Youtube,
-    Plus,
-    Download,
-    Upload,
-    BarChart3,
-    RefreshCcw,
-    Calendar,
-    Tag,
-    GripVertical,
-    Check,
-    FileJson,
-    FileSpreadsheet,
-    TrendingUp,
-    Users,
-    Timer,
-    ExternalLink,
-    CheckSquare,
-    Square,
-    Layers
-} from "lucide-react"
+import { TbVideo, TbSearch, TbEdit, TbTrash, TbEye, TbClock, TbPlayerPlay, TbX, TbDeviceFloppy, TbBrandYoutube, TbPlus, TbDownload, TbUpload, TbChartBar, TbRefresh, TbCalendar, TbTag, TbGripVertical, TbCheck, TbJson, TbFileSpreadsheet, TbTrendingUp, TbUsers, TbExternalLink, TbSquareCheck, TbSquare, TbStack2 } from "react-icons/tb"
 // Videos fetched from MongoDB API
 
 interface VideoItem {
@@ -293,7 +264,7 @@ export default function VideosPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold flex items-center gap-3">
-                        <Video className="w-8 h-8 text-primary" />
+                        <TbVideo className="w-8 h-8 text-primary" />
                         ვიდეოების მართვა
                     </h1>
                     <p className="text-muted-foreground mt-1">
@@ -308,7 +279,7 @@ export default function VideosPage() {
                         size="sm"
                         onClick={() => setShowAnalytics(!showAnalytics)}
                     >
-                        <BarChart3 className="w-4 h-4 mr-2" />
+                        <TbChartBar className="w-4 h-4 mr-2" />
                         ანალიტიკა
                     </Button>
 
@@ -319,7 +290,7 @@ export default function VideosPage() {
                         onClick={syncWithYouTube}
                         disabled={syncing}
                     >
-                        <RefreshCcw className={`w-4 h-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
+                        <TbRefresh className={`w-4 h-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
                         {syncing ? "სინქრონიზაცია..." : "YouTube Sync"}
                     </Button>
 
@@ -329,13 +300,13 @@ export default function VideosPage() {
                         size="sm"
                         onClick={() => setShowImportExport(!showImportExport)}
                     >
-                        <Download className="w-4 h-4 mr-2" />
+                        <TbDownload className="w-4 h-4 mr-2" />
                         Import/Export
                     </Button>
 
-                    {/* Add Video */}
+                    {/* Add TbVideo */}
                     <Button onClick={() => setAddingVideo(true)}>
-                        <Plus className="w-4 h-4 mr-2" />
+                        <TbPlus className="w-4 h-4 mr-2" />
                         ვიდეოს დამატება
                     </Button>
                 </div>
@@ -347,20 +318,20 @@ export default function VideosPage() {
                     <CardContent className="p-4">
                         <div className="flex flex-wrap gap-3">
                             <Button variant="outline" size="sm" onClick={() => exportVideos("json")}>
-                                <FileJson className="w-4 h-4 mr-2" />
+                                <TbJson className="w-4 h-4 mr-2" />
                                 Export JSON
                             </Button>
                             <Button variant="outline" size="sm" onClick={() => exportVideos("csv")}>
-                                <FileSpreadsheet className="w-4 h-4 mr-2" />
+                                <TbFileSpreadsheet className="w-4 h-4 mr-2" />
                                 Export CSV
                             </Button>
                             <div className="border-l mx-2" />
                             <Button variant="outline" size="sm">
-                                <Upload className="w-4 h-4 mr-2" />
+                                <TbUpload className="w-4 h-4 mr-2" />
                                 Import CSV
                             </Button>
                             <Button variant="outline" size="sm">
-                                <Youtube className="w-4 h-4 mr-2" />
+                                <TbBrandYoutube className="w-4 h-4 mr-2" />
                                 Import from YouTube Playlist
                             </Button>
                         </div>
@@ -377,7 +348,7 @@ export default function VideosPage() {
                             <CardContent className="p-4">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 bg-primary/10 rounded-lg">
-                                        <Video className="w-5 h-5 text-primary" />
+                                        <TbVideo className="w-5 h-5 text-primary" />
                                     </div>
                                     <div>
                                         <p className="text-2xl font-bold">{videos.length}</p>
@@ -390,7 +361,7 @@ export default function VideosPage() {
                             <CardContent className="p-4">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 bg-green-500/10 rounded-lg">
-                                        <Eye className="w-5 h-5 text-green-500" />
+                                        <TbEye className="w-5 h-5 text-green-500" />
                                     </div>
                                     <div>
                                         <p className="text-2xl font-bold">{formatNumber(totalViews)}</p>
@@ -403,7 +374,7 @@ export default function VideosPage() {
                             <CardContent className="p-4">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 bg-blue-500/10 rounded-lg">
-                                        <TrendingUp className="w-5 h-5 text-blue-500" />
+                                        <TbTrendingUp className="w-5 h-5 text-blue-500" />
                                     </div>
                                     <div>
                                         <p className="text-2xl font-bold">{formatNumber(avgViews)}</p>
@@ -416,7 +387,7 @@ export default function VideosPage() {
                             <CardContent className="p-4">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 bg-purple-500/10 rounded-lg">
-                                        <Layers className="w-5 h-5 text-purple-500" />
+                                        <TbStack2 className="w-5 h-5 text-purple-500" />
                                     </div>
                                     <div>
                                         <p className="text-2xl font-bold">{longVideos}/{shortVideos}</p>
@@ -466,9 +437,9 @@ export default function VideosPage() {
                     className="gap-2"
                 >
                     {selectedVideos.size === filteredVideos.length && filteredVideos.length > 0 ? (
-                        <CheckSquare className="w-4 h-4" />
+                        <TbSquareCheck className="w-4 h-4" />
                     ) : (
-                        <Square className="w-4 h-4" />
+                        <TbSquare className="w-4 h-4" />
                     )}
                     {selectedVideos.size > 0 ? `${selectedVideos.size} არჩეული` : "აირჩიე"}
                 </Button>
@@ -481,7 +452,7 @@ export default function VideosPage() {
                             size="sm"
                             onClick={() => setBulkDeleteConfirm(true)}
                         >
-                            <Trash2 className="w-4 h-4 mr-2" />
+                            <TbTrash className="w-4 h-4 mr-2" />
                             წაშლა ({selectedVideos.size})
                         </Button>
                     </div>
@@ -517,9 +488,9 @@ export default function VideosPage() {
                     ))}
                 </div>
 
-                {/* Search */}
+                {/* TbSearch */}
                 <div className="relative w-full sm:w-60">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <TbSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                         placeholder="ძიება..."
                         value={searchQuery}
@@ -561,15 +532,15 @@ export default function VideosPage() {
                                 className="absolute top-2 left-2 p-1 bg-black/60 rounded hover:bg-black/80 transition-colors"
                             >
                                 {selectedVideos.has(video.id) ? (
-                                    <CheckSquare className="w-5 h-5 text-primary" />
+                                    <TbSquareCheck className="w-5 h-5 text-primary" />
                                 ) : (
-                                    <Square className="w-5 h-5 text-white" />
+                                    <TbSquare className="w-5 h-5 text-white" />
                                 )}
                             </button>
 
                             {/* Drag Handle */}
                             <div className="absolute top-2 left-10 p-1 bg-black/60 rounded cursor-grab opacity-0 group-hover:opacity-100 transition-opacity">
-                                <GripVertical className="w-5 h-5 text-white" />
+                                <TbGripVertical className="w-5 h-5 text-white" />
                             </div>
 
                             {/* Play Button */}
@@ -578,7 +549,7 @@ export default function VideosPage() {
                                 className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity"
                             >
                                 <div className="w-14 h-14 bg-red-600 rounded-full flex items-center justify-center">
-                                    <Play className="w-7 h-7 text-white fill-white ml-1" />
+                                    <TbPlayerPlay className="w-7 h-7 text-white fill-white ml-1" />
                                 </div>
                             </button>
 
@@ -597,7 +568,7 @@ export default function VideosPage() {
                                     variant={video.status === "scheduled" ? "outline" : "secondary"}
                                 >
                                     {video.status === "scheduled" ? (
-                                        <><Calendar className="w-3 h-3 mr-1" />Scheduled</>
+                                        <><TbCalendar className="w-3 h-3 mr-1" />Scheduled</>
                                     ) : "Draft"}
                                 </Badge>
                             )}
@@ -618,7 +589,7 @@ export default function VideosPage() {
                                 <div className="flex flex-wrap gap-1 mt-2">
                                     {video.tags.slice(0, 3).map(tag => (
                                         <Badge key={tag} variant="outline" className="text-xs">
-                                            <Tag className="w-2.5 h-2.5 mr-1" />
+                                            <TbTag className="w-2.5 h-2.5 mr-1" />
                                             {tag}
                                         </Badge>
                                     ))}
@@ -632,13 +603,13 @@ export default function VideosPage() {
 
                             <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
                                 <span className="flex items-center gap-1">
-                                    <Eye className="w-4 h-4" />
+                                    <TbEye className="w-4 h-4" />
                                     {formatNumber(video.views)}
                                 </span>
                                 <Badge variant="outline">{video.category}</Badge>
                                 {video.scheduledAt && (
                                     <span className="flex items-center gap-1 text-xs">
-                                        <Calendar className="w-3 h-3" />
+                                        <TbCalendar className="w-3 h-3" />
                                         {formatDate(video.scheduledAt)}
                                     </span>
                                 )}
@@ -651,7 +622,7 @@ export default function VideosPage() {
                                     className="flex-1"
                                     onClick={() => setEditingVideo(video)}
                                 >
-                                    <Edit className="w-4 h-4 mr-2" />
+                                    <TbEdit className="w-4 h-4 mr-2" />
                                     რედაქტირება
                                 </Button>
                                 <Button
@@ -659,7 +630,7 @@ export default function VideosPage() {
                                     size="icon"
                                     onClick={() => window.open(`https://youtube.com/watch?v=${video.youtubeId}`, "_blank")}
                                 >
-                                    <ExternalLink className="w-4 h-4" />
+                                    <TbExternalLink className="w-4 h-4" />
                                 </Button>
                                 <Button
                                     variant="ghost"
@@ -667,7 +638,7 @@ export default function VideosPage() {
                                     className="text-destructive hover:text-destructive"
                                     onClick={() => setDeleteConfirm(video.id)}
                                 >
-                                    <Trash2 className="w-4 h-4" />
+                                    <TbTrash className="w-4 h-4" />
                                 </Button>
                             </div>
                         </CardContent>
@@ -675,7 +646,7 @@ export default function VideosPage() {
                 ))}
             </div>
 
-            {/* Add Video Modal */}
+            {/* Add TbVideo Modal */}
             {addingVideo && (
                 <AddVideoModal
                     onSave={handleAddVideo}
@@ -702,7 +673,7 @@ export default function VideosPage() {
                             className="absolute -top-12 right-0 text-white hover:bg-white/20"
                             onClick={() => setPreviewVideo(null)}
                         >
-                            <X className="w-6 h-6" />
+                            <TbX className="w-6 h-6" />
                         </Button>
                         <div className="aspect-video bg-black rounded-lg overflow-hidden">
                             <iframe
@@ -764,7 +735,7 @@ export default function VideosPage() {
     )
 }
 
-// Add Video Modal Component
+// Add TbVideo Modal Component
 function AddVideoModal({
     onSave,
     onClose
@@ -813,11 +784,11 @@ function AddVideoModal({
             <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
-                        <Plus className="w-5 h-5" />
+                        <TbPlus className="w-5 h-5" />
                         ახალი ვიდეოს დამატება
                     </CardTitle>
                     <Button variant="ghost" size="icon" onClick={onClose}>
-                        <X className="w-4 h-4" />
+                        <TbX className="w-4 h-4" />
                     </Button>
                 </CardHeader>
                 <CardContent>
@@ -900,7 +871,7 @@ function AddVideoModal({
                                     <Badge key={tag} variant="secondary" className="gap-1">
                                         {tag}
                                         <button type="button" onClick={() => removeTag(tag)}>
-                                            <X className="w-3 h-3" />
+                                            <TbX className="w-3 h-3" />
                                         </button>
                                     </Badge>
                                 ))}
@@ -914,7 +885,7 @@ function AddVideoModal({
                                     className="flex-1"
                                 />
                                 <Button type="button" variant="outline" onClick={() => addTag(tagInput)}>
-                                    <Plus className="w-4 h-4" />
+                                    <TbPlus className="w-4 h-4" />
                                 </Button>
                             </div>
                             <div className="flex flex-wrap gap-1 mt-2">
@@ -962,7 +933,7 @@ function AddVideoModal({
                                 გაუქმება
                             </Button>
                             <Button type="submit">
-                                <Plus className="w-4 h-4 mr-2" />
+                                <TbPlus className="w-4 h-4 mr-2" />
                                 დამატება
                             </Button>
                         </div>
@@ -1021,7 +992,7 @@ function EditVideoModal({
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>ვიდეოს რედაქტირება</CardTitle>
                     <Button variant="ghost" size="icon" onClick={onClose}>
-                        <X className="w-4 h-4" />
+                        <TbX className="w-4 h-4" />
                     </Button>
                 </CardHeader>
                 <CardContent>
@@ -1108,7 +1079,7 @@ function EditVideoModal({
                                     <Badge key={tag} variant="secondary" className="gap-1">
                                         {tag}
                                         <button type="button" onClick={() => removeTag(tag)}>
-                                            <X className="w-3 h-3" />
+                                            <TbX className="w-3 h-3" />
                                         </button>
                                     </Badge>
                                 ))}
@@ -1122,7 +1093,7 @@ function EditVideoModal({
                                     className="flex-1"
                                 />
                                 <Button type="button" variant="outline" onClick={() => addTag(tagInput)}>
-                                    <Plus className="w-4 h-4" />
+                                    <TbPlus className="w-4 h-4" />
                                 </Button>
                             </div>
                             <div className="flex flex-wrap gap-1 mt-2">
@@ -1170,7 +1141,7 @@ function EditVideoModal({
                                 გაუქმება
                             </Button>
                             <Button type="submit">
-                                <Save className="w-4 h-4 mr-2" />
+                                <TbDeviceFloppy className="w-4 h-4 mr-2" />
                                 შენახვა
                             </Button>
                         </div>

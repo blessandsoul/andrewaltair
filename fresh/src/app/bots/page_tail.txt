@@ -1,0 +1,500 @@
+                                    <p className="text-xs text-white/80">დაიწყეთ უფასოდ, არ არის საჭირო ბარათი</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-white/20 rounded-lg text-sm">
+                                    <Timer className="w-4 h-4" />
+                                    <span>{String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}</span>
+                                </div>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                                    className="px-6 py-2 bg-white text-violet-600 rounded-xl font-bold hover:bg-violet-50 transition-colors shadow-lg"
+                                >
+                                    დაიწყეთ ახლა
+                                </motion.button>
+                                <button
+                                    onClick={() => setShowStickyBar(false)}
+                                    className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* EXIT INTENT POPUP */}
+            <AnimatePresence>
+                {showExitIntent && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+                        onClick={() => setShowExitIntent(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            className="relative max-w-lg w-full bg-gradient-to-br from-violet-600 to-purple-600 rounded-3xl p-8 text-white shadow-2xl"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <button onClick={() => setShowExitIntent(false)} className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition-colors">
+                                <X className="w-5 h-5" />
+                            </button>
+                            <div className="text-center mb-6">
+                                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Percent className="w-8 h-8" />
+                                </div>
+                                <h3 className="text-3xl font-bold mb-2">დაელოდე!</h3>
+                                <p className="text-xl text-white/90">მიიღე 20% ფასდაკლება პირველ შესყიდვაზე</p>
+                            </div>
+                            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 mb-6">
+                                <ul className="space-y-3">
+                                    <li className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-300" /><span>7-დღიანი უფასო ტესტი</span></li>
+                                    <li className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-300" /><span>100% თანხის დაბრუნება</span></li>
+                                    <li className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-300" /><span>ყველა Premium ბოტი</span></li>
+                                </ul>
+                            </div>
+                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { setShowExitIntent(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="w-full py-4 bg-white text-violet-600 rounded-xl font-bold text-lg shadow-xl hover:bg-violet-50 transition-colors">
+                                მიიღე 20% ფასდაკლება
+                            </motion.button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* EMAIL CAPTURE POPUP */}
+            <AnimatePresence>
+                {showEmailPopup && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setShowEmailPopup(false)}>
+                        <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="relative max-w-md w-full bg-card rounded-3xl p-8 shadow-2xl border border-border" onClick={(e) => e.stopPropagation()}>
+                            <button onClick={() => setShowEmailPopup(false)} className="absolute top-4 right-4 p-2 hover:bg-secondary rounded-full transition-colors"><X className="w-5 h-5" /></button>
+                            <div className="text-center mb-6">
+                                <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4"><Gift className="w-8 h-8 text-white" /></div>
+                                <h3 className="text-2xl font-bold text-foreground mb-2">მიიღე 3 Premium ბოტი უფასოდ!</h3>
+                                <p className="text-muted-foreground">შეიყვანე ელ-ფოსტა და მიიღე ექსკლუზიური წვდომა</p>
+                            </div>
+                            <form onSubmit={handleEmailSubmit} className="space-y-4">
+                                <input type="email" value={emailCapture} onChange={(e) => setEmailCapture(e.target.value)} placeholder="თქვენი ელ-ფოსტა" required className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 outline-none transition-all" />
+                                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" className="w-full py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all">მიიღე უფასო ბოტები</motion.button>
+                                <p className="text-xs text-muted-foreground text-center">არ გავაზიარებთ თქვენს ელ-ფოსტას. გამოწერის გაუქმება ნებისმიერ დროს.</p>
+                            </form>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* LIVE CHAT WIDGET */}
+            <motion.button initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1 }} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => alert('Live Chat მალე დაემატება! დაგვიკავშირდით: support@andrewaltair.ge')} className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-gradient-to-br from-emerald-500 to-green-600 text-white rounded-full shadow-2xl shadow-emerald-500/30 flex items-center justify-center hover:shadow-emerald-500/50 transition-all" aria-label="Live Chat">
+                <MessageSquare className="w-6 h-6" />
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-pulse" />
+            </motion.button>
+
+            {/* ANALYTICS TRACKING */}
+            <div className="hidden" data-analytics-page="bots" data-total-bots={totalBots} data-conversion-features="enabled" />
+        </div>
+    );
+}
+                <div className="container mx-auto max-w-3xl">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="text-center mb-12"
+                    >
+                        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+                            ხშირად დასმული კითხვები
+                        </h2>
+                        <p className="text-muted-foreground">
+                            გაქვთ კითხვა? ჩვენ გვაქვს პასუხი
+                        </p>
+                    </motion.div>
+
+                    <div className="space-y-3">
+                        {faqs.map((faq, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, y: 10 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: i * 0.05 }}
+                            >
+                                <FAQItem question={faq.question} answer={faq.answer} />
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ═══════════════════════════════════════════════════════════════════
+                BOTTOM CTA SECTION
+            ═══════════════════════════════════════════════════════════════════ */}
+            <section className="py-20 px-4 bg-gradient-to-r from-violet-600 via-purple-600 to-cyan-600">
+                <div className="container mx-auto max-w-4xl text-center">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                    >
+                        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                            მზად ხართ დასაწყებად?
+                        </h2>
+                        <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
+                            გამოსცადეთ უფასო ბოტები დღესვე და ნახეთ განსხვავება თავად
+                        </p>
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                            className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-white text-violet-600 font-semibold text-lg shadow-xl shadow-black/20 hover:shadow-2xl transition-shadow"
+                        >
+                            დაიწყეთ უფასოდ
+                            <ArrowRight className="w-5 h-5" />
+                        </motion.button>
+                    </motion.div>
+                </div>
+            </section>
+
+            {/* ═══════════════════════════════════════════════════════════════════
+                DEMO CHAT MODAL
+            ═══════════════════════════════════════════════════════════════════ */}
+            <AnimatePresence>
+                {demoBot && (
+                    <DemoChatModal
+                        bot={demoBot}
+                        onClose={() => setDemoBot(null)}
+                        iconMap={iconMap}
+                    />
+                )}
+            </AnimatePresence>
+
+            {/* ═══════════════════════════════════════════════════════════════════
+                BOT DETAIL MODAL
+            ═══════════════════════════════════════════════════════════════════ */}
+            <AnimatePresence>
+                {selectedBot && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                        onClick={() => setSelectedBot(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+                            className="relative w-full max-w-2xl max-h-[85vh] overflow-auto bg-background rounded-2xl shadow-2xl"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Modal Header */}
+                            <div className={`h-32 bg-gradient-to-br ${selectedBot.color} relative`}>
+                                <div className="absolute inset-0 bg-black/10" />
+                                <motion.button
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => setSelectedBot(null)}
+                                    className="absolute top-4 right-4 p-2 rounded-full bg-black/20 text-white hover:bg-black/40 transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </motion.button>
+                                <div className="absolute bottom-4 left-6 flex items-center gap-4">
+                                    <div className="p-3 bg-white/30 backdrop-blur-md rounded-xl text-white shadow-sm">
+                                        {iconMap[selectedBot.icon] || <Bot className="w-6 h-6" />}
+                                    </div>
+                                    <div className="text-white">
+                                        <h2 className="text-2xl font-bold drop-shadow-sm">{selectedBot.name}</h2>
+                                        <p className="text-white/90 text-sm">{selectedBot.codename}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Modal Content */}
+                            <div className="p-6">
+                                <p className="text-muted-foreground mb-6 leading-relaxed">
+                                    {selectedBot.description}
+                                </p>
+
+                                <h3 className="font-semibold text-foreground mb-3 text-sm uppercase tracking-wider">შესაძლებლობები</h3>
+                                <div className="grid grid-cols-2 gap-2 mb-6">
+                                    {selectedBot.features.map((feature, i) => (
+                                        <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                                            <Check className="w-4 h-4 text-emerald-500" />
+                                            {feature}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Stats */}
+                                <div className="flex items-center gap-6 py-4 border-y border-border mb-6" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                                    <div className="flex items-center gap-2">
+                                        <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+                                        <span className="font-semibold text-foreground">{selectedBot.rating.toFixed(1)}</span>
+                                    </div>
+                                    {selectedBot.tier !== 'private' && (
+                                        <div className="flex items-center gap-2 text-muted-foreground">
+                                            <Download className="w-5 h-5" />
+                                            <span>{selectedBot.downloads.toLocaleString()}</span>
+                                        </div>
+                                    )}
+                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                        <Heart className="w-5 h-5" />
+                                        <span>{selectedBot.likes}</span>
+                                    </div>
+                                    <div className="text-muted-foreground/70 text-sm">
+                                        {selectedBot.version}
+                                    </div>
+                                </div>
+
+                                {/* Action Button */}
+                                {selectedBot.tier === 'private' ? (
+                                    <div className="text-center py-4 px-6 rounded-xl bg-secondary border border-border">
+                                        <Lock className="w-8 h-8 mx-auto text-muted-foreground/50 mb-2" />
+                                        <p className="text-muted-foreground text-sm">ეს ბოტი პირადია და არ არის ხელმისაწვდომი</p>
+                                    </div>
+                                ) : selectedBot.tier === 'premium' ? (
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold shadow-lg shadow-amber-500/25"
+                                    >
+                                        <ShoppingCart className="w-5 h-5" />
+                                        ყიდვა ${selectedBot.price}
+                                    </motion.button>
+                                ) : (
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={() => handleCopy(selectedBot.id)}
+                                        className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold transition-colors shadow-lg shadow-violet-500/20"
+                                    >
+                                        {copiedId === selectedBot.id ? (
+                                            <>
+                                                <Check className="w-5 h-5" />
+                                                პრომპტი დაკოპირდა!
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Copy className="w-5 h-5" />
+                                                პრომპტის კოპირება
+                                            </>
+                                        )}
+                                    </motion.button>
+                                )}
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* ═══════════════════════════════════════════════════════════════════
+                STICKY CTA BAR (appears on scroll)
+            ═══════════════════════════════════════════════════════════════════ */}
+            <AnimatePresence>
+                {showStickyBar && (
+                    <motion.div
+                        initial={{ y: 100 }}
+                        animate={{ y: 0 }}
+                        exit={{ y: 100 }}
+                        className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-violet-600 via-purple-600 to-cyan-600 text-white py-4 px-4 shadow-2xl"
+                    >
+                        <div className="container mx-auto max-w-6xl flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                                <Rocket className="w-6 h-6" />
+                                <div>
+                                    <p className="font-bold">მზად ხართ AI-ის ძალის გამოსაყენებლად?</p>
+                                    <p className="text-xs text-white/80">დაიწყეთ უფასოდ, არ არის საჭირო ბარათი</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-white/20 rounded-lg text-sm">
+                                    <Timer className="w-4 h-4" />
+                                    <span>{String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}</span>
+                                </div>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                                    className="px-6 py-2 bg-white text-violet-600 rounded-xl font-bold hover:bg-violet-50 transition-colors shadow-lg"
+                                >
+                                    დაიწყეთ ახლა
+                                </motion.button>
+                                <button
+                                    onClick={() => setShowStickyBar(false)}
+                                    className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* ═══════════════════════════════════════════════════════════════════
+                EXIT INTENT POPUP
+            ═══════════════════════════════════════════════════════════════════ */}
+            <AnimatePresence>
+                {showExitIntent && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+                        onClick={() => setShowExitIntent(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            className="relative max-w-lg w-full bg-gradient-to-br from-violet-600 to-purple-600 rounded-3xl p-8 text-white shadow-2xl"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <button
+                                onClick={() => setShowExitIntent(false)}
+                                className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition-colors"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+
+                            <div className="text-center mb-6">
+                                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Percent className="w-8 h-8" />
+                                </div>
+                                <h3 className="text-3xl font-bold mb-2">დაელოდე!</h3>
+                                <p className="text-xl text-white/90">მიიღე 20% ფასდაკლება პირველ შესყიდვაზე</p>
+                            </div>
+
+                            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 mb-6">
+                                <ul className="space-y-3">
+                                    <li className="flex items-center gap-2">
+                                        <CheckCircle2 className="w-5 h-5 text-emerald-300" />
+                                        <span>7-დღიანი უფასო ტესტი</span>
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <CheckCircle2 className="w-5 h-5 text-emerald-300" />
+                                        <span>100% თანხის დაბრუნება</span>
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <CheckCircle2 className="w-5 h-5 text-emerald-300" />
+                                        <span>ყველა Premium ბოტი</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div className="space-y-3">
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => {
+                                        setShowExitIntent(false);
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }}
+                                    className="w-full py-4 bg-white text-violet-600 rounded-xl font-bold text-lg shadow-xl hover:bg-violet-50 transition-colors"
+                                >
+                                    მიიღე 20% ფასდაკლება
+                                </motion.button>
+                                <button
+                                    onClick={() => setShowExitIntent(false)}
+                                    className="w-full py-2 text-white/80 hover:text-white text-sm transition-colors"
+                                >
+                                    არა, გმადლობთ
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* ═══════════════════════════════════════════════════════════════════
+                EMAIL CAPTURE POPUP
+            ═══════════════════════════════════════════════════════════════════ */}
+            <AnimatePresence>
+                {showEmailPopup && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+                        onClick={() => setShowEmailPopup(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            className="relative max-w-md w-full bg-card rounded-3xl p-8 shadow-2xl border border-border"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <button
+                                onClick={() => setShowEmailPopup(false)}
+                                className="absolute top-4 right-4 p-2 hover:bg-secondary rounded-full transition-colors"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+
+                            <div className="text-center mb-6">
+                                <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Gift className="w-8 h-8 text-white" />
+                                </div>
+                                <h3 className="text-2xl font-bold text-foreground mb-2">მიიღე 3 Premium ბოტი უფასოდ!</h3>
+                                <p className="text-muted-foreground">შეიყვანე ელ-ფოსტა და მიიღე ექსკლუზიური წვდომა</p>
+                            </div>
+
+                            <form onSubmit={handleEmailSubmit} className="space-y-4">
+                                <div>
+                                    <input
+                                        type="email"
+                                        value={emailCapture}
+                                        onChange={(e) => setEmailCapture(e.target.value)}
+                                        placeholder="თქვენი ელ-ფოსტა"
+                                        required
+                                        className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 outline-none transition-all"
+                                    />
+                                </div>
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    type="submit"
+                                    className="w-full py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all"
+                                >
+                                    მიიღე უფასო ბოტები
+                                </motion.button>
+                                <p className="text-xs text-muted-foreground text-center">
+                                    არ გავაზიარებთ თქვენს ელ-ფოსტას. გამოწერის გაუქმება ნებისმიერ დროს.
+                                </p>
+                            </form>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* ═══════════════════════════════════════════════════════════════════
+                LIVE CHAT WIDGET (Floating Button)
+            ═══════════════════════════════════════════════════════════════════ */}
+            <motion.button
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 1 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => alert('Live Chat მალე დაემატება! დაგვიკავშირდით: support@andrewaltair.ge')}
+                className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-gradient-to-br from-emerald-500 to-green-600 text-white rounded-full shadow-2xl shadow-emerald-500/30 flex items-center justify-center hover:shadow-emerald-500/50 transition-all"
+                aria-label="Live Chat"
+            >
+                <MessageSquare className="w-6 h-6" />
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-pulse" />
+            </motion.button>
+
+            {/* ═══════════════════════════════════════════════════════════════════
+                ANALYTICS TRACKING (Hidden)
+            ═══════════════════════════════════════════════════════════════════ */}
+            <div className="hidden" data-analytics-page="bots" data-total-bots={totalBots} data-conversion-features="enabled" />
+        </div>
+    );
+}

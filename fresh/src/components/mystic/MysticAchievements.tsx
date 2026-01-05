@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Award, Lock, Check, Flame, Star, Heart, Moon } from "lucide-react"
+import { TbAward, TbLock, TbCheck, TbFlame, TbStar, TbHeart, TbMoon } from "react-icons/tb"
 import { BADGE_DEFINITIONS, BadgeId } from "@/lib/badges"
 
 interface Achievement {
@@ -76,7 +76,7 @@ export function MysticAchievements() {
             <div className="relative">
                 <div className="absolute -inset-1 bg-gradient-to-r from-yellow-600 to-amber-600 rounded-2xl blur-xl opacity-20" />
                 <div className="relative rounded-2xl bg-[#12121a] border border-white/10 p-8 text-center">
-                    <Award className="w-8 h-8 text-gray-600 animate-pulse mx-auto" />
+                    <TbAward className="w-8 h-8 text-gray-600 animate-pulse mx-auto" />
                     <p className="text-gray-500 mt-3 text-sm">იტვირთება...</p>
                 </div>
             </div>
@@ -93,7 +93,7 @@ export function MysticAchievements() {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
-                                <Award className="w-5 h-5 text-amber-400" />
+                                <TbAward className="w-5 h-5 text-amber-400" />
                             </div>
                             <div>
                                 <h3 className="font-semibold text-white">მიღწევები</h3>
@@ -101,7 +101,7 @@ export function MysticAchievements() {
                             </div>
                         </div>
                         <div className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                            <Flame className="w-4 h-4 text-orange-400" />
+                            <TbFlame className="w-4 h-4 text-orange-400" />
                             <span className="text-sm font-bold text-orange-400">{stats.currentStreak}</span>
                         </div>
                     </div>
@@ -143,11 +143,11 @@ export function MysticAchievements() {
                                     <span className="text-2xl">{badge.emoji}</span>
                                     {isEarned ? (
                                         <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center">
-                                            <Check className="w-3 h-3 text-green-400" />
+                                            <TbCheck className="w-3 h-3 text-green-400" />
                                         </div>
                                     ) : (
                                         <div className="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center">
-                                            <Lock className="w-3 h-3 text-gray-500" />
+                                            <TbLock className="w-3 h-3 text-gray-500" />
                                         </div>
                                     )}
                                 </div>

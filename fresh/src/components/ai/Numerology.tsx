@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Hash, Sparkles, RefreshCw, Loader2, Calendar, User, Heart, Star } from "lucide-react"
+import { TbHash, TbSparkles, TbRefresh, TbLoader2, TbCalendar, TbUser, TbHeart, TbStar } from "react-icons/tb"
 
 interface NumerologyResult {
     lifePath: number
@@ -149,7 +149,7 @@ export function Numerology() {
                                     <div className="absolute inset-0 bg-emerald-500/30 rounded-full blur-2xl animate-pulse" />
                                     <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 p-1">
                                         <div className="w-full h-full rounded-full bg-[#12121a] flex items-center justify-center">
-                                            <Hash className="w-7 h-7 sm:w-9 sm:h-9 text-emerald-400" />
+                                            <TbHash className="w-7 h-7 sm:w-9 sm:h-9 text-emerald-400" />
                                         </div>
                                     </div>
                                 </div>
@@ -184,12 +184,12 @@ export function Numerology() {
                             >
                                 {isCalculating ? (
                                     <span className="flex items-center gap-3">
-                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        <TbLoader2 className="w-5 h-5 animate-spin" />
                                         AI ანალიზი...
                                     </span>
                                 ) : (
                                     <span className="flex items-center gap-3">
-                                        <Sparkles className="w-5 h-5" />
+                                        <TbSparkles className="w-5 h-5" />
                                         გაიგე შენი რიცხვები
                                     </span>
                                 )}
@@ -201,7 +201,7 @@ export function Numerology() {
                             <div className="grid grid-cols-2 gap-2 sm:gap-3">
                                 <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 text-center">
                                     <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                                        <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" />
+                                        <TbCalendar className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" />
                                     </div>
                                     <div className="text-2xl sm:text-3xl font-black text-emerald-400">{result.lifePath}</div>
                                     <div className="text-xs text-gray-500">სიცოცხლის გზა</div>
@@ -209,7 +209,7 @@ export function Numerology() {
                                 </div>
                                 <div className="p-3 sm:p-4 rounded-xl bg-white/5 border border-white/5 text-center">
                                     <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                                        <Star className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
+                                        <TbStar className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
                                     </div>
                                     <div className="text-2xl sm:text-3xl font-black text-purple-400">{result.destiny}</div>
                                     <div className="text-xs text-gray-500">ბედისწერა</div>
@@ -217,14 +217,14 @@ export function Numerology() {
                                 </div>
                                 <div className="p-3 sm:p-4 rounded-xl bg-white/5 border border-white/5 text-center">
                                     <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 rounded-xl bg-pink-500/20 flex items-center justify-center">
-                                        <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-pink-400" />
+                                        <TbHeart className="w-5 h-5 sm:w-6 sm:h-6 text-pink-400" />
                                     </div>
                                     <div className="text-2xl sm:text-3xl font-black text-pink-400">{result.soul}</div>
                                     <div className="text-xs text-gray-500">სულის სურვილი</div>
                                 </div>
                                 <div className="p-3 sm:p-4 rounded-xl bg-white/5 border border-white/5 text-center">
                                     <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                                        <User className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" />
+                                        <TbUser className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" />
                                     </div>
                                     <div className="text-2xl sm:text-3xl font-black text-blue-400">{result.personality}</div>
                                     <div className="text-xs text-gray-500">პიროვნება</div>
@@ -235,7 +235,7 @@ export function Numerology() {
                             <div className="p-4 sm:p-5 rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20">
                                 <div className="flex items-start gap-3">
                                     <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                                        <Sparkles className="w-5 h-5 text-emerald-400" />
+                                        <TbSparkles className="w-5 h-5 text-emerald-400" />
                                     </div>
                                     <div>
                                         <h3 className="text-base sm:text-lg font-semibold text-white mb-2">ინტერპრეტაცია</h3>
@@ -257,7 +257,7 @@ export function Numerology() {
                                 variant="outline"
                                 className="w-full h-10 sm:h-12 rounded-xl border-white/10 text-white hover:bg-white/5 bg-transparent"
                             >
-                                <RefreshCw className="w-4 h-4 mr-2" />
+                                <TbRefresh className="w-4 h-4 mr-2" />
                                 ხელახლა
                             </Button>
                         </div>

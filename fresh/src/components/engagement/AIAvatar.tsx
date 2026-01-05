@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Bot, Sparkles, Settings, X, MessageCircle, Smile } from 'lucide-react'
+import { TbRobot, TbSparkles, TbSettings, TbX, TbMessage, TbMoodSmile } from "react-icons/tb"
 import { Button } from '@/components/ui/button'
 
 const AVATARS = [
@@ -58,7 +58,7 @@ export function AIAvatar({ showAsWidget = true }: AIAvatarProps) {
                 <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 p-6">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl">
-                            <Bot className="w-5 h-5 text-white" />
+                            <TbRobot className="w-5 h-5 text-white" />
                         </div>
                         <div>
                             <h3 className="text-white font-bold">აირჩიე შენი AI ასისტენტი</h3>
@@ -72,8 +72,8 @@ export function AIAvatar({ showAsWidget = true }: AIAvatarProps) {
                                 key={avatar.id}
                                 onClick={() => handleSelectAvatar(avatar)}
                                 className={`p-4 rounded-2xl border-2 transition-all ${selectedAvatar.id === avatar.id
-                                        ? `bg-gradient-to-br ${avatar.color} border-white/30`
-                                        : 'bg-slate-800 border-slate-700 hover:border-slate-500'
+                                    ? `bg-gradient-to-br ${avatar.color} border-white/30`
+                                    : 'bg-slate-800 border-slate-700 hover:border-slate-500'
                                     }`}
                             >
                                 <span className="text-4xl block mb-2">{avatar.emoji}</span>
@@ -130,7 +130,7 @@ export function AIAvatar({ showAsWidget = true }: AIAvatarProps) {
                                 <span className="text-white font-medium">{selectedAvatar.name}</span>
                             </div>
                             <button onClick={() => setIsOpen(false)} className="text-white/50 hover:text-white">
-                                <X className="w-5 h-5" />
+                                <TbX className="w-5 h-5" />
                             </button>
                         </div>
 
@@ -142,8 +142,8 @@ export function AIAvatar({ showAsWidget = true }: AIAvatarProps) {
                                         key={avatar.id}
                                         onClick={() => handleSelectAvatar(avatar)}
                                         className={`p-2 rounded-xl text-2xl transition-all ${selectedAvatar.id === avatar.id
-                                                ? `bg-gradient-to-br ${avatar.color}`
-                                                : 'bg-slate-800 hover:bg-slate-700'
+                                            ? `bg-gradient-to-br ${avatar.color}`
+                                            : 'bg-slate-800 hover:bg-slate-700'
                                             }`}
                                     >
                                         {avatar.emoji}

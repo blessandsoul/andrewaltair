@@ -55,17 +55,17 @@ export function MysticQuotes() {
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
             </div>
 
-            {/* Quote container */}
+            {/* TbQuote container */}
             <div
                 className={`relative z-10 max-w-2xl mx-auto px-8 py-6 text-center
                     transition-all duration-1000 ease-in-out
                     ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
             >
-                {/* Quote marks */}
+                {/* TbQuote marks */}
                 <div className="absolute -top-2 left-4 text-6xl text-purple-500/20 font-serif">"</div>
                 <div className="absolute -bottom-6 right-4 text-6xl text-purple-500/20 font-serif rotate-180">"</div>
 
-                {/* Quote text */}
+                {/* TbQuote text */}
                 <p
                     className="text-lg sm:text-xl text-gray-200 font-georgian leading-relaxed mb-4"
                     style={{

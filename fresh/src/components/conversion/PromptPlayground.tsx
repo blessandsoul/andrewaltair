@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Loader2, Sparkles, Copy, Check, RotateCcw } from 'lucide-react';
+import { TbPlayerPlay, TbLoader2, TbSparkles, TbCopy, TbCheck, TbRefresh } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 
 const EXAMPLE_PROMPTS = [
@@ -52,7 +52,7 @@ export default function PromptPlayground() {
             {/* Header */}
             <div className="flex items-center gap-3">
                 <div className="p-2 bg-cyan-500/20 rounded-lg">
-                    <Sparkles className="w-6 h-6 text-cyan-400" />
+                    <TbSparkles className="w-6 h-6 text-cyan-400" />
                 </div>
                 <div>
                     <h2 className="text-2xl font-bold text-white">პრომპტის სათამაშო</h2>
@@ -90,7 +90,7 @@ export default function PromptPlayground() {
                             onClick={handleReset}
                             className="px-4 py-2 text-gray-400 hover:text-white transition-colors flex items-center gap-2"
                         >
-                            <RotateCcw className="w-4 h-4" />
+                            <TbRefresh className="w-4 h-4" />
                             გასუფთავება
                         </button>
                         <button
@@ -105,12 +105,12 @@ export default function PromptPlayground() {
                         >
                             {loading ? (
                                 <>
-                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <TbLoader2 className="w-4 h-4 animate-spin" />
                                     იტვირთება...
                                 </>
                             ) : (
                                 <>
-                                    <Play className="w-4 h-4" />
+                                    <TbPlayerPlay className="w-4 h-4" />
                                     გაშვება
                                 </>
                             )}
@@ -134,12 +134,12 @@ export default function PromptPlayground() {
                         >
                             {copied ? (
                                 <>
-                                    <Check className="w-3 h-3 text-green-400" />
+                                    <TbCheck className="w-3 h-3 text-green-400" />
                                     <span className="text-green-400">დაკოპირდა!</span>
                                 </>
                             ) : (
                                 <>
-                                    <Copy className="w-3 h-3" />
+                                    <TbCopy className="w-3 h-3" />
                                     კოპირება
                                 </>
                             )}

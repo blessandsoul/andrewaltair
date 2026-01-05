@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
-import { Users, Eye } from "lucide-react"
+import { TbUsers, TbEye } from "react-icons/tb"
 
 interface LiveVisitorCounterProps {
     className?: string
@@ -54,7 +54,7 @@ export function LiveVisitorCounter({
                 )}
             >
                 <div className="relative">
-                    <Eye className="h-4 w-4 text-primary" />
+                    <TbEye className="h-4 w-4 text-primary" />
                     <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-green-500 animate-pulse" />
                 </div>
                 <span
@@ -102,7 +102,7 @@ export function LiveVisitorCounter({
                 className
             )}
         >
-            <Users className="h-3.5 w-3.5 text-muted-foreground" />
+            <TbUsers className="h-3.5 w-3.5 text-muted-foreground" />
             <span
                 className={cn(
                     "text-sm font-semibold tabular-nums transition-all",

@@ -5,7 +5,7 @@
 "use client"
 
 import * as React from "react"
-import { User, Mail, Calendar, FileText, Edit2, X, Save } from "lucide-react"
+import { TbUser, TbMail, TbCalendar, TbFileText, TbEdit, TbX, TbDeviceFloppy } from "react-icons/tb"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -29,7 +29,7 @@ export function ProfileInfoTab() {
         const result = profileFormSchema.safeParse(formData)
         if (!result.success) {
             const fieldErrors: Partial<Record<keyof ProfileFormData, string>> = {}
-            result.error.errors.forEach((err) => {
+            result.error.issues.forEach((err) => {
                 if (err.path[0]) {
                     fieldErrors[err.path[0] as keyof ProfileFormData] = err.message
                 }
@@ -58,7 +58,7 @@ export function ProfileInfoTab() {
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                     <CardTitle className="flex items-center gap-2">
-                        <User className="w-5 h-5 text-primary" />
+                        <TbUser className="w-5 h-5 text-primary" />
                         პროფილის ინფორმაცია
                     </CardTitle>
                     <CardDescription>მართეთ თქვენი პირადი მონაცემები</CardDescription>
@@ -71,12 +71,12 @@ export function ProfileInfoTab() {
                 >
                     {isEditing ? (
                         <>
-                            <X className="w-4 h-4" />
+                            <TbX className="w-4 h-4" />
                             გაუქმება
                         </>
                     ) : (
                         <>
-                            <Edit2 className="w-4 h-4" />
+                            <TbEdit className="w-4 h-4" />
                             რედაქტირება
                         </>
                     )}
@@ -86,7 +86,7 @@ export function ProfileInfoTab() {
                 <div className="grid gap-6 md:grid-cols-2">
                     <div className="space-y-2">
                         <label className="text-sm font-medium flex items-center gap-2">
-                            <User className="w-4 h-4 text-muted-foreground" />
+                            <TbUser className="w-4 h-4 text-muted-foreground" />
                             სრული სახელი
                         </label>
                         {isEditing ? (
@@ -122,7 +122,7 @@ export function ProfileInfoTab() {
 
                     <div className="space-y-2">
                         <label className="text-sm font-medium flex items-center gap-2">
-                            <Mail className="w-4 h-4 text-muted-foreground" />
+                            <TbMail className="w-4 h-4 text-muted-foreground" />
                             ელ. ფოსტა
                         </label>
                         {isEditing ? (
@@ -141,7 +141,7 @@ export function ProfileInfoTab() {
 
                     <div className="space-y-2">
                         <label className="text-sm font-medium flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-muted-foreground" />
+                            <TbCalendar className="w-4 h-4 text-muted-foreground" />
                             რეგისტრაციის თარიღი
                         </label>
                         <p className="px-3 py-2 bg-muted/50 rounded-md">
@@ -157,7 +157,7 @@ export function ProfileInfoTab() {
                 {/* Bio */}
                 <div className="space-y-2">
                     <label className="text-sm font-medium flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-muted-foreground" />
+                        <TbFileText className="w-4 h-4 text-muted-foreground" />
                         ბიო
                     </label>
                     {isEditing ? (
@@ -178,7 +178,7 @@ export function ProfileInfoTab() {
                 {isEditing && (
                     <div className="flex justify-end pt-4 border-t">
                         <Button onClick={handleSave} className="gap-2">
-                            <Save className="w-4 h-4" />
+                            <TbDeviceFloppy className="w-4 h-4" />
                             შენახვა
                         </Button>
                     </div>

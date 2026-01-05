@@ -5,7 +5,7 @@
 "use client"
 
 import * as React from "react"
-import { Image as ImageIcon, User, Upload, Trash2 } from "lucide-react"
+import { TbPhoto as TbPhoto, TbUser, TbUpload, TbTrash } from "react-icons/tb"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth"
@@ -38,7 +38,7 @@ export function MediaTab() {
         <Card className="border-border/50 shadow-xl backdrop-blur-sm">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <ImageIcon className="w-5 h-5 text-primary" />
+                    <TbPhoto className="w-5 h-5 text-primary" />
                     მედია პარამეტრები
                 </CardTitle>
                 <CardDescription>მართეთ თქვენი ავატარი და ფონი</CardDescription>
@@ -47,7 +47,7 @@ export function MediaTab() {
                 {/* Avatar Section */}
                 <div className="p-4 rounded-lg border border-border">
                     <h3 className="font-medium mb-4 flex items-center gap-2">
-                        <User className="w-4 h-4" />
+                        <TbUser className="w-4 h-4" />
                         ავატარი
                     </h3>
                     <div className="flex items-center gap-6">
@@ -56,13 +56,13 @@ export function MediaTab() {
                                 {user?.avatar ? (
                                     <img src={user.avatar} alt={user.fullName} className="w-full h-full object-cover" />
                                 ) : (
-                                    <User className="w-12 h-12 text-muted-foreground" />
+                                    <TbUser className="w-12 h-12 text-muted-foreground" />
                                 )}
                             </div>
                         </div>
                         <div className="space-y-2">
                             <Button onClick={() => avatarInputRef.current?.click()} className="gap-2">
-                                <Upload className="w-4 h-4" />
+                                <TbUpload className="w-4 h-4" />
                                 ატვირთვა
                             </Button>
                             <p className="text-xs text-muted-foreground">
@@ -82,7 +82,7 @@ export function MediaTab() {
                 {/* Cover Section */}
                 <div className="p-4 rounded-lg border border-border">
                     <h3 className="font-medium mb-4 flex items-center gap-2">
-                        <ImageIcon className="w-4 h-4" />
+                        <TbPhoto className="w-4 h-4" />
                         ფონის სურათი
                     </h3>
                     <div className="space-y-4">
@@ -91,13 +91,13 @@ export function MediaTab() {
                                 <img src={coverImage} alt="Cover" className="w-full h-full object-cover" />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-white/50">
-                                    <ImageIcon className="w-12 h-12" />
+                                    <TbPhoto className="w-12 h-12" />
                                 </div>
                             )}
                         </div>
                         <div className="flex gap-2">
                             <Button onClick={() => coverInputRef.current?.click()} className="gap-2">
-                                <Upload className="w-4 h-4" />
+                                <TbUpload className="w-4 h-4" />
                                 ატვირთვა
                             </Button>
                             {coverImage && (
@@ -106,7 +106,7 @@ export function MediaTab() {
                                     className="gap-2 text-destructive hover:text-destructive"
                                     onClick={() => setCoverImage(null)}
                                 >
-                                    <Trash2 className="w-4 h-4" />
+                                    <TbTrash className="w-4 h-4" />
                                     წაშლა
                                 </Button>
                             )}

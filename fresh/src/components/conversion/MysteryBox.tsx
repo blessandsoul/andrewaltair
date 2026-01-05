@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Gift, Sparkles, Timer, Coins } from 'lucide-react';
+import { TbGift, TbSparkles, TbClock, TbCoins } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 
@@ -14,9 +14,9 @@ interface Reward {
 }
 
 const REWARDS: Reward[] = [
-    { type: 'credits', value: '50', label: 'AI კრედიტი', icon: <Coins className="w-6 h-6 text-yellow-500" /> },
-    { type: 'credits', value: '100', label: 'AI კრედიტი', icon: <Coins className="w-6 h-6 text-yellow-500" /> },
-    { type: 'discount', value: '10%', label: 'ფასდაკლების კუპონი', icon: <Gift className="w-6 h-6 text-pink-500" /> },
+    { type: 'credits', value: '50', label: 'AI კრედიტი', icon: <TbCoins className="w-6 h-6 text-yellow-500" /> },
+    { type: 'credits', value: '100', label: 'AI კრედიტი', icon: <TbCoins className="w-6 h-6 text-yellow-500" /> },
+    { type: 'discount', value: '10%', label: 'ფასდაკლების კუპონი', icon: <TbGift className="w-6 h-6 text-pink-500" /> },
 ];
 
 export default function MysteryBox() {
@@ -99,7 +99,7 @@ export default function MysteryBox() {
                         type: 'credits',
                         value: data.reward.value.toString(),
                         label: 'AI კრედიტი',
-                        icon: <Coins className="w-6 h-6 text-yellow-500" />
+                        icon: <TbCoins className="w-6 h-6 text-yellow-500" />
                     });
                     setIsOpen(true);
                     setCanClaim(false);
@@ -119,7 +119,7 @@ export default function MysteryBox() {
     if (!user) {
         return (
             <div className="w-full max-w-sm mx-auto p-6 relative border border-white/10 rounded-2xl bg-white/5 text-center">
-                <h3 className="text-xl font-bold mb-2">🎁 Mystery Box</h3>
+                <h3 className="text-xl font-bold mb-2">🎁 Mystery TbBox</h3>
                 <p className="text-gray-400 mb-4">გაიარე ავტორიზაცია საჩუქრის მისაღებად</p>
             </div>
         );
@@ -152,7 +152,7 @@ export default function MysteryBox() {
                                 !canClaim && "grayscale cursor-not-allowed"
                             )}
                         >
-                            <Gift className="w-20 h-20 text-white" />
+                            <TbGift className="w-20 h-20 text-white" />
 
                             {canClaim && (
                                 <motion.div
@@ -210,7 +210,7 @@ export default function MysteryBox() {
                                     ease: "easeOut"
                                 }}
                             >
-                                <Sparkles className="w-4 h-4" />
+                                <TbSparkles className="w-4 h-4" />
                             </motion.div>
                         ))}
                     </>
@@ -220,7 +220,7 @@ export default function MysteryBox() {
             {!canClaim && !isOpen && (
                 <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
                     <div className="bg-black/80 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10 flex items-center gap-2">
-                        <Timer className="w-4 h-4 text-purple-400" />
+                        <TbClock className="w-4 h-4 text-purple-400" />
                         <span className="text-sm font-mono text-white">{timeLeft}</span>
                     </div>
                 </div>

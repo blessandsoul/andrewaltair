@@ -1,6 +1,6 @@
 import * as React from "react"
 import Link from "next/link"
-import { Camera, Shield, LogOut, Move, Check, X, User } from "lucide-react"
+import { TbCamera, TbShield, TbLogout, TbArrowsMove, TbCheck, TbX, TbUser } from "react-icons/tb"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useAuth, ROLE_CONFIG } from "@/lib/auth"
@@ -157,7 +157,7 @@ export function ProfileHeader({ onAvatarChange, onCoverChange, onLogout }: Profi
 
     return (
         <>
-            {/* Cover Image */}
+            {/* Cover TbPhoto */}
             <div
                 ref={coverRef}
                 className={cn(
@@ -188,7 +188,7 @@ export function ProfileHeader({ onAvatarChange, onCoverChange, onLogout }: Profi
                                 size="sm"
                                 className="gap-2 bg-green-600 hover:bg-green-700"
                             >
-                                <Check className="w-4 h-4" />
+                                <TbCheck className="w-4 h-4" />
                                 შენახვა
                             </Button>
                             <Button
@@ -197,7 +197,7 @@ export function ProfileHeader({ onAvatarChange, onCoverChange, onLogout }: Profi
                                 size="sm"
                                 className="gap-2"
                             >
-                                <X className="w-4 h-4" />
+                                <TbX className="w-4 h-4" />
                                 გაუქმება
                             </Button>
                         </>
@@ -208,7 +208,7 @@ export function ProfileHeader({ onAvatarChange, onCoverChange, onLogout }: Profi
                                     onClick={startReposition}
                                     className="flex items-center gap-2 px-4 py-2 bg-black/50 hover:bg-black/70 text-white rounded-lg backdrop-blur-sm transition-colors text-sm font-medium"
                                 >
-                                    <Move className="w-4 h-4" />
+                                    <TbArrowsMove className="w-4 h-4" />
                                     პოზიცია
                                 </button>
                             )}
@@ -216,7 +216,7 @@ export function ProfileHeader({ onAvatarChange, onCoverChange, onLogout }: Profi
                                 onClick={handleCoverClick}
                                 className="flex items-center gap-2 px-4 py-2 bg-black/50 hover:bg-black/70 text-white rounded-lg backdrop-blur-sm transition-colors text-sm font-medium"
                             >
-                                <Camera className="w-4 h-4" />
+                                <TbCamera className="w-4 h-4" />
                                 ფონის შეცვლა
                             </button>
                         </>
@@ -246,7 +246,7 @@ export function ProfileHeader({ onAvatarChange, onCoverChange, onLogout }: Profi
                                         {avatarImage ? (
                                             <img src={avatarImage} alt={user.fullName} className="w-full h-full object-cover" />
                                         ) : (
-                                            <User className="w-16 h-16 text-muted-foreground" />
+                                            <TbUser className="w-16 h-16 text-muted-foreground" />
                                         )}
                                     </div>
                                 </div>
@@ -255,7 +255,7 @@ export function ProfileHeader({ onAvatarChange, onCoverChange, onLogout }: Profi
                                     className="absolute bottom-0 right-0 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
                                     aria-label="ავატარის ატვირთვა"
                                 >
-                                    <Camera className="w-5 h-5" />
+                                    <TbCamera className="w-5 h-5" />
                                 </button>
                                 <input
                                     ref={avatarInputRef}
@@ -299,13 +299,13 @@ export function ProfileHeader({ onAvatarChange, onCoverChange, onLogout }: Profi
                                 {(isGod || isAdmin) && (
                                     <Button asChild variant="outline" className="gap-2">
                                         <Link href="/admin">
-                                            <Shield className="w-4 h-4" />
+                                            <TbShield className="w-4 h-4" />
                                             ადმინ პანელი
                                         </Link>
                                     </Button>
                                 )}
                                 <Button variant="outline" className="gap-2" onClick={handleLogoutClick}>
-                                    <LogOut className="w-4 h-4" />
+                                    <TbLogout className="w-4 h-4" />
                                     გასვლა
                                 </Button>
                             </div>

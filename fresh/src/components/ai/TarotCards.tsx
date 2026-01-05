@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Sparkles, Shuffle, RefreshCw, Loader2, Eye, Lock } from "lucide-react"
+import { TbSparkles, TbArrowsShuffle, TbRefresh, TbLoader2, TbEye, TbLock } from "react-icons/tb"
 
 // Major Arcana Tarot Cards
 const TAROT_CARDS = [
@@ -55,7 +55,7 @@ export function TarotCards({ isPremium = false }: TarotCardsProps) {
         setResult(null)
         setRevealedIndices([])
 
-        // Shuffle and pick cards
+        // TbArrowsShuffle and pick cards
         setTimeout(() => {
             const shuffled = [...TAROT_CARDS].sort(() => Math.random() - 0.5)
             setSelectedCards(shuffled.slice(0, cardCount))
@@ -149,7 +149,7 @@ export function TarotCards({ isPremium = false }: TarotCardsProps) {
                                             : 'bg-white/5 text-gray-400 hover:bg-white/10'
                                         } ${!isPremium ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
-                                    {!isPremium && <Lock className="w-3 h-3" />}
+                                    {!isPremium && <TbLock className="w-3 h-3" />}
                                     კელტური ჯვარი (10)
                                 </button>
                             </div>
@@ -165,12 +165,12 @@ export function TarotCards({ isPremium = false }: TarotCardsProps) {
                             >
                                 {isShuffling ? (
                                     <span className="flex items-center gap-3">
-                                        <Shuffle className="w-5 h-5 animate-spin" />
+                                        <TbArrowsShuffle className="w-5 h-5 animate-spin" />
                                         იურევა...
                                     </span>
                                 ) : (
                                     <span className="flex items-center gap-3">
-                                        <Shuffle className="w-5 h-5" />
+                                        <TbArrowsShuffle className="w-5 h-5" />
                                         აურიე კარტები
                                     </span>
                                 )}
@@ -206,7 +206,7 @@ export function TarotCards({ isPremium = false }: TarotCardsProps) {
                                                 ) : (
                                                     <>
                                                         <div className="text-xl sm:text-3xl mb-1">🃏</div>
-                                                        <Eye className="w-3 h-3 sm:w-4 sm:h-4 text-indigo-400" />
+                                                        <TbEye className="w-3 h-3 sm:w-4 sm:h-4 text-indigo-400" />
                                                     </>
                                                 )}
                                             </div>
@@ -218,7 +218,7 @@ export function TarotCards({ isPremium = false }: TarotCardsProps) {
                             {/* Loading */}
                             {isRevealing && (
                                 <div className="text-center py-4">
-                                    <Loader2 className="w-8 h-8 text-indigo-400 animate-spin mx-auto" />
+                                    <TbLoader2 className="w-8 h-8 text-indigo-400 animate-spin mx-auto" />
                                     <p className="text-gray-400 mt-2 text-sm">AI კითხულობს კარტებს...</p>
                                 </div>
                             )}
@@ -229,7 +229,7 @@ export function TarotCards({ isPremium = false }: TarotCardsProps) {
                                     <div className="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-gradient-to-br from-indigo-500/10 to-violet-500/10 border border-indigo-500/20">
                                         <div className="flex items-start gap-3">
                                             <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
-                                                <Sparkles className="w-5 h-5 text-indigo-400" />
+                                                <TbSparkles className="w-5 h-5 text-indigo-400" />
                                             </div>
                                             <div>
                                                 <h3 className="text-base sm:text-lg font-semibold text-white mb-2">ინტერპრეტაცია</h3>
@@ -254,7 +254,7 @@ export function TarotCards({ isPremium = false }: TarotCardsProps) {
                                     variant="outline"
                                     className="w-full h-10 sm:h-12 rounded-xl border-white/10 text-white hover:bg-white/5 bg-transparent"
                                 >
-                                    <RefreshCw className="w-4 h-4 mr-2" />
+                                    <TbRefresh className="w-4 h-4 mr-2" />
                                     ახალი კითხვა
                                 </Button>
                             )}

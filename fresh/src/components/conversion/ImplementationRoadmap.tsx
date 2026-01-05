@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Map, Check, Circle, ChevronRight, Download } from 'lucide-react';
+import { TbMap, TbCheck, TbCircle, TbChevronRight, TbDownload } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 
 interface RoadmapPhase {
@@ -52,7 +52,7 @@ export default function ImplementationRoadmap() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-indigo-500/20 rounded-lg">
-                        <Map className="w-6 h-6 text-indigo-400" />
+                        <TbMap className="w-6 h-6 text-indigo-400" />
                     </div>
                     <div>
                         <h2 className="text-2xl font-bold text-white">AI როდმეპი</h2>
@@ -60,7 +60,7 @@ export default function ImplementationRoadmap() {
                     </div>
                 </div>
                 <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-medium flex items-center gap-2 transition-colors">
-                    <Download className="w-4 h-4" />
+                    <TbDownload className="w-4 h-4" />
                     PDF
                 </button>
             </div>
@@ -88,11 +88,11 @@ export default function ImplementationRoadmap() {
                                     : "bg-gray-800 border-gray-600"
                         )}>
                             {phase.status === 'completed' ? (
-                                <Check className="w-3 h-3 text-white" />
+                                <TbCheck className="w-3 h-3 text-white" />
                             ) : phase.status === 'current' ? (
-                                <Circle className="w-2 h-2 text-white fill-white" />
+                                <TbCircle className="w-2 h-2 text-white fill-white" />
                             ) : (
-                                <Circle className="w-2 h-2 text-gray-500" />
+                                <TbCircle className="w-2 h-2 text-gray-500" />
                             )}
                         </div>
 
@@ -118,7 +118,7 @@ export default function ImplementationRoadmap() {
                                     </div>
                                     <p className="text-gray-400 text-sm">{phase.duration}</p>
                                 </div>
-                                <ChevronRight className={cn(
+                                <TbChevronRight className={cn(
                                     "w-5 h-5 text-gray-500 transition-transform",
                                     expandedPhase === phase.id && "rotate-90"
                                 )} />

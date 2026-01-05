@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Trophy, Flame, Star, Medal, Crown, TrendingUp } from "lucide-react"
+import { TbTrophy, TbFlame, TbStar, TbMedal, TbCrown, TbTrendingUp } from "react-icons/tb"
 
 interface LeaderboardUser {
     rank: number
@@ -47,9 +47,9 @@ export function MysticLeaderboard() {
 
     const getRankIcon = (rank: number) => {
         switch (rank) {
-            case 1: return <Crown className="w-5 h-5 text-amber-400" />
-            case 2: return <Medal className="w-5 h-5 text-gray-300" />
-            case 3: return <Medal className="w-5 h-5 text-amber-600" />
+            case 1: return <TbCrown className="w-5 h-5 text-amber-400" />
+            case 2: return <TbMedal className="w-5 h-5 text-gray-300" />
+            case 3: return <TbMedal className="w-5 h-5 text-amber-600" />
             default: return <span className="text-gray-500 font-medium text-sm">#{rank}</span>
         }
     }
@@ -72,7 +72,7 @@ export function MysticLeaderboard() {
                 <div className="p-4 border-b border-white/10 bg-gradient-to-r from-amber-600/10 to-orange-600/10">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
-                            <Trophy className="w-5 h-5 text-amber-400" />
+                            <TbTrophy className="w-5 h-5 text-amber-400" />
                         </div>
                         <div>
                             <h3 className="font-semibold text-white">ლიდერბორდი</h3>
@@ -106,7 +106,7 @@ export function MysticLeaderboard() {
                 <div className="max-h-[400px] overflow-y-auto">
                     {isLoading ? (
                         <div className="p-8 text-center">
-                            <Trophy className="w-8 h-8 text-gray-600 animate-pulse mx-auto" />
+                            <TbTrophy className="w-8 h-8 text-gray-600 animate-pulse mx-auto" />
                             <p className="text-gray-500 mt-3 text-sm">იტვირთება...</p>
                         </div>
                     ) : (
@@ -140,12 +140,12 @@ export function MysticLeaderboard() {
                                         </div>
                                         <div className="flex items-center gap-3 text-xs text-gray-500">
                                             <span className="flex items-center gap-1">
-                                                <Star className="w-3 h-3" />
+                                                <TbStar className="w-3 h-3" />
                                                 {user.totalPredictions}
                                             </span>
                                             {user.currentStreak > 0 && (
                                                 <span className="flex items-center gap-1 text-orange-400">
-                                                    <Flame className="w-3 h-3" />
+                                                    <TbFlame className="w-3 h-3" />
                                                     {user.currentStreak}
                                                 </span>
                                             )}
@@ -153,7 +153,7 @@ export function MysticLeaderboard() {
                                     </div>
                                     <div className="text-right">
                                         <div className="flex items-center gap-1 text-xs text-gray-500">
-                                            <TrendingUp className="w-3 h-3" />
+                                            <TbTrendingUp className="w-3 h-3" />
                                             <span>მაქს. {user.longestStreak}</span>
                                         </div>
                                     </div>

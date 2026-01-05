@@ -2,15 +2,7 @@
 
 import * as React from "react"
 import { Button } from "@/components/ui/button"
-import {
-    Twitter,
-    Facebook,
-    Linkedin,
-    Link2,
-    Send,
-    Check,
-    Share2
-} from "lucide-react"
+import { TbBrandTwitter, TbBrandFacebook, TbBrandLinkedin, TbSend, TbCheck, TbShare, TbLink } from "react-icons/tb"
 import { cn } from "@/lib/utils"
 
 interface ShareButtonsProps {
@@ -37,25 +29,25 @@ export function ShareButtons({ url, title, description = "", className, variant 
     const shareLinks = [
         {
             name: "Twitter",
-            icon: Twitter,
+            icon: TbBrandTwitter,
             color: "hover:bg-sky-500 hover:text-white hover:border-sky-500",
             href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterText)}&url=${encodeURIComponent(url)}`,
         },
         {
             name: "Facebook",
-            icon: Facebook,
+            icon: TbBrandFacebook,
             color: "hover:bg-blue-600 hover:text-white hover:border-blue-600",
             href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(viralText)}`,
         },
         {
             name: "LinkedIn",
-            icon: Linkedin,
+            icon: TbBrandLinkedin,
             color: "hover:bg-blue-700 hover:text-white hover:border-blue-700",
             href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
         },
         {
             name: "Telegram",
-            icon: Send,
+            icon: TbSend,
             color: "hover:bg-sky-400 hover:text-white hover:border-sky-400",
             href: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(viralText + '\n\n🔗 წაიკითხე სრულად:')}`,
         },
@@ -107,7 +99,7 @@ export function ShareButtons({ url, title, description = "", className, variant 
                     )}
                     title="ლინკის კოპირება"
                 >
-                    {copied ? <Check className="w-4 h-4" /> : <Link2 className="w-4 h-4" />}
+                    {copied ? <TbCheck className="w-4 h-4" /> : <TbLink className="w-4 h-4" />}
                 </button>
             </div>
         )
@@ -116,7 +108,7 @@ export function ShareButtons({ url, title, description = "", className, variant 
     return (
         <div className={cn("space-y-3", className)}>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Share2 className="w-4 h-4" />
+                <TbShare className="w-4 h-4" />
                 <span>გაზიარება</span>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -148,12 +140,12 @@ export function ShareButtons({ url, title, description = "", className, variant 
                 >
                     {copied ? (
                         <>
-                            <Check className="w-4 h-4" />
+                            <TbCheck className="w-4 h-4" />
                             დაკოპირდა!
                         </>
                     ) : (
                         <>
-                            <Link2 className="w-4 h-4" />
+                            <TbLink className="w-4 h-4" />
                             ლინკის კოპირება
                         </>
                     )}

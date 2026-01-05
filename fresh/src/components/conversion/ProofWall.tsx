@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, TrendingUp, Star, Quote } from 'lucide-react';
+import { TbTrophy, TbTrendingUp, TbStar, TbQuote } from "react-icons/tb";
 
 interface Testimonial {
     _id: string;
@@ -50,7 +50,7 @@ export default function ProofWall() {
         <div className="space-y-6">
             <div className="flex items-center gap-3">
                 <div className="p-2 bg-green-500/20 rounded-lg">
-                    <Trophy className="w-6 h-6 text-green-400" />
+                    <TbTrophy className="w-6 h-6 text-green-400" />
                 </div>
                 <div>
                     <h2 className="text-2xl font-bold text-white">შედეგების კედელი</h2>
@@ -84,13 +84,13 @@ export default function ProofWall() {
                         </div>
 
                         <div className="relative">
-                            <Quote className="absolute -top-2 -left-1 w-6 h-6 text-purple-500/30" />
+                            <TbQuote className="absolute -top-2 -left-1 w-6 h-6 text-purple-500/30" />
                             <p className="text-gray-300 text-sm italic pl-6">{result.testimonial}</p>
                         </div>
 
                         <div className="flex items-center gap-1 mt-4">
                             {[1, 2, 3, 4, 5].map(s => (
-                                <Star key={s} className={`w-4 h-4 ${s <= result.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-600'}`} />
+                                <TbStar key={s} className={`w-4 h-4 ${s <= result.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-600'}`} />
                             ))}
                         </div>
                     </motion.div>
@@ -99,7 +99,7 @@ export default function ProofWall() {
 
             <div className="p-4 rounded-xl bg-gradient-to-r from-green-900/30 to-emerald-900/30 border border-green-500/30 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <TrendingUp className="w-6 h-6 text-green-400" />
+                    <TbTrendingUp className="w-6 h-6 text-green-400" />
                     <span className="text-white">შენც გინდა ასეთი შედეგები?</span>
                 </div>
                 <button className="px-6 py-2 bg-green-600 hover:bg-green-500 text-white rounded-xl font-medium transition-colors">

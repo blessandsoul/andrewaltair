@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Zap, Trophy, Clock, Users } from 'lucide-react';
+import { TbBolt, TbTrophy, TbClock, TbUsers } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 
@@ -59,13 +59,13 @@ function ChallengeCard({ challenge, onJoin, joined, userId }: {
                     <p className="text-gray-400 text-sm">{challenge.description}</p>
                 </div>
                 <div className="flex items-center gap-1 text-yellow-400 font-bold">
-                    <Zap className="w-4 h-4" />+{challenge.xpReward}
+                    <TbBolt className="w-4 h-4" />+{challenge.xpReward}
                 </div>
             </div>
             <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-4 text-gray-400">
-                    <span className="flex items-center gap-1"><Clock className="w-4 h-4" />{timeLeft}</span>
-                    <span className="flex items-center gap-1"><Users className="w-4 h-4" />{challenge.participants.length}</span>
+                    <span className="flex items-center gap-1"><TbClock className="w-4 h-4" />{timeLeft}</span>
+                    <span className="flex items-center gap-1"><TbUsers className="w-4 h-4" />{challenge.participants.length}</span>
                 </div>
                 <button onClick={onJoin} disabled={joined} className={cn("px-4 py-1.5 rounded-lg font-medium text-sm transition-all", joined ? "bg-green-600 text-white cursor-default" : `bg-gradient-to-r ${config.color} text-white hover:opacity-90`)}>
                     {joined ? '✓ მონაწილე' : 'შეუერთდი'}
@@ -115,7 +115,7 @@ export default function LiveChallenges() {
     if (!user) {
         return (
             <div className="text-center p-8 border border-white/10 rounded-2xl bg-white/5">
-                <Trophy className="w-12 h-12 mx-auto mb-4 text-yellow-400" />
+                <TbTrophy className="w-12 h-12 mx-auto mb-4 text-yellow-400" />
                 <h3 className="text-xl font-bold mb-2">🏆 ლაივ ჩელენჯები</h3>
                 <p className="text-gray-400">გაიარე ავტორიზაცია მონაწილეობისთვის</p>
             </div>
@@ -127,7 +127,7 @@ export default function LiveChallenges() {
     return (
         <div className="space-y-6">
             <div className="flex items-center gap-3">
-                <div className="p-2 bg-yellow-500/20 rounded-lg"><Trophy className="w-6 h-6 text-yellow-400" /></div>
+                <div className="p-2 bg-yellow-500/20 rounded-lg"><TbTrophy className="w-6 h-6 text-yellow-400" /></div>
                 <div>
                     <h2 className="text-2xl font-bold text-white">ლაივ ჩელენჯები</h2>
                     <p className="text-gray-400 text-sm">შეჯიბრე და მოაგროვე XP</p>

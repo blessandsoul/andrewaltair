@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, Send, X, MessageCircle, Sparkles, Minimize2, Maximize2 } from 'lucide-react';
+import { TbRobot, TbSend, TbX, TbMessage, TbSparkles, TbMinimize, TbMaximize } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 
 interface Message {
@@ -110,7 +110,7 @@ export default function AICompanionMascot() {
                         onClick={() => setIsOpen(true)}
                         className="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white shadow-2xl flex items-center justify-center z-50"
                     >
-                        <Bot className="w-8 h-8" />
+                        <TbRobot className="w-8 h-8" />
                         <motion.div
                             className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"
                             animate={{ scale: [1, 1.2, 1] }}
@@ -138,7 +138,7 @@ export default function AICompanionMascot() {
                         <div className="p-4 bg-gradient-to-r from-purple-600/20 to-pink-600/20 border-b border-white/10 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                                    <Bot className="w-5 h-5 text-white" />
+                                    <TbRobot className="w-5 h-5 text-white" />
                                 </div>
                                 <div>
                                     <h3 className="font-semibold text-white">AI ასისტენტი</h3>
@@ -153,13 +153,13 @@ export default function AICompanionMascot() {
                                     onClick={() => setIsMinimized(!isMinimized)}
                                     className="p-1.5 text-gray-400 hover:text-white transition-colors"
                                 >
-                                    {isMinimized ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
+                                    {isMinimized ? <TbMaximize className="w-4 h-4" /> : <TbMinimize className="w-4 h-4" />}
                                 </button>
                                 <button
                                     onClick={() => setIsOpen(false)}
                                     className="p-1.5 text-gray-400 hover:text-white transition-colors"
                                 >
-                                    <X className="w-4 h-4" />
+                                    <TbX className="w-4 h-4" />
                                 </button>
                             </div>
                         </div>
@@ -236,7 +236,7 @@ export default function AICompanionMascot() {
                                                     : "bg-gray-700 text-gray-500 cursor-not-allowed"
                                             )}
                                         >
-                                            <Send className="w-5 h-5" />
+                                            <TbSend className="w-5 h-5" />
                                         </button>
                                     </div>
                                 </div>

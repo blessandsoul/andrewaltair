@@ -1,21 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
+import TbPhoto from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {
-    Eye,
-    Flame,
-    Heart,
-    MessageCircle,
-    Share2,
-    Clock,
-    Bookmark,
-    Sparkles,
-    Star,
-    ArrowRight
-} from "lucide-react"
+import { TbEye, TbFlame, TbHeart, TbMessage, TbShare, TbClock, TbBookmark, TbSparkles, TbStar, TbArrowRight } from "react-icons/tb"
 import { brand } from "@/lib/brand"
 import { useState } from "react"
 
@@ -100,14 +89,14 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
                 onMouseLeave={() => setIsHovered(false)}
             >
                 <CardContent className="p-0">
-                    {/* Image Container - Larger aspect ratio for featured */}
+                    {/* TbPhoto Container - Larger aspect ratio for featured */}
                     <div className="aspect-[2/1] relative overflow-hidden">
                         {/* Background */}
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20" />
 
-                        {/* Image */}
+                        {/* TbPhoto */}
                         {post.coverImage ? (
-                            <Image
+                            <TbPhoto
                                 src={post.coverImage}
                                 alt={post.title}
                                 fill
@@ -115,7 +104,7 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
                             />
                         ) : (
                             <div className="absolute inset-0 flex items-center justify-center">
-                                <Sparkles className="w-16 h-16 text-primary/30" />
+                                <TbSparkles className="w-16 h-16 text-primary/30" />
                             </div>
                         )}
 
@@ -125,12 +114,12 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
                         {/* Featured Badge */}
                         <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
                             <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 px-3 py-1">
-                                <Star className="w-3 h-3 mr-1 fill-current" />
+                                <TbStar className="w-3 h-3 mr-1 fill-current" />
                                 რჩეული
                             </Badge>
                             {post.trending && (
                                 <Badge className="bg-red-500/90 text-white border-0 backdrop-blur-sm">
-                                    <Flame className="w-3 h-3 mr-1" />
+                                    <TbFlame className="w-3 h-3 mr-1" />
                                     ტრენდში
                                 </Badge>
                             )}
@@ -155,7 +144,7 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
                                     : "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
                                 } ${isHovered || isBookmarked ? "opacity-100" : "opacity-0"}`}
                         >
-                            <Bookmark className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`} />
+                            <TbBookmark className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`} />
                         </button>
 
                         {/* Content overlay on image */}
@@ -177,7 +166,7 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
                                 <span>{formatRelativeDate(post.publishedAt)}</span>
                                 <span>•</span>
                                 <span className="flex items-center gap-1">
-                                    <Clock className="w-4 h-4" />
+                                    <TbClock className="w-4 h-4" />
                                     {post.readingTime} წთ
                                 </span>
                             </div>
@@ -188,19 +177,19 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
                     <div className="px-6 py-4 flex items-center justify-between border-t border-border/50">
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <span className="flex items-center gap-1 hover:text-foreground transition-colors">
-                                <Eye className="w-4 h-4" />
+                                <TbEye className="w-4 h-4" />
                                 {formatNumber(post.views)}
                             </span>
                             <span className="flex items-center gap-1 hover:text-foreground transition-colors">
-                                <MessageCircle className="w-4 h-4" />
+                                <TbMessage className="w-4 h-4" />
                                 {formatNumber(post.comments)}
                             </span>
                             <span className="flex items-center gap-1 text-red-500">
-                                <Heart className="w-4 h-4" />
+                                <TbHeart className="w-4 h-4" />
                                 {formatNumber(getTotalReactions(post.reactions))}
                             </span>
                             <span className="flex items-center gap-1 hover:text-foreground transition-colors">
-                                <Share2 className="w-4 h-4" />
+                                <TbShare className="w-4 h-4" />
                                 {formatNumber(post.shares)}
                             </span>
                         </div>
@@ -208,7 +197,7 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
                         {/* Read more */}
                         <div className={`flex items-center gap-1 text-primary text-sm font-medium transition-all duration-300 ${isHovered ? 'translate-x-1' : ''}`}>
                             <span>წაიკითხე</span>
-                            <ArrowRight className="w-4 h-4" />
+                            <TbArrowRight className="w-4 h-4" />
                         </div>
                     </div>
                 </CardContent>

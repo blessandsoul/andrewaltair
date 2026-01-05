@@ -4,8 +4,51 @@ import Post from "@/models/Post"
 import Video from "@/models/Video"
 import Tool from "@/models/Tool"
 
+export const dynamic = 'force-dynamic'
+
+// 🛡️ Rate Limiting - Prevent scraping
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const MAX_REQUESTS = 30; // Max search requests per minute
+const WINDOW_MS = 60 * 1000;
+
+function checkRateLimit(ip: string): { allowed: boolean } {
+    const now = Date.now();
+    const record = rateLimitMap.get(ip);
+
+    // Clean old entries
+    if (rateLimitMap.size > 10000) {
+        for (const [key, value] of rateLimitMap.entries()) {
+            if (now > value.resetTime) rateLimitMap.delete(key);
+        }
+    }
+
+    if (!record || now > record.resetTime) {
+        rateLimitMap.set(ip, { count: 1, resetTime: now + WINDOW_MS });
+        return { allowed: true };
+    }
+
+    if (record.count >= MAX_REQUESTS) {
+        return { allowed: false };
+    }
+
+    record.count++;
+    return { allowed: true };
+}
+
 // GET - Global search across posts, videos, and tools
 export async function GET(request: NextRequest) {
+    // 🛡️ Rate limit check
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] ||
+        request.headers.get('x-real-ip') ||
+        'unknown';
+
+    if (!checkRateLimit(ip).allowed) {
+        return NextResponse.json(
+            { error: "Too many requests. Please slow down.", results: [], total: 0 },
+            { status: 429 }
+        );
+    }
+
     try {
         await dbConnect()
 
@@ -43,11 +86,12 @@ export async function GET(request: NextRequest) {
                     { title: regex },
                     { excerpt: regex },
                     { content: regex },
-                    { tags: regex }
+                    { tags: regex },
+                    { numericId: { $regex: query, $options: 'i' } } // Contains match for ID
                 ]
             })
                 .limit(limit)
-                .select("title slug excerpt coverImage category")
+                .select("title slug excerpt coverImage category numericId")
                 .lean()
 
             posts.forEach(post => {

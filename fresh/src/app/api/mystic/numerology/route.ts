@@ -2,10 +2,13 @@ import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
 import { AI_CONFIG, NUMEROLOGY_RULES, parseAIResponse } from "@/lib/mystic-rules"
 
-const client = new OpenAI({
-    apiKey: process.env.GROQ_API_KEY,
-    baseURL: AI_CONFIG.baseURL,
-})
+// Lazy initialization to avoid build-time errors
+function getClient() {
+    return new OpenAI({
+        apiKey: process.env.GROQ_API_KEY,
+        baseURL: AI_CONFIG.baseURL,
+    })
+}
 
 // Функция для получения значения числа из централизованных правил
 function getNumberMeaning(num: number): string {
@@ -15,6 +18,7 @@ function getNumberMeaning(num: number): string {
 
 export async function POST(request: NextRequest) {
     try {
+        const client = getClient()
         const { fullName, birthDate, lifePath, destiny, soul, personality } = await request.json()
 
         if (!fullName || !birthDate) {

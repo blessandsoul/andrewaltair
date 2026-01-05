@@ -1,6 +1,6 @@
 "use client"
 
-import { User, Award, Star, Heart, Sparkles, Youtube, Instagram, Mail } from "lucide-react"
+import { TbUser, TbAward, TbStar, TbHeart, TbSparkles, TbBrandYoutube, TbBrandInstagram, TbMail } from "react-icons/tb"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
@@ -23,13 +23,13 @@ export function AboutMystic() {
                         {/* Avatar */}
                         <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 p-1 shadow-xl">
                             <div className="w-full h-full rounded-2xl bg-[#12121a] flex items-center justify-center overflow-hidden">
-                                <User className="w-10 h-10 sm:w-12 sm:h-12 text-violet-400" />
+                                <TbUser className="w-10 h-10 sm:w-12 sm:h-12 text-violet-400" />
                             </div>
                         </div>
 
                         {/* Verified badge */}
                         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-500/20 border border-violet-500/30 mb-2">
-                            <Award className="w-3.5 h-3.5 text-violet-400" />
+                            <TbAward className="w-3.5 h-3.5 text-violet-400" />
                             <span className="text-xs font-medium text-violet-300">ვერიფიცირებული მისტიკოსი</span>
                         </div>
                     </div>
@@ -53,21 +53,21 @@ export function AboutMystic() {
                     <div className="grid grid-cols-3 gap-3 mb-6">
                         <div className="p-3 rounded-xl bg-white/5 border border-white/5 text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
-                                <Sparkles className="w-4 h-4 text-purple-400" />
+                                <TbSparkles className="w-4 h-4 text-purple-400" />
                             </div>
                             <div className="text-lg sm:text-xl font-bold text-white">50K+</div>
                             <div className="text-[10px] sm:text-xs text-gray-500">წინასწარმეტყველება</div>
                         </div>
                         <div className="p-3 rounded-xl bg-white/5 border border-white/5 text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
-                                <Heart className="w-4 h-4 text-pink-400" />
+                                <TbHeart className="w-4 h-4 text-pink-400" />
                             </div>
                             <div className="text-lg sm:text-xl font-bold text-white">10K+</div>
                             <div className="text-[10px] sm:text-xs text-gray-500">მომხმარებელი</div>
                         </div>
                         <div className="p-3 rounded-xl bg-white/5 border border-white/5 text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
-                                <Star className="w-4 h-4 text-amber-400" />
+                                <TbStar className="w-4 h-4 text-amber-400" />
                             </div>
                             <div className="text-lg sm:text-xl font-bold text-white">4.9</div>
                             <div className="text-[10px] sm:text-xs text-gray-500">რეიტინგი</div>
@@ -89,21 +89,21 @@ export function AboutMystic() {
 
                     {/* Social links */}
                     <div className="flex gap-2 pb-6">
-                        <Link href="https://youtube.com/@andrewaltair" target="_blank">
+                        <Link href="https://www.youtube.com/@AndrewAltair" target="_blank">
                             <Button variant="outline" size="sm" className="h-9 rounded-xl border-red-500/30 text-red-400 hover:bg-red-500/10 bg-transparent">
-                                <Youtube className="w-4 h-4 mr-1.5" />
+                                <TbBrandYoutube className="w-4 h-4 mr-1.5" />
                                 YouTube
                             </Button>
                         </Link>
-                        <Link href="https://instagram.com/andrewaltair" target="_blank">
+                        <Link href="https://www.instagram.com/andr3waltair/" target="_blank">
                             <Button variant="outline" size="sm" className="h-9 rounded-xl border-pink-500/30 text-pink-400 hover:bg-pink-500/10 bg-transparent">
-                                <Instagram className="w-4 h-4 mr-1.5" />
+                                <TbBrandInstagram className="w-4 h-4 mr-1.5" />
                                 Instagram
                             </Button>
                         </Link>
                         <Link href="/contact">
                             <Button variant="outline" size="sm" className="h-9 rounded-xl border-white/10 text-gray-400 hover:bg-white/5 bg-transparent">
-                                <Mail className="w-4 h-4 mr-1.5" />
+                                <TbMail className="w-4 h-4 mr-1.5" />
                                 კონტაქტი
                             </Button>
                         </Link>

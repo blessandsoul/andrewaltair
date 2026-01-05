@@ -2,13 +2,17 @@ import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
 import { AI_CONFIG, TAROT_RULES, parseAIResponse } from "@/lib/mystic-rules"
 
-const client = new OpenAI({
-    apiKey: process.env.GROQ_API_KEY,
-    baseURL: AI_CONFIG.baseURL,
-})
+// Lazy initialization to avoid build-time errors
+function getClient() {
+    return new OpenAI({
+        apiKey: process.env.GROQ_API_KEY,
+        baseURL: AI_CONFIG.baseURL,
+    })
+}
 
 export async function POST(request: NextRequest) {
     try {
+        const client = getClient()
         const { cards, spreadType = 'three' } = await request.json()
 
         if (!cards || !Array.isArray(cards) || cards.length === 0) {

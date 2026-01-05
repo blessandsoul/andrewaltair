@@ -37,7 +37,7 @@ export function CrystalBall3D() {
                               bg-gradient-to-br from-white/40 to-transparent 
                               rounded-full blur-sm rotate-[-30deg]" />
 
-                {/* Sparkles */}
+                {/* TbSparkles */}
                 <div className="absolute top-1/3 left-1/3 w-1.5 h-1.5 bg-white rounded-full animate-ping" style={{ animationDuration: '1.5s' }} />
                 <div className="absolute top-1/2 right-1/3 w-1 h-1 bg-purple-200 rounded-full animate-ping" style={{ animationDuration: '2s', animationDelay: '0.5s' }} />
                 <div className="absolute bottom-1/3 left-1/2 w-1 h-1 bg-pink-200 rounded-full animate-ping" style={{ animationDuration: '1.8s', animationDelay: '1s' }} />
@@ -111,7 +111,7 @@ export function TarotCard3D() {
     )
 }
 
-// 3D Beating Heart for Love Calculator
+// 3D Beating Heart for Love TbCalculator
 export function BeatingHeart3D() {
     return (
         <div className="relative w-48 h-48 sm:w-56 sm:h-56 mx-auto perspective-1000">

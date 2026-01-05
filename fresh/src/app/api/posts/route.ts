@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import dbConnect from '@/lib/db';
 import Post from '@/models/Post';
+import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 
 // GET - List all posts with filtering and pagination
 export async function GET(request: Request) {
@@ -14,6 +16,7 @@ export async function GET(request: Request) {
         const category = searchParams.get('category');
         const search = searchParams.get('search');
         const featured = searchParams.get('featured');
+        const afterSlug = searchParams.get('afterSlug');
         const trending = searchParams.get('trending');
 
         // Build query
@@ -40,13 +43,26 @@ export async function GET(request: Request) {
             query.$text = { $search: search };
         }
 
-        // Get total count
+        // Handle keyset pagination via afterSlug
+        if (afterSlug) {
+            const lastPost = await Post.findOne({ slug: afterSlug });
+            if (lastPost) {
+                query.$or = [
+                    { order: { $gt: lastPost.order || 0 } },
+                    {
+                        order: lastPost.order || 0,
+                        createdAt: { $lt: lastPost.createdAt }
+                    }
+                ];
+            }
+        }
+
+        // Get total count (approximation if afterSlug is used, but query filters it)
         const total = await Post.countDocuments(query);
 
         // Get posts
         const posts = await Post.find(query)
             .sort({ order: 1, createdAt: -1 })
-            .skip((page - 1) * limit)
             .limit(limit)
             .lean();
 
@@ -60,7 +76,7 @@ export async function GET(request: Request) {
         return NextResponse.json({
             posts: transformedPosts,
             pagination: {
-                page,
+                page: 1, // Page isn't meaningful with cursor pagination
                 limit,
                 total,
                 totalPages: Math.ceil(total / limit),
@@ -75,8 +91,13 @@ export async function GET(request: Request) {
     }
 }
 
-// POST - Create a new post
+// POST - Create a new post (PROTECTED - Admin only)
 export async function POST(request: Request) {
+    // 🛡️ SECURITY: Verify admin authentication
+    if (!verifyAdmin(request)) {
+        return unauthorizedResponse('ადმინისტრატორის წვდომა საჭიროა');
+    }
+
     try {
         await dbConnect();
 
@@ -90,8 +111,55 @@ export async function POST(request: Request) {
                 .replace(/(^-|-$)/g, '');
         }
 
-        const post = new Post(data);
+        // Check for duplicate slug and make unique if needed
+        let baseSlug = data.slug;
+        let uniqueSlug = baseSlug;
+        let counter = 1;
+
+        while (await Post.findOne({ slug: uniqueSlug })) {
+            uniqueSlug = `${baseSlug}-${Date.now()}-${counter}`;
+            counter++;
+            if (counter > 5) break; // Safety limit
+        }
+        data.slug = uniqueSlug;
+
+        // Generate numericId
+        // Try to generate a unique 6-digit ID
+        let numericId: string | undefined;
+        let attempts = 0;
+        while (!numericId && attempts < 5) {
+            const potentialId = Math.floor(100000 + Math.random() * 900000).toString();
+            // Check if exists
+            const existing = await Post.findOne({ numericId: potentialId });
+            if (!existing) {
+                numericId = potentialId;
+            }
+            attempts++;
+        }
+
+        // If explicitly provided in data (e.g. migration or manual override), use that
+        if (data.numericId) {
+            numericId = data.numericId;
+        }
+
+        // Ensure required defaults
+        const postData = {
+            ...data,
+            numericId: numericId, // Add the generated ID
+            excerpt: data.excerpt || data.title || 'პოსტი',
+            category: data.category || 'ai-tips',
+            author: data.author || { name: 'Andrew Altair', avatar: '/avatar.jpg', role: 'AI ინოვატორი' },
+            status: data.status || 'published',
+            readingTime: data.readingTime || 5,
+        };
+
+        const post = new Post(postData);
         await post.save();
+
+        // 🔄 Revalidate caches so the new post appears immediately
+        revalidatePath('/blog');
+        revalidatePath('/');
+        revalidatePath('/sitemap.xml');
 
         return NextResponse.json({
             success: true,
@@ -102,9 +170,11 @@ export async function POST(request: Request) {
         });
     } catch (error) {
         console.error('Create post error:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         return NextResponse.json(
-            { error: 'Failed to create post' },
+            { error: 'Failed to create post', details: errorMessage },
             { status: 500 }
         );
     }
 }
+

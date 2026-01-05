@@ -5,29 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import {
-    FileText,
-    Eye,
-    Save,
-    Clock,
-    Send,
-    Calendar,
-    Bold,
-    Italic,
-    Link as LinkIcon,
-    List,
-    ListOrdered,
-    Image,
-    Code,
-    Quote,
-    Heading1,
-    Heading2,
-    Undo,
-    Redo,
-    Sparkles,
-    CheckCircle,
-    AlertCircle
-} from "lucide-react"
+import { TbFileText, TbEye, TbDeviceFloppy, TbClock, TbSend, TbCalendar, TbBold, TbItalic, TbLink, TbList, TbListNumbers, TbPhoto, TbCode, TbQuote, TbH1, TbH2, TbArrowBackUp, TbArrowForwardUp, TbSparkles, TbCircleCheck, TbAlertCircle } from "react-icons/tb"
 
 // Simple Markdown to HTML converter
 function markdownToHtml(markdown: string): string {
@@ -42,7 +20,7 @@ function markdownToHtml(markdown: string): string {
         .replace(/\*(.*?)\*/gim, '<em>$1</em>')
         // Links
         .replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2" class="text-indigo-500 hover:underline">$1</a>')
-        // Code blocks
+        // TbCode blocks
         .replace(/```([\s\S]*?)```/gim, '<pre class="bg-muted p-3 rounded-lg my-3 overflow-x-auto"><code>$1</code></pre>')
         // Inline code
         .replace(/`(.*?)`/gim, '<code class="bg-muted px-1 py-0.5 rounded text-sm">$1</code>')
@@ -232,16 +210,16 @@ export default function ContentEditorPage() {
     }
 
     const toolbarButtons = [
-        { icon: Bold, action: () => insertMarkdown("**", "**"), title: "Bold" },
-        { icon: Italic, action: () => insertMarkdown("*", "*"), title: "Italic" },
-        { icon: Heading1, action: () => insertMarkdown("# "), title: "H1" },
-        { icon: Heading2, action: () => insertMarkdown("## "), title: "H2" },
-        { icon: LinkIcon, action: () => insertMarkdown("[", "](url)"), title: "Link" },
-        { icon: List, action: () => insertMarkdown("- "), title: "List" },
-        { icon: ListOrdered, action: () => insertMarkdown("1. "), title: "Numbered List" },
-        { icon: Quote, action: () => insertMarkdown("> "), title: "Quote" },
-        { icon: Code, action: () => insertMarkdown("`", "`"), title: "Code" },
-        { icon: Image, action: () => insertMarkdown("![alt](", ")"), title: "Image" },
+        { icon: TbBold, action: () => insertMarkdown("**", "**"), title: "Bold" },
+        { icon: TbItalic, action: () => insertMarkdown("*", "*"), title: "Italic" },
+        { icon: TbH1, action: () => insertMarkdown("# "), title: "H1" },
+        { icon: TbH2, action: () => insertMarkdown("## "), title: "H2" },
+        { icon: TbLink, action: () => insertMarkdown("[", "](url)"), title: "Link" },
+        { icon: TbList, action: () => insertMarkdown("- "), title: "List" },
+        { icon: TbListNumbers, action: () => insertMarkdown("1. "), title: "Numbered List" },
+        { icon: TbQuote, action: () => insertMarkdown("> "), title: "TbQuote" },
+        { icon: TbCode, action: () => insertMarkdown("`", "`"), title: "TbCode" },
+        { icon: TbPhoto, action: () => insertMarkdown("![alt](", ")"), title: "Image" },
     ]
 
     return (
@@ -250,13 +228,13 @@ export default function ContentEditorPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold flex items-center gap-3">
-                        <Sparkles className="w-8 h-8 text-indigo-500" />
+                        <TbSparkles className="w-8 h-8 text-indigo-500" />
                         კონტენტ ედიტორი
                     </h1>
                     <p className="text-muted-foreground mt-1 flex items-center gap-2">
                         {autoSaveStatus === "saved" && (
                             <>
-                                <CheckCircle className="w-4 h-4 text-green-500" />
+                                <TbCircleCheck className="w-4 h-4 text-green-500" />
                                 შენახულია
                             </>
                         )}
@@ -268,7 +246,7 @@ export default function ContentEditorPage() {
                         )}
                         {autoSaveStatus === "unsaved" && (
                             <>
-                                <AlertCircle className="w-4 h-4 text-yellow-500" />
+                                <TbAlertCircle className="w-4 h-4 text-yellow-500" />
                                 შეუნახავი ცვლილებები
                             </>
                         )}
@@ -277,7 +255,7 @@ export default function ContentEditorPage() {
 
                 <div className="flex gap-2">
                     <Button variant="outline" onClick={saveDraft} className="gap-2">
-                        <Save className="w-4 h-4" />
+                        <TbDeviceFloppy className="w-4 h-4" />
                         შენახვა
                     </Button>
                     <Button
@@ -285,11 +263,11 @@ export default function ContentEditorPage() {
                         onClick={() => setShowScheduler(!showScheduler)}
                         className="gap-2"
                     >
-                        <Clock className="w-4 h-4" />
+                        <TbClock className="w-4 h-4" />
                         დაგეგმვა
                     </Button>
                     <Button className="gap-2 bg-gradient-to-r from-indigo-500 to-purple-600">
-                        <Send className="w-4 h-4" />
+                        <TbSend className="w-4 h-4" />
                         გამოქვეყნება
                     </Button>
                 </div>
@@ -300,7 +278,7 @@ export default function ContentEditorPage() {
                 <Card className="border-indigo-500/20 bg-indigo-500/5">
                     <CardContent className="p-4">
                         <div className="flex items-center gap-4 flex-wrap">
-                            <Calendar className="w-5 h-5 text-indigo-500" />
+                            <TbCalendar className="w-5 h-5 text-indigo-500" />
                             <span className="font-medium">დაგეგმეთ გამოქვეყნება:</span>
                             <Input
                                 type="datetime-local"
@@ -321,7 +299,7 @@ export default function ContentEditorPage() {
                 <Card className="lg:col-span-1">
                     <CardHeader>
                         <CardTitle className="text-sm flex items-center gap-2">
-                            <FileText className="w-4 h-4" />
+                            <TbFileText className="w-4 h-4" />
                             დრაფტები ({drafts.length})
                         </CardTitle>
                     </CardHeader>
@@ -335,7 +313,7 @@ export default function ContentEditorPage() {
                                 setCurrentDraftId(null)
                             }}
                         >
-                            <Sparkles className="w-4 h-4" />
+                            <TbSparkles className="w-4 h-4" />
                             ახალი პოსტი
                         </Button>
 
@@ -410,7 +388,7 @@ export default function ContentEditorPage() {
                                 onClick={() => setShowPreview(!showPreview)}
                                 className="gap-2"
                             >
-                                <Eye className="w-4 h-4" />
+                                <TbEye className="w-4 h-4" />
                                 Preview
                             </Button>
                         </div>

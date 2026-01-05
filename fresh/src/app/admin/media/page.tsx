@@ -15,37 +15,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import {
-    Image,
-    Upload,
-    Trash2,
-    Copy,
-    Check,
-    Grid,
-    List,
-    Search,
-    X,
-    Download,
-    Folder,
-    ImagePlus,
-    FolderPlus,
-    Edit3,
-    Eye,
-    ArrowUpDown,
-    ChevronUp,
-    ChevronDown,
-    Video,
-    FileImage,
-    Info,
-    Link2,
-    RotateCw,
-    Crop,
-    ZoomIn,
-    ChevronLeft,
-    ChevronRight,
-    ExternalLink,
-    FolderOpen
-} from "lucide-react"
+import { TbPhoto, TbUpload, TbTrash, TbCopy, TbCheck, TbLayoutGrid, TbList, TbSearch, TbX, TbDownload, TbFolder, TbPhotoPlus, TbFolderPlus, TbEdit, TbEye, TbArrowsUpDown, TbChevronUp, TbChevronDown, TbVideo, TbInfoCircle, TbRefresh, TbCrop, TbZoomIn, TbChevronLeft, TbChevronRight, TbExternalLink, TbFolderOpen, TbLink } from "react-icons/tb"
+import Link from "next/link"
 
 interface MediaItem {
     id: string
@@ -239,7 +210,7 @@ export default function MediaPage() {
     const [isDragging, setIsDragging] = React.useState(false)
     const fileInputRef = React.useRef<HTMLInputElement>(null)
 
-    // Folder state
+    // TbFolder state
     const [currentFolder, setCurrentFolder] = React.useState("all")
     const [showNewFolder, setShowNewFolder] = React.useState(false)
     const [newFolderName, setNewFolderName] = React.useState("")
@@ -525,7 +496,7 @@ export default function MediaPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold flex items-center gap-3">
-                        <Image className="w-8 h-8 text-indigo-500" />
+                        <TbPhoto className="w-8 h-8 text-indigo-500" />
                         მედია ბიბლიოთეკა
                     </h1>
                     <p className="text-muted-foreground mt-1">
@@ -539,14 +510,14 @@ export default function MediaPage() {
                         onClick={() => setShowNewFolder(true)}
                         className="gap-2"
                     >
-                        <FolderPlus className="w-4 h-4" />
+                        <TbFolderPlus className="w-4 h-4" />
                         ფოლდერი
                     </Button>
                     <Button
                         onClick={() => fileInputRef.current?.click()}
                         className="gap-2"
                     >
-                        <Upload className="w-4 h-4" />
+                        <TbUpload className="w-4 h-4" />
                         ატვირთვა
                     </Button>
                     <input
@@ -565,7 +536,7 @@ export default function MediaPage() {
                 <Card className="border-primary/50">
                     <CardContent className="p-4 space-y-3">
                         <p className="font-medium flex items-center gap-2">
-                            <Upload className="w-4 h-4 animate-pulse" />
+                            <TbUpload className="w-4 h-4 animate-pulse" />
                             იტვირთება...
                         </p>
                         {uploadProgress.map((upload, i) => (
@@ -616,10 +587,10 @@ export default function MediaPage() {
                                 autoFocus
                             />
                             <Button size="icon" className="h-8 w-8" onClick={addFolder}>
-                                <Check className="w-3 h-3" />
+                                <TbCheck className="w-3 h-3" />
                             </Button>
                             <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setShowNewFolder(false)}>
-                                <X className="w-3 h-3" />
+                                <TbX className="w-3 h-3" />
                             </Button>
                         </div>
                     )}
@@ -629,9 +600,9 @@ export default function MediaPage() {
                 <div className="flex-1 space-y-4">
                     {/* Toolbar */}
                     <div className="flex items-center gap-4 flex-wrap">
-                        {/* Search */}
+                        {/* TbSearch */}
                         <div className="relative flex-1 max-w-sm">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <TbSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input
                                 placeholder="ძიება..."
                                 value={searchQuery}
@@ -643,9 +614,9 @@ export default function MediaPage() {
                         {/* Type Filter */}
                         <div className="flex rounded-lg border overflow-hidden">
                             {([
-                                { value: "all", label: "ყველა", icon: Grid },
-                                { value: "image", label: "სურათები", icon: FileImage },
-                                { value: "video", label: "ვიდეო", icon: Video }
+                                { value: "all", label: "ყველა", icon: TbLayoutGrid },
+                                { value: "image", label: "სურათები", icon: TbPhoto },
+                                { value: "video", label: "ვიდეო", icon: TbVideo }
                             ] as const).map((item) => (
                                 <button
                                     key={item.value}
@@ -665,7 +636,7 @@ export default function MediaPage() {
                         <div className="flex items-center gap-1">
                             <Select value={sortBy} onValueChange={(v: "name" | "size" | "date") => setSortBy(v)}>
                                 <SelectTrigger className="w-[120px] h-9">
-                                    <ArrowUpDown className="w-3 h-3 mr-1" />
+                                    <TbArrowsUpDown className="w-3 h-3 mr-1" />
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -680,7 +651,7 @@ export default function MediaPage() {
                                 className="h-9 w-9"
                                 onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
                             >
-                                {sortOrder === "asc" ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                {sortOrder === "asc" ? <TbChevronUp className="w-4 h-4" /> : <TbChevronDown className="w-4 h-4" />}
                             </Button>
                         </div>
 
@@ -692,7 +663,7 @@ export default function MediaPage() {
                                 className="h-7 w-7"
                                 onClick={() => setViewMode("grid")}
                             >
-                                <Grid className="w-4 h-4" />
+                                <TbLayoutGrid className="w-4 h-4" />
                             </Button>
                             <Button
                                 variant={viewMode === "list" ? "secondary" : "ghost"}
@@ -700,14 +671,14 @@ export default function MediaPage() {
                                 className="h-7 w-7"
                                 onClick={() => setViewMode("list")}
                             >
-                                <List className="w-4 h-4" />
+                                <TbList className="w-4 h-4" />
                             </Button>
                         </div>
 
                         {/* Bulk Delete */}
                         {selectedItems.length > 0 && (
                             <Button variant="destructive" size="sm" onClick={deleteSelected} className="gap-2">
-                                <Trash2 className="w-4 h-4" />
+                                <TbTrash className="w-4 h-4" />
                                 წაშლა ({selectedItems.length})
                             </Button>
                         )}
@@ -734,7 +705,7 @@ export default function MediaPage() {
                             : "border-muted-foreground/20 hover:border-muted-foreground/40"
                             }`}
                     >
-                        <ImagePlus className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
+                        <TbPhotoPlus className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
                         <p className="text-muted-foreground">
                             გადმოათრიეთ ფაილები აქ ან{" "}
                             <button
@@ -766,7 +737,7 @@ export default function MediaPage() {
                                     >
                                         {item.type === "video" ? (
                                             <div className="w-full h-full flex items-center justify-center bg-black/80">
-                                                <Video className="w-12 h-12 text-white/70" />
+                                                <TbVideo className="w-12 h-12 text-white/70" />
                                             </div>
                                         ) : (
                                             <img
@@ -777,19 +748,19 @@ export default function MediaPage() {
                                         )}
                                         {selectedItems.includes(item.id) && (
                                             <div className="absolute inset-0 bg-indigo-500/20 flex items-center justify-center">
-                                                <Check className="w-8 h-8 text-white" />
+                                                <TbCheck className="w-8 h-8 text-white" />
                                             </div>
                                         )}
                                         {/* Overlay actions */}
                                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                             <Button size="icon" variant="secondary" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); setViewingMedia(item.id) }}>
-                                                <Eye className="w-4 h-4" />
+                                                <TbEye className="w-4 h-4" />
                                             </Button>
                                             <Button size="icon" variant="secondary" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); startEdit(item) }}>
-                                                <Edit3 className="w-4 h-4" />
+                                                <TbEdit className="w-4 h-4" />
                                             </Button>
                                             <Button size="icon" variant="secondary" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); copyUrl(item.url, item.id) }}>
-                                                {copiedId === item.id ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                                                {copiedId === item.id ? <TbCheck className="w-4 h-4 text-green-500" /> : <TbCopy className="w-4 h-4" />}
                                             </Button>
                                         </div>
                                     </div>
@@ -806,7 +777,7 @@ export default function MediaPage() {
                                                     <span className="text-xs text-muted-foreground">{item.size}</span>
                                                     {item.usedIn.length > 0 && (
                                                         <Badge variant="secondary" className="text-xs gap-1">
-                                                            <Link2 className="w-2 h-2" />
+                                                            <TbLink className="w-2 h-2" />
                                                             {item.usedIn.length}
                                                         </Badge>
                                                     )}
@@ -847,7 +818,7 @@ export default function MediaPage() {
                                                     <div className="flex items-center gap-3">
                                                         {item.type === "video" ? (
                                                             <div className="w-10 h-10 rounded bg-black flex items-center justify-center">
-                                                                <Video className="w-5 h-5 text-white/70" />
+                                                                <TbVideo className="w-5 h-5 text-white/70" />
                                                             </div>
                                                         ) : (
                                                             <img
@@ -873,7 +844,7 @@ export default function MediaPage() {
                                                 <td className="px-4 py-3 hidden md:table-cell">
                                                     {item.usedIn.length > 0 ? (
                                                         <Badge variant="secondary" className="gap-1">
-                                                            <Link2 className="w-3 h-3" />
+                                                            <TbLink className="w-3 h-3" />
                                                             {item.usedIn.length} ადგილი
                                                         </Badge>
                                                     ) : (
@@ -886,16 +857,16 @@ export default function MediaPage() {
                                                 <td className="px-4 py-3">
                                                     <div className="flex justify-end gap-1">
                                                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setViewingMedia(item.id)}>
-                                                            <Eye className="w-4 h-4" />
+                                                            <TbEye className="w-4 h-4" />
                                                         </Button>
                                                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(item)}>
-                                                            <Edit3 className="w-4 h-4" />
+                                                            <TbEdit className="w-4 h-4" />
                                                         </Button>
                                                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyUrl(item.url, item.id)}>
-                                                            {copiedId === item.id ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                                                            {copiedId === item.id ? <TbCheck className="w-4 h-4 text-green-500" /> : <TbCopy className="w-4 h-4" />}
                                                         </Button>
                                                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeleteConfirm(item.id)}>
-                                                            <Trash2 className="w-4 h-4" />
+                                                            <TbTrash className="w-4 h-4" />
                                                         </Button>
                                                     </div>
                                                 </td>
@@ -910,7 +881,7 @@ export default function MediaPage() {
                     {filteredMedia.length === 0 && (
                         <Card>
                             <CardContent className="p-12 text-center text-muted-foreground">
-                                <FolderOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                                <TbFolderOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
                                 <p>ფაილები ვერ მოიძებნა</p>
                             </CardContent>
                         </Card>
@@ -934,7 +905,7 @@ export default function MediaPage() {
                             setViewingMedia(null)
                         }}
                     >
-                        <X className="w-6 h-6" />
+                        <TbX className="w-6 h-6" />
                     </Button>
 
                     {/* Navigation */}
@@ -948,7 +919,7 @@ export default function MediaPage() {
                         }}
                         disabled={filteredMedia.findIndex(m => m.id === viewingMedia) === 0}
                     >
-                        <ChevronLeft className="w-8 h-8" />
+                        <TbChevronLeft className="w-8 h-8" />
                     </Button>
                     <Button
                         variant="ghost"
@@ -960,10 +931,10 @@ export default function MediaPage() {
                         }}
                         disabled={filteredMedia.findIndex(m => m.id === viewingMedia) === filteredMedia.length - 1}
                     >
-                        <ChevronRight className="w-8 h-8" />
+                        <TbChevronRight className="w-8 h-8" />
                     </Button>
 
-                    {/* Image/Video */}
+                    {/* Image/TbVideo */}
                     <div className="flex-1 flex items-center justify-center p-16">
                         {currentMedia.type === "video" ? (
                             <video
@@ -1028,7 +999,7 @@ export default function MediaPage() {
                                                     <p className="text-xs text-muted-foreground">{usage.type}</p>
                                                 </div>
                                                 <Button variant="ghost" size="icon" className="h-7 w-7">
-                                                    <ExternalLink className="w-3 h-3" />
+                                                    <TbExternalLink className="w-3 h-3" />
                                                 </Button>
                                             </div>
                                         ))}
@@ -1040,21 +1011,21 @@ export default function MediaPage() {
 
                             <div className="pt-4 border-t space-y-2">
                                 <Button className="w-full gap-2" onClick={() => startEdit(currentMedia)}>
-                                    <Edit3 className="w-4 h-4" />
+                                    <TbEdit className="w-4 h-4" />
                                     რედაქტირება
                                 </Button>
                                 <Button variant="outline" className="w-full gap-2" onClick={() => copyUrl(currentMedia.url, currentMedia.id)}>
-                                    <Copy className="w-4 h-4" />
+                                    <TbCopy className="w-4 h-4" />
                                     URL-ის კოპირება
                                 </Button>
                                 <Button variant="outline" className="w-full gap-2" asChild>
                                     <a href={currentMedia.url} download>
-                                        <Download className="w-4 h-4" />
+                                        <TbDownload className="w-4 h-4" />
                                         ჩამოტვირთვა
                                     </a>
                                 </Button>
                                 <Button variant="destructive" className="w-full gap-2" onClick={() => setDeleteConfirm(currentMedia.id)}>
-                                    <Trash2 className="w-4 h-4" />
+                                    <TbTrash className="w-4 h-4" />
                                     წაშლა
                                 </Button>
                             </div>
@@ -1069,11 +1040,11 @@ export default function MediaPage() {
                     <Card className="w-full max-w-lg">
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle className="flex items-center gap-2">
-                                <Edit3 className="w-5 h-5" />
+                                <TbEdit className="w-5 h-5" />
                                 ფაილის რედაქტირება
                             </CardTitle>
                             <Button variant="ghost" size="icon" onClick={() => setEditingMedia(null)}>
-                                <X className="w-4 h-4" />
+                                <TbX className="w-4 h-4" />
                             </Button>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -1081,7 +1052,7 @@ export default function MediaPage() {
                             <div className="aspect-video bg-muted rounded-lg overflow-hidden">
                                 {editingItem.type === "video" ? (
                                     <div className="w-full h-full flex items-center justify-center bg-black/80">
-                                        <Video className="w-12 h-12 text-white/70" />
+                                        <TbVideo className="w-12 h-12 text-white/70" />
                                     </div>
                                 ) : (
                                     <img
@@ -1130,7 +1101,7 @@ export default function MediaPage() {
                                     გაუქმება
                                 </Button>
                                 <Button onClick={saveEdit}>
-                                    <Check className="w-4 h-4 mr-1" />
+                                    <TbCheck className="w-4 h-4 mr-1" />
                                     შენახვა
                                 </Button>
                             </div>
@@ -1145,7 +1116,7 @@ export default function MediaPage() {
                     <Card className="w-full max-w-md">
                         <CardHeader>
                             <CardTitle className="text-destructive flex items-center gap-2">
-                                <Trash2 className="w-5 h-5" />
+                                <TbTrash className="w-5 h-5" />
                                 წაშლის დადასტურება
                             </CardTitle>
                         </CardHeader>

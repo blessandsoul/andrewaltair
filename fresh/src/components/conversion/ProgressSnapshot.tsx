@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Camera, TrendingUp, Award, Clock, Star, BookOpen, Trophy, Target } from 'lucide-react';
+import { TbCamera, TbTrendingUp, TbAward, TbClock, TbStar, TbBook, TbTrophy, TbTarget } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 
@@ -72,7 +72,7 @@ export default function ProgressSnapshot() {
     if (!user) {
         return (
             <div className="text-center p-8 border border-white/10 rounded-2xl bg-white/5">
-                <Camera className="w-12 h-12 mx-auto mb-4 text-purple-400" />
+                <TbCamera className="w-12 h-12 mx-auto mb-4 text-purple-400" />
                 <h3 className="text-xl font-bold mb-2">📸 კვირის სნაპშოტი</h3>
                 <p className="text-gray-400">გაიარე ავტორიზაცია პროგრესის სანახავად</p>
             </div>
@@ -82,11 +82,11 @@ export default function ProgressSnapshot() {
     if (!stats) return null;
 
     const statItems = [
-        { icon: BookOpen, label: 'გაკვეთილები', value: stats.lessonsCompleted, color: 'text-blue-400', bg: 'bg-blue-500/20' },
-        { icon: Star, label: 'მიღებული XP', value: stats.xpEarned, color: 'text-yellow-400', bg: 'bg-yellow-500/20' },
-        { icon: Trophy, label: 'კვესტები', value: stats.questsStarted, color: 'text-purple-400', bg: 'bg-purple-500/20' },
-        { icon: Target, label: 'სტრეაკი', value: `${stats.loginStreak} დღე`, color: 'text-green-400', bg: 'bg-green-500/20' },
-        { icon: Clock, label: 'დახარჯული დრო', value: `${stats.timeSpent} წთ`, color: 'text-orange-400', bg: 'bg-orange-500/20' },
+        { icon: TbBook, label: 'გაკვეთილები', value: stats.lessonsCompleted, color: 'text-blue-400', bg: 'bg-blue-500/20' },
+        { icon: TbStar, label: 'მიღებული XP', value: stats.xpEarned, color: 'text-yellow-400', bg: 'bg-yellow-500/20' },
+        { icon: TbTrophy, label: 'კვესტები', value: stats.questsStarted, color: 'text-purple-400', bg: 'bg-purple-500/20' },
+        { icon: TbTarget, label: 'სტრეაკი', value: `${stats.loginStreak} დღე`, color: 'text-green-400', bg: 'bg-green-500/20' },
+        { icon: TbClock, label: 'დახარჯული დრო', value: `${stats.timeSpent} წთ`, color: 'text-orange-400', bg: 'bg-orange-500/20' },
     ];
 
     // Calculate overall score
@@ -102,7 +102,7 @@ export default function ProgressSnapshot() {
             {/* Header */}
             <div className="flex items-center gap-3">
                 <div className="p-2 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-lg">
-                    <Camera className="w-6 h-6 text-purple-400" />
+                    <TbCamera className="w-6 h-6 text-purple-400" />
                 </div>
                 <div>
                     <h2 className="text-2xl font-bold text-white">კვირის სნაპშოტი</h2>
@@ -170,7 +170,7 @@ export default function ProgressSnapshot() {
 
             {/* Motivation */}
             <div className="p-4 rounded-xl bg-gradient-to-r from-purple-900/30 to-pink-900/30 border border-purple-500/20 text-center">
-                <TrendingUp className="w-6 h-6 text-green-400 mx-auto mb-2" />
+                <TbTrendingUp className="w-6 h-6 text-green-400 mx-auto mb-2" />
                 <p className="text-gray-300 text-sm">
                     {score >= 80 ? '🔥 შესანიშნავი კვირა! გააგრძელე ასე!' :
                         score >= 50 ? '💪 კარგი პროგრესი! ცოტა მეტი შეგიძლია!' :

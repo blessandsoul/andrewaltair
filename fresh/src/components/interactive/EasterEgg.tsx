@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { cn } from "@/lib/utils"
-import { Sparkles, X } from "lucide-react"
+import { TbSparkles, TbX } from "react-icons/tb"
 
 // Konami code: ↑ ↑ ↓ ↓ ← → ← → B A
 const KONAMI_CODE = [
@@ -85,12 +85,12 @@ export function EasterEgg({ onActivate, children }: EasterEggProps) {
                         onClick={closeReward}
                         className="absolute right-4 top-4 p-1 rounded-full hover:bg-secondary transition-colors"
                     >
-                        <X className="h-5 w-5" />
+                        <TbX className="h-5 w-5" />
                     </button>
 
                     {/* Icon */}
                     <div className="mx-auto mb-4 h-20 w-20 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                        <Sparkles className="h-10 w-10 text-white" />
+                        <TbSparkles className="h-10 w-10 text-white" />
                     </div>
 
                     {/* Title */}

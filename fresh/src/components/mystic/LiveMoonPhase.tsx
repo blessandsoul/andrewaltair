@@ -93,7 +93,7 @@ export function LiveMoonPhase() {
                     {/* Header with Moon */}
                     <div className="relative h-32 bg-gradient-to-b from-slate-800/50 to-transparent 
                           flex items-center justify-center overflow-hidden">
-                        {/* Stars background */}
+                        {/* TbStars background */}
                         <div className="absolute inset-0">
                             {Array.from({ length: 20 }).map((_, i) => (
                                 <div

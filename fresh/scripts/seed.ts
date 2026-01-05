@@ -10,6 +10,10 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://andr3waltair:4wAfU
 // Import data from JSON files
 import postsData from '../src/data/posts.json';
 import videosData from '../src/data/videos.json';
+import toolsData from '../src/data/tools.json';
+import newTools1 from '../src/data/new-tools.json';
+import newTools2 from '../src/data/new-tools-2.json';
+import newTools3 from '../src/data/new-tools-3.json';
 
 async function seed() {
     try {

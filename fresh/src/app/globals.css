@@ -368,6 +368,15 @@
   outline-offset: 2px;
 }
 
+/* Force override for Command input to fix persistent ring issue */
+[cmdk-input-wrapper] input:focus-visible,
+[cmdk-input-wrapper] input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  --ring: transparent !important;
+}
+
 /* ========== Viral Feature Animations ========== */
 
 /* Float animation */
@@ -934,4 +943,26 @@
 
 .animate-subtle-tilt:hover {
   animation: subtleTilt 3s ease-in-out infinite;
+}
+
+/* Loading bar animation */
+@keyframes loading-bar {
+  0% {
+    width: 0%;
+    margin-left: 0%;
+  }
+
+  50% {
+    width: 70%;
+    margin-left: 15%;
+  }
+
+  100% {
+    width: 0%;
+    margin-left: 100%;
+  }
+}
+
+.animate-loading-bar {
+  animation: loading-bar 1.5s ease-in-out infinite;
 }

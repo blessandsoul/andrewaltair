@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { History, Sparkles, Moon, Heart, Star, Hash, RefreshCw, Trash2, Share2, ChevronRight, Loader2 } from "lucide-react"
+import { TbHistory, TbSparkles, TbMoon, TbHeart, TbStar, TbHash, TbRefresh, TbTrash, TbShare, TbChevronRight, TbLoader2 } from "react-icons/tb"
 
 interface HistoryItem {
     id: string
@@ -12,13 +12,13 @@ interface HistoryItem {
     createdAt: string
 }
 
-const TOOL_CONFIG: Record<string, { icon: typeof Sparkles; color: string; name: string }> = {
-    fortune: { icon: Sparkles, color: "text-purple-400", name: "გადალი" },
-    love: { icon: Heart, color: "text-pink-400", name: "სიყვარული" },
-    dream: { icon: Moon, color: "text-blue-400", name: "სიზმარი" },
-    horoscope: { icon: Star, color: "text-amber-400", name: "ჰოროსკოპი" },
-    tarot: { icon: Sparkles, color: "text-indigo-400", name: "ტაროტი" },
-    numerology: { icon: Hash, color: "text-emerald-400", name: "ნუმეროლოგია" },
+const TOOL_CONFIG: Record<string, { icon: typeof TbSparkles; color: string; name: string }> = {
+    fortune: { icon: TbSparkles, color: "text-purple-400", name: "გადალი" },
+    love: { icon: TbHeart, color: "text-pink-400", name: "სიყვარული" },
+    dream: { icon: TbMoon, color: "text-blue-400", name: "სიზმარი" },
+    horoscope: { icon: TbStar, color: "text-amber-400", name: "ჰოროსკოპი" },
+    tarot: { icon: TbSparkles, color: "text-indigo-400", name: "ტაროტი" },
+    numerology: { icon: TbHash, color: "text-emerald-400", name: "ნუმეროლოგია" },
 }
 
 export function MysticHistory() {
@@ -93,7 +93,7 @@ export function MysticHistory() {
                 <div className="absolute -inset-1 bg-gradient-to-r from-gray-600 to-slate-600 rounded-2xl blur-xl opacity-20" />
                 <div className="relative rounded-2xl bg-[#12121a] border border-white/10 p-8">
                     <div className="flex justify-center">
-                        <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
+                        <TbLoader2 className="w-8 h-8 text-gray-400 animate-spin" />
                     </div>
                     <p className="text-center text-gray-500 mt-4">ისტორია იტვირთება...</p>
                 </div>
@@ -112,7 +112,7 @@ export function MysticHistory() {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-gray-500/20 flex items-center justify-center">
-                                <History className="w-5 h-5 text-gray-400" />
+                                <TbHistory className="w-5 h-5 text-gray-400" />
                             </div>
                             <div>
                                 <h3 className="font-semibold text-white">ჩემი ისტორია</h3>
@@ -125,7 +125,7 @@ export function MysticHistory() {
                             size="sm"
                             className="text-gray-500 hover:text-white"
                         >
-                            <RefreshCw className="w-4 h-4" />
+                            <TbRefresh className="w-4 h-4" />
                         </Button>
                     </div>
                 </div>
@@ -188,15 +188,15 @@ export function MysticHistory() {
                                                     onClick={(e) => { e.stopPropagation(); handleShare(item) }}
                                                     className="p-1.5 rounded-lg hover:bg-white/10 text-gray-500 hover:text-blue-400"
                                                 >
-                                                    <Share2 className="w-3.5 h-3.5" />
+                                                    <TbShare className="w-3.5 h-3.5" />
                                                 </button>
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); handleDelete(item.id) }}
                                                     className="p-1.5 rounded-lg hover:bg-white/10 text-gray-500 hover:text-red-400"
                                                 >
-                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                    <TbTrash className="w-3.5 h-3.5" />
                                                 </button>
-                                                <ChevronRight className="w-4 h-4 text-gray-600" />
+                                                <TbChevronRight className="w-4 h-4 text-gray-600" />
                                             </div>
                                         </div>
                                     </div>

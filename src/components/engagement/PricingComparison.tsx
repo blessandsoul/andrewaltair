@@ -13,7 +13,7 @@ const features = [
     { name: 'AI ინსტრუმენტების კატალოგი', free: true, premium: true, icon: Star },
     { name: 'სტატიების წვდომა', free: true, premium: true, icon: Check },
     { name: 'AI ჩატბოტი', free: 'შეზღუდული', premium: 'სრული წვდომა', icon: Zap },
-    { name: 'მისტიკური AI (ჰოროსკოპი, გადალი)', free: '3/დღე', premium: 'შეუზღუდავი', icon: Star },
+    { name: 'მისტიკური AI (ჰოროსკოპი, მკითხავი)', free: '3/დღე', premium: 'შეუზღუდავი', icon: Star },
     { name: 'პერსონალიზებული რეკომენდაციები', free: false, premium: true, icon: Star },
     { name: 'AI Learning Path', free: false, premium: true, icon: Star },
     { name: 'Premium ბეჯები', free: false, premium: true, icon: Crown },
@@ -39,8 +39,8 @@ export function PricingComparison({ onUpgrade }: PricingComparisonProps) {
                     <button
                         onClick={() => setBillingPeriod('monthly')}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${billingPeriod === 'monthly'
-                                ? 'bg-indigo-500 text-white shadow-lg'
-                                : 'text-white/60 hover:text-white'
+                            ? 'bg-indigo-500 text-white shadow-lg'
+                            : 'text-white/60 hover:text-white'
                             }`}
                     >
                         თვიური
@@ -48,8 +48,8 @@ export function PricingComparison({ onUpgrade }: PricingComparisonProps) {
                     <button
                         onClick={() => setBillingPeriod('yearly')}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${billingPeriod === 'yearly'
-                                ? 'bg-indigo-500 text-white shadow-lg'
-                                : 'text-white/60 hover:text-white'
+                            ? 'bg-indigo-500 text-white shadow-lg'
+                            : 'text-white/60 hover:text-white'
                             }`}
                     >
                         წლიური

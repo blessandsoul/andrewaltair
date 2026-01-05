@@ -14,13 +14,57 @@ export interface IAuthor {
     role?: string;
 }
 
+// Rich content section types
+export interface ISection {
+    icon?: string;  // lucide icon name (e.g., 'Brain', 'Factory', 'Globe')
+    title?: string;
+    content: string;
+    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'cta' | 'hashtags' | 'prompt' | 'author-comment';
+}
+
+// Cover images for responsive display
+export interface ICoverImages {
+    horizontal?: string;  // 16:9 for desktop
+    vertical?: string;    // 9:16 for mobile
+}
+
+// Gallery image
+export interface IGalleryImage {
+    src: string;
+    alt?: string;
+    caption?: string;
+}
+
+// Advanced SEO interface
+export interface ISEO {
+    metaTitle?: string;       // SEO title (60 chars max), different from H1
+    metaDescription?: string; // SEO description (160 chars max)
+    keywords?: string;        // Comma-separated keywords
+    canonicalUrl?: string;    // Canonical URL to prevent duplicates
+    focusKeyword?: string;    // Main keyword to optimize for
+    seoScore?: number;        // 0-100 SEO score
+    ogImage?: string;         // Open Graph image for social
+}
+
+// Video embed interface
+export interface IVideo {
+    url: string;
+    platform: 'youtube' | 'vimeo';
+    videoId?: string;
+    thumbnailUrl?: string;
+}
+
 export interface IPost extends Document {
     _id: mongoose.Types.ObjectId;
     slug: string;
     title: string;
     excerpt: string;
     content?: string;
-    coverImage?: string;
+    rawContent?: string;  // Original pasted content
+    coverImage?: string;  // Legacy single cover
+    coverImages?: ICoverImages;  // New responsive covers
+    gallery?: IGalleryImage[];  // Result gallery
+    sections?: ISection[];  // Parsed sections
     category: string;
     tags: string[];
     author: IAuthor;
@@ -35,8 +79,12 @@ export interface IPost extends Document {
     status: 'draft' | 'published' | 'scheduled' | 'archived';
     scheduledFor?: Date;
     order: number;
+    seo?: ISEO;  // Advanced SEO fields
+    videos?: IVideo[];  // Video embeds
+    relatedPosts?: string[];  // Related post slugs
     createdAt: Date;
     updatedAt: Date;
+    numericId?: string;
 }
 
 const ReactionsSchema = new Schema<IReactions>(
@@ -50,11 +98,69 @@ const ReactionsSchema = new Schema<IReactions>(
     { _id: false }
 );
 
+const SEOSchema = new Schema<ISEO>(
+    {
+        metaTitle: { type: String, maxlength: 60 },
+        metaDescription: { type: String, maxlength: 160 },
+        keywords: { type: String },
+        canonicalUrl: { type: String },
+        focusKeyword: { type: String },
+        seoScore: { type: Number, min: 0, max: 100 },
+        ogImage: { type: String },
+    },
+    { _id: false }
+);
+
 const AuthorSchema = new Schema<IAuthor>(
     {
         name: { type: String, required: true },
         avatar: { type: String },
         role: { type: String },
+    },
+    { _id: false }
+);
+
+const SectionSchema = new Schema<ISection>(
+    {
+        icon: { type: String },  // lucide icon name
+        title: { type: String },
+        content: { type: String, required: true },
+        type: {
+            type: String,
+            enum: ['intro', 'section', 'sarcasm', 'warning', 'tip', 'fact', 'opinion', 'cta', 'hashtags', 'prompt', 'author-comment'],
+            default: 'section'
+        },
+    },
+    { _id: false }
+);
+
+const CoverImagesSchema = new Schema<ICoverImages>(
+    {
+        horizontal: { type: String },
+        vertical: { type: String },
+    },
+    { _id: false }
+);
+
+const GalleryImageSchema = new Schema<IGalleryImage>(
+    {
+        src: { type: String, required: true },
+        alt: { type: String },
+        caption: { type: String },
+    },
+    { _id: false }
+);
+
+const VideoSchema = new Schema<IVideo>(
+    {
+        url: { type: String, required: true },
+        platform: {
+            type: String,
+            enum: ['youtube', 'vimeo'],
+            required: true
+        },
+        videoId: { type: String },
+        thumbnailUrl: { type: String },
     },
     { _id: false }
 );
@@ -81,8 +187,23 @@ const PostSchema = new Schema<IPost>(
             type: String,
             default: '',
         },
+        rawContent: {
+            type: String,
+            default: '',
+        },
         coverImage: {
             type: String,
+        },
+        coverImages: {
+            type: CoverImagesSchema,
+        },
+        gallery: {
+            type: [GalleryImageSchema],
+            default: [],
+        },
+        sections: {
+            type: [SectionSchema],
+            default: [],
         },
         category: {
             type: String,
@@ -148,6 +269,24 @@ const PostSchema = new Schema<IPost>(
             type: Number,
             default: 0,
         },
+        seo: {
+            type: SEOSchema,
+            default: () => ({}),
+        },
+        videos: {
+            type: [VideoSchema],
+            default: [],
+        },
+        relatedPosts: {
+            type: [String],
+            default: [],
+        },
+        numericId: {
+            type: String,
+            unique: true,
+            sparse: true,
+            index: true
+        }
     },
     {
         timestamps: true,
@@ -155,8 +294,9 @@ const PostSchema = new Schema<IPost>(
 );
 
 // Create text index for search
-PostSchema.index({ title: 'text', excerpt: 'text', content: 'text' });
+PostSchema.index({ title: 'text', excerpt: 'text', content: 'text', rawContent: 'text', numericId: 'text' });
 
 const Post = mongoose.models.Post || mongoose.model<IPost>('Post', PostSchema);
 
 export default Post;
+

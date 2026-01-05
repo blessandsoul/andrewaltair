@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Check, ChevronRight, RefreshCw } from 'lucide-react';
+import { TbActivity, TbCheck, TbChevronRight, TbRefresh } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 
 interface Question {
@@ -104,7 +104,7 @@ export default function AIHealthScore() {
                 {/* Header */}
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-purple-500/20 rounded-lg">
-                        <Activity className="w-6 h-6 text-purple-400" />
+                        <TbActivity className="w-6 h-6 text-purple-400" />
                     </div>
                     <div>
                         <h2 className="text-2xl font-bold text-white">AI ჯანმრთელობის ქულა</h2>
@@ -145,7 +145,7 @@ export default function AIHealthScore() {
                     onClick={handleReset}
                     className="w-full py-3 border border-white/10 rounded-xl text-gray-300 hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
                 >
-                    <RefreshCw className="w-4 h-4" />
+                    <TbRefresh className="w-4 h-4" />
                     თავიდან გავლა
                 </button>
             </div>
@@ -160,7 +160,7 @@ export default function AIHealthScore() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-purple-500/20 rounded-lg">
-                        <Activity className="w-6 h-6 text-purple-400" />
+                        <TbActivity className="w-6 h-6 text-purple-400" />
                     </div>
                     <div>
                         <h2 className="text-2xl font-bold text-white">AI ჯანმრთელობის ტესტი</h2>
@@ -199,7 +199,7 @@ export default function AIHealthScore() {
                         >
                             <div className="flex items-center justify-between">
                                 <span className="text-gray-200">{option.label}</span>
-                                <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-purple-400 transition-colors" />
+                                <TbChevronRight className="w-5 h-5 text-gray-500 group-hover:text-purple-400 transition-colors" />
                             </div>
                         </button>
                     ))}

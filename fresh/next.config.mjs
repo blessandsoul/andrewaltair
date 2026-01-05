@@ -1,5 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // 🛡️ Security: Remove X-Powered-By header
+  poweredByHeader: false,
+
+  // 🧹 Clean up: Remove console.log from production builds
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
+
   images: {
     remotePatterns: [
       {

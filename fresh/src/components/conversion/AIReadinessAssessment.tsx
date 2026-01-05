@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ClipboardCheck, ChevronRight, BarChart3, AlertTriangle, Check } from 'lucide-react';
+import { TbClipboardCheck, TbChevronRight, TbChartBar, TbAlertTriangle, TbCheck } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 
 interface AssessmentQuestion {
@@ -47,7 +47,7 @@ export default function AIReadinessAssessment() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-blue-500/20 rounded-lg">
-                        <ClipboardCheck className="w-6 h-6 text-blue-400" />
+                        <TbClipboardCheck className="w-6 h-6 text-blue-400" />
                     </div>
                     <h2 className="text-2xl font-bold text-white">შეფასების შედეგი</h2>
                 </div>
@@ -78,7 +78,7 @@ export default function AIReadinessAssessment() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-blue-500/20 rounded-lg">
-                        <ClipboardCheck className="w-6 h-6 text-blue-400" />
+                        <TbClipboardCheck className="w-6 h-6 text-blue-400" />
                     </div>
                     <div>
                         <h2 className="text-2xl font-bold text-white">AI მზადყოფნის ტესტი</h2>
@@ -100,7 +100,7 @@ export default function AIReadinessAssessment() {
                         <button key={opt.value} onClick={() => handleAnswer(opt.value)} className="w-full p-4 text-left rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-blue-500/50 transition-all group">
                             <div className="flex items-center justify-between">
                                 <span className="text-gray-200">{opt.label}</span>
-                                <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-blue-400 transition-colors" />
+                                <TbChevronRight className="w-5 h-5 text-gray-500 group-hover:text-blue-400 transition-colors" />
                             </div>
                         </button>
                     ))}

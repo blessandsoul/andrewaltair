@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import { cn } from "@/lib/utils"
-import { Bot, Send, X, Minimize2, Maximize2, ChevronDown, Check } from "lucide-react"
+import { TbRobot, TbSend, TbX, TbMinimize, TbMaximize, TbChevronDown, TbCheck } from "react-icons/tb"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -141,7 +141,7 @@ export function AIChatAssistant() {
                 onClick={() => setIsOpen(true)}
                 className="fixed bottom-4 right-4 z-50 h-14 w-14 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center group"
             >
-                <Bot className="h-6 w-6" />
+                <TbRobot className="h-6 w-6" />
                 {/* Online indicator - top left */}
                 <span className="absolute top-0 left-0 h-3.5 w-3.5 rounded-full bg-green-500 border-2 border-white shadow-sm">
                     <span className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-75" />
@@ -185,14 +185,14 @@ export function AIChatAssistant() {
                                 className="p-2 rounded-full hover:bg-white/20 transition-colors"
                                 title="შემცირება"
                             >
-                                <Minimize2 className="h-5 w-5" />
+                                <TbMinimize className="h-5 w-5" />
                             </button>
                             <button
                                 onClick={() => { setIsOpen(false); setIsExpanded(false) }}
                                 className="p-2 rounded-full hover:bg-white/20 transition-colors"
                                 title="დახურვა"
                             >
-                                <X className="h-5 w-5" />
+                                <TbX className="h-5 w-5" />
                             </button>
                         </div>
                     </div>
@@ -208,9 +208,9 @@ export function AIChatAssistant() {
                                 "shadow-md hover:shadow-lg font-medium text-sm"
                             )}
                         >
-                            <Bot className="h-4 w-4" />
+                            <TbRobot className="h-4 w-4" />
                             <span>აირჩიე AI ასისტენტი</span>
-                            <ChevronDown className={cn("h-4 w-4 transition-transform", showRoleSelector && "rotate-180")} />
+                            <TbChevronDown className={cn("h-4 w-4 transition-transform", showRoleSelector && "rotate-180")} />
                         </button>
 
                         {/* Role Selector Dropdown */}
@@ -237,7 +237,7 @@ export function AIChatAssistant() {
                                                 <span className="text-xs text-muted-foreground">{role.description}</span>
                                             </div>
                                             {selectedRole.id === role.id && (
-                                                <Check className="h-4 w-4 text-primary" />
+                                                <TbCheck className="h-4 w-4 text-primary" />
                                             )}
                                         </button>
                                     ))}
@@ -292,7 +292,7 @@ export function AIChatAssistant() {
                                 className="flex-1 h-12 text-base"
                             />
                             <Button type="submit" size="lg" disabled={!input.trim()} className="h-12 px-6">
-                                <Send className="h-5 w-5" />
+                                <TbSend className="h-5 w-5" />
                             </Button>
                         </div>
                     </form>
@@ -327,14 +327,14 @@ export function AIChatAssistant() {
                         className="p-1.5 rounded-full hover:bg-white/20 transition-colors"
                         title="გაზრდა"
                     >
-                        <Maximize2 className="h-4 w-4" />
+                        <TbMaximize className="h-4 w-4" />
                     </button>
                     <button
                         onClick={() => setIsOpen(false)}
                         className="p-1.5 rounded-full hover:bg-white/20 transition-colors"
                         title="დახურვა"
                     >
-                        <X className="h-4 w-4" />
+                        <TbX className="h-4 w-4" />
                     </button>
                 </div>
             </div>
@@ -350,9 +350,9 @@ export function AIChatAssistant() {
                         "shadow-md hover:shadow-lg font-medium text-sm"
                     )}
                 >
-                    <Bot className="h-4 w-4" />
+                    <TbRobot className="h-4 w-4" />
                     <span>აირჩიე AI ასისტენტი</span>
-                    <ChevronDown className={cn("h-4 w-4 transition-transform", showRoleSelector && "rotate-180")} />
+                    <TbChevronDown className={cn("h-4 w-4 transition-transform", showRoleSelector && "rotate-180")} />
                 </button>
 
                 {/* Role Selector Dropdown */}
@@ -379,7 +379,7 @@ export function AIChatAssistant() {
                                         <span className="text-xs text-muted-foreground">{role.description}</span>
                                     </div>
                                     {selectedRole.id === role.id && (
-                                        <Check className="h-4 w-4 text-primary" />
+                                        <TbCheck className="h-4 w-4 text-primary" />
                                     )}
                                 </button>
                             ))}
@@ -434,7 +434,7 @@ export function AIChatAssistant() {
                         className="flex-1"
                     />
                     <Button type="submit" size="icon" disabled={!input.trim()}>
-                        <Send className="h-4 w-4" />
+                        <TbSend className="h-4 w-4" />
                     </Button>
                 </div>
             </form>

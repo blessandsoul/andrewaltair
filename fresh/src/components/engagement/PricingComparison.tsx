@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, X, Crown, Zap, Infinity, Star, Shield, Headphones } from 'lucide-react'
+import { TbCheck, TbX, TbCrown, TbBolt, TbInfinity, TbStar, TbShield, TbHeadphones } from "react-icons/tb"
 import { Button } from '@/components/ui/button'
 
 interface PricingComparisonProps {
@@ -9,18 +9,18 @@ interface PricingComparisonProps {
 }
 
 const features = [
-    { name: 'AI კრედიტები დღეში', free: '10', premium: 'შეუზღუდავი', icon: Zap },
-    { name: 'AI ინსტრუმენტების კატალოგი', free: true, premium: true, icon: Star },
-    { name: 'სტატიების წვდომა', free: true, premium: true, icon: Check },
-    { name: 'AI ჩატბოტი', free: 'შეზღუდული', premium: 'სრული წვდომა', icon: Zap },
-    { name: 'მისტიკური AI (ჰოროსკოპი, გადალი)', free: '3/დღე', premium: 'შეუზღუდავი', icon: Star },
-    { name: 'პერსონალიზებული რეკომენდაციები', free: false, premium: true, icon: Star },
-    { name: 'AI Learning Path', free: false, premium: true, icon: Star },
-    { name: 'Premium ბეჯები', free: false, premium: true, icon: Crown },
-    { name: 'რეკლამის გარეშე', free: false, premium: true, icon: Shield },
-    { name: 'პრიორიტეტული მხარდაჭერა', free: false, premium: true, icon: Headphones },
-    { name: 'AI სერტიფიკატი', free: false, premium: true, icon: Crown },
-    { name: 'ექსკლუზიური კონტენტი', free: false, premium: true, icon: Star },
+    { name: 'AI კრედიტები დღეში', free: '10', premium: 'შეუზღუდავი', icon: TbBolt },
+    { name: 'AI ინსტრუმენტების კატალოგი', free: true, premium: true, icon: TbStar },
+    { name: 'სტატიების წვდომა', free: true, premium: true, icon: TbCheck },
+    { name: 'AI ჩატბოტი', free: 'შეზღუდული', premium: 'სრული წვდომა', icon: TbBolt },
+    { name: 'მისტიკური AI (ჰოროსკოპი, გადალი)', free: '3/დღე', premium: 'შეუზღუდავი', icon: TbStar },
+    { name: 'პერსონალიზებული რეკომენდაციები', free: false, premium: true, icon: TbStar },
+    { name: 'AI Learning Path', free: false, premium: true, icon: TbStar },
+    { name: 'Premium ბეჯები', free: false, premium: true, icon: TbCrown },
+    { name: 'რეკლამის გარეშე', free: false, premium: true, icon: TbShield },
+    { name: 'პრიორიტეტული მხარდაჭერა', free: false, premium: true, icon: TbHeadphones },
+    { name: 'AI სერტიფიკატი', free: false, premium: true, icon: TbCrown },
+    { name: 'ექსკლუზიური კონტენტი', free: false, premium: true, icon: TbStar },
 ]
 
 export function PricingComparison({ onUpgrade }: PricingComparisonProps) {
@@ -39,8 +39,8 @@ export function PricingComparison({ onUpgrade }: PricingComparisonProps) {
                     <button
                         onClick={() => setBillingPeriod('monthly')}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${billingPeriod === 'monthly'
-                                ? 'bg-indigo-500 text-white shadow-lg'
-                                : 'text-white/60 hover:text-white'
+                            ? 'bg-indigo-500 text-white shadow-lg'
+                            : 'text-white/60 hover:text-white'
                             }`}
                     >
                         თვიური
@@ -48,8 +48,8 @@ export function PricingComparison({ onUpgrade }: PricingComparisonProps) {
                     <button
                         onClick={() => setBillingPeriod('yearly')}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${billingPeriod === 'yearly'
-                                ? 'bg-indigo-500 text-white shadow-lg'
-                                : 'text-white/60 hover:text-white'
+                            ? 'bg-indigo-500 text-white shadow-lg'
+                            : 'text-white/60 hover:text-white'
                             }`}
                     >
                         წლიური
@@ -79,9 +79,9 @@ export function PricingComparison({ onUpgrade }: PricingComparisonProps) {
                                 <div className={`p-1 rounded-full ${feature.free === false ? 'bg-red-500/20' : 'bg-emerald-500/20'
                                     }`}>
                                     {feature.free === false ? (
-                                        <X className="w-4 h-4 text-red-400" />
+                                        <TbX className="w-4 h-4 text-red-400" />
                                     ) : (
-                                        <Check className="w-4 h-4 text-emerald-400" />
+                                        <TbCheck className="w-4 h-4 text-emerald-400" />
                                     )}
                                 </div>
                                 <span className="text-white/70 text-sm flex-1">{feature.name}</span>
@@ -111,7 +111,7 @@ export function PricingComparison({ onUpgrade }: PricingComparisonProps) {
 
                     <div className="mb-6 mt-2">
                         <div className="flex items-center gap-2 mb-2">
-                            <Crown className="w-5 h-5 text-amber-400" />
+                            <TbCrown className="w-5 h-5 text-amber-400" />
                             <h3 className="text-xl font-bold text-white">Premium</h3>
                         </div>
                         <div className="flex items-baseline gap-1">
@@ -132,12 +132,12 @@ export function PricingComparison({ onUpgrade }: PricingComparisonProps) {
                         {features.map((feature, i) => (
                             <div key={i} className="flex items-center gap-3">
                                 <div className="p-1 rounded-full bg-emerald-500/20">
-                                    <Check className="w-4 h-4 text-emerald-400" />
+                                    <TbCheck className="w-4 h-4 text-emerald-400" />
                                 </div>
                                 <span className="text-white/90 text-sm flex-1">{feature.name}</span>
                                 {typeof feature.premium === 'string' && (
                                     <span className="text-indigo-300 text-xs font-medium flex items-center gap-1">
-                                        {feature.premium === 'შეუზღუდავი' && <Infinity className="w-3 h-3" />}
+                                        {feature.premium === 'შეუზღუდავი' && <TbInfinity className="w-3 h-3" />}
                                         {feature.premium}
                                     </span>
                                 )}
@@ -149,7 +149,7 @@ export function PricingComparison({ onUpgrade }: PricingComparisonProps) {
                         onClick={onUpgrade}
                         className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white font-bold shadow-lg shadow-purple-500/30"
                     >
-                        <Zap className="w-4 h-4 mr-2" />
+                        <TbBolt className="w-4 h-4 mr-2" />
                         გახდი Premium ახლავე
                     </Button>
 

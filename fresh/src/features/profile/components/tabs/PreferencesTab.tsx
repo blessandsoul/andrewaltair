@@ -5,7 +5,7 @@
 "use client"
 
 import * as React from "react"
-import { Settings, Bell, Palette, Globe } from "lucide-react"
+import { TbSettings, TbBell, TbPalette, TbWorld } from "react-icons/tb"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { SettingToggle } from "../shared/SettingToggle"
 import { cn } from "@/lib/utils"
@@ -23,7 +23,7 @@ export function PreferencesTab() {
         <Card className="border-border/50 shadow-xl backdrop-blur-sm">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Settings className="w-5 h-5 text-primary" />
+                    <TbSettings className="w-5 h-5 text-primary" />
                     პარამეტრები
                 </CardTitle>
                 <CardDescription>მორგეთ თქვენი გამოცდილება</CardDescription>
@@ -32,7 +32,7 @@ export function PreferencesTab() {
                 {/* Notification Settings */}
                 <div className="p-4 rounded-lg border border-border">
                     <h3 className="font-medium mb-4 flex items-center gap-2">
-                        <Bell className="w-4 h-4" />
+                        <TbBell className="w-4 h-4" />
                         შეტყობინებები
                     </h3>
                     <div className="space-y-4">
@@ -63,7 +63,7 @@ export function PreferencesTab() {
                 {/* Theme Selection */}
                 <div className="p-4 rounded-lg border border-border">
                     <h3 className="font-medium mb-4 flex items-center gap-2">
-                        <Palette className="w-4 h-4" />
+                        <TbPalette className="w-4 h-4" />
                         გარეგნობა
                     </h3>
                     <div className="flex gap-3">
@@ -87,7 +87,7 @@ export function PreferencesTab() {
                 {/* Language Selection */}
                 <div className="p-4 rounded-lg border border-border">
                     <h3 className="font-medium mb-4 flex items-center gap-2">
-                        <Globe className="w-4 h-4" />
+                        <TbWorld className="w-4 h-4" />
                         ენა
                     </h3>
                     <select

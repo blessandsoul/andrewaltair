@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils"
 import postsData from "@/data/posts.json"
 import videosData from "@/data/videos.json"
 import toolsData from "@/data/tools.json"
+import { handleSmartSearch } from '@/app/actions/search'
 
 interface SearchDialogProps {
     isOpen: boolean
@@ -149,13 +150,17 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                     {/* Search Input */}
                     <div className="flex items-center gap-3 p-4 border-b border-border">
                         <Search className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                        <Input
-                            ref={inputRef}
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder="მოძებნე სტატია, ვიდეო, ინსტრუმენტი..."
-                            className="border-0 bg-transparent text-lg focus-visible:ring-0 px-0"
-                        />
+                        <form action={handleSmartSearch} className="flex-1">
+                            <Input
+                                ref={inputRef}
+                                name="query"
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                                placeholder="მოძებნე სტატია, ან შეიყვანე კოდი (მაგ: #GE01)..."
+                                className="border-0 bg-transparent text-lg focus-visible:ring-0 px-0 w-full"
+                                autoComplete="off"
+                            />
+                        </form>
                         <Button variant="ghost" size="icon" onClick={onClose}>
                             <X className="w-5 h-5" />
                         </Button>

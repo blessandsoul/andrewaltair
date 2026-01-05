@@ -6,12 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-    Wrench, Database, Download, Upload, RefreshCw, Trash2, Link as LinkIcon,
-    AlertTriangle, CheckCircle, Clock, HardDrive, Zap, Shield, FileJson,
-    Calendar, Image, AlertCircle, Settings, Globe, Mail, ArrowRightLeft,
-    Search, Play, Pause, Eye, EyeOff, Copy, Send, FileText, X, Plus
-} from "lucide-react"
+import { TbTool, TbDatabase, TbDownload, TbUpload, TbRefresh, TbTrash, TbLink, TbAlertTriangle, TbCircleCheck, TbClock, TbDeviceSdCard, TbBolt, TbShield, TbJson, TbCalendar, TbPhoto, TbAlertCircle, TbSettings, TbWorld, TbMail, TbArrowsRightLeft, TbSearch, TbPlayerPlay, TbPlayerPause, TbEye, TbEyeOff, TbCopy, TbSend, TbFileText, TbX, TbPlus } from "react-icons/tb"
 
 // === TYPES ===
 interface BackupItem { id: string; date: string; size: string; type: "auto" | "manual" }
@@ -244,7 +239,7 @@ export default function ToolsPage() {
             {/* Header */}
             <div>
                 <h1 className="text-3xl font-bold flex items-center gap-3">
-                    <Wrench className="w-8 h-8 text-indigo-500" />
+                    <TbTool className="w-8 h-8 text-indigo-500" />
                     სისტემური ინსტრუმენტები
                 </h1>
                 <p className="text-muted-foreground mt-1">Backup, cache, და სხვა ინსტრუმენტები</p>
@@ -256,13 +251,13 @@ export default function ToolsPage() {
                     <TabsTrigger value="database">Database</TabsTrigger>
                     <TabsTrigger value="import-export">Import/Export</TabsTrigger>
                     <TabsTrigger value="cron">Cron Jobs</TabsTrigger>
-                    <TabsTrigger value="images">Images</TabsTrigger>
+                    <TabsTrigger value="images">TbPhoto</TabsTrigger>
                     <TabsTrigger value="logs">Error Logs</TabsTrigger>
                     <TabsTrigger value="env">Environment</TabsTrigger>
                     <TabsTrigger value="sitemap">Sitemap</TabsTrigger>
                     <TabsTrigger value="email">Email Test</TabsTrigger>
                     <TabsTrigger value="redirects">Redirects</TabsTrigger>
-                    <TabsTrigger value="search-replace">Search/Replace</TabsTrigger>
+                    <TabsTrigger value="search-replace">TbSearch/Replace</TabsTrigger>
                 </TabsList>
 
                 {/* OVERVIEW TAB */}
@@ -271,7 +266,7 @@ export default function ToolsPage() {
                         <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={createBackup}>
                             <CardContent className="p-6 flex flex-col items-center text-center">
                                 <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-3">
-                                    <Database className={`w-6 h-6 text-blue-500 ${isBackingUp ? "animate-pulse" : ""}`} />
+                                    <TbDatabase className={`w-6 h-6 text-blue-500 ${isBackingUp ? "animate-pulse" : ""}`} />
                                 </div>
                                 <p className="font-semibold">Backup შექმნა</p>
                                 <p className="text-sm text-muted-foreground">მონაცემთა სარეზერვო ასლი</p>
@@ -280,7 +275,7 @@ export default function ToolsPage() {
                         <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={checkLinks}>
                             <CardContent className="p-6 flex flex-col items-center text-center">
                                 <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center mb-3">
-                                    <LinkIcon className={`w-6 h-6 text-orange-500 ${isCheckingLinks ? "animate-pulse" : ""}`} />
+                                    <TbLink className={`w-6 h-6 text-orange-500 ${isCheckingLinks ? "animate-pulse" : ""}`} />
                                 </div>
                                 <p className="font-semibold">ლინკების შემოწმება</p>
                                 <p className="text-sm text-muted-foreground">გატეხილი ლინკების პოვნა</p>
@@ -289,7 +284,7 @@ export default function ToolsPage() {
                         <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={clearCache}>
                             <CardContent className="p-6 flex flex-col items-center text-center">
                                 <div className="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center mb-3">
-                                    <Zap className={`w-6 h-6 text-red-500 ${isClearingCache ? "animate-spin" : ""}`} />
+                                    <TbBolt className={`w-6 h-6 text-red-500 ${isClearingCache ? "animate-spin" : ""}`} />
                                 </div>
                                 <p className="font-semibold">ქეშის გასუფთავება</p>
                                 <p className="text-sm text-muted-foreground">ბრაუზერისა და სერვერის cache</p>
@@ -298,7 +293,7 @@ export default function ToolsPage() {
                         <Card className="cursor-pointer hover:shadow-lg transition-shadow">
                             <CardContent className="p-6 flex flex-col items-center text-center">
                                 <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-3">
-                                    <Shield className="w-6 h-6 text-green-500" />
+                                    <TbShield className="w-6 h-6 text-green-500" />
                                 </div>
                                 <p className="font-semibold">უსაფრთხოების სკანი</p>
                                 <p className="text-sm text-muted-foreground">მავნე კოდის შემოწმება</p>
@@ -311,11 +306,11 @@ export default function ToolsPage() {
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between">
                                 <CardTitle className="flex items-center gap-2">
-                                    <Database className="w-5 h-5 text-blue-500" />
+                                    <TbDatabase className="w-5 h-5 text-blue-500" />
                                     სარეზერვო ასლები
                                 </CardTitle>
                                 <Button size="sm" variant="outline" onClick={createBackup} disabled={isBackingUp}>
-                                    <RefreshCw className={`w-4 h-4 mr-2 ${isBackingUp ? "animate-spin" : ""}`} />
+                                    <TbRefresh className={`w-4 h-4 mr-2 ${isBackingUp ? "animate-spin" : ""}`} />
                                     ახალი
                                 </Button>
                             </CardHeader>
@@ -323,7 +318,7 @@ export default function ToolsPage() {
                                 {isBackingUp && (
                                     <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
                                         <div className="flex items-center gap-3">
-                                            <RefreshCw className="w-5 h-5 text-blue-500 animate-spin" />
+                                            <TbRefresh className="w-5 h-5 text-blue-500 animate-spin" />
                                             <div className="flex-1">
                                                 <p className="font-medium">Backup იქმნება...</p>
                                                 <div className="h-2 rounded-full bg-muted mt-2 overflow-hidden">
@@ -335,7 +330,7 @@ export default function ToolsPage() {
                                 )}
                                 {backups.map((backup) => (
                                     <div key={backup.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
-                                        <HardDrive className="w-5 h-5 text-muted-foreground" />
+                                        <TbDeviceSdCard className="w-5 h-5 text-muted-foreground" />
                                         <div className="flex-1 min-w-0">
                                             <p className="font-medium text-sm">{backup.date}</p>
                                             <p className="text-xs text-muted-foreground">{backup.size}</p>
@@ -344,8 +339,8 @@ export default function ToolsPage() {
                                             {backup.type === "auto" ? "ავტო" : "manual"}
                                         </Badge>
                                         <div className="flex gap-1">
-                                            <Button variant="ghost" size="icon" className="h-8 w-8"><Download className="w-4 h-4" /></Button>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteBackup(backup.id)}><Trash2 className="w-4 h-4" /></Button>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8"><TbDownload className="w-4 h-4" /></Button>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteBackup(backup.id)}><TbTrash className="w-4 h-4" /></Button>
                                         </div>
                                     </div>
                                 ))}
@@ -356,12 +351,12 @@ export default function ToolsPage() {
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between">
                                 <CardTitle className="flex items-center gap-2">
-                                    <LinkIcon className="w-5 h-5 text-orange-500" />
+                                    <TbLink className="w-5 h-5 text-orange-500" />
                                     გატეხილი ლინკები
                                     {sampleBrokenLinks.length > 0 && <Badge variant="destructive">{sampleBrokenLinks.length}</Badge>}
                                 </CardTitle>
                                 <Button size="sm" variant="outline" onClick={checkLinks} disabled={isCheckingLinks}>
-                                    <RefreshCw className={`w-4 h-4 mr-2 ${isCheckingLinks ? "animate-spin" : ""}`} />
+                                    <TbRefresh className={`w-4 h-4 mr-2 ${isCheckingLinks ? "animate-spin" : ""}`} />
                                     სკანირება
                                 </Button>
                             </CardHeader>
@@ -369,7 +364,7 @@ export default function ToolsPage() {
                                 {isCheckingLinks && (
                                     <div className="p-4 rounded-lg bg-orange-500/10 border border-orange-500/20">
                                         <div className="flex items-center gap-3">
-                                            <RefreshCw className="w-5 h-5 text-orange-500 animate-spin" />
+                                            <TbRefresh className="w-5 h-5 text-orange-500 animate-spin" />
                                             <p className="font-medium">ლინკების შემოწმება...</p>
                                         </div>
                                     </div>
@@ -377,7 +372,7 @@ export default function ToolsPage() {
                                 {sampleBrokenLinks.map((link) => (
                                     <div key={link.id} className="p-3 rounded-lg bg-red-500/5 border border-red-500/20">
                                         <div className="flex items-start gap-3">
-                                            <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                                            <TbAlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                                             <div className="flex-1 min-w-0">
                                                 <p className="font-medium text-sm">{link.page}</p>
                                                 <p className="text-xs text-muted-foreground truncate">{link.url}</p>
@@ -398,7 +393,7 @@ export default function ToolsPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <Zap className="w-5 h-5 text-indigo-500" />
+                                <TbBolt className="w-5 h-5 text-indigo-500" />
                                 სისტემის ინფორმაცია
                             </CardTitle>
                         </CardHeader>
@@ -425,7 +420,7 @@ export default function ToolsPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <Database className="w-5 h-5 text-blue-500" />
+                                <TbDatabase className="w-5 h-5 text-blue-500" />
                                 Database Tables
                             </CardTitle>
                         </CardHeader>
@@ -434,7 +429,7 @@ export default function ToolsPage() {
                                 {sampleTables.map((table) => (
                                     <div key={table.name} className="flex items-center gap-4 p-4 rounded-lg bg-muted/30">
                                         <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                                            <Database className="w-5 h-5 text-blue-500" />
+                                            <TbDatabase className="w-5 h-5 text-blue-500" />
                                         </div>
                                         <div className="flex-1">
                                             <p className="font-semibold">{table.name}</p>
@@ -446,8 +441,8 @@ export default function ToolsPage() {
                                 ))}
                             </div>
                             <div className="mt-6 flex gap-3">
-                                <Button><RefreshCw className="w-4 h-4 mr-2" />Optimize All</Button>
-                                <Button variant="outline"><Trash2 className="w-4 h-4 mr-2" />Clear Orphaned Data</Button>
+                                <Button><TbRefresh className="w-4 h-4 mr-2" />Optimize All</Button>
+                                <Button variant="outline"><TbTrash className="w-4 h-4 mr-2" />Clear Orphaned Data</Button>
                             </div>
                         </CardContent>
                     </Card>
@@ -459,7 +454,7 @@ export default function ToolsPage() {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <Download className="w-5 h-5 text-green-500" />
+                                    <TbDownload className="w-5 h-5 text-green-500" />
                                     Export
                                 </CardTitle>
                             </CardHeader>
@@ -468,24 +463,24 @@ export default function ToolsPage() {
                                     <div key={item} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                                         <span className="font-medium">{item}</span>
                                         <div className="flex gap-2">
-                                            <Button size="sm" variant="outline"><FileJson className="w-4 h-4 mr-1" />JSON</Button>
-                                            <Button size="sm" variant="outline"><FileText className="w-4 h-4 mr-1" />CSV</Button>
+                                            <Button size="sm" variant="outline"><TbJson className="w-4 h-4 mr-1" />JSON</Button>
+                                            <Button size="sm" variant="outline"><TbFileText className="w-4 h-4 mr-1" />CSV</Button>
                                         </div>
                                     </div>
                                 ))}
-                                <Button className="w-full"><Download className="w-4 h-4 mr-2" />Export All Data</Button>
+                                <Button className="w-full"><TbDownload className="w-4 h-4 mr-2" />Export All Data</Button>
                             </CardContent>
                         </Card>
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <Upload className="w-5 h-5 text-orange-500" />
+                                    <TbUpload className="w-5 h-5 text-orange-500" />
                                     Import
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="border-2 border-dashed rounded-lg p-8 text-center">
-                                    <Upload className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                                    <TbUpload className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                                     <p className="font-medium">ფაილის ატვირთვა</p>
                                     <p className="text-sm text-muted-foreground mb-4">JSON ან CSV ფორმატი</p>
                                     <Button variant="outline">აირჩიეთ ფაილი</Button>
@@ -500,16 +495,16 @@ export default function ToolsPage() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle className="flex items-center gap-2">
-                                <Calendar className="w-5 h-5 text-purple-500" />
+                                <TbCalendar className="w-5 h-5 text-purple-500" />
                                 Scheduled Tasks
                             </CardTitle>
-                            <Button size="sm"><Plus className="w-4 h-4 mr-2" />Add Task</Button>
+                            <Button size="sm"><TbPlus className="w-4 h-4 mr-2" />Add Task</Button>
                         </CardHeader>
                         <CardContent className="space-y-3">
                             {sampleCronJobs.map((job) => (
                                 <div key={job.id} className="flex items-center gap-4 p-4 rounded-lg bg-muted/30">
                                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${job.status === "active" ? "bg-green-500/10" : "bg-gray-500/10"}`}>
-                                        <Clock className={`w-5 h-5 ${job.status === "active" ? "text-green-500" : "text-gray-500"}`} />
+                                        <TbClock className={`w-5 h-5 ${job.status === "active" ? "text-green-500" : "text-gray-500"}`} />
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2">
@@ -520,9 +515,9 @@ export default function ToolsPage() {
                                         <p className="text-xs text-muted-foreground mt-1">Last: {job.lastRun} • Next: {job.nextRun}</p>
                                     </div>
                                     <Button variant="ghost" size="icon">
-                                        {job.status === "active" ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                                        {job.status === "active" ? <TbPlayerPause className="w-4 h-4" /> : <TbPlayerPlay className="w-4 h-4" />}
                                     </Button>
-                                    <Button variant="ghost" size="icon"><Settings className="w-4 h-4" /></Button>
+                                    <Button variant="ghost" size="icon"><TbSettings className="w-4 h-4" /></Button>
                                 </div>
                             ))}
                         </CardContent>
@@ -534,11 +529,11 @@ export default function ToolsPage() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle className="flex items-center gap-2">
-                                <Image className="w-5 h-5 text-pink-500" />
-                                Image Optimization
+                                <TbPhoto className="w-5 h-5 text-pink-500" />
+                                TbPhoto Optimization
                             </CardTitle>
                             <Button onClick={optimizeImages} disabled={isOptimizing}>
-                                <RefreshCw className={`w-4 h-4 mr-2 ${isOptimizing ? "animate-spin" : ""}`} />
+                                <TbRefresh className={`w-4 h-4 mr-2 ${isOptimizing ? "animate-spin" : ""}`} />
                                 Optimize All
                             </Button>
                         </CardHeader>
@@ -546,7 +541,7 @@ export default function ToolsPage() {
                             {isOptimizing && (
                                 <div className="p-4 rounded-lg bg-pink-500/10 border border-pink-500/20">
                                     <div className="flex items-center gap-3">
-                                        <RefreshCw className="w-5 h-5 text-pink-500 animate-spin" />
+                                        <TbRefresh className="w-5 h-5 text-pink-500 animate-spin" />
                                         <div className="flex-1">
                                             <p className="font-medium">Optimizing images...</p>
                                             <div className="h-2 rounded-full bg-muted mt-2 overflow-hidden">
@@ -559,7 +554,7 @@ export default function ToolsPage() {
                             {sampleImages.map((img) => (
                                 <div key={img.id} className="flex items-center gap-4 p-4 rounded-lg bg-muted/30">
                                     <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-pink-500/20 to-purple-500/20 flex items-center justify-center">
-                                        <Image className="w-6 h-6 text-pink-500" />
+                                        <TbPhoto className="w-6 h-6 text-pink-500" />
                                     </div>
                                     <div className="flex-1">
                                         <p className="font-semibold">{img.name}</p>
@@ -581,7 +576,7 @@ export default function ToolsPage() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle className="flex items-center gap-2">
-                                <AlertCircle className="w-5 h-5 text-red-500" />
+                                <TbAlertCircle className="w-5 h-5 text-red-500" />
                                 Error Logs
                             </CardTitle>
                             <div className="flex gap-2">
@@ -596,7 +591,7 @@ export default function ToolsPage() {
                             {filteredLogs.map((log) => (
                                 <div key={log.id} className={`p-4 rounded-lg border ${log.level === "error" ? "bg-red-500/5 border-red-500/20" : log.level === "warning" ? "bg-yellow-500/5 border-yellow-500/20" : "bg-blue-500/5 border-blue-500/20"}`}>
                                     <div className="flex items-start gap-3">
-                                        <AlertCircle className={`w-5 h-5 flex-shrink-0 ${log.level === "error" ? "text-red-500" : log.level === "warning" ? "text-yellow-500" : "text-blue-500"}`} />
+                                        <TbAlertCircle className={`w-5 h-5 flex-shrink-0 ${log.level === "error" ? "text-red-500" : log.level === "warning" ? "text-yellow-500" : "text-blue-500"}`} />
                                         <div className="flex-1 min-w-0">
                                             <p className="font-medium">{log.message}</p>
                                             <p className="text-sm text-muted-foreground mt-1">{log.file}</p>
@@ -615,10 +610,10 @@ export default function ToolsPage() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle className="flex items-center gap-2">
-                                <Settings className="w-5 h-5 text-gray-500" />
+                                <TbSettings className="w-5 h-5 text-gray-500" />
                                 Environment Variables
                             </CardTitle>
-                            <Button size="sm"><Plus className="w-4 h-4 mr-2" />Add Variable</Button>
+                            <Button size="sm"><TbPlus className="w-4 h-4 mr-2" />Add Variable</Button>
                         </CardHeader>
                         <CardContent className="space-y-3">
                             {sampleEnvVars.map((envVar) => (
@@ -631,11 +626,11 @@ export default function ToolsPage() {
                                     </div>
                                     {envVar.isSecret && (
                                         <Button variant="ghost" size="icon" onClick={() => toggleSecret(envVar.key)}>
-                                            {showSecrets[envVar.key] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                            {showSecrets[envVar.key] ? <TbEyeOff className="w-4 h-4" /> : <TbEye className="w-4 h-4" />}
                                         </Button>
                                     )}
-                                    <Button variant="ghost" size="icon"><Copy className="w-4 h-4" /></Button>
-                                    <Button variant="ghost" size="icon"><Settings className="w-4 h-4" /></Button>
+                                    <Button variant="ghost" size="icon"><TbCopy className="w-4 h-4" /></Button>
+                                    <Button variant="ghost" size="icon"><TbSettings className="w-4 h-4" /></Button>
                                 </div>
                             ))}
                         </CardContent>
@@ -648,7 +643,7 @@ export default function ToolsPage() {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <Globe className="w-5 h-5 text-blue-500" />
+                                    <TbWorld className="w-5 h-5 text-blue-500" />
                                     Sitemap.xml
                                 </CardTitle>
                             </CardHeader>
@@ -662,7 +657,7 @@ export default function ToolsPage() {
                                     <p className="font-semibold">156 pages</p>
                                 </div>
                                 <Button className="w-full" onClick={generateSitemap} disabled={isGeneratingSitemap}>
-                                    <RefreshCw className={`w-4 h-4 mr-2 ${isGeneratingSitemap ? "animate-spin" : ""}`} />
+                                    <TbRefresh className={`w-4 h-4 mr-2 ${isGeneratingSitemap ? "animate-spin" : ""}`} />
                                     Regenerate Sitemap
                                 </Button>
                             </CardContent>
@@ -670,7 +665,7 @@ export default function ToolsPage() {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <FileText className="w-5 h-5 text-green-500" />
+                                    <TbFileText className="w-5 h-5 text-green-500" />
                                     Robots.txt
                                 </CardTitle>
                             </CardHeader>
@@ -687,7 +682,7 @@ export default function ToolsPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <Mail className="w-5 h-5 text-cyan-500" />
+                                <TbMail className="w-5 h-5 text-cyan-500" />
                                 Email Testing
                             </CardTitle>
                         </CardHeader>
@@ -696,7 +691,7 @@ export default function ToolsPage() {
                                 <div className="p-4 rounded-lg bg-muted/30">
                                     <p className="text-sm text-muted-foreground">SMTP Status</p>
                                     <div className="flex items-center gap-2 mt-1">
-                                        <CheckCircle className="w-5 h-5 text-green-500" />
+                                        <TbCircleCheck className="w-5 h-5 text-green-500" />
                                         <p className="font-semibold text-green-500">Connected</p>
                                     </div>
                                 </div>
@@ -710,7 +705,7 @@ export default function ToolsPage() {
                                 <div className="flex gap-2">
                                     <Input placeholder="email@example.com" value={testEmail} onChange={(e) => setTestEmail(e.target.value)} />
                                     <Button onClick={sendTestEmail} disabled={isSendingEmail || !testEmail}>
-                                        <Send className={`w-4 h-4 mr-2 ${isSendingEmail ? "animate-pulse" : ""}`} />
+                                        <TbSend className={`w-4 h-4 mr-2 ${isSendingEmail ? "animate-pulse" : ""}`} />
                                         Send
                                     </Button>
                                 </div>
@@ -718,7 +713,7 @@ export default function ToolsPage() {
                             {isSendingEmail && (
                                 <div className="p-4 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
                                     <div className="flex items-center gap-3">
-                                        <RefreshCw className="w-5 h-5 text-cyan-500 animate-spin" />
+                                        <TbRefresh className="w-5 h-5 text-cyan-500 animate-spin" />
                                         <p className="font-medium">Sending test email...</p>
                                     </div>
                                 </div>
@@ -732,7 +727,7 @@ export default function ToolsPage() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle className="flex items-center gap-2">
-                                <ArrowRightLeft className="w-5 h-5 text-violet-500" />
+                                <TbArrowsRightLeft className="w-5 h-5 text-violet-500" />
                                 URL Redirects
                             </CardTitle>
                             <Badge>{redirects.length} active</Badge>
@@ -740,11 +735,11 @@ export default function ToolsPage() {
                         <CardContent className="space-y-4">
                             <div className="flex gap-2">
                                 <Input placeholder="/old-url" value={newRedirect.from} onChange={(e) => setNewRedirect(prev => ({ ...prev, from: e.target.value }))} />
-                                <ArrowRightLeft className="w-6 h-6 text-muted-foreground flex-shrink-0 self-center" />
+                                <TbArrowsRightLeft className="w-6 h-6 text-muted-foreground flex-shrink-0 self-center" />
                                 <Input placeholder="/new-url" value={newRedirect.to} onChange={(e) => setNewRedirect(prev => ({ ...prev, to: e.target.value }))} />
                                 <Button size="sm" variant={newRedirect.type === 301 ? "default" : "outline"} onClick={() => setNewRedirect(prev => ({ ...prev, type: 301 }))}>301</Button>
                                 <Button size="sm" variant={newRedirect.type === 302 ? "default" : "outline"} onClick={() => setNewRedirect(prev => ({ ...prev, type: 302 }))}>302</Button>
-                                <Button onClick={addRedirect}><Plus className="w-4 h-4" /></Button>
+                                <Button onClick={addRedirect}><TbPlus className="w-4 h-4" /></Button>
                             </div>
                             <div className="space-y-3">
                                 {redirects.map((redirect) => (
@@ -752,13 +747,13 @@ export default function ToolsPage() {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 text-sm">
                                                 <span className="font-mono truncate">{redirect.from}</span>
-                                                <ArrowRightLeft className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                                                <TbArrowsRightLeft className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                                                 <span className="font-mono truncate">{redirect.to}</span>
                                             </div>
                                         </div>
                                         <Badge variant="outline">{redirect.type}</Badge>
                                         <span className="text-sm text-muted-foreground">{redirect.hits} hits</span>
-                                        <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteRedirect(redirect.id)}><X className="w-4 h-4" /></Button>
+                                        <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteRedirect(redirect.id)}><TbX className="w-4 h-4" /></Button>
                                     </div>
                                 ))}
                             </div>
@@ -771,14 +766,14 @@ export default function ToolsPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <Search className="w-5 h-5 text-amber-500" />
-                                Search & Replace
+                                <TbSearch className="w-5 h-5 text-amber-500" />
+                                TbSearch & Replace
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Search for:</label>
+                                    <label className="text-sm font-medium">TbSearch for:</label>
                                     <Input placeholder="Text to find..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                                 </div>
                                 <div className="space-y-2">
@@ -793,8 +788,8 @@ export default function ToolsPage() {
                                 <Button variant="outline" size="sm">Media Titles</Button>
                             </div>
                             <div className="flex gap-3">
-                                <Button variant="outline" disabled={!searchQuery}><Search className="w-4 h-4 mr-2" />Preview Results</Button>
-                                <Button disabled={!searchQuery || !replaceQuery}><RefreshCw className="w-4 h-4 mr-2" />Replace All</Button>
+                                <Button variant="outline" disabled={!searchQuery}><TbSearch className="w-4 h-4 mr-2" />Preview Results</Button>
+                                <Button disabled={!searchQuery || !replaceQuery}><TbRefresh className="w-4 h-4 mr-2" />Replace All</Button>
                             </div>
                             {searchQuery && (
                                 <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">

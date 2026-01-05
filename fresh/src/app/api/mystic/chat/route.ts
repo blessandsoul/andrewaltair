@@ -2,10 +2,13 @@ import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
 import { AI_CONFIG, CHAT_RULES } from "@/lib/mystic-rules"
 
-const client = new OpenAI({
-    apiKey: process.env.GROQ_API_KEY,
-    baseURL: AI_CONFIG.baseURL,
-})
+// Lazy initialization to avoid build-time errors
+function getClient() {
+    return new OpenAI({
+        apiKey: process.env.GROQ_API_KEY,
+        baseURL: AI_CONFIG.baseURL,
+    })
+}
 
 // Функция для получения трейта зодиака из централизованных правил
 function getZodiacTrait(sign: string): string | undefined {
@@ -15,6 +18,7 @@ function getZodiacTrait(sign: string): string | undefined {
 
 export async function POST(request: NextRequest) {
     try {
+        const client = getClient()
         const { message, history = [], userName, zodiacSign } = await request.json()
 
         if (!message) {

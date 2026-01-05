@@ -1,20 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
+import TbPhoto from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {
-    Eye,
-    Flame,
-    Heart,
-    MessageCircle,
-    Share2,
-    Clock,
-    Bookmark,
-    Sparkles,
-    TrendingUp
-} from "lucide-react"
+import { TbEye, TbFlame, TbHeart, TbMessage, TbShare, TbClock, TbBookmark, TbSparkles, TbTrendingUp } from "react-icons/tb"
 import { brand } from "@/lib/brand"
 import { useState } from "react"
 
@@ -88,14 +78,14 @@ export function TrendingCard({ post, rank }: TrendingCardProps) {
                 onMouseLeave={() => setIsHovered(false)}
             >
                 <CardContent className="p-0">
-                    {/* Image Container */}
+                    {/* TbPhoto Container */}
                     <div className="aspect-video relative overflow-hidden">
                         {/* Background */}
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10" />
 
-                        {/* Image */}
+                        {/* TbPhoto */}
                         {post.coverImage ? (
-                            <Image
+                            <TbPhoto
                                 src={post.coverImage}
                                 alt={post.title}
                                 fill
@@ -103,7 +93,7 @@ export function TrendingCard({ post, rank }: TrendingCardProps) {
                             />
                         ) : (
                             <div className="absolute inset-0 flex items-center justify-center">
-                                <Sparkles className="w-12 h-12 text-primary/30" />
+                                <TbSparkles className="w-12 h-12 text-primary/30" />
                             </div>
                         )}
 
@@ -128,18 +118,18 @@ export function TrendingCard({ post, rank }: TrendingCardProps) {
 
                         {/* Trending indicator */}
                         <div className="absolute bottom-3 left-3 flex items-center gap-1 text-white text-xs z-10">
-                            <TrendingUp className="w-4 h-4 text-red-400" />
+                            <TbTrendingUp className="w-4 h-4 text-red-400" />
                             <span className="font-medium">ტრენდში</span>
                         </div>
 
                         {/* Stats on image */}
                         <div className="absolute bottom-3 right-3 flex items-center gap-3 text-white/90 text-xs z-10">
                             <span className="flex items-center gap-1">
-                                <Eye className="w-3.5 h-3.5" />
+                                <TbEye className="w-3.5 h-3.5" />
                                 {formatNumber(post.views)}
                             </span>
                             <span className="flex items-center gap-1">
-                                <Heart className="w-3.5 h-3.5 text-red-400" />
+                                <TbHeart className="w-3.5 h-3.5 text-red-400" />
                                 {formatNumber(getTotalReactions(post.reactions))}
                             </span>
                         </div>
@@ -169,7 +159,7 @@ export function TrendingCard({ post, rank }: TrendingCardProps) {
 
                             {/* Reading time */}
                             <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                <Clock className="w-3.5 h-3.5" />
+                                <TbClock className="w-3.5 h-3.5" />
                                 <span>{post.readingTime} წთ</span>
                             </div>
                         </div>

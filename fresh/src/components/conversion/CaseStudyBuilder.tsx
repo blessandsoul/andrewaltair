@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Building2, TrendingUp, Download, Check, ChevronRight } from 'lucide-react';
+import { TbFileText, TbBuilding, TbTrendingUp, TbDownload, TbCheck, TbChevronRight } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 
 const INDUSTRIES = [
@@ -51,7 +51,7 @@ export default function CaseStudyBuilder() {
             <div className="space-y-6">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-blue-500/20 rounded-lg">
-                        <FileText className="w-6 h-6 text-blue-400" />
+                        <TbFileText className="w-6 h-6 text-blue-400" />
                     </div>
                     <div>
                         <h2 className="text-2xl font-bold text-white">შენი AI კეისი</h2>
@@ -84,7 +84,7 @@ export default function CaseStudyBuilder() {
 
                     <div className="p-4 rounded-xl bg-green-900/30 border border-green-500/30 mb-6">
                         <div className="flex items-center gap-2 mb-2">
-                            <TrendingUp className="w-5 h-5 text-green-400" />
+                            <TbTrendingUp className="w-5 h-5 text-green-400" />
                             <span className="font-semibold text-white">პროგნოზირებული შედეგი</span>
                         </div>
                         <p className="text-gray-300 text-sm">
@@ -93,7 +93,7 @@ export default function CaseStudyBuilder() {
                     </div>
 
                     <button className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
-                        <Download className="w-5 h-5" />
+                        <TbDownload className="w-5 h-5" />
                         PDF-ად ჩამოტვირთვა
                     </button>
                 </motion.div>
@@ -112,7 +112,7 @@ export default function CaseStudyBuilder() {
         <div className="space-y-6">
             <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-500/20 rounded-lg">
-                    <FileText className="w-6 h-6 text-blue-400" />
+                    <TbFileText className="w-6 h-6 text-blue-400" />
                 </div>
                 <div>
                     <h2 className="text-2xl font-bold text-white">კეის სტადის შემქმნელი</h2>
@@ -183,7 +183,7 @@ export default function CaseStudyBuilder() {
                             >
                                 <span className="text-gray-200">{uc.label}</span>
                                 {selectedUseCases.includes(uc.id) && (
-                                    <Check className="w-5 h-5 text-purple-400" />
+                                    <TbCheck className="w-5 h-5 text-purple-400" />
                                 )}
                             </button>
                         ))}
@@ -235,7 +235,7 @@ export default function CaseStudyBuilder() {
                 )}
             >
                 {step === 3 ? 'კეისის შექმნა' : 'შემდეგი'}
-                <ChevronRight className="w-5 h-5" />
+                <TbChevronRight className="w-5 h-5" />
             </button>
         </div>
     );

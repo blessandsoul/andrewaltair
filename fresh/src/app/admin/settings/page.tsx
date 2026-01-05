@@ -6,60 +6,21 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-    Settings,
-    Globe,
-    Shield,
-    Database,
-    Save,
-    Check,
-    RefreshCw,
-    Trash2,
-    Download,
-    Upload,
-    Palette,
-    Sun,
-    Moon,
-    Languages,
-    Mail,
-    Share2,
-    BarChart3,
-    Key,
-    Webhook,
-    HardDrive,
-    Construction,
-    Activity,
-    AlertTriangle,
-    Clock,
-    Copy,
-    Eye,
-    EyeOff,
-    Send,
-    Plus,
-    Calendar,
-    Server,
-    Cpu,
-    MemoryStick,
-    History,
-    AlertCircle,
-    CheckCircle,
-    XCircle,
-    Info
-} from "lucide-react"
+import { TbSettings, TbWorld, TbShield, TbDatabase, TbDeviceFloppy, TbCheck, TbRefresh, TbTrash, TbDownload, TbUpload, TbPalette, TbSun, TbMoon, TbLanguage, TbMail, TbShare, TbChartBar, TbKey, TbWebhook, TbDeviceSdCard, TbTools, TbActivity, TbAlertTriangle, TbClock, TbCopy, TbEye, TbEyeOff, TbSend, TbPlus, TbCalendar, TbServer, TbCpu, TbHistory, TbAlertCircle, TbCircleCheck, TbCircleX, TbInfoCircle } from "react-icons/tb"
 
 // Tab configuration
 const tabs = [
-    { id: "general", label: "ზოგადი", icon: Settings },
-    { id: "theme", label: "თემა", icon: Palette },
-    { id: "localization", label: "ენა", icon: Languages },
-    { id: "email", label: "ელფოსტა", icon: Mail },
-    { id: "social", label: "სოციალური", icon: Share2 },
-    { id: "security", label: "უსაფრთხოება", icon: Shield },
-    { id: "analytics", label: "ანალიტიკა", icon: BarChart3 },
-    { id: "api", label: "API", icon: Key },
-    { id: "backups", label: "ბექაფები", icon: HardDrive },
-    { id: "maintenance", label: "მეინტენანსი", icon: Construction },
-    { id: "system", label: "სისტემა", icon: Activity },
+    { id: "general", label: "ზოგადი", icon: TbSettings },
+    { id: "theme", label: "თემა", icon: TbPalette },
+    { id: "localization", label: "ენა", icon: TbLanguage },
+    { id: "email", label: "ელფოსტა", icon: TbMail },
+    { id: "social", label: "სოციალური", icon: TbShare },
+    { id: "security", label: "უსაფრთხოება", icon: TbShield },
+    { id: "analytics", label: "ანალიტიკა", icon: TbChartBar },
+    { id: "api", label: "API", icon: TbKey },
+    { id: "backups", label: "ბექაფები", icon: TbDeviceSdCard },
+    { id: "maintenance", label: "მეინტენანსი", icon: TbTools },
+    { id: "system", label: "სისტემა", icon: TbActivity },
 ]
 
 export default function SettingsPage() {
@@ -104,9 +65,9 @@ export default function SettingsPage() {
 
     // Social Settings
     const [socialSettings, setSocialSettings] = React.useState({
-        facebook: "https://facebook.com/andrewaltair",
-        instagram: "https://instagram.com/andrewaltair",
-        youtube: "https://youtube.com/@andrewaltair",
+        facebook: "https://www.facebook.com/andr3waltair",
+        instagram: "https://www.instagram.com/andr3waltair/",
+        youtube: "https://www.youtube.com/@AndrewAltair",
         twitter: "",
         linkedin: "",
         tiktok: "",
@@ -251,7 +212,7 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold flex items-center gap-3">
-                        <Settings className="w-8 h-8 text-indigo-500" />
+                        <TbSettings className="w-8 h-8 text-indigo-500" />
                         პარამეტრები
                     </h1>
                     <p className="text-muted-foreground mt-1">
@@ -261,12 +222,12 @@ export default function SettingsPage() {
                 <Button onClick={handleSave} className="gap-2">
                     {saved ? (
                         <>
-                            <Check className="w-4 h-4" />
+                            <TbCheck className="w-4 h-4" />
                             შენახულია!
                         </>
                     ) : (
                         <>
-                            <Save className="w-4 h-4" />
+                            <TbDeviceFloppy className="w-4 h-4" />
                             შენახვა
                         </>
                     )}
@@ -293,7 +254,7 @@ export default function SettingsPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <Globe className="w-5 h-5 text-blue-500" />
+                                <TbWorld className="w-5 h-5 text-blue-500" />
                                 ზოგადი პარამეტრები
                             </CardTitle>
                             <CardDescription>საიტის ძირითადი ინფორმაცია</CardDescription>
@@ -339,7 +300,7 @@ export default function SettingsPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <Palette className="w-5 h-5 text-pink-500" />
+                                <TbPalette className="w-5 h-5 text-pink-500" />
                                 თემის პარამეტრები
                             </CardTitle>
                             <CardDescription>საიტის იერსახისა და დიზაინის კონფიგურაცია</CardDescription>
@@ -350,9 +311,9 @@ export default function SettingsPage() {
                                 <label className="text-sm font-medium">ფერის რეჟიმი</label>
                                 <div className="flex gap-2">
                                     {[
-                                        { id: "light", label: "ღია", icon: Sun },
-                                        { id: "dark", label: "მუქი", icon: Moon },
-                                        { id: "system", label: "სისტემის", icon: Settings }
+                                        { id: "light", label: "ღია", icon: TbSun },
+                                        { id: "dark", label: "მუქი", icon: TbMoon },
+                                        { id: "system", label: "სისტემის", icon: TbSettings }
                                     ].map((mode) => (
                                         <Button
                                             key={mode.id}
@@ -415,7 +376,7 @@ export default function SettingsPage() {
                                 <div className="space-y-3">
                                     <label className="text-sm font-medium">ლოგო</label>
                                     <div className="border-2 border-dashed rounded-lg p-6 text-center">
-                                        <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+                                        <TbUpload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
                                         <p className="text-sm text-muted-foreground">ატვირთეთ ლოგო</p>
                                         <Button variant="outline" size="sm" className="mt-2">
                                             არჩევა
@@ -425,7 +386,7 @@ export default function SettingsPage() {
                                 <div className="space-y-3">
                                     <label className="text-sm font-medium">ფავიკონი</label>
                                     <div className="border-2 border-dashed rounded-lg p-6 text-center">
-                                        <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+                                        <TbUpload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
                                         <p className="text-sm text-muted-foreground">ატვირთეთ ფავიკონი</p>
                                         <Button variant="outline" size="sm" className="mt-2">
                                             არჩევა
@@ -442,7 +403,7 @@ export default function SettingsPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <Languages className="w-5 h-5 text-green-500" />
+                                <TbLanguage className="w-5 h-5 text-green-500" />
                                 ლოკალიზაცია
                             </CardTitle>
                             <CardDescription>ენა, დროის ზონა და ფორმატები</CardDescription>
@@ -508,7 +469,7 @@ export default function SettingsPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <Mail className="w-5 h-5 text-orange-500" />
+                                <TbMail className="w-5 h-5 text-orange-500" />
                                 SMTP კონფიგურაცია
                             </CardTitle>
                             <CardDescription>ელფოსტის სერვერის პარამეტრები</CardDescription>
@@ -557,7 +518,7 @@ export default function SettingsPage() {
                                             className="absolute right-0 top-0 h-full px-3"
                                             onClick={() => setShowSmtpPassword(!showSmtpPassword)}
                                         >
-                                            {showSmtpPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                            {showSmtpPassword ? <TbEyeOff className="w-4 h-4" /> : <TbEye className="w-4 h-4" />}
                                         </Button>
                                     </div>
                                 </div>
@@ -585,7 +546,7 @@ export default function SettingsPage() {
                                 </div>
                             </div>
                             <Button variant="outline" className="gap-2">
-                                <Send className="w-4 h-4" />
+                                <TbSend className="w-4 h-4" />
                                 ტესტ მეილის გაგზავნა
                             </Button>
                         </CardContent>
@@ -597,7 +558,7 @@ export default function SettingsPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <Share2 className="w-5 h-5 text-blue-500" />
+                                <TbShare className="w-5 h-5 text-blue-500" />
                                 სოციალური ქსელები
                             </CardTitle>
                             <CardDescription>სოციალური მედიის ბმულები და ინტეგრაციები</CardDescription>
@@ -672,7 +633,7 @@ export default function SettingsPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <Shield className="w-5 h-5 text-green-500" />
+                                <TbShield className="w-5 h-5 text-green-500" />
                                 უსაფრთხოების პარამეტრები
                             </CardTitle>
                             <CardDescription>დაცვა და წვდომის კონტროლი</CardDescription>
@@ -727,7 +688,7 @@ export default function SettingsPage() {
                                 onChange={(checked) => setSecuritySettings({ ...securitySettings, forceHttps: checked })}
                             />
                             <Button variant="outline" className="gap-2 text-orange-500">
-                                <RefreshCw className="w-4 h-4" />
+                                <TbRefresh className="w-4 h-4" />
                                 ყველა სესიის დასრულება
                             </Button>
                         </CardContent>
@@ -739,7 +700,7 @@ export default function SettingsPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <BarChart3 className="w-5 h-5 text-purple-500" />
+                                <TbChartBar className="w-5 h-5 text-purple-500" />
                                 ანალიტიკის ინტეგრაციები
                             </CardTitle>
                             <CardDescription>Tracking კოდები და ანალიტიკის სერვისები</CardDescription>
@@ -762,7 +723,7 @@ export default function SettingsPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Custom Tracking Code</label>
+                                <label className="text-sm font-medium">Custom Tracking TbCode</label>
                                 <textarea
                                     className="w-full h-32 px-3 py-2 rounded-md border bg-background font-mono text-sm resize-none"
                                     placeholder="<script>...</script>"
@@ -786,10 +747,10 @@ export default function SettingsPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <Key className="w-5 h-5 text-yellow-500" />
+                                <TbKey className="w-5 h-5 text-yellow-500" />
                                 API კონფიგურაცია
                             </CardTitle>
-                            <CardDescription>API გასაღებები და Webhook-ები</CardDescription>
+                            <CardDescription>API გასაღებები და TbWebhook-ები</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <ToggleSetting
@@ -815,7 +776,7 @@ export default function SettingsPage() {
                                             className="absolute right-10 top-0 h-full px-2"
                                             onClick={() => setShowApiKey(!showApiKey)}
                                         >
-                                            {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                            {showApiKey ? <TbEyeOff className="w-4 h-4" /> : <TbEye className="w-4 h-4" />}
                                         </Button>
                                         <Button
                                             type="button"
@@ -824,11 +785,11 @@ export default function SettingsPage() {
                                             className="absolute right-0 top-0 h-full px-2"
                                             onClick={() => copyToClipboard(apiSettings.apiKey)}
                                         >
-                                            <Copy className="w-4 h-4" />
+                                            <TbCopy className="w-4 h-4" />
                                         </Button>
                                     </div>
                                     <Button variant="outline" onClick={regenerateApiKey} className="gap-2">
-                                        <RefreshCw className="w-4 h-4" />
+                                        <TbRefresh className="w-4 h-4" />
                                         რეგენერაცია
                                     </Button>
                                 </div>
@@ -842,7 +803,7 @@ export default function SettingsPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Webhook URL</label>
+                                <label className="text-sm font-medium">TbWebhook URL</label>
                                 <Input
                                     placeholder="https://your-server.com/webhook"
                                     value={apiSettings.webhookUrl}
@@ -850,7 +811,7 @@ export default function SettingsPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Webhook Secret</label>
+                                <label className="text-sm font-medium">TbWebhook Secret</label>
                                 <Input
                                     type="password"
                                     placeholder="••••••••"
@@ -867,7 +828,7 @@ export default function SettingsPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <HardDrive className="w-5 h-5 text-cyan-500" />
+                                <TbDeviceSdCard className="w-5 h-5 text-cyan-500" />
                                 სარეზერვო ასლები
                             </CardTitle>
                             <CardDescription>ბექაფების მართვა და აღდგენა</CardDescription>
@@ -875,11 +836,11 @@ export default function SettingsPage() {
                         <CardContent className="space-y-4">
                             <div className="flex gap-2">
                                 <Button className="gap-2">
-                                    <Plus className="w-4 h-4" />
+                                    <TbPlus className="w-4 h-4" />
                                     ახალი ბექაფი
                                 </Button>
                                 <Button variant="outline" className="gap-2">
-                                    <Upload className="w-4 h-4" />
+                                    <TbUpload className="w-4 h-4" />
                                     იმპორტი
                                 </Button>
                             </div>
@@ -888,7 +849,7 @@ export default function SettingsPage() {
                                 {backups.map((backup) => (
                                     <div key={backup.id} className="flex items-center justify-between p-3">
                                         <div className="flex items-center gap-3">
-                                            <Database className="w-5 h-5 text-muted-foreground" />
+                                            <TbDatabase className="w-5 h-5 text-muted-foreground" />
                                             <div>
                                                 <p className="font-medium text-sm">{backup.date}</p>
                                                 <p className="text-xs text-muted-foreground">{backup.size}</p>
@@ -896,17 +857,17 @@ export default function SettingsPage() {
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Badge variant="secondary" className="text-green-500">
-                                                <CheckCircle className="w-3 h-3 mr-1" />
+                                                <TbCircleCheck className="w-3 h-3 mr-1" />
                                                 წარმატებული
                                             </Badge>
                                             <Button variant="ghost" size="sm">
-                                                <Download className="w-4 h-4" />
+                                                <TbDownload className="w-4 h-4" />
                                             </Button>
                                             <Button variant="ghost" size="sm">
-                                                <RefreshCw className="w-4 h-4" />
+                                                <TbRefresh className="w-4 h-4" />
                                             </Button>
                                             <Button variant="ghost" size="sm" className="text-red-500">
-                                                <Trash2 className="w-4 h-4" />
+                                                <TbTrash className="w-4 h-4" />
                                             </Button>
                                         </div>
                                     </div>
@@ -953,7 +914,7 @@ export default function SettingsPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <Construction className="w-5 h-5 text-amber-500" />
+                                <TbTools className="w-5 h-5 text-amber-500" />
                                 მეინტენანს რეჟიმი
                             </CardTitle>
                             <CardDescription>საიტის დროებით გამორთვა</CardDescription>
@@ -1016,7 +977,7 @@ export default function SettingsPage() {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <Server className="w-5 h-5 text-blue-500" />
+                                    <TbServer className="w-5 h-5 text-blue-500" />
                                     სისტემის ინფორმაცია
                                 </CardTitle>
                             </CardHeader>
@@ -1035,13 +996,13 @@ export default function SettingsPage() {
                                 </div>
                                 <div className="flex justify-between py-2 border-b">
                                     <span className="text-muted-foreground flex items-center gap-2">
-                                        <Cpu className="w-4 h-4" /> CPU
+                                        <TbCpu className="w-4 h-4" /> CPU
                                     </span>
                                     <span className="text-sm">45%</span>
                                 </div>
                                 <div className="flex justify-between py-2">
                                     <span className="text-muted-foreground flex items-center gap-2">
-                                        <MemoryStick className="w-4 h-4" /> მეხსიერება
+                                        <TbCpu className="w-4 h-4" /> მეხსიერება
                                     </span>
                                     <span className="text-sm">2.4 GB / 8 GB</span>
                                 </div>
@@ -1051,7 +1012,7 @@ export default function SettingsPage() {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <Activity className="w-5 h-5 text-green-500" />
+                                    <TbActivity className="w-5 h-5 text-green-500" />
                                     სისტემის სტატუსი
                                 </CardTitle>
                             </CardHeader>
@@ -1077,13 +1038,13 @@ export default function SettingsPage() {
                         <CardHeader className="flex flex-row items-center justify-between">
                             <div>
                                 <CardTitle className="flex items-center gap-2">
-                                    <History className="w-5 h-5 text-purple-500" />
+                                    <TbHistory className="w-5 h-5 text-purple-500" />
                                     აქტივობის ლოგები
                                 </CardTitle>
                                 <CardDescription>ბოლო მოქმედებები</CardDescription>
                             </div>
                             <Button variant="outline" size="sm" className="gap-2 text-red-500">
-                                <Trash2 className="w-4 h-4" />
+                                <TbTrash className="w-4 h-4" />
                                 გასუფთავება
                             </Button>
                         </CardHeader>
@@ -1091,14 +1052,14 @@ export default function SettingsPage() {
                             <div className="space-y-2">
                                 {logs.map((log) => (
                                     <div key={log.id} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                                        {log.type === "info" && <Info className="w-5 h-5 text-blue-500 mt-0.5" />}
-                                        {log.type === "success" && <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />}
-                                        {log.type === "warning" && <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5" />}
-                                        {log.type === "error" && <XCircle className="w-5 h-5 text-red-500 mt-0.5" />}
+                                        {log.type === "info" && <TbInfoCircle className="w-5 h-5 text-blue-500 mt-0.5" />}
+                                        {log.type === "success" && <TbCircleCheck className="w-5 h-5 text-green-500 mt-0.5" />}
+                                        {log.type === "warning" && <TbAlertTriangle className="w-5 h-5 text-amber-500 mt-0.5" />}
+                                        {log.type === "error" && <TbCircleX className="w-5 h-5 text-red-500 mt-0.5" />}
                                         <div className="flex-1">
                                             <p className="text-sm">{log.message}</p>
                                             <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                                                <Clock className="w-3 h-3" />
+                                                <TbClock className="w-3 h-3" />
                                                 {log.time}
                                             </p>
                                         </div>
@@ -1111,7 +1072,7 @@ export default function SettingsPage() {
                     <Card className="border-red-500/20">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-red-500">
-                                <AlertCircle className="w-5 h-5" />
+                                <TbAlertCircle className="w-5 h-5" />
                                 საშიში ზონა
                             </CardTitle>
                         </CardHeader>
@@ -1122,7 +1083,7 @@ export default function SettingsPage() {
                                     <p className="text-sm text-muted-foreground">ყველა დროებითი ფაილის წაშლა</p>
                                 </div>
                                 <Button variant="outline" className="text-red-500 border-red-500/20 hover:bg-red-500/10">
-                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    <TbTrash className="w-4 h-4 mr-2" />
                                     გასუფთავება
                                 </Button>
                             </div>
@@ -1132,7 +1093,7 @@ export default function SettingsPage() {
                                     <p className="text-sm text-muted-foreground">ყველა პარამეტრის დაბრუნება ნაგულისხმევზე</p>
                                 </div>
                                 <Button variant="outline" className="text-red-500 border-red-500/20 hover:bg-red-500/10">
-                                    <RefreshCw className="w-4 h-4 mr-2" />
+                                    <TbRefresh className="w-4 h-4 mr-2" />
                                     გადატვირთვა
                                 </Button>
                             </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Moon, Star, RefreshCw, Calendar, Sparkles } from "lucide-react"
+import { TbMoon, TbStar, TbRefresh, TbCalendar, TbSparkles } from "react-icons/tb"
 
 interface MoonPhaseData {
     phase: string
@@ -118,7 +118,7 @@ export function MoonPhases() {
                 <div className="absolute -inset-1 bg-gradient-to-r from-slate-600 to-indigo-600 rounded-2xl sm:rounded-3xl blur-xl opacity-20" />
                 <div className="relative rounded-2xl sm:rounded-3xl bg-[#12121a] border border-white/10 p-8">
                     <div className="flex justify-center">
-                        <Moon className="w-12 h-12 text-slate-400 animate-pulse" />
+                        <TbMoon className="w-12 h-12 text-slate-400 animate-pulse" />
                     </div>
                     <p className="text-center text-gray-500 mt-4">მთვარის ფაზა იტვირთება...</p>
                 </div>
@@ -147,7 +147,7 @@ export function MoonPhases() {
 
                         <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">{moonData.phase}</h2>
                         <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
-                            <Calendar className="w-4 h-4" />
+                            <TbCalendar className="w-4 h-4" />
                             <span>{today}</span>
                         </div>
                     </div>
@@ -172,7 +172,7 @@ export function MoonPhases() {
                     <div className="p-4 rounded-xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20">
                         <div className="flex items-center gap-3 mb-2">
                             <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center">
-                                <Sparkles className="w-4 h-4 text-indigo-400" />
+                                <TbSparkles className="w-4 h-4 text-indigo-400" />
                             </div>
                             <span className="font-semibold text-white">ენერგია: {moonData.energy}</span>
                         </div>
@@ -182,7 +182,7 @@ export function MoonPhases() {
                     {/* Rituals */}
                     <div className="p-4 rounded-xl bg-white/5 border border-white/5">
                         <div className="flex items-center gap-2 mb-3">
-                            <Star className="w-4 h-4 text-amber-400" />
+                            <TbStar className="w-4 h-4 text-amber-400" />
                             <span className="font-medium text-white text-sm">რეკომენდებული რიტუალები</span>
                         </div>
                         <div className="space-y-2">
@@ -200,7 +200,7 @@ export function MoonPhases() {
                         variant="outline"
                         className="w-full h-10 sm:h-12 rounded-xl border-white/10 text-white hover:bg-white/5 bg-transparent"
                     >
-                        <RefreshCw className="w-4 h-4 mr-2" />
+                        <TbRefresh className="w-4 h-4 mr-2" />
                         განახლება
                     </Button>
                 </div>

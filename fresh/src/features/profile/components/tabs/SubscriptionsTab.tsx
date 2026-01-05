@@ -5,7 +5,7 @@
 "use client"
 
 import * as React from "react"
-import { Bookmark, Wrench, FileText } from "lucide-react"
+import { TbBookmark, TbTool, TbFileText } from "react-icons/tb"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { SubscriptionCard } from "../shared/SubscriptionCard"
 import type { SubscriptionItem } from "../../types"
@@ -32,7 +32,7 @@ export function SubscriptionsTab({ subscriptions = [], isLoading = false }: Subs
         <Card className="border-border/50 shadow-xl backdrop-blur-sm">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Bookmark className="w-5 h-5 text-primary" />
+                    <TbBookmark className="w-5 h-5 text-primary" />
                     გამოწერები
                 </CardTitle>
                 <CardDescription>მართეთ თქვენი გამოწერები</CardDescription>
@@ -45,14 +45,14 @@ export function SubscriptionsTab({ subscriptions = [], isLoading = false }: Subs
                 ) : (
                     <>
                         {/* Tools Subscriptions */}
-                        {toolSubs.length > 0 && (
+                        {toolsubs.length > 0 && (
                             <div>
                                 <h3 className="font-medium mb-4 flex items-center gap-2">
-                                    <Wrench className="w-4 h-4" />
+                                    <TbTool className="w-4 h-4" />
                                     ინსტრუმენტები
                                 </h3>
                                 <div className="grid gap-3">
-                                    {toolSubs.map((sub) => (
+                                    {toolsubs.map((sub) => (
                                         <SubscriptionCard
                                             key={sub.id}
                                             name={sub.name}
@@ -69,7 +69,7 @@ export function SubscriptionsTab({ subscriptions = [], isLoading = false }: Subs
                         {topicSubs.length > 0 && (
                             <div>
                                 <h3 className="font-medium mb-4 flex items-center gap-2">
-                                    <FileText className="w-4 h-4" />
+                                    <TbFileText className="w-4 h-4" />
                                     თემები
                                 </h3>
                                 <div className="grid gap-3">

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import dbConnect from '@/lib/db';
 import Post from '@/models/Post';
 import mongoose from 'mongoose';
@@ -36,12 +37,38 @@ export async function GET(request: Request, { params }: RouteParams) {
         // Increment views
         await Post.findByIdAndUpdate(post._id, { $inc: { views: 1 } });
 
+        // Get previous and next posts for navigation
+        const [prevPost, nextPost] = await Promise.all([
+            Post.findOne({
+                status: 'published',
+                $or: [
+                    { order: { $lt: post.order } },
+                    { order: post.order, createdAt: { $gt: post.createdAt } }
+                ]
+            })
+                .sort({ order: -1, createdAt: 1 })
+                .select('slug title')
+                .lean(),
+            Post.findOne({
+                status: 'published',
+                $or: [
+                    { order: { $gt: post.order } },
+                    { order: post.order, createdAt: { $lt: post.createdAt } }
+                ]
+            })
+                .sort({ order: 1, createdAt: -1 })
+                .select('slug title')
+                .lean()
+        ]);
+
         return NextResponse.json({
             post: {
                 ...post,
                 id: post._id.toString(),
                 views: post.views + 1,
             },
+            prevPost: prevPost ? { slug: prevPost.slug, title: prevPost.title } : null,
+            nextPost: nextPost ? { slug: nextPost.slug, title: nextPost.title } : null,
         });
     } catch (error) {
         console.error('Get post error:', error);
@@ -77,6 +104,11 @@ export async function PUT(request: Request, { params }: RouteParams) {
             );
         }
 
+        // 🔄 Revalidate caches
+        revalidatePath('/blog');
+        revalidatePath(`/blog/${post.slug}`);
+        revalidatePath('/');
+
         return NextResponse.json({
             success: true,
             post: {
@@ -108,6 +140,10 @@ export async function DELETE(request: Request, { params }: RouteParams) {
                 { status: 404 }
             );
         }
+
+        // 🔄 Revalidate caches
+        revalidatePath('/blog');
+        revalidatePath('/');
 
         return NextResponse.json({
             success: true,

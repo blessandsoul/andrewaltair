@@ -15,38 +15,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import {
-    Search as SearchIcon,
-    Globe,
-    AlertTriangle,
-    CheckCircle,
-    XCircle,
-    ExternalLink,
-    RefreshCw,
-    TrendingUp,
-    TrendingDown,
-    FileText,
-    Eye,
-    Link as LinkIcon,
-    Share2,
-    Twitter,
-    Facebook,
-    Linkedin,
-    FileCode,
-    Image as ImageIcon,
-    History,
-    Settings,
-    Plus,
-    Trash2,
-    Edit3,
-    Save,
-    RotateCcw,
-    Copy,
-    ArrowUp,
-    ArrowDown,
-    Minus,
-    X
-} from "lucide-react"
+import { TbSearch, TbWorld, TbAlertTriangle, TbCircleCheck, TbCircleX, TbExternalLink, TbRefresh, TbTrendingUp, TbTrendingDown, TbFileText, TbEye, TbShare, TbBrandTwitter, TbBrandFacebook, TbBrandLinkedin, TbFileCode, TbPhoto, TbHistory, TbSettings, TbPlus, TbTrash, TbEdit, TbDeviceFloppy, TbCopy, TbArrowUp, TbArrowDown, TbMinus, TbX, TbLink } from "react-icons/tb"
 // Posts fetched from MongoDB API
 import seoData from "@/data/seo-data.json"
 import type {
@@ -201,10 +170,10 @@ export default function SeoPage() {
     const [brokenLinks, setBrokenLinks] = React.useState<BrokenLink[]>(seoData.brokenLinks as BrokenLink[])
     const [isScanning, setIsScanning] = React.useState(false)
 
-    // Image Alt State
+    // TbPhoto Alt State
     const [imageAltIssues, setImageAltIssues] = React.useState<ImageAltIssue[]>(seoData.imageAltIssues as ImageAltIssue[])
 
-    // History State
+    // TbHistory State
     const [seoHistory] = React.useState<SeoHistoryEntry[]>(seoData.seoHistory as SeoHistoryEntry[])
 
     // Social Preview State
@@ -251,9 +220,9 @@ export default function SeoPage() {
     }
 
     const getTrendIcon = (trend: string) => {
-        if (trend === "up") return <ArrowUp className="w-4 h-4 text-green-500" />
-        if (trend === "down") return <ArrowDown className="w-4 h-4 text-red-500" />
-        return <Minus className="w-4 h-4 text-gray-400" />
+        if (trend === "up") return <TbArrowUp className="w-4 h-4 text-green-500" />
+        if (trend === "down") return <TbArrowDown className="w-4 h-4 text-red-500" />
+        return <TbMinus className="w-4 h-4 text-gray-400" />
     }
 
     const getStatusBadge = (status: string) => {
@@ -366,7 +335,7 @@ export default function SeoPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold flex items-center gap-3">
-                        <Globe className="w-8 h-8 text-indigo-500" />
+                        <TbWorld className="w-8 h-8 text-indigo-500" />
                         SEO ანალიზატორი
                     </h1>
                     <p className="text-muted-foreground mt-1">
@@ -374,7 +343,7 @@ export default function SeoPage() {
                     </p>
                 </div>
                 <Button onClick={runAnalysis} disabled={isAnalyzing} className="gap-2">
-                    <RefreshCw className={`w-4 h-4 ${isAnalyzing ? "animate-spin" : ""}`} />
+                    <TbRefresh className={`w-4 h-4 ${isAnalyzing ? "animate-spin" : ""}`} />
                     {isAnalyzing ? "ანალიზი..." : "ხელახლა ანალიზი"}
                 </Button>
             </div>
@@ -391,8 +360,8 @@ export default function SeoPage() {
                     <TabsTrigger value="canonical" className="text-xs px-2 py-1.5">Canonical</TabsTrigger>
                     <TabsTrigger value="schema" className="text-xs px-2 py-1.5">Schema</TabsTrigger>
                     <TabsTrigger value="links" className="text-xs px-2 py-1.5">Links</TabsTrigger>
-                    <TabsTrigger value="images" className="text-xs px-2 py-1.5">Images</TabsTrigger>
-                    <TabsTrigger value="history" className="text-xs px-2 py-1.5">History</TabsTrigger>
+                    <TabsTrigger value="images" className="text-xs px-2 py-1.5">TbPhoto</TabsTrigger>
+                    <TabsTrigger value="history" className="text-xs px-2 py-1.5">TbHistory</TabsTrigger>
                 </TabsList>
 
                 {/* Overview Tab */}
@@ -407,7 +376,7 @@ export default function SeoPage() {
                                         <p className={`text-3xl font-bold ${getScoreColor(averageScore)}`}>{averageScore}%</p>
                                     </div>
                                     <div className={`w-12 h-12 rounded-xl ${getScoreBg(averageScore)} text-white flex items-center justify-center`}>
-                                        <TrendingUp className="w-6 h-6" />
+                                        <TbTrendingUp className="w-6 h-6" />
                                     </div>
                                 </div>
                             </CardContent>
@@ -421,7 +390,7 @@ export default function SeoPage() {
                                         <p className="text-3xl font-bold">{postsData.length}</p>
                                     </div>
                                     <div className="w-12 h-12 rounded-xl bg-blue-500 text-white flex items-center justify-center">
-                                        <FileText className="w-6 h-6" />
+                                        <TbFileText className="w-6 h-6" />
                                     </div>
                                 </div>
                             </CardContent>
@@ -437,7 +406,7 @@ export default function SeoPage() {
                                         </p>
                                     </div>
                                     <div className="w-12 h-12 rounded-xl bg-red-500 text-white flex items-center justify-center">
-                                        <AlertTriangle className="w-6 h-6" />
+                                        <TbAlertTriangle className="w-6 h-6" />
                                     </div>
                                 </div>
                             </CardContent>
@@ -453,16 +422,16 @@ export default function SeoPage() {
                                         </p>
                                     </div>
                                     <div className="w-12 h-12 rounded-xl bg-green-500 text-white flex items-center justify-center">
-                                        <CheckCircle className="w-6 h-6" />
+                                        <TbCircleCheck className="w-6 h-6" />
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
                     </div>
 
-                    {/* Search */}
+                    {/* TbSearch */}
                     <div className="relative max-w-sm">
-                        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <TbSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                             placeholder="ძიება..."
                             value={searchQuery}
@@ -488,7 +457,7 @@ export default function SeoPage() {
                                                     <p className="text-sm text-muted-foreground">/{post.slug}</p>
                                                 </div>
                                                 <Button variant="ghost" size="icon" className="flex-shrink-0">
-                                                    <ExternalLink className="w-4 h-4" />
+                                                    <TbExternalLink className="w-4 h-4" />
                                                 </Button>
                                             </div>
 
@@ -515,13 +484,13 @@ export default function SeoPage() {
                                                 <div className="mt-4 flex flex-wrap gap-2">
                                                     {post.issues.map((issue, i) => (
                                                         <Badge key={i} variant="destructive" className="gap-1">
-                                                            <XCircle className="w-3 h-3" />
+                                                            <TbCircleX className="w-3 h-3" />
                                                             {issue}
                                                         </Badge>
                                                     ))}
                                                     {post.suggestions.map((suggestion, i) => (
                                                         <Badge key={i} variant="secondary" className="gap-1">
-                                                            <AlertTriangle className="w-3 h-3" />
+                                                            <TbAlertTriangle className="w-3 h-3" />
                                                             {suggestion}
                                                         </Badge>
                                                     ))}
@@ -540,7 +509,7 @@ export default function SeoPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <FileText className="w-5 h-5" />
+                                <TbFileText className="w-5 h-5" />
                                 Meta Tags მართვა
                             </CardTitle>
                         </CardHeader>
@@ -553,15 +522,15 @@ export default function SeoPage() {
                                             {editingMeta === meta.id ? (
                                                 <>
                                                     <Button size="sm" onClick={() => setEditingMeta(null)}>
-                                                        <Save className="w-4 h-4 mr-1" /> Save
+                                                        <TbDeviceFloppy className="w-4 h-4 mr-1" /> Save
                                                     </Button>
                                                     <Button size="sm" variant="ghost" onClick={() => setEditingMeta(null)}>
-                                                        <X className="w-4 h-4" />
+                                                        <TbX className="w-4 h-4" />
                                                     </Button>
                                                 </>
                                             ) : (
                                                 <Button size="sm" variant="ghost" onClick={() => setEditingMeta(meta.id)}>
-                                                    <Edit3 className="w-4 h-4 mr-1" /> Edit
+                                                    <TbEdit className="w-4 h-4 mr-1" /> Edit
                                                 </Button>
                                             )}
                                         </div>
@@ -651,7 +620,7 @@ export default function SeoPage() {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <Share2 className="w-5 h-5" />
+                                    <TbShare className="w-5 h-5" />
                                     Open Graph Settings
                                 </CardTitle>
                             </CardHeader>
@@ -683,7 +652,7 @@ export default function SeoPage() {
                                     <Textarea defaultValue={selectedPost.ogDescription} />
                                 </div>
                                 <div>
-                                    <label className="text-sm font-medium">OG Image URL</label>
+                                    <label className="text-sm font-medium">OG TbPhoto URL</label>
                                     <Input defaultValue={selectedPost.ogImage} />
                                 </div>
                                 <div>
@@ -701,7 +670,7 @@ export default function SeoPage() {
                                     </Select>
                                 </div>
                                 <Button className="w-full">
-                                    <Save className="w-4 h-4 mr-2" /> Save Changes
+                                    <TbDeviceFloppy className="w-4 h-4 mr-2" /> Save Changes
                                 </Button>
                             </CardContent>
                         </Card>
@@ -709,7 +678,7 @@ export default function SeoPage() {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <Eye className="w-5 h-5" />
+                                    <TbEye className="w-5 h-5" />
                                     Preview
                                 </CardTitle>
                             </CardHeader>
@@ -720,28 +689,28 @@ export default function SeoPage() {
                                         variant={socialPlatform === "facebook" ? "default" : "outline"}
                                         onClick={() => setSocialPlatform("facebook")}
                                     >
-                                        <Facebook className="w-4 h-4 mr-1" /> Facebook
+                                        <TbBrandFacebook className="w-4 h-4 mr-1" /> Facebook
                                     </Button>
                                     <Button
                                         size="sm"
                                         variant={socialPlatform === "twitter" ? "default" : "outline"}
                                         onClick={() => setSocialPlatform("twitter")}
                                     >
-                                        <Twitter className="w-4 h-4 mr-1" /> Twitter
+                                        <TbBrandTwitter className="w-4 h-4 mr-1" /> Twitter
                                     </Button>
                                     <Button
                                         size="sm"
                                         variant={socialPlatform === "linkedin" ? "default" : "outline"}
                                         onClick={() => setSocialPlatform("linkedin")}
                                     >
-                                        <Linkedin className="w-4 h-4 mr-1" /> LinkedIn
+                                        <TbBrandLinkedin className="w-4 h-4 mr-1" /> LinkedIn
                                     </Button>
                                 </div>
 
                                 {/* Social Preview Card */}
                                 <div className="border rounded-lg overflow-hidden bg-card">
                                     <div className="aspect-video bg-muted flex items-center justify-center">
-                                        <ImageIcon className="w-12 h-12 text-muted-foreground" />
+                                        <TbPhoto className="w-12 h-12 text-muted-foreground" />
                                     </div>
                                     <div className="p-4">
                                         <p className="text-xs text-muted-foreground uppercase">
@@ -766,11 +735,11 @@ export default function SeoPage() {
                         <CardHeader>
                             <div className="flex items-center justify-between">
                                 <CardTitle className="flex items-center gap-2">
-                                    <FileCode className="w-5 h-5" />
+                                    <TbFileCode className="w-5 h-5" />
                                     Sitemap.xml
                                 </CardTitle>
                                 <Button className="gap-2">
-                                    <RefreshCw className="w-4 h-4" /> Regenerate
+                                    <TbRefresh className="w-4 h-4" /> Regenerate
                                 </Button>
                             </div>
                         </CardHeader>
@@ -817,7 +786,7 @@ export default function SeoPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <Settings className="w-5 h-5" />
+                                <TbSettings className="w-5 h-5" />
                                 Robots.txt Editor
                             </CardTitle>
                         </CardHeader>
@@ -852,7 +821,7 @@ export default function SeoPage() {
                                     className="flex-1"
                                 />
                                 <Button onClick={addRobotRule}>
-                                    <Plus className="w-4 h-4" />
+                                    <TbPlus className="w-4 h-4" />
                                 </Button>
                             </div>
 
@@ -876,7 +845,7 @@ export default function SeoPage() {
                                             <span className="font-mono text-sm">{rule.path}</span>
                                         </div>
                                         <Button size="icon" variant="ghost" onClick={() => deleteRobotRule(rule.id)}>
-                                            <Trash2 className="w-4 h-4 text-red-500" />
+                                            <TbTrash className="w-4 h-4 text-red-500" />
                                         </Button>
                                     </div>
                                 ))}
@@ -901,7 +870,7 @@ export default function SeoPage() {
                         <CardHeader>
                             <div className="flex items-center justify-between">
                                 <CardTitle className="flex items-center gap-2">
-                                    <TrendingUp className="w-5 h-5" />
+                                    <TbTrendingUp className="w-5 h-5" />
                                     Keyword Tracking
                                 </CardTitle>
                                 <div className="flex gap-2">
@@ -912,7 +881,7 @@ export default function SeoPage() {
                                         className="w-48"
                                     />
                                     <Button onClick={addKeyword}>
-                                        <Plus className="w-4 h-4" />
+                                        <TbPlus className="w-4 h-4" />
                                     </Button>
                                 </div>
                             </div>
@@ -944,7 +913,7 @@ export default function SeoPage() {
                                                 {kw.difficulty}
                                             </Badge>
                                             <Button size="icon" variant="ghost" onClick={() => deleteKeyword(kw.id)}>
-                                                <Trash2 className="w-4 h-4 text-red-500" />
+                                                <TbTrash className="w-4 h-4 text-red-500" />
                                             </Button>
                                         </div>
                                     </div>
@@ -959,7 +928,7 @@ export default function SeoPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <LinkIcon className="w-5 h-5" />
+                                <TbLink className="w-5 h-5" />
                                 Canonical URLs
                             </CardTitle>
                         </CardHeader>
@@ -981,7 +950,7 @@ export default function SeoPage() {
                                         <div className="flex items-center gap-2">
                                             {getStatusBadge(url.status)}
                                             <Button size="icon" variant="ghost">
-                                                <Edit3 className="w-4 h-4" />
+                                                <TbEdit className="w-4 h-4" />
                                             </Button>
                                         </div>
                                     </div>
@@ -997,7 +966,7 @@ export default function SeoPage() {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <FileCode className="w-5 h-5" />
+                                    <TbFileCode className="w-5 h-5" />
                                     Schema Templates
                                 </CardTitle>
                             </CardHeader>
@@ -1032,7 +1001,7 @@ export default function SeoPage() {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <Eye className="w-5 h-5" />
+                                    <TbEye className="w-5 h-5" />
                                     JSON-LD Preview
                                 </CardTitle>
                             </CardHeader>
@@ -1044,7 +1013,7 @@ export default function SeoPage() {
                                     }
                                 </pre>
                                 <Button className="w-full mt-4" disabled={!selectedSchema}>
-                                    <Copy className="w-4 h-4 mr-2" /> Copy to Clipboard
+                                    <TbCopy className="w-4 h-4 mr-2" /> Copy to Clipboard
                                 </Button>
                             </CardContent>
                         </Card>
@@ -1057,11 +1026,11 @@ export default function SeoPage() {
                         <CardHeader>
                             <div className="flex items-center justify-between">
                                 <CardTitle className="flex items-center gap-2">
-                                    <LinkIcon className="w-5 h-5" />
+                                    <TbLink className="w-5 h-5" />
                                     Broken Links Checker
                                 </CardTitle>
                                 <Button onClick={scanForBrokenLinks} disabled={isScanning}>
-                                    <RefreshCw className={`w-4 h-4 mr-2 ${isScanning ? "animate-spin" : ""}`} />
+                                    <TbRefresh className={`w-4 h-4 mr-2 ${isScanning ? "animate-spin" : ""}`} />
                                     {isScanning ? "Scanning..." : "Scan Now"}
                                 </Button>
                             </div>
@@ -1097,13 +1066,13 @@ export default function SeoPage() {
                     </Card>
                 </TabsContent>
 
-                {/* Images Tab */}
+                {/* TbPhoto Tab */}
                 <TabsContent value="images" className="space-y-6 mt-6">
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <ImageIcon className="w-5 h-5" />
-                                Image ALT Text Analyzer
+                                <TbPhoto className="w-5 h-5" />
+                                TbPhoto ALT Text Analyzer
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -1139,7 +1108,7 @@ export default function SeoPage() {
                                     <div key={img.id} className="flex items-center justify-between p-4 border rounded-lg">
                                         <div className="flex items-center gap-4">
                                             <div className="w-16 h-16 bg-muted rounded flex items-center justify-center">
-                                                <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                                                <TbPhoto className="w-8 h-8 text-muted-foreground" />
                                             </div>
                                             <div>
                                                 <p className="font-medium">{img.imageName}</p>
@@ -1168,13 +1137,13 @@ export default function SeoPage() {
                     </Card>
                 </TabsContent>
 
-                {/* History Tab */}
+                {/* TbHistory Tab */}
                 <TabsContent value="history" className="space-y-6 mt-6">
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <History className="w-5 h-5" />
-                                SEO Changes History
+                                <TbHistory className="w-5 h-5" />
+                                SEO Changes TbHistory
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -1185,9 +1154,9 @@ export default function SeoPage() {
                                             entry.action === "update" ? "bg-blue-500/20 text-blue-500" :
                                                 "bg-red-500/20 text-red-500"
                                             }`}>
-                                            {entry.action === "create" ? <Plus className="w-5 h-5" /> :
-                                                entry.action === "update" ? <Edit3 className="w-5 h-5" /> :
-                                                    <Trash2 className="w-5 h-5" />}
+                                            {entry.action === "create" ? <TbPlus className="w-5 h-5" /> :
+                                                entry.action === "update" ? <TbEdit className="w-5 h-5" /> :
+                                                    <TbTrash className="w-5 h-5" />}
                                         </div>
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2">
@@ -1209,7 +1178,7 @@ export default function SeoPage() {
                                             </p>
                                         </div>
                                         <Button size="sm" variant="ghost">
-                                            <RotateCcw className="w-4 h-4 mr-1" /> Restore
+                                            <TbRefresh className="w-4 h-4 mr-1" /> Restore
                                         </Button>
                                     </div>
                                 ))}

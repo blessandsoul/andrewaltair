@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Clock, Zap, Check, ChevronRight, Star, Trophy } from 'lucide-react';
+import { TbBook, TbClock, TbBolt, TbCheck, TbChevronRight, TbStar, TbTrophy } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 
@@ -64,9 +64,9 @@ function LessonCard({
                     lesson.completed ? "bg-green-600" : `bg-gradient-to-br ${gradientClass}`
                 )}>
                     {lesson.completed ? (
-                        <Check className="w-6 h-6 text-white" />
+                        <TbCheck className="w-6 h-6 text-white" />
                     ) : (
-                        <BookOpen className="w-6 h-6 text-white" />
+                        <TbBook className="w-6 h-6 text-white" />
                     )}
                 </div>
 
@@ -82,18 +82,18 @@ function LessonCard({
 
                     <div className="flex items-center gap-4 text-xs">
                         <span className="flex items-center gap-1 text-gray-500">
-                            <Clock className="w-3 h-3" />
+                            <TbClock className="w-3 h-3" />
                             {Math.floor(lesson.duration / 60)} წთ
                         </span>
                         <span className="flex items-center gap-1 text-yellow-400">
-                            <Zap className="w-3 h-3" />
+                            <TbBolt className="w-3 h-3" />
                             +{lesson.xpReward} XP
                         </span>
                     </div>
                 </div>
 
                 {/* Arrow */}
-                <ChevronRight className={cn(
+                <TbChevronRight className={cn(
                     "w-5 h-5 shrink-0 transition-transform",
                     isActive ? "text-purple-400 translate-x-1" : "text-gray-600"
                 )} />
@@ -157,7 +157,7 @@ function LessonViewer({
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                                <BookOpen className="w-5 h-5 text-white" />
+                                <TbBook className="w-5 h-5 text-white" />
                             </div>
                             <div>
                                 <h2 className="font-bold text-white">{lesson.title}</h2>
@@ -198,12 +198,12 @@ function LessonViewer({
                     >
                         {canComplete ? (
                             <>
-                                <Trophy className="w-5 h-5" />
+                                <TbTrophy className="w-5 h-5" />
                                 დასრულება (+{lesson.xpReward} XP)
                             </>
                         ) : (
                             <>
-                                <Clock className="w-5 h-5 animate-pulse" />
+                                <TbClock className="w-5 h-5 animate-pulse" />
                                 წაიკითხე გაკვეთილი...
                             </>
                         )}
@@ -283,7 +283,7 @@ export default function MicroLessons() {
     if (!user) {
         return (
             <div className="text-center p-8 border border-white/10 rounded-2xl bg-white/5">
-                <BookOpen className="w-12 h-12 mx-auto mb-4 text-purple-400" />
+                <TbBook className="w-12 h-12 mx-auto mb-4 text-purple-400" />
                 <h3 className="text-xl font-bold mb-2">⚡ მიკრო-გაკვეთილები</h3>
                 <p className="text-gray-400">გაიარე ავტორიზაცია სწავლის დასაწყებად</p>
             </div>
@@ -298,7 +298,7 @@ export default function MicroLessons() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-purple-500/20 rounded-lg">
-                        <BookOpen className="w-6 h-6 text-purple-400" />
+                        <TbBook className="w-6 h-6 text-purple-400" />
                     </div>
                     <div>
                         <h2 className="text-2xl font-bold text-white">მიკრო-გაკვეთილები</h2>
@@ -309,7 +309,7 @@ export default function MicroLessons() {
 
                 {/* XP Badge */}
                 <div className="flex items-center gap-2 px-4 py-2 bg-yellow-500/20 rounded-full">
-                    <Star className="w-5 h-5 text-yellow-400" />
+                    <TbStar className="w-5 h-5 text-yellow-400" />
                     <span className="font-bold text-yellow-400">{totalXp} XP</span>
                 </div>
             </div>
@@ -331,7 +331,7 @@ export default function MicroLessons() {
             {/* Lessons List */}
             {lessons.length === 0 ? (
                 <div className="text-center p-8 border border-white/10 rounded-2xl bg-white/5">
-                    <BookOpen className="w-12 h-12 mx-auto mb-4 text-gray-500" />
+                    <TbBook className="w-12 h-12 mx-auto mb-4 text-gray-500" />
                     <p className="text-gray-400">გაკვეთილები მალე გამოჩნდება</p>
                 </div>
             ) : (

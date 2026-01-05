@@ -5,46 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import {
-    TrendingUp,
-    TrendingDown,
-    Eye,
-    Users,
-    Clock,
-    BarChart3,
-    LineChart,
-    PieChart,
-    Calendar,
-    ArrowUpRight,
-    ArrowDownRight,
-    Flame,
-    MessageCircle,
-    Share2,
-    Heart,
-    Globe,
-    Smartphone,
-    Monitor,
-    Tablet,
-    Download,
-    FileText,
-    FileSpreadsheet,
-    Target,
-    MousePointer,
-    AlertTriangle,
-    Zap,
-    Search,
-    Route,
-    Activity,
-    Bell,
-    Settings,
-    RefreshCw,
-    ChevronRight,
-    MapPin,
-    Chrome,
-    Apple,
-    Gauge,
-    Timer,
-} from "lucide-react"
+import { TbTrendingUp, TbTrendingDown, TbEye, TbUsers, TbClock, TbChartBar, TbChartLine, TbChartPie, TbCalendar, TbArrowUpRight, TbArrowDownRight, TbFlame, TbMessage, TbShare, TbHeart, TbWorld, TbDeviceMobile, TbDeviceDesktop, TbDeviceTablet, TbDownload, TbFileText, TbFileSpreadsheet, TbTarget, TbPointer, TbAlertTriangle, TbBolt, TbSearch, TbRoute, TbActivity, TbBell, TbSettings, TbRefresh, TbChevronRight, TbMapPin, TbBrandChrome, TbBrandApple, TbGauge } from "react-icons/tb"
 // Data fetched from MongoDB API
 
 // ============================================
@@ -79,13 +40,13 @@ const geoData = [
 ]
 
 const deviceData = [
-    { type: "Desktop", icon: Monitor, percentage: 65, color: "from-blue-500 to-blue-600" },
-    { type: "Mobile", icon: Smartphone, percentage: 28, color: "from-purple-500 to-purple-600" },
-    { type: "Tablet", icon: Tablet, percentage: 7, color: "from-pink-500 to-pink-600" }
+    { type: "Desktop", icon: TbDeviceDesktop, percentage: 65, color: "from-blue-500 to-blue-600" },
+    { type: "Mobile", icon: TbDeviceMobile, percentage: 28, color: "from-purple-500 to-purple-600" },
+    { type: "Tablet", icon: TbDeviceTablet, percentage: 7, color: "from-pink-500 to-pink-600" }
 ]
 
 const browserData = [
-    { name: "Chrome", percentage: 62, color: "#4285F4" },
+    { name: "TbBrandChrome", percentage: 62, color: "#4285F4" },
     { name: "Safari", percentage: 18, color: "#000000" },
     { name: "Firefox", percentage: 12, color: "#FF7139" },
     { name: "Edge", percentage: 5, color: "#0078D7" },
@@ -94,7 +55,7 @@ const browserData = [
 
 const trafficSources = [
     { source: "Direct", visitors: 5200, percentage: 40, color: "bg-blue-500" },
-    { source: "Organic Search", visitors: 3900, percentage: 30, color: "bg-green-500" },
+    { source: "Organic TbSearch", visitors: 3900, percentage: 30, color: "bg-green-500" },
     { source: "Social Media", visitors: 1950, percentage: 15, color: "bg-purple-500" },
     { source: "Referral", visitors: 1300, percentage: 10, color: "bg-orange-500" },
     { source: "Email", visitors: 650, percentage: 5, color: "bg-pink-500" }
@@ -168,7 +129,7 @@ function DateRangePicker({ selected, onSelect }: { selected: string; onSelect: (
                 </Button>
             ))}
             <Button variant="outline" size="sm" className="text-xs gap-1">
-                <Calendar className="w-3 h-3" />
+                <TbCalendar className="w-3 h-3" />
                 Custom
             </Button>
         </div>
@@ -197,7 +158,7 @@ function RealTimeCard() {
                         <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
                         <span className="text-sm font-medium text-green-500">LIVE</span>
                     </div>
-                    <RefreshCw className="w-4 h-4 text-muted-foreground animate-spin" style={{ animationDuration: "3s" }} />
+                    <TbRefresh className="w-4 h-4 text-muted-foreground animate-spin" style={{ animationDuration: "3s" }} />
                 </div>
                 <div className="text-5xl font-bold mb-2">{liveVisitors}</div>
                 <p className="text-sm text-muted-foreground mb-4">აქტიური მომხმარებელი</p>
@@ -224,7 +185,7 @@ function GeoSection() {
         <Card>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Globe className="w-5 h-5 text-blue-500" />
+                    <TbWorld className="w-5 h-5 text-blue-500" />
                     გეოგრაფია
                 </CardTitle>
             </CardHeader>
@@ -262,7 +223,7 @@ function DeviceBrowserSection() {
         <Card>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Smartphone className="w-5 h-5 text-purple-500" />
+                    <TbDeviceMobile className="w-5 h-5 text-purple-500" />
                     მოწყობილობები & ბრაუზერები
                 </CardTitle>
             </CardHeader>
@@ -323,7 +284,7 @@ function TrafficSourcesSection() {
         <Card>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Route className="w-5 h-5 text-orange-500" />
+                    <TbRoute className="w-5 h-5 text-orange-500" />
                     ტრაფიკის წყაროები
                 </CardTitle>
             </CardHeader>
@@ -361,22 +322,22 @@ function ExportSection() {
         <Card>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Download className="w-5 h-5 text-indigo-500" />
+                    <TbDownload className="w-5 h-5 text-indigo-500" />
                     ანგარიშის ექსპორტი
                 </CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="grid grid-cols-3 gap-3">
                     <Button variant="outline" className="flex-col h-20 gap-2" onClick={() => handleExport("PDF")}>
-                        <FileText className="w-6 h-6 text-red-500" />
+                        <TbFileText className="w-6 h-6 text-red-500" />
                         <span className="text-xs">PDF</span>
                     </Button>
                     <Button variant="outline" className="flex-col h-20 gap-2" onClick={() => handleExport("CSV")}>
-                        <FileSpreadsheet className="w-6 h-6 text-green-500" />
+                        <TbFileSpreadsheet className="w-6 h-6 text-green-500" />
                         <span className="text-xs">CSV</span>
                     </Button>
                     <Button variant="outline" className="flex-col h-20 gap-2" onClick={() => handleExport("Excel")}>
-                        <FileSpreadsheet className="w-6 h-6 text-emerald-600" />
+                        <TbFileSpreadsheet className="w-6 h-6 text-emerald-600" />
                         <span className="text-xs">Excel</span>
                     </Button>
                 </div>
@@ -394,7 +355,7 @@ function GoalsSection() {
         <Card>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Target className="w-5 h-5 text-green-500" />
+                    <TbTarget className="w-5 h-5 text-green-500" />
                     მიზნები & კონვერსია
                 </CardTitle>
             </CardHeader>
@@ -448,7 +409,7 @@ function HeatmapSection() {
         <Card className="relative overflow-hidden">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <MousePointer className="w-5 h-5 text-red-500" />
+                    <TbPointer className="w-5 h-5 text-red-500" />
                     ჰითმეპი
                 </CardTitle>
             </CardHeader>
@@ -463,13 +424,13 @@ function HeatmapSection() {
                     {/* Overlay message */}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                         <div className="text-center">
-                            <MousePointer className="w-8 h-8 mx-auto mb-2 text-white" />
+                            <TbPointer className="w-8 h-8 mx-auto mb-2 text-white" />
                             <p className="text-white text-sm font-medium">დაკლიკებების რუკა</p>
                         </div>
                     </div>
                 </div>
                 <Button variant="outline" className="w-full mt-4 gap-2">
-                    <ChevronRight className="w-4 h-4" />
+                    <TbChevronRight className="w-4 h-4" />
                     სრული ჰითმეპის ნახვა
                 </Button>
             </CardContent>
@@ -484,7 +445,7 @@ function ComparisonSection({ enabled, onToggle }: { enabled: boolean; onToggle: 
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
-                        <BarChart3 className="w-5 h-5 text-indigo-500" />
+                        <TbChartBar className="w-5 h-5 text-indigo-500" />
                         პერიოდების შედარება
                     </CardTitle>
                     <Button variant={enabled ? "default" : "outline"} size="sm" onClick={onToggle}>
@@ -519,11 +480,11 @@ function AlertsSection() {
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
-                        <Bell className="w-5 h-5 text-yellow-500" />
+                        <TbBell className="w-5 h-5 text-yellow-500" />
                         შეტყობინებები
                     </CardTitle>
                     <Button variant="ghost" size="sm">
-                        <Settings className="w-4 h-4" />
+                        <TbSettings className="w-4 h-4" />
                     </Button>
                 </div>
             </CardHeader>
@@ -539,9 +500,9 @@ function AlertsSection() {
                         >
                             <div className="flex items-start gap-3">
                                 {anomaly.severity === "positive" ? (
-                                    <TrendingUp className="w-5 h-5 text-green-500 mt-0.5" />
+                                    <TbTrendingUp className="w-5 h-5 text-green-500 mt-0.5" />
                                 ) : (
-                                    <AlertTriangle className="w-5 h-5 text-yellow-500 mt-0.5" />
+                                    <TbAlertTriangle className="w-5 h-5 text-yellow-500 mt-0.5" />
                                 )}
                                 <div>
                                     <p className="text-sm font-medium">{anomaly.message}</p>
@@ -567,12 +528,12 @@ function EngagementCard() {
                         <p className="text-sm text-muted-foreground">Engagement Rate</p>
                         <p className="text-3xl font-bold mt-1">{engagementRate}%</p>
                         <div className="flex items-center gap-1 mt-2 text-green-500 text-sm">
-                            <ArrowUpRight className="w-4 h-4" />
+                            <TbArrowUpRight className="w-4 h-4" />
                             +5.2%
                         </div>
                     </div>
                     <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center">
-                        <Activity className="w-6 h-6 text-indigo-500" />
+                        <TbActivity className="w-6 h-6 text-indigo-500" />
                     </div>
                 </div>
             </CardContent>
@@ -591,12 +552,12 @@ function BounceRateCard() {
                         <p className="text-sm text-muted-foreground">Bounce Rate</p>
                         <p className="text-3xl font-bold mt-1">{bounceRate}%</p>
                         <div className="flex items-center gap-1 mt-2 text-red-500 text-sm">
-                            <ArrowDownRight className="w-4 h-4" />
+                            <TbArrowDownRight className="w-4 h-4" />
                             +3.1%
                         </div>
                     </div>
                     <div className="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center">
-                        <TrendingDown className="w-6 h-6 text-red-500" />
+                        <TbTrendingDown className="w-6 h-6 text-red-500" />
                     </div>
                 </div>
             </CardContent>
@@ -625,7 +586,7 @@ function PageSpeedSection() {
         <Card>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Gauge className="w-5 h-5 text-cyan-500" />
+                    <TbGauge className="w-5 h-5 text-cyan-500" />
                     Core Web Vitals
                 </CardTitle>
             </CardHeader>
@@ -641,7 +602,7 @@ function PageSpeedSection() {
                 </div>
                 <div className="mt-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
                     <div className="flex items-center gap-2">
-                        <Zap className="w-5 h-5 text-green-500" />
+                        <TbBolt className="w-5 h-5 text-green-500" />
                         <span className="text-sm font-medium text-green-500">Performance Score: 94</span>
                     </div>
                 </div>
@@ -650,13 +611,13 @@ function PageSpeedSection() {
     )
 }
 
-// 14. Search Analytics
+// 14. TbSearch Analytics
 function SearchAnalyticsSection() {
     return (
         <Card>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Search className="w-5 h-5 text-amber-500" />
+                    <TbSearch className="w-5 h-5 text-amber-500" />
                     ძებნის ანალიტიკა
                 </CardTitle>
             </CardHeader>
@@ -686,7 +647,7 @@ function UserFlowSection() {
         <Card>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Route className="w-5 h-5 text-teal-500" />
+                    <TbRoute className="w-5 h-5 text-teal-500" />
                     მომხმარებლის მარშრუტი
                 </CardTitle>
             </CardHeader>
@@ -696,7 +657,7 @@ function UserFlowSection() {
                         <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                             <div className="flex-1 flex items-center gap-2">
                                 <Badge variant="secondary">{flow.from}</Badge>
-                                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                                <TbChevronRight className="w-4 h-4 text-muted-foreground" />
                                 <Badge variant="outline">{flow.to}</Badge>
                             </div>
                             <span className="text-sm font-medium">{formatNumber(flow.count)}</span>
@@ -773,7 +734,7 @@ export default function AnalyticsPage() {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 className="text-3xl font-bold flex items-center gap-3">
-                        <BarChart3 className="w-8 h-8 text-indigo-500" />
+                        <TbChartBar className="w-8 h-8 text-indigo-500" />
                         ანალიტიკა
                     </h1>
                     <p className="text-muted-foreground mt-1">
@@ -794,12 +755,12 @@ export default function AnalyticsPage() {
                                 <p className="text-sm text-muted-foreground">ჯამური ნახვები</p>
                                 <p className="text-3xl font-bold mt-1">{formatNumber(analyticsData?.stats?.totalViews || 14100)}</p>
                                 <div className="flex items-center gap-1 mt-2 text-green-500 text-sm">
-                                    <ArrowUpRight className="w-4 h-4" />
+                                    <TbArrowUpRight className="w-4 h-4" />
                                     +12.5%
                                 </div>
                             </div>
                             <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                                <Eye className="w-6 h-6 text-blue-500" />
+                                <TbEye className="w-6 h-6 text-blue-500" />
                             </div>
                         </div>
                     </CardContent>
@@ -812,12 +773,12 @@ export default function AnalyticsPage() {
                                 <p className="text-sm text-muted-foreground">უნიკ. ვიზიტორები</p>
                                 <p className="text-3xl font-bold mt-1">3.2K</p>
                                 <div className="flex items-center gap-1 mt-2 text-green-500 text-sm">
-                                    <ArrowUpRight className="w-4 h-4" />
+                                    <TbArrowUpRight className="w-4 h-4" />
                                     +8.2%
                                 </div>
                             </div>
                             <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                                <Users className="w-6 h-6 text-purple-500" />
+                                <TbUsers className="w-6 h-6 text-purple-500" />
                             </div>
                         </div>
                     </CardContent>
@@ -832,7 +793,7 @@ export default function AnalyticsPage() {
                 <Card className="lg:col-span-2">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <LineChart className="w-5 h-5 text-indigo-500" />
+                            <TbChartLine className="w-5 h-5 text-indigo-500" />
                             კვირის სტატისტიკა
                         </CardTitle>
                     </CardHeader>
@@ -885,7 +846,7 @@ export default function AnalyticsPage() {
                 <ExportSection />
             </div>
 
-            {/* Search Analytics + User Flow */}
+            {/* TbSearch Analytics + User Flow */}
             <div className="grid gap-6 lg:grid-cols-2">
                 <SearchAnalyticsSection />
                 <UserFlowSection />
@@ -897,7 +858,7 @@ export default function AnalyticsPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <TrendingUp className="w-5 h-5 text-green-500" />
+                            <TbTrendingUp className="w-5 h-5 text-green-500" />
                             ტოპ პოსტები
                         </CardTitle>
                     </CardHeader>
@@ -913,7 +874,7 @@ export default function AnalyticsPage() {
                                     <p className="font-medium truncate text-sm">{post.title}</p>
                                     <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
                                         <span className="flex items-center gap-1">
-                                            <Eye className="w-3 h-3" />
+                                            <TbEye className="w-3 h-3" />
                                             {formatNumber(post.views || 0)}
                                         </span>
                                     </div>
@@ -927,7 +888,7 @@ export default function AnalyticsPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <TrendingUp className="w-5 h-5 text-green-500" />
+                            <TbTrendingUp className="w-5 h-5 text-green-500" />
                             ტოპ ვიდეოები
                         </CardTitle>
                     </CardHeader>

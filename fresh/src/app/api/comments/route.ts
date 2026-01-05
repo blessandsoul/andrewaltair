@@ -18,6 +18,7 @@ export async function GET(request: Request) {
         const query: any = {};
 
         if (postId) {
+            // Support both ObjectId and string postId (for tools, posts, etc.)
             query.postId = postId;
         }
 
@@ -31,15 +32,46 @@ export async function GET(request: Request) {
             .sort({ createdAt: -1 })
             .skip((page - 1) * limit)
             .limit(limit)
-            .populate('postId', 'title slug')
             .lean();
 
-        const transformedComments = comments.map(comment => ({
-            ...comment,
-            id: comment._id.toString(),
-            postId: comment.postId?._id?.toString() || comment.postId,
-            postTitle: (comment.postId as { title?: string })?.title || 'Unknown Post',
-            _id: undefined,
+        // Get post/tool titles for each comment
+        const Tool = (await import('@/models/Tool')).default;
+        const Post = (await import('@/models/Post')).default;
+
+        const transformedComments = await Promise.all(comments.map(async (comment) => {
+            let postTitle = 'Unknown Post';
+            
+            // Check if postId starts with "tool-" (for tools)
+            if (comment.postId && typeof comment.postId === 'string' && comment.postId.startsWith('tool-')) {
+                const toolId = comment.postId.replace('tool-', '');
+                try {
+                    const tool = await Tool.findById(toolId).select('name').lean();
+                    if (tool) {
+                        postTitle = `Tool: ${tool.name}`;
+                    }
+                } catch (err) {
+                    console.error('Error fetching tool:', err);
+                }
+            } else {
+                // Try to find post
+                try {
+                    const post = await Post.findById(comment.postId).select('title').lean();
+                    if (post) {
+                        postTitle = `Post: ${post.title}`;
+                    }
+                } catch (err) {
+                    console.error('Error fetching post:', err);
+                }
+            }
+
+            return {
+                ...comment,
+                id: comment._id.toString(),
+                postId: comment.postId,
+                postTitle,
+                author: comment.author,
+                _id: undefined,
+            };
         }));
 
         return NextResponse.json({
@@ -48,8 +80,9 @@ export async function GET(request: Request) {
         });
     } catch (error) {
         console.error('Get comments error:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
         return NextResponse.json(
-            { error: 'Failed to fetch comments' },
+            { error: 'Failed to fetch comments', details: error instanceof Error ? error.message : String(error) },
             { status: 500 }
         );
     }
@@ -77,8 +110,9 @@ export async function POST(request: Request) {
         });
     } catch (error) {
         console.error('Create comment error:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
         return NextResponse.json(
-            { error: 'Failed to create comment' },
+            { error: 'Failed to create comment', details: error instanceof Error ? error.message : String(error) },
             { status: 500 }
         );
     }

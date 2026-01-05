@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Heart, MessageCircle, Sparkles, Check } from 'lucide-react';
+import { TbUsers, TbHeart, TbMessage, TbSparkles, TbCheck } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 
@@ -38,7 +38,7 @@ export default function AIBuddyMatching() {
     if (!user) {
         return (
             <div className="text-center p-8 border border-white/10 rounded-2xl bg-white/5">
-                <Users className="w-12 h-12 mx-auto mb-4 text-pink-400" />
+                <TbUsers className="w-12 h-12 mx-auto mb-4 text-pink-400" />
                 <h3 className="text-xl font-bold mb-2">🤝 AI ბადის მეჩინგი</h3>
                 <p className="text-gray-400">გაიარე ავტორიზაცია პარტნიორის საპოვნელად</p>
             </div>
@@ -49,7 +49,7 @@ export default function AIBuddyMatching() {
         <div className="space-y-6">
             <div className="flex items-center gap-3">
                 <div className="p-2 bg-pink-500/20 rounded-lg">
-                    <Users className="w-6 h-6 text-pink-400" />
+                    <TbUsers className="w-6 h-6 text-pink-400" />
                 </div>
                 <div>
                     <h2 className="text-2xl font-bold text-white">AI ბადი მეჩინგი</h2>
@@ -79,7 +79,7 @@ export default function AIBuddyMatching() {
                                 <div className="flex items-center justify-between">
                                     <h3 className="font-semibold text-white">{buddy.name}</h3>
                                     <div className="flex items-center gap-1 text-pink-400 text-sm">
-                                        <Heart className="w-4 h-4" />
+                                        <TbHeart className="w-4 h-4" />
                                         {buddy.matchScore}%
                                     </div>
                                 </div>
@@ -106,12 +106,12 @@ export default function AIBuddyMatching() {
                         >
                             {matches.includes(buddy.id) ? (
                                 <>
-                                    <Check className="w-4 h-4" />
+                                    <TbCheck className="w-4 h-4" />
                                     მეჩი გაიგზავნა
                                 </>
                             ) : (
                                 <>
-                                    <Sparkles className="w-4 h-4" />
+                                    <TbSparkles className="w-4 h-4" />
                                     კონტაქტი
                                 </>
                             )}

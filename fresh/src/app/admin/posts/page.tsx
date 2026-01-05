@@ -13,36 +13,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import {
-    FileText,
-    Search,
-    Edit,
-    Trash2,
-    Eye,
-    Star,
-    Flame,
-    X,
-    Save,
-    CheckSquare,
-    Square,
-    Plus,
-    MessageCircle,
-    Share2,
-    Heart,
-    Calendar,
-    ChevronUp,
-    ChevronDown,
-    ChevronLeft,
-    ChevronRight,
-    Copy,
-    Download,
-    Upload,
-    GripVertical,
-    Clock,
-    FileCheck,
-    FilePen,
-    ArrowUpDown
-} from "lucide-react"
+import { TbFileText, TbSearch, TbEdit, TbTrash, TbEye, TbStar, TbFlame, TbX, TbDeviceFloppy, TbSquareCheck, TbSquare, TbPlus, TbMessage, TbShare, TbHeart, TbCalendar, TbChevronUp, TbChevronDown, TbChevronLeft, TbChevronRight, TbCopy, TbDownload, TbUpload, TbGripVertical, TbClock, TbFileCheck, TbFilePencil, TbArrowsSort } from "react-icons/tb"
 // Posts fetched from MongoDB API
 
 interface Post {
@@ -158,7 +129,7 @@ export default function PostsPage() {
     const filteredPosts = React.useMemo(() => {
         let result = [...posts]
 
-        // Search filter
+        // TbSearch filter
         if (searchQuery) {
             const q = searchQuery.toLowerCase()
             result = result.filter(p =>
@@ -237,11 +208,11 @@ export default function PostsPage() {
     // Sort indicator component
     const SortIndicator = ({ columnKey }: { columnKey: SortKey }) => {
         if (sortConfig.key !== columnKey) {
-            return <ArrowUpDown className="w-3.5 h-3.5 ml-1 opacity-30" />
+            return <TbArrowsSort className="w-3.5 h-3.5 ml-1 opacity-30" />
         }
         return sortConfig.direction === "asc"
-            ? <ChevronUp className="w-3.5 h-3.5 ml-1 text-primary" />
-            : <ChevronDown className="w-3.5 h-3.5 ml-1 text-primary" />
+            ? <TbChevronUp className="w-3.5 h-3.5 ml-1 text-primary" />
+            : <TbChevronDown className="w-3.5 h-3.5 ml-1 text-primary" />
     }
 
     // Select all toggle
@@ -548,9 +519,9 @@ export default function PostsPage() {
     // Status badge component
     const StatusBadge = ({ status }: { status: Post["status"] }) => {
         const config = {
-            draft: { icon: FilePen, label: "დრაფტი", class: "bg-gray-500/20 text-gray-400" },
-            published: { icon: FileCheck, label: "გამოქვეყნებული", class: "bg-green-500/20 text-green-500" },
-            scheduled: { icon: Clock, label: "დაგეგმილი", class: "bg-blue-500/20 text-blue-400" }
+            draft: { icon: TbFilePencil, label: "დრაფტი", class: "bg-gray-500/20 text-gray-400" },
+            published: { icon: TbFileCheck, label: "გამოქვეყნებული", class: "bg-green-500/20 text-green-500" },
+            scheduled: { icon: TbClock, label: "დაგეგმილი", class: "bg-blue-500/20 text-blue-400" }
         }
         const { icon: Icon, label, class: className } = config[status]
         return (
@@ -567,7 +538,7 @@ export default function PostsPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold flex items-center gap-3">
-                        <FileText className="w-8 h-8 text-primary" />
+                        <TbFileText className="w-8 h-8 text-primary" />
                         პოსტების მართვა
                     </h1>
                     <p className="text-muted-foreground mt-1">
@@ -578,20 +549,20 @@ export default function PostsPage() {
                 <div className="flex items-center gap-2 flex-wrap">
                     {/* Export Button */}
                     <Button variant="outline" size="sm" onClick={() => setShowExportModal(true)}>
-                        <Download className="w-4 h-4 mr-1" />
+                        <TbDownload className="w-4 h-4 mr-1" />
                         ექსპორტი
                     </Button>
 
                     {/* Import Button */}
                     <Button variant="outline" size="sm" onClick={() => setShowImportModal(true)}>
-                        <Upload className="w-4 h-4 mr-1" />
+                        <TbUpload className="w-4 h-4 mr-1" />
                         იმპორტი
                     </Button>
 
                     {/* New Post Button */}
                     <Link href="/admin/posts/new">
                         <Button className="gap-2 whitespace-nowrap">
-                            <Plus className="w-4 h-4" />
+                            <TbPlus className="w-4 h-4" />
                             ახალი პოსტი
                         </Button>
                     </Link>
@@ -601,10 +572,10 @@ export default function PostsPage() {
             {/* Filters Section */}
             <Card>
                 <CardContent className="p-4 space-y-4">
-                    {/* Search Row */}
+                    {/* TbSearch Row */}
                     <div className="flex flex-wrap gap-3">
                         <div className="relative flex-1 min-w-[200px]">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <TbSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input
                                 placeholder="ძიება..."
                                 value={searchQuery}
@@ -656,7 +627,7 @@ export default function PostsPage() {
                     {/* Date Filters Row */}
                     <div className="flex flex-wrap gap-3 items-center">
                         <span className="text-sm text-muted-foreground flex items-center gap-1">
-                            <Calendar className="w-4 h-4" />
+                            <TbCalendar className="w-4 h-4" />
                             თარიღი:
                         </span>
 
@@ -701,24 +672,24 @@ export default function PostsPage() {
                 <Card className="border-indigo-500/20 bg-indigo-500/5">
                     <CardContent className="p-3 flex items-center gap-4 flex-wrap">
                         <div className="flex items-center gap-2">
-                            <CheckSquare className="w-5 h-5 text-indigo-500" />
+                            <TbSquareCheck className="w-5 h-5 text-indigo-500" />
                             <span className="font-medium">{selectedIds.length} არჩეული</span>
                         </div>
                         <div className="flex-1" />
                         <div className="flex gap-2">
                             <Button size="sm" variant="outline" onClick={bulkFeature}>
-                                <Star className="w-4 h-4 mr-1" />
+                                <TbStar className="w-4 h-4 mr-1" />
                                 Featured
                             </Button>
                             <Button size="sm" variant="outline" onClick={bulkUnfeature}>
                                 Unfeature
                             </Button>
                             <Button size="sm" variant="destructive" onClick={bulkDelete}>
-                                <Trash2 className="w-4 h-4 mr-1" />
+                                <TbTrash className="w-4 h-4 mr-1" />
                                 წაშლა
                             </Button>
                             <Button size="sm" variant="ghost" onClick={() => setSelectedIds([])}>
-                                <X className="w-4 h-4" />
+                                <TbX className="w-4 h-4" />
                             </Button>
                         </div>
                     </CardContent>
@@ -733,7 +704,7 @@ export default function PostsPage() {
                             <thead className="bg-muted/50 border-b">
                                 <tr>
                                     <th className="px-2 py-3 w-8">
-                                        <GripVertical className="w-4 h-4 text-muted-foreground mx-auto" />
+                                        <TbGripVertical className="w-4 h-4 text-muted-foreground mx-auto" />
                                     </th>
                                     <th className="px-2 py-3 w-10">
                                         <button
@@ -741,9 +712,9 @@ export default function PostsPage() {
                                             className="p-1 hover:bg-muted rounded"
                                         >
                                             {selectedIds.length === paginatedPosts.length && paginatedPosts.length > 0 ? (
-                                                <CheckSquare className="w-5 h-5 text-indigo-500" />
+                                                <TbSquareCheck className="w-5 h-5 text-indigo-500" />
                                             ) : (
-                                                <Square className="w-5 h-5 text-muted-foreground" />
+                                                <TbSquare className="w-5 h-5 text-muted-foreground" />
                                             )}
                                         </button>
                                     </th>
@@ -791,7 +762,7 @@ export default function PostsPage() {
                                         onDrop={(e) => handleDrop(e, post.id)}
                                     >
                                         <td className="px-2 py-4 cursor-grab active:cursor-grabbing">
-                                            <GripVertical className="w-4 h-4 text-muted-foreground mx-auto" />
+                                            <TbGripVertical className="w-4 h-4 text-muted-foreground mx-auto" />
                                         </td>
                                         <td className="px-2 py-4">
                                             <button
@@ -799,9 +770,9 @@ export default function PostsPage() {
                                                 className="p-1 hover:bg-muted rounded"
                                             >
                                                 {selectedIds.includes(post.id) ? (
-                                                    <CheckSquare className="w-5 h-5 text-indigo-500" />
+                                                    <TbSquareCheck className="w-5 h-5 text-indigo-500" />
                                                 ) : (
-                                                    <Square className="w-5 h-5 text-muted-foreground" />
+                                                    <TbSquare className="w-5 h-5 text-muted-foreground" />
                                                 )}
                                             </button>
                                         </td>
@@ -827,19 +798,19 @@ export default function PostsPage() {
                                         <td className="px-4 py-4 hidden lg:table-cell">
                                             <div className="flex items-center gap-3 text-xs text-muted-foreground">
                                                 <span className="flex items-center gap-1">
-                                                    <Eye className="w-3.5 h-3.5" />
+                                                    <TbEye className="w-3.5 h-3.5" />
                                                     {formatNumber(post.views)}
                                                 </span>
                                                 <span className="flex items-center gap-1">
-                                                    <MessageCircle className="w-3.5 h-3.5" />
+                                                    <TbMessage className="w-3.5 h-3.5" />
                                                     {formatNumber(post.comments)}
                                                 </span>
                                                 <span className="flex items-center gap-1 text-red-500">
-                                                    <Heart className="w-3.5 h-3.5" />
+                                                    <TbHeart className="w-3.5 h-3.5" />
                                                     {formatNumber(Object.values(post.reactions).reduce((a, b) => a + b, 0))}
                                                 </span>
                                                 <span className="flex items-center gap-1">
-                                                    <Share2 className="w-3.5 h-3.5" />
+                                                    <TbShare className="w-3.5 h-3.5" />
                                                     {formatNumber(post.shares)}
                                                 </span>
                                             </div>
@@ -856,7 +827,7 @@ export default function PostsPage() {
                                                             }`}
                                                         title="Featured"
                                                     >
-                                                        <Star className="w-3.5 h-3.5" />
+                                                        <TbStar className="w-3.5 h-3.5" />
                                                     </button>
                                                     <button
                                                         onClick={() => toggleTrending(post.id)}
@@ -866,7 +837,7 @@ export default function PostsPage() {
                                                             }`}
                                                         title="Trending"
                                                     >
-                                                        <Flame className="w-3.5 h-3.5" />
+                                                        <TbFlame className="w-3.5 h-3.5" />
                                                     </button>
                                                 </div>
                                             </div>
@@ -879,7 +850,7 @@ export default function PostsPage() {
                                                     onClick={() => setPreviewPost(post)}
                                                     title="პრევიუ"
                                                 >
-                                                    <Eye className="w-4 h-4" />
+                                                    <TbEye className="w-4 h-4" />
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
@@ -887,7 +858,7 @@ export default function PostsPage() {
                                                     onClick={() => handleDuplicate(post)}
                                                     title="დუბლირება"
                                                 >
-                                                    <Copy className="w-4 h-4" />
+                                                    <TbCopy className="w-4 h-4" />
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
@@ -895,7 +866,7 @@ export default function PostsPage() {
                                                     onClick={() => setEditingPost(post)}
                                                     title="რედაქტირება"
                                                 >
-                                                    <Edit className="w-4 h-4" />
+                                                    <TbEdit className="w-4 h-4" />
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
@@ -904,7 +875,7 @@ export default function PostsPage() {
                                                     onClick={() => setDeleteConfirm(post.id)}
                                                     title="წაშლა"
                                                 >
-                                                    <Trash2 className="w-4 h-4" />
+                                                    <TbTrash className="w-4 h-4" />
                                                 </Button>
                                             </div>
                                         </td>
@@ -947,8 +918,8 @@ export default function PostsPage() {
                                     onClick={() => setCurrentPage(1)}
                                     disabled={currentPage === 1}
                                 >
-                                    <ChevronLeft className="w-4 h-4" />
-                                    <ChevronLeft className="w-4 h-4 -ml-2" />
+                                    <TbChevronLeft className="w-4 h-4" />
+                                    <TbChevronLeft className="w-4 h-4 -ml-2" />
                                 </Button>
                                 <Button
                                     variant="outline"
@@ -957,7 +928,7 @@ export default function PostsPage() {
                                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                     disabled={currentPage === 1}
                                 >
-                                    <ChevronLeft className="w-4 h-4" />
+                                    <TbChevronLeft className="w-4 h-4" />
                                 </Button>
                                 <Button
                                     variant="outline"
@@ -966,7 +937,7 @@ export default function PostsPage() {
                                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                     disabled={currentPage === totalPages || totalPages === 0}
                                 >
-                                    <ChevronRight className="w-4 h-4" />
+                                    <TbChevronRight className="w-4 h-4" />
                                 </Button>
                                 <Button
                                     variant="outline"
@@ -975,8 +946,8 @@ export default function PostsPage() {
                                     onClick={() => setCurrentPage(totalPages)}
                                     disabled={currentPage === totalPages || totalPages === 0}
                                 >
-                                    <ChevronRight className="w-4 h-4" />
-                                    <ChevronRight className="w-4 h-4 -ml-2" />
+                                    <TbChevronRight className="w-4 h-4" />
+                                    <TbChevronRight className="w-4 h-4 -ml-2" />
                                 </Button>
                             </div>
                         </div>
@@ -1005,7 +976,7 @@ export default function PostsPage() {
                                 <CardTitle className="text-xl">{previewPost.title}</CardTitle>
                             </div>
                             <Button variant="ghost" size="icon" onClick={() => setPreviewPost(null)}>
-                                <X className="w-4 h-4" />
+                                <TbX className="w-4 h-4" />
                             </Button>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -1039,11 +1010,11 @@ export default function PostsPage() {
 
                             <div className="flex justify-end gap-2 pt-4 border-t">
                                 <Button variant="outline" onClick={() => handleDuplicate(previewPost)}>
-                                    <Copy className="w-4 h-4 mr-2" />
+                                    <TbCopy className="w-4 h-4 mr-2" />
                                     დუბლირება
                                 </Button>
                                 <Button onClick={() => { setPreviewPost(null); setEditingPost(previewPost) }}>
-                                    <Edit className="w-4 h-4 mr-2" />
+                                    <TbEdit className="w-4 h-4 mr-2" />
                                     რედაქტირება
                                 </Button>
                             </div>
@@ -1096,7 +1067,7 @@ export default function PostsPage() {
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle>ექსპორტი</CardTitle>
                             <Button variant="ghost" size="icon" onClick={() => setShowExportModal(false)}>
-                                <X className="w-4 h-4" />
+                                <TbX className="w-4 h-4" />
                             </Button>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -1105,11 +1076,11 @@ export default function PostsPage() {
                             </p>
                             <div className="flex gap-3">
                                 <Button onClick={exportToJSON} className="flex-1">
-                                    <Download className="w-4 h-4 mr-2" />
+                                    <TbDownload className="w-4 h-4 mr-2" />
                                     JSON
                                 </Button>
                                 <Button onClick={exportToCSV} variant="outline" className="flex-1">
-                                    <Download className="w-4 h-4 mr-2" />
+                                    <TbDownload className="w-4 h-4 mr-2" />
                                     CSV
                                 </Button>
                             </div>
@@ -1128,7 +1099,7 @@ export default function PostsPage() {
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle>იმპორტი (JSON)</CardTitle>
                             <Button variant="ghost" size="icon" onClick={() => setShowImportModal(false)}>
-                                <X className="w-4 h-4" />
+                                <TbX className="w-4 h-4" />
                             </Button>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -1146,7 +1117,7 @@ export default function PostsPage() {
                                     გაუქმება
                                 </Button>
                                 <Button onClick={handleImport} disabled={!importData.trim()}>
-                                    <Upload className="w-4 h-4 mr-2" />
+                                    <TbUpload className="w-4 h-4 mr-2" />
                                     იმპორტი
                                 </Button>
                             </div>
@@ -1202,7 +1173,7 @@ function EditPostModal({
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>პოსტის რედაქტირება</CardTitle>
                     <Button variant="ghost" size="icon" onClick={onClose}>
-                        <X className="w-4 h-4" />
+                        <TbX className="w-4 h-4" />
                     </Button>
                 </CardHeader>
                 <CardContent>
@@ -1272,7 +1243,7 @@ function EditPostModal({
                                 გაუქმება
                             </Button>
                             <Button type="submit">
-                                <Save className="w-4 h-4 mr-2" />
+                                <TbDeviceFloppy className="w-4 h-4 mr-2" />
                                 შენახვა
                             </Button>
                         </div>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, Video, Check } from 'lucide-react';
+import { TbCalendar, TbClock, TbVideo, TbCheck } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 
@@ -75,7 +75,7 @@ export default function ExpertOfficeHours() {
     if (!user) {
         return (
             <div className="text-center p-8 border border-white/10 rounded-2xl bg-white/5">
-                <Calendar className="w-12 h-12 mx-auto mb-4 text-blue-400" />
+                <TbCalendar className="w-12 h-12 mx-auto mb-4 text-blue-400" />
                 <h3 className="text-xl font-bold mb-2">📅 ექსპერტ კონსულტაცია</h3>
                 <p className="text-gray-400">გაიარე ავტორიზაცია დაჯავშნისთვის</p>
             </div>
@@ -86,7 +86,7 @@ export default function ExpertOfficeHours() {
         return (
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="p-8 rounded-2xl border border-green-500/30 bg-green-950/20 text-center">
                 <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Check className="w-8 h-8 text-white" />
+                    <TbCheck className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2">დაჯავშნილია!</h3>
                 <p className="text-gray-300 mb-4">კონსულტაცია: {selectedDate.toLocaleDateString('ka-GE')} {selectedTime}</p>
@@ -100,7 +100,7 @@ export default function ExpertOfficeHours() {
     return (
         <div className="space-y-6">
             <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-500/20 rounded-lg"><Calendar className="w-6 h-6 text-blue-400" /></div>
+                <div className="p-2 bg-blue-500/20 rounded-lg"><TbCalendar className="w-6 h-6 text-blue-400" /></div>
                 <div>
                     <h2 className="text-2xl font-bold text-white">ექსპერტ კონსულტაცია</h2>
                     <p className="text-gray-400 text-sm">დაჯავშნე 1-on-1 სესია</p>
@@ -157,7 +157,7 @@ export default function ExpertOfficeHours() {
                                             selectedTime === time ? "bg-blue-600 text-white" : "bg-white/5 text-gray-200 hover:bg-white/10"
                                     )}
                                 >
-                                    <Clock className="w-4 h-4" />{time}
+                                    <TbClock className="w-4 h-4" />{time}
                                 </button>
                             );
                         })}
@@ -174,7 +174,7 @@ export default function ExpertOfficeHours() {
                     selectedExpert && selectedTime ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90" : "bg-gray-700 text-gray-400 cursor-not-allowed"
                 )}
             >
-                <Video className="w-5 h-5" />
+                <TbVideo className="w-5 h-5" />
                 {loading ? 'იტვირთება...' : 'დაჯავშნა'}
             </button>
         </div>

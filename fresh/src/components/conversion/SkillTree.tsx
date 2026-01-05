@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { TreeDeciduous, Zap, Lock, Check, Star } from 'lucide-react';
+import { TbTree, TbBolt, TbLock, TbCheck, TbStar } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 
@@ -74,8 +74,8 @@ function SkillNode({
                         ? `bg-gradient-to-br ${CATEGORY_COLORS[skill.category]}`
                         : "bg-gray-700"
             )}>
-                {completed ? <Check className="w-6 h-6 text-white" /> :
-                    !unlocked ? <Lock className="w-5 h-5 text-gray-400" /> : skill.icon}
+                {completed ? <TbCheck className="w-6 h-6 text-white" /> :
+                    !unlocked ? <TbLock className="w-5 h-5 text-gray-400" /> : skill.icon}
             </div>
 
             {/* Name */}
@@ -193,7 +193,7 @@ export default function SkillTree() {
     if (!user) {
         return (
             <div className="text-center p-8 border border-white/10 rounded-2xl bg-white/5">
-                <TreeDeciduous className="w-12 h-12 mx-auto mb-4 text-purple-400" />
+                <TbTree className="w-12 h-12 mx-auto mb-4 text-purple-400" />
                 <h3 className="text-xl font-bold mb-2">🌳 უნარების ხე</h3>
                 <p className="text-gray-400">გაიარე ავტორიზაცია პროგრესის სანახავად</p>
             </div>
@@ -208,7 +208,7 @@ export default function SkillTree() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-green-500/20 rounded-lg">
-                        <TreeDeciduous className="w-6 h-6 text-green-400" />
+                        <TbTree className="w-6 h-6 text-green-400" />
                     </div>
                     <div>
                         <h2 className="text-2xl font-bold text-white">უნარების ხე</h2>
@@ -218,11 +218,11 @@ export default function SkillTree() {
 
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-500/20 rounded-full">
-                        <Star className="w-4 h-4 text-yellow-400" />
+                        <TbStar className="w-4 h-4 text-yellow-400" />
                         <span className="text-sm font-bold text-yellow-400">{userXp} XP</span>
                     </div>
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/20 rounded-full">
-                        <Zap className="w-4 h-4 text-green-400" />
+                        <TbBolt className="w-4 h-4 text-green-400" />
                         <span className="text-sm font-bold text-green-400">{completedCount}/{SKILLS.length}</span>
                     </div>
                 </div>

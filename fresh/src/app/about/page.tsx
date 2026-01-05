@@ -3,43 +3,43 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
-  Sparkles,
-  Mail,
-  Send,
-  Youtube,
-  Instagram,
-  Briefcase,
-  GraduationCap,
-  Award,
-  Users,
-  FileText,
-  Lightbulb,
-  Rocket,
-  Calendar
-} from "lucide-react"
+  TbSparkles,
+  TbMail,
+  TbSend,
+  TbBrandYoutube,
+  TbBrandInstagram,
+  TbBriefcase,
+  TbSchool,
+  TbAward,
+  TbUsers,
+  TbFileText,
+  TbBulb,
+  TbRocket,
+  TbCalendar
+} from "react-icons/tb"
 import { brand } from "@/lib/brand"
 
 const expertise = [
   {
-    icon: Lightbulb,
+    icon: TbBulb,
     title: "ChatGPT & Prompt Engineering",
     description: "პრომპტების ოპტიმიზაცია და AI-სთან ეფექტური კომუნიკაცია",
     color: "#f59e0b"
   },
   {
-    icon: Rocket,
+    icon: TbRocket,
     title: "AI ავტომატიზაცია",
     description: "ბიზნეს პროცესების ავტომატიზაცია ხელოვნური ინტელექტით",
     color: "#6366f1"
   },
   {
-    icon: Briefcase,
+    icon: TbBriefcase,
     title: "AI კონსულტაცია",
     description: "კომპანიებისთვის AI სტრატეგიის შემუშავება და დანერგვა",
     color: "#22d3ee"
   },
   {
-    icon: GraduationCap,
+    icon: TbSchool,
     title: "AI განათლება",
     description: "ტრეინინგები და ვორქშოპები AI-ს შესახებ",
     color: "#10b981"
@@ -91,26 +91,26 @@ export default function AboutPage() {
               <div className="relative mb-8">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent rounded-3xl blur-2xl opacity-50"></div>
                 <div className="relative w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-br from-primary to-accent rounded-3xl flex items-center justify-center shadow-2xl">
-                  <Sparkles className="w-24 h-24 text-white" />
+                  <TbSparkles className="w-24 h-24 text-white" />
                 </div>
               </div>
 
               <div className="flex gap-3 flex-wrap justify-center lg:justify-start">
                 <Link href={brand.social.youtube}>
                   <Button variant="outline" size="sm" className="gap-2">
-                    <Youtube className="w-4 h-4 text-red-500" />
+                    <TbBrandYoutube className="w-4 h-4 text-red-500" />
                     YouTube
                   </Button>
                 </Link>
                 <Link href={brand.social.instagram}>
                   <Button variant="outline" size="sm" className="gap-2">
-                    <Instagram className="w-4 h-4 text-pink-500" />
+                    <TbBrandInstagram className="w-4 h-4 text-pink-500" />
                     Instagram
                   </Button>
                 </Link>
                 <Link href={brand.social.telegram}>
                   <Button variant="outline" size="sm" className="gap-2">
-                    <Send className="w-4 h-4 text-sky-500" />
+                    <TbSend className="w-4 h-4 text-sky-500" />
                     Telegram
                   </Button>
                 </Link>
@@ -141,12 +141,12 @@ export default function AboutPage() {
 
               <div className="flex gap-4">
                 <Button size="lg" className="bg-gradient-to-r from-primary to-accent text-white glow-sm">
-                  <Mail className="w-4 h-4 mr-2" />
+                  <TbMail className="w-4 h-4 mr-2" />
                   დამიკავშირდი
                 </Button>
                 <Button size="lg" variant="outline" asChild>
                   <Link href="/blog">
-                    <FileText className="w-4 h-4 mr-2" />
+                    <TbFileText className="w-4 h-4 mr-2" />
                     ბლოგი
                   </Link>
                 </Button>
@@ -229,7 +229,7 @@ export default function AboutPage() {
                 <Card className="flex-1 border-0 shadow-lg">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                      <Calendar className="w-4 h-4" />
+                      <TbCalendar className="w-4 h-4" />
                       {item.year}
                     </div>
                     <h3 className="font-bold text-lg">{item.title}</h3>
@@ -258,12 +258,12 @@ export default function AboutPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-white text-primary hover:bg-white/90">
-                <Mail className="w-4 h-4 mr-2" />
+                <TbMail className="w-4 h-4 mr-2" />
                 დამიკავშირდი
               </Button>
               <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
                 <Link href={brand.social.telegram}>
-                  <Send className="w-4 h-4 mr-2" />
+                  <TbSend className="w-4 h-4 mr-2" />
                   Telegram
                 </Link>
               </Button>

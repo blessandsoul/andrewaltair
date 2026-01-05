@@ -6,17 +6,10 @@
 "use client"
 
 import * as React from "react"
-import {
-    Bot,
-    ImageIcon,
-    FileText,
-    Video,
-    Cpu,
-    Zap,
-    TrendingUp,
-    type LucideIcon,
-} from "lucide-react"
+import { TbRobot, TbPhoto, TbFileText, TbVideo, TbCpu, TbBolt, TbTrendingUp } from "react-icons/tb"
 import { cn } from "@/lib/utils"
+
+type IconType = React.ComponentType<{ className?: string }>
 
 interface SubscriptionCardProps {
     name: string
@@ -26,16 +19,16 @@ interface SubscriptionCardProps {
     className?: string
 }
 
-const subscriptionIcons: Record<string, LucideIcon> = {
-    ChatGPT: Bot,
-    Midjourney: ImageIcon,
-    "DALL-E 3": ImageIcon,
-    "AI News": FileText,
-    Tutorials: Video,
-    Claude: Cpu,
-    "Stable Diffusion": Zap,
-    Gemini: Cpu,
-    "Product Updates": TrendingUp,
+const subscriptionIcons: Record<string, IconType> = {
+    ChatGPT: TbRobot,
+    Midjourney: TbPhoto,
+    "DALL-E 3": TbPhoto,
+    "AI News": TbFileText,
+    Tutorials: TbVideo,
+    Claude: TbCpu,
+    "Stable Diffusion": TbBolt,
+    Gemini: TbCpu,
+    "Product Updates": TbTrendingUp,
 }
 
 export function SubscriptionCard({
@@ -45,7 +38,7 @@ export function SubscriptionCard({
     onToggle,
     className,
 }: SubscriptionCardProps) {
-    const IconComponent = subscriptionIcons[name] || (type === "tool" ? Bot : FileText)
+    const IconComponent = subscriptionIcons[name] || (type === "tool" ? TbRobot : TbFileText)
 
     return (
         <div

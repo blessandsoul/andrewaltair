@@ -10,36 +10,28 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
-import {
-  Search, Menu, X, Sparkles,
-  BookOpen, Video,
-  Wrench, ShoppingBag, Briefcase, HelpCircle,
-  User,
-  LogIn, UserPlus, LogOut, Settings, Shield, ChevronDown
-} from "lucide-react"
+import { TbRobot, TbBook, TbVideo, TbSettings, TbBulb, TbBriefcase, TbShoppingBag, TbInfoCircle, TbUser, TbSearch, TbMenu2, TbX, TbLogin, TbUserPlus, TbLogout, TbChevronDown, TbSparkles, TbShield, TbCrown } from "react-icons/tb"
 import { useState } from "react"
 import { ThemeToggle } from "./ThemeToggle"
 import { SearchDialog, useSearchDialog } from "@/components/interactive/SearchDialog"
 import { useAuth, ROLE_CONFIG } from "@/lib/auth"
 
 const contentItems = [
-  { href: "/blog", label: "ბლოგი", icon: BookOpen, description: "სტატიები და სიახლეები" },
-  { href: "/videos", label: "ვიდეოები", icon: Video, description: "YouTube ტუტორიალები" },
+  { href: "/blog", label: "ბლოგი", icon: TbBook, description: "სტატიები და სიახლეები" },
+  { href: "/videos", label: "ვიდეოები", icon: TbVideo, description: "YouTube ტუტორიალები" },
 ]
 
 const servicesItems = [
-  { href: "/tools", label: "AI ინსტრუმენტები", icon: Wrench, description: "რეიტინგები და მიმოხილვები" },
-  { href: "/mystic", label: "მისტიკური AI", icon: Sparkles, description: "AI პრედიქციები" },
-  { href: "/new-features", label: "ახალი ფუნქციები", icon: Sparkles, description: "20 კონვერსიის კომპონენტი" },
-  { href: "/services", label: "კონსულტაცია", icon: Briefcase, description: "AI კონსალტინგი" },
-  { href: "/products", label: "პროდუქტები", icon: ShoppingBag, description: "კურსები და ტემპლეიტები" },
-  { href: "/quiz", label: "AI ქვიზი", icon: HelpCircle, description: "იპოვე შენი AI" },
+  { href: "/tools", label: "AI ინსტრუმენტები", icon: TbSettings, description: "რეიტინგები და მიმოხილვები" },
+  { href: "/mystic", label: "მისტიკური AI", icon: TbBulb, description: "AI პრედიქციები" },
+  { href: "/new-features", label: "ახალი ფუნქციები", icon: TbSparkles, description: "20 კონვერსიის კომპონენტი" },
+  { href: "/services", label: "კონსულტაცია", icon: TbBriefcase, description: "AI კონსალტინგი" },
+  { href: "/products", label: "პროდუქტები", icon: TbShoppingBag, description: "კურსები და ტემპლეიტები" },
+  { href: "/quiz", label: "AI ქვიზი", icon: TbInfoCircle, description: "იპოვე შენი AI" },
 ]
 
-
-
 const aboutItems = [
-  { href: "/about", label: "ჩემ შესახებ", icon: User, description: "Andrew Altair" },
+  { href: "/about", label: "ჩემ შესახებ", icon: TbUser, description: "Andrew Altair" },
 ]
 
 // All items for mobile
@@ -71,11 +63,11 @@ function UserProfileDropdown() {
         <div className="hidden sm:block text-left">
           <div className="text-sm font-medium flex items-center gap-1">
             {user.fullName}
-            {isGod && <span className="text-yellow-500">👑</span>}
+            {isGod && <TbCrown className="w-4 h-4 text-yellow-500" />}
           </div>
           <div className="text-xs text-muted-foreground">{roleConfig.label}</div>
         </div>
-        <ChevronDown className="w-4 h-4 text-muted-foreground" />
+        <TbChevronDown className="w-4 h-4 text-muted-foreground" />
       </button>
 
       {/* Dropdown */}
@@ -92,7 +84,7 @@ function UserProfileDropdown() {
                 <div>
                   <div className="font-medium flex items-center gap-1">
                     {user.fullName}
-                    {isGod && <span>👑</span>}
+                    {isGod && <TbCrown className="w-4 h-4 text-yellow-500" />}
                   </div>
                   <div className="text-sm text-muted-foreground">{user.email}</div>
                   {user.badge && (
@@ -109,7 +101,7 @@ function UserProfileDropdown() {
                 onClick={() => setIsOpen(false)}
                 className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted transition-colors"
               >
-                <User className="w-4 h-4 text-muted-foreground" />
+                <TbUser className="w-4 h-4 text-muted-foreground" />
                 პროფილი
               </Link>
               <Link
@@ -117,7 +109,7 @@ function UserProfileDropdown() {
                 onClick={() => setIsOpen(false)}
                 className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted transition-colors"
               >
-                <Settings className="w-4 h-4 text-muted-foreground" />
+                <TbSettings className="w-4 h-4 text-muted-foreground" />
                 პარამეტრები
               </Link>
 
@@ -128,7 +120,7 @@ function UserProfileDropdown() {
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted transition-colors text-primary"
                 >
-                  <Shield className="w-4 h-4" />
+                  <TbShield className="w-4 h-4" />
                   ადმინ პანელი
                   {isGod && <span className="ml-auto text-xs bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded">GOD</span>}
                 </Link>
@@ -144,7 +136,7 @@ function UserProfileDropdown() {
                 }}
                 className="flex items-center gap-3 px-4 py-2 text-sm text-destructive hover:bg-destructive/10 w-full transition-colors"
               >
-                <LogOut className="w-4 h-4" />
+                <TbLogout className="w-4 h-4" />
                 გასვლა
               </button>
             </div>
@@ -170,7 +162,7 @@ export function Header() {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent rounded-xl blur-md opacity-50 group-hover:opacity-75 transition-opacity"></div>
                 <div className="relative w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center text-white font-bold text-sm group-hover:scale-105 transition-transform shadow-lg">
-                  <Sparkles className="w-5 h-5" />
+                  <TbRobot className="w-6 h-6" />
                 </div>
               </div>
               <div className="hidden sm:block">
@@ -285,12 +277,11 @@ export function Header() {
             <div className="hidden lg:flex items-center space-x-2">
               <Button
                 variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-foreground gap-2"
+                size="icon"
+                className="text-muted-foreground hover:text-foreground"
                 onClick={search.open}
               >
-                <Search className="w-4 h-4" />
-                <span className="text-xs">⌘K</span>
+                <TbSearch className="w-5 h-5" />
               </Button>
               <ThemeToggle />
 
@@ -303,13 +294,13 @@ export function Header() {
                 <>
                   <Link href="/login">
                     <Button variant="ghost" size="sm" className="gap-2">
-                      <LogIn className="w-4 h-4" />
+                      <TbLogin className="w-4 h-4" />
                       შესვლა
                     </Button>
                   </Link>
                   <Link href="/register">
                     <Button size="sm" className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white border-0 shadow-lg">
-                      <UserPlus className="w-4 h-4" />
+                      <TbUserPlus className="w-4 h-4" />
                       რეგისტრაცია
                     </Button>
                   </Link>
@@ -320,7 +311,7 @@ export function Header() {
             {/* Mobile Actions */}
             <div className="flex lg:hidden items-center space-x-2">
               <Button variant="ghost" size="icon" onClick={search.open}>
-                <Search className="w-5 h-5" />
+                <TbSearch className="w-5 h-5" />
               </Button>
               <ThemeToggle />
               {user && (
@@ -333,7 +324,7 @@ export function Header() {
                 size="icon"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
-                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {isMobileMenuOpen ? <TbX className="w-5 h-5" /> : <TbMenu2 className="w-5 h-5" />}
               </Button>
             </div>
           </div>
@@ -352,7 +343,7 @@ export function Header() {
                       <div>
                         <div className="font-medium flex items-center gap-1">
                           {user.fullName}
-                          {user.role === "god" && <span>👑</span>}
+                          {user.role === "god" && <TbCrown className="w-4 h-4 text-yellow-500" />}
                         </div>
                         <div className="text-sm text-muted-foreground">{user.email}</div>
                       </div>
@@ -366,7 +357,7 @@ export function Header() {
                   className="flex items-center px-4 py-3 text-sm font-medium text-foreground hover:bg-secondary rounded-lg transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  <Sparkles className="w-5 h-5 mr-3 text-primary" />
+                  <TbSparkles className="w-5 h-5 mr-3 text-primary" />
                   მთავარი
                 </Link>
 
@@ -396,7 +387,7 @@ export function Header() {
                     <>
                       <Link href="/admin" className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
                         <Button variant="outline" size="sm" className="w-full gap-2">
-                          <Shield className="w-4 h-4" />
+                          <TbShield className="w-4 h-4" />
                           ადმინ პანელი
                         </Button>
                       </Link>
@@ -410,7 +401,7 @@ export function Header() {
                           setIsMobileMenuOpen(false)
                         }}
                       >
-                        <LogOut className="w-4 h-4" />
+                        <TbLogout className="w-4 h-4" />
                         გასვლა
                       </Button>
                     </>
@@ -418,13 +409,13 @@ export function Header() {
                     <>
                       <Link href="/login" className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
                         <Button variant="outline" size="sm" className="w-full gap-2">
-                          <LogIn className="w-4 h-4" />
+                          <TbLogin className="w-4 h-4" />
                           შესვლა
                         </Button>
                       </Link>
                       <Link href="/register" className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
                         <Button size="sm" className="w-full gap-2 bg-gradient-to-r from-primary to-accent text-white border-0">
-                          <UserPlus className="w-4 h-4" />
+                          <TbUserPlus className="w-4 h-4" />
                           რეგისტრაცია
                         </Button>
                       </Link>
@@ -437,7 +428,7 @@ export function Header() {
         </div>
       </header>
 
-      {/* Search Dialog */}
+      {/* TbSearch Dialog */}
       <SearchDialog isOpen={search.isOpen} onClose={search.close} />
     </>
   )

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, ExternalLink, Star, Zap } from 'lucide-react';
+import { TbSparkles, TbExternalLink, TbStar, TbBolt } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 
 interface Tool {
@@ -26,7 +26,7 @@ export default function SmartRecommendations() {
         <div className="space-y-6">
             <div className="flex items-center gap-3">
                 <div className="p-2 bg-purple-500/20 rounded-lg">
-                    <Sparkles className="w-6 h-6 text-purple-400" />
+                    <TbSparkles className="w-6 h-6 text-purple-400" />
                 </div>
                 <div>
                     <h2 className="text-2xl font-bold text-white">რეკომენდაციები</h2>
@@ -56,12 +56,12 @@ export default function SmartRecommendations() {
                             </div>
                             <div className="text-right shrink-0">
                                 <div className="flex items-center gap-1 text-purple-400 font-bold">
-                                    <Zap className="w-4 h-4" />
+                                    <TbBolt className="w-4 h-4" />
                                     {tool.matchScore}%
                                 </div>
                                 <span className="text-xs text-gray-500">მატჩი</span>
                             </div>
-                            <ExternalLink className="w-5 h-5 text-gray-600 group-hover:text-purple-400 transition-colors shrink-0" />
+                            <TbExternalLink className="w-5 h-5 text-gray-600 group-hover:text-purple-400 transition-colors shrink-0" />
                         </div>
                     </motion.div>
                 ))}

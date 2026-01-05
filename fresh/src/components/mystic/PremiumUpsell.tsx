@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Crown, Check, Sparkles, Lock, X } from "lucide-react"
+import { TbCrown, TbCheck, TbSparkles, TbLock, TbX } from "react-icons/tb"
 
 interface PremiumUpsellProps {
     isOpen: boolean
@@ -60,7 +60,7 @@ export function PremiumUpsell({ isOpen, onClose }: PremiumUpsellProps) {
                         onClick={onClose}
                         className="absolute top-4 right-4 w-9 h-9 rounded-xl bg-black/20 backdrop-blur-sm flex items-center justify-center hover:bg-black/40 transition-all hover:scale-105 border border-white/10"
                     >
-                        <X className="w-4 h-4 text-white" />
+                        <TbX className="w-4 h-4 text-white" />
                     </button>
 
                     <div className="relative flex items-center gap-4">
@@ -68,7 +68,7 @@ export function PremiumUpsell({ isOpen, onClose }: PremiumUpsellProps) {
                         <div className="relative">
                             <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl blur-lg opacity-60" />
                             <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 via-yellow-500 to-orange-500 flex items-center justify-center shadow-lg">
-                                <Crown className="w-7 h-7 text-white drop-shadow-md" />
+                                <TbCrown className="w-7 h-7 text-white drop-shadow-md" />
                             </div>
                         </div>
                         <div>
@@ -94,7 +94,7 @@ export function PremiumUpsell({ isOpen, onClose }: PremiumUpsellProps) {
                                     <p className="text-xs text-gray-500">{feature.description}</p>
                                 </div>
                                 <div className="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-500 to-green-500 flex items-center justify-center shadow-sm shadow-emerald-500/30">
-                                    <Check className="w-3 h-3 text-white" />
+                                    <TbCheck className="w-3 h-3 text-white" />
                                 </div>
                             </div>
                         ))}
@@ -143,7 +143,7 @@ export function PremiumUpsell({ isOpen, onClose }: PremiumUpsellProps) {
                         <Button
                             className="relative w-full h-13 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 hover:from-amber-400 hover:via-yellow-400 hover:to-orange-400 text-white font-bold text-base border-0 shadow-xl shadow-amber-500/25 transition-all hover:scale-[1.02] hover:shadow-2xl hover:shadow-amber-500/40"
                         >
-                            <Sparkles className="w-5 h-5 mr-2" />
+                            <TbSparkles className="w-5 h-5 mr-2" />
                             გახდი PRO
                         </Button>
                     </div>
@@ -191,7 +191,7 @@ export function PremiumBadge({ size = 'sm' }: { size?: 'sm' | 'md' | 'lg' }) {
 
             {/* Content */}
             <div className="relative flex items-center gap-1">
-                <Crown className={`${iconSizes[size]} text-white drop-shadow-sm`} />
+                <TbCrown className={`${iconSizes[size]} text-white drop-shadow-sm`} />
                 <span className={`${textSizes[size]} font-bold text-white tracking-wide uppercase drop-shadow-sm`}>PRO</span>
             </div>
         </div>
@@ -213,7 +213,7 @@ export function PremiumLock({ onUnlock }: { onUnlock: () => void }) {
 
                     {/* Inner icon container */}
                     <div className="absolute inset-2 rounded-xl bg-gradient-to-br from-amber-500 via-yellow-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/30">
-                        <Lock className="w-8 h-8 text-white drop-shadow-md" />
+                        <TbLock className="w-8 h-8 text-white drop-shadow-md" />
                     </div>
                 </div>
 
@@ -231,7 +231,7 @@ export function PremiumLock({ onUnlock }: { onUnlock: () => void }) {
                         onClick={onUnlock}
                         className="relative px-6 h-11 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 hover:from-amber-400 hover:via-yellow-400 hover:to-orange-400 text-white font-bold border-0 shadow-lg shadow-amber-500/25 transition-all hover:scale-105 hover:shadow-xl hover:shadow-amber-500/30"
                     >
-                        <Crown className="w-4 h-4 mr-2" />
+                        <TbCrown className="w-4 h-4 mr-2" />
                         გახსენი PRO
                     </Button>
                 </div>

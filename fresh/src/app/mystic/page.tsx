@@ -132,7 +132,7 @@ function CosmicBackground() {
                 <div className="absolute bottom-0 left-1/3 w-full h-full bg-[radial-gradient(ellipse_at_bottom,rgba(59,130,246,0.1)_0%,transparent_50%)]" />
             </div>
 
-            {/* Stars layer */}
+            {/* TbStars layer */}
             <div className="absolute inset-0">
                 {/* Small stars */}
                 <div
@@ -207,7 +207,7 @@ export default function MysticPage() {
             {/* WOW Cosmic Background */}
             <CosmicBackground />
 
-            {/* Interactive Star Constellation - Stars connect when mouse hovers! */}
+            {/* Interactive Star Constellation - TbStars connect when mouse hovers! */}
             <InteractiveConstellation />
 
             {/* Floating Particles Effect */}

@@ -6,9 +6,11 @@
 "use client"
 
 import * as React from "react"
-import { Github, Chrome, Facebook, Send, CheckCircle2, Link2, type LucideIcon } from "lucide-react"
+import { TbBrandGithub, TbBrandChrome, TbBrandFacebook, TbSend, TbCircleCheck, TbExternalLink, TbLink } from "react-icons/tb"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+
+type IconType = React.ComponentType<{ className?: string }>
 
 interface SocialAccountCardProps {
     provider: "google" | "github" | "facebook" | "telegram"
@@ -19,11 +21,11 @@ interface SocialAccountCardProps {
     className?: string
 }
 
-const providerConfig: Record<string, { icon: LucideIcon; color: string }> = {
-    google: { icon: Chrome, color: "bg-red-500" },
-    github: { icon: Github, color: "bg-gray-800" },
-    facebook: { icon: Facebook, color: "bg-blue-600" },
-    telegram: { icon: Send, color: "bg-sky-500" },
+const providerConfig: Record<string, { icon: IconType; color: string }> = {
+    google: { icon: TbBrandChrome, color: "bg-red-500" },
+    github: { icon: TbBrandGithub, color: "bg-gray-800" },
+    facebook: { icon: TbBrandFacebook, color: "bg-blue-600" },
+    telegram: { icon: TbSend, color: "bg-sky-500" },
 }
 
 export function SocialAccountCard({
@@ -58,7 +60,7 @@ export function SocialAccountCard({
             {connected ? (
                 <div className="flex items-center gap-2">
                     <span className="flex items-center gap-1 text-green-500 text-sm">
-                        <CheckCircle2 className="w-4 h-4" />
+                        <TbCircleCheck className="w-4 h-4" />
                         დაკავშირებულია
                     </span>
                     <Button
@@ -72,7 +74,7 @@ export function SocialAccountCard({
                 </div>
             ) : (
                 <Button variant="outline" size="sm" className="gap-2" onClick={onConnect}>
-                    <Link2 className="w-4 h-4" />
+                    <TbLink className="w-4 h-4" />
                     დაკავშირება
                 </Button>
             )}

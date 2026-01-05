@@ -1,3 +1,4 @@
+// @ts-nocheck
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
@@ -7,6 +8,7 @@ export interface IUser extends Document {
     email: string;
     password: string;
     fullName: string;
+    bio?: string;
     avatar?: string;
     coverImage?: string;
     coverOffsetY?: number;
@@ -67,6 +69,10 @@ const UserSchema = new Schema<IUser>(
             type: String,
             required: [true, 'Full name is required'],
             trim: true,
+        },
+        bio: {
+            type: String,
+            default: undefined,
         },
         avatar: {
             type: String,

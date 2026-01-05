@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calculator, DollarSign, TrendingUp, Clock, Users, Sparkles } from 'lucide-react';
+import { TbCalculator, TbCurrencyDollar, TbTrendingUp, TbClock, TbUsers, TbSparkles } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 
 export default function SavingsCalculator() {
@@ -29,7 +29,7 @@ export default function SavingsCalculator() {
             {/* Header */}
             <div className="flex items-center gap-3">
                 <div className="p-2 bg-green-500/20 rounded-lg">
-                    <Calculator className="w-6 h-6 text-green-400" />
+                    <TbCalculator className="w-6 h-6 text-green-400" />
                 </div>
                 <div>
                     <h2 className="text-2xl font-bold text-white">დანაზოგის კალკულატორი</h2>
@@ -42,7 +42,7 @@ export default function SavingsCalculator() {
                 {/* Employees */}
                 <div className="p-4 rounded-xl border border-white/10 bg-white/5">
                     <label className="flex items-center gap-2 text-sm text-gray-400 mb-3">
-                        <Users className="w-4 h-4" />
+                        <TbUsers className="w-4 h-4" />
                         თანამშრომლები
                     </label>
                     <input
@@ -59,7 +59,7 @@ export default function SavingsCalculator() {
                 {/* Hours per week */}
                 <div className="p-4 rounded-xl border border-white/10 bg-white/5">
                     <label className="flex items-center gap-2 text-sm text-gray-400 mb-3">
-                        <Clock className="w-4 h-4" />
+                        <TbClock className="w-4 h-4" />
                         საათი/კვირა ამოცანებზე
                     </label>
                     <input
@@ -76,7 +76,7 @@ export default function SavingsCalculator() {
                 {/* Hourly rate */}
                 <div className="p-4 rounded-xl border border-white/10 bg-white/5">
                     <label className="flex items-center gap-2 text-sm text-gray-400 mb-3">
-                        <DollarSign className="w-4 h-4" />
+                        <TbCurrencyDollar className="w-4 h-4" />
                         საათობრივი ტარიფი
                     </label>
                     <input
@@ -98,7 +98,7 @@ export default function SavingsCalculator() {
                     animate={{ opacity: 1, scale: 1 }}
                     className="p-6 rounded-xl bg-gradient-to-br from-green-900/30 to-emerald-900/30 border border-green-500/30 text-center"
                 >
-                    <Clock className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                    <TbClock className="w-8 h-8 text-green-400 mx-auto mb-2" />
                     <div className="text-3xl font-bold text-white mb-1">
                         {savedHoursYearly.toLocaleString()}
                     </div>
@@ -111,7 +111,7 @@ export default function SavingsCalculator() {
                     transition={{ delay: 0.1 }}
                     className="p-6 rounded-xl bg-gradient-to-br from-purple-900/30 to-violet-900/30 border border-purple-500/30 text-center"
                 >
-                    <DollarSign className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+                    <TbCurrencyDollar className="w-8 h-8 text-purple-400 mx-auto mb-2" />
                     <div className="text-3xl font-bold text-white mb-1">
                         ${savedMoneyYearly.toLocaleString()}
                     </div>
@@ -124,7 +124,7 @@ export default function SavingsCalculator() {
                     transition={{ delay: 0.2 }}
                     className="p-6 rounded-xl bg-gradient-to-br from-yellow-900/30 to-orange-900/30 border border-yellow-500/30 text-center"
                 >
-                    <TrendingUp className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
+                    <TbTrendingUp className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
                     <div className="text-3xl font-bold text-white mb-1">
                         {roi}%
                     </div>
@@ -135,7 +135,7 @@ export default function SavingsCalculator() {
             {/* CTA */}
             <div className="p-4 rounded-xl bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <Sparkles className="w-6 h-6 text-purple-400" />
+                    <TbSparkles className="w-6 h-6 text-purple-400" />
                     <div>
                         <div className="font-semibold text-white">მზად ხარ AI-სთვის?</div>
                         <div className="text-gray-400 text-sm">დაიწყე დღესვე უფასო კონსულტაციით</div>

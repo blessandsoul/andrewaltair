@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Newspaper, ExternalLink, Clock, Tag, Bookmark, BookmarkCheck } from 'lucide-react';
+import { TbNews, TbExternalLink, TbClock, TbTag, TbBookmark, TbBookmarkFilled } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 
 interface NewsItem {
@@ -44,7 +44,7 @@ export default function AINewsCurator() {
         <div className="space-y-6">
             <div className="flex items-center gap-3">
                 <div className="p-2 bg-orange-500/20 rounded-lg">
-                    <Newspaper className="w-6 h-6 text-orange-400" />
+                    <TbNews className="w-6 h-6 text-orange-400" />
                 </div>
                 <div>
                     <h2 className="text-2xl font-bold text-white">AI სიახლეები</h2>
@@ -89,11 +89,11 @@ export default function AINewsCurator() {
                                 <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
                                     <span>{news.source}</span>
                                     <span className="flex items-center gap-1">
-                                        <Clock className="w-3 h-3" />
+                                        <TbClock className="w-3 h-3" />
                                         {news.timeAgo}
                                     </span>
                                     <span className="flex items-center gap-1">
-                                        <Tag className="w-3 h-3" />
+                                        <TbTag className="w-3 h-3" />
                                         {news.category}
                                     </span>
                                 </div>
@@ -104,12 +104,12 @@ export default function AINewsCurator() {
                                     className="p-2 text-gray-500 hover:text-orange-400 transition-colors"
                                 >
                                     {bookmarked.has(news.id) ? (
-                                        <BookmarkCheck className="w-5 h-5 text-orange-400" />
+                                        <TbBookmarkFilled className="w-5 h-5 text-orange-400" />
                                     ) : (
-                                        <Bookmark className="w-5 h-5" />
+                                        <TbBookmark className="w-5 h-5" />
                                     )}
                                 </button>
-                                <ExternalLink className="w-5 h-5 text-gray-600 group-hover:text-orange-400 transition-colors" />
+                                <TbExternalLink className="w-5 h-5 text-gray-600 group-hover:text-orange-400 transition-colors" />
                             </div>
                         </div>
                     </motion.div>

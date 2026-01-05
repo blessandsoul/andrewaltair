@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Quote, Star, ChevronLeft, ChevronRight, Building2, TrendingUp } from 'lucide-react'
+import { TbQuote, TbStar, TbChevronLeft, TbChevronRight, TbBuilding, TbTrendingUp } from "react-icons/tb"
 
 interface Story {
     id: string
@@ -106,10 +106,10 @@ export function SuccessStories() {
                 <div className="absolute top-0 left-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl" />
                 <div className="absolute bottom-0 right-0 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl" />
 
-                {/* Quote Icon */}
+                {/* TbQuote Icon */}
                 <div className="relative flex justify-center mb-4">
                     <div className="p-3 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-full">
-                        <Quote className="w-6 h-6 text-indigo-400" />
+                        <TbQuote className="w-6 h-6 text-indigo-400" />
                     </div>
                 </div>
 
@@ -128,7 +128,7 @@ export function SuccessStories() {
                                 <span>{story.role}</span>
                                 <span>•</span>
                                 <div className="flex items-center gap-1">
-                                    <Building2 className="w-3 h-3" />
+                                    <TbBuilding className="w-3 h-3" />
                                     <span>{story.company}</span>
                                 </div>
                             </div>
@@ -138,7 +138,7 @@ export function SuccessStories() {
                     {/* Rating */}
                     <div className="flex justify-center gap-1 mt-4">
                         {[...Array(5)].map((_, i) => (
-                            <Star
+                            <TbStar
                                 key={i}
                                 className={`w-4 h-4 ${i < story.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-600'}`}
                             />
@@ -149,7 +149,7 @@ export function SuccessStories() {
                 {/* Metric Badge */}
                 <div className="relative flex justify-center mb-6">
                     <div className="inline-flex items-center gap-3 px-4 py-2 bg-emerald-500/10 rounded-full border border-emerald-500/30">
-                        <TrendingUp className="w-4 h-4 text-emerald-400" />
+                        <TbTrendingUp className="w-4 h-4 text-emerald-400" />
                         <span className="text-white/70 text-sm">{story.metric}:</span>
                         <span className="text-emerald-400 font-bold">{story.improvement}</span>
                     </div>
@@ -161,7 +161,7 @@ export function SuccessStories() {
                         onClick={handlePrev}
                         className="p-2 rounded-full bg-slate-800 hover:bg-slate-700 transition-colors"
                     >
-                        <ChevronLeft className="w-5 h-5 text-white" />
+                        <TbChevronLeft className="w-5 h-5 text-white" />
                     </button>
 
                     {/* Dots */}
@@ -182,7 +182,7 @@ export function SuccessStories() {
                         onClick={handleNext}
                         className="p-2 rounded-full bg-slate-800 hover:bg-slate-700 transition-colors"
                     >
-                        <ChevronRight className="w-5 h-5 text-white" />
+                        <TbChevronRight className="w-5 h-5 text-white" />
                     </button>
                 </div>
             </div>

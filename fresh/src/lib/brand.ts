@@ -6,7 +6,9 @@ export const brand = {
   name: "Andrew Altair",
   tagline: "AI ინოვატორი და კონტენტ კრეატორი",
   domain: "andrewaltair.ge",
-  
+  email: "andrewaltair@icloud.com",
+  logo: "/logo.png",
+
   // Experience & Stats (for credibility)
   stats: {
     yearsExperience: "8+",
@@ -14,7 +16,7 @@ export const brand = {
     articles: "200+",
     projects: "30+",
   },
-  
+
   // Color Palette - Cyber Premium Style
   colors: {
     // Primary - Electric Blue/Purple gradient
@@ -65,7 +67,7 @@ export const brand = {
       muted: "#71717a",
     },
   },
-  
+
   // Typography
   fonts: {
     // Georgian font for body text
@@ -75,7 +77,7 @@ export const brand = {
     // Monospace for code
     mono: "'JetBrains Mono', 'Fira Code', monospace",
   },
-  
+
   // Reactions for posts
   reactions: [
     { emoji: "🔥", label: "Fire", key: "fire" },
@@ -84,19 +86,19 @@ export const brand = {
     { emoji: "👏", label: "Applause", key: "applause" },
     { emoji: "💡", label: "Insightful", key: "insightful" },
   ],
-  
+
   // Social Links (to be filled with real URLs)
   social: {
-    youtube: "https://youtube.com/@andrewaltair",
-    instagram: "https://instagram.com/andrewaltair",
-    facebook: "https://facebook.com/andrewaltair",
-    tiktok: "https://tiktok.com/@andrewaltair",
-    telegram: "https://t.me/andrewaltair",
-    linkedin: "https://linkedin.com/in/andrewaltair",
-    twitter: "https://x.com/andrewaltair",
+    youtube: "https://www.youtube.com/@AndrewAltair",
+    instagram: "https://www.instagram.com/andr3waltair/",
+    facebook: "https://www.facebook.com/andr3waltair",
+    tiktok: "https://www.tiktok.com/@andrewaltair",
+    telegram: "https://t.me/andr3waltairchannel",
+    linkedin: "https://www.linkedin.com/in/andrewaltair",
+    twitter: "https://x.com/andr3waltair",
     github: "https://github.com/andrewaltair",
   },
-  
+
   // Categories for blog posts
   categories: [
     { id: "ai-tips", name: "AI ხრიკები", icon: "Lightbulb", color: "#f59e0b" },
@@ -106,7 +108,7 @@ export const brand = {
     { id: "reviews", name: "მიმოხილვები", icon: "Star", color: "#f97316" },
     { id: "opinion", name: "მოსაზრებები", icon: "MessageCircle", color: "#8b5cf6" },
   ],
-  
+
   // Animation presets
   animations: {
     spring: { type: "spring", stiffness: 300, damping: 30 },

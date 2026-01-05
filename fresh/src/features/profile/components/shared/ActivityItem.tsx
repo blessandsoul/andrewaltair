@@ -6,27 +6,20 @@
 "use client"
 
 import * as React from "react"
-import {
-    User,
-    Edit2,
-    MessageSquare,
-    Heart,
-    Eye,
-    Bell,
-    Lock,
-    type LucideIcon,
-} from "lucide-react"
+import { TbUser, TbEdit, TbMessage, TbHeart, TbEye, TbBell, TbLock } from "react-icons/tb"
 import { cn } from "@/lib/utils"
 import type { ActivityItem as ActivityItemType } from "../../types"
 
-const activityIcons: Record<string, { icon: LucideIcon; color: string }> = {
-    login: { icon: User, color: "text-green-500" },
-    profile_update: { icon: Edit2, color: "text-blue-500" },
-    comment: { icon: MessageSquare, color: "text-purple-500" },
-    like: { icon: Heart, color: "text-red-500" },
-    view: { icon: Eye, color: "text-gray-500" },
-    subscription: { icon: Bell, color: "text-yellow-500" },
-    password_change: { icon: Lock, color: "text-orange-500" },
+type IconType = React.ComponentType<{ className?: string }>
+
+const activityIcons: Record<string, { icon: IconType; color: string }> = {
+    login: { icon: TbUser, color: "text-green-500" },
+    profile_update: { icon: TbEdit, color: "text-blue-500" },
+    comment: { icon: TbMessage, color: "text-purple-500" },
+    like: { icon: TbHeart, color: "text-red-500" },
+    view: { icon: TbEye, color: "text-gray-500" },
+    subscription: { icon: TbBell, color: "text-yellow-500" },
+    password_change: { icon: TbLock, color: "text-orange-500" },
 }
 
 interface ActivityItemProps {

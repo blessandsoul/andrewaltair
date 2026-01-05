@@ -5,7 +5,7 @@
 "use client"
 
 import * as React from "react"
-import { History } from "lucide-react"
+import { TbHistory } from "react-icons/tb"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ActivityItem } from "../shared/ActivityItem"
@@ -22,7 +22,7 @@ export function ActivityTab({ activity = [], isLoading = false }: ActivityTabPro
         <Card className="border-border/50 shadow-xl backdrop-blur-sm">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <History className="w-5 h-5 text-primary" />
+                    <TbHistory className="w-5 h-5 text-primary" />
                     აქტივობის ისტორია
                 </CardTitle>
                 <CardDescription>თქვენი ბოლო მოქმედებები პლატფორმაზე</CardDescription>
@@ -41,7 +41,7 @@ export function ActivityTab({ activity = [], isLoading = false }: ActivityTabPro
                         </div>
                         <div className="mt-6 text-center">
                             <Button variant="outline" className="gap-2">
-                                <History className="w-4 h-4" />
+                                <TbHistory className="w-4 h-4" />
                                 მეტის ნახვა
                             </Button>
                         </div>

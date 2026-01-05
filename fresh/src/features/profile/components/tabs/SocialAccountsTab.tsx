@@ -5,7 +5,7 @@
 "use client"
 
 import * as React from "react"
-import { Link2 } from "lucide-react"
+import { TbExternalLink, TbLink } from "react-icons/tb"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { SocialAccountCard } from "../shared/SocialAccountCard"
 import type { SocialAccount } from "../../types"
@@ -40,7 +40,7 @@ export function SocialAccountsTab({ socialAccounts = [] }: SocialAccountsTabProp
         <Card className="border-border/50 shadow-xl backdrop-blur-sm">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Link2 className="w-5 h-5 text-primary" />
+                    <TbLink className="w-5 h-5 text-primary" />
                     დაკავშირებული ანგარიშები
                 </CardTitle>
                 <CardDescription>მართეთ სოციალური ქსელების კავშირები</CardDescription>

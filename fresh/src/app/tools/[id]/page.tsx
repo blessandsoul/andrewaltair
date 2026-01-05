@@ -7,68 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-    ArrowLeft,
-    Star,
-    ExternalLink,
-    MessageSquare,
-    Image as ImageIcon,
-    Video,
-    Music,
-    Code,
-    Search,
-    Zap,
-    Sparkles,
-    Presentation,
-    Palette,
-    FileText,
-    TrendingUp,
-    Languages,
-    Mic,
-    FileSearch,
-    Mail,
-    Headphones,
-    DollarSign,
-    Camera,
-    Globe,
-    BarChart3,
-    GraduationCap,
-    Terminal,
-    BookOpen,
-    User,
-    Compass,
-    Scale,
-    Wallet,
-    Blocks,
-    Gamepad2,
-    Box,
-    Wand2,
-    Clock,
-    Heart,
-    Share2,
-    ArrowUpRight,
-    Eye,
-    ThumbsUp,
-    ThumbsDown,
-    CheckCircle2,
-    PlayCircle,
-    Target,
-    ChevronDown,
-    ChevronUp,
-    Send,
-    Bell,
-    Shuffle,
-    Users,
-    TrendingDown,
-    AlertCircle,
-    Gift,
-    Rocket,
-    Award,
-    Bookmark,
-    Youtube,
-    HelpCircle,
-    X
-} from "lucide-react"
+import { TbArrowLeft, TbStar, TbExternalLink, TbMessage, TbPhoto as TbPhoto, TbVideo, TbMusic, TbCode, TbSearch, TbBolt, TbSparkles, TbPresentation, TbPalette, TbFileText, TbTrendingUp, TbLanguage, TbMicrophone, TbFileSearch, TbMail, TbHeadphones, TbCurrencyDollar, TbCamera, TbWorld, TbChartBar, TbSchool, TbTerminal, TbBook, TbUser, TbCompass, TbScale, TbWallet, TbBuildingBank, TbDeviceGamepad2, TbBox, TbWand, TbClock, TbHeart, TbShare, TbArrowUpRight, TbEye, TbThumbUp, TbThumbDown, TbCircleCheck, TbPlayerPlay, TbTarget, TbChevronDown, TbChevronUp, TbSend, TbBell, TbArrowsShuffle, TbUsers, TbTrendingDown, TbAlertCircle, TbGift, TbRocket, TbAward, TbBookmark, TbBrandYoutube, TbHelp, TbX } from "react-icons/tb"
 import { Comments } from "@/components/interactive/Comments"
 import { ShareButtons } from "@/components/interactive/ShareButtons"
 import { ReactionBar } from "@/components/interactive/ReactionBar"
@@ -77,48 +16,48 @@ import { cn } from "@/lib/utils"
 // Tools will be fetched from API
 // Category icons mapping
 const categoryIcons: Record<string, any> = {
-    "ჩატბოტები": MessageSquare,
-    "სურათები": ImageIcon,
-    "ვიდეო": Video,
-    "აუდიო": Music,
-    "კოდი": Code,
-    "ძებნა": Search,
-    "ავტომატიზაცია": Zap,
-    "პროდუქტიულობა": Sparkles,
-    "პრეზენტაცია": Presentation,
-    "დიზაინი": Palette,
-    "კონტენტი": FileText,
-    "SEO": TrendingUp,
-    "წერა": FileText,
-    "თარგმანი": Languages,
-    "ტრანსკრიფცია": Mic,
-    "დოკუმენტები": FileSearch,
-    "ელფოსტა": Mail,
-    "მომხმარებელი": Headphones,
-    "გაყიდვები": DollarSign,
-    "ფოტო რედაქცია": Camera,
-    "ვებსაიტი": Globe,
-    "ანალიტიკა": BarChart3,
-    "განათლება": GraduationCap,
-    "დეველოპერი": Terminal,
-    "კვლევა": BookOpen,
-    "ავატარი": User,
-    "ბრაუზერი": Compass,
-    "სამართალი": Scale,
-    "ფინანსები": Wallet,
-    "No-Code": Blocks,
-    "თამაშები": Gamepad2,
-    "3D": Box,
-    "VFX": Wand2,
-    "მარკეტინგი": TrendingUp,
-    "სუბტიტრები": Mic,
-    "კალენდარი": Clock,
-    "ჩატბოტი": MessageSquare,
-    "AI აგენტები": Zap,
-    "AI Labs": Terminal,
-    "რეკლამა": DollarSign,
-    "ML პლატფორმა": Terminal,
-    "HR": User,
+    "ჩატბოტები": TbMessage,
+    "სურათები": TbPhoto,
+    "ვიდეო": TbVideo,
+    "აუდიო": TbMusic,
+    "კოდი": TbCode,
+    "ძებნა": TbSearch,
+    "ავტომატიზაცია": TbBolt,
+    "პროდუქტიულობა": TbSparkles,
+    "პრეზენტაცია": TbPresentation,
+    "დიზაინი": TbPalette,
+    "კონტენტი": TbFileText,
+    "SEO": TbTrendingUp,
+    "წერა": TbFileText,
+    "თარგმანი": TbLanguage,
+    "ტრანსკრიფცია": TbMicrophone,
+    "დოკუმენტები": TbFileSearch,
+    "ელფოსტა": TbMail,
+    "მომხმარებელი": TbHeadphones,
+    "გაყიდვები": TbCurrencyDollar,
+    "ფოტო რედაქცია": TbCamera,
+    "ვებსაიტი": TbWorld,
+    "ანალიტიკა": TbChartBar,
+    "განათლება": TbSchool,
+    "დეველოპერი": TbTerminal,
+    "კვლევა": TbBook,
+    "ავატარი": TbUser,
+    "ბრაუზერი": TbCompass,
+    "სამართალი": TbScale,
+    "ფინანსები": TbWallet,
+    "No-TbCode": TbBuildingBank,
+    "თამაშები": TbDeviceGamepad2,
+    "3D": TbBox,
+    "VFX": TbWand,
+    "მარკეტინგი": TbTrendingUp,
+    "სუბტიტრები": TbMicrophone,
+    "კალენდარი": TbClock,
+    "ჩატბოტი": TbMessage,
+    "AI აგენტები": TbBolt,
+    "AI Labs": TbTerminal,
+    "რეკლამა": TbCurrencyDollar,
+    "ML პლატფორმა": TbTerminal,
+    "HR": TbUser,
 }
 
 // Category colors
@@ -152,7 +91,7 @@ const categoryColors: Record<string, string> = {
     "ბრაუზერი": "#f97316",
     "სამართალი": "#78716c",
     "ფინანსები": "#059669",
-    "No-Code": "#8b5cf6",
+    "No-TbCode": "#8b5cf6",
     "თამაშები": "#dc2626",
     "3D": "#0ea5e9",
     "VFX": "#f472b6",
@@ -331,7 +270,7 @@ function LiveViewers() {
     return (
         <div className="flex items-center gap-2 text-sm">
             <div className="relative">
-                <Eye className="w-4 h-4 text-green-500" />
+                <TbEye className="w-4 h-4 text-green-500" />
                 <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
             </div>
             <span className="text-muted-foreground">
@@ -365,7 +304,7 @@ function UserRating({ toolId, initialRating }: { toolId: string, initialRating: 
         <Card className="border-0 shadow-lg">
             <CardContent className="p-6">
                 <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                    <Star className="w-5 h-5 text-yellow-500" />
+                    <TbStar className="w-5 h-5 text-yellow-500" />
                     შეაფასე ინსტრუმენტი
                 </h3>
 
@@ -379,7 +318,7 @@ function UserRating({ toolId, initialRating }: { toolId: string, initialRating: 
                                 onMouseLeave={() => setHoveredRating(null)}
                                 className="transition-transform hover:scale-110"
                             >
-                                <Star
+                                <TbStar
                                     className={cn(
                                         "w-8 h-8 transition-colors",
                                         (hoveredRating !== null ? star <= hoveredRating : star <= (userRating || 0))
@@ -394,7 +333,7 @@ function UserRating({ toolId, initialRating }: { toolId: string, initialRating: 
                     <div className="text-sm text-muted-foreground">
                         {userRating ? (
                             <span className="text-green-500 flex items-center gap-1">
-                                <CheckCircle2 className="w-4 h-4" />
+                                <TbCircleCheck className="w-4 h-4" />
                                 შენი შეფასება: {userRating}/5
                             </span>
                         ) : (
@@ -440,16 +379,16 @@ function UsagePoll({ toolId }: { toolId: string }) {
     }
 
     const options = [
-        { key: "using", label: "ვიყენებ 💪", icon: CheckCircle2, color: "bg-green-500" },
-        { key: "wantToTry", label: "მინდა ვცადო 🤔", icon: Target, color: "bg-blue-500" },
-        { key: "tried", label: "ვცადე 👀", icon: Eye, color: "bg-purple-500" }
+        { key: "using", label: "ვიყენებ 💪", icon: TbCircleCheck, color: "bg-green-500" },
+        { key: "wantToTry", label: "მინდა ვცადო 🤔", icon: TbTarget, color: "bg-blue-500" },
+        { key: "tried", label: "ვცადე 👀", icon: TbEye, color: "bg-purple-500" }
     ]
 
     return (
         <Card className="border-0 shadow-lg">
             <CardContent className="p-6">
                 <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                    <Users className="w-5 h-5 text-primary" />
+                    <TbUsers className="w-5 h-5 text-primary" />
                     რა სტატუსში ხარ?
                 </h3>
 
@@ -506,7 +445,7 @@ function ProsConsList({ tool }: { tool: any }) {
         <Card className="border-0 shadow-lg">
             <CardContent className="p-6">
                 <h3 className="font-bold text-lg mb-6 flex items-center gap-2">
-                    <Scale className="w-5 h-5" />
+                    <TbScale className="w-5 h-5" />
                     დადებითი და უარყოფითი
                 </h3>
 
@@ -514,13 +453,13 @@ function ProsConsList({ tool }: { tool: any }) {
                     {/* Pros */}
                     <div className="space-y-3">
                         <h4 className="font-semibold text-green-500 flex items-center gap-2">
-                            <ThumbsUp className="w-4 h-4" />
+                            <TbThumbUp className="w-4 h-4" />
                             დადებითი
                         </h4>
                         <ul className="space-y-2">
                             {pros.map((pro, i) => (
                                 <li key={i} className="flex items-start gap-2 text-sm">
-                                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                    <TbCircleCheck className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                                     <span>{pro}</span>
                                 </li>
                             ))}
@@ -530,13 +469,13 @@ function ProsConsList({ tool }: { tool: any }) {
                     {/* Cons */}
                     <div className="space-y-3">
                         <h4 className="font-semibold text-red-500 flex items-center gap-2">
-                            <ThumbsDown className="w-4 h-4" />
+                            <TbThumbDown className="w-4 h-4" />
                             უარყოფითი
                         </h4>
                         <ul className="space-y-2">
                             {cons.map((con, i) => (
                                 <li key={i} className="flex items-start gap-2 text-sm">
-                                    <X className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                                    <TbX className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
                                     <span>{con}</span>
                                 </li>
                             ))}
@@ -557,7 +496,7 @@ function FAQSection({ tool }: { tool: any }) {
         <Card className="border-0 shadow-lg">
             <CardContent className="p-6">
                 <h3 className="font-bold text-lg mb-6 flex items-center gap-2">
-                    <HelpCircle className="w-5 h-5 text-primary" />
+                    <TbHelp className="w-5 h-5 text-primary" />
                     ხშირად დასმული კითხვები
                 </h3>
 
@@ -573,9 +512,9 @@ function FAQSection({ tool }: { tool: any }) {
                             >
                                 <span className="font-medium">{faq.question}</span>
                                 {openIndex === index ? (
-                                    <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                                    <TbChevronUp className="w-5 h-5 text-muted-foreground" />
                                 ) : (
-                                    <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                                    <TbChevronDown className="w-5 h-5 text-muted-foreground" />
                                 )}
                             </button>
                             {openIndex === index && (
@@ -607,7 +546,7 @@ function PopularityChart({ tool }: { tool: any }) {
         <Card className="border-0 shadow-lg">
             <CardContent className="p-6">
                 <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-green-500" />
+                    <TbTrendingUp className="w-5 h-5 text-green-500" />
                     პოპულარობა (ბოლო 7 დღე)
                 </h3>
 
@@ -626,7 +565,7 @@ function PopularityChart({ tool }: { tool: any }) {
                 <div className="mt-4 pt-4 border-t border-border flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">ტრენდი:</span>
                     <span className="text-green-500 flex items-center gap-1 font-medium">
-                        <TrendingUp className="w-4 h-4" />
+                        <TbTrendingUp className="w-4 h-4" />
                         +12% ამ კვირაში
                     </span>
                 </div>
@@ -635,7 +574,7 @@ function PopularityChart({ tool }: { tool: any }) {
     )
 }
 
-// 7. Video Tutorial Placeholder
+// 7. TbVideo Tutorial Placeholder
 function VideoTutorial({ tool }: { tool: any }) {
     const [showVideo, setShowVideo] = useState(false)
 
@@ -650,7 +589,7 @@ function VideoTutorial({ tool }: { tool: any }) {
                         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
                         <div className="relative z-10 text-center space-y-4">
                             <div className="w-20 h-20 mx-auto rounded-full bg-white/90 flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
-                                <PlayCircle className="w-12 h-12 text-primary ml-1" />
+                                <TbPlayerPlay className="w-12 h-12 text-primary ml-1" />
                             </div>
                             <div>
                                 <p className="font-bold text-lg">ვიდეო ტუტორიალი</p>
@@ -661,7 +600,7 @@ function VideoTutorial({ tool }: { tool: any }) {
                 ) : (
                     <div className="aspect-video bg-black flex items-center justify-center">
                         <div className="text-center text-white/60">
-                            <Youtube className="w-16 h-16 mx-auto mb-4" />
+                            <TbBrandYoutube className="w-16 h-16 mx-auto mb-4" />
                             <p>ვიდეო ჩაირთვება მალე</p>
                             <Button
                                 variant="outline"
@@ -679,55 +618,49 @@ function VideoTutorial({ tool }: { tool: any }) {
     )
 }
 
-// 8. Alternatives Table
-function AlternativesTable({ alternatives, categoryColor }: { alternatives: any[], categoryColor: string }) {
+// 8. Alternatives Cards (Modern Grid)
+function AlternativesCards({ alternatives, categoryColor }: { alternatives: any[], categoryColor: string }) {
     if (alternatives.length === 0) return null
 
     return (
         <Card className="border-0 shadow-lg">
             <CardContent className="p-6">
-                <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                    <Shuffle className="w-5 h-5" style={{ color: categoryColor }} />
+                <h3 className="font-bold text-lg mb-6 flex items-center gap-2">
+                    <TbArrowsShuffle className="w-5 h-5" style={{ color: categoryColor }} />
                     ალტერნატივები
                 </h3>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr className="border-b border-border">
-                                <th className="text-left py-3 px-2">სახელი</th>
-                                <th className="text-center py-3 px-2">ფასი</th>
-                                <th className="text-center py-3 px-2">რეიტინგი</th>
-                                <th className="text-right py-3 px-2"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {alternatives.slice(0, 5).map((alt) => (
-                                <tr key={alt.id} className="border-b border-border/50 hover:bg-muted/50">
-                                    <td className="py-3 px-2 font-medium">{alt.name}</td>
-                                    <td className="py-3 px-2 text-center">
-                                        <Badge className={cn("text-xs", pricingLabels[alt.pricing]?.color)}>
-                                            {pricingLabels[alt.pricing]?.label}
-                                        </Badge>
-                                    </td>
-                                    <td className="py-3 px-2 text-center">
-                                        <span className="flex items-center justify-center gap-1">
-                                            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                                            {alt.rating}
-                                        </span>
-                                    </td>
-                                    <td className="py-3 px-2 text-right">
-                                        <Link href={`/tools/${alt.id}`}>
-                                            <Button variant="ghost" size="sm">
-                                                ნახე
-                                                <ArrowUpRight className="w-3 h-3 ml-1" />
-                                            </Button>
-                                        </Link>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {alternatives.slice(0, 6).map((alt) => (
+                        <Link key={alt.id} href={`/tools/${alt.id}`}>
+                            <Card className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 hover:border-primary/50">
+                                <CardContent className="p-4">
+                                    <div className="flex items-start gap-3 mb-3">
+                                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted flex items-center justify-center flex-shrink-0">
+                                            <ToolLogo tool={alt} size={48} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="font-semibold text-sm group-hover:text-primary transition-colors line-clamp-1">
+                                                {alt.name}
+                                            </h4>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <Badge className={cn("text-xs px-2 py-0.5", pricingLabels[alt.pricing]?.color)}>
+                                                    {pricingLabels[alt.pricing]?.label}
+                                                </Badge>
+                                                <span className="flex items-center gap-1 text-xs">
+                                                    <TbStar className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                                                    {alt.rating}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground line-clamp-2">
+                                        {alt.description}
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        </Link>
+                    ))}
                 </div>
             </CardContent>
         </Card>
@@ -750,7 +683,7 @@ function SubscribeUpdates({ toolName }: { toolName: string }) {
         return (
             <Card className="border-0 shadow-lg bg-gradient-to-br from-green-500/10 to-green-500/5">
                 <CardContent className="p-6 text-center">
-                    <CheckCircle2 className="w-12 h-12 mx-auto text-green-500 mb-4" />
+                    <TbCircleCheck className="w-12 h-12 mx-auto text-green-500 mb-4" />
                     <h3 className="font-bold text-lg">გამოწერილია!</h3>
                     <p className="text-sm text-muted-foreground mt-2">
                         მიიღებ შეტყობინებას {toolName}-ის განახლებებზე
@@ -764,7 +697,7 @@ function SubscribeUpdates({ toolName }: { toolName: string }) {
         <Card className="border-0 shadow-lg">
             <CardContent className="p-6">
                 <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
-                    <Bell className="w-5 h-5 text-primary" />
+                    <TbBell className="w-5 h-5 text-primary" />
                     გამოიწერე განახლებები
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
@@ -781,7 +714,7 @@ function SubscribeUpdates({ toolName }: { toolName: string }) {
                         required
                     />
                     <Button type="submit">
-                        <Bell className="w-4 h-4 mr-2" />
+                        <TbBell className="w-4 h-4 mr-2" />
                         გამოწერა
                     </Button>
                 </form>
@@ -815,12 +748,12 @@ function AddToCollection({ toolId, toolName }: { toolId: string, toolName: strin
     return (
         <Button
             variant={inCollection ? "default" : "outline"}
-            size="lg"
+            size="sm"
             className="gap-2"
             onClick={toggleCollection}
         >
-            <Bookmark className={cn("w-5 h-5", inCollection && "fill-current")} />
-            {inCollection ? "კოლექციაში დამატებულია" : "ჩემს არსენალში"}
+            <TbBookmark className={cn("w-4 h-4", inCollection && "fill-current")} />
+            {inCollection ? "შენახულია" : "შენახვა"}
         </Button>
     )
 }
@@ -839,7 +772,7 @@ export default function ToolDetailPage() {
     useEffect(() => {
         async function fetchTools() {
             try {
-                const res = await fetch('/api/tools?limit=500')
+                const res = await fetch('/api/tools?limit=2000')
                 if (res.ok) {
                     const data = await res.json()
                     setToolsData(data.tools || [])
@@ -852,6 +785,15 @@ export default function ToolDetailPage() {
         }
         fetchTools()
     }, [])
+
+    // Track tool view
+    useEffect(() => {
+        if (toolId) {
+            fetch(`/api/tools/${toolId}/view`, {
+                method: 'POST'
+            }).catch(err => console.error('Failed to track view:', err))
+        }
+    }, [toolId])
 
     const tool = toolsData.find(t => t.id === toolId)
 
@@ -872,12 +814,24 @@ export default function ToolDetailPage() {
         insightful: Math.floor(Math.random() * 30) + 5
     }
 
+    // Show loading while fetching tools
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center space-y-4">
+                    <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    <p className="text-muted-foreground">იტვირთება...</p>
+                </div>
+            </div>
+        )
+    }
+
     if (!tool) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center space-y-4">
                     <div className="w-20 h-20 mx-auto bg-muted rounded-full flex items-center justify-center">
-                        <Search className="w-10 h-10 text-muted-foreground" />
+                        <TbSearch className="w-10 h-10 text-muted-foreground" />
                     </div>
                     <h1 className="text-3xl font-bold">ინსტრუმენტი ვერ მოიძებნა</h1>
                     <p className="text-muted-foreground">
@@ -885,7 +839,7 @@ export default function ToolDetailPage() {
                     </p>
                     <Button asChild>
                         <Link href="/tools">
-                            <ArrowLeft className="w-4 h-4 mr-2" />
+                            <TbArrowLeft className="w-4 h-4 mr-2" />
                             ინსტრუმენტებზე დაბრუნება
                         </Link>
                     </Button>
@@ -894,128 +848,96 @@ export default function ToolDetailPage() {
         )
     }
 
-    const Icon = categoryIcons[tool.category] || Sparkles
+    const CategoryIcon = categoryIcons[tool.category] || TbSparkles
     const pricing = pricingLabels[tool.pricing] || pricingLabels["freemium"]
     const categoryColor = categoryColors[tool.category] || "#6366f1"
 
     return (
-        <div className="min-h-screen">
-            {/* Hero Section */}
-            <section className="relative py-16 lg:py-24 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5">
-                    <div className="absolute inset-0 noise-overlay"></div>
-                </div>
+        <div className="min-h-screen bg-background">
+            {/* Compact Hero Section */}
+            <div className="relative overflow-hidden bg-gradient-to-br from-background via-muted/30 to-background">
+                <div className="container mx-auto px-4 py-6 relative">
+                    {/* Back Button */}
+                    <Link href="/tools">
+                        <Button variant="ghost" size="sm" className="mb-4">
+                            <TbArrowLeft className="w-4 h-4 mr-2" />
+                            უკან
+                        </Button>
+                    </Link>
 
-                {/* Glow Effect */}
-                <div
-                    className="absolute top-20 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full blur-3xl opacity-20"
-                    style={{ backgroundColor: categoryColor }}
-                ></div>
-
-                <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-                    {/* Back Button + Live Viewers */}
-                    <div className="flex items-center justify-between mb-8">
-                        <Link
-                            href="/tools"
-                            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            <ArrowLeft className="w-4 h-4" />
-                            ინსტრუმენტებზე დაბრუნება
-                        </Link>
-
-                        <LiveViewers />
-                    </div>
-
-                    {/* Tool Header */}
-                    <div className="space-y-6">
-                        <div className="flex flex-col sm:flex-row items-start gap-6">
-                            {/* Logo */}
-                            <div
-                                className="w-24 h-24 rounded-3xl overflow-hidden bg-card border-2 shadow-xl flex items-center justify-center p-3"
-                                style={{ borderColor: `${categoryColor}30` }}
-                            >
-                                <ToolLogo tool={tool} size={80} />
-                            </div>
-
-                            <div className="flex-1 space-y-4">
-                                {/* Badges */}
-                                <div className="flex items-center gap-3 flex-wrap">
-                                    <Badge
-                                        style={{
-                                            backgroundColor: `${categoryColor}20`,
-                                            color: categoryColor,
-                                            borderColor: `${categoryColor}40`
-                                        }}
-                                        className="gap-1"
-                                    >
-                                        <Icon className="w-3 h-3" />
-                                        {tool.category}
-                                    </Badge>
-                                    <Badge className={pricing.color}>
-                                        {pricing.label}
-                                    </Badge>
-                                    {tool.featured && (
-                                        <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0">
-                                            ⭐ რეკომენდებული
-                                        </Badge>
-                                    )}
-                                </div>
-
-                                {/* Title */}
-                                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
-                                    {tool.name}
-                                </h1>
-
-                                {/* Rating */}
-                                <div className="flex items-center gap-2">
-                                    <div className="flex items-center gap-1">
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star
-                                                key={i}
-                                                className={`w-5 h-5 ${i < tool.rating ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground"}`}
-                                            />
-                                        ))}
+                    {/* Compact Tool Header */}
+                    <div className="max-w-5xl mx-auto">
+                        <Card className="border-0 shadow-xl">
+                            <CardContent className="p-6">
+                                <div className="flex flex-col sm:flex-row gap-4 items-start">
+                                    {/* Logo */}
+                                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-muted flex items-center justify-center flex-shrink-0 shadow-md">
+                                        <ToolLogo tool={tool} size={64} />
                                     </div>
-                                    <span className="text-lg font-semibold">{tool.rating}/5</span>
+
+                                    {/* Info */}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                                            <Badge
+                                                className="text-xs px-2 py-0.5"
+                                                style={{ backgroundColor: `${categoryColor}20`, color: categoryColor }}
+                                            >
+                                                <CategoryIcon className="w-3 h-3 mr-1" />
+                                                {tool.category}
+                                            </Badge>
+                                            <Badge className={cn("text-xs px-2 py-0.5", pricing.color)}>
+                                                {pricing.label}
+                                            </Badge>
+                                            <div className="flex items-center gap-0.5">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <TbStar
+                                                        key={i}
+                                                        className={cn(
+                                                            "w-3.5 h-3.5",
+                                                            i < tool.rating ? "fill-yellow-500 text-yellow-500" : "fill-muted text-muted"
+                                                        )}
+                                                    />
+                                                ))}
+                                                <span className="text-xs text-muted-foreground ml-1">{tool.rating}/5</span>
+                                            </div>
+                                        </div>
+
+                                        <h1 className="text-xl sm:text-2xl font-bold mb-2">{tool.name}</h1>
+
+                                        <p className="text-muted-foreground text-sm mb-3 line-clamp-1">
+                                            {tool.description}
+                                        </p>
+
+                                        <div className="flex flex-wrap gap-2 mb-3">
+                                            <a href={tool.url} target="_blank" rel="noopener noreferrer">
+                                                <Button size="sm" className="gap-1.5">
+                                                    <TbExternalLink className="w-3.5 h-3.5" />
+                                                    ვებსაიტი
+                                                </Button>
+                                            </a>
+                                            <AddToCollection toolId={tool.id} toolName={tool.name} />
+                                        </div>
+
+                                        <ShareButtons
+                                            url={`https://andrewaltair.ge/tools/${tool.id}`}
+                                            title={`${tool.name} - AI ინსტრუმენტი`}
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        {/* Description */}
-                        <p className="text-xl text-muted-foreground leading-relaxed">
-                            {tool.description}
-                        </p>
-
-                        {/* Action Buttons */}
-                        <div className="flex flex-wrap gap-4 pt-4">
-                            <Button size="lg" asChild className="gap-2">
-                                <Link href={tool.url} target="_blank" rel="noopener noreferrer">
-                                    <ExternalLink className="w-5 h-5" />
-                                    სერვისის გახსნა
-                                    <ArrowUpRight className="w-4 h-4" />
-                                </Link>
-                            </Button>
-                            <AddToCollection toolId={tool.id} toolName={tool.name} />
-                        </div>
-
-                        {/* Reactions */}
-                        <div className="pt-4">
-                            <ReactionBar reactions={sampleReactions} size="lg" />
-                        </div>
+                                {/* Compact Stats */}
+                                <div className="mt-4 pt-4 border-t border-border flex flex-wrap items-center gap-4 text-sm">
+                                    <div className="flex items-center gap-2">
+                                        <TbEye className="w-4 h-4 text-muted-foreground" />
+                                        <span className="text-muted-foreground">{tool.views || 0} ნახვა</span>
+                                    </div>
+                                    <LiveViewers />
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
-            </section>
-
-            {/* Interactive Section - Phase 1 Features */}
-            <section className="py-12 bg-card/50 border-y border-border">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        <UserRating toolId={tool.id} initialRating={tool.rating} />
-                        <UsagePoll toolId={tool.id} />
-                        <PopularityChart tool={tool} />
-                    </div>
-                </div>
-            </section>
+            </div>
 
             {/* Content Section */}
             <section className="py-12">
@@ -1046,7 +968,7 @@ export default function ToolDetailPage() {
                                         <div className="flex items-center justify-between">
                                             <span className="text-muted-foreground">რეიტინგი</span>
                                             <span className="flex items-center gap-1">
-                                                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                                                <TbStar className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                                                 {tool.rating}/5
                                             </span>
                                         </div>
@@ -1056,7 +978,7 @@ export default function ToolDetailPage() {
 
                             <SubscribeUpdates toolName={tool.name} />
 
-                            <AlternativesTable alternatives={relatedTools} categoryColor={categoryColor} />
+                            <AlternativesCards alternatives={relatedTools} categoryColor={categoryColor} />
                         </div>
                     </div>
                 </div>
@@ -1105,7 +1027,7 @@ export default function ToolDetailPage() {
                                                             </Badge>
                                                             <div className="flex items-center gap-0.5">
                                                                 {[...Array(relatedTool.rating)].map((_, i) => (
-                                                                    <Star key={i} className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                                                                    <TbStar key={i} className="w-3 h-3 text-yellow-500 fill-yellow-500" />
                                                                 ))}
                                                             </div>
                                                         </div>

@@ -2,13 +2,17 @@ import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
 import { AI_CONFIG, FORTUNE_RULES, pickRandom, parseAIResponse } from "@/lib/mystic-rules"
 
-const client = new OpenAI({
-    apiKey: process.env.GROQ_API_KEY,
-    baseURL: AI_CONFIG.baseURL,
-})
+// Lazy initialization to avoid build-time errors
+function getClient() {
+    return new OpenAI({
+        apiKey: process.env.GROQ_API_KEY,
+        baseURL: AI_CONFIG.baseURL,
+    })
+}
 
 export async function POST(request: NextRequest) {
     try {
+        const client = getClient()
         const { name, birthDate } = await request.json()
 
         if (!name) {
