@@ -4,9 +4,63 @@ import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import Session from '@/models/Session';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret';
+// 🛡️ SECURITY: Require JWT_SECRET - no fallback allowed
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required');
+}
+
+// 🛡️ Rate limiting for brute-force protection
+const loginAttempts = new Map<string, { count: number; lastAttempt: number }>();
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
+
+function checkRateLimit(ip: string): { allowed: boolean; remainingAttempts: number; lockoutRemaining?: number } {
+    const now = Date.now();
+    const attempts = loginAttempts.get(ip);
+
+    if (attempts) {
+        if (attempts.count >= MAX_LOGIN_ATTEMPTS) {
+            const timeSinceLast = now - attempts.lastAttempt;
+            if (timeSinceLast < LOCKOUT_DURATION) {
+                return {
+                    allowed: false,
+                    remainingAttempts: 0,
+                    lockoutRemaining: Math.ceil((LOCKOUT_DURATION - timeSinceLast) / 1000)
+                };
+            }
+            loginAttempts.delete(ip);
+        }
+    }
+    return { allowed: true, remainingAttempts: MAX_LOGIN_ATTEMPTS - (attempts?.count || 0) };
+}
+
+function recordFailedAttempt(ip: string) {
+    const now = Date.now();
+    const attempts = loginAttempts.get(ip) || { count: 0, lastAttempt: now };
+    attempts.count++;
+    attempts.lastAttempt = now;
+    loginAttempts.set(ip, attempts);
+}
+
+function clearAttempts(ip: string) {
+    loginAttempts.delete(ip);
+}
 
 export async function POST(request: Request) {
+    // 🛡️ Rate limit check
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] ||
+        request.headers.get('x-real-ip') || 'unknown';
+
+    const rateCheck = checkRateLimit(ip);
+    if (!rateCheck.allowed) {
+        return NextResponse.json({
+            error: 'ძალიან ბევრი მცდელობა. გთხოვთ სცადოთ მოგვიანებით.',
+            locked: true,
+            lockoutRemaining: rateCheck.lockoutRemaining
+        }, { status: 429 });
+    }
+
     try {
         await dbConnect();
 
@@ -62,7 +116,7 @@ export async function POST(request: Request) {
         // Generate JWT token
         const token = jwt.sign(
             { userId: user._id, role: user.role },
-            JWT_SECRET,
+            JWT_SECRET!,
             { expiresIn: '7d' }
         );
 

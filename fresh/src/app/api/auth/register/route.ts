@@ -4,7 +4,10 @@ import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import { sendWelcomeEmail } from '@/lib/email';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required');
+}
 
 export async function POST(request: Request) {
     try {
@@ -18,6 +21,21 @@ export async function POST(request: Request) {
                 { error: 'ყველა ველის შევსება სავალდებულოა' },
                 { status: 400 }
             );
+        }
+
+        // 🛡️ Input Validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return NextResponse.json({ error: 'არასწორი ელფოსტის ფორმატი' }, { status: 400 });
+        }
+
+        if (password.length < 8) {
+            return NextResponse.json({ error: 'პაროლი უნდა იყოს მინიმუმ 8 სიმბოლო' }, { status: 400 });
+        }
+
+        const usernameRegex = /^[a-zA-Z0-9_]+$/;
+        if (!usernameRegex.test(username)) {
+            return NextResponse.json({ error: 'მომხმარებლის სახელი უნდა შეიცავდეს მხოლოდ ლათინურ ასოებს, ციფრებს და _' }, { status: 400 });
         }
 
         // Check if user already exists
@@ -55,7 +73,7 @@ export async function POST(request: Request) {
         // Generate JWT token
         const token = jwt.sign(
             { userId: user._id, role: user.role },
-            JWT_SECRET,
+            JWT_SECRET!,
             { expiresIn: '7d' }
         );
 

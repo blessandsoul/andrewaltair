@@ -339,8 +339,8 @@ export default function VibeCodingLibraryV2() {
                     const userName = data.user?.fullName || data.user?.username;
                     if (userName) setCurrentUser(userName);
                 }
-            } catch (error) {
-                console.log('Not authenticated');
+            } catch {
+                // User not authenticated
             }
         };
         fetchUser();

@@ -26,7 +26,6 @@ export function SocialAccountsTab({ socialAccounts = [] }: SocialAccountsTabProp
 
     const handleConnect = (providerId: string) => {
         // TODO: Implement OAuth flow
-        console.log("Connecting to", providerId)
     }
 
     const handleDisconnect = (providerId: string) => {

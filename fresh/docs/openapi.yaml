@@ -1,0 +1,2173 @@
+openapi: 3.0.3
+info:
+  title: Fresh Platform API
+  description: |
+    Complete API documentation for the Fresh Platform - a Georgian AI & Technology platform.
+    
+    ## Authentication
+    Most endpoints require JWT authentication via Bearer token in the Authorization header.
+    Admin endpoints require a separate admin token via Cookie (`admin_session`).
+    
+    ## Rate Limiting
+    - Search API: 30 requests per minute per IP
+    - Admin login: Brute-force protection with lockout
+    
+    ## Georgian Language
+    Many error messages and content are in Georgian.
+    
+  version: 1.0.0
+  contact:
+    name: Andrew Altair
+    email: andrewaltair@icloud.com
+  license:
+    name: MIT
+
+servers:
+  - url: https://api.example.com
+    description: Production server
+  - url: http://localhost:3000
+    description: Development server
+
+tags:
+  - name: Admin
+    description: Admin authentication and verification
+  - name: Auth
+    description: User authentication and 2FA
+  - name: Posts
+    description: Blog posts management
+  - name: Bots
+    description: AI Bots marketplace
+  - name: Chat
+    description: AI Chat interactions
+  - name: Mystic
+    description: Mystic AI tools (Horoscope, Tarot, Dream, etc.)
+  - name: Search
+    description: Global search across content
+  - name: Tools
+    description: AI Tools directory
+  - name: Videos
+    description: Video content
+  - name: Comments
+    description: User comments
+  - name: Analytics
+    description: Platform analytics
+  - name: Users
+    description: User management (admin)
+  - name: Profile
+    description: User profile
+  - name: Sessions
+    description: Session management
+  - name: Upload
+    description: File uploads
+  - name: Email
+    description: Email sending
+  - name: SEO
+    description: SEO settings
+  - name: Prompts
+    description: Prompt builder and management
+  - name: Health
+    description: Health check endpoint
+
+paths:
+  # ============ ADMIN ============
+  /api/admin/login:
+    post:
+      tags: [Admin]
+      summary: Admin login
+      description: Authenticate as admin with password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password:
+                  type: string
+                  description: Admin password
+            example:
+              password: "your-admin-password"
+      responses:
+        '200':
+          description: Login successful
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: admin_session httpOnly cookie
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  token:
+                    type: string
+                  message:
+                    type: string
+        '400':
+          description: Password required
+        '401':
+          description: Invalid password
+        '429':
+          description: Too many attempts, locked out
+
+  /api/admin/verify:
+    get:
+      tags: [Admin]
+      summary: Verify admin session
+      description: Check if admin session is valid
+      security:
+        - adminCookie: []
+      responses:
+        '200':
+          description: Session valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+        '401':
+          description: Invalid or expired session
+
+  # ============ AUTH ============
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              username: "newuser"
+              email: "user@example.com"
+              password: "securePassword123"
+              fullName: "John Doe"
+      responses:
+        '200':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Validation error or user exists
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: User login
+      description: Login with email/username and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                email:
+                  type: string
+                username:
+                  type: string
+                password:
+                  type: string
+            example:
+              email: "user@example.com"
+              password: "securePassword123"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+        '403':
+          description: Account blocked
+
+  /api/auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current user
+      description: Get authenticated user data
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Not authenticated
+
+  /api/auth/2fa:
+    get:
+      tags: [Auth]
+      summary: Get 2FA status
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 2FA status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  enabled:
+                    type: boolean
+    post:
+      tags: [Auth]
+      summary: Setup 2FA
+      description: Generate secret and QR code for 2FA setup
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 2FA setup data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  secret:
+                    type: string
+                    description: TOTP secret for manual entry
+                  qrCode:
+                    type: string
+                    description: QR code as data URL
+    put:
+      tags: [Auth]
+      summary: Enable/Disable/Verify 2FA
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, action]
+              properties:
+                token:
+                  type: string
+                  description: TOTP code or backup code
+                action:
+                  type: string
+                  enum: [enable, disable, verify]
+      responses:
+        '200':
+          description: Action completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  backupCodes:
+                    type: array
+                    items:
+                      type: string
+                    description: Only returned on enable action
+
+  # ============ POSTS ============
+  /api/posts:
+    get:
+      tags: [Posts]
+      summary: List posts
+      description: Get list of posts with filtering and pagination
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, published]
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Full-text search
+        - name: featured
+          in: query
+          schema:
+            type: string
+            enum: ["true"]
+        - name: trending
+          in: query
+          schema:
+            type: string
+            enum: ["true"]
+        - name: afterSlug
+          in: query
+          schema:
+            type: string
+          description: For keyset pagination
+      responses:
+        '200':
+          description: Posts list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  posts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Post'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+    post:
+      tags: [Posts]
+      summary: Create post
+      description: Create a new blog post (Admin only)
+      security:
+        - adminCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostInput'
+      responses:
+        '200':
+          description: Post created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  post:
+                    $ref: '#/components/schemas/Post'
+        '401':
+          description: Admin access required
+
+  /api/posts/{id}:
+    get:
+      tags: [Posts]
+      summary: Get single post
+      description: Get post by ID or slug
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Post ID or slug
+      responses:
+        '200':
+          description: Post data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  post:
+                    $ref: '#/components/schemas/Post'
+                  prevPost:
+                    type: object
+                    nullable: true
+                    properties:
+                      slug:
+                        type: string
+                      title:
+                        type: string
+                  nextPost:
+                    type: object
+                    nullable: true
+                    properties:
+                      slug:
+                        type: string
+                      title:
+                        type: string
+        '404':
+          description: Post not found
+    put:
+      tags: [Posts]
+      summary: Update post
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostInput'
+      responses:
+        '200':
+          description: Post updated
+        '404':
+          description: Post not found
+    delete:
+      tags: [Posts]
+      summary: Delete post
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Post deleted
+        '404':
+          description: Post not found
+
+  /api/posts/ai-suggest:
+    post:
+      tags: [Posts]
+      summary: AI-suggest SEO metadata
+      description: Generate SEO suggestions using AI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                excerpt:
+                  type: string
+                rawContent:
+                  type: string
+      responses:
+        '200':
+          description: SEO suggestions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  focusKeyword:
+                    type: string
+                  metaTitle:
+                    type: string
+                  metaDescription:
+                    type: string
+                  keywords:
+                    type: string
+                  tags:
+                    type: array
+                    items:
+                      type: string
+
+  /api/posts/generate-tags:
+    post:
+      tags: [Posts]
+      summary: Generate tags with AI
+      description: Generate 20 SEO-optimized tags using AI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                excerpt:
+                  type: string
+                content:
+                  type: string
+                category:
+                  type: string
+      responses:
+        '200':
+          description: Generated tags
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  tags:
+                    type: array
+                    items:
+                      type: string
+
+  /api/posts/parse-ai:
+    post:
+      tags: [Posts]
+      summary: Parse content with AI
+      description: Structure raw content into sections
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rawContent]
+              properties:
+                rawContent:
+                  type: string
+      responses:
+        '200':
+          description: Parsed content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  excerpt:
+                    type: string
+                  sections:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        icon:
+                          type: string
+                        title:
+                          type: string
+                        content:
+                          type: string
+                        type:
+                          type: string
+                  tags:
+                    type: array
+                    items:
+                      type: string
+
+  /api/posts/seo-analysis:
+    post:
+      tags: [Posts]
+      summary: Analyze SEO
+      description: Get SEO score and recommendations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                excerpt:
+                  type: string
+                content:
+                  type: string
+                focusKeyword:
+                  type: string
+                metaTitle:
+                  type: string
+                metaDescription:
+                  type: string
+                coverImage:
+                  type: string
+      responses:
+        '200':
+          description: SEO analysis
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  score:
+                    type: number
+                  tips:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum: [success, warning, error]
+                        message:
+                          type: string
+                  details:
+                    type: object
+
+  # ============ BOTS ============
+  /api/bots:
+    get:
+      tags: [Bots]
+      summary: List bots
+      description: Get AI bots with filtering
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: tier
+          in: query
+          schema:
+            type: string
+            enum: [free, premium, private, all]
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: featured
+          in: query
+          schema:
+            type: string
+            enum: ["true"]
+      responses:
+        '200':
+          description: Bots list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bots:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Bot'
+                  categories:
+                    type: array
+                    items:
+                      type: string
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+    post:
+      tags: [Bots]
+      summary: Create bot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BotInput'
+      responses:
+        '201':
+          description: Bot created
+
+  /api/bots/{id}:
+    get:
+      tags: [Bots]
+      summary: Get bot details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Bot details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bot'
+        '404':
+          description: Bot not found
+    put:
+      tags: [Bots]
+      summary: Update bot
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BotInput'
+      responses:
+        '200':
+          description: Bot updated
+    delete:
+      tags: [Bots]
+      summary: Delete bot
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Bot deleted
+    post:
+      tags: [Bots]
+      summary: Like bot
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Like added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  likes:
+                    type: integer
+
+  # ============ CHAT ============
+  /api/chat:
+    post:
+      tags: [Chat]
+      summary: Send message to AI
+      description: Chat with AI assistant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                message:
+                  type: string
+                history:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      role:
+                        type: string
+                        enum: [user, assistant]
+                      content:
+                        type: string
+                botId:
+                  type: string
+                masterPrompt:
+                  type: string
+            example:
+              message: "გამარჯობა! რა არის AI?"
+              history: []
+      responses:
+        '200':
+          description: AI response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: string
+
+  # ============ MYSTIC ============
+  /api/mystic/chat:
+    post:
+      tags: [Mystic]
+      summary: Mystic chat
+      description: Chat with mystic AI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                message:
+                  type: string
+                history:
+                  type: array
+                userName:
+                  type: string
+                zodiacSign:
+                  type: string
+      responses:
+        '200':
+          description: Mystic response
+
+  /api/mystic/horoscope:
+    post:
+      tags: [Mystic]
+      summary: Daily horoscope
+      description: Get AI-generated horoscope
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sign]
+              properties:
+                sign:
+                  type: string
+                  description: Zodiac sign key (aries, taurus, etc)
+                signName:
+                  type: string
+                  description: Georgian zodiac name
+      responses:
+        '200':
+          description: Horoscope
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  general:
+                    type: string
+                  love:
+                    type: string
+                  career:
+                    type: string
+                  health:
+                    type: string
+
+  /api/mystic/tarot:
+    post:
+      tags: [Mystic]
+      summary: Tarot reading
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cards]
+              properties:
+                cards:
+                  type: array
+                  items:
+                    type: string
+                spreadType:
+                  type: string
+                  default: three
+      responses:
+        '200':
+          description: Tarot interpretation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cards:
+                    type: array
+                    items:
+                      type: string
+                  interpretation:
+                    type: string
+                  advice:
+                    type: string
+
+  /api/mystic/dream:
+    post:
+      tags: [Mystic]
+      summary: Dream interpretation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [dream]
+              properties:
+                dream:
+                  type: string
+      responses:
+        '200':
+          description: Dream interpretation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  symbols:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        word:
+                          type: string
+                        meaning:
+                          type: string
+                        category:
+                          type: string
+                  generalMessage:
+                    type: string
+
+  /api/mystic/fortune:
+    post:
+      tags: [Mystic]
+      summary: Fortune telling
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                birthDate:
+                  type: string
+      responses:
+        '200':
+          description: Fortune
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prediction:
+                    type: string
+                  luckyColor:
+                    type: string
+                  luckyNumber:
+                    type: string
+                  luckyDay:
+                    type: string
+
+  /api/mystic/love:
+    post:
+      tags: [Mystic]
+      summary: Love compatibility
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name1, name2]
+              properties:
+                name1:
+                  type: string
+                name2:
+                  type: string
+      responses:
+        '200':
+          description: Compatibility
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  percentage:
+                    type: integer
+                  title:
+                    type: string
+                  description:
+                    type: string
+
+  /api/mystic/numerology:
+    post:
+      tags: [Mystic]
+      summary: Numerology analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fullName, birthDate]
+              properties:
+                fullName:
+                  type: string
+                birthDate:
+                  type: string
+                lifePath:
+                  type: integer
+                destiny:
+                  type: integer
+                soul:
+                  type: integer
+                personality:
+                  type: integer
+      responses:
+        '200':
+          description: Numerology
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  interpretation:
+                    type: string
+                  yearForecast:
+                    type: string
+
+  /api/mystic/history:
+    get:
+      tags: [Mystic]
+      summary: Get prediction history
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: toolType
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: History items
+    post:
+      tags: [Mystic]
+      summary: Save prediction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sessionId, toolType, result]
+              properties:
+                sessionId:
+                  type: string
+                toolType:
+                  type: string
+                input:
+                  type: object
+                result:
+                  type: object
+      responses:
+        '200':
+          description: Saved
+    delete:
+      tags: [Mystic]
+      summary: Delete history item
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted
+
+  # ============ SEARCH ============
+  /api/search:
+    get:
+      tags: [Search]
+      summary: Global search
+      description: Search across posts, videos, and tools
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [posts, videos, tools]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                        id:
+                          type: string
+                        title:
+                          type: string
+                        description:
+                          type: string
+                        url:
+                          type: string
+                        image:
+                          type: string
+                        category:
+                          type: string
+                  total:
+                    type: integer
+                  query:
+                    type: string
+        '429':
+          description: Rate limited
+
+  # ============ TOOLS ============
+  /api/tools:
+    get:
+      tags: [Tools]
+      summary: List tools
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: pricing
+          in: query
+          schema:
+            type: string
+            enum: [free, freemium, paid]
+        - name: featured
+          in: query
+          schema:
+            type: string
+            enum: ["true"]
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tools list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tools:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tool'
+                  categories:
+                    type: array
+                    items:
+                      type: string
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+    post:
+      tags: [Tools]
+      summary: Create tool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ToolInput'
+      responses:
+        '201':
+          description: Tool created
+
+  # ============ VIDEOS ============
+  /api/videos:
+    get:
+      tags: [Videos]
+      summary: List videos
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Videos list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  videos:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Video'
+    post:
+      tags: [Videos]
+      summary: Create video
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VideoInput'
+      responses:
+        '200':
+          description: Video created
+
+  # ============ COMMENTS ============
+  /api/comments:
+    get:
+      tags: [Comments]
+      summary: List comments
+      parameters:
+        - name: postId
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: Comments list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Comment'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+    post:
+      tags: [Comments]
+      summary: Create comment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentInput'
+      responses:
+        '200':
+          description: Comment created (pending moderation)
+
+  # ============ ANALYTICS ============
+  /api/analytics:
+    get:
+      tags: [Analytics]
+      summary: Get analytics
+      description: Aggregated platform analytics
+      responses:
+        '200':
+          description: Analytics data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stats:
+                    type: object
+                    properties:
+                      posts:
+                        type: integer
+                      videos:
+                        type: integer
+                      users:
+                        type: integer
+                      comments:
+                        type: integer
+                      totalViews:
+                        type: integer
+                      totalReactions:
+                        type: integer
+                  weeklyData:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        day:
+                          type: string
+                        views:
+                          type: integer
+                        reactions:
+                          type: integer
+                  topPosts:
+                    type: array
+                    items:
+                      type: object
+                  topVideos:
+                    type: array
+                    items:
+                      type: object
+                  recentActivity:
+                    type: array
+                    items:
+                      type: object
+
+  # ============ USERS ============
+  /api/users:
+    get:
+      tags: [Users]
+      summary: List users (admin)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: role
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Users list
+        '403':
+          description: Admin access required
+    post:
+      tags: [Users]
+      summary: Create user (admin)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '200':
+          description: User created
+        '403':
+          description: Admin access required
+
+  # ============ PROFILE ============
+  /api/profile:
+    get:
+      tags: [Profile]
+      summary: Get profile
+      description: Get current user profile with stats
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Profile data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  activity:
+                    type: array
+                    items:
+                      type: object
+                  stats:
+                    type: object
+                  socialAccounts:
+                    type: array
+                    items:
+                      type: object
+                  subscriptions:
+                    type: array
+                    items:
+                      type: object
+    put:
+      tags: [Profile]
+      summary: Update profile
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fullName:
+                  type: string
+                avatar:
+                  type: string
+                coverImage:
+                  type: string
+                coverOffsetY:
+                  type: number
+                bio:
+                  type: string
+                website:
+                  type: string
+                publicProfile:
+                  type: boolean
+      responses:
+        '200':
+          description: Profile updated
+
+  # ============ SESSIONS ============
+  /api/sessions:
+    get:
+      tags: [Sessions]
+      summary: List sessions
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Active sessions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        deviceInfo:
+                          type: object
+                        lastActivity:
+                          type: string
+                          format: date-time
+                        isCurrent:
+                          type: boolean
+    delete:
+      tags: [Sessions]
+      summary: Revoke sessions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+          description: Specific session ID
+        - name: all
+          in: query
+          schema:
+            type: string
+            enum: ["true"]
+          description: Revoke all sessions
+        - name: exceptCurrent
+          in: query
+          schema:
+            type: string
+            enum: ["true"]
+          description: Keep current session
+      responses:
+        '200':
+          description: Sessions revoked
+
+  # ============ UPLOAD ============
+  /api/upload:
+    post:
+      tags: [Upload]
+      summary: Upload file
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                title:
+                  type: string
+                type:
+                  type: string
+                  enum: [horizontal, vertical]
+                  default: horizontal
+      responses:
+        '200':
+          description: File uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  url:
+                    type: string
+                  filename:
+                    type: string
+                  type:
+                    type: string
+
+  # ============ EMAIL ============
+  /api/email:
+    post:
+      tags: [Email]
+      summary: Send email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type, to]
+              properties:
+                type:
+                  type: string
+                  enum: [welcome, notification, custom]
+                to:
+                  type: string
+                  format: email
+                name:
+                  type: string
+                  description: For welcome email
+                title:
+                  type: string
+                  description: For notification email
+                message:
+                  type: string
+                  description: For notification email
+                actionUrl:
+                  type: string
+                actionText:
+                  type: string
+                subject:
+                  type: string
+                  description: For custom email
+                html:
+                  type: string
+                  description: For custom email
+      responses:
+        '200':
+          description: Email sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  messageId:
+                    type: string
+                  previewUrl:
+                    type: string
+
+  # ============ SEO ============
+  /api/seo:
+    get:
+      tags: [SEO]
+      summary: Get SEO settings
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: key
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: SEO settings
+    post:
+      tags: [SEO]
+      summary: Save SEO setting
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [key]
+              properties:
+                key:
+                  type: string
+                type:
+                  type: string
+                value:
+                  type: object
+      responses:
+        '200':
+          description: Setting saved
+
+  # ============ PROMPTS ============
+  /api/prompts:
+    get:
+      tags: [Prompts]
+      summary: List prompts
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [history, favorites, templates, gallery]
+            default: history
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [createdAt, likes, uses]
+            default: createdAt
+      responses:
+        '200':
+          description: Prompts list
+    post:
+      tags: [Prompts]
+      summary: Create prompt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content, formData]
+              properties:
+                content:
+                  type: string
+                formData:
+                  type: object
+                  required: [role, task]
+                  properties:
+                    role:
+                      type: string
+                    task:
+                      type: string
+                title:
+                  type: string
+                description:
+                  type: string
+                category:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                isTemplate:
+                  type: boolean
+                isPublic:
+                  type: boolean
+      responses:
+        '200':
+          description: Prompt created
+
+  /api/prompt-builder:
+    post:
+      tags: [Prompts]
+      summary: Generate prompt with AI
+      description: Build professional prompt using AI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                action:
+                  type: string
+                  enum: [generate, enhance, translate, test]
+                formData:
+                  type: object
+                prompt:
+                  type: string
+                targetLanguage:
+                  type: string
+      responses:
+        '200':
+          description: Generated prompt
+
+  # ============ HEALTH ============
+  /api/health:
+    get:
+      tags: [Health]
+      summary: Health check
+      description: Application health status for Docker/Kubernetes
+      responses:
+        '200':
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy, unhealthy]
+                  timestamp:
+                    type: string
+                    format: date-time
+                  uptime:
+                    type: number
+                  environment:
+                    type: string
+                  version:
+                    type: string
+        '503':
+          description: Unhealthy
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    adminCookie:
+      type: apiKey
+      in: cookie
+      name: admin_session
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [username, email, password, fullName]
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        fullName:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        user:
+          $ref: '#/components/schemas/User'
+        token:
+          type: string
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        fullName:
+          type: string
+        avatar:
+          type: string
+        coverImage:
+          type: string
+        role:
+          type: string
+          enum: [viewer, member, author, admin, god]
+        badge:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    UserInput:
+      type: object
+      required: [username, email, password]
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        fullName:
+          type: string
+        role:
+          type: string
+
+    Post:
+      type: object
+      properties:
+        id:
+          type: string
+        numericId:
+          type: string
+        title:
+          type: string
+        slug:
+          type: string
+        excerpt:
+          type: string
+        content:
+          type: string
+        coverImage:
+          type: string
+        category:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        author:
+          type: object
+          properties:
+            name:
+              type: string
+            avatar:
+              type: string
+            role:
+              type: string
+        status:
+          type: string
+          enum: [draft, published]
+        featured:
+          type: boolean
+        trending:
+          type: boolean
+        views:
+          type: integer
+        readingTime:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+
+    PostInput:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+        slug:
+          type: string
+        excerpt:
+          type: string
+        content:
+          type: string
+        coverImage:
+          type: string
+        category:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+        featured:
+          type: boolean
+        trending:
+          type: boolean
+        readingTime:
+          type: integer
+        metaTitle:
+          type: string
+        metaDescription:
+          type: string
+        focusKeyword:
+          type: string
+
+    Bot:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        codename:
+          type: string
+        version:
+          type: string
+        description:
+          type: string
+        shortDescription:
+          type: string
+        category:
+          type: string
+        tier:
+          type: string
+          enum: [free, premium, private]
+        price:
+          type: number
+        icon:
+          type: string
+        color:
+          type: string
+        features:
+          type: array
+          items:
+            type: string
+        masterPrompt:
+          type: string
+        rating:
+          type: number
+        downloads:
+          type: integer
+        likes:
+          type: integer
+        isFeatured:
+          type: boolean
+
+    BotInput:
+      type: object
+      required: [name, codename, description, category]
+      properties:
+        name:
+          type: string
+        codename:
+          type: string
+        version:
+          type: string
+        description:
+          type: string
+        shortDescription:
+          type: string
+        category:
+          type: string
+        tier:
+          type: string
+        price:
+          type: number
+        icon:
+          type: string
+        color:
+          type: string
+        features:
+          type: array
+          items:
+            type: string
+        masterPrompt:
+          type: string
+        isFeatured:
+          type: boolean
+
+    Tool:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        url:
+          type: string
+        logo:
+          type: string
+        category:
+          type: string
+        pricing:
+          type: string
+          enum: [free, freemium, paid]
+        rating:
+          type: number
+        featured:
+          type: boolean
+        views:
+          type: integer
+
+    ToolInput:
+      type: object
+      required: [name, description, url, category]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        url:
+          type: string
+        logo:
+          type: string
+        category:
+          type: string
+        pricing:
+          type: string
+        rating:
+          type: number
+        featured:
+          type: boolean
+
+    Video:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        youtubeId:
+          type: string
+        type:
+          type: string
+        category:
+          type: string
+        views:
+          type: integer
+        publishedAt:
+          type: string
+          format: date-time
+
+    VideoInput:
+      type: object
+      required: [title, youtubeId]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        youtubeId:
+          type: string
+        type:
+          type: string
+        category:
+          type: string
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+        postId:
+          type: string
+        content:
+          type: string
+        author:
+          type: object
+          properties:
+            name:
+              type: string
+            email:
+              type: string
+            avatar:
+              type: string
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        createdAt:
+          type: string
+          format: date-time
+
+    CommentInput:
+      type: object
+      required: [postId, content, author]
+      properties:
+        postId:
+          type: string
+        content:
+          type: string
+        author:
+          type: object
+          required: [name, email]
+          properties:
+            name:
+              type: string
+            email:
+              type: string
+            avatar:
+              type: string
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        details:
+          type: string

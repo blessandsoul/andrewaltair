@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY || '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'
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+if (!GROQ_API_KEY) {
+    throw new Error('GROQ_API_KEY environment variable is required');
+}
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
 interface ParsedSection {

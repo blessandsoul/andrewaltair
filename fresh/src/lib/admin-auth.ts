@@ -8,7 +8,15 @@ import jwt from 'jsonwebtoken';
 
 // Admin password from environment (NO HARDCODING!)
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-const SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || 'fallback-dev-secret-change-me';
+const SESSION_SECRET = process.env.ADMIN_SESSION_SECRET;
+
+// Validate required environment variables at runtime
+function getSessionSecret(): string {
+    if (!SESSION_SECRET) {
+        throw new Error('ADMIN_SESSION_SECRET environment variable is required');
+    }
+    return SESSION_SECRET;
+}
 
 // Rate limiting map for brute-force protection
 const loginAttempts = new Map<string, { count: number; lastAttempt: number }>();
@@ -27,7 +35,7 @@ export function verifyAdmin(request: Request): boolean {
         }
 
         const token = authHeader.substring(7);
-        const decoded = jwt.verify(token, SESSION_SECRET) as { role: string };
+        const decoded = jwt.verify(token, getSessionSecret()) as { role: string };
 
         return decoded.role === 'admin' || decoded.role === 'god';
     } catch {
@@ -46,7 +54,7 @@ export async function verifyAdminSession(): Promise<boolean> {
 
         if (!match) return false;
 
-        const decoded = jwt.verify(match[1], SESSION_SECRET) as { role: string };
+        const decoded = jwt.verify(match[1], getSessionSecret()) as { role: string };
         return decoded.role === 'admin' || decoded.role === 'god';
     } catch {
         return false;
@@ -113,7 +121,7 @@ export function validateAdminPassword(password: string, ip: string): {
 export function generateAdminToken(): string {
     return jwt.sign(
         { role: 'admin', iat: Date.now() },
-        SESSION_SECRET,
+        getSessionSecret(),
         { expiresIn: '24h' }
     );
 }

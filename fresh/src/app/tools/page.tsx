@@ -215,19 +215,13 @@ export default function ToolsPage() {
     useEffect(() => {
         async function fetchTools() {
             try {
-                console.log('🔄 Fetching tools from API...')
                 const res = await fetch('/api/tools?limit=2000')
-                console.log('📡 Response status:', res.status)
                 if (res.ok) {
                     const data = await res.json()
-                    console.log('✅ Tools loaded:', data.tools?.length || 0)
-                    console.log('📦 Sample tool:', data.tools?.[0])
                     setToolsData(data.tools || [])
-                } else {
-                    console.error('❌ Failed to fetch tools:', res.statusText)
                 }
-            } catch (error) {
-                console.error('❌ Error fetching tools:', error)
+            } catch {
+                // Silently handle error
             } finally {
                 setIsLoading(false)
             }
@@ -255,20 +249,10 @@ export default function ToolsPage() {
 
     // Filter tools
     const filteredTools = useMemo(() => {
-        console.log('🔍 Filtering tools...', {
-            totalTools: toolsData.length,
-            showFavorites,
-            favoritesCount: favorites.length,
-            searchQuery,
-            selectedCategory,
-            selectedPricing
-        })
-
         let tools = [...toolsData]
 
         if (showFavorites) {
             tools = tools.filter(t => favorites.includes(t.id))
-            console.log('⭐ After favorites filter:', tools.length)
         }
 
         if (searchQuery) {
@@ -278,20 +262,16 @@ export default function ToolsPage() {
                 t.description.toLowerCase().includes(query) ||
                 t.category.toLowerCase().includes(query)
             )
-            console.log('🔎 After search filter:', tools.length)
         }
 
         if (selectedCategory) {
             tools = tools.filter(t => t.category === selectedCategory)
-            console.log('📁 After category filter:', tools.length)
         }
 
         if (selectedPricing) {
             tools = tools.filter(t => t.pricing === selectedPricing)
-            console.log('💰 After pricing filter:', tools.length)
         }
 
-        console.log('✅ Final filtered tools:', tools.length)
         return tools
     }, [toolsData, searchQuery, selectedCategory, selectedPricing, showFavorites, favorites])
 

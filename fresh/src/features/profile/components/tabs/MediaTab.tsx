@@ -30,7 +30,6 @@ export function MediaTab() {
         const file = e.target.files?.[0]
         if (file) {
             // TODO: Upload to server with crop modal
-            console.log("Avatar selected:", file)
         }
     }
 

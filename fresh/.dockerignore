@@ -1,0 +1,66 @@
+# ============================================================================
+# 📋 .dockerignore - Exclude unnecessary files from Docker build
+# ============================================================================
+# This significantly reduces build time and image size
+# ============================================================================
+
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build outputs (we build inside Docker)
+.next
+out
+build
+
+# Testing
+coverage
+*.test.js
+*.spec.js
+__tests__
+vitest.config.ts
+
+# Development
+.git
+.gitignore
+*.md
+!README.md
+.env.local
+.env.development
+.env.test
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Deploy folder (we're building FROM parent context)
+deploy/
+
+# Scripts not needed for runtime
+*.mjs
+*.js
+!next.config.mjs
+!postcss.config.mjs
+scripts/
+
+# Documentation
+docs/
+*.md
+AGENTS.md
+INTEGRATION_GUIDE.md
+VIBE_CODING_*.md
+
+# Misc
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.eslintcache

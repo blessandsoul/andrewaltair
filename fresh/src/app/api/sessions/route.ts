@@ -3,7 +3,10 @@ import jwt from 'jsonwebtoken'
 import dbConnect from '@/lib/db'
 import Session from '@/models/Session'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret'
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required');
+}
 
 // GET - List all sessions for current user
 export async function GET(request: NextRequest) {
@@ -17,7 +20,7 @@ export async function GET(request: NextRequest) {
         }
 
         const token = authHeader.substring(7)
-        const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+        const decoded = jwt.verify(token, JWT_SECRET!) as { userId: string }
 
         // Get all active sessions for this user
         const sessions = await Session.find({
@@ -55,7 +58,7 @@ export async function DELETE(request: NextRequest) {
         }
 
         const token = authHeader.substring(7)
-        const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+        const decoded = jwt.verify(token, JWT_SECRET!) as { userId: string }
 
         const { searchParams } = new URL(request.url)
         const sessionId = searchParams.get('id')

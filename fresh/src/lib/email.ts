@@ -129,11 +129,6 @@ export async function sendEmail({
         // For test accounts, get preview URL
         const previewUrl = nodemailer.getTestMessageUrl(info)
 
-        console.log('Email sent:', info.messageId)
-        if (previewUrl) {
-            console.log('Preview URL:', previewUrl)
-        }
-
         return {
             success: true,
             messageId: info.messageId,

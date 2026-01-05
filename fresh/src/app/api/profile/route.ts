@@ -13,9 +13,12 @@ function verifyToken(request: NextRequest) {
     const token = authHeader.split(" ")[1]
 
     try {
+        const secret = process.env.JWT_SECRET;
+        if (!secret) throw new Error("JWT_SECRET is not defined");
+
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         const jwt = require("jsonwebtoken")
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback-secret")
+        const decoded = jwt.verify(token, secret)
         return decoded
     } catch {
         return null

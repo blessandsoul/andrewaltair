@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import DOMPurify from "dompurify"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,8 +33,8 @@ function markdownToHtml(markdown: string): string {
         // Line breaks
         .replace(/\n\n/gim, '</p><p class="my-3">')
         .replace(/\n/gim, '<br/>')
-
-    return `<p class="my-3">${html}</p>`
+    // Sanitize HTML to prevent XSS attacks
+    return DOMPurify.sanitize(`<p class="my-3">${html}</p>`)
 }
 
 interface Draft {

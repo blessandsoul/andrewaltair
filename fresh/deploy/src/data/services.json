@@ -1,0 +1,87 @@
+[
+    {
+        "id": "ai-consulting",
+        "title": "AI კონსულტაცია",
+        "titleEn": "AI Consulting",
+        "description": "პერსონალური კონსულტაცია AI-ს დანერგვაზე თქვენს ბიზნესში. გავაანალიზებთ პროცესებს და შევქმნით AI სტრატეგიას.",
+        "icon": "Lightbulb",
+        "color": "#6366f1",
+        "features": [
+            "ბიზნეს-პროცესების ანალიზი",
+            "AI შესაძლებლობების იდენტიფიკაცია",
+            "ROI კალკულაცია",
+            "დანერგვის გეგმა"
+        ],
+        "pricing": {
+            "type": "hourly",
+            "price": 150,
+            "currency": "GEL",
+            "unit": "საათი"
+        },
+        "popular": true
+    },
+    {
+        "id": "ai-training",
+        "title": "AI ტრეინინგი",
+        "titleEn": "AI Training",
+        "description": "კორპორატიული ტრეინინგები AI ინსტრუმენტების ეფექტურად გამოყენებაზე. თქვენი გუნდი შეისწავლის ChatGPT, Claude, Midjourney და სხვას.",
+        "icon": "GraduationCap",
+        "color": "#10b981",
+        "features": [
+            "ChatGPT & Claude მასტერკლასი",
+            "Prompt Engineering",
+            "AI ხელსაწყოების ინტეგრაცია",
+            "პრაქტიკული დავალებები"
+        ],
+        "pricing": {
+            "type": "package",
+            "price": 800,
+            "currency": "GEL",
+            "unit": "დღე"
+        },
+        "popular": false
+    },
+    {
+        "id": "ai-automation",
+        "title": "AI ავტომატიზაცია",
+        "titleEn": "AI Automation",
+        "description": "სრული AI ავტომატიზაციების აწყობა Make.com, Zapier და OpenAI API-ით. დაზოგეთ დრო და რესურსები.",
+        "icon": "Zap",
+        "color": "#f59e0b",
+        "features": [
+            "Workflow ავტომატიზაცია",
+            "AI ჩატბოტების აწყობა",
+            "API ინტეგრაციები",
+            "მონიტორინგი და მხარდაჭერა"
+        ],
+        "pricing": {
+            "type": "project",
+            "price": 2000,
+            "currency": "GEL",
+            "unit": "პროექტი",
+            "note": "საწყისი ფასი"
+        },
+        "popular": false
+    },
+    {
+        "id": "content-creation",
+        "title": "AI კონტენტ სტრატეგია",
+        "titleEn": "AI Content Strategy",
+        "description": "AI-ით გაძლიერებული კონტენტ სტრატეგიის შექმნა. მარკეტინგის ავტომატიზაცია და ხარისხიანი კონტენტის წარმოება.",
+        "icon": "PenTool",
+        "color": "#ec4899",
+        "features": [
+            "კონტენტ კალენდარი",
+            "AI Copywriting სისტემა",
+            "Visual Content Workflow",
+            "ანალიტიკა და ოპტიმიზაცია"
+        ],
+        "pricing": {
+            "type": "monthly",
+            "price": 1500,
+            "currency": "GEL",
+            "unit": "თვე"
+        },
+        "popular": false
+    }
+]

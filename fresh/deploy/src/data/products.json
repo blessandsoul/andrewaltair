@@ -1,0 +1,140 @@
+[
+    {
+        "id": "prompt-templates",
+        "title": "Prompt შაბლონები",
+        "titleEn": "Prompt Templates Pack",
+        "description": "500+ მზა ChatGPT & Claude პრომპტი ბიზნესისთვის. კოპირაით, მარკეტინგი, კოდი, ანალიზი.",
+        "category": "templates",
+        "image": "/products/prompts.png",
+        "pricing": {
+            "price": 49,
+            "originalPrice": 99,
+            "currency": "GEL"
+        },
+        "features": [
+            "500+ პროფესიონალური პრომპტი",
+            "Notion ტემპლეიტი",
+            "უფასო განახლებები",
+            "ბონუს: Mega-Prompt გენერატორი"
+        ],
+        "bestSeller": true,
+        "downloadable": true,
+        "rating": 4.9,
+        "reviews": 127
+    },
+    {
+        "id": "ai-masterclass",
+        "title": "AI მასტერკლასი",
+        "titleEn": "AI Masterclass Course",
+        "description": "სრული ვიდეო კურსი AI-ს ეფექტურად გამოყენებაზე. 8 საათი კონტენტი, პრაქტიკული დავალებები.",
+        "category": "courses",
+        "image": "/products/course.png",
+        "pricing": {
+            "price": 199,
+            "originalPrice": 399,
+            "currency": "GEL"
+        },
+        "features": [
+            "8+ საათი HD ვიდეო",
+            "სერტიფიკატი დასრულებაზე",
+            "ვიდეო ჩატ მხარდაჭერა",
+            "ბონუს: პრაქტიკული დავალებები"
+        ],
+        "bestSeller": false,
+        "downloadable": false,
+        "rating": 4.8,
+        "reviews": 56
+    },
+    {
+        "id": "automation-recipes",
+        "title": "Make.com რეცეპტები",
+        "titleEn": "Make.com Automation Recipes",
+        "description": "50 მზა Make.com ავტომატიზაციის რეცეპტი. ერთი კლიკით იმპორტი, დეტალური ინსტრუქციები.",
+        "category": "templates",
+        "image": "/products/automation.png",
+        "pricing": {
+            "price": 79,
+            "originalPrice": 149,
+            "currency": "GEL"
+        },
+        "features": [
+            "50 მზა რეცეპტი",
+            "ერთი კლიკით იმპორტი",
+            "ვიდეო ტუტორიალები",
+            "ბონუს: API ინტეგრაციის გაიდი"
+        ],
+        "bestSeller": false,
+        "downloadable": true,
+        "rating": 4.7,
+        "reviews": 34
+    },
+    {
+        "id": "chatgpt-bible",
+        "title": "ChatGPT ბიბლია",
+        "titleEn": "ChatGPT Bible E-Book",
+        "description": "200+ გვერდიანი ელ-წიგნი ChatGPT-ს ღრმა შესწავლაზე. საიდუმლოები, ტექნიკები, მაგალითები.",
+        "category": "ebooks",
+        "image": "/products/ebook.png",
+        "pricing": {
+            "price": 29,
+            "originalPrice": 59,
+            "currency": "GEL"
+        },
+        "features": [
+            "200+ გვერდი PDF",
+            "100+ პრაქტიკული მაგალითი",
+            "უფასო განახლებები",
+            "ბონუს: Cheat Sheet"
+        ],
+        "bestSeller": false,
+        "downloadable": true,
+        "rating": 4.9,
+        "reviews": 89
+    },
+    {
+        "id": "ai-notion-workspace",
+        "title": "AI Notion Workspace",
+        "titleEn": "AI-Powered Notion Workspace",
+        "description": "სრული Notion სამუშაო სივრცე AI ინტეგრაციებით. პროექტების მართვა, კონტენტ-კალენდარი, CRM.",
+        "category": "templates",
+        "image": "/products/notion.png",
+        "pricing": {
+            "price": 39,
+            "originalPrice": 79,
+            "currency": "GEL"
+        },
+        "features": [
+            "სრული Workspace",
+            "AI ავტომატიზაციები",
+            "ვიდეო გაიდი",
+            "მუდმივი მხარდაჭერა"
+        ],
+        "bestSeller": false,
+        "downloadable": true,
+        "rating": 4.6,
+        "reviews": 42
+    },
+    {
+        "id": "bundle-ultimate",
+        "title": "Ultimate AI Bundle",
+        "titleEn": "Ultimate AI Bundle",
+        "description": "ყველაფერი ერთ პაკეტში! ყველა პროდუქტი 70% ფასდაკლებით. საუკეთესო ღირებულება.",
+        "category": "bundles",
+        "image": "/products/bundle.png",
+        "pricing": {
+            "price": 249,
+            "originalPrice": 785,
+            "currency": "GEL"
+        },
+        "features": [
+            "ყველა პროდუქტი შეკრული",
+            "70% ფასდაკლება",
+            "პრიორიტეტული მხარდაჭერა",
+            "მომავალი პროდუქტები უფასოდ"
+        ],
+        "bestSeller": false,
+        "downloadable": true,
+        "rating": 5.0,
+        "reviews": 18
+    }
+]

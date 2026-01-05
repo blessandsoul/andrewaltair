@@ -25,8 +25,18 @@ function generateSlug(text: string): string {
         .slice(0, 60)
 }
 
+import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth'
+
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
 export async function POST(request: NextRequest) {
     try {
+        // 🛡️ Require authentication (Admin only)
+        if (!await verifyAdmin(request)) { // verifyAdmin handles both cookie and header
+            return unauthorizedResponse('Admin access required');
+        }
+
         const formData = await request.formData()
         const file = formData.get('file') as File
         const title = formData.get('title') as string || 'untitled'
@@ -37,6 +47,16 @@ export async function POST(request: NextRequest) {
                 { error: 'No file uploaded' },
                 { status: 400 }
             )
+        }
+
+        // 🛡️ Validate file type
+        if (!ALLOWED_TYPES.includes(file.type)) {
+            return NextResponse.json({ error: 'დაშვებულია მხოლოდ სურათები (JPEG, PNG, WEBP, GIF)' }, { status: 400 });
+        }
+
+        // 🛡️ Validate file size
+        if (file.size > MAX_FILE_SIZE) {
+            return NextResponse.json({ error: 'ფაილის ზომა არ უნდა აღემატებოდეს 5MB-ს' }, { status: 400 });
         }
 
         // Generate SEO-friendly filename

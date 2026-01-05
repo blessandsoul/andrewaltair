@@ -3,7 +3,10 @@ import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required');
+}
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -19,7 +22,7 @@ async function verifyAdmin(request: Request) {
 
     try {
         const token = authHeader.substring(7);
-        const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; role: string };
+        const decoded = jwt.verify(token, JWT_SECRET!) as { userId: string; role: string };
 
         if (!['god', 'admin'].includes(decoded.role)) {
             return null;

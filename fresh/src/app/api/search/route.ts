@@ -6,6 +6,11 @@ import Tool from "@/models/Tool"
 
 export const dynamic = 'force-dynamic'
 
+// 🛡️ Escape special regex characters to prevent ReDoS attacks
+function escapeRegex(str: string): string {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 // 🛡️ Rate Limiting - Prevent scraping
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const MAX_REQUESTS = 30; // Max search requests per minute
@@ -75,8 +80,8 @@ export async function GET(request: NextRequest) {
             category?: string
         }[] = []
 
-        // Build regex for partial matching
-        const regex = new RegExp(query, "i")
+        // Build regex for partial matching (escaped to prevent ReDoS)
+        const regex = new RegExp(escapeRegex(query), "i")
 
         // Search Posts
         if (!type || type === "posts") {

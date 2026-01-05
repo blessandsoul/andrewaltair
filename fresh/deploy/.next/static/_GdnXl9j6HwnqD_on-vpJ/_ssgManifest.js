@@ -1,0 +1,1 @@
+self.__SSG_MANIFEST=new Set(["\u002Fencyclopedia\u002Fvibe-coding\u002F[slug]"]);self.__SSG_MANIFEST_CB&&self.__SSG_MANIFEST_CB()

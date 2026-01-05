@@ -352,10 +352,8 @@ export default function VibeCodingLibrary() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                // Get token from localStorage (auth system stores as 'auth_token')
                 const token = localStorage.getItem('auth_token');
                 if (!token) {
-                    console.log('No token found');
                     return;
                 }
 
@@ -366,15 +364,13 @@ export default function VibeCodingLibrary() {
                 });
                 if (res.ok) {
                     const data = await res.json();
-                    // API returns fullName or username, not name
                     const userName = data.user?.fullName || data.user?.username;
                     if (userName) {
-                        console.log('User identified:', userName);
                         setCurrentUser(userName);
                     }
                 }
-            } catch (error) {
-                console.log('Not authenticated');
+            } catch {
+                // User not authenticated
             }
         };
         fetchUser();

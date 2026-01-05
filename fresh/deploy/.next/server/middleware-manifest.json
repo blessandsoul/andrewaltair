@@ -1,0 +1,72 @@
+{
+  "version": 3,
+  "middleware": {
+    "/": {
+      "files": [
+        "prerender-manifest.js",
+        "server/edge-runtime-webpack.js",
+        "server/src/middleware.js"
+      ],
+      "name": "src/middleware",
+      "page": "/",
+      "matchers": [
+        {
+          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/admin(?:\\/((?:[^\\/#\\?]+?)(?:\\/(?:[^\\/#\\?]+?))*))?(.json)?[\\/#\\?]?$",
+          "originalSource": "/admin/:path*"
+        }
+      ],
+      "wasm": [],
+      "assets": [],
+      "environments": {
+        "previewModeId": "e04257eda26c2dda5d45b7734ccf7bac",
+        "previewModeSigningKey": "b9993f474a4f8f28d12e762d0640f215263e4cc4dd4fea215c179078b3cad643",
+        "previewModeEncryptionKey": "428716d8fff3ba32cacfe84040b2004f22079fa4fef00cac7786ac2f62f9a96b"
+      }
+    }
+  },
+  "functions": {
+    "/encyclopedia/vibe-coding/[slug]/opengraph-image/route": {
+      "files": [
+        "server/middleware-build-manifest.js",
+        "server/middleware-react-loadable-manifest.js",
+        "server/next-font-manifest.js",
+        "server/interception-route-rewrite-manifest.js",
+        "prerender-manifest.js",
+        "server/edge-runtime-webpack.js",
+        "server/app/encyclopedia/vibe-coding/[slug]/opengraph-image/route.js"
+      ],
+      "name": "app/encyclopedia/vibe-coding/[slug]/opengraph-image/route",
+      "page": "/encyclopedia/vibe-coding/[slug]/opengraph-image/route",
+      "matchers": [
+        {
+          "regexp": "^/encyclopedia/vibe\\-coding/(?<slug>[^/]+?)/opengraph\\-image$",
+          "originalSource": "/encyclopedia/vibe-coding/[slug]/opengraph-image"
+        }
+      ],
+      "wasm": [
+        {
+          "name": "wasm_77d9faebf7af9e421806970ce10a58e9d83116d7",
+          "filePath": "server/edge-chunks/wasm_77d9faebf7af9e421806970ce10a58e9d83116d7.wasm"
+        },
+        {
+          "name": "wasm_ef4866ecae192fd87727067cf2c0c0cf9fb8b020",
+          "filePath": "server/edge-chunks/wasm_ef4866ecae192fd87727067cf2c0c0cf9fb8b020.wasm"
+        }
+      ],
+      "assets": [
+        {
+          "name": "noto-sans-v27-latin-regular.5dda3fca77107598.ttf",
+          "filePath": "server/edge-chunks/asset_noto-sans-v27-latin-regular.5dda3fca77107598.ttf"
+        }
+      ],
+      "environments": {
+        "previewModeId": "e04257eda26c2dda5d45b7734ccf7bac",
+        "previewModeSigningKey": "b9993f474a4f8f28d12e762d0640f215263e4cc4dd4fea215c179078b3cad643",
+        "previewModeEncryptionKey": "428716d8fff3ba32cacfe84040b2004f22079fa4fef00cac7786ac2f62f9a96b"
+      }
+    }
+  },
+  "sortedMiddleware": [
+    "/"
+  ]
+}

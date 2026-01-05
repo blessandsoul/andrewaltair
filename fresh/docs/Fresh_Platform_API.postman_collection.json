@@ -1,0 +1,1545 @@
+{
+    "info": {
+        "_postman_id": "fresh-api-collection",
+        "name": "Fresh Platform API",
+        "description": "Complete API collection for the Fresh Platform - a Georgian AI & Technology platform.\n\n## Authentication\nMost endpoints require JWT authentication via Bearer token.\n\n## Setup\n1. Set the `BASE_URL` variable to your server (default: http://localhost:3000)\n2. Login via `/api/auth/login` to get a token\n3. The token will be automatically saved to the `TOKEN` variable\n\n## Georgian Language\nMany error messages and content are in Georgian.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "BASE_URL",
+            "value": "http://localhost:3000",
+            "type": "string"
+        },
+        {
+            "key": "TOKEN",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "ADMIN_TOKEN",
+            "value": "",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "🔐 Admin",
+            "item": [
+                {
+                    "name": "Admin Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    if (jsonData.token) {",
+                                    "        pm.collectionVariables.set('ADMIN_TOKEN', jsonData.token);",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"password\": \"your-admin-password\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/admin/login",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "admin",
+                                "login"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Verify Admin Session",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{ADMIN_TOKEN}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/admin/verify",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "admin",
+                                "verify"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "👤 Auth",
+            "item": [
+                {
+                    "name": "Register User",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"username\": \"newuser\",\n    \"email\": \"user@example.com\",\n    \"password\": \"securePassword123\",\n    \"fullName\": \"John Doe\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/auth/register",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "register"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    if (jsonData.token) {",
+                                    "        pm.collectionVariables.set('TOKEN', jsonData.token);",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"securePassword123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/auth/login",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "login"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Current User",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{TOKEN}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/auth/me",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "me"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Setup 2FA",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{TOKEN}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/auth/2fa",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "2fa"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Enable 2FA",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{TOKEN}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"token\": \"123456\",\n    \"action\": \"enable\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/auth/2fa",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "2fa"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📝 Posts",
+            "item": [
+                {
+                    "name": "List Posts",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/posts?page=1&limit=10&status=published",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "posts"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "published"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Featured Posts",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/posts?featured=true",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "posts"
+                            ],
+                            "query": [
+                                {
+                                    "key": "featured",
+                                    "value": "true"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search Posts",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/posts?search=AI",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "posts"
+                            ],
+                            "query": [
+                                {
+                                    "key": "search",
+                                    "value": "AI"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Post by Slug",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/posts/your-post-slug",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "posts",
+                                "your-post-slug"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Post (Admin)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Cookie",
+                                "value": "admin_session={{ADMIN_TOKEN}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"New AI Article\",\n    \"excerpt\": \"Brief description of the article\",\n    \"content\": \"Full article content here...\",\n    \"category\": \"ai-tips\",\n    \"status\": \"published\",\n    \"tags\": [\"AI\", \"Technology\"],\n    \"coverImage\": \"/uploads/2026/01/cover.jpg\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/posts",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "posts"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "AI Suggest SEO",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"AI-ს მომავალი\",\n    \"excerpt\": \"რა ელის ხელოვნურ ინტელექტს 2026 წელს\",\n    \"rawContent\": \"Full article content for analysis...\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/posts/ai-suggest",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "posts",
+                                "ai-suggest"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Generate Tags",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"Neuralink-ის ახალი ჩიპი\",\n    \"content\": \"Article content here...\",\n    \"category\": \"technology\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/posts/generate-tags",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "posts",
+                                "generate-tags"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "SEO Analysis",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"Test Article\",\n    \"metaTitle\": \"SEO Optimized Title\",\n    \"metaDescription\": \"Description for search engines\",\n    \"content\": \"Article content...\",\n    \"focusKeyword\": \"AI technology\",\n    \"coverImage\": \"/image.jpg\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/posts/seo-analysis",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "posts",
+                                "seo-analysis"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🤖 Bots",
+            "item": [
+                {
+                    "name": "List Bots",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/bots?page=1&limit=20",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "bots"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Featured Bots",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/bots?featured=true",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "bots"
+                            ],
+                            "query": [
+                                {
+                                    "key": "featured",
+                                    "value": "true"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Filter by Tier",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/bots?tier=free",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "bots"
+                            ],
+                            "query": [
+                                {
+                                    "key": "tier",
+                                    "value": "free"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Bot Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/bots/{{BOT_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "bots",
+                                "{{BOT_ID}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Like Bot",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/bots/{{BOT_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "bots",
+                                "{{BOT_ID}}"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "💬 Chat",
+            "item": [
+                {
+                    "name": "Send Message",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"message\": \"გამარჯობა! რა არის AI?\",\n    \"history\": []\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/chat",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "chat"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Chat with Context",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"message\": \"მეტი დეტალები მომეცი\",\n    \"history\": [\n        {\"role\": \"user\", \"content\": \"რა არის AI?\"},\n        {\"role\": \"assistant\", \"content\": \"AI არის ხელოვნური ინტელექტი...\"}\n    ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/chat",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "chat"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Chat with Custom Bot",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"message\": \"Help me with coding\",\n    \"botId\": \"bot-id-here\",\n    \"masterPrompt\": \"You are a helpful coding assistant...\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/chat",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "chat"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🔮 Mystic",
+            "item": [
+                {
+                    "name": "Mystic Chat",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"message\": \"რა მელის დღეს?\",\n    \"userName\": \"გიორგი\",\n    \"zodiacSign\": \"aries\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/mystic/chat",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "mystic",
+                                "chat"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Daily Horoscope",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"sign\": \"aries\",\n    \"signName\": \"ვერძი\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/mystic/horoscope",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "mystic",
+                                "horoscope"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Tarot Reading",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"cards\": [\"The Fool\", \"The Magician\", \"The High Priestess\"],\n    \"spreadType\": \"three\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/mystic/tarot",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "mystic",
+                                "tarot"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Dream Interpretation",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"dream\": \"ვიფრინავდი ცაში და შემდეგ წყალში ჩავვარდი\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/mystic/dream",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "mystic",
+                                "dream"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Fortune Telling",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"გიორგი\",\n    \"birthDate\": \"1990-05-15\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/mystic/fortune",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "mystic",
+                                "fortune"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Love Compatibility",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name1\": \"გიორგი\",\n    \"name2\": \"თამარ\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/mystic/love",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "mystic",
+                                "love"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Numerology",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"fullName\": \"გიორგი ბერიძე\",\n    \"birthDate\": \"1990-05-15\",\n    \"lifePath\": 3,\n    \"destiny\": 7,\n    \"soul\": 5,\n    \"personality\": 2\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/mystic/numerology",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "mystic",
+                                "numerology"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🔍 Search",
+            "item": [
+                {
+                    "name": "Global Search",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/search?q=AI&limit=10",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "q",
+                                    "value": "AI"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search Posts Only",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/search?q=AI&type=posts",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "q",
+                                    "value": "AI"
+                                },
+                                {
+                                    "key": "type",
+                                    "value": "posts"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/search?q=123456&type=posts",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "q",
+                                    "value": "123456"
+                                },
+                                {
+                                    "key": "type",
+                                    "value": "posts"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🛠️ Tools",
+            "item": [
+                {
+                    "name": "List Tools",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/tools?page=1&limit=20",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "tools"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Filter by Category",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/tools?category=image-generation",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "tools"
+                            ],
+                            "query": [
+                                {
+                                    "key": "category",
+                                    "value": "image-generation"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Free Tools Only",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/tools?pricing=free",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "tools"
+                            ],
+                            "query": [
+                                {
+                                    "key": "pricing",
+                                    "value": "free"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🎬 Videos",
+            "item": [
+                {
+                    "name": "List Videos",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/videos?limit=20",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "videos"
+                            ],
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Filter by Category",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/videos?category=tutorial",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "videos"
+                            ],
+                            "query": [
+                                {
+                                    "key": "category",
+                                    "value": "tutorial"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "💬 Comments",
+            "item": [
+                {
+                    "name": "List Comments",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/comments?status=approved",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "comments"
+                            ],
+                            "query": [
+                                {
+                                    "key": "status",
+                                    "value": "approved"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Post Comments",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/comments?postId={{POST_ID}}",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "comments"
+                            ],
+                            "query": [
+                                {
+                                    "key": "postId",
+                                    "value": "{{POST_ID}}"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Comment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"postId\": \"post-id-here\",\n    \"content\": \"შესანიშნავი სტატიაა!\",\n    \"author\": {\n        \"name\": \"გიორგი\",\n        \"email\": \"user@example.com\"\n    }\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/comments",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "comments"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📊 Analytics",
+            "item": [
+                {
+                    "name": "Get Analytics",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/analytics",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "analytics"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "👥 Users (Admin)",
+            "item": [
+                {
+                    "name": "List Users",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{TOKEN}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/users?page=1&limit=20",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search Users",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{TOKEN}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/users?search=john",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users"
+                            ],
+                            "query": [
+                                {
+                                    "key": "search",
+                                    "value": "john"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "👤 Profile",
+            "item": [
+                {
+                    "name": "Get Profile",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{TOKEN}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/profile",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "profile"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Profile",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{TOKEN}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"fullName\": \"New Name\",\n    \"bio\": \"About me...\",\n    \"website\": \"https://example.com\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/profile",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "profile"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🔗 Sessions",
+            "item": [
+                {
+                    "name": "List Sessions",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{TOKEN}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/sessions",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "sessions"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Revoke All Sessions",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{TOKEN}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/sessions?all=true&exceptCurrent=true",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "sessions"
+                            ],
+                            "query": [
+                                {
+                                    "key": "all",
+                                    "value": "true"
+                                },
+                                {
+                                    "key": "exceptCurrent",
+                                    "value": "true"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📤 Upload",
+            "item": [
+                {
+                    "name": "Upload Image",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "file",
+                                    "type": "file",
+                                    "src": ""
+                                },
+                                {
+                                    "key": "title",
+                                    "value": "my-image-title",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "type",
+                                    "value": "horizontal",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/upload",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "upload"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📧 Email",
+            "item": [
+                {
+                    "name": "Send Welcome Email",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"type\": \"welcome\",\n    \"to\": \"user@example.com\",\n    \"name\": \"John Doe\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/email",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "email"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Send Notification",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"type\": \"notification\",\n    \"to\": \"user@example.com\",\n    \"title\": \"New Article Published\",\n    \"message\": \"Check out our latest article on AI!\",\n    \"actionUrl\": \"https://example.com/blog/article\",\n    \"actionText\": \"Read Now\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/email",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "email"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📋 Prompts",
+            "item": [
+                {
+                    "name": "List Prompts (History)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/prompts?type=history",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "prompts"
+                            ],
+                            "query": [
+                                {
+                                    "key": "type",
+                                    "value": "history"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "List Templates",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/prompts?type=templates",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "prompts"
+                            ],
+                            "query": [
+                                {
+                                    "key": "type",
+                                    "value": "templates"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Generate Prompt with AI",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"action\": \"generate\",\n    \"formData\": {\n        \"role\": \"SEO expert\",\n        \"task\": \"optimize blog post\",\n        \"context\": \"tech blog\",\n        \"style\": \"professional\",\n        \"format\": \"structured\"\n    }\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/prompt-builder",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "prompt-builder"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "❤️ Health",
+            "item": [
+                {
+                    "name": "Health Check",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/health",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "health"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

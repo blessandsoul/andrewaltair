@@ -12,10 +12,18 @@ import videosData from '@/data/videos.json';
 // POST - Run seed (protected by secret)
 export async function POST(request: Request) {
     try {
+        // 🛡️ SECURITY: Disable in production
+        if (process.env.NODE_ENV === 'production') {
+            return NextResponse.json(
+                { error: 'Seed disabled in production' },
+                { status: 403 }
+            );
+        }
+
         const { secret } = await request.json();
 
-        // Simple protection - change this secret
-        if (secret !== 'seed-mongodb-2024') {
+        // 🛡️ SECURITY: Use env variable
+        if (secret !== process.env.SEED_SECRET) {
             return NextResponse.json(
                 { error: 'Invalid secret' },
                 { status: 403 }
@@ -113,9 +121,7 @@ export async function POST(request: Request) {
             message: 'Database seeded successfully!',
             results,
             credentials: {
-                god: { username: 'andrew', password: 'andrew' },
-                editor: { username: 'editor', password: 'editor123' },
-                viewer: { username: 'viewer', password: 'viewer123' },
+                message: "Check server logs or database for credentials. Not returning them in response for security."
             }
         });
     } catch (error) {
