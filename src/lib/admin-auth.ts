@@ -26,18 +26,31 @@ const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
 /**
  * Verify admin session token from request
  * Use this at the TOP of every admin API route
+ * Checks both Authorization header AND cookies
  */
 export function verifyAdmin(request: Request): boolean {
     try {
+        // Method 1: Check Authorization header (Bearer token)
         const authHeader = request.headers.get('authorization');
-        if (!authHeader?.startsWith('Bearer ')) {
-            return false;
+        if (authHeader?.startsWith('Bearer ')) {
+            const token = authHeader.substring(7);
+            const decoded = jwt.verify(token, getSessionSecret()) as { role: string };
+            if (decoded.role === 'admin' || decoded.role === 'god') {
+                return true;
+            }
         }
 
-        const token = authHeader.substring(7);
-        const decoded = jwt.verify(token, getSessionSecret()) as { role: string };
+        // Method 2: Check cookie (admin_session)
+        const cookie = request.headers.get('cookie') || '';
+        const match = cookie.match(/admin_session=([^;]+)/);
+        if (match) {
+            const decoded = jwt.verify(match[1], getSessionSecret()) as { role: string };
+            if (decoded.role === 'admin' || decoded.role === 'god') {
+                return true;
+            }
+        }
 
-        return decoded.role === 'admin' || decoded.role === 'god';
+        return false;
     } catch {
         return false;
     }
