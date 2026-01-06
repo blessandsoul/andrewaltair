@@ -16,10 +16,32 @@ COPY . .
 # Disable telemetry during build
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# ============================================================
 # Build-time environment variables (placeholders for static generation)
-# Real values are injected at runtime via Coolify
+# Real values are injected at runtime via Coolify Environment Variables
+# These are ONLY used during `npm run build` to satisfy Next.js
+# ============================================================
 ARG MONGODB_URI="mongodb://placeholder:27017/placeholder"
+ARG JWT_SECRET="build-time-placeholder-secret-32chars"
+ARG NEXTAUTH_SECRET="build-time-placeholder-secret"
+ARG NEXTAUTH_URL="http://localhost:3000"
+ARG ADMIN_PASSWORD="build-placeholder"
+ARG ADMIN_SESSION_SECRET="build-time-placeholder-secret-32chars"
+ARG GROQ_API_KEY="placeholder"
+ARG NEXT_PUBLIC_GA_ID="G-PLACEHOLDER"
+ARG NEXT_PUBLIC_SITE_URL="https://andrewaltair.ge"
+ARG NEXT_PUBLIC_BASE_URL="http://localhost:3000"
+
 ENV MONGODB_URI=${MONGODB_URI}
+ENV JWT_SECRET=${JWT_SECRET}
+ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+ENV NEXTAUTH_URL=${NEXTAUTH_URL}
+ENV ADMIN_PASSWORD=${ADMIN_PASSWORD}
+ENV ADMIN_SESSION_SECRET=${ADMIN_SESSION_SECRET}
+ENV GROQ_API_KEY=${GROQ_API_KEY}
+ENV NEXT_PUBLIC_GA_ID=${NEXT_PUBLIC_GA_ID}
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
+ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
 
 RUN npm run build
 
@@ -27,14 +49,14 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Create system group/user
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy verify output
+# Copy public assets
 COPY --from=builder /app/public ./public
 
 # Set permission for prerender cache
@@ -50,7 +72,7 @@ USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]
