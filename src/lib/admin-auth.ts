@@ -100,6 +100,10 @@ export function validateAdminPassword(password: string, ip: string): {
         // Success - clear attempts
         loginAttempts.delete(ip);
         return { valid: true, locked: false, remainingAttempts: MAX_LOGIN_ATTEMPTS };
+    } else {
+        console.log('Admin Auth Debug: Password mismatch');
+        console.log('Expected (length):', ADMIN_PASSWORD?.length);
+        console.log('Received (length):', password?.length);
     }
 
     // Failed attempt - increment counter
