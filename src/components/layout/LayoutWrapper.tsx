@@ -10,7 +10,7 @@ import { LiveVisitorCounter } from "@/components/interactive/LiveVisitorCounter"
 import { AIChatAssistant } from "@/components/ai/AIChatAssistant"
 import { ScrollProgress, BackToTop } from "@/components/ui/scroll-progress"
 import { VisitorTracker } from "@/components/tracking"
-import { CookieConsent } from "@/components/ui/cookie-consent"
+
 import { HeatmapOverlay } from "@/components/analytics/HeatmapOverlay"
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
@@ -104,7 +104,6 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
             <SocialProofToast enabled={true} />
             <LiveVisitorCounter variant="floating" className="!bottom-auto !top-20 !right-4" />
             <AIChatAssistant />
-            <CookieConsent />
             <Suspense fallback={null}>
                 <HeatmapOverlay />
             </Suspense>

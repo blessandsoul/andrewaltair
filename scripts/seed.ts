@@ -31,7 +31,7 @@ async function seed() {
 
         // Create users
         console.log('👤 Creating users...');
-        const hashedPassword = await bcrypt.hash('andrew', 10);
+        const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'change-me-immediately', 10);
 
         await db.collection('users').insertMany([
             {
@@ -133,10 +133,8 @@ async function seed() {
         console.log('');
         console.log('🎉 Seed complete!');
         console.log('');
-        console.log('You can now login with:');
-        console.log('  👑 God: andrew / andrew');
-        console.log('  ✏️ Editor: editor / editor123');
-        console.log('  👁️ Viewer: viewer / viewer123');
+        console.log('You can now login with username: andrew');
+        console.log('Password is set from ADMIN_PASSWORD environment variable');
 
         await mongoose.disconnect();
         process.exit(0);

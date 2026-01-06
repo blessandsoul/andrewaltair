@@ -130,17 +130,6 @@ export default function LoginPage() {
                                 </div>
                             </div>
 
-                            {/* Demo Credentials */}
-                            <div className="p-3 rounded-lg bg-primary/5 border border-primary/10">
-                                <p className="text-xs text-muted-foreground mb-2">🔑 ტესტ მომხმარებელი:</p>
-                                <div className="flex items-center gap-2 text-sm">
-                                    <code className="px-2 py-1 rounded bg-background text-primary">andrew</code>
-                                    <span className="text-muted-foreground">/</span>
-                                    <code className="px-2 py-1 rounded bg-background text-primary">andrew</code>
-                                    <span className="text-xs text-yellow-500 ml-2">👑 GOD</span>
-                                </div>
-                            </div>
-
                             {/* Submit Button */}
                             <Button
                                 type="submit"

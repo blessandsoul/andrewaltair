@@ -16,22 +16,43 @@ import { ThemeToggle } from "./ThemeToggle"
 import { SearchDialog, useSearchDialog } from "@/components/interactive/SearchDialog"
 import { useAuth, ROLE_CONFIG } from "@/lib/auth"
 
+// Ready Features - shown in main navigation
+const readyItems = [
+  { href: "/mystic", label: "მისტიკა", icon: TbBulb, description: "AI მისტიკური პრედიქციები" },
+  { href: "/encyclopedia", label: "ენციკლოპედია", icon: TbBook, description: "AI ცოდნის ბაზა" },
+  { href: "/tools", label: "ინსტრუმენტები", icon: TbSettings, description: "AI ინსტრუმენტების რეიტინგი" },
+  { href: "/services", label: "კონსულტაცია", icon: TbBriefcase, description: "AI კონსალტინგი" },
+  { href: "/products", label: "პროდუქტები", icon: TbShoppingBag, description: "კურსები და ტემპლეიტები" },
+  { href: "/quiz", label: "ქვიზი", icon: TbInfoCircle, description: "იპოვე შენი AI" },
+  { href: "/bots", label: "ბოტები", icon: TbRobot, description: "AI ჩატბოტები" },
+  { href: "/about", label: "ჩემ შესახებ", icon: TbUser, description: "Andrew Altair" },
+]
+
+// Demo/WIP Features - shown in demo-features page
+const demoItems = [
+  { href: "/new-features", label: "ახალი ფუნქციები", icon: TbSparkles, description: "20 კონვერსიის კომპონენტი" },
+]
+
+// Legacy arrays for backward compat, but we now use readyItems  
 const contentItems = [
+  { href: "/encyclopedia", label: "ენციკლოპედია", icon: TbBook, description: "AI ცოდნის ბაზა" },
   { href: "/blog", label: "ბლოგი", icon: TbBook, description: "სტატიები და სიახლეები" },
   { href: "/videos", label: "ვიდეოები", icon: TbVideo, description: "YouTube ტუტორიალები" },
+  { href: "/prompt-builder", label: "Prompt Builder", icon: TbSparkles, description: "AI პრომპტის შემქმნელი" },
 ]
 
 const servicesItems = [
-  { href: "/tools", label: "AI ინსტრუმენტები", icon: TbSettings, description: "რეიტინგები და მიმოხილვები" },
   { href: "/mystic", label: "მისტიკური AI", icon: TbBulb, description: "AI პრედიქციები" },
-  { href: "/new-features", label: "ახალი ფუნქციები", icon: TbSparkles, description: "20 კონვერსიის კომპონენტი" },
+  { href: "/tools", label: "AI ინსტრუმენტები", icon: TbSettings, description: "რეიტინგები და მიმოხილვები" },
   { href: "/services", label: "კონსულტაცია", icon: TbBriefcase, description: "AI კონსალტინგი" },
   { href: "/products", label: "პროდუქტები", icon: TbShoppingBag, description: "კურსები და ტემპლეიტები" },
   { href: "/quiz", label: "AI ქვიზი", icon: TbInfoCircle, description: "იპოვე შენი AI" },
+  { href: "/bots", label: "AI ბოტები", icon: TbRobot, description: "ჩატბოტები" },
 ]
 
 const aboutItems = [
   { href: "/about", label: "ჩემ შესახებ", icon: TbUser, description: "Andrew Altair" },
+  { href: "/demo-features", label: "დემო ფიჩერები", icon: TbSparkles, description: "WIP კომპონენტები" },
 ]
 
 // All items for mobile
