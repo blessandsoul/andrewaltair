@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY || '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'
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
 interface ModelSettings {
@@ -12,6 +11,7 @@ interface ModelSettings {
 async function callGroq(
     systemPrompt: string,
     userMessage: string,
+    apiKey: string,
     settings: ModelSettings = {}
 ): Promise<string> {
     const {
@@ -23,7 +23,7 @@ async function callGroq(
     const response = await fetch(GROQ_API_URL, {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${GROQ_API_KEY}`,
+            'Authorization': `Bearer ${apiKey}`,
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -47,6 +47,15 @@ async function callGroq(
 
 export async function POST(request: NextRequest) {
     try {
+        // Check API key first
+        const GROQ_API_KEY = process.env.GROQ_API_KEY
+        if (!GROQ_API_KEY) {
+            return NextResponse.json(
+                { error: 'GROQ_API_KEY not configured' },
+                { status: 500 }
+            )
+        }
+
         const { action, prompt, task, role, context, targetLanguage, modelSettings } = await request.json()
         const settings: ModelSettings = modelSettings || {}
 
@@ -67,6 +76,7 @@ export async function POST(request: NextRequest) {
 6. ყველაფერი უნდა იყოს ქართულ ენაზე (ქართული ენა)
 7. დააბრუნე მხოლოდ გაუმჯობესებული პრომპტი, სხვა არაფერი`,
                     `გააუმჯობესე ეს პრომპტი ქართულ ენაზე:\n\n${prompt}`,
+                    GROQ_API_KEY,
                     settings
                 )
                 break
@@ -84,6 +94,7 @@ RULES:
 4. ALWAYS respond in Georgian language (ქართული)
 5. Format as a numbered list`,
                     `Role: ${role}\nContext: ${context || 'No specific context provided'}\n\nSuggest 3 specific tasks for this role in Georgian:`,
+                    GROQ_API_KEY,
                     settings
                 )
                 break
@@ -100,6 +111,7 @@ RULES:
 5. ALWAYS respond in Georgian language (ქართული)
 6. Return ONLY the improved task description, no explanations`,
                     `Improve this task description and respond in Georgian:\n\n${task}`,
+                    GROQ_API_KEY,
                     settings
                 )
                 break
@@ -120,6 +132,7 @@ RULES:
 
 დააბრუნე მხოლოდ ვალიდური JSON, სხვა არაფერი.`,
                     `შეაფასე ეს პრომპტი:\n\n${prompt}`,
+                    GROQ_API_KEY,
                     { ...settings, maxTokens: 500 }
                 )
                 break
@@ -142,6 +155,7 @@ RULES:
 3. Maintain the same tone and style
 4. Return ONLY the translated text, nothing else`,
                     `Translate this prompt to ${targetLang}:\n\n${prompt}`,
+                    GROQ_API_KEY,
                     settings
                 )
                 break
@@ -159,6 +173,7 @@ Each variation should:
 Format as numbered list (1., 2., 3.)
 Separate each variation with a blank line.`,
                     `Create 3 variations of this prompt:\n\n${prompt}`,
+                    GROQ_API_KEY,
                     { ...settings, maxTokens: 2000 }
                 )
                 break
@@ -167,6 +182,7 @@ Separate each variation with a blank line.`,
                 result = await callGroq(
                     prompt,
                     `გამარჯობა! გამოიყენე შენი შესაძლებლობები და აჩვენე რა შეგიძლიათ გააკეთოთ. მოაწოდეთ ერთი კონკრეტული მაგალითი თქვენი როლის შესაბამისად პასუხის სახით. პასუხი უნდა იყოს ქართულ ენაზე.`,
+                    GROQ_API_KEY,
                     { ...settings, maxTokens: 2000 }
                 )
                 break
@@ -188,4 +204,3 @@ Separate each variation with a blank line.`,
         )
     }
 }
-
