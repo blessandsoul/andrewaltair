@@ -1,118 +1,352 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { TbSword, TbShield, TbTrophy, TbStar, TbCheck, TbChevronRight, TbLock, TbSparkles } from "react-icons/tb";
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/lib/auth';
 
-interface Quest { id: string; title: string; description: string; icon: string; xp: number; steps: { id: string; text: string; completed: boolean }[]; reward: string; unlocked: boolean; }
+interface QuestStep {
+    id: string;
+    title: string;
+    description: string;
+    xpReward: number;
+}
 
-const initialQuests: Quest[] = [
-    { id: '1', title: 'Первые шаги с AI', description: 'Изучите основы искусственного интеллекта', icon: '🌱', xp: 100, steps: [{ id: '1-1', text: 'Прочитайте введение', completed: false }, { id: '1-2', text: 'Пройдите первый урок', completed: false }, { id: '1-3', text: 'Создайте первый промпт', completed: false }], reward: 'Бейдж "Новичок AI"', unlocked: true },
-    { id: '2', title: 'Мастер промптов', description: 'Освойте искусство создания промптов', icon: '✨', xp: 200, steps: [{ id: '2-1', text: 'Изучите структуру промптов', completed: false }, { id: '2-2', text: 'Создайте 5 промптов', completed: false }, { id: '2-3', text: 'Получите позитивную оценку', completed: false }], reward: '50 AI кредитов', unlocked: false },
-    { id: '3', title: 'AI Исследователь', description: 'Попробуйте разные AI инструменты', icon: '🔬', xp: 300, steps: [{ id: '3-1', text: 'Изучите 3 инструмента', completed: false }, { id: '3-2', text: 'Добавьте в избранное', completed: false }, { id: '3-3', text: 'Напишите отзыв', completed: false }], reward: 'Доступ к премиум курсу', unlocked: false },
-    { id: '4', title: 'Эксперт автоматизации', description: 'Создайте свой первый AI воркфлоу', icon: '⚙️', xp: 500, steps: [{ id: '4-1', text: 'Изучите автоматизацию', completed: false }, { id: '4-2', text: 'Создайте воркфлоу', completed: false }, { id: '4-3', text: 'Запустите и протестируйте', completed: false }], reward: 'Сертификат + Консультация', unlocked: false },
-];
-
-export default function AIQuestJourney() {
-    const [quests, setQuests] = useState<Quest[]>(initialQuests);
-    const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
-    const [totalXP, setTotalXP] = useState(0);
-
-    useEffect(() => {
-        const saved = localStorage.getItem('aiQuestProgress');
-        if (saved) {
-            const data = JSON.parse(saved);
-            setQuests(data.quests);
-            setTotalXP(data.totalXP);
-        }
-    }, []);
-
-    const saveProgress = (q: Quest[], xp: number) => {
-        localStorage.setItem('aiQuestProgress', JSON.stringify({ quests: q, totalXP: xp }));
+interface Quest {
+    _id: string;
+    title: string;
+    description: string;
+    steps: QuestStep[];
+    totalXp: number;
+    difficulty: 'easy' | 'medium' | 'hard' | 'legendary';
+    category: string;
+    userProgress: {
+        started: boolean;
+        completedSteps: string[];
+        isComplete: boolean;
     };
+}
 
-    const completeStep = (questId: string, stepId: string) => {
-        const updated = quests.map(q => {
-            if (q.id === questId) {
-                const steps = q.steps.map(s => s.id === stepId ? { ...s, completed: true } : s);
-                return { ...q, steps };
-            }
-            return q;
-        });
+const DIFFICULTY_CONFIG = {
+    easy: { label: 'იოლი', color: 'from-green-500 to-emerald-600', icon: '🌱' },
+    medium: { label: 'საშუალო', color: 'from-yellow-500 to-orange-500', icon: '⚔️' },
+    hard: { label: 'რთული', color: 'from-red-500 to-pink-500', icon: '🔥' },
+    legendary: { label: 'ლეგენდარული', color: 'from-purple-500 to-violet-600', icon: '👑' },
+};
 
-        const quest = updated.find(q => q.id === questId);
-        if (quest && quest.steps.every(s => s.completed)) {
-            const newXP = totalXP + quest.xp;
-            setTotalXP(newXP);
-            const nextIdx = updated.findIndex(q => q.id === questId) + 1;
-            if (nextIdx < updated.length) updated[nextIdx].unlocked = true;
-            saveProgress(updated, newXP);
-        } else {
-            saveProgress(updated, totalXP);
-        }
-        setQuests(updated);
-        if (selectedQuest) setSelectedQuest(updated.find(q => q.id === selectedQuest.id) || null);
-    };
-
-    const getProgress = (quest: Quest) => (quest.steps.filter(s => s.completed).length / quest.steps.length) * 100;
+function QuestCard({
+    quest,
+    onStart,
+    onCompleteStep,
+    expanded,
+    onToggle,
+}: {
+    quest: Quest;
+    onStart: () => void;
+    onCompleteStep: (stepId: string) => void;
+    expanded: boolean;
+    onToggle: () => void;
+}) {
+    const config = DIFFICULTY_CONFIG[quest.difficulty];
+    const completedCount = quest.userProgress.completedSteps.length;
+    const progress = (completedCount / quest.steps.length) * 100;
 
     return (
-        <section style={{ padding: '80px 20px', background: 'linear-gradient(180deg, rgba(17,24,39,0) 0%, rgba(139,92,246,0.08) 50%, rgba(17,24,39,0) 100%)' }}>
-            <div style={{ maxWidth: 900, margin: '0 auto' }}>
-                <div style={{ textAlign: 'center', marginBottom: 40 }}>
-                    <span style={{ fontSize: 48 }}>⚔️</span>
-                    <h2 style={{ fontSize: 36, fontWeight: 800, background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginTop: 16 }}>AI Quest Journey</h2>
-                    <p style={{ fontSize: 18, color: '#9ca3af' }}>Пройдите квесты и станьте экспертом AI</p>
-                    <div style={{ marginTop: 16, display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(139,92,246,0.2)', padding: '8px 20px', borderRadius: 20 }}>
-                        <span style={{ fontSize: 20 }}>⭐</span>
-                        <span style={{ color: 'white', fontWeight: 700 }}>{totalXP} XP</span>
+        <motion.div
+            layout
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={cn(
+                "rounded-2xl border overflow-hidden transition-all",
+                quest.userProgress.isComplete
+                    ? "border-green-500/30 bg-green-950/20"
+                    : expanded
+                        ? "border-purple-500/50 bg-purple-950/20"
+                        : "border-white/10 bg-white/5"
+            )}
+        >
+            {/* Header */}
+            <div
+                className="p-5 cursor-pointer"
+                onClick={onToggle}
+            >
+                <div className="flex items-start gap-4">
+                    {/* Icon */}
+                    <div className={cn(
+                        "w-14 h-14 rounded-xl flex items-center justify-center text-2xl shrink-0",
+                        `bg-gradient-to-br ${config.color}`
+                    )}>
+                        {quest.userProgress.isComplete ? '✅' : config.icon}
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-bold text-white">{quest.title}</h3>
+                            <span className={cn(
+                                "px-2 py-0.5 rounded-full text-xs font-medium",
+                                `bg-gradient-to-r ${config.color} text-white`
+                            )}>
+                                {config.label}
+                            </span>
+                        </div>
+                        <p className="text-gray-400 text-sm line-clamp-2">{quest.description}</p>
+
+                        {/* Progress */}
+                        <div className="mt-3 flex items-center gap-3">
+                            <div className="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
+                                <motion.div
+                                    className={cn("h-full rounded-full", `bg-gradient-to-r ${config.color}`)}
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${progress}%` }}
+                                />
+                            </div>
+                            <span className="text-xs text-gray-400 font-medium">
+                                {completedCount}/{quest.steps.length}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* XP Badge */}
+                    <div className="flex items-center gap-1 px-3 py-1.5 bg-yellow-500/20 rounded-full shrink-0">
+                        <TbStar className="w-4 h-4 text-yellow-400" />
+                        <span className="text-sm font-bold text-yellow-400">{quest.totalXp}</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Expanded Steps */}
+            <AnimatePresence>
+                {expanded && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="border-t border-white/10"
+                    >
+                        <div className="p-5 space-y-3">
+                            {!quest.userProgress.started ? (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); onStart(); }}
+                                    className={cn(
+                                        "w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2",
+                                        `bg-gradient-to-r ${config.color} text-white hover:opacity-90 transition-opacity`
+                                    )}
+                                >
+                                    <TbSword className="w-5 h-5" />
+                                    დაიწყე კვესტი
+                                </button>
+                            ) : (
+                                quest.steps.map((step, index) => {
+                                    const isCompleted = quest.userProgress.completedSteps.includes(step.id);
+                                    const prevCompleted = index === 0 ||
+                                        quest.userProgress.completedSteps.includes(quest.steps[index - 1].id);
+                                    const isLocked = !prevCompleted && !isCompleted;
+
+                                    return (
+                                        <motion.div
+                                            key={step.id}
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: index * 0.1 }}
+                                            className={cn(
+                                                "p-4 rounded-xl border transition-all",
+                                                isCompleted
+                                                    ? "border-green-500/30 bg-green-950/20"
+                                                    : isLocked
+                                                        ? "border-gray-700 bg-gray-900/50 opacity-50"
+                                                        : "border-white/10 bg-white/5"
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className={cn(
+                                                    "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0",
+                                                    isCompleted
+                                                        ? "bg-green-600 text-white"
+                                                        : isLocked
+                                                            ? "bg-gray-700 text-gray-400"
+                                                            : "bg-purple-600 text-white"
+                                                )}>
+                                                    {isCompleted ? <TbCheck className="w-4 h-4" /> :
+                                                        isLocked ? <TbLock className="w-4 h-4" /> : index + 1}
+                                                </div>
+
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="font-medium text-white text-sm">{step.title}</h4>
+                                                    <p className="text-gray-400 text-xs">{step.description}</p>
+                                                </div>
+
+                                                <div className="flex items-center gap-2 shrink-0">
+                                                    <span className="text-xs text-yellow-400 font-medium">
+                                                        +{step.xpReward} XP
+                                                    </span>
+
+                                                    {!isCompleted && !isLocked && (
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                onCompleteStep(step.id);
+                                                            }}
+                                                            className="px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white text-xs rounded-lg transition-colors"
+                                                        >
+                                                            დასრულება
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    );
+                                })
+                            )}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </motion.div>
+    );
+}
+
+export default function AIQuestJourney() {
+    const { user, isLoading: authLoading } = useAuth();
+    const [quests, setQuests] = useState<Quest[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [expandedQuest, setExpandedQuest] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (user) fetchQuests();
+        else setLoading(false);
+    }, [user]);
+
+    const fetchQuests = async () => {
+        try {
+            const userId = user?.id || (user as any)?._id;
+            const res = await fetch(`/api/conversion/quests?userId=${userId}`);
+            const data = await res.json();
+            setQuests(data.quests || []);
+        } catch (e) {
+            console.error('Failed to fetch quests', e);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleStart = async (questId: string) => {
+        if (!user) return;
+
+        try {
+            await fetch('/api/conversion/quests', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    questId,
+                    userId: user.id || (user as any)._id,
+                    action: 'start'
+                })
+            });
+            fetchQuests();
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    const handleCompleteStep = async (questId: string, stepId: string) => {
+        if (!user) return;
+
+        try {
+            await fetch('/api/conversion/quests', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    questId,
+                    userId: user.id || (user as any)._id,
+                    stepId,
+                    action: 'complete_step'
+                })
+            });
+            fetchQuests();
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    if (authLoading || loading) {
+        return (
+            <div className="space-y-4">
+                {[1, 2].map(i => (
+                    <div key={i} className="animate-pulse bg-white/5 h-32 rounded-2xl" />
+                ))}
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className="text-center p-8 border border-white/10 rounded-2xl bg-white/5">
+                <TbSword className="w-12 h-12 mx-auto mb-4 text-purple-400" />
+                <h3 className="text-xl font-bold mb-2">⚔️ AI კვესტები</h3>
+                <p className="text-gray-400">გაიარე ავტორიზაცია კვესტების დასაწყებად</p>
+            </div>
+        );
+    }
+
+    const completedQuests = quests.filter(q => q.userProgress.isComplete).length;
+    const totalXpEarned = quests.reduce((sum, q) => {
+        if (q.userProgress.isComplete) return sum + q.totalXp;
+        return sum + q.steps
+            .filter(s => q.userProgress.completedSteps.includes(s.id))
+            .reduce((stepSum, s) => stepSum + s.xpReward, 0);
+    }, 0);
+
+    return (
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-purple-500/20 rounded-lg">
+                        <TbSword className="w-6 h-6 text-purple-400" />
+                    </div>
+                    <div>
+                        <h2 className="text-2xl font-bold text-white">AI კვესტები</h2>
+                        <p className="text-gray-400 text-sm">შეასრულე მისიები და მიიღე XP</p>
                     </div>
                 </div>
 
-                {/* Quest Cards */}
-                <div style={{ display: 'grid', gap: 16 }}>
-                    {quests.map((quest, i) => (
-                        <div key={quest.id} onClick={() => quest.unlocked && setSelectedQuest(quest)} style={{ background: quest.unlocked ? 'rgba(31,41,55,0.9)' : 'rgba(31,41,55,0.5)', border: `1px solid ${quest.unlocked ? '#374151' : '#1f2937'}`, borderRadius: 16, padding: 24, cursor: quest.unlocked ? 'pointer' : 'not-allowed', opacity: quest.unlocked ? 1 : 0.6, transition: 'all 0.3s', display: 'flex', alignItems: 'center', gap: 20 }}>
-                            <div style={{ width: 60, height: 60, background: quest.unlocked ? 'linear-gradient(135deg, #8b5cf6, #ec4899)' : '#374151', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>{quest.unlocked ? quest.icon : '🔒'}</div>
-                            <div style={{ flex: 1 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
-                                    <span style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>{quest.title}</span>
-                                    <span style={{ fontSize: 12, background: 'rgba(139,92,246,0.2)', color: '#a78bfa', padding: '2px 8px', borderRadius: 10 }}>+{quest.xp} XP</span>
-                                </div>
-                                <p style={{ fontSize: 14, color: '#9ca3af', marginBottom: 8 }}>{quest.description}</p>
-                                <div style={{ height: 6, background: '#374151', borderRadius: 3, overflow: 'hidden' }}>
-                                    <div style={{ height: '100%', width: `${getProgress(quest)}%`, background: 'linear-gradient(90deg, #8b5cf6, #ec4899)', borderRadius: 3 }} />
-                                </div>
-                            </div>
-                            <div style={{ fontSize: 14, color: '#6b7280' }}>{quest.steps.filter(s => s.completed).length}/{quest.steps.length}</div>
-                        </div>
+                {/* Stats */}
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/20 rounded-full">
+                        <TbTrophy className="w-4 h-4 text-green-400" />
+                        <span className="text-sm font-bold text-green-400">{completedQuests}</span>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-500/20 rounded-full">
+                        <TbSparkles className="w-4 h-4 text-yellow-400" />
+                        <span className="text-sm font-bold text-yellow-400">{totalXpEarned} XP</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Quests */}
+            {quests.length === 0 ? (
+                <div className="text-center p-8 border border-white/10 rounded-2xl bg-white/5">
+                    <TbShield className="w-12 h-12 mx-auto mb-4 text-gray-500" />
+                    <p className="text-gray-400">კვესტები მალე გამოჩნდება</p>
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    {quests.map(quest => (
+                        <QuestCard
+                            key={quest._id}
+                            quest={quest}
+                            expanded={expandedQuest === quest._id}
+                            onToggle={() => setExpandedQuest(
+                                expandedQuest === quest._id ? null : quest._id
+                            )}
+                            onStart={() => handleStart(quest._id)}
+                            onCompleteStep={(stepId) => handleCompleteStep(quest._id, stepId)}
+                        />
                     ))}
                 </div>
-
-                {/* Quest Modal */}
-                {selectedQuest && (
-                    <div onClick={() => setSelectedQuest(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: 20 }}>
-                        <div onClick={e => e.stopPropagation()} style={{ background: '#1f2937', borderRadius: 24, padding: 40, maxWidth: 500, width: '100%' }}>
-                            <div style={{ textAlign: 'center', marginBottom: 24 }}>
-                                <span style={{ fontSize: 64 }}>{selectedQuest.icon}</span>
-                                <h3 style={{ fontSize: 24, fontWeight: 700, color: 'white', marginTop: 16 }}>{selectedQuest.title}</h3>
-                                <p style={{ color: '#9ca3af' }}>{selectedQuest.description}</p>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
-                                {selectedQuest.steps.map(step => (
-                                    <div key={step.id} onClick={() => !step.completed && completeStep(selectedQuest.id, step.id)} style={{ background: step.completed ? 'rgba(16,185,129,0.1)' : '#374151', border: `1px solid ${step.completed ? '#10b981' : '#4b5563'}`, borderRadius: 12, padding: 16, display: 'flex', alignItems: 'center', gap: 12, cursor: step.completed ? 'default' : 'pointer' }}>
-                                        <span style={{ fontSize: 20 }}>{step.completed ? '✅' : '⬜'}</span>
-                                        <span style={{ color: step.completed ? '#10b981' : 'white' }}>{step.text}</span>
-                                    </div>
-                                ))}
-                            </div>
-                            <div style={{ background: 'rgba(139,92,246,0.1)', borderRadius: 12, padding: 16, textAlign: 'center' }}>
-                                <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 4 }}>🎁 Награда</div>
-                                <div style={{ color: '#a78bfa', fontWeight: 600 }}>{selectedQuest.reward}</div>
-                            </div>
-                            <button onClick={() => setSelectedQuest(null)} style={{ marginTop: 24, width: '100%', background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', border: 'none', borderRadius: 12, padding: 14, color: 'white', fontWeight: 600, cursor: 'pointer' }}>Закрыть</button>
-                        </div>
-                    </div>
-                )}
-            </div>
-        </section>
+            )}
+        </div>
     );
 }

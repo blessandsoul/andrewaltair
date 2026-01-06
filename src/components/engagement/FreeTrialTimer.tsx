@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Clock, Zap, Crown } from 'lucide-react'
+import { TbX, TbClock, TbBolt, TbCrown } from "react-icons/tb"
 import { Button } from '@/components/ui/button'
 
 interface FreeTrialTimerProps {
@@ -76,13 +76,13 @@ export function FreeTrialTimer({ trialDays = 7, onUpgrade }: FreeTrialTimerProps
                     onClick={handleDismiss}
                     className="absolute top-2 right-2 p-1 rounded-full hover:bg-white/10 transition-colors"
                 >
-                    <X className="w-4 h-4 text-white/60" />
+                    <TbX className="w-4 h-4 text-white/60" />
                 </button>
 
                 <div className="relative flex items-center gap-4">
                     {/* Icon */}
                     <div className={`p-3 rounded-xl ${isUrgent ? 'bg-red-500/20' : 'bg-indigo-500/20'}`}>
-                        <Clock className={`w-6 h-6 ${isUrgent ? 'text-red-400 animate-pulse' : 'text-indigo-400'}`} />
+                        <TbClock className={`w-6 h-6 ${isUrgent ? 'text-red-400 animate-pulse' : 'text-indigo-400'}`} />
                     </div>
 
                     {/* Content */}
@@ -98,7 +98,7 @@ export function FreeTrialTimer({ trialDays = 7, onUpgrade }: FreeTrialTimerProps
                             )}
                         </div>
 
-                        {/* Timer */}
+                        {/* TbClock */}
                         {!isExpired && (
                             <div className="flex gap-2 mb-2">
                                 {[
@@ -126,9 +126,9 @@ export function FreeTrialTimer({ trialDays = 7, onUpgrade }: FreeTrialTimerProps
                                     : 'bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600'
                                 } text-white font-semibold shadow-lg`}
                         >
-                            <Crown className="w-4 h-4 mr-2" />
+                            <TbCrown className="w-4 h-4 mr-2" />
                             გახდი Premium
-                            <Zap className="w-4 h-4 ml-2" />
+                            <TbBolt className="w-4 h-4 ml-2" />
                         </Button>
                     </div>
                 </div>

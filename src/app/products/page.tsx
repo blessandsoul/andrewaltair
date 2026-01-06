@@ -2,26 +2,47 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {
-    ShoppingCart,
-    Star,
-    Download,
-    Play,
-    BookOpen,
-    Layers,
-    Sparkles,
-    ArrowRight,
-    Gift,
-    Check,
-    Zap
-} from "lucide-react"
-import productsData from "@/data/products.json"
+import { TbShoppingCart, TbStar, TbDownload, TbPlayerPlay, TbBook, TbStack2, TbSparkles, TbArrowRight, TbGift, TbCheck, TbBolt } from "react-icons/tb"
+
+// Product interface
+interface Product {
+    id: string
+    title: string
+    description: string
+    category: string
+    pricing: {
+        price: number
+        originalPrice: number
+        currency: string
+    }
+    features: string[]
+    rating: number
+    reviews: number
+    bestSeller?: boolean
+    downloadable?: boolean
+}
+
+// Fetch products from API
+async function getProducts(): Promise<Product[]> {
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products`, {
+            cache: 'no-store'
+        })
+        if (res.ok) {
+            const data = await res.json()
+            return data.products || []
+        }
+    } catch (error) {
+        console.error('Error fetching products:', error)
+    }
+    return []
+}
 
 const categoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-    templates: Layers,
-    courses: Play,
-    ebooks: BookOpen,
-    bundles: Gift
+    templates: TbStack2,
+    courses: TbPlayerPlay,
+    ebooks: TbBook,
+    bundles: TbGift
 }
 
 const categoryLabels: Record<string, string> = {
@@ -31,7 +52,8 @@ const categoryLabels: Record<string, string> = {
     bundles: "პაკეტები"
 }
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+    const productsData = await getProducts()
     const categories = [...new Set(productsData.map(p => p.category))]
 
     return (
@@ -45,7 +67,7 @@ export default function ProductsPage() {
                 <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
                     <div className="text-center max-w-3xl mx-auto space-y-6">
                         <Badge className="bg-accent/10 text-accent border-accent/20 px-4 py-2">
-                            <Gift className="w-4 h-4 mr-2" />
+                            <TbGift className="w-4 h-4 mr-2" />
                             ციფრული პროდუქტები
                         </Badge>
 
@@ -61,15 +83,15 @@ export default function ProductsPage() {
                         {/* Quick Stats */}
                         <div className="flex flex-wrap items-center justify-center gap-6 pt-4">
                             <div className="flex items-center gap-2 text-sm">
-                                <Download className="w-4 h-4 text-primary" />
+                                <TbDownload className="w-4 h-4 text-primary" />
                                 <span className="font-medium">მყისიერი ჩამოტვირთვა</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm">
-                                <Star className="w-4 h-4 text-yellow-500" />
+                                <TbStar className="w-4 h-4 text-yellow-500" />
                                 <span className="font-medium">4.8 საშუალო რეიტინგი</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm">
-                                <Zap className="w-4 h-4 text-accent" />
+                                <TbBolt className="w-4 h-4 text-accent" />
                                 <span className="font-medium">უფასო განახლებები</span>
                             </div>
                         </div>
@@ -85,7 +107,7 @@ export default function ProductsPage() {
                             ყველა
                         </Button>
                         {categories.map(cat => {
-                            const Icon = categoryIcons[cat] || Sparkles
+                            const Icon = categoryIcons[cat] || TbSparkles
                             return (
                                 <Button key={cat} variant="outline" className="gap-2">
                                     <Icon className="w-4 h-4" />
@@ -108,7 +130,7 @@ export default function ProductsPage() {
                                 <div className="grid lg:grid-cols-2 gap-8 items-center">
                                     <div className="relative aspect-video rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20 shadow-2xl">
                                         <div className="absolute inset-0 flex items-center justify-center">
-                                            <Sparkles className="w-24 h-24 text-primary/30" />
+                                            <TbSparkles className="w-24 h-24 text-primary/30" />
                                         </div>
                                         <Badge className="absolute top-4 left-4 bg-red-500 text-white border-0 px-3 py-1.5">
                                             🔥 ბესტსელერი
@@ -130,7 +152,7 @@ export default function ProductsPage() {
                                         <ul className="space-y-3">
                                             {featured.features.map((f, i) => (
                                                 <li key={i} className="flex items-center gap-3">
-                                                    <Check className="w-5 h-5 text-primary" />
+                                                    <TbCheck className="w-5 h-5 text-primary" />
                                                     <span>{f}</span>
                                                 </li>
                                             ))}
@@ -139,11 +161,11 @@ export default function ProductsPage() {
                                         <div className="flex items-center gap-4">
                                             <div className="flex items-center gap-2">
                                                 {[...Array(5)].map((_, i) => (
-                                                    <Star
+                                                    <TbStar
                                                         key={i}
                                                         className={`w-5 h-5 ${i < Math.floor(featured.rating)
-                                                                ? "text-yellow-500 fill-yellow-500"
-                                                                : "text-muted-foreground"
+                                                            ? "text-yellow-500 fill-yellow-500"
+                                                            : "text-muted-foreground"
                                                             }`}
                                                     />
                                                 ))}
@@ -165,12 +187,12 @@ export default function ProductsPage() {
 
                                         <div className="flex gap-4">
                                             <Button size="lg" className="bg-gradient-to-r from-primary to-accent text-white px-8">
-                                                <ShoppingCart className="w-5 h-5 mr-2" />
+                                                <TbShoppingCart className="w-5 h-5 mr-2" />
                                                 ყიდვა
                                             </Button>
                                             <Button size="lg" variant="outline">
                                                 დეტალები
-                                                <ArrowRight className="w-5 h-5 ml-2" />
+                                                <TbArrowRight className="w-5 h-5 ml-2" />
                                             </Button>
                                         </div>
                                     </div>
@@ -193,12 +215,12 @@ export default function ProductsPage() {
 
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {productsData.map(product => {
-                            const Icon = categoryIcons[product.category] || Sparkles
+                            const Icon = categoryIcons[product.category] || TbSparkles
                             const discount = Math.round((1 - product.pricing.price / product.pricing.originalPrice) * 100)
 
                             return (
                                 <Card key={product.id} className="group overflow-hidden hover-lift">
-                                    {/* Product Image */}
+                                    {/* Product TbPhoto */}
                                     <div className="relative aspect-[4/3] bg-gradient-to-br from-primary/10 to-accent/10">
                                         <div className="absolute inset-0 flex items-center justify-center">
                                             <Icon className="w-16 h-16 text-primary/30 group-hover:scale-110 transition-transform" />
@@ -211,7 +233,7 @@ export default function ProductsPage() {
                                             )}
                                             {product.downloadable && (
                                                 <Badge variant="secondary" className="gap-1">
-                                                    <Download className="w-3 h-3" />
+                                                    <TbDownload className="w-3 h-3" />
                                                     ჩამოტვირთვა
                                                 </Badge>
                                             )}
@@ -241,11 +263,11 @@ export default function ProductsPage() {
                                         <div className="flex items-center gap-2 mb-4">
                                             <div className="flex">
                                                 {[...Array(5)].map((_, i) => (
-                                                    <Star
+                                                    <TbStar
                                                         key={i}
                                                         className={`w-4 h-4 ${i < Math.floor(product.rating)
-                                                                ? "text-yellow-500 fill-yellow-500"
-                                                                : "text-muted-foreground/30"
+                                                            ? "text-yellow-500 fill-yellow-500"
+                                                            : "text-muted-foreground/30"
                                                             }`}
                                                     />
                                                 ))}
@@ -269,7 +291,7 @@ export default function ProductsPage() {
                                             )}
                                         </div>
                                         <Button size="sm" className="gap-2">
-                                            <ShoppingCart className="w-4 h-4" />
+                                            <TbShoppingCart className="w-4 h-4" />
                                             ყიდვა
                                         </Button>
                                     </CardFooter>
@@ -290,22 +312,22 @@ export default function ProductsPage() {
                     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         {[
                             {
-                                icon: Download,
+                                icon: TbDownload,
                                 title: "მყისიერი წვდომა",
                                 desc: "ყიდვისთანავე მიიღებ ჩამოტვირთვის ლინკს"
                             },
                             {
-                                icon: Zap,
+                                icon: TbBolt,
                                 title: "უფასო განახლებები",
                                 desc: "ყველა მომავალი განახლება უფასოდ"
                             },
                             {
-                                icon: Star,
+                                icon: TbStar,
                                 title: "პრემიუმ ხარისხი",
                                 desc: "8 წლის გამოცდილება ჩადებული"
                             },
                             {
-                                icon: Gift,
+                                icon: TbGift,
                                 title: "ბონუსები",
                                 desc: "ექსკლუზიური ბონუს მასალები"
                             }

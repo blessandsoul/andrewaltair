@@ -1,16 +1,17 @@
 "use client"
 
+import { Suspense } from "react"
 import { usePathname } from "next/navigation"
 import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/footer"
-import { CursorTrail } from "@/components/effects/CursorTrail"
 import { EasterEgg } from "@/components/interactive/EasterEgg"
 import { SocialProofToast } from "@/components/interactive/SocialProofToast"
 import { LiveVisitorCounter } from "@/components/interactive/LiveVisitorCounter"
 import { AIChatAssistant } from "@/components/ai/AIChatAssistant"
-import { FadeTransition } from "@/components/effects/PageTransition"
 import { ScrollProgress, BackToTop } from "@/components/ui/scroll-progress"
-import { FreeTrialTimer, ActivityFeed, AIAvatar } from "@/components/engagement"
+import { VisitorTracker } from "@/components/tracking"
+import { CookieConsent } from "@/components/ui/cookie-consent"
+import { HeatmapOverlay } from "@/components/analytics/HeatmapOverlay"
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
@@ -19,15 +20,23 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
 
     // Don't show main layout elements on admin pages
     if (isAdminRoute) {
-        return <>{children}</>
+        return (
+            <>
+                <Suspense fallback={null}>
+                    <VisitorTracker />
+                </Suspense>
+                {children}
+            </>
+        )
     }
 
     // Mystic page has its own dark theme - hide header/footer for full immersion
     if (isMysticRoute) {
         return (
             <div className="dark bg-[#0a0a12] min-h-screen">
-                {/* Minimal effects for mystic */}
-                <CursorTrail />
+                <Suspense fallback={null}>
+                    <VisitorTracker />
+                </Suspense>
 
                 {/* Mystic-styled header */}
                 <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a12]/80 backdrop-blur-xl border-b border-white/5">
@@ -75,29 +84,31 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
 
     return (
         <>
+            {/* Visitor Tracking */}
+            <Suspense fallback={null}>
+                <VisitorTracker />
+            </Suspense>
+
             <ScrollProgress />
             <BackToTop />
 
             {/* Global Effects */}
-            <CursorTrail />
             <EasterEgg />
 
             {/* Main Layout */}
             <Header />
-            <FadeTransition>
-                <main className="min-h-screen">{children}</main>
-            </FadeTransition>
+            <main className="min-h-screen">{children}</main>
             <Footer />
 
             {/* Floating Elements */}
             <SocialProofToast enabled={true} />
-            <LiveVisitorCounter variant="floating" />
+            <LiveVisitorCounter variant="floating" className="!bottom-auto !top-20 !right-4" />
             <AIChatAssistant />
-
-            {/* Engagement Floating Elements */}
-            <FreeTrialTimer onUpgrade={() => window.location.href = '/pricing'} />
-            <ActivityFeed />
-            <AIAvatar showAsWidget={true} />
+            <CookieConsent />
+            <Suspense fallback={null}>
+                <HeatmapOverlay />
+            </Suspense>
         </>
     )
 }
+

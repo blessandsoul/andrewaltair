@@ -1,184 +1,358 @@
-# AGENTS.md - AI Agent Instructions
+# AGENTS.md - AI Agent Guidelines
 
-This document provides instructions for AI agents working with this codebase.
+> Полное руководство для AI агентов по работе с проектом Andrew Altair
 
-## Project Overview
+---
 
-**Andrew Altair** is a Next.js 16 AI platform in Georgian language featuring:
-- 1000+ AI tools catalog
-- AI-powered mystic features (fortune, horoscope, dreams, love calculator)
-- Gamification (quizzes, leaderboard, achievements, spin wheel)
-- 110+ React components across 7 categories
-- Admin panel with full CMS capabilities
+## 🎯 Обзор проекта
 
-## Tech Stack
+**Andrew Altair** — полнофункциональная AI-платформа на Next.js 14 с мистическими инструментами, блогом, админ-панелью и системой конверсии.
 
-```
-Framework:    Next.js 16.1.1 (App Router, Turbopack)
-Language:     TypeScript 5 (Strict Mode)
-Styling:      TailwindCSS 4 + CSS Variables
-UI Library:   Radix UI + Shadcn/ui components
-AI:           OpenAI SDK 6.15 (GPT-4, DALL-E 3)
-Data:         JSON files + LocalStorage
-```
+### Ключевые области
 
-## Directory Structure
+| Область | Описание |
+|---------|----------|
+| **Mystic AI Tools** | 8 интерактивных инструментов с Groq AI |
+| **Conversion System** | 20 компонентов для конверсии пользователей |
+| **Admin Panel** | 12 разделов управления контентом |
+| **User Profile** | 18 фичей профиля с 2FA |
+| **Gamification** | Badges, streaks, leaderboards |
+
+---
+
+## 🏗 Архитектура
+
+### Framework
+- **Next.js 14** с App Router
+- Server Components для оптимизации
+- API Routes для бэкенда
+
+### Database
+- **MongoDB Atlas** через Mongoose 9
+- Connection pooling в serverless
+- Модели в `/src/models/`
+
+### AI Integration
+- **Groq API** с OpenAI SDK совместимостью
+- Model: `llama-3.3-70b-versatile`
+- Грузинские промпты для мистики
+
+### Authentication
+- **JWT** tokens с bcryptjs
+- **2FA** через otplib (TOTP)
+- Session management с force logout
+
+---
+
+## 📁 Ключевые директории
 
 ```
 src/
-├── app/                    # Next.js App Router pages
-│   ├── admin/              # Admin panel (12 subpages)
-│   ├── blog/               # Blog with dynamic [slug]
-│   ├── tools/              # AI tools catalog
-│   ├── mystic/             # Mystic AI features
-│   ├── features/           # All features showcase (113+)
-│   ├── new-features/       # New conversion features demo
-│   └── api/                # API routes (chat, mystic)
+├── app/
+│   ├── (pages)/           # 14 публичных страниц
+│   ├── admin/             # 12 админ разделов
+│   └── api/               # 31 категория API (66+ маршрутов)
 │
 ├── components/
-│   ├── ai/                 # AI components (9): Chat, Fortune, Horoscope, etc.
-│   ├── effects/            # Visual effects (8): TiltCard, MagneticButton, etc.
-│   ├── gamification/       # Game elements (5): Quiz, SpinWheel, etc.
-│   ├── interactive/        # Interactive (18): Comments, Bookmarks, etc.
-│   ├── engagement/         # Engagement (29): NFT, Forum, Workspace, etc.
-│   ├── conversion/         # Conversion (20): MysteryBox, SkillTree, etc. [NEW]
-│   ├── layout/             # Header, Footer, Navigation
-│   └── ui/                 # Shadcn UI primitives
+│   ├── ai/                # 11 AI компонентов
+│   ├── conversion/        # 20 conversion компонентов
+│   ├── mystic/            # 19 UI мистики
+│   ├── engagement/        # 7 вовлечение
+│   ├── interactive/       # 8 интерактив
+│   ├── layout/            # 5 лейаут
+│   ├── ui/                # 13 примитивов
+│   ├── admin/             # 4 админ
+│   ├── blog/              # 5 блог
+│   └── effects/           # 3 эффекта
 │
-├── data/
-│   ├── tools.json          # 1000+ AI tools (433KB)
-│   ├── posts.json          # Blog articles
-│   └── videos.json         # Video content
-│
-└── lib/
-    ├── utils.ts            # Helper functions
-    └── brand.ts            # Brand configuration
-```
-
-## Component Categories
-
-### Conversion Components (20) - Priority for Updates
-Located in `src/components/conversion/`:
-
-| Component | Purpose |
-|-----------|---------|
-| MysteryBox | Daily reward box with 24h cooldown |
-| LimitedTimeDeals | Countdown timer offers |
-| MicroLessons | 2-minute AI lessons |
-| AICompanionMascot | Chat assistant mascot |
-| SavingsCalculator | ROI calculator |
-| AIHealthScore | AI readiness quiz |
-| PromptPlayground | Prompt testing sandbox |
-| CaseStudyBuilder | Industry case generator |
-| AIQuestJourney | Learning quests with XP |
-| SkillTree | Visual skill progression |
-| SeasonPass | Seasonal rewards tiers |
-| LiveChallenges | Real-time competitions |
-| AIBuddyMatching | Partner finder for learning |
-| ExpertOfficeHours | Consultation booking |
-| ProofWall | Client results showcase |
-| SmartRecommendations | AI-powered suggestions |
-| AIReadinessAssessment | Company readiness test |
-| ImplementationRoadmap | AI implementation plan |
-| AINewsCurator | Personalized news feed |
-| ProgressSnapshot | Weekly progress summary |
-
-## Coding Standards
-
-### Component Pattern
-```tsx
-'use client';
-
-import React, { useState, useEffect } from 'react';
-
-interface Props {
-  // Define props
-}
-
-export default function ComponentName({ prop }: Props) {
-  const [state, setState] = useState<Type>(initial);
-
-  useEffect(() => {
-    // Load from localStorage if needed
-    const saved = localStorage.getItem('key');
-    if (saved) setState(JSON.parse(saved));
-  }, []);
-
-  return (
-    <section style={{ padding: '80px 20px' }}>
-      {/* Component content */}
-    </section>
-  );
-}
-```
-
-### Styling Approach
-- Use inline styles for component-specific styling
-- Use Tailwind classes for layout and common utilities
-- Use CSS variables from globals.css for colors
-- Add gradient backgrounds: `linear-gradient(135deg, #color1, #color2)`
-- Add hover effects with transition: `transition: 'all 0.3s'`
-
-### State Management
-- Use React useState/useEffect for local state
-- Use localStorage for persistence (bookmarks, progress, etc.)
-- No external state management library
-
-### API Pattern
-```tsx
-// src/app/api/endpoint/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-export async function POST(request: NextRequest) {
-  const data = await request.json();
-  // Process with OpenAI
-  return NextResponse.json({ result });
-}
-```
-
-## Key Pages
-
-| Page | Path | Description |
-|------|------|-------------|
-| Home | `/` | Hero, trending posts, newsletter |
-| Features | `/features` | All 113+ features catalog |
-| New Features | `/new-features` | 20 conversion components demo |
-| Mystic | `/mystic` | Fortune, horoscope, dreams, love |
-| Tools | `/tools` | 1000+ AI tools directory |
-| Admin | `/admin` | Full CMS dashboard |
-
-## Common Tasks
-
-### Adding a New Conversion Component
-1. Create file in `src/components/conversion/NewComponent.tsx`
-2. Add to `src/components/conversion/index.ts`
-3. Add to features page array in `src/app/features/page.tsx`
-4. Add demo in `src/app/new-features/page.tsx`
-
-### Updating Feature Counts
-- Features page: `src/app/features/page.tsx`
-- README badges: `README.md`
-- This file: `AGENTS.md`
-
-## Environment Variables
-
-```env
-OPENAI_API_KEY=sk-...    # Required for AI features
-```
-
-## Running the Project
-
-```bash
-npm install
-npm run dev              # Development with Turbopack
-npm run build            # Production build
-npm run start            # Production server
+├── models/                # 31 MongoDB схема
+├── features/profile/      # 18 profile компонентов
+├── lib/                   # 8 утилит
+├── data/                  # 6 JSON файлов
+├── types/                 # TypeScript типы
+└── hooks/                 # Custom hooks
 ```
 
 ---
 
-Last updated: December 2024
-Components: 110+ | Features: 113+ | AI Tools: 1000+
+## 🔧 Правила разработки
+
+### API Routes
+
+```typescript
+// Всегда используй:
+import dbConnect from '@/lib/db'
+import { NextResponse } from 'next/server'
+
+export async function POST(req: Request) {
+  try {
+    await dbConnect()
+    // ... логика
+    return NextResponse.json({ success: true, data })
+  } catch (error) {
+    return NextResponse.json({ error: 'Message' }, { status: 500 })
+  }
+}
+```
+
+**Правила:**
+- Вызывай `dbConnect()` перед любыми DB операциями
+- Возвращай JSON с proper error handling
+- Включай fallback для AI failures
+- Используй `process.env.GROQ_API_KEY` для AI
+
+### Components
+
+```tsx
+'use client' // для интерактивных компонентов
+
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+```
+
+**Правила:**
+- Используй `"use client"` для интерактивных
+- Импортируй UI из `@/components/ui/`
+- Tailwind CSS с custom dark theme
+- Грузинский для мистики UI
+
+### Models
+
+```typescript
+import mongoose from 'mongoose'
+
+const Schema = new mongoose.Schema({
+  // ... fields
+}, { timestamps: true })
+
+// ВАЖНО: Re-export types
+export type { IModel }
+export default mongoose.models.Model || mongoose.model('Model', Schema)
+```
+
+**Правила:**
+- Включай timestamps в схемы
+- Re-export types для client use
+- Используй `isolatedModules` совместимость
+
+---
+
+## 📊 Модели данных (31)
+
+### Core Models
+| Model | Описание | Ключевые поля |
+|-------|----------|---------------|
+| `User` | Пользователи | email, password, role, twoFactorEnabled, socialAccounts |
+| `Session` | Сессии | userId, token, ip, userAgent, expiresAt |
+| `Post` | Публикации | title, slug, content, author, status, views |
+| `Video` | Видео | title, url, thumbnail, duration |
+| `Comment` | Комментарии | postId, userId, content, status |
+
+### Mystic Models
+| Model | Описание |
+|-------|----------|
+| `MysticHistory` | История предсказаний с sessionId |
+| `MysticProfile` | Профили: zodiac, birthDate, premium |
+| `MysticAchievement` | Badges, streaks, stats |
+| `MysticGift` | Gift tokens |
+
+### Conversion Models
+| Model | Описание |
+|-------|----------|
+| `Deal` | Предложения с таймерами |
+| `Lesson` | Микро-уроки |
+| `Quest` | Квесты пользователей |
+| `Challenge` | Живые челленджи |
+| `Booking` | Бронирования консультаций |
+| `Testimonial` | Отзывы |
+
+### System Models
+| Model | Описание |
+|-------|----------|
+| `Settings` | Глобальные настройки |
+| `Seo` | SEO для страниц |
+| `Notification` | Уведомления |
+| `Task` | Задачи админа |
+| `Backup` | Бэкапы |
+| `CronJob` | Cron задачи |
+| `ErrorLog` | Лог ошибок |
+
+---
+
+## 🔑 API Endpoints Reference
+
+### Auth (`/api/auth/`)
+| Method | Endpoint | Описание |
+|--------|----------|----------|
+| POST | `/login` | Логин |
+| POST | `/register` | Регистрация |
+| GET | `/me` | Текущий юзер |
+| POST | `/logout` | Логаут |
+
+### Mystic (`/api/mystic/`)
+| Method | Endpoint | Описание |
+|--------|----------|----------|
+| POST | `/fortune` | Гадание |
+| POST | `/tarot` | Таро расклад |
+| POST | `/numerology` | Нумерология |
+| POST | `/chat` | AI чат |
+| GET/POST/DELETE | `/history` | История |
+
+### Conversion (`/api/conversion/`)
+| Method | Endpoint | Описание |
+|--------|----------|----------|
+| GET/POST | `/lessons` | Микро-уроки |
+| GET/POST | `/deals` | Предложения |
+| GET/POST | `/quests` | Квесты |
+| GET/POST | `/challenges` | Челленджи |
+| GET/POST | `/bookings` | Бронирования |
+| GET/POST | `/testimonials` | Отзывы |
+
+### CRUD APIs
+Все CRUD API следуют паттерну:
+- `GET /api/{resource}` — список
+- `POST /api/{resource}` — создание
+- `GET /api/{resource}/[id]` — один item
+- `PUT /api/{resource}/[id]` — обновление
+- `DELETE /api/{resource}/[id]` — удаление
+
+---
+
+## 🌐 Языки
+
+### Грузинский (ქართული) — для мистики
+
+```
+გადალი = Fortune Telling
+ტაროტი = Tarot
+ჰოროსკოპი = Horoscope
+წინასწარმეტყველება = Prediction
+ბეჯი = Badge
+სიყვარული = Love
+სიზმრები = Dreams
+ნუმეროლოგია = Numerology
+მთვარე = Moon
+```
+
+### Русский — для админки и документации
+
+---
+
+## 🎨 Дизайн-система
+
+### Colors
+```css
+/* Backgrounds */
+--bg-primary: #0a0a12;
+--bg-secondary: #12121a;
+
+/* Gradients */
+--purple: from-purple-600 to-violet-600;
+--pink: from-pink-600 to-rose-600;
+--gold: from-amber-500 to-yellow-500;
+```
+
+### Components
+```jsx
+// Card
+className="rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10"
+
+// Button
+className="rounded-xl bg-gradient-to-r from-purple-600 to-violet-600"
+
+// Glass effect
+className="bg-white/5 backdrop-blur-sm border border-white/10"
+```
+
+### Spacing
+- Rounded: `rounded-2xl sm:rounded-3xl`
+- Gap: `gap-4 sm:gap-6 lg:gap-8`
+- Padding: `p-4 sm:p-6 lg:p-8`
+
+---
+
+## ⚠️ Частые проблемы
+
+### "Missing credentials" Error
+```bash
+# Проверь .env.local
+GROQ_API_KEY=gsk_...
+```
+
+### MongoDB Connection
+```bash
+# Проверь IP whitelist в Atlas
+# Проверь MONGODB_URI
+```
+
+### Client/Server Mismatch
+```typescript
+// НЕ импортируй Mongoose напрямую в client!
+// Используй /lib/ утилиты
+```
+
+### 2FA Issues
+```typescript
+// Проверь что otplib правильно настроен
+import { authenticator } from 'otplib'
+```
+
+---
+
+## 🧪 Тестирование
+
+### Dev Server
+```bash
+npm run dev
+# http://localhost:3000
+```
+
+### Seed Database
+```bash
+npm run seed
+```
+
+### API Testing
+```bash
+# Auth
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@test.com","password":"test123"}'
+
+# Mystic
+curl -X POST http://localhost:3000/api/mystic/fortune \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Test","birthDate":"1990-01-01"}'
+```
+
+---
+
+## 📝 Чек-лист для разработки
+
+- [ ] Вызвал `dbConnect()` перед DB операциями
+- [ ] Добавил proper error handling
+- [ ] Использовал TypeScript types
+- [ ] Добавил `"use client"` если интерактивный
+- [ ] Использовал компоненты из `@/components/ui/`
+- [ ] Протестировал API endpoints
+- [ ] Обновил README если добавил фичи
+
+---
+
+## 🤝 Вклад в проект
+
+1. Следуй существующему code style
+2. Используй TypeScript strict mode
+3. Добавляй proper type definitions
+4. Тестируй API endpoints
+5. Обновляй документацию
+
+---
+
+## 📚 Дополнительные ресурсы
+
+- [Next.js 14 Docs](https://nextjs.org/docs)
+- [Mongoose Docs](https://mongoosejs.com/docs/)
+- [Tailwind CSS](https://tailwindcss.com/docs)
+- [Groq API](https://console.groq.com/docs)
+- [shadcn/ui](https://ui.shadcn.com/)

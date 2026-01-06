@@ -1,99 +1,152 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { TbMap, TbCheck, TbCircle, TbChevronRight, TbDownload } from "react-icons/tb";
+import { cn } from '@/lib/utils';
 
-interface Step { id: string; title: string; duration: string; description: string; tasks: string[]; status: 'pending' | 'current' | 'completed'; }
+interface RoadmapPhase {
+    id: string;
+    title: string;
+    duration: string;
+    tasks: string[];
+    status: 'completed' | 'current' | 'upcoming';
+}
 
-const roadmapSteps: Step[] = [
-    { id: '1', title: 'Аудит и анализ', duration: 'Неделя 1-2', description: 'Анализ текущих процессов и выявление возможностей', tasks: ['Интервью с командой', 'Аудит процессов', 'Анализ данных', 'Определение KPI'], status: 'completed' },
-    { id: '2', title: 'Выбор инструментов', duration: 'Неделя 3-4', description: 'Подбор оптимальных AI-решений', tasks: ['Демо инструментов', 'Пилотные тесты', 'Сравнение стоимости', 'Выбор стека'], status: 'current' },
-    { id: '3', title: 'Обучение команды', duration: 'Неделя 5-6', description: 'Подготовка сотрудников к работе с AI', tasks: ['Базовые курсы', 'Практические воркшопы', 'Документация', 'FAQ и поддержка'], status: 'pending' },
-    { id: '4', title: 'Внедрение', duration: 'Неделя 7-10', description: 'Интеграция AI в рабочие процессы', tasks: ['Настройка инструментов', 'Интеграция с системами', 'Тестирование', 'Запуск пилота'], status: 'pending' },
-    { id: '5', title: 'Масштабирование', duration: 'Неделя 11-12', description: 'Расширение использования и оптимизация', tasks: ['Анализ результатов', 'Оптимизация процессов', 'Расширение на отделы', 'Документирование'], status: 'pending' },
+const ROADMAP_PHASES: RoadmapPhase[] = [
+    {
+        id: '1',
+        title: 'აღმოჩენა და შეფასება',
+        duration: '1-2 კვირა',
+        tasks: ['AI მზადყოფნის ტესტი', 'პროცესების აუდიტი', 'გუნდის უნარების შეფასება'],
+        status: 'completed'
+    },
+    {
+        id: '2',
+        title: 'პილოტური პროექტი',
+        duration: '2-4 კვირა',
+        tasks: ['ერთი გამოყენების შემთხვევის არჩევა', 'AI ხელსაწყოს ინტეგრაცია', 'გუნდის ტრენინგი'],
+        status: 'current'
+    },
+    {
+        id: '3',
+        title: 'მასშტაბირება',
+        duration: '1-2 თვე',
+        tasks: ['წარმატებული პატერნების გავრცელება', 'ახალი გამოყენებების დამატება', 'ROI გაზომვა'],
+        status: 'upcoming'
+    },
+    {
+        id: '4',
+        title: 'ოპტიმიზაცია',
+        duration: 'მიმდინარე',
+        tasks: ['უწყვეტი გაუმჯობესება', 'ახალი AI ფუნქციების ინტეგრაცია', 'ავტომატიზაციის გაფართოება'],
+        status: 'upcoming'
+    },
 ];
 
 export default function ImplementationRoadmap() {
-    const [steps, setSteps] = useState<Step[]>(roadmapSteps);
-    const [selectedStep, setSelectedStep] = useState<Step | null>(null);
-
-    const toggleStep = (stepId: string) => {
-        const updated = steps.map(s => {
-            if (s.id === stepId) {
-                const newStatus = s.status === 'completed' ? 'pending' : 'completed';
-                return { ...s, status: newStatus as Step['status'] };
-            }
-            return s;
-        });
-        setSteps(updated);
-    };
-
-    const progress = (steps.filter(s => s.status === 'completed').length / steps.length) * 100;
+    const [expandedPhase, setExpandedPhase] = useState<string | null>('2');
 
     return (
-        <section style={{ padding: '80px 20px', background: 'linear-gradient(180deg, rgba(17,24,39,0) 0%, rgba(245,158,11,0.08) 50%, rgba(17,24,39,0) 100%)' }}>
-            <div style={{ maxWidth: 900, margin: '0 auto' }}>
-                <div style={{ textAlign: 'center', marginBottom: 40 }}>
-                    <span style={{ fontSize: 48 }}>🗺️</span>
-                    <h2 style={{ fontSize: 36, fontWeight: 800, background: 'linear-gradient(135deg, #f59e0b, #10b981)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginTop: 16 }}>Implementation Roadmap</h2>
-                    <p style={{ fontSize: 18, color: '#9ca3af' }}>Ваш персональный план внедрения AI</p>
-                </div>
-
-                {/* Progress */}
-                <div style={{ background: 'rgba(31,41,55,0.8)', borderRadius: 16, padding: 20, marginBottom: 32 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <span style={{ color: 'white', fontWeight: 600 }}>Прогресс внедрения</span>
-                        <span style={{ color: '#f59e0b', fontWeight: 700 }}>{Math.round(progress)}%</span>
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-indigo-500/20 rounded-lg">
+                        <TbMap className="w-6 h-6 text-indigo-400" />
                     </div>
-                    <div style={{ height: 10, background: '#374151', borderRadius: 5 }}>
-                        <div style={{ height: '100%', width: `${progress}%`, background: 'linear-gradient(90deg, #f59e0b, #10b981)', borderRadius: 5, transition: 'width 0.5s' }} />
+                    <div>
+                        <h2 className="text-2xl font-bold text-white">AI როდმეპი</h2>
+                        <p className="text-gray-400 text-sm">შენი AI დანერგვის გეგმა</p>
                     </div>
                 </div>
-
-                {/* Timeline */}
-                <div style={{ position: 'relative' }}>
-                    {/* Line */}
-                    <div style={{ position: 'absolute', left: 24, top: 0, bottom: 0, width: 2, background: '#374151' }} />
-
-                    {steps.map((step, i) => (
-                        <div key={step.id} onClick={() => setSelectedStep(step)} style={{ display: 'flex', gap: 24, marginBottom: 24, cursor: 'pointer' }}>
-                            {/* Node */}
-                            <div style={{ width: 50, height: 50, borderRadius: '50%', background: step.status === 'completed' ? '#10b981' : step.status === 'current' ? 'linear-gradient(135deg, #f59e0b, #10b981)' : '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, zIndex: 1, border: step.status === 'current' ? '3px solid #f59e0b' : 'none' }}>
-                                {step.status === 'completed' ? '✓' : i + 1}
-                            </div>
-                            {/* Card */}
-                            <div style={{ flex: 1, background: 'rgba(31,41,55,0.9)', border: `1px solid ${step.status === 'current' ? '#f59e0b' : '#374151'}`, borderRadius: 16, padding: 20, transition: 'all 0.3s' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 8 }}>
-                                    <h3 style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>{step.title}</h3>
-                                    <span style={{ fontSize: 12, color: '#6b7280', background: '#374151', padding: '4px 10px', borderRadius: 8 }}>{step.duration}</span>
-                                </div>
-                                <p style={{ fontSize: 14, color: '#9ca3af' }}>{step.description}</p>
-                                {step.status === 'current' && <div style={{ marginTop: 12, fontSize: 12, color: '#f59e0b' }}>🔄 В процессе</div>}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Modal */}
-                {selectedStep && (
-                    <div onClick={() => setSelectedStep(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: 20 }}>
-                        <div onClick={e => e.stopPropagation()} style={{ background: '#1f2937', borderRadius: 24, padding: 40, maxWidth: 500, width: '100%' }}>
-                            <h3 style={{ fontSize: 24, fontWeight: 700, color: 'white', marginBottom: 8 }}>{selectedStep.title}</h3>
-                            <p style={{ color: '#9ca3af', marginBottom: 24 }}>{selectedStep.description}</p>
-                            <h4 style={{ color: '#f59e0b', marginBottom: 12 }}>Задачи:</h4>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
-                                {selectedStep.tasks.map((task, i) => (
-                                    <div key={i} style={{ background: '#374151', borderRadius: 8, padding: 12, color: 'white', display: 'flex', alignItems: 'center', gap: 10 }}>
-                                        <span style={{ color: selectedStep.status === 'completed' ? '#10b981' : '#6b7280' }}>{selectedStep.status === 'completed' ? '✓' : '○'}</span> {task}
-                                    </div>
-                                ))}
-                            </div>
-                            <button onClick={() => { toggleStep(selectedStep.id); setSelectedStep(null); }} style={{ width: '100%', background: selectedStep.status === 'completed' ? '#374151' : 'linear-gradient(135deg, #10b981, #059669)', border: 'none', borderRadius: 12, padding: 14, color: 'white', fontWeight: 600, cursor: 'pointer' }}>
-                                {selectedStep.status === 'completed' ? 'Отменить' : 'Отметить выполненным'}
-                            </button>
-                        </div>
-                    </div>
-                )}
+                <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-medium flex items-center gap-2 transition-colors">
+                    <TbDownload className="w-4 h-4" />
+                    PDF
+                </button>
             </div>
-        </section>
+
+            {/* Timeline */}
+            <div className="relative pl-8">
+                {/* Line */}
+                <div className="absolute left-3 top-0 bottom-0 w-0.5 bg-gray-700" />
+
+                {ROADMAP_PHASES.map((phase, index) => (
+                    <motion.div
+                        key={phase.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="relative mb-6 last:mb-0"
+                    >
+                        {/* Dot */}
+                        <div className={cn(
+                            "absolute -left-5 w-6 h-6 rounded-full border-2 flex items-center justify-center",
+                            phase.status === 'completed'
+                                ? "bg-green-600 border-green-600"
+                                : phase.status === 'current'
+                                    ? "bg-indigo-600 border-indigo-600 animate-pulse"
+                                    : "bg-gray-800 border-gray-600"
+                        )}>
+                            {phase.status === 'completed' ? (
+                                <TbCheck className="w-3 h-3 text-white" />
+                            ) : phase.status === 'current' ? (
+                                <TbCircle className="w-2 h-2 text-white fill-white" />
+                            ) : (
+                                <TbCircle className="w-2 h-2 text-gray-500" />
+                            )}
+                        </div>
+
+                        {/* Card */}
+                        <div
+                            className={cn(
+                                "p-4 rounded-xl border transition-all cursor-pointer",
+                                phase.status === 'current'
+                                    ? "border-indigo-500/50 bg-indigo-950/30"
+                                    : "border-white/10 bg-white/5 hover:border-white/20"
+                            )}
+                            onClick={() => setExpandedPhase(expandedPhase === phase.id ? null : phase.id)}
+                        >
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        <h3 className="font-semibold text-white">{phase.title}</h3>
+                                        {phase.status === 'current' && (
+                                            <span className="px-2 py-0.5 bg-indigo-500/30 text-indigo-300 text-xs rounded-full">
+                                                მიმდინარე
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="text-gray-400 text-sm">{phase.duration}</p>
+                                </div>
+                                <TbChevronRight className={cn(
+                                    "w-5 h-5 text-gray-500 transition-transform",
+                                    expandedPhase === phase.id && "rotate-90"
+                                )} />
+                            </div>
+
+                            {expandedPhase === phase.id && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    className="mt-4 pt-4 border-t border-white/10"
+                                >
+                                    <ul className="space-y-2">
+                                        {phase.tasks.map((task, i) => (
+                                            <li key={i} className="flex items-center gap-2 text-sm text-gray-300">
+                                                <div className={cn(
+                                                    "w-1.5 h-1.5 rounded-full",
+                                                    phase.status === 'completed' ? "bg-green-400" : "bg-gray-500"
+                                                )} />
+                                                {task}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </motion.div>
+                            )}
+                        </div>
+                    </motion.div>
+                ))}
+            </div>
+        </div>
     );
 }

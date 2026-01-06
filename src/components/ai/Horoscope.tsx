@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Star, Heart, Briefcase, Activity, RefreshCw, Calendar, Loader2 } from "lucide-react"
+import { TbStar, TbHeart, TbBriefcase, TbActivity, TbRefresh, TbCalendar, TbLoader2 } from "react-icons/tb"
 
 const ZODIAC_SIGNS = [
     { id: "aries", name: "ვერძი", symbol: "♈", element: "ცეცხლი", color: "from-red-500 to-orange-500" },
@@ -86,11 +86,11 @@ export function Horoscope() {
                                 <div className="relative inline-block mb-3 sm:mb-4">
                                     <div className="absolute inset-0 bg-amber-500/30 rounded-full blur-2xl animate-pulse" />
                                     <div className="relative w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center">
-                                        <Star className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-white fill-white" />
+                                        <TbStar className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-white fill-white" />
                                     </div>
                                 </div>
                                 <div className="flex items-center justify-center gap-1.5 sm:gap-2 text-gray-400 text-xs sm:text-sm">
-                                    <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
+                                    <TbCalendar className="w-3 h-3 sm:w-4 sm:h-4" />
                                     <span>{today}</span>
                                 </div>
                             </div>
@@ -114,7 +114,7 @@ export function Horoscope() {
                         </div>
                     ) : isLoading ? (
                         <div className="text-center py-12 sm:py-16">
-                            <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 text-amber-400 animate-spin mx-auto" />
+                            <TbLoader2 className="w-10 h-10 sm:w-12 sm:h-12 text-amber-400 animate-spin mx-auto" />
                             <p className="text-gray-400 mt-3 sm:mt-4 text-sm sm:text-base">AI კითხულობს...</p>
                         </div>
                     ) : horoscope ? (
@@ -136,7 +136,7 @@ export function Horoscope() {
                                 <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/5 border border-white/5">
                                     <div className="flex items-start gap-2.5 sm:gap-3">
                                         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-                                            <Star className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
+                                            <TbStar className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
                                         </div>
                                         <div className="min-w-0">
                                             <div className="font-semibold text-white text-sm sm:text-base mb-0.5 sm:mb-1">ზოგადი</div>
@@ -149,7 +149,7 @@ export function Horoscope() {
                                 <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/5 border border-white/5">
                                     <div className="flex items-start gap-2.5 sm:gap-3">
                                         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-pink-500/20 flex items-center justify-center flex-shrink-0">
-                                            <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-pink-400" />
+                                            <TbHeart className="w-4 h-4 sm:w-5 sm:h-5 text-pink-400" />
                                         </div>
                                         <div className="min-w-0">
                                             <div className="font-semibold text-white text-sm sm:text-base mb-0.5 sm:mb-1">სიყვარული</div>
@@ -162,7 +162,7 @@ export function Horoscope() {
                                 <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/5 border border-white/5">
                                     <div className="flex items-start gap-2.5 sm:gap-3">
                                         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                                            <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
+                                            <TbBriefcase className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
                                         </div>
                                         <div className="min-w-0">
                                             <div className="font-semibold text-white text-sm sm:text-base mb-0.5 sm:mb-1">კარიერა</div>
@@ -175,7 +175,7 @@ export function Horoscope() {
                                 <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/5 border border-white/5">
                                     <div className="flex items-start gap-2.5 sm:gap-3">
                                         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-green-500/20 flex items-center justify-center flex-shrink-0">
-                                            <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+                                            <TbActivity className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
                                         </div>
                                         <div className="min-w-0">
                                             <div className="font-semibold text-white text-sm sm:text-base mb-0.5 sm:mb-1">ჯანმრთელობა</div>
@@ -190,7 +190,7 @@ export function Horoscope() {
                                 variant="outline"
                                 className="w-full h-10 sm:h-12 rounded-lg sm:rounded-xl border-white/10 text-white hover:bg-white/5 bg-transparent text-sm sm:text-base"
                             >
-                                <RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
+                                <TbRefresh className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
                                 სხვა ნიშანი
                             </Button>
                         </div>

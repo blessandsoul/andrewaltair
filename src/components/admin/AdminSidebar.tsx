@@ -4,33 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import {
-    LayoutDashboard,
-    FileText,
-    Video,
-    MessageSquare,
-    ChevronLeft,
-    Menu,
-    X,
-    Sparkles,
-    Sun,
-    Moon,
-    Search,
-    Bell,
-    Settings,
-    Download,
-    BarChart3,
-    Activity,
-    Tag,
-    FolderOpen,
-    Image,
-    Users,
-    Globe,
-    Wrench,
-    PenTool,
-    Keyboard,
-    Command
-} from "lucide-react"
+import { TbLayoutDashboard, TbFileText, TbVideo, TbMessage, TbChevronLeft, TbMenu2, TbX, TbSparkles, TbSun, TbMoon, TbSearch, TbBell, TbSettings, TbDownload, TbChartBar, TbActivity, TbTag, TbFolderOpen, TbPhoto, TbUsers, TbWorld, TbTool, TbPencil, TbKeyboard, TbCommand } from "react-icons/tb"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
@@ -42,25 +16,25 @@ interface NavItem {
 }
 
 const contentItems: NavItem[] = [
-    { href: "/admin", label: "Dashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
-    { href: "/admin/content", label: "ედიტორი", icon: <PenTool className="w-5 h-5" /> },
-    { href: "/admin/posts", label: "პოსტები", icon: <FileText className="w-5 h-5" />, badge: "6" },
-    { href: "/admin/videos", label: "ვიდეოები", icon: <Video className="w-5 h-5" />, badge: "8" },
-    { href: "/admin/media", label: "მედია", icon: <Image className="w-5 h-5" /> },
+    { href: "/admin", label: "Dashboard", icon: <TbLayoutDashboard className="w-5 h-5" /> },
+    { href: "/admin/content", label: "ედიტორი", icon: <TbPencil className="w-5 h-5" /> },
+    { href: "/admin/posts", label: "პოსტები", icon: <TbFileText className="w-5 h-5" />, badge: "6" },
+    { href: "/admin/videos", label: "ვიდეოები", icon: <TbVideo className="w-5 h-5" />, badge: "8" },
+    { href: "/admin/media", label: "მედია", icon: <TbPhoto className="w-5 h-5" /> },
 ]
 
 const organizationItems: NavItem[] = [
-    { href: "/admin/tags", label: "თეგები", icon: <Tag className="w-5 h-5" /> },
-    { href: "/admin/categories", label: "კატეგორიები", icon: <FolderOpen className="w-5 h-5" /> },
-    { href: "/admin/comments", label: "კომენტარები", icon: <MessageSquare className="w-5 h-5" />, badge: "new" },
+    { href: "/admin/tags", label: "თეგები", icon: <TbTag className="w-5 h-5" /> },
+    { href: "/admin/categories", label: "კატეგორიები", icon: <TbFolderOpen className="w-5 h-5" /> },
+    { href: "/admin/comments", label: "კომენტარები", icon: <TbMessage className="w-5 h-5" />, badge: "new" },
 ]
 
 const systemItems: NavItem[] = [
-    { href: "/admin/analytics", label: "ანალიტიკა", icon: <BarChart3 className="w-5 h-5" /> },
-    { href: "/admin/users", label: "მომხმარებლები", icon: <Users className="w-5 h-5" /> },
-    { href: "/admin/seo", label: "SEO", icon: <Globe className="w-5 h-5" /> },
-    { href: "/admin/tools", label: "ინსტრუმენტები", icon: <Wrench className="w-5 h-5" /> },
-    { href: "/admin/settings", label: "პარამეტრები", icon: <Settings className="w-5 h-5" /> },
+    { href: "/admin/analytics", label: "ანალიტიკა", icon: <TbChartBar className="w-5 h-5" /> },
+    { href: "/admin/users", label: "მომხმარებლები", icon: <TbUsers className="w-5 h-5" /> },
+    { href: "/admin/seo", label: "SEO", icon: <TbWorld className="w-5 h-5" /> },
+    { href: "/admin/tools", label: "ინსტრუმენტები", icon: <TbTool className="w-5 h-5" /> },
+    { href: "/admin/settings", label: "პარამეტრები", icon: <TbSettings className="w-5 h-5" /> },
 ]
 
 interface AdminSidebarProps {
@@ -129,7 +103,7 @@ export function AdminSidebar({ isOpen, onClose, theme, onThemeToggle }: AdminSid
                 <div className="h-14 flex items-center justify-between px-4 border-b border-border">
                     <Link href="/admin" className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
-                            <Sparkles className="w-4 h-4 text-white" />
+                            <TbSparkles className="w-4 h-4 text-white" />
                         </div>
                         <span className="font-bold text-lg">Admin</span>
                     </Link>
@@ -141,9 +115,9 @@ export function AdminSidebar({ isOpen, onClose, theme, onThemeToggle }: AdminSid
                             className="h-8 w-8"
                         >
                             {theme === "dark" ? (
-                                <Sun className="w-4 h-4" />
+                                <TbSun className="w-4 h-4" />
                             ) : (
-                                <Moon className="w-4 h-4" />
+                                <TbMoon className="w-4 h-4" />
                             )}
                         </Button>
                         <Button
@@ -152,7 +126,7 @@ export function AdminSidebar({ isOpen, onClose, theme, onThemeToggle }: AdminSid
                             className="lg:hidden h-8 w-8"
                             onClick={onClose}
                         >
-                            <X className="w-4 h-4" />
+                            <TbX className="w-4 h-4" />
                         </Button>
                     </div>
                 </div>
@@ -164,11 +138,11 @@ export function AdminSidebar({ isOpen, onClose, theme, onThemeToggle }: AdminSid
                     <NavSection title="სისტემა" items={systemItems} />
                 </nav>
 
-                {/* Keyboard Shortcuts Hint */}
+                {/* TbKeyboard Shortcuts Hint */}
                 <div className="p-3 border-t border-border">
                     <div className="bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground">
                         <div className="flex items-center gap-2 mb-2">
-                            <Keyboard className="w-4 h-4" />
+                            <TbKeyboard className="w-4 h-4" />
                             <span className="font-medium">Shortcuts</span>
                         </div>
                         <div className="space-y-1">
@@ -192,7 +166,7 @@ export function AdminSidebar({ isOpen, onClose, theme, onThemeToggle }: AdminSid
                 <div className="p-3 border-t border-border">
                     <Link href="/">
                         <Button variant="outline" className="w-full justify-start gap-2 h-9">
-                            <ChevronLeft className="w-4 h-4" />
+                            <TbChevronLeft className="w-4 h-4" />
                             საიტზე დაბრუნება
                         </Button>
                     </Link>
@@ -216,7 +190,7 @@ export function AdminHeader({
     const [notifications] = React.useState(3)
     const router = useRouter()
 
-    // Keyboard shortcuts
+    // TbKeyboard shortcuts
     React.useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             // ⌘K or Ctrl+K for search
@@ -240,14 +214,14 @@ export function AdminHeader({
     }, [router])
 
     const searchResults = [
-        { type: "page", label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-        { type: "page", label: "პოსტები", href: "/admin/posts", icon: FileText },
-        { type: "page", label: "ვიდეოები", href: "/admin/videos", icon: Video },
-        { type: "page", label: "კომენტარები", href: "/admin/comments", icon: MessageSquare },
-        { type: "page", label: "ანალიტიკა", href: "/admin/analytics", icon: BarChart3 },
-        { type: "page", label: "პარამეტრები", href: "/admin/settings", icon: Settings },
-        { type: "action", label: "ახალი პოსტის შექმნა", href: "/admin/content", icon: PenTool },
-        { type: "action", label: "მედიის ატვირთვა", href: "/admin/media", icon: Image },
+        { type: "page", label: "Dashboard", href: "/admin", icon: TbLayoutDashboard },
+        { type: "page", label: "პოსტები", href: "/admin/posts", icon: TbFileText },
+        { type: "page", label: "ვიდეოები", href: "/admin/videos", icon: TbVideo },
+        { type: "page", label: "კომენტარები", href: "/admin/comments", icon: TbMessage },
+        { type: "page", label: "ანალიტიკა", href: "/admin/analytics", icon: TbChartBar },
+        { type: "page", label: "პარამეტრები", href: "/admin/settings", icon: TbSettings },
+        { type: "action", label: "ახალი პოსტის შექმნა", href: "/admin/content", icon: TbPencil },
+        { type: "action", label: "მედიის ატვირთვა", href: "/admin/media", icon: TbPhoto },
     ]
 
     const filteredResults = searchQuery
@@ -263,15 +237,15 @@ export function AdminHeader({
                     className="lg:hidden"
                     onClick={onMenuClick}
                 >
-                    <Menu className="w-5 h-5" />
+                    <TbMenu2 className="w-5 h-5" />
                 </Button>
 
-                {/* Search Button */}
+                {/* TbSearch Button */}
                 <button
                     onClick={() => setShowSearch(true)}
                     className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/50 text-muted-foreground text-sm hover:bg-muted transition-colors"
                 >
-                    <Search className="w-4 h-4" />
+                    <TbSearch className="w-4 h-4" />
                     <span>ძიება...</span>
                     <kbd className="ml-4 text-xs bg-background px-1.5 py-0.5 rounded border">⌘K</kbd>
                 </button>
@@ -280,40 +254,54 @@ export function AdminHeader({
 
                 {/* Quick Actions */}
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" className="hidden sm:flex">
-                        <Download className="w-4 h-4" />
+                    <Button variant="ghost" size="icon" className="hidden sm:flex h-9 w-9">
+                        <TbDownload className="w-4 h-4" />
                     </Button>
 
                     <Button
                         variant="ghost"
                         size="icon"
                         onClick={onThemeToggle}
-                        className="hidden lg:flex"
+                        className="hidden lg:flex h-9 w-9"
                     >
                         {theme === "dark" ? (
-                            <Sun className="w-4 h-4" />
+                            <TbSun className="w-4 h-4" />
                         ) : (
-                            <Moon className="w-4 h-4" />
+                            <TbMoon className="w-4 h-4" />
                         )}
                     </Button>
 
-                    <Button variant="ghost" size="icon" className="relative">
-                        <Bell className="w-4 h-4" />
+                    <Button variant="ghost" size="icon" className="relative h-9 w-9">
+                        <TbBell className="w-4 h-4" />
                         {notifications > 0 && (
-                            <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-medium rounded-full flex items-center justify-center px-1">
                                 {notifications}
                             </span>
                         )}
                     </Button>
+
+                    {/* Logout Button */}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                            sessionStorage.removeItem("admin_auth")
+                            window.location.reload()
+                        }}
+                        className="h-9 gap-1.5 text-muted-foreground hover:text-foreground"
+                    >
+                        <TbX className="w-4 h-4" />
+                        <span className="hidden sm:inline">გასვლა</span>
+                    </Button>
                 </div>
             </header>
 
-            {/* Command Palette / Search Modal */}
+            {/* TbCommand TbPalette / TbSearch Modal */}
             {showSearch && (
                 <div className="fixed inset-0 bg-black/50 z-[100] flex items-start justify-center pt-[15vh]">
                     <div className="w-full max-w-xl bg-card border border-border rounded-xl shadow-2xl overflow-hidden mx-4">
                         <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
-                            <Command className="w-5 h-5 text-muted-foreground" />
+                            <TbCommand className="w-5 h-5 text-muted-foreground" />
                             <input
                                 type="text"
                                 value={searchQuery}
@@ -363,3 +351,4 @@ export function AdminHeader({
         </>
     )
 }
+

@@ -1,153 +1,140 @@
 "use client"
 
-import { ReactNode, useEffect, useState, createContext, useContext } from "react"
+import { ReactNode, useEffect, useState, useCallback } from "react"
 import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
 
-interface PageTransitionContextType {
-    isTransitioning: boolean
-    direction: "in" | "out"
-}
-
-const PageTransitionContext = createContext<PageTransitionContextType>({
-    isTransitioning: false,
-    direction: "in",
-})
-
-export function usePageTransition() {
-    return useContext(PageTransitionContext)
-}
-
-// Page transition wrapper
-export function PageTransitionProvider({ children }: { children: ReactNode }) {
+// Smooth CSS transition wrapper
+export function MorphTransition({ children }: { children: ReactNode }) {
     const pathname = usePathname()
-    const [isTransitioning, setIsTransitioning] = useState(false)
     const [displayChildren, setDisplayChildren] = useState(children)
-    const [direction, setDirection] = useState<"in" | "out">("in")
+    const [isAnimating, setIsAnimating] = useState(false)
 
     useEffect(() => {
-        // Start exit animation
-        setDirection("out")
-        setIsTransitioning(true)
+        // Start fade out
+        setIsAnimating(true)
 
+        // After fade out, swap content and fade in
         const timer = setTimeout(() => {
             setDisplayChildren(children)
-            setDirection("in")
-
-            setTimeout(() => {
-                setIsTransitioning(false)
-            }, 300)
-        }, 300)
+            // Small delay before fade in
+            requestAnimationFrame(() => {
+                setIsAnimating(false)
+            })
+        }, 200)
 
         return () => clearTimeout(timer)
-    }, [pathname, children])
+    }, [pathname]) // Only trigger on pathname change
 
-    return (
-        <PageTransitionContext.Provider value={{ isTransitioning, direction }}>
-            <div
-                className={cn(
-                    "transition-all duration-300 ease-out",
-                    direction === "out" && "opacity-0 translate-y-4",
-                    direction === "in" && !isTransitioning && "opacity-100 translate-y-0"
-                )}
-            >
-                {displayChildren}
-            </div>
-        </PageTransitionContext.Provider>
-    )
-}
-
-// Slide transition variant
-export function SlideTransition({ children }: { children: ReactNode }) {
-    const pathname = usePathname()
-    const [mounted, setMounted] = useState(false)
-
+    // Update children immediately on first render
     useEffect(() => {
-        setMounted(false)
-        const timer = setTimeout(() => setMounted(true), 50)
-        return () => clearTimeout(timer)
-    }, [pathname])
+        setDisplayChildren(children)
+    }, [])
 
     return (
         <div
-            className={cn(
-                "transition-all duration-500 ease-out",
-                mounted
-                    ? "opacity-100 translate-x-0"
-                    : "opacity-0 translate-x-8"
-            )}
-        >
-            {children}
-        </div>
-    )
-}
-
-// Fade transition variant
-export function FadeTransition({ children }: { children: ReactNode }) {
-    const pathname = usePathname()
-    const [mounted, setMounted] = useState(false)
-
-    useEffect(() => {
-        setMounted(false)
-        const timer = setTimeout(() => setMounted(true), 50)
-        return () => clearTimeout(timer)
-    }, [pathname])
-
-    return (
-        <div
-            className={cn(
-                "transition-opacity duration-500 ease-out",
-                mounted ? "opacity-100" : "opacity-0"
-            )}
-        >
-            {children}
-        </div>
-    )
-}
-
-// Scale transition variant
-export function ScaleTransition({ children }: { children: ReactNode }) {
-    const pathname = usePathname()
-    const [mounted, setMounted] = useState(false)
-
-    useEffect(() => {
-        setMounted(false)
-        const timer = setTimeout(() => setMounted(true), 50)
-        return () => clearTimeout(timer)
-    }, [pathname])
-
-    return (
-        <div
-            className={cn(
-                "transition-all duration-500 ease-out",
-                mounted
-                    ? "opacity-100 scale-100"
-                    : "opacity-0 scale-95"
-            )}
-        >
-            {children}
-        </div>
-    )
-}
-
-// Stagger children animation
-export function StaggerChildren({
-    children,
-    className,
-    staggerDelay = 100,
-}: {
-    children: ReactNode
-    className?: string
-    staggerDelay?: number
-}) {
-    return (
-        <div
-            className={cn("stagger-container", className)}
             style={{
-                ["--stagger-delay" as string]: `${staggerDelay}ms`,
+                opacity: isAnimating ? 0 : 1,
+                transform: isAnimating ? 'translateY(8px) scale(0.995)' : 'translateY(0) scale(1)',
+                filter: isAnimating ? 'blur(4px)' : 'blur(0px)',
+                transition: 'opacity 0.25s ease-out, transform 0.3s ease-out, filter 0.25s ease-out',
+                willChange: 'opacity, transform, filter'
             }}
         >
-            {children}
+            {displayChildren}
+        </div>
+    )
+}
+
+// Simple fade
+export function FadeTransition({ children }: { children: ReactNode }) {
+    const pathname = usePathname()
+    const [displayChildren, setDisplayChildren] = useState(children)
+    const [isAnimating, setIsAnimating] = useState(false)
+
+    useEffect(() => {
+        setIsAnimating(true)
+        const timer = setTimeout(() => {
+            setDisplayChildren(children)
+            requestAnimationFrame(() => setIsAnimating(false))
+        }, 150)
+        return () => clearTimeout(timer)
+    }, [pathname])
+
+    useEffect(() => {
+        setDisplayChildren(children)
+    }, [])
+
+    return (
+        <div
+            style={{
+                opacity: isAnimating ? 0 : 1,
+                transition: 'opacity 0.2s ease-out',
+            }}
+        >
+            {displayChildren}
+        </div>
+    )
+}
+
+// Slide transition
+export function SlideTransition({ children }: { children: ReactNode }) {
+    const pathname = usePathname()
+    const [displayChildren, setDisplayChildren] = useState(children)
+    const [isAnimating, setIsAnimating] = useState(false)
+
+    useEffect(() => {
+        setIsAnimating(true)
+        const timer = setTimeout(() => {
+            setDisplayChildren(children)
+            requestAnimationFrame(() => setIsAnimating(false))
+        }, 150)
+        return () => clearTimeout(timer)
+    }, [pathname])
+
+    useEffect(() => {
+        setDisplayChildren(children)
+    }, [])
+
+    return (
+        <div
+            style={{
+                opacity: isAnimating ? 0 : 1,
+                transform: isAnimating ? 'translateX(20px)' : 'translateX(0)',
+                transition: 'opacity 0.2s ease-out, transform 0.25s ease-out',
+            }}
+        >
+            {displayChildren}
+        </div>
+    )
+}
+
+export function ScaleTransition({ children }: { children: ReactNode }) {
+    const pathname = usePathname()
+    const [displayChildren, setDisplayChildren] = useState(children)
+    const [isAnimating, setIsAnimating] = useState(false)
+
+    useEffect(() => {
+        setIsAnimating(true)
+        const timer = setTimeout(() => {
+            setDisplayChildren(children)
+            requestAnimationFrame(() => setIsAnimating(false))
+        }, 150)
+        return () => clearTimeout(timer)
+    }, [pathname])
+
+    useEffect(() => {
+        setDisplayChildren(children)
+    }, [])
+
+    return (
+        <div
+            style={{
+                opacity: isAnimating ? 0 : 1,
+                transform: isAnimating ? 'scale(0.96)' : 'scale(1)',
+                transition: 'opacity 0.2s ease-out, transform 0.25s ease-out',
+            }}
+        >
+            {displayChildren}
         </div>
     )
 }

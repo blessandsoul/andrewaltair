@@ -5,14 +5,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import {
-    MessageCircle,
-    Heart,
-    Reply,
-    Send,
-    Clock
-} from "lucide-react"
+import { useToast } from "@/components/ui/toast"
+import { TbMessage, TbHeart, TbArrowBackUp, TbSend, TbClock } from "react-icons/tb"
 import { cn } from "@/lib/utils"
+import { useVisitorTracking } from "@/hooks/useVisitorTracking"
 
 // 🎭 სასაცილო ავატარები კომენტატორებისთვის
 const funnyAvatars = [
@@ -44,8 +40,10 @@ function getRandomAvatar(): string {
 
 interface Comment {
     id: string
-    author: string
-    avatar?: string
+    author: {
+        name: string
+        avatar?: string
+    } | string
     content: string
     createdAt: string
     likes: number
@@ -54,61 +52,9 @@ interface Comment {
 
 interface CommentsProps {
     postId: string
+    postTitle?: string
     className?: string
 }
-
-// Sample comments for demo
-const sampleComments: Comment[] = [
-    {
-        id: "1",
-        author: "გიორგი",
-        avatar: "🦊",
-        content: "ძალიან სასარგებლო სტატია! მადლობა გაზიარებისთვის 🙏",
-        createdAt: "2024-12-25T10:30:00",
-        likes: 12,
-        replies: [
-            {
-                id: "1-1",
-                author: "Andrew Altair",
-                content: "მადლობა! მოხარული ვარ რომ გამოადგა 😊",
-                createdAt: "2024-12-25T11:00:00",
-                likes: 5
-            }
-        ]
-    },
-    {
-        id: "2",
-        author: "ნინო",
-        avatar: "🤖",
-        content: "შეგიძლია DALL-E 3-ის შესახებ მეტი დაწერო? ძალიან მაინტერესებს!",
-        createdAt: "2024-12-24T15:20:00",
-        likes: 8
-    },
-    {
-        id: "3",
-        author: "დავით",
-        avatar: "🐵",
-        content: "ChatGPT-ს ხშირად ვიყენებ მაგრამ ეს ხრიკები არ ვიცოდი. მადლობა!",
-        createdAt: "2024-12-23T09:45:00",
-        likes: 15
-    },
-    {
-        id: "4",
-        author: "მარიამ",
-        avatar: "🦄",
-        content: "საუკეთესო ბლოგი AI-ზე ჩვენს ქვეყანაში! 💜",
-        createdAt: "2024-12-22T18:15:00",
-        likes: 23
-    },
-    {
-        id: "5",
-        author: "ლუკა",
-        avatar: "🧙‍♂️",
-        content: "Claude-ს ვერ გამომივლია ვერ, მაგრამ ახლა ვცდი!",
-        createdAt: "2024-12-21T14:30:00",
-        likes: 7
-    }
-]
 
 function timeAgo(dateString: string): string {
     const date = new Date(dateString)
@@ -122,7 +68,15 @@ function timeAgo(dateString: string): string {
     return date.toLocaleDateString("ka")
 }
 
-function CommentItem({ comment, isReply = false }: { comment: Comment; isReply?: boolean }) {
+function CommentItem({
+    comment,
+    isReply = false,
+    onLike
+}: {
+    comment: Comment
+    isReply?: boolean
+    onLike?: (commentId: string) => void
+}) {
     const [liked, setLiked] = React.useState(false)
     const [likeCount, setLikeCount] = React.useState(comment.likes)
     const [showReplyForm, setShowReplyForm] = React.useState(false)
@@ -132,32 +86,37 @@ function CommentItem({ comment, isReply = false }: { comment: Comment; isReply?:
             setLikeCount(c => c - 1)
         } else {
             setLikeCount(c => c + 1)
+            onLike?.(comment.id)
         }
         setLiked(!liked)
     }
+
+    // Get author name and avatar
+    const authorName = typeof comment.author === 'string' ? comment.author : comment.author.name
+    const authorAvatar = typeof comment.author === 'string' ? undefined : comment.author.avatar
 
     return (
         <div className={cn("group", isReply && "ml-12 mt-4")}>
             <div className="flex gap-3">
                 <div className={cn(
                     "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-2xl",
-                    comment.author === "Andrew Altair"
+                    authorName === "Andrew Altair"
                         ? "bg-gradient-to-br from-primary to-accent"
                         : "bg-secondary/50 backdrop-blur-sm"
                 )}>
-                    {comment.author === "Andrew Altair"
+                    {authorName === "Andrew Altair"
                         ? "⭐"
-                        : (comment.avatar || getAvatarForName(comment.author))}
+                        : (authorAvatar || getAvatarForName(authorName))}
                 </div>
 
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold">{comment.author}</span>
-                        {comment.author === "Andrew Altair" && (
+                        <span className="font-semibold">{authorName}</span>
+                        {authorName === "Andrew Altair" && (
                             <Badge variant="secondary" className="text-xs">ავტორი</Badge>
                         )}
                         <span className="text-sm text-muted-foreground flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
+                            <TbClock className="w-3 h-3" />
                             {timeAgo(comment.createdAt)}
                         </span>
                     </div>
@@ -172,7 +131,7 @@ function CommentItem({ comment, isReply = false }: { comment: Comment; isReply?:
                                 liked ? "text-red-500" : "text-muted-foreground hover:text-red-500"
                             )}
                         >
-                            <Heart className={cn("w-4 h-4", liked && "fill-current")} />
+                            <TbHeart className={cn("w-4 h-4", liked && "fill-current")} />
                             {likeCount}
                         </button>
                         {!isReply && (
@@ -180,7 +139,7 @@ function CommentItem({ comment, isReply = false }: { comment: Comment; isReply?:
                                 onClick={() => setShowReplyForm(!showReplyForm)}
                                 className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
                             >
-                                <Reply className="w-4 h-4" />
+                                <TbArrowBackUp className="w-4 h-4" />
                                 პასუხი
                             </button>
                         )}
@@ -190,13 +149,13 @@ function CommentItem({ comment, isReply = false }: { comment: Comment; isReply?:
                         <div className="mt-4 flex gap-2">
                             <Input placeholder="დაწერე პასუხი..." className="flex-1" />
                             <Button size="sm">
-                                <Send className="w-4 h-4" />
+                                <TbSend className="w-4 h-4" />
                             </Button>
                         </div>
                     )}
 
                     {comment.replies?.map((reply) => (
-                        <CommentItem key={reply.id} comment={reply} isReply />
+                        <CommentItem key={reply.id} comment={reply} isReply onLike={onLike} />
                     ))}
                 </div>
             </div>
@@ -204,46 +163,131 @@ function CommentItem({ comment, isReply = false }: { comment: Comment; isReply?:
     )
 }
 
-export function Comments({ postId, className }: CommentsProps) {
+export function Comments({ postId, postTitle, className }: CommentsProps) {
+    const [comments, setComments] = React.useState<Comment[]>([])
     const [newComment, setNewComment] = React.useState("")
-    const [comments, setComments] = React.useState(sampleComments)
+    const [authorName, setAuthorName] = React.useState("")
+    const [isLoading, setIsLoading] = React.useState(true)
+    const [isSubmitting, setIsSubmitting] = React.useState(false)
+    const toast = useToast()
+    const { recordActivity } = useVisitorTracking()
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!newComment.trim()) return
-
-        const comment: Comment = {
-            id: Date.now().toString(),
-            author: "სტუმარი",
-            avatar: getRandomAvatar(),
-            content: newComment,
-            createdAt: new Date().toISOString(),
-            likes: 0
+    // Load comments from API on mount
+    React.useEffect(() => {
+        async function fetchComments() {
+            try {
+                const res = await fetch(`/api/comments?postId=${postId}&status=approved`)
+                if (res.ok) {
+                    const data = await res.json()
+                    setComments(data.comments || [])
+                }
+            } catch (error) {
+                // Silently fail
+            } finally {
+                setIsLoading(false)
+            }
         }
+        fetchComments()
+    }, [postId])
 
-        setComments([comment, ...comments])
-        setNewComment("")
+    // Handle comment like - track activity
+    const handleCommentLike = React.useCallback((commentId: string) => {
+        recordActivity('reaction', {
+            targetType: 'post',
+            targetId: postId,
+            targetTitle: postTitle,
+            metadata: { commentId, reactionType: 'like' },
+            isPublic: false // Comment likes are not shown in social proof
+        })
+    }, [recordActivity, postId, postTitle])
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!newComment.trim() || !authorName.trim() || isSubmitting) return
+
+        setIsSubmitting(true)
+        try {
+            const res = await fetch('/api/comments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    postId,
+                    author: {
+                        name: authorName,
+                        avatar: getRandomAvatar()
+                    },
+                    content: newComment
+                })
+            })
+
+            if (res.ok) {
+                // 🎯 TRACK COMMENT ACTIVITY
+                recordActivity('comment', {
+                    targetType: 'post',
+                    targetId: postId,
+                    targetTitle: postTitle,
+                    metadata: { authorName },
+                    isPublic: true // Comments are shown in social proof
+                })
+
+                setNewComment("")
+                setAuthorName("")
+                toast.success(
+                    'კომენტარი გაიგზავნა!',
+                    'მოდერაციის შემდეგ გამოჩნდება საიტზე'
+                )
+            } else {
+                toast.error(
+                    'შეცდომა',
+                    'კომენტარის გაგზავნა ვერ მოხერხდა'
+                )
+            }
+        } catch (error) {
+            toast.error(
+                'შეცდომა',
+                'კომენტარის გაგზავნა ვერ მოხერხდა'
+            )
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    if (isLoading) {
+        return (
+            <div className={cn("space-y-6", className)}>
+                <div className="flex items-center justify-center py-8">
+                    <div className="text-muted-foreground">იტვირთება...</div>
+                </div>
+            </div>
+        )
     }
 
     return (
         <div className={cn("space-y-6", className)}>
             <div className="flex items-center gap-2">
-                <MessageCircle className="w-5 h-5" />
+                <TbMessage className="w-5 h-5" />
                 <h3 className="text-xl font-bold">კომენტარები ({comments.length})</h3>
             </div>
 
             {/* New Comment Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
+                <Input
+                    value={authorName}
+                    onChange={(e) => setAuthorName(e.target.value)}
+                    placeholder="შენი სახელი..."
+                    required
+                />
                 <Textarea
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder="დაწერე კომენტარი..."
                     rows={3}
+                    required
                 />
                 <div className="flex justify-end">
-                    <Button type="submit" disabled={!newComment.trim()}>
-                        <Send className="w-4 h-4 mr-2" />
-                        გაგზავნა
+                    <Button type="submit" size="sm" className="gap-2" disabled={isSubmitting}>
+                        <TbSend className="w-4 h-4" />
+                        {isSubmitting ? 'იგზავნება...' : 'გაგზავნა'}
                     </Button>
                 </div>
             </form>
@@ -251,7 +295,11 @@ export function Comments({ postId, className }: CommentsProps) {
             {/* Comments List */}
             <div className="space-y-6">
                 {comments.map((comment) => (
-                    <CommentItem key={comment.id} comment={comment} />
+                    <CommentItem
+                        key={comment.id}
+                        comment={comment}
+                        onLike={handleCommentLike}
+                    />
                 ))}
             </div>
         </div>

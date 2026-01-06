@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { MapPin, Eye, Zap, Star, TrendingUp } from 'lucide-react'
+import { TbMapPin, TbEye, TbBolt, TbStar, TbTrendingUp } from "react-icons/tb"
 
 const GEORGIAN_CITIES = [
     'თბილისი', 'ბათუმი', 'ქუთაისი', 'რუსთავი', 'გორი',
@@ -91,7 +91,7 @@ export function ActivityFeed() {
                         <span className="font-medium text-indigo-400">{currentActivity.target}</span>
                     </p>
                     <div className="flex items-center gap-2 mt-0.5">
-                        <MapPin className="w-3 h-3 text-white/40" />
+                        <TbMapPin className="w-3 h-3 text-white/40" />
                         <span className="text-white/50 text-xs">{currentActivity.city}</span>
                         <span className="text-white/30">•</span>
                         <span className="text-white/50 text-xs">{currentActivity.minutes} წუთის წინ</span>
@@ -109,7 +109,7 @@ export function ActivityFeed() {
 
             {/* Subtle "X people viewing" */}
             <div className="flex items-center justify-center gap-1 mt-2 text-white/40 text-xs">
-                <Eye className="w-3 h-3" />
+                <TbEye className="w-3 h-3" />
                 <span>{Math.floor(Math.random() * 50) + 20} ადამიანი ათვალიერებს ახლა</span>
             </div>
         </div>

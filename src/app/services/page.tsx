@@ -4,33 +4,52 @@ import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import {
-    ArrowRight,
-    Check,
-    Calendar,
-    MessageCircle,
-    Star,
-    Lightbulb,
-    GraduationCap,
-    Zap,
-    PenTool,
-    Clock,
-    Users,
-    Award,
-    Sparkles,
-    Send
-} from "lucide-react"
-import servicesData from "@/data/services.json"
+import { TbArrowRight, TbCheck, TbCalendar, TbMessage, TbStar, TbBulb, TbSchool, TbBolt, TbPencil, TbClock, TbUsers, TbAward, TbSparkles, TbSend } from "react-icons/tb"
 import { brand } from "@/lib/brand"
 
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-    Lightbulb,
-    GraduationCap,
-    Zap,
-    PenTool
+// Service interface
+interface Service {
+    id: string
+    title: string
+    description: string
+    icon: string
+    color: string
+    features: string[]
+    pricing: {
+        price: number
+        currency: string
+        unit: string
+        note?: string
+    }
+    popular?: boolean
 }
 
-export default function ServicesPage() {
+// Fetch services from API
+async function getServices(): Promise<Service[]> {
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/services`, {
+            cache: 'no-store'
+        })
+        if (res.ok) {
+            const data = await res.json()
+            return data.services || []
+        }
+    } catch (error) {
+        console.error('Error fetching services:', error)
+    }
+    return []
+}
+
+const iconMap: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
+    TbBulb,
+    TbSchool,
+    TbBolt,
+    TbPencil
+}
+
+export default async function ServicesPage() {
+    const servicesData = await getServices()
+
     return (
         <div className="min-h-screen">
             {/* Hero Section */}
@@ -44,7 +63,7 @@ export default function ServicesPage() {
                 <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
                     <div className="text-center max-w-3xl mx-auto space-y-6">
                         <Badge className="bg-primary/10 text-primary border-primary/20 px-4 py-2">
-                            <Sparkles className="w-4 h-4 mr-2" />
+                            <TbSparkles className="w-4 h-4 mr-2" />
                             პროფესიონალური სერვისები
                         </Badge>
 
@@ -65,7 +84,7 @@ export default function ServicesPage() {
                                 asChild
                             >
                                 <a href="#booking">
-                                    <Calendar className="w-5 h-5 mr-2" />
+                                    <TbCalendar className="w-5 h-5 mr-2" />
                                     დაჯავშნე კონსულტაცია
                                 </a>
                             </Button>
@@ -77,7 +96,7 @@ export default function ServicesPage() {
                             >
                                 <a href="#services">
                                     სერვისების ნახვა
-                                    <ArrowRight className="w-5 h-5 ml-2" />
+                                    <TbArrowRight className="w-5 h-5 ml-2" />
                                 </a>
                             </Button>
                         </div>
@@ -86,10 +105,10 @@ export default function ServicesPage() {
                     {/* Stats */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 max-w-4xl mx-auto">
                         {[
-                            { icon: Users, value: "50+", label: "კლიენტი" },
-                            { icon: Award, value: "8+", label: "წლის გამოცდილება" },
-                            { icon: Star, value: "4.9", label: "რეიტინგი" },
-                            { icon: Clock, value: "24h", label: "პასუხის დრო" }
+                            { icon: TbUsers, value: "50+", label: "კლიენტი" },
+                            { icon: TbAward, value: "8+", label: "წლის გამოცდილება" },
+                            { icon: TbStar, value: "4.9", label: "რეიტინგი" },
+                            { icon: TbClock, value: "24h", label: "პასუხის დრო" }
                         ].map((stat, i) => (
                             <div
                                 key={i}
@@ -118,7 +137,7 @@ export default function ServicesPage() {
 
                     <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
                         {servicesData.map((service) => {
-                            const Icon = iconMap[service.icon] || Sparkles
+                            const Icon = iconMap[service.icon] || TbSparkles
                             return (
                                 <Card
                                     key={service.id}
@@ -128,7 +147,7 @@ export default function ServicesPage() {
                                     {service.popular && (
                                         <div className="absolute top-4 right-4">
                                             <Badge className="bg-primary text-white">
-                                                <Star className="w-3 h-3 mr-1" />
+                                                <TbStar className="w-3 h-3 mr-1" />
                                                 პოპულარული
                                             </Badge>
                                         </div>
@@ -152,7 +171,7 @@ export default function ServicesPage() {
                                         <ul className="space-y-3">
                                             {service.features.map((feature, i) => (
                                                 <li key={i} className="flex items-start gap-3">
-                                                    <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                                                    <TbCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                                                     <span>{feature}</span>
                                                 </li>
                                             ))}
@@ -177,7 +196,7 @@ export default function ServicesPage() {
                                         <Button asChild>
                                             <a href="#booking">
                                                 დაჯავშნე
-                                                <ArrowRight className="w-4 h-4 ml-2" />
+                                                <TbArrowRight className="w-4 h-4 ml-2" />
                                             </a>
                                         </Button>
                                     </CardFooter>
@@ -251,7 +270,7 @@ export default function ServicesPage() {
                                     {/* Calendly Widget Placeholder - Replace with actual Calendly embed */}
                                     <div className="aspect-[4/3] bg-gradient-to-br from-primary/5 to-accent/5 flex items-center justify-center relative">
                                         <div className="text-center p-8">
-                                            <Calendar className="w-16 h-16 mx-auto mb-4 text-primary/50" />
+                                            <TbCalendar className="w-16 h-16 mx-auto mb-4 text-primary/50" />
                                             <h3 className="text-xl font-bold mb-2">აირჩიე დრო</h3>
                                             <p className="text-muted-foreground mb-6">
                                                 დააჭირე ქვემოთ Calendly-ში დასაჯავშნად
@@ -266,7 +285,7 @@ export default function ServicesPage() {
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                 >
-                                                    <Calendar className="w-5 h-5 mr-2" />
+                                                    <TbCalendar className="w-5 h-5 mr-2" />
                                                     გახსენი Calendly
                                                 </a>
                                             </Button>
@@ -284,7 +303,7 @@ export default function ServicesPage() {
                         <div className="order-1 lg:order-2">
                             <div className="mb-8">
                                 <Badge className="bg-accent/10 text-accent border-accent/20 mb-4">
-                                    <MessageCircle className="w-4 h-4 mr-2" />
+                                    <TbMessage className="w-4 h-4 mr-2" />
                                     დაგვიკავშირდით
                                 </Badge>
                                 <h2 className="text-3xl sm:text-4xl font-bold mb-4">
@@ -334,7 +353,7 @@ export default function ServicesPage() {
                                     size="lg"
                                     className="w-full bg-gradient-to-r from-primary to-accent text-white h-12"
                                 >
-                                    <Send className="w-5 h-5 mr-2" />
+                                    <TbSend className="w-5 h-5 mr-2" />
                                     გაგზავნა
                                 </Button>
                             </form>
@@ -386,7 +405,7 @@ export default function ServicesPage() {
                         </p>
                         <Button variant="outline" asChild>
                             <Link href="/contact">
-                                <MessageCircle className="w-4 h-4 mr-2" />
+                                <TbMessage className="w-4 h-4 mr-2" />
                                 დაგვიკავშირდით
                             </Link>
                         </Button>

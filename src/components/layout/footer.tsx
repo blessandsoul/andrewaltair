@@ -1,5 +1,13 @@
 import Link from "next/link"
-import { Mail, Github, Twitter, Linkedin, Instagram, Youtube, Send, ExternalLink, Sparkles } from "lucide-react"
+import { TbRobot,
+  TbMail,
+  TbBrandGithub,
+  TbBrandTwitter,
+  TbBrandLinkedin,
+  TbBrandInstagram,
+  TbBrandYoutube,
+  TbSend,
+  TbExternalLink } from "react-icons/tb"
 import { brand } from "@/lib/brand"
 
 export function Footer() {
@@ -13,8 +21,8 @@ export function Footer() {
             {/* Brand */}
             <div className="space-y-4">
               <Link href="/" className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-white" />
+                <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center text-white">
+                  <TbRobot className="w-6 h-6" />
                 </div>
                 <span className="font-bold text-xl text-gradient">Andrew Altair</span>
               </Link>
@@ -23,19 +31,19 @@ export function Footer() {
               </p>
               <div className="flex gap-2">
                 <Link href={brand.social.youtube} className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
-                  <Youtube className="w-4 h-4" />
+                  <TbBrandYoutube className="w-4 h-4" />
                 </Link>
                 <Link href={brand.social.instagram} className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
-                  <Instagram className="w-4 h-4" />
+                  <TbBrandInstagram className="w-4 h-4" />
                 </Link>
                 <Link href={brand.social.telegram} className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
-                  <Send className="w-4 h-4" />
+                  <TbSend className="w-4 h-4" />
                 </Link>
                 <Link href={brand.social.github} className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
-                  <Github className="w-4 h-4" />
+                  <TbBrandGithub className="w-4 h-4" />
                 </Link>
                 <Link href={brand.social.linkedin} className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
-                  <Linkedin className="w-4 h-4" />
+                  <TbBrandLinkedin className="w-4 h-4" />
                 </Link>
               </div>
             </div>
@@ -98,17 +106,20 @@ export function Footer() {
               <h4 className="text-sm font-semibold">კონტაქტი</h4>
               <ul className="space-y-3 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  andrew@andrewaltair.ge
+                  <TbMail className="w-4 h-4" />
+                  <div className="flex flex-col">
+                    <span>andrewaltair@icloud.com</span>
+                    <span>andr3waltair@gmail.com</span>
+                  </div>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Send className="w-4 h-4" />
+                  <TbSend className="w-4 h-4" />
                   <Link href={brand.social.telegram} className="hover:text-foreground transition-colors">
-                    @andrewaltair
+                    @andr3waltairchannel
                   </Link>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Youtube className="w-4 h-4" />
+                  <TbBrandYoutube className="w-4 h-4" />
                   <Link href={brand.social.youtube} className="hover:text-foreground transition-colors">
                     YouTube არხი
                   </Link>

@@ -6,104 +6,53 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-    MessageSquare,
-    Image as ImageIcon,
-    Video,
-    Music,
-    Code,
-    Search,
-    Zap,
-    Sparkles,
-    Star,
-    ExternalLink,
-    Wrench,
-    Presentation,
-    Palette,
-    FileText,
-    TrendingUp,
-    Languages,
-    Mic,
-    FileSearch,
-    Mail,
-    Headphones,
-    DollarSign,
-    Camera,
-    Globe,
-    BarChart3,
-    GraduationCap,
-    Terminal,
-    BookOpen,
-    User,
-    Bookmark,
-    Crown,
-    Compass,
-    Scale,
-    Wallet,
-    Blocks,
-    Gamepad2,
-    Box,
-    Wand2,
-    Filter,
-    Shuffle,
-    Heart,
-    TrendingDown,
-    Clock,
-    ChevronDown,
-    X,
-    Flame,
-    Award,
-    Target,
-    LayoutGrid,
-    List,
-    ArrowUpRight
-} from "lucide-react"
-import toolsData from "@/data/tools.json"
+import { TbMessage, TbPhoto as TbPhoto, TbVideo, TbMusic, TbCode, TbSearch, TbBolt, TbSparkles, TbStar, TbExternalLink, TbTool, TbPresentation, TbPalette, TbFileText, TbTrendingUp, TbLanguage, TbMicrophone, TbFileSearch, TbMail, TbHeadphones, TbCurrencyDollar, TbCamera, TbWorld, TbChartBar, TbSchool, TbTerminal, TbBook, TbUser, TbBookmark, TbCrown, TbCompass, TbScale, TbWallet, TbBuildingBank, TbDeviceGamepad2, TbBox, TbWand, TbFilter, TbArrowsShuffle, TbHeart, TbTrendingDown, TbClock, TbChevronDown, TbX, TbFlame, TbAward, TbTarget, TbLayoutGrid, TbList, TbArrowUpRight } from "react-icons/tb"
+// Tools fetched from API
 
 // Category icons mapping
 const categoryIcons: Record<string, any> = {
-    "ჩატბოტები": MessageSquare,
-    "სურათები": ImageIcon,
-    "ვიდეო": Video,
-    "აუდიო": Music,
-    "კოდი": Code,
-    "ძებნა": Search,
-    "ავტომატიზაცია": Zap,
-    "პროდუქტიულობა": Sparkles,
-    "პრეზენტაცია": Presentation,
-    "დიზაინი": Palette,
-    "კონტენტი": FileText,
-    "SEO": TrendingUp,
-    "წერა": FileText,
-    "თარგმანი": Languages,
-    "ტრანსკრიფცია": Mic,
-    "დოკუმენტები": FileSearch,
-    "ელფოსტა": Mail,
-    "მომხმარებელი": Headphones,
-    "გაყიდვები": DollarSign,
-    "ფოტო რედაქცია": Camera,
-    "ვებსაიტი": Globe,
-    "ანალიტიკა": BarChart3,
-    "განათლება": GraduationCap,
-    "დეველოპერი": Terminal,
-    "კვლევა": BookOpen,
-    "ავატარი": User,
-    "ბრაუზერი": Compass,
-    "სამართალი": Scale,
-    "ფინანსები": Wallet,
-    "No-Code": Blocks,
-    "თამაშები": Gamepad2,
-    "3D": Box,
-    "VFX": Wand2,
-    "მარკეტინგი": TrendingUp,
-    "სუბტიტრები": Mic,
-    "კალენდარი": Clock,
-    "ჩატბოტი": MessageSquare,
-    "AI აგენტები": Zap,
-    "AI Labs": Terminal,
-    "რეკლამა": DollarSign,
-    "ML პლატფორმა": Terminal,
-    "HR": User,
+    "ჩატბოტები": TbMessage,
+    "სურათები": TbPhoto,
+    "ვიდეო": TbVideo,
+    "აუდიო": TbMusic,
+    "კოდი": TbCode,
+    "ძებნა": TbSearch,
+    "ავტომატიზაცია": TbBolt,
+    "პროდუქტიულობა": TbSparkles,
+    "პრეზენტაცია": TbPresentation,
+    "დიზაინი": TbPalette,
+    "კონტენტი": TbFileText,
+    "SEO": TbTrendingUp,
+    "წერა": TbFileText,
+    "თარგმანი": TbLanguage,
+    "ტრანსკრიფცია": TbMicrophone,
+    "დოკუმენტები": TbFileSearch,
+    "ელფოსტა": TbMail,
+    "მომხმარებელი": TbHeadphones,
+    "გაყიდვები": TbCurrencyDollar,
+    "ფოტო რედაქცია": TbCamera,
+    "ვებსაიტი": TbWorld,
+    "ანალიტიკა": TbChartBar,
+    "განათლება": TbSchool,
+    "დეველოპერი": TbTerminal,
+    "კვლევა": TbBook,
+    "ავატარი": TbUser,
+    "ბრაუზერი": TbCompass,
+    "სამართალი": TbScale,
+    "ფინანსები": TbWallet,
+    "No-TbCode": TbBuildingBank,
+    "თამაშები": TbDeviceGamepad2,
+    "3D": TbBox,
+    "VFX": TbWand,
+    "მარკეტინგი": TbTrendingUp,
+    "სუბტიტრები": TbMicrophone,
+    "კალენდარი": TbClock,
+    "ჩატბოტი": TbMessage,
+    "AI აგენტები": TbBolt,
+    "AI Labs": TbTerminal,
+    "რეკლამა": TbCurrencyDollar,
+    "ML პლატფორმა": TbTerminal,
+    "HR": TbUser,
 }
 
 // Category colors
@@ -137,7 +86,7 @@ const categoryColors: Record<string, string> = {
     "ბრაუზერი": "#f97316",
     "სამართალი": "#78716c",
     "ფინანსები": "#059669",
-    "No-Code": "#8b5cf6",
+    "No-TbCode": "#8b5cf6",
     "თამაშები": "#dc2626",
     "3D": "#0ea5e9",
     "VFX": "#f472b6",
@@ -251,6 +200,8 @@ const ToolLogo = ({ tool, size = 48, className = "" }: { tool: any, size?: numbe
 }
 
 export default function ToolsPage() {
+    const [toolsData, setToolsData] = useState<any[]>([])
+    const [isLoading, setIsLoading] = useState(true)
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
     const [selectedPricing, setSelectedPricing] = useState<string | null>(null)
@@ -259,6 +210,24 @@ export default function ToolsPage() {
     const [showFavorites, setShowFavorites] = useState(false)
     const [randomTool, setRandomTool] = useState<any>(null)
     const [showFilters, setShowFilters] = useState(false)
+
+    // Fetch tools from API
+    useEffect(() => {
+        async function fetchTools() {
+            try {
+                const res = await fetch('/api/tools?limit=2000')
+                if (res.ok) {
+                    const data = await res.json()
+                    setToolsData(data.tools || [])
+                }
+            } catch {
+                // Silently handle error
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        fetchTools()
+    }, [])
 
     // Load favorites from localStorage
     useEffect(() => {
@@ -304,7 +273,7 @@ export default function ToolsPage() {
         }
 
         return tools
-    }, [searchQuery, selectedCategory, selectedPricing, showFavorites, favorites])
+    }, [toolsData, searchQuery, selectedCategory, selectedPricing, showFavorites, favorites])
 
     // Random tool discovery
     const discoverRandomTool = () => {
@@ -320,13 +289,24 @@ export default function ToolsPage() {
         paid: toolsData.filter(t => t.pricing === "paid").length,
         categories: categories.length,
         topRated: toolsData.filter(t => t.rating === 5).length,
-    }), [categories.length])
+    }), [toolsData, categories.length])
 
     const clearFilters = () => {
         setSearchQuery("")
         setSelectedCategory(null)
         setSelectedPricing(null)
         setShowFavorites(false)
+    }
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-muted-foreground">იტვირთება AI ინსტრუმენტები...</p>
+                </div>
+            </div>
+        )
     }
 
     return (
@@ -344,7 +324,7 @@ export default function ToolsPage() {
                 <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
                     <div className="max-w-4xl mx-auto text-center space-y-6">
                         <Badge variant="secondary" className="px-4 py-2 animate-bounce-slow">
-                            <Flame className="w-3 h-3 mr-2 text-orange-500" />
+                            <TbFlame className="w-3 h-3 mr-2 text-orange-500" />
                             {stats.total}+ AI ინსტრუმენტი
                         </Badge>
 
@@ -381,13 +361,13 @@ export default function ToolsPage() {
                 </div>
             </section>
 
-            {/* Search & Filters */}
+            {/* TbSearch & Filters */}
             <section className="sticky top-16 z-40 py-4 bg-background/80 backdrop-blur-xl border-b border-border">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
                     <div className="flex flex-col lg:flex-row gap-4">
-                        {/* Search */}
+                        {/* TbSearch */}
                         <div className="relative flex-1">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                            <TbSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                             <Input
                                 placeholder="მოძებნე AI ინსტრუმენტი..."
                                 value={searchQuery}
@@ -399,7 +379,7 @@ export default function ToolsPage() {
                                     onClick={() => setSearchQuery("")}
                                     className="absolute right-4 top-1/2 -translate-y-1/2"
                                 >
-                                    <X className="w-4 h-4 text-muted-foreground" />
+                                    <TbX className="w-4 h-4 text-muted-foreground" />
                                 </button>
                             )}
                         </div>
@@ -411,7 +391,7 @@ export default function ToolsPage() {
                                 onClick={() => setShowFilters(!showFilters)}
                                 className="gap-2"
                             >
-                                <Filter className="w-4 h-4" />
+                                <TbFilter className="w-4 h-4" />
                                 ფილტრები
                                 {(selectedCategory || selectedPricing) && (
                                     <Badge className="ml-1 bg-primary text-primary-foreground">
@@ -425,7 +405,7 @@ export default function ToolsPage() {
                                 onClick={() => setShowFavorites(!showFavorites)}
                                 className="gap-2"
                             >
-                                <Heart className={`w-4 h-4 ${showFavorites ? "fill-current" : ""}`} />
+                                <TbHeart className={`w-4 h-4 ${showFavorites ? "fill-current" : ""}`} />
                                 ფავორიტები
                                 {favorites.length > 0 && (
                                     <Badge variant="secondary" className="ml-1">{favorites.length}</Badge>
@@ -437,7 +417,7 @@ export default function ToolsPage() {
                                 onClick={discoverRandomTool}
                                 className="gap-2 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/20 hover:border-purple-500/40"
                             >
-                                <Shuffle className="w-4 h-4" />
+                                <TbArrowsShuffle className="w-4 h-4" />
                                 შემთხვევითი
                             </Button>
 
@@ -446,13 +426,13 @@ export default function ToolsPage() {
                                     onClick={() => setViewMode("grid")}
                                     className={`p-2 ${viewMode === "grid" ? "bg-primary text-primary-foreground" : "bg-card"}`}
                                 >
-                                    <LayoutGrid className="w-5 h-5" />
+                                    <TbLayoutGrid className="w-5 h-5" />
                                 </button>
                                 <button
                                     onClick={() => setViewMode("list")}
                                     className={`p-2 ${viewMode === "list" ? "bg-primary text-primary-foreground" : "bg-card"}`}
                                 >
-                                    <List className="w-5 h-5" />
+                                    <TbList className="w-5 h-5" />
                                 </button>
                             </div>
                         </div>
@@ -498,7 +478,7 @@ export default function ToolsPage() {
                                 {(selectedCategory || selectedPricing || searchQuery) && (
                                     <div className="flex items-end">
                                         <Button variant="ghost" size="sm" onClick={clearFilters}>
-                                            <X className="w-4 h-4 mr-1" />
+                                            <TbX className="w-4 h-4 mr-1" />
                                             გასუფთავება
                                         </Button>
                                     </div>
@@ -523,7 +503,7 @@ export default function ToolsPage() {
                     <div className="bg-card rounded-3xl p-8 max-w-lg w-full shadow-2xl animate-in zoom-in-95" onClick={e => e.stopPropagation()}>
                         <div className="text-center space-y-4">
                             <div className="w-20 h-20 mx-auto bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
-                                <Shuffle className="w-10 h-10 text-white" />
+                                <TbArrowsShuffle className="w-10 h-10 text-white" />
                             </div>
                             <h3 className="text-2xl font-bold">შემთხვევითი აღმოჩენა! 🎲</h3>
 
@@ -554,13 +534,13 @@ export default function ToolsPage() {
                                     დახურვა
                                 </Button>
                                 <Button variant="outline" onClick={discoverRandomTool}>
-                                    <Shuffle className="w-4 h-4 mr-2" />
+                                    <TbArrowsShuffle className="w-4 h-4 mr-2" />
                                     სხვა
                                 </Button>
                                 <Button asChild>
                                     <Link href={randomTool.url} target="_blank">
                                         გახსნა
-                                        <ArrowUpRight className="w-4 h-4 ml-2" />
+                                        <TbArrowUpRight className="w-4 h-4 ml-2" />
                                     </Link>
                                 </Button>
                             </div>
@@ -576,7 +556,7 @@ export default function ToolsPage() {
                         <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
-                                    <Crown className="w-6 h-6 text-white" />
+                                    <TbCrown className="w-6 h-6 text-white" />
                                 </div>
                                 <div>
                                     <h2 className="text-2xl font-bold">🔥 ტოპ ინსტრუმენტები</h2>
@@ -587,7 +567,7 @@ export default function ToolsPage() {
 
                         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                             {featuredTools.slice(0, 8).map((tool) => {
-                                const Icon = categoryIcons[tool.category] || Sparkles
+                                const Icon = categoryIcons[tool.category] || TbSparkles
                                 const pricing = pricingLabels[tool.pricing]
                                 const isFavorite = favorites.includes(tool.id)
 
@@ -608,7 +588,7 @@ export default function ToolsPage() {
                                                     </div>
                                                     <div className="flex items-center gap-2">
                                                         <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 text-xs shadow-md">
-                                                            <Award className="w-3 h-3 mr-1" />
+                                                            <TbAward className="w-3 h-3 mr-1" />
                                                             ტოპ
                                                         </Badge>
                                                         <button
@@ -619,7 +599,7 @@ export default function ToolsPage() {
                                                             }}
                                                             className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center hover:bg-primary/10 transition-colors"
                                                         >
-                                                            <Heart className={`w-4 h-4 ${isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
+                                                            <TbHeart className={`w-4 h-4 ${isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
                                                         </button>
                                                     </div>
                                                 </div>
@@ -631,7 +611,7 @@ export default function ToolsPage() {
                                                             {tool.name}
                                                         </h3>
                                                         <div className="flex items-center gap-0.5 text-yellow-500">
-                                                            <Star className="w-4 h-4 fill-current" />
+                                                            <TbStar className="w-4 h-4 fill-current" />
                                                             <span className="text-sm font-medium">{tool.rating}</span>
                                                         </div>
                                                     </div>
@@ -665,7 +645,7 @@ export default function ToolsPage() {
                                                         }}
                                                         className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-primary hover:text-primary-foreground cursor-pointer"
                                                     >
-                                                        <ArrowUpRight className="w-4 h-4" />
+                                                        <TbArrowUpRight className="w-4 h-4" />
                                                     </span>
                                                 </div>
                                             </CardContent>
@@ -685,7 +665,7 @@ export default function ToolsPage() {
                         <h2 className="text-xl font-bold mb-6">🗂️ კატეგორიები</h2>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                             {categories.slice(0, 12).map((cat) => {
-                                const Icon = categoryIcons[cat] || Sparkles
+                                const Icon = categoryIcons[cat] || TbSparkles
                                 const count = toolsData.filter(t => t.category === cat).length
                                 return (
                                     <button
@@ -715,7 +695,7 @@ export default function ToolsPage() {
                     <div className="flex items-center justify-between mb-8">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center">
-                                <Target className="w-5 h-5 text-accent" />
+                                <TbTarget className="w-5 h-5 text-accent" />
                             </div>
                             <div>
                                 <h2 className="text-xl font-bold">
@@ -729,7 +709,7 @@ export default function ToolsPage() {
                     {filteredTools.length === 0 ? (
                         <div className="text-center py-20">
                             <div className="w-20 h-20 mx-auto bg-muted rounded-full flex items-center justify-center mb-4">
-                                <Search className="w-10 h-10 text-muted-foreground" />
+                                <TbSearch className="w-10 h-10 text-muted-foreground" />
                             </div>
                             <h3 className="text-xl font-bold mb-2">ვერაფერი მოიძებნა</h3>
                             <p className="text-muted-foreground mb-6">სცადე სხვა საძიებო სიტყვა ან ფილტრი</p>
@@ -740,7 +720,7 @@ export default function ToolsPage() {
                     ) : viewMode === "grid" ? (
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                             {filteredTools.map((tool) => {
-                                const Icon = categoryIcons[tool.category] || Sparkles
+                                const Icon = categoryIcons[tool.category] || TbSparkles
                                 const pricing = pricingLabels[tool.pricing]
                                 const isFavorite = favorites.includes(tool.id)
 
@@ -766,7 +746,7 @@ export default function ToolsPage() {
                                                                 }}
                                                                 className="opacity-0 group-hover:opacity-100 transition-opacity"
                                                             >
-                                                                <Heart className={`w-4 h-4 ${isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground hover:text-red-500"}`} />
+                                                                <TbHeart className={`w-4 h-4 ${isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground hover:text-red-500"}`} />
                                                             </button>
                                                         </div>
                                                         <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
@@ -778,7 +758,7 @@ export default function ToolsPage() {
                                                             </Badge>
                                                             <div className="flex items-center gap-0.5">
                                                                 {[...Array(tool.rating)].map((_, i) => (
-                                                                    <Star key={i} className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                                                                    <TbStar key={i} className="w-3 h-3 text-yellow-500 fill-yellow-500" />
                                                                 ))}
                                                             </div>
                                                             <span
@@ -789,7 +769,7 @@ export default function ToolsPage() {
                                                                 }}
                                                                 className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                                                             >
-                                                                <ArrowUpRight className="w-4 h-4 text-muted-foreground hover:text-primary" />
+                                                                <TbArrowUpRight className="w-4 h-4 text-muted-foreground hover:text-primary" />
                                                             </span>
                                                         </div>
                                                     </div>
@@ -819,10 +799,10 @@ export default function ToolsPage() {
                                             <Badge variant="outline" className="hidden sm:inline-flex">{tool.category}</Badge>
                                             <Badge className={`text-xs ${pricing.color}`}>{pricing.label}</Badge>
                                             <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(tool.id) }}>
-                                                <Heart className={`w-4 h-4 ${isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
+                                                <TbHeart className={`w-4 h-4 ${isFavorite ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
                                             </button>
                                             <span onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.open(tool.url, '_blank') }} className="cursor-pointer">
-                                                <ArrowUpRight className="w-4 h-4 text-muted-foreground hover:text-primary" />
+                                                <TbArrowUpRight className="w-4 h-4 text-muted-foreground hover:text-primary" />
                                             </span>
                                         </div>
                                     </Link>

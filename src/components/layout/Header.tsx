@@ -10,57 +10,147 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
-import {
-  Search, Menu, X, Sparkles, Send,
-  BookOpen, Video, Mic, Radio, FileText,
-  Wrench, ShoppingBag, Briefcase, HelpCircle,
-  Users, Calendar, MessageCircle,
-  Trophy, Star, Newspaper, User, Handshake
-} from "lucide-react"
+import { TbRobot, TbBook, TbVideo, TbSettings, TbBulb, TbBriefcase, TbShoppingBag, TbInfoCircle, TbUser, TbSearch, TbMenu2, TbX, TbLogin, TbUserPlus, TbLogout, TbChevronDown, TbSparkles, TbShield, TbCrown } from "react-icons/tb"
 import { useState } from "react"
 import { ThemeToggle } from "./ThemeToggle"
 import { SearchDialog, useSearchDialog } from "@/components/interactive/SearchDialog"
+import { useAuth, ROLE_CONFIG } from "@/lib/auth"
 
 const contentItems = [
-  { href: "/blog", label: "ბლოგი", icon: BookOpen, description: "სტატიები და სიახლეები" },
-  { href: "/videos", label: "ვიდეოები", icon: Video, description: "YouTube ტუტორიალები" },
-  { href: "/podcast", label: "პოდკასტი", icon: Mic, description: "აუდიო ეპიზოდები" },
-  { href: "/live", label: "ლაივები", icon: Radio, description: "სტრიმების განრიგი" },
-  { href: "/guides", label: "გაიდები", icon: FileText, description: "უფასო რესურსები" },
+  { href: "/blog", label: "ბლოგი", icon: TbBook, description: "სტატიები და სიახლეები" },
+  { href: "/videos", label: "ვიდეოები", icon: TbVideo, description: "YouTube ტუტორიალები" },
 ]
 
 const servicesItems = [
-  { href: "/tools", label: "AI ინსტრუმენტები", icon: Wrench, description: "რეიტინგები და მიმოხილვები" },
-  { href: "/services", label: "კონსულტაცია", icon: Briefcase, description: "AI კონსალტინგი" },
-  { href: "/products", label: "პროდუქტები", icon: ShoppingBag, description: "კურსები და ტემპლეიტები" },
-  { href: "/quiz", label: "AI ქვიზი", icon: HelpCircle, description: "იპოვე შენი AI" },
-]
-
-const communityItems = [
-  { href: "/community", label: "კომიუნითი", icon: Users, description: "Telegram & Discord" },
-  { href: "/events", label: "ღონისძიებები", icon: Calendar, description: "ვორქშოპები და მითაფები" },
-  { href: "/faq", label: "FAQ", icon: MessageCircle, description: "ხშირი კითხვები" },
+  { href: "/tools", label: "AI ინსტრუმენტები", icon: TbSettings, description: "რეიტინგები და მიმოხილვები" },
+  { href: "/mystic", label: "მისტიკური AI", icon: TbBulb, description: "AI პრედიქციები" },
+  { href: "/new-features", label: "ახალი ფუნქციები", icon: TbSparkles, description: "20 კონვერსიის კომპონენტი" },
+  { href: "/services", label: "კონსულტაცია", icon: TbBriefcase, description: "AI კონსალტინგი" },
+  { href: "/products", label: "პროდუქტები", icon: TbShoppingBag, description: "კურსები და ტემპლეიტები" },
+  { href: "/quiz", label: "AI ქვიზი", icon: TbInfoCircle, description: "იპოვე შენი AI" },
 ]
 
 const aboutItems = [
-  { href: "/case-studies", label: "კეისები", icon: Trophy, description: "წარმატების ისტორიები" },
-  { href: "/testimonials", label: "შეფასებები", icon: Star, description: "კლიენტების გამოხმაურება" },
-  { href: "/press", label: "პრესა", icon: Newspaper, description: "მედია გამოჩენები" },
-  { href: "/about", label: "ჩემ შესახებ", icon: User, description: "Andrew Altair" },
-  { href: "/affiliates", label: "პარტნიორობა", icon: Handshake, description: "Affiliate პროგრამა" },
+  { href: "/about", label: "ჩემ შესახებ", icon: TbUser, description: "Andrew Altair" },
 ]
 
 // All items for mobile
 const allMobileItems = [
   { category: "კონტენტი", items: contentItems },
   { category: "სერვისები", items: servicesItems },
-  { category: "კომიუნითი", items: communityItems },
   { category: "შესახებ", items: aboutItems },
 ]
+
+// User Profile Dropdown
+function UserProfileDropdown() {
+  const { user, logout, isGod, isAdmin } = useAuth()
+  const [isOpen, setIsOpen] = useState(false)
+
+  if (!user) return null
+
+  const roleConfig = ROLE_CONFIG[user.role]
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-secondary transition-colors"
+      >
+        {/* Avatar */}
+        <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${roleConfig.color} flex items-center justify-center text-white font-bold text-sm`}>
+          {user.fullName[0]}
+        </div>
+        <div className="hidden sm:block text-left">
+          <div className="text-sm font-medium flex items-center gap-1">
+            {user.fullName}
+            {isGod && <TbCrown className="w-4 h-4 text-yellow-500" />}
+          </div>
+          <div className="text-xs text-muted-foreground">{roleConfig.label}</div>
+        </div>
+        <TbChevronDown className="w-4 h-4 text-muted-foreground" />
+      </button>
+
+      {/* Dropdown */}
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+          <div className="absolute right-0 top-full mt-2 w-64 z-50 bg-card border border-border rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2">
+            {/* User Info */}
+            <div className="p-4 border-b border-border bg-muted/30">
+              <div className="flex items-center gap-3">
+                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${roleConfig.color} flex items-center justify-center text-white font-bold`}>
+                  {user.fullName[0]}
+                </div>
+                <div>
+                  <div className="font-medium flex items-center gap-1">
+                    {user.fullName}
+                    {isGod && <TbCrown className="w-4 h-4 text-yellow-500" />}
+                  </div>
+                  <div className="text-sm text-muted-foreground">{user.email}</div>
+                  {user.badge && (
+                    <div className="text-xs text-primary mt-1">{user.badge}</div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Menu Items */}
+            <div className="py-2">
+              <Link
+                href="/profile"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted transition-colors"
+              >
+                <TbUser className="w-4 h-4 text-muted-foreground" />
+                პროფილი
+              </Link>
+              <Link
+                href="/settings"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted transition-colors"
+              >
+                <TbSettings className="w-4 h-4 text-muted-foreground" />
+                პარამეტრები
+              </Link>
+
+              {/* Admin Link - Only for admins */}
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted transition-colors text-primary"
+                >
+                  <TbShield className="w-4 h-4" />
+                  ადმინ პანელი
+                  {isGod && <span className="ml-auto text-xs bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded">GOD</span>}
+                </Link>
+              )}
+            </div>
+
+            {/* Logout */}
+            <div className="border-t border-border py-2">
+              <button
+                onClick={() => {
+                  logout()
+                  setIsOpen(false)
+                }}
+                className="flex items-center gap-3 px-4 py-2 text-sm text-destructive hover:bg-destructive/10 w-full transition-colors"
+              >
+                <TbLogout className="w-4 h-4" />
+                გასვლა
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const search = useSearchDialog()
+  const { user, isLoading } = useAuth()
 
   return (
     <>
@@ -72,7 +162,7 @@ export function Header() {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent rounded-xl blur-md opacity-50 group-hover:opacity-75 transition-opacity"></div>
                 <div className="relative w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center text-white font-bold text-sm group-hover:scale-105 transition-transform shadow-lg">
-                  <Sparkles className="w-5 h-5" />
+                  <TbRobot className="w-6 h-6" />
                 </div>
               </div>
               <div className="hidden sm:block">
@@ -152,32 +242,7 @@ export function Header() {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
 
-                {/* Community Dropdown */}
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="h-10 px-4 text-sm font-medium text-muted-foreground bg-transparent">
-                    კომიუნითი
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid w-[280px] gap-2 p-4">
-                      {communityItems.map((item) => (
-                        <li key={item.href}>
-                          <NavigationMenuLink asChild>
-                            <Link
-                              href={item.href}
-                              className="group flex items-center gap-3 rounded-lg p-2 hover:bg-secondary transition-colors"
-                            >
-                              <item.icon className="w-5 h-5 text-primary shrink-0" />
-                              <div className="min-w-0">
-                                <div className="font-medium text-sm">{item.label}</div>
-                                <div className="text-xs text-muted-foreground truncate">{item.description}</div>
-                              </div>
-                            </Link>
-                          </NavigationMenuLink>
-                        </li>
-                      ))}
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
+
 
                 {/* About Dropdown */}
                 <NavigationMenuItem>
@@ -212,32 +277,54 @@ export function Header() {
             <div className="hidden lg:flex items-center space-x-2">
               <Button
                 variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-foreground gap-2"
+                size="icon"
+                className="text-muted-foreground hover:text-foreground"
                 onClick={search.open}
               >
-                <Search className="w-4 h-4" />
-                <span className="text-xs">⌘K</span>
+                <TbSearch className="w-5 h-5" />
               </Button>
               <ThemeToggle />
-              <Button className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white border-0 shadow-lg hover:shadow-xl transition-all glow-sm">
-                <Send className="w-4 h-4 mr-2" />
-                გამოწერა
-              </Button>
+
+              {/* Auth Buttons or User Profile */}
+              {isLoading ? (
+                <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
+              ) : user ? (
+                <UserProfileDropdown />
+              ) : (
+                <>
+                  <Link href="/login">
+                    <Button variant="ghost" size="sm" className="gap-2">
+                      <TbLogin className="w-4 h-4" />
+                      შესვლა
+                    </Button>
+                  </Link>
+                  <Link href="/register">
+                    <Button size="sm" className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white border-0 shadow-lg">
+                      <TbUserPlus className="w-4 h-4" />
+                      რეგისტრაცია
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Mobile Actions */}
             <div className="flex lg:hidden items-center space-x-2">
               <Button variant="ghost" size="icon" onClick={search.open}>
-                <Search className="w-5 h-5" />
+                <TbSearch className="w-5 h-5" />
               </Button>
               <ThemeToggle />
+              {user && (
+                <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${ROLE_CONFIG[user.role].color} flex items-center justify-center text-white font-bold text-xs`}>
+                  {user.fullName[0]}
+                </div>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
-                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {isMobileMenuOpen ? <TbX className="w-5 h-5" /> : <TbMenu2 className="w-5 h-5" />}
               </Button>
             </div>
           </div>
@@ -246,13 +333,31 @@ export function Header() {
           {isMobileMenuOpen && (
             <div className="lg:hidden border-t border-border py-4 animate-in slide-in-from-top-2 max-h-[70vh] overflow-y-auto">
               <nav className="space-y-4">
+                {/* User Info (Mobile) */}
+                {user && (
+                  <div className="px-4 py-3 mb-4 bg-muted/30 rounded-lg mx-2">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${ROLE_CONFIG[user.role].color} flex items-center justify-center text-white font-bold`}>
+                        {user.fullName[0]}
+                      </div>
+                      <div>
+                        <div className="font-medium flex items-center gap-1">
+                          {user.fullName}
+                          {user.role === "god" && <TbCrown className="w-4 h-4 text-yellow-500" />}
+                        </div>
+                        <div className="text-sm text-muted-foreground">{user.email}</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Home */}
                 <Link
                   href="/"
                   className="flex items-center px-4 py-3 text-sm font-medium text-foreground hover:bg-secondary rounded-lg transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  <Sparkles className="w-5 h-5 mr-3 text-primary" />
+                  <TbSparkles className="w-5 h-5 mr-3 text-primary" />
                   მთავარი
                 </Link>
 
@@ -276,16 +381,46 @@ export function Header() {
                   </div>
                 ))}
 
-                {/* Actions */}
+                {/* Auth Actions */}
                 <div className="flex items-center space-x-2 px-4 pt-4 border-t border-border">
-                  <Button variant="outline" size="sm" className="flex-1" onClick={() => { search.open(); setIsMobileMenuOpen(false); }}>
-                    <Search className="w-4 h-4 mr-2" />
-                    ძიება
-                  </Button>
-                  <Button size="sm" className="flex-1 bg-gradient-to-r from-primary to-accent text-white border-0">
-                    <Send className="w-4 h-4 mr-2" />
-                    გამოწერა
-                  </Button>
+                  {user ? (
+                    <>
+                      <Link href="/admin" className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button variant="outline" size="sm" className="w-full gap-2">
+                          <TbShield className="w-4 h-4" />
+                          ადმინ პანელი
+                        </Button>
+                      </Link>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        className="flex-1 gap-2"
+                        onClick={() => {
+                          const { logout } = useAuth()
+                          logout()
+                          setIsMobileMenuOpen(false)
+                        }}
+                      >
+                        <TbLogout className="w-4 h-4" />
+                        გასვლა
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/login" className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button variant="outline" size="sm" className="w-full gap-2">
+                          <TbLogin className="w-4 h-4" />
+                          შესვლა
+                        </Button>
+                      </Link>
+                      <Link href="/register" className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button size="sm" className="w-full gap-2 bg-gradient-to-r from-primary to-accent text-white border-0">
+                          <TbUserPlus className="w-4 h-4" />
+                          რეგისტრაცია
+                        </Button>
+                      </Link>
+                    </>
+                  )}
                 </div>
               </nav>
             </div>
@@ -293,7 +428,7 @@ export function Header() {
         </div>
       </header>
 
-      {/* Search Dialog */}
+      {/* TbSearch Dialog */}
       <SearchDialog isOpen={search.isOpen} onClose={search.close} />
     </>
   )

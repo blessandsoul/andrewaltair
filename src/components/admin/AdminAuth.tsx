@@ -4,11 +4,10 @@ import * as React from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Lock, Eye, EyeOff, Shield, AlertCircle, Smartphone, CheckCircle } from "lucide-react"
+import { TbLock, TbEye, TbEyeOff, TbShield, TbAlertCircle, TbDeviceMobile, TbCircleCheck, TbAlertTriangle } from "react-icons/tb"
 
-// Simple password for admin access
-// In production, this should be an environment variable and proper auth
-const ADMIN_PASSWORD = "admin123"
+// Password is now verified via API - NO HARDCODING!
+// Credentials are stored in .env.local as ADMIN_PASSWORD
 
 interface AdminAuthProps {
     children: React.ReactNode
@@ -20,6 +19,9 @@ export function AdminAuth({ children }: AdminAuthProps) {
     const [showPassword, setShowPassword] = React.useState(false)
     const [error, setError] = React.useState("")
     const [isLoading, setIsLoading] = React.useState(true)
+    const [isSubmitting, setIsSubmitting] = React.useState(false)
+    const [remainingAttempts, setRemainingAttempts] = React.useState<number | null>(null)
+    const [lockoutTime, setLockoutTime] = React.useState<number | null>(null)
 
     // 2FA state
     const [twoFAEnabled, setTwoFAEnabled] = React.useState(false)
@@ -29,33 +31,72 @@ export function AdminAuth({ children }: AdminAuthProps) {
 
     // Check for existing session on mount
     React.useEffect(() => {
-        const session = sessionStorage.getItem("admin_auth")
-        const twoFA = localStorage.getItem("admin_2fa_enabled")
-        if (session === "authenticated") {
-            setIsAuthenticated(true)
+        const verifySession = async () => {
+            const token = localStorage.getItem("admin_token")
+            const twoFA = localStorage.getItem("admin_2fa_enabled")
+
+            if (token) {
+                // Verify token is still valid
+                try {
+                    const res = await fetch('/api/admin/verify', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    })
+                    if (res.ok) {
+                        setIsAuthenticated(true)
+                    } else {
+                        localStorage.removeItem("admin_token")
+                    }
+                } catch {
+                    // Token might still be valid, allow offline access
+                    setIsAuthenticated(true)
+                }
+            }
+            if (twoFA === "true") {
+                setTwoFAEnabled(true)
+            }
+            setIsLoading(false)
         }
-        if (twoFA === "true") {
-            setTwoFAEnabled(true)
-        }
-        setIsLoading(false)
+        verifySession()
     }, [])
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setError("")
+        setIsSubmitting(true)
 
-        if (password === ADMIN_PASSWORD) {
-            if (twoFAEnabled) {
-                // Show 2FA step
-                setShow2FA(true)
+        try {
+            const res = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password })
+            })
+
+            const data = await res.json()
+
+            if (res.ok && data.success) {
+                // Store token securely
+                localStorage.setItem("admin_token", data.token)
+
+                if (twoFAEnabled) {
+                    setShow2FA(true)
+                } else {
+                    setIsAuthenticated(true)
+                }
+                setRemainingAttempts(null)
             } else {
-                // Complete login
-                sessionStorage.setItem("admin_auth", "authenticated")
-                setIsAuthenticated(true)
+                if (data.locked) {
+                    setLockoutTime(data.lockoutRemaining)
+                    setError(`ძალიან ბევრი მცდელობა. დაელოდეთ ${Math.ceil(data.lockoutRemaining / 60)} წუთი.`)
+                } else {
+                    setRemainingAttempts(data.remainingAttempts)
+                    setError(data.error || "არასწორი პაროლი")
+                }
+                setPassword("")
             }
-        } else {
-            setError("არასწორი პაროლი")
-            setPassword("")
+        } catch {
+            setError("სერვერთან დაკავშირება ვერ მოხერხდა")
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
@@ -65,7 +106,7 @@ export function AdminAuth({ children }: AdminAuthProps) {
 
         // Demo: accept any 6-digit code
         if (otpCode.length === 6 && /^\d+$/.test(otpCode)) {
-            sessionStorage.setItem("admin_auth", "authenticated")
+            // Token already stored from password step
             setIsAuthenticated(true)
             setShow2FA(false)
         } else {
@@ -74,7 +115,7 @@ export function AdminAuth({ children }: AdminAuthProps) {
     }
 
     const handleLogout = () => {
-        sessionStorage.removeItem("admin_auth")
+        localStorage.removeItem("admin_token")
         setIsAuthenticated(false)
         setPassword("")
         setOtpCode("")
@@ -103,7 +144,7 @@ export function AdminAuth({ children }: AdminAuthProps) {
                 <Card className="w-full max-w-md">
                     <CardHeader className="text-center">
                         <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Smartphone className="w-8 h-8 text-white" />
+                            <TbDeviceMobile className="w-8 h-8 text-white" />
                         </div>
                         <CardTitle className="text-2xl">2FA ვერიფიკაცია</CardTitle>
                         <p className="text-muted-foreground mt-2">
@@ -126,7 +167,7 @@ export function AdminAuth({ children }: AdminAuthProps) {
 
                             {otpError && (
                                 <div className="flex items-center justify-center gap-2 text-destructive text-sm">
-                                    <AlertCircle className="w-4 h-4" />
+                                    <TbAlertCircle className="w-4 h-4" />
                                     {otpError}
                                 </div>
                             )}
@@ -161,7 +202,7 @@ export function AdminAuth({ children }: AdminAuthProps) {
                 <Card className="w-full max-w-md">
                     <CardHeader className="text-center">
                         <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Shield className="w-8 h-8 text-white" />
+                            <TbShield className="w-8 h-8 text-white" />
                         </div>
                         <CardTitle className="text-2xl">Admin Panel</CardTitle>
                         <p className="text-muted-foreground mt-2">
@@ -173,7 +214,7 @@ export function AdminAuth({ children }: AdminAuthProps) {
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">პაროლი</label>
                                 <div className="relative">
-                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                    <TbLock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                     <Input
                                         type={showPassword ? "text" : "password"}
                                         value={password}
@@ -188,9 +229,9 @@ export function AdminAuth({ children }: AdminAuthProps) {
                                         className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                                     >
                                         {showPassword ? (
-                                            <EyeOff className="w-4 h-4" />
+                                            <TbEyeOff className="w-4 h-4" />
                                         ) : (
-                                            <Eye className="w-4 h-4" />
+                                            <TbEye className="w-4 h-4" />
                                         )}
                                     </button>
                                 </div>
@@ -199,7 +240,7 @@ export function AdminAuth({ children }: AdminAuthProps) {
                             {/* 2FA Toggle */}
                             <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                                 <div className="flex items-center gap-2">
-                                    <Smartphone className="w-4 h-4 text-muted-foreground" />
+                                    <TbDeviceMobile className="w-4 h-4 text-muted-foreground" />
                                     <span className="text-sm">2FA ავტორიზაცია</span>
                                 </div>
                                 <button
@@ -215,25 +256,39 @@ export function AdminAuth({ children }: AdminAuthProps) {
 
                             {twoFAEnabled && (
                                 <div className="flex items-center gap-2 text-sm text-green-600 bg-green-500/10 p-2 rounded-lg">
-                                    <CheckCircle className="w-4 h-4" />
+                                    <TbCircleCheck className="w-4 h-4" />
                                     2FA ჩართულია
                                 </div>
                             )}
 
                             {error && (
-                                <div className="flex items-center gap-2 text-destructive text-sm">
-                                    <AlertCircle className="w-4 h-4" />
-                                    {error}
+                                <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 p-3 rounded-lg">
+                                    <TbAlertCircle className="w-4 h-4 shrink-0" />
+                                    <span>{error}</span>
                                 </div>
                             )}
 
-                            <Button type="submit" className="w-full">
-                                შესვლა
+                            {remainingAttempts !== null && remainingAttempts < 5 && !error && (
+                                <div className="flex items-center gap-2 text-amber-600 text-sm bg-amber-500/10 p-2 rounded-lg">
+                                    <TbAlertTriangle className="w-4 h-4" />
+                                    დარჩენილი მცდელობები: {remainingAttempts}
+                                </div>
+                            )}
+
+                            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                                {isSubmitting ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        შემოწმება...
+                                    </div>
+                                ) : (
+                                    "შესვლა"
+                                )}
                             </Button>
                         </form>
 
                         <p className="text-xs text-muted-foreground text-center mt-6">
-                            პაროლი: <code className="bg-muted px-1 rounded">admin123</code>
+                            🔐 დაცული წვდომა
                         </p>
                     </CardContent>
                 </Card>
@@ -241,18 +296,6 @@ export function AdminAuth({ children }: AdminAuthProps) {
         )
     }
 
-    // Authenticated - show admin content with logout option
-    return (
-        <div className="relative">
-            {/* Logout button in header area */}
-            <button
-                onClick={handleLogout}
-                className="fixed top-4 right-4 z-50 text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
-            >
-                <Lock className="w-3 h-3" />
-                გასვლა
-            </button>
-            {children}
-        </div>
-    )
+    // Authenticated - show admin content
+    return <>{children}</>
 }

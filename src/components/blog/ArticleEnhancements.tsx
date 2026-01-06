@@ -10,7 +10,7 @@ import { HighlightShare } from "@/components/interactive/HighlightShare"
 import { PageVisitorCounter } from "@/components/interactive/LiveVisitorCounter"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, List } from "lucide-react"
+import { TbSparkles, TbList } from "react-icons/tb"
 
 interface ArticleEnhancementsProps {
     postId: string
@@ -51,7 +51,7 @@ export function ArticleToolsSidebar({
                     className="h-10 w-10 rounded-full bg-card border shadow-lg flex items-center justify-center hover:bg-secondary transition-colors"
                     title="სარჩევი"
                 >
-                    <List className="h-4 w-4" />
+                    <TbList className="h-4 w-4" />
                 </button>
 
                 <MiniNarrator
@@ -66,10 +66,10 @@ export function ArticleToolsSidebar({
                     <Card className="shadow-xl">
                         <CardContent className="p-4">
                             <h4 className="font-bold text-sm mb-3 flex items-center gap-2">
-                                <List className="h-4 w-4" />
+                                <TbList className="h-4 w-4" />
                                 სარჩევი
                             </h4>
-                            <TableOfContents selector="article" />
+                            <TableOfContents contentSelector="article" />
                         </CardContent>
                     </Card>
                 </div>
@@ -198,7 +198,7 @@ export function ReadingStatsCard({
                         </div>
                     </div>
                     <Badge variant="outline" className="gap-1">
-                        <Sparkles className="h-3 w-3" />
+                        <TbSparkles className="h-3 w-3" />
                         AI გაანალიზებული
                     </Badge>
                 </div>

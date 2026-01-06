@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Moon, Sun, Monitor } from "lucide-react"
+import { TbMoon, TbSun, TbDeviceDesktop } from "react-icons/tb"
 import { Button } from "@/components/ui/button"
 
 type Theme = "light" | "dark" | "system"
@@ -48,7 +48,7 @@ export function ThemeToggle() {
     if (!mounted) {
         return (
             <Button variant="ghost" size="icon" className="relative">
-                <Sun className="h-5 w-5" />
+                <TbSun className="h-5 w-5" />
             </Button>
         )
     }
@@ -62,13 +62,13 @@ export function ThemeToggle() {
             title={`Current: ${theme}`}
         >
             {theme === "light" && (
-                <Sun className="h-5 w-5 transition-transform group-hover:rotate-45" />
+                <TbSun className="h-5 w-5 transition-transform group-hover:rotate-45" />
             )}
             {theme === "dark" && (
-                <Moon className="h-5 w-5 transition-transform group-hover:-rotate-12" />
+                <TbMoon className="h-5 w-5 transition-transform group-hover:-rotate-12" />
             )}
             {theme === "system" && (
-                <Monitor className="h-5 w-5 transition-transform group-hover:scale-110" />
+                <TbDeviceDesktop className="h-5 w-5 transition-transform group-hover:scale-110" />
             )}
             <span className="sr-only">Toggle theme</span>
         </Button>

@@ -1,98 +1,111 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { TbClipboardCheck, TbChevronRight, TbChartBar, TbAlertTriangle, TbCheck } from "react-icons/tb";
+import { cn } from '@/lib/utils';
 
-interface Question { id: number; text: string; options: { text: string; score: number }[]; category: string; }
+interface AssessmentQuestion {
+    id: string;
+    category: string;
+    question: string;
+    options: { value: number; label: string }[];
+}
 
-const questions: Question[] = [
-    { id: 1, text: 'Сколько сотрудников в вашей компании?', category: 'Масштаб', options: [{ text: '1-10', score: 20 }, { text: '11-50', score: 40 }, { text: '51-200', score: 60 }, { text: '200+', score: 80 }] },
-    { id: 2, text: 'Какой бюджет планируете на AI в год?', category: 'Бюджет', options: [{ text: 'До ₽100K', score: 20 }, { text: '₽100-500K', score: 40 }, { text: '₽500K-2M', score: 60 }, { text: '₽2M+', score: 80 }] },
-    { id: 3, text: 'Есть ли у вас IT-специалист?', category: 'Команда', options: [{ text: 'Нет', score: 20 }, { text: 'Аутсорс', score: 40 }, { text: '1 специалист', score: 60 }, { text: 'IT-отдел', score: 80 }] },
-    { id: 4, text: 'Как хранятся данные компании?', category: 'Данные', options: [{ text: 'Excel/бумага', score: 20 }, { text: 'CRM базовая', score: 40 }, { text: 'Облако', score: 60 }, { text: 'Data Warehouse', score: 80 }] },
-    { id: 5, text: 'Опыт использования AI?', category: 'Опыт', options: [{ text: 'Никакого', score: 20 }, { text: 'ChatGPT лично', score: 40 }, { text: 'Несколько инструментов', score: 60 }, { text: 'Интегрирован в процессы', score: 80 }] },
+const QUESTIONS: AssessmentQuestion[] = [
+    { id: '1', category: 'ინფრასტრუქტურა', question: 'რამდენად ციფრულია თქვენი ბიზნეს პროცესები?', options: [{ value: 0, label: 'მეტწილად მექანიკური' }, { value: 1, label: 'ნახევრად ციფრული' }, { value: 2, label: 'სრულად ციფრული' }] },
+    { id: '2', category: 'მონაცემები', question: 'გაქვთ სტრუქტურირებული მონაცემთა ბაზა?', options: [{ value: 0, label: 'არა' }, { value: 1, label: 'ნაწილობრივ' }, { value: 2, label: 'დიახ, სრულად' }] },
+    { id: '3', category: 'გუნდი', question: 'გუნდის AI ცოდნის დონე?', options: [{ value: 0, label: 'დამწყები' }, { value: 1, label: 'საშუალო' }, { value: 2, label: 'მოწინავე' }] },
+    { id: '4', category: 'ბიუჯეტი', question: 'AI ინვესტიციისთვის ბიუჯეტი?', options: [{ value: 0, label: 'არ არის' }, { value: 1, label: 'შეზღუდული' }, { value: 2, label: 'საკმარისი' }] },
 ];
 
 export default function AIReadinessAssessment() {
     const [currentQ, setCurrentQ] = useState(0);
-    const [answers, setAnswers] = useState<{ category: string; score: number }[]>([]);
-    const [showResults, setShowResults] = useState(false);
-    const [email, setEmail] = useState('');
+    const [answers, setAnswers] = useState<Record<string, number>>({});
+    const [showResult, setShowResult] = useState(false);
 
-    const handleAnswer = (score: number, category: string) => {
-        const newAns = [...answers, { category, score }];
-        setAnswers(newAns);
-        if (currentQ < questions.length - 1) setCurrentQ(currentQ + 1);
-        else setShowResults(true);
+    const handleAnswer = (value: number) => {
+        const q = QUESTIONS[currentQ];
+        setAnswers(prev => ({ ...prev, [q.id]: value }));
+        if (currentQ < QUESTIONS.length - 1) setCurrentQ(prev => prev + 1);
+        else setShowResult(true);
     };
 
-    const avgScore = Math.round(answers.reduce((a, b) => a + b.score, 0) / answers.length) || 0;
-    const getReadiness = () => {
-        if (avgScore < 30) return { level: 'Начальный', color: '#ef4444', recommendation: 'Начните с базового обучения команды и выбора первых инструментов.' };
-        if (avgScore < 50) return { level: 'Базовый', color: '#f59e0b', recommendation: 'Пора формировать AI-стратегию и выделять бюджет.' };
-        if (avgScore < 70) return { level: 'Развивающийся', color: '#3b82f6', recommendation: 'Готовы к системному внедрению AI в процессы.' };
-        return { level: 'Продвинутый', color: '#10b981', recommendation: 'Масштабируйте успехи и оптимизируйте существующие решения.' };
+    const score = Object.values(answers).reduce((sum, v) => sum + v, 0);
+    const maxScore = QUESTIONS.length * 2;
+    const percent = Math.round((score / maxScore) * 100);
+
+    const getLevel = () => {
+        if (percent >= 80) return { label: 'მაღალი მზადყოფნა', color: 'text-green-400', bg: 'bg-green-500/20' };
+        if (percent >= 50) return { label: 'საშუალო მზადყოფნა', color: 'text-yellow-400', bg: 'bg-yellow-500/20' };
+        return { label: 'საჭიროა მომზადება', color: 'text-red-400', bg: 'bg-red-500/20' };
     };
-    const readiness = getReadiness();
+
+    if (showResult) {
+        const level = getLevel();
+        return (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-500/20 rounded-lg">
+                        <TbClipboardCheck className="w-6 h-6 text-blue-400" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-white">შეფასების შედეგი</h2>
+                </div>
+
+                <div className="p-6 rounded-2xl border border-white/10 bg-white/5 text-center">
+                    <div className={cn("inline-block px-4 py-2 rounded-full text-sm font-medium mb-4", level.bg, level.color)}>
+                        {level.label}
+                    </div>
+                    <div className="text-5xl font-bold text-white mb-2">{percent}%</div>
+                    <p className="text-gray-400">AI მზადყოფნის ინდექსი</p>
+
+                    <div className="mt-6 h-3 bg-gray-700 rounded-full overflow-hidden">
+                        <motion.div initial={{ width: 0 }} animate={{ width: `${percent}%` }} className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
+                    </div>
+                </div>
+
+                <button onClick={() => { setShowResult(false); setCurrentQ(0); setAnswers({}); }} className="w-full py-3 border border-white/10 rounded-xl text-gray-300 hover:bg-white/5 transition-colors">
+                    თავიდან გავლა
+                </button>
+            </motion.div>
+        );
+    }
+
+    const q = QUESTIONS[currentQ];
 
     return (
-        <section style={{ padding: '80px 20px', background: 'linear-gradient(180deg, rgba(17,24,39,0) 0%, rgba(59,130,246,0.08) 50%, rgba(17,24,39,0) 100%)' }}>
-            <div style={{ maxWidth: 700, margin: '0 auto' }}>
-                <div style={{ textAlign: 'center', marginBottom: 40 }}>
-                    <span style={{ fontSize: 48 }}>📊</span>
-                    <h2 style={{ fontSize: 36, fontWeight: 800, background: 'linear-gradient(135deg, #3b82f6, #10b981)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginTop: 16 }}>AI Readiness Assessment</h2>
-                    <p style={{ fontSize: 18, color: '#9ca3af' }}>Оцените готовность вашей компании к AI</p>
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-500/20 rounded-lg">
+                        <TbClipboardCheck className="w-6 h-6 text-blue-400" />
+                    </div>
+                    <div>
+                        <h2 className="text-2xl font-bold text-white">AI მზადყოფნის ტესტი</h2>
+                        <p className="text-gray-400 text-sm">კომპანიის შეფასება</p>
+                    </div>
                 </div>
-
-                <div style={{ background: 'rgba(31,41,55,0.9)', borderRadius: 24, padding: 40, border: '1px solid #374151' }}>
-                    {!showResults ? (
-                        <>
-                            <div style={{ marginBottom: 24 }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, color: '#6b7280', marginBottom: 8 }}>
-                                    <span>{questions[currentQ].category}</span>
-                                    <span>{currentQ + 1}/{questions.length}</span>
-                                </div>
-                                <div style={{ height: 6, background: '#374151', borderRadius: 3 }}>
-                                    <div style={{ height: '100%', width: `${((currentQ + 1) / questions.length) * 100}%`, background: 'linear-gradient(90deg, #3b82f6, #10b981)', borderRadius: 3 }} />
-                                </div>
-                            </div>
-                            <h3 style={{ fontSize: 20, color: 'white', marginBottom: 24, textAlign: 'center' }}>{questions[currentQ].text}</h3>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                                {questions[currentQ].options.map((opt, i) => (
-                                    <button key={i} onClick={() => handleAnswer(opt.score, questions[currentQ].category)} style={{ background: '#374151', border: '1px solid #4b5563', borderRadius: 12, padding: '16px', color: 'white', fontSize: 16, cursor: 'pointer', textAlign: 'left' }}>{opt.text}</button>
-                                ))}
-                            </div>
-                        </>
-                    ) : (
-                        <div style={{ textAlign: 'center' }}>
-                            <div style={{ fontSize: 80, fontWeight: 800, color: readiness.color, marginBottom: 8 }}>{avgScore}%</div>
-                            <div style={{ display: 'inline-block', background: `${readiness.color}20`, color: readiness.color, padding: '8px 24px', borderRadius: 20, fontWeight: 700, fontSize: 18, marginBottom: 24 }}>{readiness.level}</div>
-
-                            <div style={{ background: 'rgba(55,65,81,0.5)', borderRadius: 12, padding: 20, marginBottom: 24 }}>
-                                <div style={{ fontSize: 14, color: '#9ca3af', marginBottom: 8 }}>Рекомендация</div>
-                                <div style={{ color: 'white' }}>{readiness.recommendation}</div>
-                            </div>
-
-                            {/* Category breakdown */}
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 12, marginBottom: 24 }}>
-                                {answers.map((a, i) => (
-                                    <div key={i} style={{ background: '#374151', borderRadius: 12, padding: 12, textAlign: 'center' }}>
-                                        <div style={{ fontSize: 24, fontWeight: 700, color: a.score >= 60 ? '#10b981' : a.score >= 40 ? '#f59e0b' : '#ef4444' }}>{a.score}%</div>
-                                        <div style={{ fontSize: 11, color: '#9ca3af' }}>{a.category}</div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div style={{ background: '#1f2937', borderRadius: 12, padding: 20. }}>
-                                <div style={{ color: '#9ca3af', fontSize: 14, marginBottom: 12 }}>Получите детальный отчёт на email:</div>
-                                <div style={{ display: 'flex', gap: 12 }}>
-                                    <input value={email} onChange={e => setEmail(e.target.value)} placeholder="email@company.com" style={{ flex: 1, background: '#374151', border: 'none', borderRadius: 10, padding: '12px', color: 'white' }} />
-                                    <button style={{ background: 'linear-gradient(135deg, #3b82f6, #10b981)', border: 'none', borderRadius: 10, padding: '12px 24px', color: 'white', fontWeight: 600, cursor: 'pointer' }}>Отправить</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
+                <span className="text-sm text-gray-400">{currentQ + 1}/{QUESTIONS.length}</span>
             </div>
-        </section>
+
+            <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div className="h-full bg-blue-500 rounded-full transition-all" style={{ width: `${((currentQ + 1) / QUESTIONS.length) * 100}%` }} />
+            </div>
+
+            <motion.div key={q.id} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+                <div className="text-xs text-blue-400 uppercase tracking-wide">{q.category}</div>
+                <h3 className="text-lg font-medium text-white">{q.question}</h3>
+                <div className="space-y-2">
+                    {q.options.map(opt => (
+                        <button key={opt.value} onClick={() => handleAnswer(opt.value)} className="w-full p-4 text-left rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-blue-500/50 transition-all group">
+                            <div className="flex items-center justify-between">
+                                <span className="text-gray-200">{opt.label}</span>
+                                <TbChevronRight className="w-5 h-5 text-gray-500 group-hover:text-blue-400 transition-colors" />
+                            </div>
+                        </button>
+                    ))}
+                </div>
+            </motion.div>
+        </div>
     );
 }

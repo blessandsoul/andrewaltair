@@ -1,57 +1,66 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useEffect, useCallback } from "react"
+import { TbList, TbChevronRight, TbChevronDown } from "react-icons/tb"
 import { cn } from "@/lib/utils"
-import { List, ChevronRight } from "lucide-react"
 
-interface TOCItem {
+interface TocItem {
     id: string
     text: string
     level: number
 }
 
 interface TableOfContentsProps {
+    contentSelector?: string
     className?: string
-    selector?: string
-    maxLevel?: number
+    title?: string
+    collapsible?: boolean
 }
 
 export function TableOfContents({
-    className,
-    selector = "article",
-    maxLevel = 3,
+    contentSelector = "article",
+    className = "",
+    title = "შინაარსი",
+    collapsible = true
 }: TableOfContentsProps) {
-    const [items, setItems] = useState<TOCItem[]>([])
+    const [items, setItems] = useState<TocItem[]>([])
     const [activeId, setActiveId] = useState<string>("")
-    const [isOpen, setIsOpen] = useState(true)
+    const [isCollapsed, setIsCollapsed] = useState(false)
 
+    // Extract headings from content
     useEffect(() => {
-        const article = document.querySelector(selector)
-        if (!article) return
+        const extractHeadings = () => {
+            const content = document.querySelector(contentSelector)
+            if (!content) return
 
-        const headings = article.querySelectorAll("h1, h2, h3, h4, h5, h6")
-        const tocItems: TOCItem[] = []
+            const headings = content.querySelectorAll("h2, h3")
+            const tocItems: TocItem[] = []
 
-        headings.forEach((heading, index) => {
-            const level = parseInt(heading.tagName.charAt(1))
-            if (level > maxLevel) return
+            headings.forEach((heading, index) => {
+                // Generate ID if not present
+                if (!heading.id) {
+                    heading.id = `heading-${index}`
+                }
 
-            const id = heading.id || `heading-${index}`
-            if (!heading.id) {
-                heading.id = id
-            }
-
-            tocItems.push({
-                id,
-                text: heading.textContent || "",
-                level,
+                tocItems.push({
+                    id: heading.id,
+                    text: heading.textContent || "",
+                    level: parseInt(heading.tagName[1])
+                })
             })
-        })
 
-        setItems(tocItems)
-    }, [selector, maxLevel])
+            setItems(tocItems)
+        }
 
+        // Small delay to ensure content is rendered
+        const timer = setTimeout(extractHeadings, 100)
+        return () => clearTimeout(timer)
+    }, [contentSelector])
+
+    // Track active heading on scroll
     useEffect(() => {
+        if (items.length === 0) return
+
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
@@ -62,168 +71,81 @@ export function TableOfContents({
             },
             {
                 rootMargin: "-20% 0% -35% 0%",
-                threshold: 0.5,
+                threshold: 0
             }
         )
 
         items.forEach((item) => {
             const element = document.getElementById(item.id)
-            if (element) {
-                observer.observe(element)
-            }
+            if (element) observer.observe(element)
         })
 
         return () => observer.disconnect()
     }, [items])
 
-    const scrollToHeading = (id: string) => {
+    const scrollToHeading = useCallback((id: string) => {
         const element = document.getElementById(id)
         if (element) {
-            const top = element.getBoundingClientRect().top + window.scrollY - 100
+            const offset = 100 // Account for fixed header
+            const top = element.getBoundingClientRect().top + window.scrollY - offset
             window.scrollTo({ top, behavior: "smooth" })
         }
-    }
+    }, [])
 
     if (items.length === 0) return null
 
     return (
-        <nav
-            className={cn(
-                "hidden xl:block fixed right-8 top-1/4 z-40 w-64 max-h-[60vh] overflow-hidden rounded-xl border bg-card/80 backdrop-blur-lg shadow-xl transition-all",
-                !isOpen && "w-12",
-                className
-            )}
-        >
+        <nav className={cn("bg-card border border-border rounded-xl p-4 shadow-lg", className)}>
             {/* Header */}
-            <div
-                className="flex cursor-pointer items-center justify-between border-b px-4 py-3"
-                onClick={() => setIsOpen(!isOpen)}
+            <button
+                onClick={() => collapsible && setIsCollapsed(!isCollapsed)}
+                className={cn(
+                    "flex items-center justify-between w-full text-sm font-semibold text-foreground mb-3",
+                    collapsible && "cursor-pointer hover:text-primary transition-colors"
+                )}
             >
                 <div className="flex items-center gap-2">
-                    <List className="h-4 w-4 text-primary" />
-                    {isOpen && <span className="font-medium text-sm">სარჩევი</span>}
+                    <TbList className="w-4 h-4" />
+                    <span>{title}</span>
                 </div>
-                <ChevronRight
-                    className={cn(
-                        "h-4 w-4 transition-transform",
-                        isOpen && "rotate-90"
-                    )}
-                />
-            </div>
-
-            {/* Items */}
-            {isOpen && (
-                <div className="max-h-[calc(60vh-50px)] overflow-auto p-3">
-                    <ul className="space-y-1">
-                        {items.map((item) => (
-                            <li
-                                key={item.id}
-                                style={{ paddingLeft: `${(item.level - 1) * 12}px` }}
-                            >
-                                <button
-                                    onClick={() => scrollToHeading(item.id)}
-                                    className={cn(
-                                        "block w-full rounded-lg px-3 py-2 text-left text-sm transition-all hover:bg-secondary",
-                                        activeId === item.id
-                                            ? "bg-primary/10 text-primary font-medium border-l-2 border-primary"
-                                            : "text-muted-foreground hover:text-foreground"
-                                    )}
-                                >
-                                    <span className="line-clamp-2">{item.text}</span>
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
-
-            {/* Progress indicator */}
-            {isOpen && (
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-secondary">
-                    <div
-                        className="h-full bg-primary transition-all duration-200"
-                        style={{
-                            width: `${items.length > 0
-                                    ? ((items.findIndex((item) => item.id === activeId) + 1) /
-                                        items.length) *
-                                    100
-                                    : 0
-                                }%`,
-                        }}
-                    />
-                </div>
-            )}
-        </nav>
-    )
-}
-
-// Compact inline TOC for mobile
-export function TableOfContentsMobile({
-    className,
-    selector = "article",
-}: {
-    className?: string
-    selector?: string
-}) {
-    const [items, setItems] = useState<TOCItem[]>([])
-    const [isOpen, setIsOpen] = useState(false)
-
-    useEffect(() => {
-        const article = document.querySelector(selector)
-        if (!article) return
-
-        const headings = article.querySelectorAll("h2, h3")
-        const tocItems: TOCItem[] = []
-
-        headings.forEach((heading, index) => {
-            const id = heading.id || `heading-${index}`
-            if (!heading.id) heading.id = id
-
-            tocItems.push({
-                id,
-                text: heading.textContent || "",
-                level: parseInt(heading.tagName.charAt(1)),
-            })
-        })
-
-        setItems(tocItems)
-    }, [selector])
-
-    if (items.length === 0) return null
-
-    return (
-        <div className={cn("xl:hidden rounded-xl border bg-card p-4", className)}>
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="flex w-full items-center justify-between"
-            >
-                <span className="flex items-center gap-2 font-medium">
-                    <List className="h-4 w-4 text-primary" />
-                    სარჩევი ({items.length} სექცია)
-                </span>
-                <ChevronRight
-                    className={cn("h-4 w-4 transition-transform", isOpen && "rotate-90")}
-                />
+                {collapsible && (
+                    isCollapsed
+                        ? <TbChevronRight className="w-4 h-4" />
+                        : <TbChevronDown className="w-4 h-4" />
+                )}
             </button>
 
-            {isOpen && (
-                <ul className="mt-4 space-y-2 border-t pt-4">
-                    {items.map((item) => (
-                        <li
-                            key={item.id}
-                            style={{ paddingLeft: `${(item.level - 2) * 16}px` }}
-                        >
-                            <a
-                                href={`#${item.id}`}
-                                className="block text-sm text-muted-foreground hover:text-primary transition-colors py-1"
-                                onClick={() => setIsOpen(false)}
-                            >
-                                {item.text}
-                            </a>
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </div>
+            {/* Items */}
+            <div className={cn(
+                "space-y-1 overflow-hidden transition-all duration-300",
+                isCollapsed ? "max-h-0 opacity-0" : "max-h-[500px] opacity-100"
+            )}>
+                {items.map((item) => (
+                    <button
+                        key={item.id}
+                        onClick={() => scrollToHeading(item.id)}
+                        className={cn(
+                            "block w-full text-left text-sm py-1.5 px-3 rounded-lg transition-all duration-200",
+                            item.level === 3 && "pl-6",
+                            activeId === item.id
+                                ? "bg-primary/10 text-primary font-medium border-l-2 border-primary"
+                                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        )}
+                    >
+                        <span className="line-clamp-1">{item.text}</span>
+                    </button>
+                ))}
+            </div>
+
+            {/* Progress indicator */}
+            <div className="mt-3 pt-3 border-t border-border">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>{items.findIndex(i => i.id === activeId) + 1} / {items.length}</span>
+                    <span className="text-primary font-medium">
+                        {Math.round(((items.findIndex(i => i.id === activeId) + 1) / items.length) * 100)}%
+                    </span>
+                </div>
+            </div>
+        </nav>
     )
 }

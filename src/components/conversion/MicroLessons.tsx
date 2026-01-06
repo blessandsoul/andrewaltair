@@ -1,130 +1,362 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { TbBook, TbClock, TbBolt, TbCheck, TbChevronRight, TbStar, TbTrophy } from "react-icons/tb";
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/lib/auth';
 
 interface Lesson {
-    id: string;
+    _id: string;
     title: string;
-    duration: string;
-    icon: string;
+    description: string;
+    content: string;
+    duration: number;
+    xpReward: number;
     category: string;
-    difficulty: 'beginner' | 'intermediate' | 'advanced';
-    content: string[];
+    difficulty: string;
+    completed: boolean;
 }
 
-const lessons: Lesson[] = [
-    {
-        id: '1', title: 'Что такое промпт?', duration: '2 мин', icon: '💬', category: 'Основы', difficulty: 'beginner',
-        content: ['Промпт — это текстовая инструкция для AI.', 'Чем точнее промпт, тем лучше результат.', 'Хороший промпт содержит контекст, задачу и формат.']
-    },
-    {
-        id: '2', title: 'ChatGPT за 2 минуты', duration: '2 мин', icon: '🤖', category: 'Инструменты', difficulty: 'beginner',
-        content: ['ChatGPT — это AI-ассистент от OpenAI.', 'Умеет писать тексты, код, отвечать на вопросы.', 'Бесплатная версия на chat.openai.com']
-    },
-    {
-        id: '3', title: 'AI для текстов', duration: '2 мин', icon: '✍️', category: 'Применение', difficulty: 'beginner',
-        content: ['AI помогает писать посты, статьи, письма.', 'Можно задать тон: формальный или дружелюбный.', 'Всегда проверяйте результат AI.']
-    },
-    {
-        id: '4', title: 'Генерация изображений', duration: '2 мин', icon: '🎨', category: 'Инструменты', difficulty: 'intermediate',
-        content: ['DALL-E, Midjourney — топ инструменты.', 'Описывайте детально стиль и композицию.', 'Проверяйте лицензию для коммерции.']
-    },
-    {
-        id: '5', title: 'AI в бизнесе', duration: '2 мин', icon: '💼', category: 'Применение', difficulty: 'advanced',
-        content: ['Автоматизация рутины: отчёты, письма.', 'Ускорение создания контента в 5-10 раз.', 'ROI от AI может достигать 300-500%.']
-    },
-];
+const CATEGORY_COLORS: Record<string, string> = {
+    prompt: 'from-blue-500 to-cyan-500',
+    tool: 'from-purple-500 to-pink-500',
+    concept: 'from-green-500 to-emerald-500',
+    workflow: 'from-orange-500 to-yellow-500',
+};
 
-const difficultyColors = { beginner: '#10b981', intermediate: '#f59e0b', advanced: '#ef4444' };
-const difficultyNames = { beginner: 'Начинающий', intermediate: 'Средний', advanced: 'Продвинутый' };
+const DIFFICULTY_LABELS: Record<string, { label: string; color: string }> = {
+    beginner: { label: 'დამწყები', color: 'text-green-400' },
+    intermediate: { label: 'საშუალო', color: 'text-yellow-400' },
+    advanced: { label: 'მოწინავე', color: 'text-red-400' },
+};
 
-export default function MicroLessons() {
-    const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
-    const [currentSlide, setCurrentSlide] = useState(0);
-    const [completedLessons, setCompletedLessons] = useState<string[]>([]);
-    const [filter, setFilter] = useState<string>('all');
-
-    useEffect(() => {
-        const saved = localStorage.getItem('completedMicroLessons');
-        if (saved) setCompletedLessons(JSON.parse(saved));
-    }, []);
-
-    const completeLesson = (lessonId: string) => {
-        if (!completedLessons.includes(lessonId)) {
-            const updated = [...completedLessons, lessonId];
-            setCompletedLessons(updated);
-            localStorage.setItem('completedMicroLessons', JSON.stringify(updated));
-        }
-    };
-
-    const handleNext = () => {
-        if (selectedLesson) {
-            if (currentSlide < selectedLesson.content.length - 1) {
-                setCurrentSlide(currentSlide + 1);
-            } else {
-                completeLesson(selectedLesson.id);
-                setSelectedLesson(null);
-                setCurrentSlide(0);
-            }
-        }
-    };
-
-    const categories = ['all', ...new Set(lessons.map(l => l.category))];
-    const filteredLessons = filter === 'all' ? lessons : lessons.filter(l => l.category === filter);
+function LessonCard({
+    lesson,
+    onStart,
+    isActive
+}: {
+    lesson: Lesson;
+    onStart: () => void;
+    isActive: boolean;
+}) {
+    const gradientClass = CATEGORY_COLORS[lesson.category] || CATEGORY_COLORS.concept;
+    const difficulty = DIFFICULTY_LABELS[lesson.difficulty] || DIFFICULTY_LABELS.beginner;
 
     return (
-        <section style={{ padding: '80px 20px', background: 'linear-gradient(180deg, rgba(17,24,39,0) 0%, rgba(16,185,129,0.05) 50%, rgba(17,24,39,0) 100%)' }}>
-            <div style={{ textAlign: 'center', marginBottom: 32 }}>
-                <div style={{ fontSize: 48 }}>⚡</div>
-                <h2 style={{ fontSize: 36, fontWeight: 800, background: 'linear-gradient(135deg, #10b981, #3b82f6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Микро-уроки AI</h2>
-                <p style={{ fontSize: 18, color: '#9ca3af' }}>Изучите AI за 2 минуты • Без регистрации</p>
-            </div>
+        <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className={cn(
+                "relative p-4 rounded-xl border transition-all cursor-pointer",
+                lesson.completed
+                    ? "border-green-500/30 bg-green-950/20"
+                    : isActive
+                        ? "border-purple-500 bg-purple-950/30 ring-2 ring-purple-500/50"
+                        : "border-white/10 bg-white/5 hover:border-white/20"
+            )}
+            onClick={onStart}
+        >
+            <div className="flex items-start gap-4">
+                {/* Icon */}
+                <div className={cn(
+                    "w-12 h-12 rounded-xl flex items-center justify-center shrink-0",
+                    lesson.completed ? "bg-green-600" : `bg-gradient-to-br ${gradientClass}`
+                )}>
+                    {lesson.completed ? (
+                        <TbCheck className="w-6 h-6 text-white" />
+                    ) : (
+                        <TbBook className="w-6 h-6 text-white" />
+                    )}
+                </div>
 
-            <div style={{ maxWidth: 400, margin: '24px auto', textAlign: 'center' }}>
-                <div style={{ fontSize: 14, color: '#6b7280', marginBottom: 8 }}>Пройдено {completedLessons.length} из {lessons.length}</div>
-                <div style={{ height: 8, background: '#374151', borderRadius: 4, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${(completedLessons.length / lessons.length) * 100}%`, background: 'linear-gradient(90deg, #10b981, #3b82f6)', borderRadius: 4, transition: 'width 0.5s' }} />
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-white truncate">{lesson.title}</h3>
+                        <span className={cn("text-xs", difficulty.color)}>
+                            {difficulty.label}
+                        </span>
+                    </div>
+                    <p className="text-gray-400 text-sm line-clamp-2 mb-2">{lesson.description}</p>
+
+                    <div className="flex items-center gap-4 text-xs">
+                        <span className="flex items-center gap-1 text-gray-500">
+                            <TbClock className="w-3 h-3" />
+                            {Math.floor(lesson.duration / 60)} წთ
+                        </span>
+                        <span className="flex items-center gap-1 text-yellow-400">
+                            <TbBolt className="w-3 h-3" />
+                            +{lesson.xpReward} XP
+                        </span>
+                    </div>
+                </div>
+
+                {/* Arrow */}
+                <TbChevronRight className={cn(
+                    "w-5 h-5 shrink-0 transition-transform",
+                    isActive ? "text-purple-400 translate-x-1" : "text-gray-600"
+                )} />
+            </div>
+        </motion.div>
+    );
+}
+
+function LessonViewer({
+    lesson,
+    onComplete,
+    onClose
+}: {
+    lesson: Lesson;
+    onComplete: () => void;
+    onClose: () => void;
+}) {
+    const [progress, setProgress] = useState(0);
+    const [canComplete, setCanComplete] = useState(false);
+
+    useEffect(() => {
+        // Progress bar animation
+        const duration = lesson.duration * 1000;
+        const interval = 100;
+        const increment = (interval / duration) * 100;
+
+        const timer = setInterval(() => {
+            setProgress(prev => {
+                const next = prev + increment;
+                if (next >= 100) {
+                    setCanComplete(true);
+                    clearInterval(timer);
+                    return 100;
+                }
+                return next;
+            });
+        }, interval);
+
+        return () => clearInterval(timer);
+    }, [lesson.duration]);
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+        >
+            <div className="w-full max-w-2xl bg-[#12121a] border border-white/10 rounded-2xl overflow-hidden">
+                {/* Progress Bar */}
+                <div className="h-1 bg-gray-800">
+                    <motion.div
+                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progress}%` }}
+                    />
+                </div>
+
+                {/* Header */}
+                <div className="p-6 border-b border-white/10">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                                <TbBook className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                                <h2 className="font-bold text-white">{lesson.title}</h2>
+                                <p className="text-xs text-gray-400">
+                                    {Math.floor(lesson.duration / 60)} წუთიანი გაკვეთილი
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={onClose}
+                            className="text-gray-400 hover:text-white transition-colors"
+                        >
+                            ✕
+                        </button>
+                    </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-6 max-h-[400px] overflow-y-auto">
+                    <div className="prose prose-invert prose-sm max-w-none">
+                        {lesson.content.split('\n').map((paragraph, i) => (
+                            <p key={i} className="text-gray-300 mb-4">{paragraph}</p>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Footer */}
+                <div className="p-6 border-t border-white/10 bg-white/5">
+                    <button
+                        onClick={onComplete}
+                        disabled={!canComplete}
+                        className={cn(
+                            "w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all",
+                            canComplete
+                                ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-400 hover:to-emerald-500"
+                                : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                        )}
+                    >
+                        {canComplete ? (
+                            <>
+                                <TbTrophy className="w-5 h-5" />
+                                დასრულება (+{lesson.xpReward} XP)
+                            </>
+                        ) : (
+                            <>
+                                <TbClock className="w-5 h-5 animate-pulse" />
+                                წაიკითხე გაკვეთილი...
+                            </>
+                        )}
+                    </button>
+                </div>
+            </div>
+        </motion.div>
+    );
+}
+
+export default function MicroLessons() {
+    const { user, isLoading: authLoading } = useAuth();
+    const [lessons, setLessons] = useState<Lesson[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
+    const [totalXp, setTotalXp] = useState(0);
+
+    useEffect(() => {
+        if (user) fetchLessons();
+        else setLoading(false);
+    }, [user]);
+
+    const fetchLessons = async () => {
+        try {
+            const userId = user?.id || (user as any)?._id;
+            const res = await fetch(`/api/conversion/lessons?userId=${userId}`);
+            const data = await res.json();
+            setLessons(data.lessons || []);
+
+            // Calculate total XP from completed lessons
+            const completedXp = (data.lessons || [])
+                .filter((l: Lesson) => l.completed)
+                .reduce((sum: number, l: Lesson) => sum + l.xpReward, 0);
+            setTotalXp(completedXp);
+        } catch (e) {
+            console.error('Failed to fetch lessons', e);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleComplete = async () => {
+        if (!activeLesson || !user) return;
+
+        try {
+            const res = await fetch('/api/conversion/lessons', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    lessonId: activeLesson._id,
+                    userId: user.id || (user as any)._id
+                })
+            });
+
+            const data = await res.json();
+            if (data.success && !data.alreadyCompleted) {
+                setTotalXp(prev => prev + activeLesson.xpReward);
+            }
+
+            setActiveLesson(null);
+            fetchLessons();
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    if (authLoading || loading) {
+        return (
+            <div className="space-y-3">
+                {[1, 2, 3].map(i => (
+                    <div key={i} className="animate-pulse bg-white/5 h-24 rounded-xl" />
+                ))}
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className="text-center p-8 border border-white/10 rounded-2xl bg-white/5">
+                <TbBook className="w-12 h-12 mx-auto mb-4 text-purple-400" />
+                <h3 className="text-xl font-bold mb-2">⚡ მიკრო-გაკვეთილები</h3>
+                <p className="text-gray-400">გაიარე ავტორიზაცია სწავლის დასაწყებად</p>
+            </div>
+        );
+    }
+
+    const completedCount = lessons.filter(l => l.completed).length;
+
+    return (
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-purple-500/20 rounded-lg">
+                        <TbBook className="w-6 h-6 text-purple-400" />
+                    </div>
+                    <div>
+                        <h2 className="text-2xl font-bold text-white">მიკრო-გაკვეთილები</h2>
+                        <p className="text-gray-400 text-sm">2-წუთიანი AI გაკვეთილები</p>
+                    </div>
+                </div>
+
+
+                {/* XP Badge */}
+                <div className="flex items-center gap-2 px-4 py-2 bg-yellow-500/20 rounded-full">
+                    <TbStar className="w-5 h-5 text-yellow-400" />
+                    <span className="font-bold text-yellow-400">{totalXp} XP</span>
                 </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 32, flexWrap: 'wrap' }}>
-                {categories.map(cat => (
-                    <button key={cat} onClick={() => setFilter(cat)} style={{ background: filter === cat ? 'linear-gradient(135deg, #10b981, #3b82f6)' : 'transparent', border: filter === cat ? 'none' : '1px solid #374151', color: filter === cat ? 'white' : '#9ca3af', padding: '8px 20px', borderRadius: 20, fontSize: 14, cursor: 'pointer' }}>
-                        {cat === 'all' ? 'Все' : cat}
-                    </button>
-                ))}
+            {/* Progress */}
+            <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                <div className="flex items-center justify-between mb-2 text-sm">
+                    <span className="text-gray-400">პროგრესი</span>
+                    <span className="text-white font-medium">{completedCount}/{lessons.length}</span>
+                </div>
+                <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div
+                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all"
+                        style={{ width: `${(completedCount / Math.max(lessons.length, 1)) * 100}%` }}
+                    />
+                </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, maxWidth: 1200, margin: '0 auto' }}>
-                {filteredLessons.map(lesson => (
-                    <div key={lesson.id} onClick={() => setSelectedLesson(lesson)} style={{ background: completedLessons.includes(lesson.id) ? 'rgba(16,185,129,0.1)' : 'rgba(31,41,55,0.8)', border: `1px solid ${completedLessons.includes(lesson.id) ? '#10b981' : '#374151'}`, borderRadius: 16, padding: 24, cursor: 'pointer', position: 'relative', transition: 'all 0.3s' }}>
-                        {completedLessons.includes(lesson.id) && <span style={{ position: 'absolute', top: 12, right: 12, background: '#10b981', color: 'white', width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>✓</span>}
-                        <div style={{ fontSize: 40, marginBottom: 12 }}>{lesson.icon}</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                            <span style={{ fontSize: 12, color: '#6b7280' }}>⏱️ {lesson.duration}</span>
-                            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, fontWeight: 600, background: `${difficultyColors[lesson.difficulty]}20`, color: difficultyColors[lesson.difficulty] }}>{difficultyNames[lesson.difficulty]}</span>
-                        </div>
-                        <h3 style={{ fontSize: 18, fontWeight: 700, color: 'white', marginBottom: 8 }}>{lesson.title}</h3>
-                        <span style={{ fontSize: 13, color: '#6b7280' }}>{lesson.category}</span>
-                    </div>
-                ))}
-            </div>
-
-            {selectedLesson && (
-                <div onClick={() => { setSelectedLesson(null); setCurrentSlide(0); }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: 20 }}>
-                    <div onClick={e => e.stopPropagation()} style={{ background: '#1f2937', borderRadius: 24, padding: 40, maxWidth: 600, width: '100%', position: 'relative', textAlign: 'center' }}>
-                        <button onClick={() => { setSelectedLesson(null); setCurrentSlide(0); }} style={{ position: 'absolute', top: 16, right: 16, background: 'transparent', border: 'none', color: '#6b7280', fontSize: 24, cursor: 'pointer' }}>×</button>
-                        <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 24 }}>{currentSlide + 1} / {selectedLesson.content.length}</div>
-                        <div style={{ fontSize: 64, marginBottom: 24 }}>{selectedLesson.icon}</div>
-                        <h3 style={{ fontSize: 24, fontWeight: 700, color: 'white', marginBottom: 24 }}>{selectedLesson.title}</h3>
-                        <div style={{ fontSize: 18, color: '#d1d5db', lineHeight: 1.6, padding: '40px 20px', background: 'rgba(55,65,81,0.5)', borderRadius: 16 }}>{selectedLesson.content[currentSlide]}</div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 32 }}>
-                            <button onClick={() => currentSlide > 0 && setCurrentSlide(currentSlide - 1)} disabled={currentSlide === 0} style={{ background: 'transparent', border: '1px solid #374151', color: '#9ca3af', padding: '12px 24px', borderRadius: 12, fontSize: 14, cursor: currentSlide === 0 ? 'not-allowed' : 'pointer', opacity: currentSlide === 0 ? 0.5 : 1 }}>← Назад</button>
-                            <button onClick={handleNext} style={{ background: 'linear-gradient(135deg, #10b981, #3b82f6)', border: 'none', color: 'white', padding: '12px 24px', borderRadius: 12, fontSize: 14, cursor: 'pointer' }}>{currentSlide === selectedLesson.content.length - 1 ? 'Завершить ✓' : 'Далее →'}</button>
-                        </div>
-                    </div>
+            {/* Lessons List */}
+            {lessons.length === 0 ? (
+                <div className="text-center p-8 border border-white/10 rounded-2xl bg-white/5">
+                    <TbBook className="w-12 h-12 mx-auto mb-4 text-gray-500" />
+                    <p className="text-gray-400">გაკვეთილები მალე გამოჩნდება</p>
+                </div>
+            ) : (
+                <div className="space-y-3">
+                    {lessons.map((lesson, index) => (
+                        <LessonCard
+                            key={lesson._id}
+                            lesson={lesson}
+                            isActive={activeLesson?._id === lesson._id}
+                            onStart={() => setActiveLesson(lesson)}
+                        />
+                    ))}
                 </div>
             )}
-        </section>
+
+            {/* Lesson Viewer Modal */}
+            <AnimatePresence>
+                {activeLesson && (
+                    <LessonViewer
+                        lesson={activeLesson}
+                        onComplete={handleComplete}
+                        onClose={() => setActiveLesson(null)}
+                    />
+                )}
+            </AnimatePresence>
+        </div>
     );
 }

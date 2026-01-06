@@ -1,9 +1,32 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
+
+interface Star {
+    id: number
+    x: number
+    y: number
+    size: number
+    brightness: number
+    connections: number[]
+}
+
+interface ShootingStar {
+    id: number
+    x: number
+    y: number
+    angle: number
+    speed: number
+    length: number
+    opacity: number
+}
 
 export function InteractiveConstellation() {
     const canvasRef = useRef<HTMLCanvasElement>(null)
+    const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+    const starsRef = useRef<Star[]>([])
+    const shootingStarsRef = useRef<ShootingStar[]>([])
+    const animationRef = useRef<number>()
 
     useEffect(() => {
         const canvas = canvasRef.current
@@ -12,105 +35,186 @@ export function InteractiveConstellation() {
         const ctx = canvas.getContext("2d")
         if (!ctx) return
 
-        let animationId: number
-        let width = 0
-        let height = 0
-
-        // Configuration
-        const STAR_COUNT = 40 // Reduced for deeper "void" feel
-        const CONNECTION_DISTANCE = 150
-
-        interface Star {
-            x: number
-            y: number
-            baseX: number
-            baseY: number
-            size: number
-            opacity: number
-            speed: number
-            phase: number
+        // Set canvas size
+        const resizeCanvas = () => {
+            canvas.width = window.innerWidth
+            canvas.height = window.innerHeight
+            generateStars()
         }
 
-        let stars: Star[] = []
-
-        const init = () => {
-            width = window.innerWidth
-            height = window.innerHeight
-            canvas.width = width
-            canvas.height = height
-
-            stars = Array.from({ length: STAR_COUNT }, () => ({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                baseX: Math.random() * width,
-                baseY: Math.random() * height,
-                size: Math.random() * 1.5 + 0.5,
-                opacity: Math.random() * 0.5 + 0.2,
-                speed: 0.2 + Math.random() * 0.3, // Slow speed for calm
-                phase: Math.random() * Math.PI * 2
+        // Generate random stars
+        const generateStars = () => {
+            const numStars = Math.floor((canvas.width * canvas.height) / 15000)
+            starsRef.current = Array.from({ length: numStars }, (_, i) => ({
+                id: i,
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2 + 0.5,
+                brightness: Math.random() * 0.5 + 0.5,
+                connections: [],
             }))
         }
 
-        const animate = () => {
-            ctx.clearRect(0, 0, width, height)
+        // Add shooting star
+        const addShootingStar = () => {
+            if (shootingStarsRef.current.length > 3) return
 
-            const time = Date.now() * 0.001
+            const shootingStar: ShootingStar = {
+                id: Date.now(),
+                x: Math.random() * canvas.width * 0.8,
+                y: Math.random() * canvas.height * 0.3,
+                angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3,
+                speed: 8 + Math.random() * 6,
+                length: 80 + Math.random() * 60,
+                opacity: 1,
+            }
+            shootingStarsRef.current.push(shootingStar)
+        }
 
-            // Update and draw stars
-            stars.forEach((star, i) => {
-                // Autonomous Figure-8 movement
-                // x = sin(t), y = sin(2t)
-                const offsetX = Math.sin(time * star.speed + star.phase) * 50
-                const offsetY = Math.sin(time * star.speed * 2 + star.phase) * 30
+        // Draw function
+        const draw = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-                star.x = (star.baseX + offsetX + width) % width
-                star.y = (star.baseY + offsetY + height) % height
+            const stars = starsRef.current
+            const mouse = mousePos
+            const connectionRadius = 150
+            const mouseRadius = 200
 
-                // Twinkle effect
-                const alpha = star.opacity * (0.7 + Math.sin(time * 3 + star.phase) * 0.3)
+            // Draw stars
+            stars.forEach((star) => {
+                // Calculate distance from mouse
+                const dx = star.x - mouse.x
+                const dy = star.y - mouse.y
+                const dist = Math.sqrt(dx * dx + dy * dy)
 
+                // TbStars glow more when mouse is near
+                const glow = dist < mouseRadius ? 1 + (1 - dist / mouseRadius) * 2 : 1
+                const size = star.size * glow
+
+                // Draw star
                 ctx.beginPath()
-                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2)
-                ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`
+                ctx.arc(star.x, star.y, size, 0, Math.PI * 2)
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness * glow})`
                 ctx.fill()
 
-                // Draw connections
-                for (let j = i + 1; j < stars.length; j++) {
-                    const star2 = stars[j]
-                    const dx = star.x - star2.x
-                    const dy = star.y - star2.y
-                    const dist = Math.sqrt(dx * dx + dy * dy)
-
-                    if (dist < CONNECTION_DISTANCE) {
-                        const lineAlpha = (1 - dist / CONNECTION_DISTANCE) * 0.15
-                        ctx.beginPath()
-                        ctx.moveTo(star.x, star.y)
-                        ctx.lineTo(star2.x, star2.y)
-                        ctx.strokeStyle = `rgba(255, 255, 255, ${lineAlpha})`
-                        ctx.lineWidth = 0.5
-                        ctx.stroke()
-                    }
+                // Add glow effect for stars near mouse
+                if (dist < mouseRadius) {
+                    ctx.beginPath()
+                    ctx.arc(star.x, star.y, size * 3, 0, Math.PI * 2)
+                    const gradient = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, size * 3)
+                    gradient.addColorStop(0, `rgba(168, 85, 247, ${0.4 * (1 - dist / mouseRadius)})`)
+                    gradient.addColorStop(1, "transparent")
+                    ctx.fillStyle = gradient
+                    ctx.fill()
                 }
             })
 
-            animationId = requestAnimationFrame(animate)
+            // Draw connections between nearby stars when mouse is near
+            stars.forEach((star1, i) => {
+                const dx1 = star1.x - mouse.x
+                const dy1 = star1.y - mouse.y
+                const dist1 = Math.sqrt(dx1 * dx1 + dy1 * dy1)
+
+                if (dist1 < mouseRadius) {
+                    stars.slice(i + 1).forEach((star2) => {
+                        const dx2 = star2.x - star1.x
+                        const dy2 = star2.y - star1.y
+                        const dist2 = Math.sqrt(dx2 * dx2 + dy2 * dy2)
+
+                        if (dist2 < connectionRadius) {
+                            const opacity = (1 - dist2 / connectionRadius) * (1 - dist1 / mouseRadius) * 0.5
+
+                            ctx.beginPath()
+                            ctx.moveTo(star1.x, star1.y)
+                            ctx.lineTo(star2.x, star2.y)
+
+                            const gradient = ctx.createLinearGradient(star1.x, star1.y, star2.x, star2.y)
+                            gradient.addColorStop(0, `rgba(168, 85, 247, ${opacity})`)
+                            gradient.addColorStop(0.5, `rgba(236, 72, 153, ${opacity})`)
+                            gradient.addColorStop(1, `rgba(59, 130, 246, ${opacity})`)
+
+                            ctx.strokeStyle = gradient
+                            ctx.lineWidth = 1
+                            ctx.stroke()
+                        }
+                    })
+                }
+            })
+
+            // Draw shooting stars
+            shootingStarsRef.current = shootingStarsRef.current.filter((ss) => {
+                // Update position
+                ss.x += Math.cos(ss.angle) * ss.speed
+                ss.y += Math.sin(ss.angle) * ss.speed
+                ss.opacity -= 0.015
+
+                if (ss.opacity <= 0 || ss.x > canvas.width || ss.y > canvas.height) {
+                    return false
+                }
+
+                // Draw shooting star trail
+                const tailX = ss.x - Math.cos(ss.angle) * ss.length
+                const tailY = ss.y - Math.sin(ss.angle) * ss.length
+
+                const gradient = ctx.createLinearGradient(tailX, tailY, ss.x, ss.y)
+                gradient.addColorStop(0, "transparent")
+                gradient.addColorStop(0.7, `rgba(255, 255, 255, ${ss.opacity * 0.3})`)
+                gradient.addColorStop(1, `rgba(255, 255, 255, ${ss.opacity})`)
+
+                ctx.beginPath()
+                ctx.moveTo(tailX, tailY)
+                ctx.lineTo(ss.x, ss.y)
+                ctx.strokeStyle = gradient
+                ctx.lineWidth = 2
+                ctx.stroke()
+
+                // Head glow
+                ctx.beginPath()
+                ctx.arc(ss.x, ss.y, 3, 0, Math.PI * 2)
+                ctx.fillStyle = `rgba(255, 255, 255, ${ss.opacity})`
+                ctx.fill()
+
+                return true
+            })
+
+            animationRef.current = requestAnimationFrame(draw)
         }
 
-        init()
-        window.addEventListener("resize", init)
-        animate()
+        // Mouse move handler
+        const handleMouseMove = (e: MouseEvent) => {
+            setMousePos({ x: e.clientX, y: e.clientY })
+        }
+
+        // Initialize
+        resizeCanvas()
+        window.addEventListener("resize", resizeCanvas)
+        window.addEventListener("mousemove", handleMouseMove)
+
+        // Start animation
+        draw()
+
+        // Shooting stars interval
+        const shootingInterval = setInterval(() => {
+            if (Math.random() > 0.7) {
+                addShootingStar()
+            }
+        }, 2000)
 
         return () => {
-            window.removeEventListener("resize", init)
-            cancelAnimationFrame(animationId)
+            window.removeEventListener("resize", resizeCanvas)
+            window.removeEventListener("mousemove", handleMouseMove)
+            if (animationRef.current) {
+                cancelAnimationFrame(animationRef.current)
+            }
+            clearInterval(shootingInterval)
         }
-    }, [])
+    }, [mousePos])
 
     return (
         <canvas
             ref={canvasRef}
-            className="absolute inset-0 pointer-events-none z-0"
-            style={{ opacity: 0.6 }}
+            className="fixed inset-0 pointer-events-none z-[2]"
+            style={{ opacity: 0.8 }}
         />
     )
 }

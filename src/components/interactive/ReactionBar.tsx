@@ -3,6 +3,7 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { brand } from "@/lib/brand"
+import { useVisitorTracking } from "@/hooks/useVisitorTracking"
 
 interface ReactionBarProps {
     reactions: {
@@ -12,14 +13,17 @@ interface ReactionBarProps {
         applause: number
         insightful: number
     }
+    postId?: string
+    postTitle?: string
     onReact?: (key: string) => void
     className?: string
     size?: "sm" | "md" | "lg"
 }
 
-export function ReactionBar({ reactions, onReact, className, size = "md" }: ReactionBarProps) {
+export function ReactionBar({ reactions, postId, postTitle, onReact, className, size = "md" }: ReactionBarProps) {
     const [userReactions, setUserReactions] = React.useState<Set<string>>(new Set())
     const [localReactions, setLocalReactions] = React.useState(reactions)
+    const { recordActivity } = useVisitorTracking()
 
     const handleReact = (key: string) => {
         const newUserReactions = new Set(userReactions)
@@ -31,6 +35,18 @@ export function ReactionBar({ reactions, onReact, className, size = "md" }: Reac
         } else {
             newUserReactions.add(key)
             newLocalReactions[key as keyof typeof reactions] += 1
+
+            // 🎯 TRACK REACTION ACTIVITY (only when adding, not removing)
+            if (postId) {
+                const emoji = brand.reactions.find(r => r.key === key)?.emoji || '❤️'
+                recordActivity('reaction', {
+                    targetType: 'post',
+                    targetId: postId,
+                    targetTitle: postTitle,
+                    metadata: { reactionType: key, emoji },
+                    isPublic: true // Reactions shown in social proof
+                })
+            }
         }
 
         setUserReactions(newUserReactions)

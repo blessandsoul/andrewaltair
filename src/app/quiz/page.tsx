@@ -5,57 +5,44 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {
-    Sparkles,
-    ArrowRight,
-    ArrowLeft,
-    CheckCircle2,
-    Share2,
-    RotateCcw,
-    Lightbulb,
-    Wrench,
-    Palette,
-    Code2,
-    FileText,
-    Zap
-} from "lucide-react"
+import { TbSparkles, TbArrowRight, TbArrowLeft, TbCircleCheck, TbShare, TbRefresh, TbBulb, TbTool, TbPalette, TbCode, TbFileText, TbBolt } from "react-icons/tb"
 
 const questions = [
     {
         id: 1,
         question: "რისთვის გჭირდება AI ძირითადად?",
         options: [
-            { id: "a", text: "ტექსტის წერა და რედაქტირება", icon: FileText, scores: { chatgpt: 3, claude: 3, jasper: 2 } },
-            { id: "b", text: "კოდირება და პროგრამირება", icon: Code2, scores: { chatgpt: 2, claude: 3, github: 3 } },
-            { id: "c", text: "სურათების გენერაცია", icon: Palette, scores: { midjourney: 3, dalle: 2, stable: 2 } },
-            { id: "d", text: "ავტომატიზაცია და workflow", icon: Zap, scores: { make: 3, zapier: 3, chatgpt: 1 } }
+            { id: "a", text: "ტექსტის წერა და რედაქტირება", icon: TbFileText, scores: { chatgpt: 3, claude: 3, jasper: 2 } },
+            { id: "b", text: "კოდირება და პროგრამირება", icon: TbCode, scores: { chatgpt: 2, claude: 3, github: 3 } },
+            { id: "c", text: "სურათების გენერაცია", icon: TbPalette, scores: { midjourney: 3, dalle: 2, stable: 2 } },
+            { id: "d", text: "ავტომატიზაცია და workflow", icon: TbBolt, scores: { make: 3, zapier: 3, chatgpt: 1 } }
         ]
     },
     {
         id: 2,
         question: "რა დონეზე ხარ AI-ს გამოყენებაში?",
         options: [
-            { id: "a", text: "დამწყები - ახლა ვიწყებ", icon: Lightbulb, scores: { chatgpt: 2, claude: 1 } },
-            { id: "b", text: "საშუალო - ვიცი საფუძვლები", icon: Wrench, scores: { chatgpt: 1, claude: 2, make: 1 } },
-            { id: "c", text: "მოწინავე - ვიყენებ ყოველდღე", icon: Sparkles, scores: { claude: 2, make: 2, github: 2 } }
+            { id: "a", text: "დამწყები - ახლა ვიწყებ", icon: TbBulb, scores: { chatgpt: 2, claude: 1 } },
+            { id: "b", text: "საშუალო - ვიცი საფუძვლები", icon: TbTool, scores: { chatgpt: 1, claude: 2, make: 1 } },
+            { id: "c", text: "მოწინავე - ვიყენებ ყოველდღე", icon: TbSparkles, scores: { claude: 2, make: 2, github: 2 } }
         ]
     },
     {
         id: 3,
         question: "რამდენს მზად ხარ გადაიხადო თვეში?",
         options: [
-            { id: "a", text: "უფასო ვერსიებით მინდა", icon: Sparkles, scores: { chatgpt: 2, claude: 1 } },
-            { id: "b", text: "$20-30", icon: Sparkles, scores: { chatgpt: 2, claude: 2, midjourney: 2 } },
-            { id: "c", text: "$50+", icon: Sparkles, scores: { claude: 2, make: 2, midjourney: 2 } }
+            { id: "a", text: "უფასო ვერსიებით მინდა", icon: TbSparkles, scores: { chatgpt: 2, claude: 1 } },
+            { id: "b", text: "$20-30", icon: TbSparkles, scores: { chatgpt: 2, claude: 2, midjourney: 2 } },
+            { id: "c", text: "$50+", icon: TbSparkles, scores: { claude: 2, make: 2, midjourney: 2 } }
         ]
     },
     {
         id: 4,
         question: "რომელი უფრო მნიშვნელოვანია შენთვის?",
         options: [
-            { id: "a", text: "სიზუსტე და ხარისხი", icon: CheckCircle2, scores: { claude: 3, chatgpt: 2 } },
-            { id: "b", text: "სიჩქარე და მოხერხებულობა", icon: Zap, scores: { chatgpt: 3, make: 2 } },
-            { id: "c", text: "კრეატიულობა", icon: Palette, scores: { midjourney: 3, chatgpt: 2 } }
+            { id: "a", text: "სიზუსტე და ხარისხი", icon: TbCircleCheck, scores: { claude: 3, chatgpt: 2 } },
+            { id: "b", text: "სიჩქარე და მოხერხებულობა", icon: TbBolt, scores: { chatgpt: 3, make: 2 } },
+            { id: "c", text: "კრეატიულობა", icon: TbPalette, scores: { midjourney: 3, chatgpt: 2 } }
         ]
     }
 ]
@@ -149,7 +136,7 @@ export default function QuizPage() {
 
                 <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl text-center">
                     <Badge className="bg-primary/10 text-primary border-primary/20 px-4 py-2 mb-6">
-                        <Sparkles className="w-4 h-4 mr-2" />
+                        <TbSparkles className="w-4 h-4 mr-2" />
                         ინტერაქტიული ქვიზი
                     </Badge>
 
@@ -213,7 +200,7 @@ export default function QuizPage() {
                                         className="mt-6"
                                         onClick={() => setCurrentQuestion(currentQuestion - 1)}
                                     >
-                                        <ArrowLeft className="w-4 h-4 mr-2" />
+                                        <TbArrowLeft className="w-4 h-4 mr-2" />
                                         უკან
                                     </Button>
                                 )}
@@ -275,15 +262,15 @@ export default function QuizPage() {
                                 <Button size="lg" asChild>
                                     <Link href="/tools">
                                         ყველა ინსტრუმენტი
-                                        <ArrowRight className="w-5 h-5 ml-2" />
+                                        <TbArrowRight className="w-5 h-5 ml-2" />
                                     </Link>
                                 </Button>
                                 <Button variant="outline" size="lg" onClick={restart}>
-                                    <RotateCcw className="w-5 h-5 mr-2" />
+                                    <TbRefresh className="w-5 h-5 mr-2" />
                                     თავიდან
                                 </Button>
                                 <Button variant="outline" size="lg">
-                                    <Share2 className="w-5 h-5 mr-2" />
+                                    <TbShare className="w-5 h-5 mr-2" />
                                     გაზიარება
                                 </Button>
                             </div>

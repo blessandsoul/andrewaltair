@@ -1,92 +1,75 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { TbSparkles, TbExternalLink, TbStar, TbBolt } from "react-icons/tb";
+import { cn } from '@/lib/utils';
 
-interface Tool { id: string; name: string; icon: string; category: string; match: number; description: string; }
+interface Tool {
+    id: string;
+    name: string;
+    description: string;
+    category: string;
+    matchScore: number;
+    icon: string;
+}
 
-const allTools: Tool[] = [
-    { id: '1', name: 'ChatGPT', icon: '💬', category: 'Текст', match: 95, description: 'Универсальный AI-ассистент' },
-    { id: '2', name: 'Midjourney', icon: '🎨', category: 'Изображения', match: 88, description: 'Генерация изображений' },
-    { id: '3', name: 'Claude', icon: '🧠', category: 'Текст', match: 92, description: 'Продвинутый анализ' },
-    { id: '4', name: 'DALL-E 3', icon: '🖼️', category: 'Изображения', match: 85, description: 'Создание артов' },
-    { id: '5', name: 'Runway', icon: '🎬', category: 'Видео', match: 78, description: 'AI видеогенерация' },
-    { id: '6', name: 'Jasper', icon: '✍️', category: 'Маркетинг', match: 82, description: 'Маркетинговый контент' },
+const RECOMMENDED_TOOLS: Tool[] = [
+    { id: '1', name: 'ChatGPT', description: 'უნივერსალური AI ასისტენტი ტექსტისთვის', category: 'ტექსტი', matchScore: 98, icon: '🤖' },
+    { id: '2', name: 'Midjourney', description: 'AI გამოსახულებების გენერატორი', category: 'სურათები', matchScore: 92, icon: '🎨' },
+    { id: '3', name: 'Claude', description: 'ანალიტიკური AI დოკუმენტებისთვის', category: 'ტექსტი', matchScore: 89, icon: '📝' },
+    { id: '4', name: 'ElevenLabs', description: 'AI ხმის გენერატორი', category: 'აუდიო', matchScore: 85, icon: '🔊' },
 ];
 
 export default function SmartRecommendations() {
-    const [interests, setInterests] = useState<string[]>([]);
-    const [recommendations, setRecommendations] = useState<Tool[]>([]);
-    const categories = ['Текст', 'Изображения', 'Видео', 'Маркетинг', 'Код', 'Аналитика'];
-
-    useEffect(() => {
-        const saved = localStorage.getItem('userInterests');
-        if (saved) setInterests(JSON.parse(saved));
-    }, []);
-
-    useEffect(() => {
-        if (interests.length > 0) {
-            const filtered = allTools.filter(t => interests.includes(t.category)).slice(0, 4);
-            if (filtered.length < 4) {
-                const remaining = allTools.filter(t => !interests.includes(t.category)).slice(0, 4 - filtered.length);
-                setRecommendations([...filtered, ...remaining]);
-            } else {
-                setRecommendations(filtered);
-            }
-        } else {
-            setRecommendations(allTools.slice(0, 4));
-        }
-    }, [interests]);
-
-    const toggleInterest = (cat: string) => {
-        const updated = interests.includes(cat) ? interests.filter(i => i !== cat) : [...interests, cat];
-        setInterests(updated);
-        localStorage.setItem('userInterests', JSON.stringify(updated));
-    };
-
     return (
-        <section style={{ padding: '80px 20px', background: 'linear-gradient(180deg, rgba(17,24,39,0) 0%, rgba(139,92,246,0.08) 50%, rgba(17,24,39,0) 100%)' }}>
-            <div style={{ maxWidth: 900, margin: '0 auto' }}>
-                <div style={{ textAlign: 'center', marginBottom: 40 }}>
-                    <span style={{ fontSize: 48 }}>🎯</span>
-                    <h2 style={{ fontSize: 36, fontWeight: 800, background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginTop: 16 }}>Smart Recommendations</h2>
-                    <p style={{ fontSize: 18, color: '#9ca3af' }}>AI подбирает инструменты под ваши задачи</p>
+        <div className="space-y-6">
+            <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-500/20 rounded-lg">
+                    <TbSparkles className="w-6 h-6 text-purple-400" />
                 </div>
-
-                {/* Interest Tags */}
-                <div style={{ background: 'rgba(31,41,55,0.8)', borderRadius: 16, padding: 24, marginBottom: 32 }}>
-                    <div style={{ fontSize: 14, color: '#9ca3af', marginBottom: 12 }}>Выберите интересы для персонализации:</div>
-                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                        {categories.map(cat => (
-                            <button key={cat} onClick={() => toggleInterest(cat)} style={{ background: interests.includes(cat) ? 'linear-gradient(135deg, #8b5cf6, #3b82f6)' : '#374151', border: 'none', borderRadius: 20, padding: '8px 16px', color: 'white', fontSize: 14, cursor: 'pointer', transition: 'all 0.3s' }}>
-                                {cat}
-                            </button>
-                        ))}
-                    </div>
+                <div>
+                    <h2 className="text-2xl font-bold text-white">რეკომენდაციები</h2>
+                    <p className="text-gray-400 text-sm">შენთვის შერჩეული AI ხელსაწყოები</p>
                 </div>
-
-                {/* Recommendations */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
-                    {recommendations.map((tool, i) => (
-                        <div key={tool.id} style={{ background: 'rgba(31,41,55,0.9)', border: '1px solid #374151', borderRadius: 16, padding: 24, cursor: 'pointer', transition: 'all 0.3s', animation: `fadeIn 0.3s ease ${i * 0.1}s both` }}
-                            onMouseEnter={e => { e.currentTarget.style.borderColor = '#8b5cf6'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
-                            onMouseLeave={e => { e.currentTarget.style.borderColor = '#374151'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 12 }}>
-                                <span style={{ fontSize: 36 }}>{tool.icon}</span>
-                                <span style={{ background: 'rgba(139,92,246,0.2)', color: '#a78bfa', padding: '4px 8px', borderRadius: 8, fontSize: 12 }}>{tool.match}% match</span>
-                            </div>
-                            <h3 style={{ fontSize: 18, fontWeight: 700, color: 'white', marginBottom: 4 }}>{tool.name}</h3>
-                            <p style={{ fontSize: 13, color: '#9ca3af', marginBottom: 8 }}>{tool.description}</p>
-                            <span style={{ fontSize: 11, color: '#6b7280', background: '#374151', padding: '2px 8px', borderRadius: 10 }}>{tool.category}</span>
-                        </div>
-                    ))}
-                </div>
-
-                <div style={{ textAlign: 'center', marginTop: 32 }}>
-                    <button style={{ background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)', border: 'none', borderRadius: 12, padding: '14px 32px', color: 'white', fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>Посмотреть все инструменты →</button>
-                </div>
-
-                <style jsx global>{`@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }`}</style>
             </div>
-        </section>
+
+            <div className="space-y-3">
+                {RECOMMENDED_TOOLS.map((tool, index) => (
+                    <motion.div
+                        key={tool.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="p-4 rounded-xl border border-white/10 bg-white/5 hover:border-purple-500/50 transition-all group cursor-pointer"
+                    >
+                        <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center text-2xl shrink-0">
+                                {tool.icon}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                    <h3 className="font-semibold text-white">{tool.name}</h3>
+                                    <span className="px-2 py-0.5 bg-white/10 rounded-full text-xs text-gray-300">{tool.category}</span>
+                                </div>
+                                <p className="text-gray-400 text-sm truncate">{tool.description}</p>
+                            </div>
+                            <div className="text-right shrink-0">
+                                <div className="flex items-center gap-1 text-purple-400 font-bold">
+                                    <TbBolt className="w-4 h-4" />
+                                    {tool.matchScore}%
+                                </div>
+                                <span className="text-xs text-gray-500">მატჩი</span>
+                            </div>
+                            <TbExternalLink className="w-5 h-5 text-gray-600 group-hover:text-purple-400 transition-colors shrink-0" />
+                        </div>
+                    </motion.div>
+                ))}
+            </div>
+
+            <button className="w-full py-3 border border-white/10 rounded-xl text-gray-300 hover:bg-white/5 transition-colors">
+                ყველა ხელსაწყოს ნახვა →
+            </button>
+        </div>
     );
 }

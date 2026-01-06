@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Heart, RefreshCw, Share2, Sparkles, Loader2 } from "lucide-react"
+import { TbHeart, TbRefresh, TbShare, TbSparkles, TbLoader2 } from "react-icons/tb"
 
 interface LoveResult {
     percentage: number
@@ -76,7 +76,7 @@ export function LoveCalculator() {
                             <div className="flex justify-center mb-6 sm:mb-8">
                                 <div className="relative">
                                     <div className="absolute inset-0 bg-pink-500/30 rounded-full blur-2xl animate-pulse" />
-                                    <Heart className="relative w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 text-pink-500 fill-pink-500" />
+                                    <TbHeart className="relative w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 text-pink-500 fill-pink-500" />
                                 </div>
                             </div>
 
@@ -91,7 +91,7 @@ export function LoveCalculator() {
 
                                 <div className="flex justify-center">
                                     <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-pink-500/20 flex items-center justify-center">
-                                        <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-pink-400 fill-pink-400" />
+                                        <TbHeart className="w-5 h-5 sm:w-6 sm:h-6 text-pink-400 fill-pink-400" />
                                     </div>
                                 </div>
 
@@ -110,13 +110,13 @@ export function LoveCalculator() {
                             >
                                 {isCalculating ? (
                                     <span className="flex items-center gap-2 sm:gap-3">
-                                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                                        <TbLoader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                                         <span className="hidden sm:inline">AI ანალიზი...</span>
                                         <span className="sm:hidden">იტვირთება...</span>
                                     </span>
                                 ) : (
                                     <span className="flex items-center gap-2 sm:gap-3">
-                                        <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        <TbHeart className="w-4 h-4 sm:w-5 sm:h-5" />
                                         გამოთვალე
                                     </span>
                                 )}
@@ -127,7 +127,7 @@ export function LoveCalculator() {
                             {/* Names */}
                             <div className="flex items-center justify-center gap-2 sm:gap-4 text-base sm:text-lg lg:text-xl">
                                 <span className="font-semibold text-white truncate max-w-[100px] sm:max-w-none">{name1}</span>
-                                <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-pink-500 fill-pink-500 flex-shrink-0" />
+                                <TbHeart className="w-5 h-5 sm:w-6 sm:h-6 text-pink-500 fill-pink-500 flex-shrink-0" />
                                 <span className="font-semibold text-white truncate max-w-[100px] sm:max-w-none">{name2}</span>
                             </div>
 
@@ -167,7 +167,7 @@ export function LoveCalculator() {
                             {/* Message */}
                             <div className="p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-br from-pink-500/10 to-rose-500/10 border border-pink-500/20 text-center">
                                 <div className="flex items-center justify-center gap-2 mb-2 sm:mb-3">
-                                    <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-pink-400" />
+                                    <TbSparkles className="w-4 h-4 sm:w-5 sm:h-5 text-pink-400" />
                                     <h3 className="text-base sm:text-lg font-bold text-white">{result.title}</h3>
                                 </div>
                                 <p className="text-sm sm:text-base text-gray-300 leading-relaxed">{result.description}</p>
@@ -180,14 +180,14 @@ export function LoveCalculator() {
                                     variant="outline"
                                     className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-white/10 text-white hover:bg-white/5 bg-transparent text-sm sm:text-base"
                                 >
-                                    <RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                                    <TbRefresh className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                                     ხელახლა
                                 </Button>
                                 <Button
                                     onClick={handleShare}
                                     className="h-10 sm:h-12 rounded-lg sm:rounded-xl bg-pink-600 hover:bg-pink-500 text-white border-0 text-sm sm:text-base"
                                 >
-                                    <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                                    <TbShare className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                                     გაზიარება
                                 </Button>
                             </div>

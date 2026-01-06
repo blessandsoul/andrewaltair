@@ -1,19 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
+import TbPhoto from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {
-    Eye,
-    Flame,
-    Heart,
-    MessageCircle,
-    Share2,
-    Clock,
-    Bookmark,
-    Sparkles
-} from "lucide-react"
+import { TbEye, TbFlame, TbHeart, TbMessage, TbShare, TbClock, TbBookmark, TbSparkles } from "react-icons/tb"
 import { brand } from "@/lib/brand"
 import { useState } from "react"
 
@@ -109,14 +100,14 @@ export function PostCard({
                 onMouseLeave={() => setIsHovered(false)}
             >
                 <CardContent className="p-0">
-                    {/* Image Container */}
+                    {/* TbPhoto Container */}
                     <div className="aspect-video relative overflow-hidden">
                         {/* Background gradient */}
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10" />
 
-                        {/* Image */}
+                        {/* TbPhoto */}
                         {post.coverImage ? (
-                            <Image
+                            <TbPhoto
                                 src={post.coverImage}
                                 alt={post.title}
                                 fill
@@ -124,7 +115,7 @@ export function PostCard({
                             />
                         ) : (
                             <div className="absolute inset-0 flex items-center justify-center">
-                                <Sparkles className="w-10 h-10 text-primary/30 group-hover:scale-110 transition-transform" />
+                                <TbSparkles className="w-10 h-10 text-primary/30 group-hover:scale-110 transition-transform" />
                             </div>
                         )}
 
@@ -146,7 +137,7 @@ export function PostCard({
                         {/* Trending Badge */}
                         {post.trending && (
                             <Badge className="absolute top-3 right-12 bg-red-500 text-white border-0 text-xs z-10 animate-pulse">
-                                <Flame className="w-3 h-3 mr-1" />
+                                <TbFlame className="w-3 h-3 mr-1" />
                                 ცხელი
                             </Badge>
                         )}
@@ -159,7 +150,7 @@ export function PostCard({
                                     : "bg-background/80 backdrop-blur-sm text-muted-foreground hover:bg-background hover:text-primary"
                                 } ${isHovered || isBookmarked ? "opacity-100" : "opacity-0"}`}
                         >
-                            <Bookmark className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`} />
+                            <TbBookmark className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`} />
                         </button>
 
                         {/* Hover Preview Overlay */}
@@ -210,7 +201,7 @@ export function PostCard({
                                     <span>{post.author.name}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                    <Clock className="w-3 h-3" />
+                                    <TbClock className="w-3 h-3" />
                                     <span>{formatRelativeDate(post.publishedAt)}</span>
                                 </div>
                             </div>
@@ -220,21 +211,21 @@ export function PostCard({
                         <div className="flex items-center justify-between pt-3 border-t border-border/50">
                             <div className="flex items-center gap-3 text-xs text-muted-foreground">
                                 <span className="flex items-center gap-1 hover:text-foreground transition-colors">
-                                    <Eye className="w-3.5 h-3.5" />
+                                    <TbEye className="w-3.5 h-3.5" />
                                     {formatNumber(post.views)}
                                 </span>
                                 <span className="flex items-center gap-1 hover:text-foreground transition-colors">
-                                    <MessageCircle className="w-3.5 h-3.5" />
+                                    <TbMessage className="w-3.5 h-3.5" />
                                     {formatNumber(post.comments)}
                                 </span>
                             </div>
                             <div className="flex items-center gap-3 text-xs">
                                 <span className="flex items-center gap-1 text-red-500 hover:scale-110 transition-transform cursor-pointer">
-                                    <Heart className="w-3.5 h-3.5" />
+                                    <TbHeart className="w-3.5 h-3.5" />
                                     {formatNumber(getTotalReactions(post.reactions))}
                                 </span>
                                 <span className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
-                                    <Share2 className="w-3.5 h-3.5" />
+                                    <TbShare className="w-3.5 h-3.5" />
                                     {formatNumber(post.shares)}
                                 </span>
                             </div>
@@ -262,7 +253,7 @@ export function PostCardSkeleton() {
     return (
         <Card className="h-full border-0 shadow-lg bg-card animate-pulse">
             <CardContent className="p-0">
-                {/* Image skeleton */}
+                {/* TbPhoto skeleton */}
                 <div className="aspect-video bg-muted" />
 
                 {/* Content skeleton */}

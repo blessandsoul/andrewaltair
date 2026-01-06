@@ -31,7 +31,10 @@
             "insightful": 167
         },
         "featured": true,
-        "trending": true
+        "trending": true,
+        "status": "published",
+        "scheduledFor": null,
+        "order": 1
     },
     {
         "id": "2",
@@ -64,7 +67,10 @@
             "insightful": 89
         },
         "featured": false,
-        "trending": true
+        "trending": true,
+        "status": "published",
+        "scheduledFor": null,
+        "order": 2
     },
     {
         "id": "3",
@@ -98,7 +104,10 @@
             "insightful": 234
         },
         "featured": true,
-        "trending": false
+        "trending": false,
+        "status": "published",
+        "scheduledFor": null,
+        "order": 3
     },
     {
         "id": "4",
@@ -131,7 +140,10 @@
             "insightful": 289
         },
         "featured": false,
-        "trending": true
+        "trending": true,
+        "status": "draft",
+        "scheduledFor": null,
+        "order": 4
     },
     {
         "id": "5",
@@ -164,7 +176,10 @@
             "insightful": 456
         },
         "featured": true,
-        "trending": false
+        "trending": false,
+        "status": "scheduled",
+        "scheduledFor": "2025-01-15T10:00:00",
+        "order": 5
     },
     {
         "id": "6",
@@ -197,6 +212,9 @@
             "insightful": 312
         },
         "featured": false,
-        "trending": true
+        "trending": true,
+        "status": "published",
+        "scheduledFor": null,
+        "order": 6
     }
 ]

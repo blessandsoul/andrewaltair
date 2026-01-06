@@ -1,33 +1,12 @@
 "use client"
 
 import * as React from "react"
+import DOMPurify from "dompurify"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import {
-    FileText,
-    Eye,
-    Save,
-    Clock,
-    Send,
-    Calendar,
-    Bold,
-    Italic,
-    Link as LinkIcon,
-    List,
-    ListOrdered,
-    Image,
-    Code,
-    Quote,
-    Heading1,
-    Heading2,
-    Undo,
-    Redo,
-    Sparkles,
-    CheckCircle,
-    AlertCircle
-} from "lucide-react"
+import { TbFileText, TbEye, TbDeviceFloppy, TbClock, TbSend, TbCalendar, TbBold, TbItalic, TbLink, TbList, TbListNumbers, TbPhoto, TbCode, TbQuote, TbH1, TbH2, TbArrowBackUp, TbArrowForwardUp, TbSparkles, TbCircleCheck, TbAlertCircle } from "react-icons/tb"
 
 // Simple Markdown to HTML converter
 function markdownToHtml(markdown: string): string {
@@ -42,7 +21,7 @@ function markdownToHtml(markdown: string): string {
         .replace(/\*(.*?)\*/gim, '<em>$1</em>')
         // Links
         .replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2" class="text-indigo-500 hover:underline">$1</a>')
-        // Code blocks
+        // TbCode blocks
         .replace(/```([\s\S]*?)```/gim, '<pre class="bg-muted p-3 rounded-lg my-3 overflow-x-auto"><code>$1</code></pre>')
         // Inline code
         .replace(/`(.*?)`/gim, '<code class="bg-muted px-1 py-0.5 rounded text-sm">$1</code>')
@@ -54,8 +33,8 @@ function markdownToHtml(markdown: string): string {
         // Line breaks
         .replace(/\n\n/gim, '</p><p class="my-3">')
         .replace(/\n/gim, '<br/>')
-
-    return `<p class="my-3">${html}</p>`
+    // Sanitize HTML to prevent XSS attacks
+    return DOMPurify.sanitize(`<p class="my-3">${html}</p>`)
 }
 
 interface Draft {
@@ -76,14 +55,33 @@ export default function ContentEditorPage() {
     const [autoSaveStatus, setAutoSaveStatus] = React.useState<"saved" | "saving" | "unsaved">("saved")
     const [scheduledDate, setScheduledDate] = React.useState("")
     const [showScheduler, setShowScheduler] = React.useState(false)
+    const [isLoading, setIsLoading] = React.useState(true)
     const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
-    // Load drafts from localStorage
+    // Load drafts from MongoDB API
     React.useEffect(() => {
-        const savedDrafts = localStorage.getItem("admin_drafts")
-        if (savedDrafts) {
-            setDrafts(JSON.parse(savedDrafts))
+        async function fetchDrafts() {
+            try {
+                const res = await fetch('/api/posts?status=draft&limit=50')
+                if (res.ok) {
+                    const data = await res.json()
+                    const apiDrafts = (data.posts || []).map((p: { _id?: string; id?: string; title: string; content?: string; createdAt?: string; status?: string; scheduledFor?: string }) => ({
+                        id: p.id || p._id,
+                        title: p.title || 'უსათაურო',
+                        content: p.content || '',
+                        savedAt: p.createdAt || new Date().toISOString(),
+                        status: p.status || 'draft',
+                        scheduledFor: p.scheduledFor
+                    }))
+                    setDrafts(apiDrafts)
+                }
+            } catch (error) {
+                console.error('Error fetching drafts:', error)
+            } finally {
+                setIsLoading(false)
+            }
         }
+        fetchDrafts()
     }, [])
 
     // Auto-save every 30 seconds
@@ -98,41 +96,76 @@ export default function ContentEditorPage() {
         return () => clearTimeout(timer)
     }, [title, content])
 
-    // Save draft
-    const saveDraft = () => {
+    // Save draft to MongoDB
+    const saveDraft = async () => {
         setAutoSaveStatus("saving")
-
-        const draft: Draft = {
-            id: currentDraftId || Date.now().toString(),
-            title: title || "უსათაურო",
-            content,
-            savedAt: new Date().toISOString(),
-            status: "draft"
+        try {
+            if (currentDraftId) {
+                // Update existing draft
+                const res = await fetch(`/api/posts/${currentDraftId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: title || 'უსათაურო',
+                        content,
+                        status: 'draft'
+                    })
+                })
+                if (res.ok) {
+                    setDrafts(drafts.map(d => d.id === currentDraftId ? { ...d, title: title || 'უსათაურო', content, savedAt: new Date().toISOString() } : d))
+                }
+            } else {
+                // Create new draft
+                const res = await fetch('/api/posts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: title || 'უსათაურო',
+                        content,
+                        slug: (title || 'draft').toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '') + '-' + Date.now(),
+                        status: 'draft',
+                        author: { name: 'Andrew Altair', avatar: '/avatar.jpg' },
+                        category: 'Drafts',
+                        tags: [],
+                        readingTime: Math.ceil(content.split(' ').length / 200)
+                    })
+                })
+                if (res.ok) {
+                    const data = await res.json()
+                    const newDraft: Draft = {
+                        id: data.post.id,
+                        title: title || 'უსათაურო',
+                        content,
+                        savedAt: new Date().toISOString(),
+                        status: 'draft'
+                    }
+                    setDrafts([newDraft, ...drafts])
+                    setCurrentDraftId(data.post.id)
+                }
+            }
+            setAutoSaveStatus("saved")
+        } catch (error) {
+            console.error('Save draft error:', error)
+            setAutoSaveStatus("unsaved")
         }
-
-        const updatedDrafts = currentDraftId
-            ? drafts.map(d => d.id === currentDraftId ? draft : d)
-            : [...drafts, draft]
-
-        setDrafts(updatedDrafts)
-        setCurrentDraftId(draft.id)
-        localStorage.setItem("admin_drafts", JSON.stringify(updatedDrafts))
-
-        setTimeout(() => setAutoSaveStatus("saved"), 500)
     }
 
-    // Schedule post
-    const schedulePost = () => {
+    // Schedule post via API
+    const schedulePost = async () => {
         if (!scheduledDate || !currentDraftId) return
-
-        const updatedDrafts = drafts.map(d =>
-            d.id === currentDraftId
-                ? { ...d, status: "scheduled" as const, scheduledFor: scheduledDate }
-                : d
-        )
-        setDrafts(updatedDrafts)
-        localStorage.setItem("admin_drafts", JSON.stringify(updatedDrafts))
-        setShowScheduler(false)
+        try {
+            const res = await fetch(`/api/posts/${currentDraftId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'scheduled', scheduledFor: scheduledDate })
+            })
+            if (res.ok) {
+                setDrafts(drafts.map(d => d.id === currentDraftId ? { ...d, status: 'scheduled', scheduledFor: scheduledDate } : d))
+                setShowScheduler(false)
+            }
+        } catch (error) {
+            console.error('Schedule post error:', error)
+        }
     }
 
     // Load draft
@@ -142,15 +175,20 @@ export default function ContentEditorPage() {
         setCurrentDraftId(draft.id)
     }
 
-    // Delete draft
-    const deleteDraft = (id: string) => {
-        const updatedDrafts = drafts.filter(d => d.id !== id)
-        setDrafts(updatedDrafts)
-        localStorage.setItem("admin_drafts", JSON.stringify(updatedDrafts))
-        if (currentDraftId === id) {
-            setTitle("")
-            setContent("")
-            setCurrentDraftId(null)
+    // Delete draft via API
+    const deleteDraft = async (id: string) => {
+        try {
+            const res = await fetch(`/api/posts/${id}`, { method: 'DELETE' })
+            if (res.ok) {
+                setDrafts(drafts.filter(d => d.id !== id))
+                if (currentDraftId === id) {
+                    setTitle("")
+                    setContent("")
+                    setCurrentDraftId(null)
+                }
+            }
+        } catch (error) {
+            console.error('Delete draft error:', error)
         }
     }
 
@@ -173,16 +211,16 @@ export default function ContentEditorPage() {
     }
 
     const toolbarButtons = [
-        { icon: Bold, action: () => insertMarkdown("**", "**"), title: "Bold" },
-        { icon: Italic, action: () => insertMarkdown("*", "*"), title: "Italic" },
-        { icon: Heading1, action: () => insertMarkdown("# "), title: "H1" },
-        { icon: Heading2, action: () => insertMarkdown("## "), title: "H2" },
-        { icon: LinkIcon, action: () => insertMarkdown("[", "](url)"), title: "Link" },
-        { icon: List, action: () => insertMarkdown("- "), title: "List" },
-        { icon: ListOrdered, action: () => insertMarkdown("1. "), title: "Numbered List" },
-        { icon: Quote, action: () => insertMarkdown("> "), title: "Quote" },
-        { icon: Code, action: () => insertMarkdown("`", "`"), title: "Code" },
-        { icon: Image, action: () => insertMarkdown("![alt](", ")"), title: "Image" },
+        { icon: TbBold, action: () => insertMarkdown("**", "**"), title: "Bold" },
+        { icon: TbItalic, action: () => insertMarkdown("*", "*"), title: "Italic" },
+        { icon: TbH1, action: () => insertMarkdown("# "), title: "H1" },
+        { icon: TbH2, action: () => insertMarkdown("## "), title: "H2" },
+        { icon: TbLink, action: () => insertMarkdown("[", "](url)"), title: "Link" },
+        { icon: TbList, action: () => insertMarkdown("- "), title: "List" },
+        { icon: TbListNumbers, action: () => insertMarkdown("1. "), title: "Numbered List" },
+        { icon: TbQuote, action: () => insertMarkdown("> "), title: "TbQuote" },
+        { icon: TbCode, action: () => insertMarkdown("`", "`"), title: "TbCode" },
+        { icon: TbPhoto, action: () => insertMarkdown("![alt](", ")"), title: "Image" },
     ]
 
     return (
@@ -191,13 +229,13 @@ export default function ContentEditorPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold flex items-center gap-3">
-                        <Sparkles className="w-8 h-8 text-indigo-500" />
+                        <TbSparkles className="w-8 h-8 text-indigo-500" />
                         კონტენტ ედიტორი
                     </h1>
                     <p className="text-muted-foreground mt-1 flex items-center gap-2">
                         {autoSaveStatus === "saved" && (
                             <>
-                                <CheckCircle className="w-4 h-4 text-green-500" />
+                                <TbCircleCheck className="w-4 h-4 text-green-500" />
                                 შენახულია
                             </>
                         )}
@@ -209,7 +247,7 @@ export default function ContentEditorPage() {
                         )}
                         {autoSaveStatus === "unsaved" && (
                             <>
-                                <AlertCircle className="w-4 h-4 text-yellow-500" />
+                                <TbAlertCircle className="w-4 h-4 text-yellow-500" />
                                 შეუნახავი ცვლილებები
                             </>
                         )}
@@ -218,7 +256,7 @@ export default function ContentEditorPage() {
 
                 <div className="flex gap-2">
                     <Button variant="outline" onClick={saveDraft} className="gap-2">
-                        <Save className="w-4 h-4" />
+                        <TbDeviceFloppy className="w-4 h-4" />
                         შენახვა
                     </Button>
                     <Button
@@ -226,11 +264,11 @@ export default function ContentEditorPage() {
                         onClick={() => setShowScheduler(!showScheduler)}
                         className="gap-2"
                     >
-                        <Clock className="w-4 h-4" />
+                        <TbClock className="w-4 h-4" />
                         დაგეგმვა
                     </Button>
                     <Button className="gap-2 bg-gradient-to-r from-indigo-500 to-purple-600">
-                        <Send className="w-4 h-4" />
+                        <TbSend className="w-4 h-4" />
                         გამოქვეყნება
                     </Button>
                 </div>
@@ -241,7 +279,7 @@ export default function ContentEditorPage() {
                 <Card className="border-indigo-500/20 bg-indigo-500/5">
                     <CardContent className="p-4">
                         <div className="flex items-center gap-4 flex-wrap">
-                            <Calendar className="w-5 h-5 text-indigo-500" />
+                            <TbCalendar className="w-5 h-5 text-indigo-500" />
                             <span className="font-medium">დაგეგმეთ გამოქვეყნება:</span>
                             <Input
                                 type="datetime-local"
@@ -262,7 +300,7 @@ export default function ContentEditorPage() {
                 <Card className="lg:col-span-1">
                     <CardHeader>
                         <CardTitle className="text-sm flex items-center gap-2">
-                            <FileText className="w-4 h-4" />
+                            <TbFileText className="w-4 h-4" />
                             დრაფტები ({drafts.length})
                         </CardTitle>
                     </CardHeader>
@@ -276,7 +314,7 @@ export default function ContentEditorPage() {
                                 setCurrentDraftId(null)
                             }}
                         >
-                            <Sparkles className="w-4 h-4" />
+                            <TbSparkles className="w-4 h-4" />
                             ახალი პოსტი
                         </Button>
 
@@ -284,8 +322,8 @@ export default function ContentEditorPage() {
                             <div
                                 key={draft.id}
                                 className={`p-3 rounded-lg cursor-pointer transition-colors ${currentDraftId === draft.id
-                                        ? "bg-indigo-500/10 border border-indigo-500/20"
-                                        : "bg-muted/50 hover:bg-muted"
+                                    ? "bg-indigo-500/10 border border-indigo-500/20"
+                                    : "bg-muted/50 hover:bg-muted"
                                     }`}
                                 onClick={() => loadDraft(draft)}
                             >
@@ -351,7 +389,7 @@ export default function ContentEditorPage() {
                                 onClick={() => setShowPreview(!showPreview)}
                                 className="gap-2"
                             >
-                                <Eye className="w-4 h-4" />
+                                <TbEye className="w-4 h-4" />
                                 Preview
                             </Button>
                         </div>

@@ -1,114 +1,150 @@
 'use client';
 
 import React, { useState } from 'react';
-
-interface FormData {
-    industry: string;
-    employees: string;
-    hoursOnTasks: number;
-    hourlyRate: number;
-    currentTools: number;
-}
-
-const industries = [
-    { value: 'marketing', label: 'Маркетинг', multiplier: 1.2 },
-    { value: 'sales', label: 'Продажи', multiplier: 1.3 },
-    { value: 'hr', label: 'HR', multiplier: 1.1 },
-    { value: 'finance', label: 'Финансы', multiplier: 1.15 },
-    { value: 'operations', label: 'Операции', multiplier: 1.25 },
-    { value: 'other', label: 'Другое', multiplier: 1.0 },
-];
+import { motion } from 'framer-motion';
+import { TbCalculator, TbCurrencyDollar, TbTrendingUp, TbClock, TbUsers, TbSparkles } from "react-icons/tb";
+import { cn } from '@/lib/utils';
 
 export default function SavingsCalculator() {
-    const [formData, setFormData] = useState<FormData>({ industry: 'marketing', employees: '5-10', hoursOnTasks: 20, hourlyRate: 2000, currentTools: 3 });
-    const [showResults, setShowResults] = useState(false);
+    const [employees, setEmployees] = useState(10);
+    const [hoursPerWeek, setHoursPerWeek] = useState(5);
+    const [hourlyRate, setHourlyRate] = useState(25);
 
-    const calculateSavings = () => {
-        const employeeCount = { '1-5': 3, '5-10': 7, '10-25': 15, '25-50': 35, '50+': 75 }[formData.employees] || 5;
-        const industryMult = industries.find(i => i.value === formData.industry)?.multiplier || 1;
-        const timeSaved = formData.hoursOnTasks * 0.6;
-        const monthlySavings = timeSaved * 4 * formData.hourlyRate * employeeCount * industryMult;
-        const yearlySavings = monthlySavings * 12;
-        const roi = ((yearlySavings - 120000) / 120000) * 100;
-        return { timeSaved: Math.round(timeSaved), monthlySavings: Math.round(monthlySavings), yearlySavings: Math.round(yearlySavings), roi: Math.round(roi) };
-    };
+    // Calculate savings
+    const weeklyHours = employees * hoursPerWeek;
+    const monthlyHours = weeklyHours * 4;
+    const yearlyHours = weeklyHours * 52;
 
-    const results = calculateSavings();
+    // AI typically saves 50-70% of time on repetitive tasks
+    const savingsPercent = 0.6;
+    const savedHoursYearly = yearlyHours * savingsPercent;
+    const savedMoneyYearly = savedHoursYearly * hourlyRate;
+
+    // ROI calculation (assuming $500/month AI tools cost)
+    const aiToolCost = 500 * 12;
+    const roi = ((savedMoneyYearly - aiToolCost) / aiToolCost * 100).toFixed(0);
 
     return (
-        <section style={{ padding: '80px 20px', background: 'linear-gradient(180deg, rgba(17,24,39,0) 0%, rgba(16,185,129,0.08) 50%, rgba(17,24,39,0) 100%)' }}>
-            <div style={{ maxWidth: 900, margin: '0 auto' }}>
-                <div style={{ textAlign: 'center', marginBottom: 48 }}>
-                    <span style={{ fontSize: 48 }}>💰</span>
-                    <h2 style={{ fontSize: 36, fontWeight: 800, background: 'linear-gradient(135deg, #10b981, #3b82f6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginTop: 16 }}>Калькулятор экономии</h2>
-                    <p style={{ fontSize: 18, color: '#9ca3af' }}>Узнайте, сколько сэкономит AI для вашего бизнеса</p>
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-500/20 rounded-lg">
+                    <TbCalculator className="w-6 h-6 text-green-400" />
                 </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 40 }}>
-                    {/* Form */}
-                    <div style={{ background: 'rgba(31,41,55,0.8)', borderRadius: 20, padding: 32, border: '1px solid #374151' }}>
-                        <div style={{ marginBottom: 24 }}>
-                            <label style={{ display: 'block', fontSize: 14, color: '#9ca3af', marginBottom: 8 }}>Отрасль</label>
-                            <select value={formData.industry} onChange={e => setFormData({ ...formData, industry: e.target.value })} style={{ width: '100%', background: '#374151', border: 'none', borderRadius: 12, padding: '14px 16px', color: 'white', fontSize: 16 }}>
-                                {industries.map(ind => <option key={ind.value} value={ind.value}>{ind.label}</option>)}
-                            </select>
-                        </div>
-
-                        <div style={{ marginBottom: 24 }}>
-                            <label style={{ display: 'block', fontSize: 14, color: '#9ca3af', marginBottom: 8 }}>Количество сотрудников</label>
-                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                                {['1-5', '5-10', '10-25', '25-50', '50+'].map(opt => (
-                                    <button key={opt} onClick={() => setFormData({ ...formData, employees: opt })} style={{ background: formData.employees === opt ? 'linear-gradient(135deg, #10b981, #3b82f6)' : '#374151', border: 'none', borderRadius: 8, padding: '10px 16px', color: 'white', fontSize: 14, cursor: 'pointer' }}>{opt}</button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div style={{ marginBottom: 24 }}>
-                            <label style={{ display: 'block', fontSize: 14, color: '#9ca3af', marginBottom: 8 }}>Часов в неделю на рутину: {formData.hoursOnTasks}ч</label>
-                            <input type="range" min={5} max={40} value={formData.hoursOnTasks} onChange={e => setFormData({ ...formData, hoursOnTasks: +e.target.value })} style={{ width: '100%', accentColor: '#10b981' }} />
-                        </div>
-
-                        <div style={{ marginBottom: 24 }}>
-                            <label style={{ display: 'block', fontSize: 14, color: '#9ca3af', marginBottom: 8 }}>Средняя ставка сотрудника (₽/час)</label>
-                            <input type="number" value={formData.hourlyRate} onChange={e => setFormData({ ...formData, hourlyRate: +e.target.value })} style={{ width: '100%', background: '#374151', border: 'none', borderRadius: 12, padding: '14px 16px', color: 'white', fontSize: 16 }} />
-                        </div>
-
-                        <button onClick={() => setShowResults(true)} style={{ width: '100%', background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none', borderRadius: 12, padding: '16px', color: 'white', fontSize: 18, fontWeight: 700, cursor: 'pointer' }}>Рассчитать экономию 📊</button>
-                    </div>
-
-                    {/* Results */}
-                    <div style={{ background: showResults ? 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(59,130,246,0.1))' : 'rgba(31,41,55,0.5)', borderRadius: 20, padding: 32, border: `1px solid ${showResults ? '#10b981' : '#374151'}`, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                        {showResults ? (
-                            <>
-                                <div style={{ textAlign: 'center', marginBottom: 32 }}>
-                                    <div style={{ fontSize: 16, color: '#10b981', marginBottom: 8 }}>Ваша экономия в год</div>
-                                    <div style={{ fontSize: 48, fontWeight: 800, color: 'white' }}>{results.yearlySavings.toLocaleString()}₽</div>
-                                </div>
-                                <div style={{ display: 'grid', gap: 16 }}>
-                                    <div style={{ background: 'rgba(31,41,55,0.8)', borderRadius: 12, padding: 16, display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ color: '#9ca3af' }}>⏰ Время экономии/неделю</span>
-                                        <span style={{ color: 'white', fontWeight: 700 }}>{results.timeSaved} часов</span>
-                                    </div>
-                                    <div style={{ background: 'rgba(31,41,55,0.8)', borderRadius: 12, padding: 16, display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ color: '#9ca3af' }}>💵 Экономия/месяц</span>
-                                        <span style={{ color: 'white', fontWeight: 700 }}>{results.monthlySavings.toLocaleString()}₽</span>
-                                    </div>
-                                    <div style={{ background: 'rgba(31,41,55,0.8)', borderRadius: 12, padding: 16, display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ color: '#9ca3af' }}>📈 ROI</span>
-                                        <span style={{ color: '#10b981', fontWeight: 700 }}>{results.roi}%</span>
-                                    </div>
-                                </div>
-                                <button style={{ marginTop: 24, width: '100%', background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', border: 'none', borderRadius: 12, padding: '14px', color: 'white', fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>Получить детальный отчёт →</button>
-                            </>
-                        ) : (
-                            <div style={{ textAlign: 'center', color: '#6b7280' }}>
-                                <div style={{ fontSize: 64, marginBottom: 16 }}>📊</div>
-                                <p>Заполните форму и нажмите "Рассчитать"</p>
-                            </div>
-                        )}
-                    </div>
+                <div>
+                    <h2 className="text-2xl font-bold text-white">დანაზოგის კალკულატორი</h2>
+                    <p className="text-gray-400 text-sm">გაიგე რამდენს დაზოგავ AI-ით</p>
                 </div>
             </div>
-        </section>
+
+            {/* Inputs */}
+            <div className="grid gap-4 md:grid-cols-3">
+                {/* Employees */}
+                <div className="p-4 rounded-xl border border-white/10 bg-white/5">
+                    <label className="flex items-center gap-2 text-sm text-gray-400 mb-3">
+                        <TbUsers className="w-4 h-4" />
+                        თანამშრომლები
+                    </label>
+                    <input
+                        type="range"
+                        min="1"
+                        max="100"
+                        value={employees}
+                        onChange={(e) => setEmployees(Number(e.target.value))}
+                        className="w-full h-2 bg-gray-700 rounded-full appearance-none cursor-pointer accent-purple-500"
+                    />
+                    <div className="text-2xl font-bold text-white mt-2">{employees}</div>
+                </div>
+
+                {/* Hours per week */}
+                <div className="p-4 rounded-xl border border-white/10 bg-white/5">
+                    <label className="flex items-center gap-2 text-sm text-gray-400 mb-3">
+                        <TbClock className="w-4 h-4" />
+                        საათი/კვირა ამოცანებზე
+                    </label>
+                    <input
+                        type="range"
+                        min="1"
+                        max="40"
+                        value={hoursPerWeek}
+                        onChange={(e) => setHoursPerWeek(Number(e.target.value))}
+                        className="w-full h-2 bg-gray-700 rounded-full appearance-none cursor-pointer accent-purple-500"
+                    />
+                    <div className="text-2xl font-bold text-white mt-2">{hoursPerWeek} სთ</div>
+                </div>
+
+                {/* Hourly rate */}
+                <div className="p-4 rounded-xl border border-white/10 bg-white/5">
+                    <label className="flex items-center gap-2 text-sm text-gray-400 mb-3">
+                        <TbCurrencyDollar className="w-4 h-4" />
+                        საათობრივი ტარიფი
+                    </label>
+                    <input
+                        type="range"
+                        min="10"
+                        max="100"
+                        value={hourlyRate}
+                        onChange={(e) => setHourlyRate(Number(e.target.value))}
+                        className="w-full h-2 bg-gray-700 rounded-full appearance-none cursor-pointer accent-purple-500"
+                    />
+                    <div className="text-2xl font-bold text-white mt-2">${hourlyRate}/სთ</div>
+                </div>
+            </div>
+
+            {/* Results */}
+            <div className="grid gap-4 md:grid-cols-3">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="p-6 rounded-xl bg-gradient-to-br from-green-900/30 to-emerald-900/30 border border-green-500/30 text-center"
+                >
+                    <TbClock className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                    <div className="text-3xl font-bold text-white mb-1">
+                        {savedHoursYearly.toLocaleString()}
+                    </div>
+                    <div className="text-green-300 text-sm">დაზოგილი საათი/წელი</div>
+                </motion.div>
+
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="p-6 rounded-xl bg-gradient-to-br from-purple-900/30 to-violet-900/30 border border-purple-500/30 text-center"
+                >
+                    <TbCurrencyDollar className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+                    <div className="text-3xl font-bold text-white mb-1">
+                        ${savedMoneyYearly.toLocaleString()}
+                    </div>
+                    <div className="text-purple-300 text-sm">დანაზოგი/წელი</div>
+                </motion.div>
+
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="p-6 rounded-xl bg-gradient-to-br from-yellow-900/30 to-orange-900/30 border border-yellow-500/30 text-center"
+                >
+                    <TbTrendingUp className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
+                    <div className="text-3xl font-bold text-white mb-1">
+                        {roi}%
+                    </div>
+                    <div className="text-yellow-300 text-sm">ROI</div>
+                </motion.div>
+            </div>
+
+            {/* CTA */}
+            <div className="p-4 rounded-xl bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <TbSparkles className="w-6 h-6 text-purple-400" />
+                    <div>
+                        <div className="font-semibold text-white">მზად ხარ AI-სთვის?</div>
+                        <div className="text-gray-400 text-sm">დაიწყე დღესვე უფასო კონსულტაციით</div>
+                    </div>
+                </div>
+                <button className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-medium hover:opacity-90 transition-opacity">
+                    კონსულტაცია
+                </button>
+            </div>
+        </div>
     );
 }

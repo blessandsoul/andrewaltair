@@ -1,85 +1,111 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { TbTrophy, TbTrendingUp, TbStar, TbQuote } from "react-icons/tb";
 
-interface Proof { id: string; name: string; avatar: string; result: string; metric: string; time: string; industry: string; }
+interface Testimonial {
+    _id: string;
+    name: string;
+    company: string;
+    avatar?: string;
+    metric: string;
+    improvement: string;
+    testimonial: string;
+    rating: number;
+}
 
-const proofs: Proof[] = [
-    { id: '1', name: 'Алексей М.', avatar: '👨‍💼', result: '+340%', metric: 'рост продуктивности', time: '2 мин назад', industry: 'IT' },
-    { id: '2', name: 'Мария К.', avatar: '👩‍🎨', result: '₽180K', metric: 'экономия в месяц', time: '5 мин назад', industry: 'Маркетинг' },
-    { id: '3', name: 'Дмитрий С.', avatar: '👨‍🔧', result: '50ч/мес', metric: 'сэкономлено времени', time: '8 мин назад', industry: 'Операции' },
-    { id: '4', name: 'Елена В.', avatar: '👩‍💻', result: '10x', metric: 'скорость контента', time: '12 мин назад', industry: 'Контент' },
-    { id: '5', name: 'Сергей П.', avatar: '👨‍🏫', result: '+89%', metric: 'конверсия лидов', time: '15 мин назад', industry: 'Продажи' },
-    { id: '6', name: 'Анна Л.', avatar: '👩‍⚕️', result: '₽2.5M', metric: 'доп. выручка/год', time: '20 мин назад', industry: 'Финансы' },
+const FALLBACK_TESTIMONIALS: Testimonial[] = [
+    { _id: '1', name: 'გიორგი კ.', company: 'ტექ სტარტაპი', avatar: '👨‍💼', metric: 'პროდუქტიულობა', improvement: '+65%', testimonial: 'AI ინსტრუმენტებმა სრულად შეცვალა ჩვენი მუშაობის სტილი.', rating: 5 },
+    { _id: '2', name: 'ნინო მ.', company: 'მარკეტინგ ეიჯენსი', avatar: '👩‍💻', metric: 'კონტენტის წარმოება', improvement: '+3x', testimonial: 'თვეში 3-ჯერ მეტ კონტენტს ვაწარმოებთ იგივე გუნდით.', rating: 5 },
+    { _id: '3', name: 'დავით ლ.', company: 'ელ-კომერცია', avatar: '👨‍🚀', metric: 'მომხმარებლის სერვისი', improvement: '-50% დრო', testimonial: 'AI ჩატბოტმა განახევრა მომხმარებელთა მომსახურების დრო.', rating: 5 },
+    { _id: '4', name: 'მარიამ დ.', company: 'ფრილანსერი', avatar: '👩‍🎨', metric: 'შემოსავალი', improvement: '+40%', testimonial: 'AI ხელსაწყოებით პროექტებს უფრო სწრაფად ვასრულებ.', rating: 5 },
 ];
 
 export default function ProofWall() {
-    const [visibleProofs, setVisibleProofs] = useState<Proof[]>([]);
-    const [newProof, setNewProof] = useState<Proof | null>(null);
+    const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        setVisibleProofs(proofs.slice(0, 4));
-        const interval = setInterval(() => {
-            const randomProof = proofs[Math.floor(Math.random() * proofs.length)];
-            setNewProof({ ...randomProof, id: Date.now().toString(), time: 'только что' });
-            setTimeout(() => setNewProof(null), 5000);
-        }, 10000);
-        return () => clearInterval(interval);
+        const fetchTestimonials = async () => {
+            try {
+                const res = await fetch('/api/conversion/testimonials');
+                if (res.ok) {
+                    const data = await res.json();
+                    setTestimonials(data.testimonials?.length > 0 ? data.testimonials : FALLBACK_TESTIMONIALS);
+                } else {
+                    setTestimonials(FALLBACK_TESTIMONIALS);
+                }
+            } catch {
+                setTestimonials(FALLBACK_TESTIMONIALS);
+            }
+            setLoading(false);
+        };
+        fetchTestimonials();
     }, []);
 
+    if (loading) return <div className="animate-pulse bg-white/5 h-64 rounded-2xl" />;
+
     return (
-        <section style={{ padding: '80px 20px', background: 'linear-gradient(180deg, rgba(17,24,39,0) 0%, rgba(16,185,129,0.08) 50%, rgba(17,24,39,0) 100%)' }}>
-            <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-                <div style={{ textAlign: 'center', marginBottom: 40 }}>
-                    <span style={{ fontSize: 48 }}>🏆</span>
-                    <h2 style={{ fontSize: 36, fontWeight: 800, background: 'linear-gradient(135deg, #10b981, #3b82f6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginTop: 16 }}>Proof Wall</h2>
-                    <p style={{ fontSize: 18, color: '#9ca3af' }}>Результаты наших клиентов в реальном времени</p>
+        <div className="space-y-6">
+            <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-500/20 rounded-lg">
+                    <TbTrophy className="w-6 h-6 text-green-400" />
                 </div>
-
-                {/* Stats */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 16, marginBottom: 40 }}>
-                    {[{ value: '500+', label: 'клиентов' }, { value: '₽50M+', label: 'экономии' }, { value: '2500ч', label: 'сэкономлено/мес' }, { value: '4.9★', label: 'рейтинг' }].map((stat, i) => (
-                        <div key={i} style={{ background: 'rgba(31,41,55,0.8)', borderRadius: 16, padding: 20, textAlign: 'center' }}>
-                            <div style={{ fontSize: 28, fontWeight: 800, color: '#10b981' }}>{stat.value}</div>
-                            <div style={{ fontSize: 14, color: '#9ca3af' }}>{stat.label}</div>
-                        </div>
-                    ))}
+                <div>
+                    <h2 className="text-2xl font-bold text-white">შედეგების კედელი</h2>
+                    <p className="text-gray-400 text-sm">რეალური შედეგები ჩვენი მომხმარებლებისგან</p>
                 </div>
+            </div>
 
-                {/* Proof Cards */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
-                    {visibleProofs.map((proof, i) => (
-                        <div key={proof.id} style={{ background: 'rgba(31,41,55,0.9)', border: '1px solid #374151', borderRadius: 16, padding: 24, animation: `fadeIn 0.5s ease ${i * 0.1}s both` }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                                <div style={{ width: 48, height: 48, background: 'linear-gradient(135deg, #10b981, #3b82f6)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{proof.avatar}</div>
+            <div className="grid gap-4 md:grid-cols-2">
+                {testimonials.map((result, index) => (
+                    <motion.div
+                        key={result._id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="p-5 rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent"
+                    >
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center text-2xl">
+                                    {result.avatar || '👤'}
+                                </div>
                                 <div>
-                                    <div style={{ fontWeight: 600, color: 'white' }}>{proof.name}</div>
-                                    <div style={{ fontSize: 12, color: '#6b7280' }}>{proof.industry}</div>
+                                    <div className="font-semibold text-white">{result.name}</div>
+                                    <div className="text-gray-400 text-sm">{result.company}</div>
                                 </div>
                             </div>
-                            <div style={{ fontSize: 36, fontWeight: 800, color: '#10b981', marginBottom: 4 }}>{proof.result}</div>
-                            <div style={{ fontSize: 14, color: '#9ca3af', marginBottom: 12 }}>{proof.metric}</div>
-                            <div style={{ fontSize: 12, color: '#6b7280' }}>🕐 {proof.time}</div>
+                            <div className="text-right">
+                                <div className="text-2xl font-bold text-green-400">{result.improvement}</div>
+                                <div className="text-xs text-gray-500">{result.metric}</div>
+                            </div>
                         </div>
-                    ))}
-                </div>
 
-                {/* New Proof Notification */}
-                {newProof && (
-                    <div style={{ position: 'fixed', bottom: 100, left: 24, background: 'rgba(16,185,129,0.9)', borderRadius: 12, padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 12, animation: 'slideIn 0.3s ease', zIndex: 1000 }}>
-                        <span style={{ fontSize: 24 }}>{newProof.avatar}</span>
-                        <div>
-                            <div style={{ color: 'white', fontWeight: 600 }}>{newProof.name} достиг {newProof.result}</div>
-                            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>{newProof.metric}</div>
+                        <div className="relative">
+                            <TbQuote className="absolute -top-2 -left-1 w-6 h-6 text-purple-500/30" />
+                            <p className="text-gray-300 text-sm italic pl-6">{result.testimonial}</p>
                         </div>
-                    </div>
-                )}
 
-                <style jsx global>{`
-          @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-          @keyframes slideIn { from { opacity: 0; transform: translateX(-100px); } to { opacity: 1; transform: translateX(0); } }
-        `}</style>
+                        <div className="flex items-center gap-1 mt-4">
+                            {[1, 2, 3, 4, 5].map(s => (
+                                <TbStar key={s} className={`w-4 h-4 ${s <= result.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-600'}`} />
+                            ))}
+                        </div>
+                    </motion.div>
+                ))}
             </div>
-        </section>
+
+            <div className="p-4 rounded-xl bg-gradient-to-r from-green-900/30 to-emerald-900/30 border border-green-500/30 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <TbTrendingUp className="w-6 h-6 text-green-400" />
+                    <span className="text-white">შენც გინდა ასეთი შედეგები?</span>
+                </div>
+                <button className="px-6 py-2 bg-green-600 hover:bg-green-500 text-white rounded-xl font-medium transition-colors">
+                    დაიწყე დღეს
+                </button>
+            </div>
+        </div>
     );
 }

@@ -1,80 +1,149 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { TbBolt, TbTrophy, TbClock, TbUsers } from "react-icons/tb";
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/lib/auth';
 
-interface Challenge { id: string; title: string; description: string; icon: string; participants: number; timeLeft: string; prize: string; type: 'daily' | 'weekly' | 'special'; difficulty: 'easy' | 'medium' | 'hard'; }
+interface Challenge {
+    _id: string;
+    title: string;
+    description: string;
+    xpReward: number;
+    endsAt: string;
+    participants: { userId: string; completedAt?: string }[];
+    type: 'daily' | 'weekly' | 'special';
+}
 
-const challenges: Challenge[] = [
-    { id: '1', title: 'Промпт-мастер', description: 'Создайте 5 эффективных промптов', icon: '✍️', participants: 234, timeLeft: '2ч 45м', prize: '100 XP', type: 'daily', difficulty: 'easy' },
-    { id: '2', title: 'AI Explorer', description: 'Протестируйте 3 новых инструмента', icon: '🔬', participants: 156, timeLeft: '5ч 12м', prize: '150 XP + Бейдж', type: 'daily', difficulty: 'medium' },
-    { id: '3', title: 'Учитель недели', description: 'Помогите 10 новичкам в сообществе', icon: '👨‍🏫', participants: 89, timeLeft: '3д 4ч', prize: '500 XP + Premium', type: 'weekly', difficulty: 'hard' },
-    { id: '4', title: 'Новогодний марафон', description: 'Пройдите 10 уроков за неделю', icon: '🎄', participants: 512, timeLeft: '6д 18ч', prize: 'Эксклюзивный NFT', type: 'special', difficulty: 'medium' },
+const FALLBACK_CHALLENGES = [
+    { _id: '1', title: '5 გაკვეთილის დასრულება', description: 'დაასრულე 5 მიკრო-გაკვეთილი დღეს', xpReward: 100, endsAt: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(), participants: [], type: 'daily' as const },
+    { _id: '2', title: 'კვესტ მასტერი', description: 'დაასრულე 3 კვესტი ამ კვირაში', xpReward: 250, endsAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), participants: [], type: 'weekly' as const },
+    { _id: '3', title: 'ახალი წლის სპეშალი', description: 'მოაგროვე 500 XP დეკემბერში', xpReward: 500, endsAt: new Date('2025-01-31').toISOString(), participants: [], type: 'special' as const },
 ];
 
-const difficultyColors = { easy: '#10b981', medium: '#f59e0b', hard: '#ef4444' };
-const typeColors = { daily: '#3b82f6', weekly: '#8b5cf6', special: '#ec4899' };
-
-export default function LiveChallenges() {
-    const [joined, setJoined] = useState<string[]>([]);
-    const [filter, setFilter] = useState<string>('all');
+function ChallengeCard({ challenge, onJoin, joined, userId }: {
+    challenge: Challenge;
+    onJoin: () => void;
+    joined: boolean;
+    userId: string;
+}) {
+    const [timeLeft, setTimeLeft] = useState('');
 
     useEffect(() => {
-        const saved = localStorage.getItem('joinedChallenges');
-        if (saved) setJoined(JSON.parse(saved));
-    }, []);
+        const updateTime = () => {
+            const diff = new Date(challenge.endsAt).getTime() - Date.now();
+            if (diff <= 0) { setTimeLeft('დასრულდა'); return; }
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            setTimeLeft(hours >= 24 ? `${Math.floor(hours / 24)}დ ${hours % 24}სთ` : `${hours}სთ ${minutes}წთ`);
+        };
+        updateTime();
+        const interval = setInterval(updateTime, 60000);
+        return () => clearInterval(interval);
+    }, [challenge.endsAt]);
 
-    const joinChallenge = (id: string) => {
-        const updated = [...joined, id];
-        setJoined(updated);
-        localStorage.setItem('joinedChallenges', JSON.stringify(updated));
+    const typeConfig = {
+        daily: { label: 'დღიური', color: 'from-blue-500 to-cyan-500', bg: 'bg-blue-500/20' },
+        weekly: { label: 'კვირეული', color: 'from-purple-500 to-pink-500', bg: 'bg-purple-500/20' },
+        special: { label: 'სპეციალური', color: 'from-yellow-500 to-orange-500', bg: 'bg-yellow-500/20' },
     };
-
-    const filtered = filter === 'all' ? challenges : challenges.filter(c => c.type === filter);
+    const config = typeConfig[challenge.type];
 
     return (
-        <section style={{ padding: '80px 20px', background: 'linear-gradient(180deg, rgba(17,24,39,0) 0%, rgba(239,68,68,0.08) 50%, rgba(17,24,39,0) 100%)' }}>
-            <div style={{ maxWidth: 900, margin: '0 auto' }}>
-                <div style={{ textAlign: 'center', marginBottom: 40 }}>
-                    <span style={{ fontSize: 48 }}>🏆</span>
-                    <h2 style={{ fontSize: 36, fontWeight: 800, background: 'linear-gradient(135deg, #ef4444, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginTop: 16 }}>Live Challenges</h2>
-                    <p style={{ fontSize: 18, color: '#9ca3af' }}>Соревнуйтесь с сообществом в реальном времени</p>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-xl border border-white/10 bg-white/5 space-y-4">
+            <div className="flex items-start justify-between">
+                <div>
+                    <span className={cn("text-xs font-medium px-2 py-0.5 rounded-full", config.bg)}>{config.label}</span>
+                    <h3 className="font-semibold text-white mt-2">{challenge.title}</h3>
+                    <p className="text-gray-400 text-sm">{challenge.description}</p>
                 </div>
-
-                {/* Filters */}
-                <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 32 }}>
-                    {['all', 'daily', 'weekly', 'special'].map(f => (
-                        <button key={f} onClick={() => setFilter(f)} style={{ background: filter === f ? 'linear-gradient(135deg, #ef4444, #f59e0b)' : 'transparent', border: filter === f ? 'none' : '1px solid #374151', borderRadius: 20, padding: '8px 20px', color: filter === f ? 'white' : '#9ca3af', cursor: 'pointer' }}>
-                            {f === 'all' ? 'Все' : f === 'daily' ? '📅 Дневные' : f === 'weekly' ? '📆 Недельные' : '⭐ Особые'}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Challenges */}
-                <div style={{ display: 'grid', gap: 16 }}>
-                    {filtered.map(ch => (
-                        <div key={ch.id} style={{ background: 'rgba(31,41,55,0.9)', border: '1px solid #374151', borderRadius: 16, padding: 24, display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
-                            <div style={{ width: 60, height: 60, background: `${typeColors[ch.type]}20`, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>{ch.icon}</div>
-                            <div style={{ flex: 1, minWidth: 200 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                                    <span style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>{ch.title}</span>
-                                    <span style={{ fontSize: 10, background: `${difficultyColors[ch.difficulty]}20`, color: difficultyColors[ch.difficulty], padding: '2px 8px', borderRadius: 10 }}>{ch.difficulty.toUpperCase()}</span>
-                                </div>
-                                <p style={{ fontSize: 14, color: '#9ca3af', marginBottom: 8 }}>{ch.description}</p>
-                                <div style={{ display: 'flex', gap: 16, fontSize: 12, color: '#6b7280' }}>
-                                    <span>👥 {ch.participants}</span>
-                                    <span>⏰ {ch.timeLeft}</span>
-                                    <span>🎁 {ch.prize}</span>
-                                </div>
-                            </div>
-                            {joined.includes(ch.id) ? (
-                                <div style={{ background: 'rgba(16,185,129,0.2)', color: '#10b981', padding: '10px 20px', borderRadius: 12, fontWeight: 600 }}>✓ Участвуете</div>
-                            ) : (
-                                <button onClick={() => joinChallenge(ch.id)} style={{ background: 'linear-gradient(135deg, #ef4444, #f59e0b)', border: 'none', borderRadius: 12, padding: '10px 24px', color: 'white', fontWeight: 600, cursor: 'pointer' }}>Участвовать</button>
-                            )}
-                        </div>
-                    ))}
+                <div className="flex items-center gap-1 text-yellow-400 font-bold">
+                    <TbBolt className="w-4 h-4" />+{challenge.xpReward}
                 </div>
             </div>
-        </section>
+            <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-4 text-gray-400">
+                    <span className="flex items-center gap-1"><TbClock className="w-4 h-4" />{timeLeft}</span>
+                    <span className="flex items-center gap-1"><TbUsers className="w-4 h-4" />{challenge.participants.length}</span>
+                </div>
+                <button onClick={onJoin} disabled={joined} className={cn("px-4 py-1.5 rounded-lg font-medium text-sm transition-all", joined ? "bg-green-600 text-white cursor-default" : `bg-gradient-to-r ${config.color} text-white hover:opacity-90`)}>
+                    {joined ? '✓ მონაწილე' : 'შეუერთდი'}
+                </button>
+            </div>
+        </motion.div>
+    );
+}
+
+export default function LiveChallenges() {
+    const { user } = useAuth();
+    const [challenges, setChallenges] = useState<Challenge[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchChallenges = async () => {
+            try {
+                const res = await fetch('/api/conversion/challenges');
+                if (res.ok) {
+                    const data = await res.json();
+                    setChallenges(data.challenges?.length > 0 ? data.challenges : FALLBACK_CHALLENGES);
+                } else {
+                    setChallenges(FALLBACK_CHALLENGES);
+                }
+            } catch { setChallenges(FALLBACK_CHALLENGES); }
+            setLoading(false);
+        };
+        fetchChallenges();
+    }, []);
+
+    const handleJoin = async (id: string) => {
+        if (!user) return;
+        try {
+            const res = await fetch('/api/conversion/challenges', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-user-id': (user as any)._id || '' },
+                body: JSON.stringify({ challengeId: id, action: 'join' }),
+            });
+            if (res.ok) {
+                setChallenges(prev => prev.map(c =>
+                    c._id === id ? { ...c, participants: [...c.participants, { userId: (user as any)._id }] } : c
+                ));
+            }
+        } catch (e) { console.error(e); }
+    };
+
+    if (!user) {
+        return (
+            <div className="text-center p-8 border border-white/10 rounded-2xl bg-white/5">
+                <TbTrophy className="w-12 h-12 mx-auto mb-4 text-yellow-400" />
+                <h3 className="text-xl font-bold mb-2">🏆 ლაივ ჩელენჯები</h3>
+                <p className="text-gray-400">გაიარე ავტორიზაცია მონაწილეობისთვის</p>
+            </div>
+        );
+    }
+
+    if (loading) return <div className="animate-pulse bg-white/5 h-64 rounded-2xl" />;
+
+    return (
+        <div className="space-y-6">
+            <div className="flex items-center gap-3">
+                <div className="p-2 bg-yellow-500/20 rounded-lg"><TbTrophy className="w-6 h-6 text-yellow-400" /></div>
+                <div>
+                    <h2 className="text-2xl font-bold text-white">ლაივ ჩელენჯები</h2>
+                    <p className="text-gray-400 text-sm">შეჯიბრე და მოაგროვე XP</p>
+                </div>
+            </div>
+            <div className="space-y-4">
+                {challenges.map(challenge => (
+                    <ChallengeCard
+                        key={challenge._id}
+                        challenge={challenge}
+                        userId={(user as any)._id || ''}
+                        joined={challenge.participants.some(p => p.userId === (user as any)._id)}
+                        onJoin={() => handleJoin(challenge._id)}
+                    />
+                ))}
+            </div>
+        </div>
     );
 }

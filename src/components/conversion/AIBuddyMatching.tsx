@@ -1,91 +1,124 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { TbUsers, TbHeart, TbMessage, TbSparkles, TbCheck } from "react-icons/tb";
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/lib/auth';
 
-interface Buddy { id: string; name: string; avatar: string; level: string; interests: string[]; goal: string; match: number; }
+interface Buddy {
+    id: string;
+    name: string;
+    level: string;
+    interests: string[];
+    avatar: string;
+    matchScore: number;
+}
 
-const buddies: Buddy[] = [
-    { id: '1', name: 'Алексей К.', avatar: '👨‍💻', level: 'Средний', interests: ['ChatGPT', 'Автоматизация', 'Python'], goal: 'Автоматизировать бизнес', match: 92 },
-    { id: '2', name: 'Мария С.', avatar: '👩‍🎨', level: 'Начинающий', interests: ['Midjourney', 'Дизайн', 'Контент'], goal: 'Создавать креативы с AI', match: 85 },
-    { id: '3', name: 'Дмитрий П.', avatar: '👨‍💼', level: 'Продвинутый', interests: ['GPT-4', 'API', 'Продажи'], goal: 'Масштабировать AI-решения', match: 78 },
-    { id: '4', name: 'Елена В.', avatar: '👩‍🏫', level: 'Средний', interests: ['Образование', 'Промпты', 'ChatGPT'], goal: 'Обучать других AI', match: 88 },
+const SAMPLE_BUDDIES: Buddy[] = [
+    { id: '1', name: 'ნინო', level: 'საშუალო', interests: ['ChatGPT', 'მარკეტინგი'], avatar: '👩‍💻', matchScore: 95 },
+    { id: '2', name: 'გიორგი', level: 'მოწინავე', interests: ['კოდირება', 'ავტომატიზაცია'], avatar: '👨‍💻', matchScore: 87 },
+    { id: '3', name: 'მარიამ', level: 'დამწყები', interests: ['დიზაინი', 'DALL-E'], avatar: '👩‍🎨', matchScore: 82 },
+    { id: '4', name: 'დავით', level: 'საშუალო', interests: ['ბიზნესი', 'AI სტრატეგია'], avatar: '👨‍💼', matchScore: 78 },
 ];
 
 export default function AIBuddyMatching() {
-    const [step, setStep] = useState(0);
-    const [answers, setAnswers] = useState<string[]>([]);
-    const [matchedBuddy, setMatchedBuddy] = useState<Buddy | null>(null);
+    const { user } = useAuth();
+    const [matches, setMatches] = useState<string[]>([]);
+    const [loading, setLoading] = useState(false);
 
-    const questions = [
-        { q: 'Ваш уровень владения AI?', opts: ['Новичок', 'Средний', 'Продвинутый'] },
-        { q: 'Главная цель?', opts: ['Автоматизация', 'Контент', 'Разработка'] },
-        { q: 'Предпочитаемый формат обучения?', opts: ['Видео', 'Текст', 'Практика'] },
-    ];
-
-    const handleAnswer = (ans: string) => {
-        const newAns = [...answers, ans];
-        setAnswers(newAns);
-        if (step < questions.length - 1) {
-            setStep(step + 1);
-        } else {
-            // Match with highest %
-            setMatchedBuddy(buddies[Math.floor(Math.random() * buddies.length)]);
-        }
+    const handleMatch = (id: string) => {
+        setLoading(true);
+        setTimeout(() => {
+            setMatches(prev => [...prev, id]);
+            setLoading(false);
+        }, 500);
     };
 
-    const restart = () => { setStep(0); setAnswers([]); setMatchedBuddy(null); };
+    if (!user) {
+        return (
+            <div className="text-center p-8 border border-white/10 rounded-2xl bg-white/5">
+                <TbUsers className="w-12 h-12 mx-auto mb-4 text-pink-400" />
+                <h3 className="text-xl font-bold mb-2">🤝 AI ბადის მეჩინგი</h3>
+                <p className="text-gray-400">გაიარე ავტორიზაცია პარტნიორის საპოვნელად</p>
+            </div>
+        );
+    }
 
     return (
-        <section style={{ padding: '80px 20px', background: 'linear-gradient(180deg, rgba(17,24,39,0) 0%, rgba(59,130,246,0.08) 50%, rgba(17,24,39,0) 100%)' }}>
-            <div style={{ maxWidth: 700, margin: '0 auto' }}>
-                <div style={{ textAlign: 'center', marginBottom: 40 }}>
-                    <span style={{ fontSize: 48 }}>🤝</span>
-                    <h2 style={{ fontSize: 36, fontWeight: 800, background: 'linear-gradient(135deg, #3b82f6, #10b981)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginTop: 16 }}>AI Buddy Matching</h2>
-                    <p style={{ fontSize: 18, color: '#9ca3af' }}>Найдите напарника для совместного обучения AI</p>
+        <div className="space-y-6">
+            <div className="flex items-center gap-3">
+                <div className="p-2 bg-pink-500/20 rounded-lg">
+                    <TbUsers className="w-6 h-6 text-pink-400" />
                 </div>
-
-                <div style={{ background: 'rgba(31,41,55,0.9)', borderRadius: 24, padding: 40, border: '1px solid #374151' }}>
-                    {!matchedBuddy ? (
-                        <>
-                            {/* Progress */}
-                            <div style={{ display: 'flex', gap: 8, marginBottom: 32 }}>
-                                {questions.map((_, i) => (
-                                    <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i <= step ? 'linear-gradient(90deg, #3b82f6, #10b981)' : '#374151' }} />
-                                ))}
-                            </div>
-
-                            <h3 style={{ fontSize: 22, fontWeight: 600, color: 'white', textAlign: 'center', marginBottom: 24 }}>{questions[step].q}</h3>
-
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                                {questions[step].opts.map((opt, i) => (
-                                    <button key={i} onClick={() => handleAnswer(opt)} style={{ background: '#374151', border: '1px solid #4b5563', borderRadius: 12, padding: '16px 20px', color: 'white', fontSize: 16, cursor: 'pointer', textAlign: 'left', transition: 'all 0.3s' }}
-                                        onMouseEnter={e => { e.currentTarget.style.borderColor = '#3b82f6'; }}
-                                        onMouseLeave={e => { e.currentTarget.style.borderColor = '#4b5563'; }}>
-                                        {opt}
-                                    </button>
-                                ))}
-                            </div>
-                        </>
-                    ) : (
-                        <div style={{ textAlign: 'center' }}>
-                            <div style={{ fontSize: 12, color: '#10b981', marginBottom: 16 }}>🎉 Найден идеальный напарник!</div>
-                            <div style={{ width: 100, height: 100, margin: '0 auto 16px', background: 'linear-gradient(135deg, #3b82f6, #10b981)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48 }}>{matchedBuddy.avatar}</div>
-                            <h3 style={{ fontSize: 24, fontWeight: 700, color: 'white', marginBottom: 4 }}>{matchedBuddy.name}</h3>
-                            <div style={{ display: 'inline-block', background: 'rgba(16,185,129,0.2)', color: '#10b981', padding: '4px 12px', borderRadius: 20, fontSize: 14, marginBottom: 16 }}>{matchedBuddy.match}% совместимость</div>
-                            <div style={{ color: '#9ca3af', marginBottom: 8 }}>🎯 Цель: {matchedBuddy.goal}</div>
-                            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 24 }}>
-                                {matchedBuddy.interests.map((int, i) => (
-                                    <span key={i} style={{ background: '#374151', color: '#d1d5db', padding: '6px 12px', borderRadius: 16, fontSize: 13 }}>{int}</span>
-                                ))}
-                            </div>
-                            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-                                <button onClick={restart} style={{ background: 'transparent', border: '1px solid #374151', borderRadius: 12, padding: '12px 24px', color: '#9ca3af', cursor: 'pointer' }}>Найти другого</button>
-                                <button style={{ background: 'linear-gradient(135deg, #3b82f6, #10b981)', border: 'none', borderRadius: 12, padding: '12px 24px', color: 'white', fontWeight: 600, cursor: 'pointer' }}>Связаться 💬</button>
-                            </div>
-                        </div>
-                    )}
+                <div>
+                    <h2 className="text-2xl font-bold text-white">AI ბადი მეჩინგი</h2>
+                    <p className="text-gray-400 text-sm">იპოვე სწავლის პარტნიორი</p>
                 </div>
             </div>
-        </section>
+
+            <div className="grid gap-4 md:grid-cols-2">
+                {SAMPLE_BUDDIES.map((buddy, index) => (
+                    <motion.div
+                        key={buddy.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className={cn(
+                            "p-4 rounded-xl border transition-all",
+                            matches.includes(buddy.id)
+                                ? "border-green-500/30 bg-green-950/20"
+                                : "border-white/10 bg-white/5"
+                        )}
+                    >
+                        <div className="flex items-start gap-4">
+                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center text-2xl">
+                                {buddy.avatar}
+                            </div>
+                            <div className="flex-1">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="font-semibold text-white">{buddy.name}</h3>
+                                    <div className="flex items-center gap-1 text-pink-400 text-sm">
+                                        <TbHeart className="w-4 h-4" />
+                                        {buddy.matchScore}%
+                                    </div>
+                                </div>
+                                <p className="text-gray-400 text-sm">{buddy.level}</p>
+                                <div className="flex flex-wrap gap-1 mt-2">
+                                    {buddy.interests.map(interest => (
+                                        <span key={interest} className="px-2 py-0.5 bg-white/10 rounded-full text-xs text-gray-300">
+                                            {interest}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => handleMatch(buddy.id)}
+                            disabled={matches.includes(buddy.id)}
+                            className={cn(
+                                "w-full mt-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2",
+                                matches.includes(buddy.id)
+                                    ? "bg-green-600 text-white"
+                                    : "bg-gradient-to-r from-pink-600 to-purple-600 text-white hover:opacity-90"
+                            )}
+                        >
+                            {matches.includes(buddy.id) ? (
+                                <>
+                                    <TbCheck className="w-4 h-4" />
+                                    მეჩი გაიგზავნა
+                                </>
+                            ) : (
+                                <>
+                                    <TbSparkles className="w-4 h-4" />
+                                    კონტაქტი
+                                </>
+                            )}
+                        </button>
+                    </motion.div>
+                ))}
+            </div>
+        </div>
     );
 }

@@ -1,26 +1,18 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import {
-    Search,
-    X,
-    FileText,
-    Video,
-    Wrench,
-    ArrowRight,
-    Clock,
-    Sparkles
-} from "lucide-react"
-import { cn } from "@/lib/utils"
-import postsData from "@/data/posts.json"
-import videosData from "@/data/videos.json"
-import toolsData from "@/data/tools.json"
-import { handleSmartSearch } from '@/app/actions/search'
+    TbCommandDialog,
+    TbCommandEmpty,
+    TbCommandGroup,
+    TbCommandInput,
+    TbCommandItem,
+    TbCommandList,
+} from "@/components/ui/command"
+import { Badge } from "@/components/ui/badge"
+import { TbFileText, TbVideo, TbTool, TbLoader2 } from "react-icons/tb"
+import { handleSmartSearch } from "@/app/actions/search"
 
 interface SearchDialogProps {
     isOpen: boolean
@@ -34,99 +26,46 @@ type SearchResult = {
     type: "post" | "video" | "tool"
     url: string
     category?: string
+    image?: string
 }
 
 export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
     const [query, setQuery] = React.useState("")
     const [results, setResults] = React.useState<SearchResult[]>([])
-    const inputRef = React.useRef<HTMLInputElement>(null)
+    const [loading, setLoading] = React.useState(false)
     const router = useRouter()
 
-    // Focus on open
     React.useEffect(() => {
-        if (isOpen) {
-            setTimeout(() => inputRef.current?.focus(), 100)
-        }
-    }, [isOpen])
-
-    // Close on escape
-    React.useEffect(() => {
-        const handleEsc = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose()
-        }
-        window.addEventListener("keydown", handleEsc)
-        return () => window.removeEventListener("keydown", handleEsc)
-    }, [onClose])
-
-    // Search logic
-    React.useEffect(() => {
-        if (query.length < 2) {
+        if (!query) {
             setResults([])
             return
         }
 
-        const q = query.toLowerCase()
-        const searchResults: SearchResult[] = []
-
-        // Search posts
-        postsData.forEach((post) => {
-            if (
-                post.title.toLowerCase().includes(q) ||
-                post.excerpt.toLowerCase().includes(q) ||
-                post.tags.some(t => t.toLowerCase().includes(q))
-            ) {
-                searchResults.push({
-                    id: post.id,
-                    title: post.title,
-                    description: post.excerpt,
-                    type: "post",
-                    url: `/blog/${post.slug}`,
-                    category: post.category
+        const debounce = setTimeout(async () => {
+            setLoading(true)
+            try {
+                const visitorId = localStorage.getItem('visitor_id') || ''
+                const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=5`, {
+                    headers: {
+                        'x-visitor-id': visitorId
+                    }
                 })
+                if (res.ok) {
+                    const data = await res.json()
+                    setResults(data.results || [])
+                }
+            } catch (error) {
+                console.error(error)
+            } finally {
+                setLoading(false)
             }
-        })
+        }, 300)
 
-        // Search videos
-        videosData.forEach((video) => {
-            if (
-                video.title.toLowerCase().includes(q) ||
-                video.description.toLowerCase().includes(q)
-            ) {
-                searchResults.push({
-                    id: video.id,
-                    title: video.title,
-                    description: video.description,
-                    type: "video",
-                    url: `/videos`,
-                    category: video.category
-                })
-            }
-        })
-
-        // Search tools
-        toolsData.forEach((tool) => {
-            if (
-                tool.name.toLowerCase().includes(q) ||
-                tool.description.toLowerCase().includes(q) ||
-                tool.category.toLowerCase().includes(q)
-            ) {
-                searchResults.push({
-                    id: tool.id,
-                    title: tool.name,
-                    description: tool.description,
-                    type: "tool",
-                    url: tool.url,
-                    category: tool.category
-                })
-            }
-        })
-
-        setResults(searchResults.slice(0, 8))
+        return () => clearTimeout(debounce)
     }, [query])
 
     const handleSelect = (url: string) => {
         onClose()
-        setQuery("")
         if (url.startsWith("http")) {
             window.open(url, "_blank")
         } else {
@@ -134,97 +73,84 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
         }
     }
 
-    if (!isOpen) return null
+    const handleKeyDown = async (e: React.KeyboardEvent) => {
+        if (e.key === "Enter") {
+            if (/^\d{6}$/.test(query)) {
+                e.preventDefault()
+                const formData = new FormData()
+                formData.append("query", query)
+                await handleSmartSearch(formData)
+            }
+        }
+    }
 
     return (
-        <div className="fixed inset-0 z-50">
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-                onClick={onClose}
+        <TbCommandDialog open={isOpen} onOpenChange={onClose} shouldFilter={false}>
+            <TbCommandInput
+                placeholder="TbSearch articles, tools, or type ID..."
+                value={query}
+                onValueChange={setQuery}
+                onKeyDown={handleKeyDown}
             />
-
-            {/* Dialog */}
-            <div className="relative max-w-2xl mx-auto mt-20 px-4">
-                <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden">
-                    {/* Search Input */}
-                    <div className="flex items-center gap-3 p-4 border-b border-border">
-                        <Search className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                        <form action={handleSmartSearch} className="flex-1">
-                            <Input
-                                ref={inputRef}
-                                name="query"
-                                value={query}
-                                onChange={(e) => setQuery(e.target.value)}
-                                placeholder="მოძებნე სტატია, ან შეიყვანე კოდი (მაგ: #GE01)..."
-                                className="border-0 bg-transparent text-lg focus-visible:ring-0 px-0 w-full"
-                                autoComplete="off"
-                            />
-                        </form>
-                        <Button variant="ghost" size="icon" onClick={onClose}>
-                            <X className="w-5 h-5" />
-                        </Button>
+            <TbCommandList>
+                <TbCommandEmpty>No results found.</TbCommandEmpty>
+                {loading && (
+                    <div className="py-6 text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
+                        <TbLoader2 className="w-4 h-4 animate-spin" />
+                        Searching...
                     </div>
+                )}
+                {!loading && results.length > 0 && (
+                    <TbCommandGroup heading="Results">
+                        {results.map((result) => (
+                            <TbCommandItem
+                                key={result.id + result.type}
+                                value={result.id + result.type + result.title}
+                                onSelect={() => handleSelect(result.url)}
+                                onMouseDown={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    handleSelect(result.url)
+                                }}
+                                className="flex items-center gap-4 p-2 cursor-pointer"
+                            >
+                                {result.image ? (
+                                    <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-secondary border border-border/50">
+                                        <img
+                                            src={result.image}
+                                            alt={result.title}
+                                            className="object-cover w-full h-full"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="w-12 h-12 rounded-lg bg-secondary/50 flex items-center justify-center flex-shrink-0 border border-border/50">
+                                        {result.type === "post" && <TbFileText className="w-6 h-6 text-muted-foreground" />}
+                                        {result.type === "video" && <TbVideo className="w-6 h-6 text-muted-foreground" />}
+                                        {result.type === "tool" && <TbTool className="w-6 h-6 text-muted-foreground" />}
+                                    </div>
+                                )}
 
-                    {/* Results */}
-                    <div className="max-h-96 overflow-y-auto">
-                        {query.length < 2 ? (
-                            <div className="p-8 text-center text-muted-foreground">
-                                <Sparkles className="w-10 h-10 mx-auto mb-3 opacity-50" />
-                                <p>ჩაწერე მინიმუმ 2 სიმბოლო</p>
-                            </div>
-                        ) : results.length === 0 ? (
-                            <div className="p-8 text-center text-muted-foreground">
-                                <p>ვერაფერი მოიძებნა: "{query}"</p>
-                            </div>
-                        ) : (
-                            <div className="p-2">
-                                {results.map((result) => (
-                                    <button
-                                        key={`${result.type}-${result.id}`}
-                                        onClick={() => handleSelect(result.url)}
-                                        className="w-full flex items-start gap-4 p-3 rounded-xl hover:bg-secondary transition-colors text-left"
-                                    >
-                                        <div className={cn(
-                                            "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0",
-                                            result.type === "post" && "bg-primary/10 text-primary",
-                                            result.type === "video" && "bg-red-500/10 text-red-500",
-                                            result.type === "tool" && "bg-accent/10 text-accent"
-                                        )}>
-                                            {result.type === "post" && <FileText className="w-5 h-5" />}
-                                            {result.type === "video" && <Video className="w-5 h-5" />}
-                                            {result.type === "tool" && <Wrench className="w-5 h-5" />}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2">
-                                                <h4 className="font-medium truncate">{result.title}</h4>
-                                                <Badge variant="secondary" className="text-xs flex-shrink-0">
-                                                    {result.type === "post" ? "სტატია" :
-                                                        result.type === "video" ? "ვიდეო" : "ინსტრუმენტი"}
-                                                </Badge>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground truncate">
-                                                {result.description}
-                                            </p>
-                                        </div>
-                                        <ArrowRight className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-3" />
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                                <div
+                                    className="flex flex-col gap-1 overflow-hidden flex-1"
+                                    onClick={() => handleSelect(result.url)}
+                                >
+                                    <span className="font-medium truncate">{result.title}</span>
+                                    {result.description && (
+                                        <span className="text-xs text-muted-foreground truncate">{result.description}</span>
+                                    )}
+                                </div>
 
-                    {/* Footer */}
-                    <div className="p-3 border-t border-border text-xs text-muted-foreground flex items-center justify-between">
-                        <span>ESC გასათიშად</span>
-                        <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            სწრაფი ძებნა
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
+                                <div className="ml-auto flex flex-col items-end gap-1">
+                                    <Badge variant="secondary" className="text-[10px] capitalize px-1.5 h-5">
+                                        {result.type}
+                                    </Badge>
+                                </div>
+                            </TbCommandItem>
+                        ))}
+                    </TbCommandGroup>
+                )}
+            </TbCommandList>
+        </TbCommandDialog>
     )
 }
 

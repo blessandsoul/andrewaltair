@@ -1,28 +1,43 @@
 import Link from "next/link"
-import Image from "next/image"
+import TbPhoto from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import {
-  Search,
-  Clock,
-  Eye,
-  Flame,
-  Heart,
-  TrendingUp,
-  Filter,
-  Sparkles,
-  ArrowRight,
-  Send,
-  Mail,
-  MessageCircle,
-  Share2
-} from "lucide-react"
-import postsData from "@/data/posts.json"
+  TbSearch,
+  TbClock,
+  TbEye,
+  TbFlame,
+  TbHeart,
+  TbTrendingUp,
+  TbFilter,
+  TbSparkles,
+  TbArrowRight,
+  TbSend,
+  TbMail,
+  TbMessage,
+  TbShare
+} from "react-icons/tb"
 import { brand } from "@/lib/brand"
 import { PostCard } from "@/components/blog/PostCard"
 import { FeaturedCard } from "@/components/blog/FeaturedCard"
+
+// Fetch posts from MongoDB API
+async function getPosts() {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    const res = await fetch(`${baseUrl}/api/posts?status=published&limit=50`, {
+      cache: 'no-store' // Always get fresh data
+    })
+    if (!res.ok) throw new Error('Failed to fetch posts')
+    const data = await res.json()
+    return data.posts || []
+  } catch (error) {
+    console.error('Error fetching posts:', error)
+    return []
+  }
+}
 
 // Helper to format numbers
 function formatNumber(num: number): string {
@@ -36,9 +51,9 @@ function getTotalReactions(reactions: Record<string, number>): number {
   return Object.values(reactions).reduce((a, b) => a + b, 0)
 }
 
-export default function BlogPage() {
-  const allPosts = postsData
-  const featuredPosts = postsData.filter(p => p.featured)
+export default async function BlogPage() {
+  const allPosts = await getPosts()
+  const featuredPosts = allPosts.filter((p: { featured: boolean }) => p.featured)
 
   return (
     <div className="min-h-screen">
@@ -51,7 +66,7 @@ export default function BlogPage() {
         <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <Badge variant="secondary" className="px-4 py-2">
-              <Sparkles className="w-3 h-3 mr-2" />
+              <TbSparkles className="w-3 h-3 mr-2" />
               AI ბლოგი
             </Badge>
 
@@ -63,17 +78,17 @@ export default function BlogPage() {
               ხელოვნური ინტელექტის შესახებ პრაქტიკული სახელმძღვანელოები, რჩევები და სიახლეები
             </p>
 
-            {/* Search Bar */}
+            {/* TbSearch Bar */}
             <div className="flex gap-3 max-w-lg mx-auto pt-4">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <TbSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
                   placeholder="მოძებნე სტატია..."
                   className="pl-10 h-12 bg-card"
                 />
               </div>
               <Button size="lg" variant="outline" className="h-12">
-                <Filter className="w-4 h-4 mr-2" />
+                <TbFilter className="w-4 h-4 mr-2" />
                 ფილტრი
               </Button>
             </div>
@@ -113,7 +128,7 @@ export default function BlogPage() {
             <div className="flex items-center justify-between mb-10">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-primary" />
+                  <TbTrendingUp className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold">რჩეული სტატიები</h2>
@@ -123,7 +138,7 @@ export default function BlogPage() {
             </div>
 
             <div className="grid gap-8 md:grid-cols-2">
-              {featuredPosts.map((post) => (
+              {featuredPosts.map((post: { id: string }) => (
                 <FeaturedCard key={post.id} post={post as any} />
               ))}
             </div>
@@ -137,7 +152,7 @@ export default function BlogPage() {
           <div className="flex items-center justify-between mb-10">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-accent" />
+                <TbSparkles className="w-5 h-5 text-accent" />
               </div>
               <div>
                 <h2 className="text-2xl font-bold">ყველა სტატია</h2>
@@ -150,7 +165,7 @@ export default function BlogPage() {
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {allPosts.map((post) => (
+            {allPosts.map((post: { id: string }) => (
               <PostCard
                 key={post.id}
                 post={post as any}
@@ -165,7 +180,7 @@ export default function BlogPage() {
           <div className="text-center mt-12">
             <Button size="lg" variant="outline">
               მეტის ჩვენება
-              <ArrowRight className="w-4 h-4 ml-2" />
+              <TbArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </div>
         </div>
@@ -186,14 +201,14 @@ export default function BlogPage() {
             </p>
             <div className="flex gap-3 max-w-md mx-auto">
               <div className="relative flex-1">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                <TbMail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                 <Input
                   placeholder="შენი ელ-ფოსტა"
                   className="pl-10 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50"
                 />
               </div>
               <Button size="lg" className="h-12 bg-white text-primary hover:bg-white/90">
-                <Send className="w-4 h-4 mr-2" />
+                <TbSend className="w-4 h-4 mr-2" />
                 გამოწერა
               </Button>
             </div>

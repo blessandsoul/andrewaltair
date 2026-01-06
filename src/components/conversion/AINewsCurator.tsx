@@ -1,84 +1,120 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { TbNews, TbExternalLink, TbClock, TbTag, TbBookmark, TbBookmarkFilled } from "react-icons/tb";
+import { cn } from '@/lib/utils';
 
-interface NewsItem { id: string; title: string; summary: string; source: string; time: string; category: string; icon: string; isNew: boolean; }
+interface NewsItem {
+    id: string;
+    title: string;
+    source: string;
+    category: string;
+    timeAgo: string;
+    image: string;
+}
 
-const news: NewsItem[] = [
-    { id: '1', title: 'GPT-5 ожидается в 2025', summary: 'OpenAI подтвердила работу над следующей версией языковой модели с улучшенным мультимодальным пониманием.', source: 'TechCrunch', time: '2ч назад', category: 'Модели', icon: '🤖', isNew: true },
-    { id: '2', title: 'Google DeepMind представил Gemini 2.0', summary: 'Новая модель демонстрирует прорыв в мультимодальных возможностях и агентных системах.', source: 'Google Blog', time: '5ч назад', category: 'Модели', icon: '🌟', isNew: true },
-    { id: '3', title: 'AI в бизнесе: исследование 2024', summary: '73% компаний планируют увеличить инвестиции в AI в следующем году.', source: 'McKinsey', time: '1д назад', category: 'Бизнес', icon: '📊', isNew: false },
-    { id: '4', title: 'Midjourney V7 в разработке', summary: 'Команда обещает революционные улучшения в качестве и консистентности генерации.', source: 'Midjourney', time: '2д назад', category: 'Изображения', icon: '🎨', isNew: false },
-    { id: '5', title: 'Новые правила EU AI Act', summary: 'Европа вводит строгие требования к прозрачности AI систем.', source: 'EU Commission', time: '3д назад', category: 'Регулирование', icon: '⚖️', isNew: false },
+const NEWS: NewsItem[] = [
+    { id: '1', title: 'OpenAI გამოუშვებს GPT-5-ს 2025 წელს', source: 'TechCrunch', category: 'LLM', timeAgo: '2 სთ', image: '🤖' },
+    { id: '2', title: 'Google Gemini 2.0 - ახალი თაობა', source: 'The Verge', category: 'AI', timeAgo: '5 სთ', image: '🔮' },
+    { id: '3', title: 'AI აგენტები: მომავლის ოფისი', source: 'Wired', category: 'ტრენდი', timeAgo: '8 სთ', image: '🚀' },
+    { id: '4', title: 'Midjourney V7 - ახალი შესაძლებლობები', source: 'Ars Technica', category: 'გამოსახულება', timeAgo: '1 დ', image: '🎨' },
 ];
 
-const categories = ['Все', 'Модели', 'Бизнес', 'Изображения', 'Регулирование', 'Инструменты'];
+const CATEGORIES = ['ყველა', 'LLM', 'AI', 'გამოსახულება', 'ტრენდი'];
 
 export default function AINewsCurator() {
-    const [filter, setFilter] = useState('Все');
-    const [savedNews, setSavedNews] = useState<string[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState('ყველა');
+    const [bookmarked, setBookmarked] = useState<Set<string>>(new Set());
 
-    useEffect(() => {
-        const saved = localStorage.getItem('savedAINews');
-        if (saved) setSavedNews(JSON.parse(saved));
-    }, []);
-
-    const toggleSave = (id: string) => {
-        const updated = savedNews.includes(id) ? savedNews.filter(n => n !== id) : [...savedNews, id];
-        setSavedNews(updated);
-        localStorage.setItem('savedAINews', JSON.stringify(updated));
+    const toggleBookmark = (id: string) => {
+        setBookmarked(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
     };
 
-    const filtered = filter === 'Все' ? news : news.filter(n => n.category === filter);
+    const filteredNews = selectedCategory === 'ყველა'
+        ? NEWS
+        : NEWS.filter(n => n.category === selectedCategory);
 
     return (
-        <section style={{ padding: '80px 20px', background: 'linear-gradient(180deg, rgba(17,24,39,0) 0%, rgba(59,130,246,0.08) 50%, rgba(17,24,39,0) 100%)' }}>
-            <div style={{ maxWidth: 800, margin: '0 auto' }}>
-                <div style={{ textAlign: 'center', marginBottom: 40 }}>
-                    <span style={{ fontSize: 48 }}>📰</span>
-                    <h2 style={{ fontSize: 36, fontWeight: 800, background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginTop: 16 }}>AI News Curator</h2>
-                    <p style={{ fontSize: 18, color: '#9ca3af' }}>Персонализированные AI-новости для вас</p>
+        <div className="space-y-6">
+            <div className="flex items-center gap-3">
+                <div className="p-2 bg-orange-500/20 rounded-lg">
+                    <TbNews className="w-6 h-6 text-orange-400" />
                 </div>
-
-                {/* Filters */}
-                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 32 }}>
-                    {categories.map(cat => (
-                        <button key={cat} onClick={() => setFilter(cat)} style={{ background: filter === cat ? 'linear-gradient(135deg, #3b82f6, #8b5cf6)' : 'transparent', border: filter === cat ? 'none' : '1px solid #374151', borderRadius: 20, padding: '8px 16px', color: filter === cat ? 'white' : '#9ca3af', fontSize: 14, cursor: 'pointer' }}>{cat}</button>
-                    ))}
-                </div>
-
-                {/* News List */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    {filtered.map(item => (
-                        <div key={item.id} style={{ background: 'rgba(31,41,55,0.9)', border: '1px solid #374151', borderRadius: 16, padding: 24, transition: 'all 0.3s' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 12 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                    <span style={{ fontSize: 32 }}>{item.icon}</span>
-                                    <div>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                            <h3 style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>{item.title}</h3>
-                                            {item.isNew && <span style={{ background: '#ef4444', color: 'white', fontSize: 10, padding: '2px 6px', borderRadius: 8, fontWeight: 700 }}>NEW</span>}
-                                        </div>
-                                        <div style={{ fontSize: 12, color: '#6b7280' }}>{item.source} • {item.time}</div>
-                                    </div>
-                                </div>
-                                <button onClick={() => toggleSave(item.id)} style={{ background: 'transparent', border: 'none', fontSize: 20, cursor: 'pointer' }}>
-                                    {savedNews.includes(item.id) ? '⭐' : '☆'}
-                                </button>
-                            </div>
-                            <p style={{ fontSize: 14, color: '#9ca3af', marginBottom: 12 }}>{item.summary}</p>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span style={{ fontSize: 12, color: '#6b7280', background: '#374151', padding: '4px 10px', borderRadius: 8 }}>{item.category}</span>
-                                <button style={{ background: 'transparent', border: '1px solid #374151', borderRadius: 8, padding: '6px 12px', color: '#9ca3af', fontSize: 12, cursor: 'pointer' }}>Читать →</button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                <div style={{ textAlign: 'center', marginTop: 32 }}>
-                    <button style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', border: 'none', borderRadius: 12, padding: '14px 32px', color: 'white', fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>🔔 Подписаться на рассылку</button>
+                <div>
+                    <h2 className="text-2xl font-bold text-white">AI სიახლეები</h2>
+                    <p className="text-gray-400 text-sm">პერსონალიზებული AI ნიუს ფიდი</p>
                 </div>
             </div>
-        </section>
+
+            {/* Categories */}
+            <div className="flex flex-wrap gap-2">
+                {CATEGORIES.map(cat => (
+                    <button
+                        key={cat}
+                        onClick={() => setSelectedCategory(cat)}
+                        className={cn(
+                            "px-3 py-1.5 rounded-full text-sm transition-all",
+                            selectedCategory === cat
+                                ? "bg-orange-500 text-white"
+                                : "bg-white/5 text-gray-300 hover:bg-white/10"
+                        )}
+                    >
+                        {cat}
+                    </button>
+                ))}
+            </div>
+
+            {/* News List */}
+            <div className="space-y-3">
+                {filteredNews.map((news, index) => (
+                    <motion.div
+                        key={news.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className="p-4 rounded-xl border border-white/10 bg-white/5 hover:border-orange-500/30 transition-all group"
+                    >
+                        <div className="flex items-start gap-4">
+                            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-500/20 to-yellow-500/20 flex items-center justify-center text-2xl shrink-0">
+                                {news.image}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h3 className="font-medium text-white group-hover:text-orange-300 transition-colors">{news.title}</h3>
+                                <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                                    <span>{news.source}</span>
+                                    <span className="flex items-center gap-1">
+                                        <TbClock className="w-3 h-3" />
+                                        {news.timeAgo}
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                        <TbTag className="w-3 h-3" />
+                                        {news.category}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                                <button
+                                    onClick={() => toggleBookmark(news.id)}
+                                    className="p-2 text-gray-500 hover:text-orange-400 transition-colors"
+                                >
+                                    {bookmarked.has(news.id) ? (
+                                        <TbBookmarkFilled className="w-5 h-5 text-orange-400" />
+                                    ) : (
+                                        <TbBookmark className="w-5 h-5" />
+                                    )}
+                                </button>
+                                <TbExternalLink className="w-5 h-5 text-gray-600 group-hover:text-orange-400 transition-colors" />
+                            </div>
+                        </div>
+                    </motion.div>
+                ))}
+            </div>
+        </div>
     );
 }

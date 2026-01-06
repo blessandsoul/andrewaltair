@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { Home, RotateCcw, Trophy } from "lucide-react"
+import { TbHome, TbRefresh, TbTrophy } from "react-icons/tb"
 import { Button } from "@/components/ui/button"
 
 // Simple Snake-like game for 404 page
@@ -27,9 +27,14 @@ export default function NotFound() {
         if (saved) setHighScore(parseInt(saved))
     }, [])
 
-    // Handle keyboard
+    // Handle keyboard - with scroll prevention
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            // Prevent default for arrow keys to stop page scrolling
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault()
+            }
+
             if (gameState !== "playing") return
 
             switch (e.key) {
@@ -168,7 +173,7 @@ export default function NotFound() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-secondary/30">
+        <div className="h-screen overflow-hidden flex items-center justify-center p-4 bg-gradient-to-br from-background to-secondary/30">
             <div className="text-center max-w-md mx-auto">
                 {/* 404 header */}
                 <div className="mb-8">
@@ -201,7 +206,7 @@ export default function NotFound() {
                                     </p>
                                     {score === highScore && score > 0 && (
                                         <p className="text-yellow-400 text-sm mb-4 flex items-center gap-1">
-                                            <Trophy className="h-4 w-4" />
+                                            <TbTrophy className="h-4 w-4" />
                                             ახალი რეკორდი!
                                         </p>
                                     )}
@@ -210,7 +215,7 @@ export default function NotFound() {
                                 <p className="text-white mb-4">დააჭირე სათამაშოდ!</p>
                             )}
                             <Button onClick={startGame} className="gap-2">
-                                <RotateCcw className="h-4 w-4" />
+                                <TbRefresh className="h-4 w-4" />
                                 {gameState === "gameover" ? "თავიდან" : "დაწყება"}
                             </Button>
                         </div>
@@ -242,7 +247,7 @@ export default function NotFound() {
                 <div className="flex justify-center gap-4">
                     <Button variant="outline" asChild>
                         <Link href="/">
-                            <Home className="h-4 w-4 mr-2" />
+                            <TbHome className="h-4 w-4 mr-2" />
                             მთავარზე დაბრუნება
                         </Link>
                     </Button>

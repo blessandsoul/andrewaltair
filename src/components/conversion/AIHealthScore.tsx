@@ -1,104 +1,210 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { TbActivity, TbCheck, TbChevronRight, TbRefresh } from "react-icons/tb";
+import { cn } from '@/lib/utils';
 
-interface Question { id: number; text: string; options: { text: string; score: number }[]; }
+interface Question {
+    id: string;
+    text: string;
+    options: { value: number; label: string }[];
+}
 
-const questions: Question[] = [
-    { id: 1, text: 'Как часто ваша команда использует AI инструменты?', options: [{ text: 'Никогда', score: 0 }, { text: 'Иногда', score: 25 }, { text: 'Регулярно', score: 50 }, { text: 'Ежедневно', score: 100 }] },
-    { id: 2, text: 'Есть ли у вас стратегия внедрения AI?', options: [{ text: 'Нет', score: 0 }, { text: 'Думаем об этом', score: 30 }, { text: 'В разработке', score: 60 }, { text: 'Да, реализуем', score: 100 }] },
-    { id: 3, text: 'Какой % процессов можно автоматизировать?', options: [{ text: 'Не знаю', score: 10 }, { text: 'Менее 20%', score: 30 }, { text: '20-50%', score: 60 }, { text: 'Более 50%', score: 100 }] },
-    { id: 4, text: 'Есть ли специалист по AI в команде?', options: [{ text: 'Нет', score: 0 }, { text: 'Планируем нанять', score: 40 }, { text: 'Да, один', score: 70 }, { text: 'Да, команда', score: 100 }] },
-    { id: 5, text: 'Готовы ли данные для обучения AI?', options: [{ text: 'Данных нет', score: 0 }, { text: 'Не структурированы', score: 25 }, { text: 'Частично готовы', score: 60 }, { text: 'Полностью готовы', score: 100 }] },
+const QUESTIONS: Question[] = [
+    {
+        id: 'q1',
+        text: 'რამდენად იცნობთ AI ხელსაწყოებს (ChatGPT, Claude და ა.შ.)?',
+        options: [
+            { value: 0, label: 'არ მსმენია მათ შესახებ' },
+            { value: 1, label: 'გამიგია, მაგრამ არ გამომიყენებია' },
+            { value: 2, label: 'რამდენჯერმე გამომიცდია' },
+            { value: 3, label: 'რეგულარულად ვიყენებ' },
+        ],
+    },
+    {
+        id: 'q2',
+        text: 'რამდენად კარგად იცით პრომპტების წერა?',
+        options: [
+            { value: 0, label: 'არ ვიცი რა არის პრომპტი' },
+            { value: 1, label: 'მარტივ კითხვებს ვწერ' },
+            { value: 2, label: 'ვიყენებ კონტექსტს და მაგალითებს' },
+            { value: 3, label: 'ვქმნი რთულ, სტრუქტურირებულ პრომპტებს' },
+        ],
+    },
+    {
+        id: 'q3',
+        text: 'AI-ს რამდენად ხშირად იყენებთ სამუშაოში?',
+        options: [
+            { value: 0, label: 'არასდროს' },
+            { value: 1, label: 'თვეში რამდენჯერმე' },
+            { value: 2, label: 'კვირაში რამდენჯერმე' },
+            { value: 3, label: 'ყოველდღე' },
+        ],
+    },
+    {
+        id: 'q4',
+        text: 'რამდენად კარგად იცნობთ AI ავტომატიზაციას?',
+        options: [
+            { value: 0, label: 'არ ვიცი რა არის' },
+            { value: 1, label: 'გამიგია, მაგრამ არ გამომიყენებია' },
+            { value: 2, label: 'გამომიცდია მარტივი ავტომატიზაციები' },
+            { value: 3, label: 'ვაშენებ კომპლექსურ workflow-ებს' },
+        ],
+    },
+    {
+        id: 'q5',
+        text: 'რამდენად მზად ხართ AI ინვესტიციისთვის?',
+        options: [
+            { value: 0, label: 'მხოლოდ უფასო ხელსაწყოებს ვიყენებ' },
+            { value: 1, label: 'მზად ვარ $20/თვემდე' },
+            { value: 2, label: 'მზად ვარ $100/თვემდე' },
+            { value: 3, label: 'ბიუჯეტი უთითებს თანხას' },
+        ],
+    },
+];
+
+const SCORE_LEVELS = [
+    { min: 0, max: 4, label: 'დამწყები', color: 'from-red-500 to-orange-500', emoji: '🌱', description: 'AI მოგზაურობა ახლა იწყება! დაიწყე ჩვენი მიკრო-გაკვეთილებით.' },
+    { min: 5, max: 8, label: 'მოსწავლე', color: 'from-yellow-500 to-amber-500', emoji: '📚', description: 'კარგი საფუძველი გაქვს! დროა გააღრმავო ცოდნა.' },
+    { min: 9, max: 12, label: 'პრაქტიკოსი', color: 'from-blue-500 to-cyan-500', emoji: '⚡', description: 'AI აქტიურად იყენებ! შეისწავლე მოწინავე ტექნიკები.' },
+    { min: 13, max: 15, label: 'ექსპერტი', color: 'from-purple-500 to-pink-500', emoji: '🚀', description: 'შესანიშნავი! მზად ხარ AI ლიდერობისთვის!' },
 ];
 
 export default function AIHealthScore() {
-    const [currentQ, setCurrentQ] = useState(0);
-    const [answers, setAnswers] = useState<number[]>([]);
-    const [showResults, setShowResults] = useState(false);
+    const [currentQuestion, setCurrentQuestion] = useState(0);
+    const [answers, setAnswers] = useState<Record<string, number>>({});
+    const [showResult, setShowResult] = useState(false);
 
-    const handleAnswer = (score: number) => {
-        const newAnswers = [...answers, score];
-        setAnswers(newAnswers);
-        if (currentQ < questions.length - 1) {
-            setCurrentQ(currentQ + 1);
+    const handleAnswer = (value: number) => {
+        const question = QUESTIONS[currentQuestion];
+        setAnswers(prev => ({ ...prev, [question.id]: value }));
+
+        if (currentQuestion < QUESTIONS.length - 1) {
+            setCurrentQuestion(prev => prev + 1);
         } else {
-            setShowResults(true);
+            setShowResult(true);
         }
     };
 
-    const totalScore = Math.round(answers.reduce((a, b) => a + b, 0) / questions.length);
-    const getLevel = () => {
-        if (totalScore < 25) return { name: 'Начинающий', color: '#ef4444', icon: '🌱', advice: 'Начните с базовых AI инструментов.' };
-        if (totalScore < 50) return { name: 'Развивающийся', color: '#f59e0b', icon: '🌿', advice: 'Формализуйте AI стратегию.' };
-        if (totalScore < 75) return { name: 'Продвинутый', color: '#3b82f6', icon: '🌳', advice: 'Масштабируйте успешные кейсы.' };
-        return { name: 'Эксперт', color: '#10b981', icon: '🚀', advice: 'Оптимизируйте и внедряйте новые решения.' };
+    const handleReset = () => {
+        setCurrentQuestion(0);
+        setAnswers({});
+        setShowResult(false);
     };
 
-    const level = getLevel();
+    const totalScore = Object.values(answers).reduce((sum, val) => sum + val, 0);
+    const maxScore = QUESTIONS.length * 3;
+    const scorePercent = (totalScore / maxScore) * 100;
+    const level = SCORE_LEVELS.find(l => totalScore >= l.min && totalScore <= l.max) || SCORE_LEVELS[0];
 
-    const restart = () => { setCurrentQ(0); setAnswers([]); setShowResults(false); };
+    if (showResult) {
+        return (
+            <div className="space-y-6">
+                {/* Header */}
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-purple-500/20 rounded-lg">
+                        <TbActivity className="w-6 h-6 text-purple-400" />
+                    </div>
+                    <div>
+                        <h2 className="text-2xl font-bold text-white">AI ჯანმრთელობის ქულა</h2>
+                        <p className="text-gray-400 text-sm">შენი შედეგი</p>
+                    </div>
+                </div>
+
+                {/* Score */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center py-8"
+                >
+                    <div className="text-6xl mb-4">{level.emoji}</div>
+                    <div className={cn(
+                        "inline-block px-6 py-2 rounded-full text-lg font-bold mb-4",
+                        `bg-gradient-to-r ${level.color} text-white`
+                    )}>
+                        {level.label}
+                    </div>
+                    <div className="text-4xl font-bold text-white mb-2">{totalScore}/{maxScore}</div>
+
+                    {/* Progress Bar */}
+                    <div className="max-w-xs mx-auto h-3 bg-gray-700 rounded-full overflow-hidden mb-4">
+                        <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${scorePercent}%` }}
+                            transition={{ duration: 1, ease: 'easeOut' }}
+                            className={cn("h-full rounded-full", `bg-gradient-to-r ${level.color}`)}
+                        />
+                    </div>
+
+                    <p className="text-gray-300 max-w-md mx-auto">{level.description}</p>
+                </motion.div>
+
+                {/* Reset */}
+                <button
+                    onClick={handleReset}
+                    className="w-full py-3 border border-white/10 rounded-xl text-gray-300 hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
+                >
+                    <TbRefresh className="w-4 h-4" />
+                    თავიდან გავლა
+                </button>
+            </div>
+        );
+    }
+
+    const question = QUESTIONS[currentQuestion];
 
     return (
-        <section style={{ padding: '80px 20px', background: 'linear-gradient(180deg, rgba(17,24,39,0) 0%, rgba(139,92,246,0.08) 50%, rgba(17,24,39,0) 100%)' }}>
-            <div style={{ maxWidth: 700, margin: '0 auto' }}>
-                <div style={{ textAlign: 'center', marginBottom: 40 }}>
-                    <span style={{ fontSize: 48 }}>🏥</span>
-                    <h2 style={{ fontSize: 36, fontWeight: 800, background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginTop: 16 }}>AI Health Score</h2>
-                    <p style={{ fontSize: 18, color: '#9ca3af' }}>Оцените AI-зрелость вашего бизнеса</p>
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-purple-500/20 rounded-lg">
+                        <TbActivity className="w-6 h-6 text-purple-400" />
+                    </div>
+                    <div>
+                        <h2 className="text-2xl font-bold text-white">AI ჯანმრთელობის ტესტი</h2>
+                        <p className="text-gray-400 text-sm">შეაფასე შენი AI მზადყოფნა</p>
+                    </div>
                 </div>
-
-                <div style={{ background: 'rgba(31,41,55,0.9)', borderRadius: 24, padding: 40, border: '1px solid #374151' }}>
-                    {!showResults ? (
-                        <>
-                            {/* Progress */}
-                            <div style={{ marginBottom: 32 }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, color: '#6b7280', marginBottom: 8 }}>
-                                    <span>Вопрос {currentQ + 1} из {questions.length}</span>
-                                    <span>{Math.round((currentQ / questions.length) * 100)}%</span>
-                                </div>
-                                <div style={{ height: 6, background: '#374151', borderRadius: 3, overflow: 'hidden' }}>
-                                    <div style={{ height: '100%', width: `${(currentQ / questions.length) * 100}%`, background: 'linear-gradient(90deg, #8b5cf6, #ec4899)', borderRadius: 3, transition: 'width 0.3s' }} />
-                                </div>
-                            </div>
-
-                            {/* Question */}
-                            <h3 style={{ fontSize: 22, fontWeight: 600, color: 'white', marginBottom: 24, textAlign: 'center' }}>{questions[currentQ].text}</h3>
-
-                            {/* Options */}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                                {questions[currentQ].options.map((opt, i) => (
-                                    <button key={i} onClick={() => handleAnswer(opt.score)} style={{ background: '#374151', border: '1px solid #4b5563', borderRadius: 12, padding: '16px 20px', color: 'white', fontSize: 16, textAlign: 'left', cursor: 'pointer', transition: 'all 0.3s' }}
-                                        onMouseEnter={e => { e.currentTarget.style.borderColor = '#8b5cf6'; e.currentTarget.style.background = 'rgba(139,92,246,0.1)'; }}
-                                        onMouseLeave={e => { e.currentTarget.style.borderColor = '#4b5563'; e.currentTarget.style.background = '#374151'; }}>
-                                        {opt.text}
-                                    </button>
-                                ))}
-                            </div>
-                        </>
-                    ) : (
-                        <>
-                            {/* Results */}
-                            <div style={{ textAlign: 'center' }}>
-                                <div style={{ fontSize: 80, marginBottom: 16 }}>{level.icon}</div>
-                                <div style={{ fontSize: 64, fontWeight: 800, color: level.color, marginBottom: 8 }}>{totalScore}</div>
-                                <div style={{ fontSize: 14, color: '#6b7280', marginBottom: 16 }}>из 100</div>
-                                <div style={{ display: 'inline-block', background: `${level.color}20`, color: level.color, padding: '8px 24px', borderRadius: 20, fontWeight: 700, fontSize: 18, marginBottom: 24 }}>{level.name}</div>
-
-                                <div style={{ background: 'rgba(55,65,81,0.5)', borderRadius: 12, padding: 20, marginBottom: 24 }}>
-                                    <div style={{ fontSize: 14, color: '#9ca3af', marginBottom: 8 }}>Рекомендация</div>
-                                    <div style={{ fontSize: 16, color: 'white' }}>{level.advice}</div>
-                                </div>
-
-                                <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-                                    <button onClick={restart} style={{ background: 'transparent', border: '1px solid #374151', color: '#9ca3af', padding: '12px 24px', borderRadius: 12, cursor: 'pointer' }}>Пройти снова</button>
-                                    <button style={{ background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', border: 'none', color: 'white', padding: '12px 24px', borderRadius: 12, fontWeight: 600, cursor: 'pointer' }}>Получить план улучшения →</button>
-                                </div>
-                            </div>
-                        </>
-                    )}
-                </div>
+                <span className="text-sm text-gray-400">
+                    {currentQuestion + 1}/{QUESTIONS.length}
+                </span>
             </div>
-        </section>
+
+            {/* Progress */}
+            <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <motion.div
+                    className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${((currentQuestion + 1) / QUESTIONS.length) * 100}%` }}
+                />
+            </div>
+
+            {/* Question */}
+            <motion.div
+                key={question.id}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="space-y-4"
+            >
+                <h3 className="text-lg font-medium text-white">{question.text}</h3>
+
+                <div className="space-y-2">
+                    {question.options.map((option) => (
+                        <button
+                            key={option.value}
+                            onClick={() => handleAnswer(option.value)}
+                            className="w-full p-4 text-left rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-purple-500/50 transition-all group"
+                        >
+                            <div className="flex items-center justify-between">
+                                <span className="text-gray-200">{option.label}</span>
+                                <TbChevronRight className="w-5 h-5 text-gray-500 group-hover:text-purple-400 transition-colors" />
+                            </div>
+                        </button>
+                    ))}
+                </div>
+            </motion.div>
+        </div>
     );
 }
