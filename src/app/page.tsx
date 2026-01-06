@@ -29,6 +29,7 @@ import { TrendingCard } from "@/components/blog/TrendingCard"
 // Engagement components removed - main page focuses on content
 import dbConnect from "@/lib/db"
 import Post from "@/models/Post"
+import Video from "@/models/Video"
 import { HeroCarousel } from "@/components/home/HeroCarousel"
 
 // Fetch posts directly from MongoDB (avoids self-referencing API deadlock)
@@ -53,6 +54,27 @@ async function getPosts() {
   }
 }
 
+// Fetch videos directly from MongoDB
+async function getVideos() {
+  try {
+    await dbConnect()
+
+    const videos = await Video.find({})
+      .sort({ publishedAt: -1 })
+      .limit(4)
+      .lean()
+
+    return videos.map(video => ({
+      ...video,
+      id: video._id.toString(),
+      _id: undefined,
+    }))
+  } catch (error) {
+    console.error('Error fetching videos:', error)
+    return []
+  }
+}
+
 // Helper to format numbers
 function formatNumber(num: number): string {
   if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M'
@@ -67,6 +89,7 @@ function getTotalReactions(reactions: Record<string, number>): number {
 
 export default async function Home() {
   const postsData = await getPosts()
+  const videosData = await getVideos()
   // Get up to 5 posts for hero carousel
   const heroPosts = postsData.filter((p: any) => p.featured || p.trending).slice(0, 5)
   if (heroPosts.length === 0 && postsData.length > 0) {
@@ -234,53 +257,67 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* TbVideo Preview Section */}
-      <section className="py-16 lg:py-24 bg-secondary/30">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-          <div className="flex items-center justify-between mb-10">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center">
-                <TbBrandYoutube className="w-5 h-5 text-red-500" />
+      {/* Video Preview Section */}
+      {videosData.length > 0 && (
+        <section className="py-16 lg:py-24 bg-secondary/30">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+            <div className="flex items-center justify-between mb-10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center">
+                  <TbBrandYoutube className="w-5 h-5 text-red-500" />
+                </div>
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-bold">ვიდეო კონტენტი</h2>
+                  <p className="text-muted-foreground">AI ტუტორიალები და მიმოხილვები</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-2xl sm:text-3xl font-bold">ვიდეო კონტენტი</h2>
-                <p className="text-muted-foreground">AI ტუტორიალები და მიმოხილვები</p>
-              </div>
+              <Button variant="ghost" asChild>
+                <Link href="/videos">
+                  ყველა ვიდეო
+                  <TbArrowRight className="w-4 h-4 ml-1" />
+                </Link>
+              </Button>
             </div>
-            <Button variant="ghost" asChild>
-              <Link href="/videos">
-                ყველა ვიდეო
-                <TbArrowRight className="w-4 h-4 ml-1" />
-              </Link>
-            </Button>
-          </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {[1, 2, 3, 4].map((i) => (
-              <Card key={i} className="group hover-lift overflow-hidden border-0 shadow-lg">
-                <CardContent className="p-0">
-                  <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-accent/20">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-14 h-14 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                        <TbPlayerPlay className="w-6 h-6 text-primary fill-primary ml-1" />
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {videosData.map((video: any) => (
+                <Link key={video.id} href={`/videos/${video.id}`}>
+                  <Card className="group hover-lift overflow-hidden border-0 shadow-lg">
+                    <CardContent className="p-0">
+                      <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-accent/20">
+                        {video.youtubeId && (
+                          <Image
+                            src={`https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`}
+                            alt={video.title}
+                            fill
+                            className="object-cover"
+                          />
+                        )}
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                          <div className="w-14 h-14 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                            <TbPlayerPlay className="w-6 h-6 text-red-600 fill-red-600 ml-1" />
+                          </div>
+                        </div>
+                        <Badge className="absolute top-2 right-2 bg-black/70 text-white border-0">
+                          {video.duration || '00:00'}
+                        </Badge>
                       </div>
-                    </div>
-                    <Badge className="absolute top-2 right-2 bg-black/70 text-white border-0">
-                      12:34
-                    </Badge>
-                  </div>
-                  <div className="p-4">
-                    <h4 className="font-medium line-clamp-2 group-hover:text-primary transition-colors">
-                      ChatGPT-ს ახალი ფუნქციები - სრული მიმოხილვა
-                    </h4>
-                    <p className="text-sm text-muted-foreground mt-1">2.3K ნახვა • 3 დღის წინ</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                      <div className="p-4">
+                        <h4 className="font-medium line-clamp-2 group-hover:text-primary transition-colors">
+                          {video.title}
+                        </h4>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {formatNumber(video.views || 0)} ნახვა
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
 
 

@@ -36,8 +36,8 @@ export const POST_TEMPLATES: PostTemplate[] = [
 👇 დაწერე კომენტარში რას ფიქრობ!
 
 #AI #Tips #AndrewAltair`,
-        category: 'ai-tips',
-        tags: ['AI', 'Tips', 'პრაქტიკა']
+        category: 'prompts',
+        tags: ['AI', 'Prompts', 'პრაქტიკა']
     },
     {
         id: 'tutorial',
@@ -130,7 +130,7 @@ export const POST_TEMPLATES: PostTemplate[] = [
 საბოლოო დასკვნა და რეკომენდაცია...
 
 #Review #AI #Tools`,
-        category: 'reviews',
+        category: 'videos',
         tags: ['მიმოხილვა', 'Review', 'AI Tools']
     },
     {
@@ -215,7 +215,7 @@ export const POST_TEMPLATES: PostTemplate[] = [
 💬 თქვენი აზრი? დაწერეთ კომენტარში!
 
 #Opinion #Thoughts #Analysis`,
-        category: 'opinion',
+        category: 'business',
         tags: ['მოსაზრება', 'ანალიზი', 'Opinion']
     }
 ]

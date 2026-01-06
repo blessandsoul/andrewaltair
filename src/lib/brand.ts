@@ -101,12 +101,12 @@ export const brand = {
 
   // Categories for blog posts
   categories: [
-    { id: "ai-tips", name: "AI ხრიკები", icon: "Lightbulb", color: "#f59e0b" },
-    { id: "tutorials", name: "ტუტორიალები", icon: "BookOpen", color: "#10b981" },
     { id: "news", name: "სიახლეები", icon: "Newspaper", color: "#6366f1" },
-    { id: "tools", name: "ინსტრუმენტები", icon: "Wrench", color: "#ec4899" },
-    { id: "reviews", name: "მიმოხილვები", icon: "Star", color: "#f97316" },
-    { id: "opinion", name: "მოსაზრებები", icon: "MessageCircle", color: "#8b5cf6" },
+    { id: "videos", name: "ვიდეო", icon: "Video", color: "#ef4444" },
+    { id: "prompts", name: "პრომპტები", icon: "Sparkles", color: "#f59e0b" },
+    { id: "tutorials", name: "ტუტორიალები", icon: "BookOpen", color: "#10b981" },
+    { id: "business", name: "ბიზნესი", icon: "Briefcase", color: "#8b5cf6" },
+    { id: "automation", name: "ავტომატიზაცია", icon: "Zap", color: "#ec4899" },
   ],
 
   // Animation presets

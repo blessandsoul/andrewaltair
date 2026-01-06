@@ -147,7 +147,7 @@ export async function POST(request: Request) {
             ...data,
             numericId: numericId, // Add the generated ID
             excerpt: data.excerpt || data.title || 'პოსტი',
-            category: data.category || 'ai-tips',
+            category: data.category || 'news',
             author: data.author || { name: 'Andrew Altair', avatar: '/avatar.jpg', role: 'AI ინოვატორი' },
             status: data.status || 'published',
             readingTime: data.readingTime || 5,

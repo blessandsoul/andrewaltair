@@ -13,14 +13,14 @@ import { POST_TEMPLATES, type PostTemplate } from "@/lib/postTemplates"
 import { VideoEmbed, type VideoData } from "@/components/admin/VideoEmbed"
 import { RelatedPostsSuggestions } from "@/components/admin/RelatedPostsSuggestions"
 
-// Categories available
+// Categories available (hierarchical order)
 const CATEGORIES = [
-    { value: "ai-tips", label: "AI Tips", emoji: "💡" },
-    { value: "tutorials", label: "ტუტორიალები", emoji: "📚" },
-    { value: "reviews", label: "მიმოხილვები", emoji: "⚔️" },
-    { value: "tools", label: "ინსტრუმენტები", emoji: "🛠️" },
-    { value: "opinion", label: "მოსაზრებები", emoji: "💭" },
     { value: "news", label: "სიახლეები", emoji: "📰" },
+    { value: "videos", label: "ვიდეო", emoji: "🎬" },
+    { value: "prompts", label: "პრომპტები", emoji: "✨" },
+    { value: "tutorials", label: "ტუტორიალები", emoji: "📚" },
+    { value: "business", label: "ბიზნესი", emoji: "💼" },
+    { value: "automation", label: "ავტომატიზაცია", emoji: "⚡" },
 ]
 
 // Section interface
@@ -96,7 +96,7 @@ const DEFAULT_POST: PostData = {
     excerpt: "",
     content: "",
     rawContent: "",
-    category: "ai-tips",
+    category: "news",
     tags: [],
     coverImage: "",
     coverImages: {},

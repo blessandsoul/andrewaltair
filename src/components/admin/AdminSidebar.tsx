@@ -18,8 +18,8 @@ interface NavItem {
 const contentItems: NavItem[] = [
     { href: "/admin", label: "Dashboard", icon: <TbLayoutDashboard className="w-5 h-5" /> },
     { href: "/admin/content", label: "ედიტორი", icon: <TbPencil className="w-5 h-5" /> },
-    { href: "/admin/posts", label: "პოსტები", icon: <TbFileText className="w-5 h-5" />, badge: "6" },
-    { href: "/admin/videos", label: "ვიდეოები", icon: <TbVideo className="w-5 h-5" />, badge: "8" },
+    { href: "/admin/posts", label: "პოსტები", icon: <TbFileText className="w-5 h-5" /> },
+    { href: "/admin/videos", label: "ვიდეოები", icon: <TbVideo className="w-5 h-5" /> },
     { href: "/admin/media", label: "მედია", icon: <TbPhoto className="w-5 h-5" /> },
 ]
 

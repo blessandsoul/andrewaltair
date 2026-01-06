@@ -757,10 +757,47 @@ function AddVideoModal({
         publishedAt: new Date().toISOString().split("T")[0]
     })
     const [tagInput, setTagInput] = React.useState("")
+    const [fetching, setFetching] = React.useState(false)
+    const [fetchError, setFetchError] = React.useState("")
+    const [previewThumbnail, setPreviewThumbnail] = React.useState("")
 
-    const handleYouTubeUrl = (url: string) => {
+    // Auto-fetch YouTube metadata
+    const handleYouTubeUrl = async (url: string) => {
         const id = extractYouTubeId(url)
-        setFormData({ ...formData, youtubeId: id })
+        setFormData(prev => ({ ...prev, youtubeId: id }))
+        setFetchError("")
+
+        if (!id || id.length !== 11) {
+            setPreviewThumbnail("")
+            return
+        }
+
+        // Show thumbnail preview immediately
+        setPreviewThumbnail(`https://img.youtube.com/vi/${id}/mqdefault.jpg`)
+
+        // Fetch metadata from our API
+        setFetching(true)
+        try {
+            const res = await fetch(`/api/youtube/metadata?id=${id}`)
+            if (res.ok) {
+                const { data } = await res.json()
+                setFormData(prev => ({
+                    ...prev,
+                    youtubeId: id,
+                    title: prev.title || data.title || "",
+                    description: prev.description || data.description || "",
+                    type: data.type || "long",
+                    duration: data.duration || prev.duration,
+                }))
+            } else {
+                const error = await res.json()
+                setFetchError(error.error || "ვიდეო ვერ მოიძებნა")
+            }
+        } catch {
+            setFetchError("YouTube-თან დაკავშირება ვერ მოხერხდა")
+        } finally {
+            setFetching(false)
+        }
     }
 
     const addTag = (tag: string) => {
@@ -811,16 +848,56 @@ function AddVideoModal({
                                 placeholder="ვიდეოს აღწერა"
                             />
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">YouTube URL ან ID *</label>
-                                <Input
-                                    required
-                                    value={formData.youtubeId}
-                                    onChange={(e) => handleYouTubeUrl(e.target.value)}
-                                    placeholder="https://youtube.com/watch?v=... ან ID"
-                                />
+
+                        {/* YouTube URL with Preview */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">YouTube URL ან ID *</label>
+                            <div className="flex gap-3">
+                                <div className="flex-1 space-y-2">
+                                    <div className="relative">
+                                        <Input
+                                            required
+                                            value={formData.youtubeId}
+                                            onChange={(e) => handleYouTubeUrl(e.target.value)}
+                                            placeholder="https://youtube.com/watch?v=... ან ID"
+                                            className={fetchError ? "border-red-500" : ""}
+                                        />
+                                        {fetching && (
+                                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                                <TbRefresh className="w-4 h-4 animate-spin text-primary" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    {fetchError && (
+                                        <p className="text-xs text-red-500">{fetchError}</p>
+                                    )}
+                                    {formData.youtubeId && !fetchError && (
+                                        <p className="text-xs text-green-600 flex items-center gap-1">
+                                            <TbCheck className="w-3 h-3" />
+                                            YouTube ID: {formData.youtubeId}
+                                        </p>
+                                    )}
+                                </div>
+                                {/* Thumbnail Preview */}
+                                {previewThumbnail && (
+                                    <div className="relative w-32 h-18 rounded-lg overflow-hidden border border-border flex-shrink-0">
+                                        <img
+                                            src={previewThumbnail}
+                                            alt="Preview"
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${formData.youtubeId}/default.jpg`
+                                            }}
+                                        />
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                                            <TbPlayerPlay className="w-6 h-6 text-white" />
+                                        </div>
+                                    </div>
+                                )}
                             </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">კატეგორია</label>
                                 <select
@@ -833,8 +910,6 @@ function AddVideoModal({
                                     ))}
                                 </select>
                             </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">ხანგრძლივობა</label>
                                 <Input
