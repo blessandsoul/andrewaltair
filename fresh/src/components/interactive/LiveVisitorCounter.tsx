@@ -4,46 +4,65 @@ import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import { TbUsers, TbEye } from "react-icons/tb"
 
+interface OnlineData {
+    online: number
+    desktop: number
+    mobile: number
+    tablet: number
+}
+
 interface LiveVisitorCounterProps {
     className?: string
-    minVisitors?: number
-    maxVisitors?: number
     showLabel?: boolean
     variant?: "badge" | "inline" | "floating"
+    pollInterval?: number
+    hideIfZero?: boolean
 }
 
 export function LiveVisitorCounter({
     className,
-    minVisitors = 15,
-    maxVisitors = 150,
     showLabel = true,
     variant = "badge",
+    pollInterval = 30000,
+    hideIfZero = false,
 }: LiveVisitorCounterProps) {
-    const [count, setCount] = useState(0)
+    const [data, setData] = useState<OnlineData | null>(null)
     const [isAnimating, setIsAnimating] = useState(false)
+    const [prevCount, setPrevCount] = useState(0)
 
     useEffect(() => {
-        // Initialize with a random count
-        const initial = Math.floor(minVisitors + Math.random() * (maxVisitors - minVisitors))
-        setCount(initial)
+        const fetchCount = async () => {
+            try {
+                const res = await fetch('/api/tracking/visitors')
+                if (res.ok) {
+                    const json = await res.json()
+                    setData(json)
 
-        // Simulate count changes
-        const interval = setInterval(() => {
-            setCount((prev) => {
-                const change = Math.floor(Math.random() * 5) - 2 // -2 to +2
-                const newCount = Math.max(minVisitors, Math.min(maxVisitors, prev + change))
-
-                if (newCount !== prev) {
-                    setIsAnimating(true)
-                    setTimeout(() => setIsAnimating(false), 300)
+                    // Animate if count changed
+                    if (json.online !== prevCount) {
+                        setIsAnimating(true)
+                        setTimeout(() => setIsAnimating(false), 300)
+                        setPrevCount(json.online)
+                    }
                 }
+            } catch (error) {
+                // Silently fail - don't show fake data
+            }
+        }
 
-                return newCount
-            })
-        }, 3000 + Math.random() * 2000)
+        // Initial fetch
+        fetchCount()
+
+        // Poll for updates
+        const interval = setInterval(fetchCount, pollInterval)
 
         return () => clearInterval(interval)
-    }, [minVisitors, maxVisitors])
+    }, [pollInterval, prevCount])
+
+    const count = data?.online ?? 0
+
+    // Hide if zero and hideIfZero is true
+    if (hideIfZero && count === 0) return null
 
     if (variant === "floating") {
         return (
@@ -118,7 +137,7 @@ export function LiveVisitorCounter({
     )
 }
 
-// Page-specific visitor counter
+// Page-specific visitor counter (real implementation would track per-page)
 export function PageVisitorCounter({
     pageSlug,
     className,
@@ -126,24 +145,16 @@ export function PageVisitorCounter({
     pageSlug: string
     className?: string
 }) {
-    const [count, setCount] = useState(0)
+    const [count, setCount] = useState<number | null>(null)
 
     useEffect(() => {
-        // Simulate based on page slug hash
-        const hash = pageSlug.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
-        const baseCount = (hash % 50) + 5
-
-        setCount(baseCount)
-
-        const interval = setInterval(() => {
-            setCount((prev) => {
-                const change = Math.floor(Math.random() * 3) - 1
-                return Math.max(1, prev + change)
-            })
-        }, 5000)
-
-        return () => clearInterval(interval)
+        // In a full implementation, this would fetch real per-page counts
+        // For now, we just don't show anything as we don't have per-page tracking
+        setCount(null)
     }, [pageSlug])
+
+    // Don't render if no data
+    if (count === null || count === 0) return null
 
     return (
         <span className={cn("inline-flex items-center gap-1.5 text-sm text-muted-foreground", className)}>

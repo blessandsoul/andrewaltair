@@ -11,3 +11,5 @@ export { ImageLightbox, useImageLightbox } from "./ImageLightbox"
 export { CodeBlock, EnhancedContent } from "./CodeBlock"
 export { EditSuggestion } from "./EditSuggestion"
 export { BookmarkButton } from "./BookmarkSystem"
+export { NewsletterForm } from "./NewsletterForm"
+

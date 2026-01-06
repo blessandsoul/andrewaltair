@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
-if (!GROQ_API_KEY) {
-    throw new Error('GROQ_API_KEY environment variable is required');
-}
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
 const SYSTEM_PROMPT = `შენ ხარ Georgian SEO ექსპერტი. შენი ამოცანაა სტატიის კონტენტიდან 20 კონტექსტუალური, SEO-ოპტიმიზებული ჰეშთეგის ამოღება.
@@ -30,6 +26,11 @@ const SYSTEM_PROMPT = `შენ ხარ Georgian SEO ექსპერტი
 
 export async function POST(request: NextRequest) {
     try {
+        const GROQ_API_KEY = process.env.GROQ_API_KEY
+        if (!GROQ_API_KEY) {
+            return NextResponse.json({ error: 'GROQ_API_KEY not configured' }, { status: 500 })
+        }
+
         const { title, excerpt, content, category } = await request.json()
 
         if (!title && !content) {

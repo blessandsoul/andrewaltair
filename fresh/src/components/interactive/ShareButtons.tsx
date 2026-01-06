@@ -4,17 +4,20 @@ import * as React from "react"
 import { Button } from "@/components/ui/button"
 import { TbBrandTwitter, TbBrandFacebook, TbBrandLinkedin, TbSend, TbCheck, TbShare, TbLink } from "react-icons/tb"
 import { cn } from "@/lib/utils"
+import { useVisitorTracking } from "@/hooks/useVisitorTracking"
 
 interface ShareButtonsProps {
     url: string
     title: string
     description?: string  // Excerpt for viral shares
+    postId?: string
     className?: string
     variant?: "default" | "compact"
 }
 
-export function ShareButtons({ url, title, description = "", className, variant = "default" }: ShareButtonsProps) {
+export function ShareButtons({ url, title, description = "", postId, className, variant = "default" }: ShareButtonsProps) {
     const [copied, setCopied] = React.useState(false)
+    const { recordActivity } = useVisitorTracking()
 
     // Create viral share text: Title + short excerpt
     const viralText = description
@@ -56,6 +59,21 @@ export function ShareButtons({ url, title, description = "", className, variant 
     // Emojis for fun share text
     const shareEmojis = ["🔥", "✨", "🚀", "💡", "🎯", "⚡", "🤖", "💫", "🎨", "📚"]
 
+    // 🎯 TRACK SHARE ACTIVITY
+    const trackShare = React.useCallback((platform: string) => {
+        recordActivity('share', {
+            targetType: 'post',
+            targetId: postId,
+            targetTitle: title,
+            metadata: { platform, url },
+            isPublic: true // Shares shown in social proof
+        })
+    }, [recordActivity, postId, title, url])
+
+    const handleShareClick = (platform: string) => {
+        trackShare(platform)
+    }
+
     const copyToClipboard = async () => {
         try {
             // Pick a random emoji
@@ -67,9 +85,13 @@ export function ShareButtons({ url, title, description = "", className, variant 
 
             await navigator.clipboard.writeText(shareText)
             setCopied(true)
+
+            // Track copy as share
+            trackShare('clipboard')
+
             setTimeout(() => setCopied(false), 2000)
         } catch (err) {
-            console.error("Failed to copy:", err)
+            // Silently fail
         }
     }
 
@@ -82,6 +104,7 @@ export function ShareButtons({ url, title, description = "", className, variant 
                         href={link.href}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={() => handleShareClick(link.name)}
                         className={cn(
                             "w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-all",
                             link.color
@@ -118,6 +141,7 @@ export function ShareButtons({ url, title, description = "", className, variant 
                         href={link.href}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={() => handleShareClick(link.name)}
                     >
                         <Button
                             variant="outline"

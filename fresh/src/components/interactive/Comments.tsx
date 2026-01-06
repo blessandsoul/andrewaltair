@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/toast"
 import { TbMessage, TbHeart, TbArrowBackUp, TbSend, TbClock } from "react-icons/tb"
 import { cn } from "@/lib/utils"
+import { useVisitorTracking } from "@/hooks/useVisitorTracking"
 
 // 🎭 სასაცილო ავატარები კომენტატორებისთვის
 const funnyAvatars = [
@@ -51,11 +52,9 @@ interface Comment {
 
 interface CommentsProps {
     postId: string
+    postTitle?: string
     className?: string
 }
-
-// Sample comments for demo (not used anymore, kept for reference)
-const sampleComments: Comment[] = []
 
 function timeAgo(dateString: string): string {
     const date = new Date(dateString)
@@ -69,7 +68,15 @@ function timeAgo(dateString: string): string {
     return date.toLocaleDateString("ka")
 }
 
-function CommentItem({ comment, isReply = false }: { comment: Comment; isReply?: boolean }) {
+function CommentItem({
+    comment,
+    isReply = false,
+    onLike
+}: {
+    comment: Comment
+    isReply?: boolean
+    onLike?: (commentId: string) => void
+}) {
     const [liked, setLiked] = React.useState(false)
     const [likeCount, setLikeCount] = React.useState(comment.likes)
     const [showReplyForm, setShowReplyForm] = React.useState(false)
@@ -79,6 +86,7 @@ function CommentItem({ comment, isReply = false }: { comment: Comment; isReply?:
             setLikeCount(c => c - 1)
         } else {
             setLikeCount(c => c + 1)
+            onLike?.(comment.id)
         }
         setLiked(!liked)
     }
@@ -147,7 +155,7 @@ function CommentItem({ comment, isReply = false }: { comment: Comment; isReply?:
                     )}
 
                     {comment.replies?.map((reply) => (
-                        <CommentItem key={reply.id} comment={reply} isReply />
+                        <CommentItem key={reply.id} comment={reply} isReply onLike={onLike} />
                     ))}
                 </div>
             </div>
@@ -155,13 +163,14 @@ function CommentItem({ comment, isReply = false }: { comment: Comment; isReply?:
     )
 }
 
-export function Comments({ postId, className }: CommentsProps) {
+export function Comments({ postId, postTitle, className }: CommentsProps) {
     const [comments, setComments] = React.useState<Comment[]>([])
     const [newComment, setNewComment] = React.useState("")
     const [authorName, setAuthorName] = React.useState("")
     const [isLoading, setIsLoading] = React.useState(true)
     const [isSubmitting, setIsSubmitting] = React.useState(false)
     const toast = useToast()
+    const { recordActivity } = useVisitorTracking()
 
     // Load comments from API on mount
     React.useEffect(() => {
@@ -173,13 +182,24 @@ export function Comments({ postId, className }: CommentsProps) {
                     setComments(data.comments || [])
                 }
             } catch (error) {
-                console.error('Failed to load comments:', error)
+                // Silently fail
             } finally {
                 setIsLoading(false)
             }
         }
         fetchComments()
     }, [postId])
+
+    // Handle comment like - track activity
+    const handleCommentLike = React.useCallback((commentId: string) => {
+        recordActivity('reaction', {
+            targetType: 'post',
+            targetId: postId,
+            targetTitle: postTitle,
+            metadata: { commentId, reactionType: 'like' },
+            isPublic: false // Comment likes are not shown in social proof
+        })
+    }, [recordActivity, postId, postTitle])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -201,6 +221,15 @@ export function Comments({ postId, className }: CommentsProps) {
             })
 
             if (res.ok) {
+                // 🎯 TRACK COMMENT ACTIVITY
+                recordActivity('comment', {
+                    targetType: 'post',
+                    targetId: postId,
+                    targetTitle: postTitle,
+                    metadata: { authorName },
+                    isPublic: true // Comments are shown in social proof
+                })
+
                 setNewComment("")
                 setAuthorName("")
                 toast.success(
@@ -214,7 +243,6 @@ export function Comments({ postId, className }: CommentsProps) {
                 )
             }
         } catch (error) {
-            console.error('Failed to submit comment:', error)
             toast.error(
                 'შეცდომა',
                 'კომენტარის გაგზავნა ვერ მოხერხდა'
@@ -267,7 +295,11 @@ export function Comments({ postId, className }: CommentsProps) {
             {/* Comments List */}
             <div className="space-y-6">
                 {comments.map((comment) => (
-                    <CommentItem key={comment.id} comment={comment} />
+                    <CommentItem
+                        key={comment.id}
+                        comment={comment}
+                        onLike={handleCommentLike}
+                    />
                 ))}
             </div>
         </div>

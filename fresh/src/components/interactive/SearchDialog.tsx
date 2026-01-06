@@ -44,7 +44,12 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
         const debounce = setTimeout(async () => {
             setLoading(true)
             try {
-                const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=5`)
+                const visitorId = localStorage.getItem('visitor_id') || ''
+                const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=5`, {
+                    headers: {
+                        'x-visitor-id': visitorId
+                    }
+                })
                 if (res.ok) {
                     const data = await res.json()
                     setResults(data.results || [])

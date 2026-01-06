@@ -172,5 +172,23 @@ export async function GET(request: NextRequest) {
     } catch (error) {
         console.error("Search error:", error)
         return NextResponse.json({ error: "Search failed" }, { status: 500 })
+    } finally {
+        // Log search activity (fire and forget)
+        try {
+            const { searchParams } = new URL(request.url)
+            const query = searchParams.get("q")
+            const visitorId = request.headers.get('x-visitor-id') || 'anonymous'
+
+            if (query && query.length >= 2) {
+                const Activity = (await import("@/models/Activity")).default
+                await Activity.create({
+                    type: 'search',
+                    visitorId,
+                    metadata: { query }
+                })
+            }
+        } catch (e) {
+            // Ignore logging errors
+        }
     }
 }

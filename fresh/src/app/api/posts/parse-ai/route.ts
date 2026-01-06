@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
-if (!GROQ_API_KEY) {
-    throw new Error('GROQ_API_KEY environment variable is required');
-}
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
 interface ParsedSection {
@@ -175,11 +171,11 @@ JSON ფორმატი:
 არ დაამატო არაფერი JSON-ის გარდა.`
 
 
-async function callGroq(rawContent: string): Promise<ParseResult> {
+async function callGroq(rawContent: string, apiKey: string): Promise<ParseResult> {
     const response = await fetch(GROQ_API_URL, {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${GROQ_API_KEY}`,
+            'Authorization': `Bearer ${apiKey}`,
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -422,6 +418,11 @@ function fallbackParse(rawContent: string): ParseResult {
 
 export async function POST(request: NextRequest) {
     try {
+        const GROQ_API_KEY = process.env.GROQ_API_KEY
+        if (!GROQ_API_KEY) {
+            return NextResponse.json({ error: 'GROQ_API_KEY not configured' }, { status: 500 })
+        }
+
         const { rawContent } = await request.json()
 
         if (!rawContent || typeof rawContent !== 'string') {
@@ -435,7 +436,7 @@ export async function POST(request: NextRequest) {
 
         try {
             // Try AI parsing first
-            result = await callGroq(rawContent)
+            result = await callGroq(rawContent, GROQ_API_KEY)
         } catch (aiError) {
             console.error('AI parsing failed, using fallback:', aiError)
             // Use fallback regex parser

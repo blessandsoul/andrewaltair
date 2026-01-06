@@ -12,7 +12,7 @@ export interface IUser extends Document {
     avatar?: string;
     coverImage?: string;
     coverOffsetY?: number;
-    role: 'god' | 'admin' | 'editor' | 'viewer';
+    role: 'god' | 'admin' | 'editor' | 'viewer' | 'subscriber';
     badge?: string;
     isBlocked: boolean;
     twoFactorEnabled: boolean;
@@ -34,6 +34,8 @@ export interface IUser extends Document {
         completedLessons: string[];
         unlockedSkills: string[];
     };
+    newsletterSubscribed?: boolean;
+    newsletterSubscribedAt?: Date;
     comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -88,7 +90,7 @@ const UserSchema = new Schema<IUser>(
         },
         role: {
             type: String,
-            enum: ['god', 'admin', 'editor', 'viewer'],
+            enum: ['god', 'admin', 'editor', 'viewer', 'subscriber'],
             default: 'viewer',
         },
         badge: {
@@ -131,6 +133,15 @@ const UserSchema = new Schema<IUser>(
             completedQuests: [{ type: String }],
             completedLessons: [{ type: String }],
             unlockedSkills: { type: [String], default: ['prompt-basics'] },
+        },
+        // Newsletter
+        newsletterSubscribed: {
+            type: Boolean,
+            default: false,
+        },
+        newsletterSubscribedAt: {
+            type: Date,
+            default: undefined,
         },
     },
     {

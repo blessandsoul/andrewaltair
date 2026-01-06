@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import { sendWelcomeEmail } from '@/lib/email';
+import { trackSignup } from '@/lib/activityTracker';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -66,6 +67,9 @@ export async function POST(request: Request) {
         });
 
         await user.save();
+
+        // 🎯 TRACK SIGNUP ACTIVITY
+        trackSignup(fullName, user._id.toString()).catch(() => { })
 
         // Send welcome email (non-blocking)
         sendWelcomeEmail(fullName, email).catch(err => console.error('Welcome email error:', err))
