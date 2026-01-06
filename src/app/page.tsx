@@ -29,6 +29,7 @@ import { TrendingCard } from "@/components/blog/TrendingCard"
 // Engagement components removed - main page focuses on content
 import dbConnect from "@/lib/db"
 import Post from "@/models/Post"
+import { HeroCarousel } from "@/components/home/HeroCarousel"
 
 // Fetch posts directly from MongoDB (avoids self-referencing API deadlock)
 async function getPosts() {
@@ -66,17 +67,17 @@ function getTotalReactions(reactions: Record<string, number>): number {
 
 export default async function Home() {
   const postsData = await getPosts()
-  // Find a specific featured post or fallback to a random one
-  let heroPost = postsData.find((p: any) => p.featured && p.trending)
-  if (!heroPost && postsData.length > 0) {
-    heroPost = postsData[Math.floor(Math.random() * postsData.length)]
+  // Get up to 5 posts for hero carousel
+  const heroPosts = postsData.filter((p: any) => p.featured || p.trending).slice(0, 5)
+  if (heroPosts.length === 0 && postsData.length > 0) {
+    heroPosts.push(...postsData.slice(0, Math.min(5, postsData.length)))
   }
   const trendingPosts = postsData.filter((p: any) => p.trending)
   const latestPosts = postsData.slice(0, 6)
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
+      {/* Hero Section with Carousel */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
         {/* Animated Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5">
@@ -154,78 +155,11 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* Featured Post Card */}
-            {heroPost && (
+            {/* Hero Posts Carousel */}
+            {heroPosts.length > 0 && (
               <div className="relative animate-in fade-in slide-in-from-right-4 duration-700 delay-300">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-3xl blur-2xl"></div>
-                <Card className="relative glass-strong rounded-3xl overflow-hidden hover-lift group">
-                  <CardContent className="p-0">
-                    <div className="aspect-video bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center relative overflow-hidden">
-                      {heroPost.coverImage ? (
-                        <Image
-                          src={heroPost.coverImage}
-                          alt={heroPost.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      ) : (
-                        <TbSparkles className="w-16 h-16 text-primary/50" />
-                      )}
-
-                      {/* Dark gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-                      {/* Badges on TbPhoto */}
-                      <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
-                        {heroPost.trending && (
-                          <Badge className="bg-red-500 text-white border-0 backdrop-blur-md">
-                            <TbFlame className="w-3 h-3 mr-1" />
-                            ტრენდული
-                          </Badge>
-                        )}
-                        <Badge variant="outline" className="bg-white/10 text-white border-white/20 backdrop-blur-md w-fit">
-                          {heroPost.category || 'ბლოგი'}
-                        </Badge>
-                      </div>
-
-                      {/* Stats on TbPhoto */}
-                      <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between z-10 text-white/90 text-sm">
-                        <div className="flex items-center gap-4">
-                          <span className="flex items-center gap-1.5">
-                            <TbEye className="w-4 h-4" />
-                            {formatNumber(heroPost.views)}
-                          </span>
-                          <span className="flex items-center gap-1.5">
-                            <TbHeart className="w-4 h-4 text-red-500 fill-red-500" />
-                            {formatNumber(getTotalReactions(heroPost.reactions))}
-                          </span>
-                        </div>
-                        <span className="flex items-center gap-1.5">
-                          <TbClock className="w-4 h-4" />
-                          {heroPost.readingTime} წთ
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="p-6 space-y-4">
-                      <h3 className="text-xl font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors">
-                        {heroPost.title}
-                      </h3>
-                      <p className="text-muted-foreground line-clamp-2">
-                        {heroPost.excerpt}
-                      </p>
-
-                      <div className="pt-2">
-                        <Button variant="ghost" size="sm" className="text-primary p-0 h-auto hover:bg-transparent hover:text-primary/80" asChild>
-                          <Link href={`/blog/${heroPost.slug}`} className="group/link flex items-center">
-                            წაიკითხე სრულად
-                            <TbChevronRight className="w-4 h-4 ml-1 group-hover/link:translate-x-1 transition-transform" />
-                          </Link>
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <HeroCarousel posts={heroPosts} />
               </div>
             )}
           </div>

@@ -164,17 +164,37 @@ export default async function BlogPage() {
             </div>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {allPosts.map((post: { id: string }) => (
-              <PostCard
-                key={post.id}
-                post={post as any}
-                showExcerpt={false}
-                showTags={true}
-                showAuthor={true}
-              />
-            ))}
-          </div>
+          {allPosts.length > 0 ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {allPosts.map((post: { id: string }) => (
+                <PostCard
+                  key={post.id}
+                  post={post as any}
+                  showExcerpt={false}
+                  showTags={true}
+                  showAuthor={true}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20 space-y-6">
+              <div className="w-24 h-24 bg-primary/10 rounded-full mx-auto flex items-center justify-center">
+                <TbSparkles className="w-12 h-12 text-primary" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-bold">სტატიები მალე!</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  ახალი სტატიები და ტუტორიალები მალე დაემატება. გამოიწერე რომ პირველმა გაიგო!
+                </p>
+              </div>
+              <Button size="lg" asChild>
+                <Link href="/">
+                  <TbArrowRight className="w-4 h-4 mr-2" />
+                  მთავარ გვერდზე დაბრუნება
+                </Link>
+              </Button>
+            </div>
+          )}
 
           {/* Load More */}
           <div className="text-center mt-12">

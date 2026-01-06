@@ -95,7 +95,7 @@ export default function LoginPage() {
                                     მომხმარებლის სახელი
                                 </label>
                                 <Input
-                                    placeholder="andrew"
+                                    placeholder="მომხმარებლის სახელი"
                                     value={formData.username}
                                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                                 />

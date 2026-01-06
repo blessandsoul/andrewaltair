@@ -1,10 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { TbMoon, TbSun, TbDeviceDesktop } from "react-icons/tb"
+import { TbMoon, TbSun } from "react-icons/tb"
 import { Button } from "@/components/ui/button"
 
-type Theme = "light" | "dark" | "system"
+type Theme = "light" | "dark"
 
 export function ThemeToggle() {
     const [theme, setTheme] = React.useState<Theme>("light")
@@ -13,7 +13,7 @@ export function ThemeToggle() {
     React.useEffect(() => {
         setMounted(true)
         const savedTheme = localStorage.getItem("theme") as Theme | null
-        if (savedTheme) {
+        if (savedTheme && (savedTheme === "light" || savedTheme === "dark")) {
             setTheme(savedTheme)
             applyTheme(savedTheme)
         } else {
@@ -24,22 +24,11 @@ export function ThemeToggle() {
 
     const applyTheme = (newTheme: Theme) => {
         const root = document.documentElement
-
-        if (newTheme === "system") {
-            const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? "dark"
-                : "light"
-            root.classList.toggle("dark", systemTheme === "dark")
-        } else {
-            root.classList.toggle("dark", newTheme === "dark")
-        }
+        root.classList.toggle("dark", newTheme === "dark")
     }
 
-    const cycleTheme = () => {
-        const themes: Theme[] = ["light", "dark", "system"]
-        const currentIndex = themes.indexOf(theme)
-        const nextTheme = themes[(currentIndex + 1) % themes.length]
-
+    const toggleTheme = () => {
+        const nextTheme: Theme = theme === "light" ? "dark" : "light"
         setTheme(nextTheme)
         localStorage.setItem("theme", nextTheme)
         applyTheme(nextTheme)
@@ -57,18 +46,14 @@ export function ThemeToggle() {
         <Button
             variant="ghost"
             size="icon"
-            onClick={cycleTheme}
+            onClick={toggleTheme}
             className="relative group"
-            title={`Current: ${theme}`}
+            title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
         >
-            {theme === "light" && (
+            {theme === "light" ? (
                 <TbSun className="h-5 w-5 transition-transform group-hover:rotate-45" />
-            )}
-            {theme === "dark" && (
+            ) : (
                 <TbMoon className="h-5 w-5 transition-transform group-hover:-rotate-12" />
-            )}
-            {theme === "system" && (
-                <TbDeviceDesktop className="h-5 w-5 transition-transform group-hover:scale-110" />
             )}
             <span className="sr-only">Toggle theme</span>
         </Button>
