@@ -35,6 +35,7 @@ interface AuthContextType {
     isAdmin: boolean
     canEdit: boolean
     token: string | null
+    updateUser: (user: User) => void
 }
 
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined)
@@ -140,6 +141,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
+    const updateUser = (userData: User) => {
+        setUser(userData)
+        localStorage.setItem("auth_user", JSON.stringify(userData))
+    }
+
     const logout = () => {
         setUser(null)
         setToken(null)
@@ -152,7 +158,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const canEdit = user?.role === "god" || user?.role === "admin" || user?.role === "editor"
 
     return (
-        <AuthContext.Provider value={{ user, isLoading, login, register, logout, isGod, isAdmin, canEdit, token }}>
+        <AuthContext.Provider value={{ user, isLoading, login, register, logout, isGod, isAdmin, canEdit, token, updateUser }}>
             {children}
         </AuthContext.Provider>
     )

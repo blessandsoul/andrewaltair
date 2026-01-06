@@ -11,21 +11,23 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/lib/auth"
 import { profileFormSchema, type ProfileFormData } from "../../schemas"
+import { useToast } from "@/components/ui/toast"
 
 export function ProfileInfoTab() {
-    const { user } = useAuth()
+    const { user, updateUser, token } = useAuth()
+    const { success, error: toastError } = useToast()
     const [isEditing, setIsEditing] = React.useState(false)
     const [formData, setFormData] = React.useState<ProfileFormData>({
         fullName: user?.fullName || "",
         email: user?.email || "",
         username: user?.username || "",
-        bio: "AI ენთუზიასტი და ტექნოლოგიების მოყვარული 🚀",
+        bio: user?.bio || "AI ენთუზიასტი და ტექნოლოგიების მოყვარული 🚀",
     })
     const [errors, setErrors] = React.useState<Partial<Record<keyof ProfileFormData, string>>>({})
 
     if (!user) return null
 
-    const handleSave = () => {
+    const handleSave = async () => {
         const result = profileFormSchema.safeParse(formData)
         if (!result.success) {
             const fieldErrors: Partial<Record<keyof ProfileFormData, string>> = {}
@@ -38,8 +40,29 @@ export function ProfileInfoTab() {
             return
         }
         setErrors({})
-        setIsEditing(false)
-        // TODO: API call to save
+
+        try {
+            const res = await fetch('/api/user/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                updateUser(data.user);
+                success('წარმატება', 'პროფილი წარმატებით განახლდა');
+                setIsEditing(false);
+            } else {
+                toastError('შეცდომა', data.error || 'პროფილის განახლება ვერ მოხერხდა');
+            }
+        } catch (e) {
+            toastError('შეცდომა', 'სერვერთან დაკავშირება ვერ მოხერხდა');
+        }
     }
 
     const handleCancel = () => {

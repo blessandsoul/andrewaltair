@@ -20,7 +20,7 @@ const REWARDS: Reward[] = [
 ];
 
 export default function MysteryBox() {
-    const { user, isLoading: authLoading } = useAuth();
+    const { user, token, isLoading: authLoading } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const [canClaim, setCanClaim] = useState(false);
     const [timeLeft, setTimeLeft] = useState('');
@@ -28,28 +28,30 @@ export default function MysteryBox() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (user) {
+        if (user && token) {
             checkAvailability();
         } else {
             setLoading(false);
         }
-    }, [user]);
+    }, [user, token]);
 
     // Periodically update time left if user is logged in
     useEffect(() => {
-        if (!user) return;
+        if (!user || !token) return;
         const interval = setInterval(() => {
-            // Just re-check logic locally or refetch
-            // For now, simpler to refetch to sync server time or handle simple countdown
             checkAvailability();
         }, 60000);
         return () => clearInterval(interval);
-    }, [user]);
+    }, [user, token]);
 
     const checkAvailability = async () => {
-        if (!user) return;
+        if (!user || !token) return;
         try {
-            const res = await fetch(`/api/conversion/mystery-box?userId=${user.id || (user as any)._id}`); // Handle both id formats if needed
+            const res = await fetch('/api/conversion/mystery-box', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             const data = await res.json();
 
             if (data.canClaim) {
@@ -81,13 +83,16 @@ export default function MysteryBox() {
     };
 
     const handleOpen = async () => {
-        if (!canClaim || isOpen || !user) return;
+        if (!canClaim || isOpen || !user || !token) return;
 
         try {
             const res = await fetch('/api/conversion/mystery-box', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: user.id || (user as any)._id })
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({}) // Body no longer needs userId
             });
 
             const data = await res.json();
