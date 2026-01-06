@@ -8,6 +8,7 @@ export interface User {
     username: string
     email: string
     fullName: string
+    bio?: string
     avatar?: string
     coverImage?: string
     coverOffsetY?: number
