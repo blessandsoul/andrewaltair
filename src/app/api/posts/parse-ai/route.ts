@@ -138,7 +138,7 @@ const SYSTEM_PROMPT = `შენ ხარ კონტენტ სტრუქ
 2. გამოტოვე PART 2 (telegram mirror) მთლიანად  
 3. emoji-ები გადააკეთე icon სახელებად (მაგ: 📉→TrendingDown, 🏭→Factory)
 4. წაშალე **bold** მარკერები content-იდან და title-იდან
-5. გამოტოვე www.ANDREWALTAIR.ge ლინკები, Prompt: სექციები, 🎶 და ⭐️ ხაზები
+5. გამოტოვე www.ANDREWALTAIR.ge ლინკები, Prompt: სექციები, 🎶, ⭐️ და 🫣 ხაზები (რეკლამა)
 
 სექციების ტიპები:
 - "intro" - შესავალი
@@ -243,8 +243,8 @@ function fallbackParse(rawContent: string): ParseResult {
 
     // Patterns
     const PROMPT_STARTERS = /^(Prompt:|Format:|Branding:|Quality:|Subject:|Composition:|Lighting:|Camera:|Environment:|Style:|Negative Prompt:|Role:|You are|Act as|System:)/i
-    const SKIP_PATTERNS = /www\.ANDREWALTAIR\.ge|ANDREWALTAIR\.ge|შემოდით:|მეტი რესურსი:|🔗/i
-    const MUSIC_TEXT_SKIP = /^(🎶|⭐️|⭐)/
+    const SKIP_PATTERNS = /www\.ANDREWALTAIR\.ge|ANDREWALTAIR\.ge|შემოდით:|მეტი რესურსი:|🔗|🫣|გსურთ რაღაც.*Google-ში|იპოვეთ Andrew Altair/i
+    const MUSIC_TEXT_SKIP = /^(🎶|⭐️|⭐|🫣)/
     const PART_HEADER = /^===.*\[PART\s*\d+/i
     const HASHTAG_LINE = /^#[\w\u10A0-\u10FF]+(\s+#[\w\u10A0-\u10FF]+)+/
 

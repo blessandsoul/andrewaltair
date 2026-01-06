@@ -60,7 +60,11 @@ export async function POST(request: NextRequest) {
         }
 
         // Generate SEO-friendly filename
-        const slug = generateSlug(title)
+        let slug = generateSlug(title)
+        // Fallback to random ID if slug is empty
+        if (!slug || slug.length < 3) {
+            slug = `image-${Date.now().toString(36)}`
+        }
         const ext = file.name.split('.').pop() || 'jpg'
         const date = new Date()
         const year = date.getFullYear()
