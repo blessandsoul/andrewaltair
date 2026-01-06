@@ -70,9 +70,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
-EXPOSE 3000
-
-ENV PORT=3000
+# Port is configurable via Coolify Environment Variables
+# Default: 3001 (set in Coolify or override at runtime)
+# Next.js standalone server automatically reads PORT env var
 ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]
