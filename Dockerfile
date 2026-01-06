@@ -12,8 +12,15 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
 # Disable telemetry during build
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Build-time environment variables (placeholders for static generation)
+# Real values are injected at runtime via Coolify
+ARG MONGODB_URI="mongodb://placeholder:27017/placeholder"
+ENV MONGODB_URI=${MONGODB_URI}
+
 RUN npm run build
 
 # 4. Production Runner
