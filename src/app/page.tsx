@@ -31,6 +31,7 @@ import dbConnect from "@/lib/db"
 import Post from "@/models/Post"
 import Video from "@/models/Video"
 import { HeroCarousel } from "@/components/home/HeroCarousel"
+import { NewsletterForm } from "@/components/home/NewsletterForm"
 
 // Fetch posts directly from MongoDB (avoids self-referencing API deadlock)
 async function getPosts() {
@@ -341,19 +342,8 @@ export default async function Home() {
               კვირაში ერთხელ მიიღებ საუკეთესო AI რჩევებს, ტუტორიალებს და ექსკლუზიურ კონტენტს პირდაპირ შენს ინბოქსში
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <div className="relative flex-1">
-                <TbMail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40" />
-                <Input
-                  type="email"
-                  placeholder="შენი ელ-ფოსტა"
-                  className="pl-10 bg-white/10 border-white/20 text-white placeholder-white/50 focus:bg-white/20 h-12"
-                />
-              </div>
-              <Button size="lg" className="bg-white text-primary hover:bg-white/90 h-12 px-8">
-                <TbSend className="w-4 h-4 mr-2" />
-                გამოწერა
-              </Button>
+            <div className="mt-8">
+              <NewsletterForm />
             </div>
 
             <p className="text-sm text-white/60">

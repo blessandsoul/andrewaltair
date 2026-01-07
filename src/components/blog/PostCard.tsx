@@ -68,7 +68,8 @@ function formatRelativeDate(dateString: string): string {
 
 // Get category info with color
 function getCategoryInfo(categoryId: string) {
-    return brand.categories.find(c => c.id === categoryId) || {
+    const normalizedId = categoryId?.trim().toLowerCase()
+    return brand.categories.find(c => c.id.toLowerCase() === normalizedId) || {
         id: categoryId,
         name: categoryId,
         color: "#6366f1"
@@ -146,8 +147,8 @@ export function PostCard({
                         <button
                             onClick={handleBookmark}
                             className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center z-10 transition-all duration-300 ${isBookmarked
-                                    ? "bg-primary text-white"
-                                    : "bg-background/80 backdrop-blur-sm text-muted-foreground hover:bg-background hover:text-primary"
+                                ? "bg-primary text-white"
+                                : "bg-background/80 backdrop-blur-sm text-muted-foreground hover:bg-background hover:text-primary"
                                 } ${isHovered || isBookmarked ? "opacity-100" : "opacity-0"}`}
                         >
                             <TbBookmark className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`} />

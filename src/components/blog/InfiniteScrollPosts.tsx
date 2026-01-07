@@ -91,7 +91,8 @@ interface InfiniteScrollPostsProps {
 
 // Full article component matching BlogPostClient layout
 function FullArticle({ post, index }: { post: Post; index: number }) {
-    const categoryInfo = brand.categories.find(c => c.id === post.category)
+    const normalizedCat = post.category?.trim().toLowerCase()
+    const categoryInfo = brand.categories.find(c => c.id.toLowerCase() === normalizedCat)
     const { isOpen, images, currentIndex, openLightbox, closeLightbox } = useImageLightbox()
     const [articleImages, setArticleImages] = useState<{ src: string; alt: string }[]>([])
 

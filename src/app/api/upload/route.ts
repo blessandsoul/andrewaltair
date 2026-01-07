@@ -61,10 +61,15 @@ export async function POST(request: NextRequest) {
 
         // Generate SEO-friendly filename
         let slug = generateSlug(title)
-        // Fallback to random ID if slug is empty
+
+        // Remove leading/trailing hyphens
+        slug = slug.replace(/^-+|-+$/g, '')
+
+        // Fallback to random ID if slug is empty or too short
         if (!slug || slug.length < 3) {
-            slug = `image-${Date.now().toString(36)}`
+            slug = `image-${Date.now().toString(36)}` // fallback
         }
+
         const ext = file.name.split('.').pop() || 'jpg'
         const date = new Date()
         const year = date.getFullYear()
@@ -72,6 +77,8 @@ export async function POST(request: NextRequest) {
 
         // Final filename: slug-type.ext (e.g., neuralink-maski-horizontal.jpg)
         const filename = `${slug}-${type}.${ext}`
+
+        console.log('Saving file:', filename) // Debug log
 
         // Upload path: public/uploads/YYYY/MM/
         const uploadDir = path.join(process.cwd(), 'public', 'uploads', String(year), month)

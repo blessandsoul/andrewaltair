@@ -49,7 +49,8 @@ function getTotalReactions(reactions: Record<string, number>): number {
 
 // Get category info
 function getCategoryInfo(categoryId: string) {
-    return brand.categories.find(c => c.id === categoryId) || {
+    const normalizedId = categoryId?.trim().toLowerCase()
+    return brand.categories.find(c => c.id.toLowerCase() === normalizedId) || {
         id: categoryId,
         name: categoryId,
         color: "#6366f1"
@@ -140,8 +141,8 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
                         <button
                             onClick={handleBookmark}
                             className={`absolute top-4 right-24 w-8 h-8 rounded-full flex items-center justify-center z-10 transition-all duration-300 ${isBookmarked
-                                    ? "bg-primary text-white"
-                                    : "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
+                                ? "bg-primary text-white"
+                                : "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
                                 } ${isHovered || isBookmarked ? "opacity-100" : "opacity-0"}`}
                         >
                             <TbBookmark className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`} />

@@ -50,7 +50,8 @@ function getTotalReactions(reactions: Record<string, number>): number {
 
 // Get category info
 function getCategoryInfo(categoryId: string) {
-    return brand.categories.find(c => c.id === categoryId) || {
+    const normalizedId = categoryId?.trim().toLowerCase()
+    return brand.categories.find(c => c.id.toLowerCase() === normalizedId) || {
         id: categoryId,
         name: categoryId,
         color: "#6366f1"

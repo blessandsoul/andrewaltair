@@ -15,6 +15,18 @@ import {
     TbClock,
     TbSparkles
 } from "react-icons/tb"
+import { brand } from "@/lib/brand"
+
+// Helper to get category info
+function getCategoryInfo(categoryId?: string) {
+    if (!categoryId) return { name: 'ბლოგი', color: '#6366f1' }
+    const normalizedId = categoryId.trim().toLowerCase()
+    return brand.categories.find(c => c.id.toLowerCase() === normalizedId) || {
+        id: categoryId,
+        name: categoryId,
+        color: "#6366f1"
+    }
+}
 
 interface Post {
     id: string
@@ -103,8 +115,15 @@ export function HeroCarousel({ posts, autoPlayInterval = 5000 }: HeroCarouselPro
                                     ტრენდული
                                 </Badge>
                             )}
-                            <Badge variant="outline" className="bg-white/10 text-white border-white/20 backdrop-blur-md w-fit">
-                                {currentPost.category || 'ბლოგი'}
+                            <Badge
+                                variant="outline"
+                                className="border-0 backdrop-blur-md w-fit"
+                                style={{
+                                    backgroundColor: `${getCategoryInfo(currentPost.category).color}40`,
+                                    color: "white"
+                                }}
+                            >
+                                {getCategoryInfo(currentPost.category).name}
                             </Badge>
                         </div>
 
@@ -187,6 +206,6 @@ export function HeroCarousel({ posts, autoPlayInterval = 5000 }: HeroCarouselPro
                     </div>
                 </CardContent>
             </Card>
-        </div>
+        </div >
     )
 }

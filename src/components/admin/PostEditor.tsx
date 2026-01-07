@@ -942,17 +942,19 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                 </div>
                             </div>
 
-                            {/* Content Type */}
+                            {/* Category */}
                             <div className="space-y-2">
-                                <label className="text-xs text-muted-foreground">კონტენტის ტიპი</label>
+                                <label className="text-xs text-muted-foreground">კატეგორია</label>
                                 <select
-                                    value={post.type}
-                                    onChange={(e) => setPost(prev => ({ ...prev, type: e.target.value as any }))}
+                                    value={post.category}
+                                    onChange={(e) => setPost(prev => ({ ...prev, category: e.target.value }))}
                                     className="w-full px-3 py-2 rounded-md border border-input bg-background"
                                 >
-                                    <option value="news">📰 News (Article)</option>
-                                    <option value="library">🎨 TbLibrary (Prompt)</option>
-                                    <option value="tutorial">📚 Tutorial</option>
+                                    {CATEGORIES.map(cat => (
+                                        <option key={cat.value} value={cat.value}>
+                                            {cat.emoji} {cat.label}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                         </CardContent>
@@ -1168,28 +1170,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                         )}
                     </Card>
 
-                    {/* Category */}
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm flex items-center gap-2">
-                                <TbFolder className="w-4 h-4" />
-                                კატეგორია
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <select
-                                value={post.category}
-                                onChange={(e) => setPost(prev => ({ ...prev, category: e.target.value }))}
-                                className="w-full px-3 py-2 rounded-md border border-input bg-background"
-                            >
-                                {CATEGORIES.map(cat => (
-                                    <option key={cat.value} value={cat.value}>
-                                        {cat.emoji} {cat.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </CardContent>
-                    </Card>
+
 
                     {/* TbVideo Embed */}
                     <VideoEmbed

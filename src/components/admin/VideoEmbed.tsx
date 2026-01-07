@@ -49,21 +49,62 @@ function parseVideoUrl(url: string): { platform: 'youtube' | 'vimeo'; videoId: s
     return null
 }
 
-// Get thumbnail URL for video
-function getThumbnailUrl(platform: 'youtube' | 'vimeo', videoId: string): string {
+// Fetch thumbnail URL async
+async function fetchThumbnail(platform: 'youtube' | 'vimeo', videoId: string): Promise<string> {
     if (platform === 'youtube') {
         return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
     }
-    // Vimeo requires API call for thumbnail, use placeholder
+    if (platform === 'vimeo') {
+        try {
+            const response = await fetch(`https://vimeo.com/api/v2/video/${videoId}.json`)
+            const data = await response.json()
+            return data[0]?.thumbnail_large || ''
+        } catch (e) {
+            console.error('Vimeo thumbnail fetch error:', e)
+            return ''
+        }
+    }
     return ''
 }
 
-// Get embed URL for iframe
-function getEmbedUrl(platform: 'youtube' | 'vimeo', videoId: string): string {
-    if (platform === 'youtube') {
-        return `https://www.youtube.com/embed/${videoId}`
+// Video Thumbnail Component with Fallback
+interface VideoThumbnailProps {
+    video: VideoData
+    className?: string
+}
+
+function VideoThumbnail({ video, className }: VideoThumbnailProps) {
+    const [imgSrc, setImgSrc] = React.useState<string>(video.thumbnailUrl || '')
+    const [error, setError] = React.useState(false)
+
+    React.useEffect(() => {
+        setImgSrc(video.thumbnailUrl || '')
+        setError(false)
+    }, [video.thumbnailUrl])
+
+    if (error || !imgSrc) {
+        return (
+            <div className={`w-full h-full flex items-center justify-center bg-muted ${className}`}>
+                <TbVideo className="w-8 h-8 text-muted-foreground" />
+            </div>
+        )
     }
-    return `https://player.vimeo.com/video/${videoId}`
+
+    return (
+        <img
+            src={imgSrc}
+            alt="Video thumbnail"
+            className={`w-full h-full object-cover ${className}`}
+            onError={() => {
+                // If maxresdefault failed, try hqdefault
+                if (imgSrc.includes('maxresdefault')) {
+                    setImgSrc(imgSrc.replace('maxresdefault', 'hqdefault'))
+                } else {
+                    setError(true)
+                }
+            }}
+        />
+    )
 }
 
 export function VideoEmbed({ videos, onChange }: VideoEmbedProps) {
@@ -85,11 +126,14 @@ export function VideoEmbed({ videos, onChange }: VideoEmbedProps) {
             return
         }
 
+        // Fetch thumbnail
+        const thumbnail = await fetchThumbnail(parsed.platform, parsed.videoId)
+
         const newVideo: VideoData = {
             url: newUrl,
             platform: parsed.platform,
             videoId: parsed.videoId,
-            thumbnailUrl: getThumbnailUrl(parsed.platform, parsed.videoId)
+            thumbnailUrl: thumbnail
         }
 
         onChange([...videos, newVideo])
@@ -141,7 +185,7 @@ export function VideoEmbed({ videos, onChange }: VideoEmbedProps) {
                     <p className="text-xs text-red-500">{error}</p>
                 )}
 
-                {/* TbVideo list */}
+                {/* Video list */}
                 {videos.length > 0 && (
                     <div className="space-y-2">
                         {videos.map((video, idx) => (
@@ -151,9 +195,11 @@ export function VideoEmbed({ videos, onChange }: VideoEmbedProps) {
                             >
                                 {/* Preview toggle */}
                                 {previewVideo === idx ? (
-                                    <div className="aspect-video">
+                                    <div className="aspect-video relative bg-black">
                                         <iframe
-                                            src={getEmbedUrl(video.platform, video.videoId || '')}
+                                            src={video.platform === 'youtube'
+                                                ? `https://www.youtube.com/embed/${video.videoId}`
+                                                : `https://player.vimeo.com/video/${video.videoId}`}
                                             className="w-full h-full"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                             allowFullScreen
@@ -164,20 +210,8 @@ export function VideoEmbed({ videos, onChange }: VideoEmbedProps) {
                                         className="relative aspect-video bg-muted cursor-pointer group"
                                         onClick={() => setPreviewVideo(idx)}
                                     >
-                                        {video.thumbnailUrl ? (
-                                            <img
-                                                src={video.thumbnailUrl}
-                                                alt="TbVideo thumbnail"
-                                                className="w-full h-full object-cover"
-                                                onError={(e) => {
-                                                    (e.target as HTMLImageElement).src = ''
-                                                }}
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center">
-                                                <TbVideo className="w-8 h-8 text-muted-foreground" />
-                                            </div>
-                                        )}
+                                        <VideoThumbnail video={video} />
+
                                         {/* Play overlay */}
                                         <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                             <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
@@ -187,12 +221,12 @@ export function VideoEmbed({ videos, onChange }: VideoEmbedProps) {
                                     </div>
                                 )}
 
-                                {/* TbVideo info bar */}
+                                {/* Video info bar */}
                                 <div className="p-2 bg-muted/30 flex items-center justify-between">
                                     <div className="flex items-center gap-2 text-xs">
                                         <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${video.platform === 'youtube'
-                                                ? 'bg-red-500/20 text-red-500'
-                                                : 'bg-blue-500/20 text-blue-500'
+                                            ? 'bg-red-500/20 text-red-500'
+                                            : 'bg-blue-500/20 text-blue-500'
                                             }`}>
                                             {video.platform === 'youtube' ? 'YouTube' : 'Vimeo'}
                                         </span>
