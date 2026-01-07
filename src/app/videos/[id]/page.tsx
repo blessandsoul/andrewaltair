@@ -122,11 +122,11 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
                             </Badge>
                             <span className="text-sm text-muted-foreground flex items-center gap-1">
                                 <TbCalendar className="w-4 h-4" />
-                                {video.publishedAt}
+                                {String(video.publishedAt)}
                             </span>
                             <span className="text-sm text-muted-foreground flex items-center gap-1">
                                 <TbClock className="w-4 h-4" />
-                                {video.duration}
+                                {String(video.duration)}
                             </span>
                             <span className="text-sm text-muted-foreground flex items-center gap-1">
                                 <TbEye className="w-4 h-4" />

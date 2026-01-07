@@ -49,6 +49,10 @@ async function getPost(slug: string) {
         id: post._id.toString(),
         _id: post._id.toString(),
         views: (post.views || 0) + 1,
+        createdAt: post.createdAt?.toISOString(),
+        updatedAt: post.updatedAt?.toISOString(),
+        // publishedAt is usually already a string, but if it's a date in DB, convert it
+        publishedAt: post.publishedAt instanceof Date ? post.publishedAt.toISOString() : post.publishedAt,
       },
       prevPost: prevPost ? { slug: prevPost.slug, title: prevPost.title } : null,
       nextPost: nextPost ? { slug: nextPost.slug, title: nextPost.title } : null

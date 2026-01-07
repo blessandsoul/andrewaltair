@@ -254,7 +254,10 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                 body: formData
             })
 
-            if (!response.ok) throw new Error('Upload failed')
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.error || 'Upload failed')
+            }
 
             const result = await response.json()
 
@@ -262,9 +265,9 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                 ...prev,
                 coverImages: { ...prev.coverImages, [type]: result.url }
             }))
-        } catch (error) {
+        } catch (error: any) {
             console.error('Upload error:', error)
-            alert('ატვირთვა ვერ მოხერხდა')
+            alert(error.message || 'ატვირთვა ვერ მოხერხდა')
         } finally {
             if (type === 'horizontal') setIsUploadingH(false)
             else setIsUploadingV(false)
