@@ -28,7 +28,7 @@ export async function GET(request: NextRequest, { params }: Params) {
         }
 
         // Check if admin or if prompt is published
-        const isAdmin = await verifyAdmin(request).catch(() => false);
+        const isAdmin = verifyAdmin(request);
 
         if (prompt.status !== 'published' && !isAdmin) {
             return NextResponse.json(
@@ -108,7 +108,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
 
         for (const field of updateFields) {
             if (body[field] !== undefined) {
-                (prompt as Record<string, unknown>)[field] = body[field];
+                (prompt as any)[field] = body[field];
             }
         }
 

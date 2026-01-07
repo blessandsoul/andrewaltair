@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
         const query: Record<string, unknown> = {};
 
         // Status filter (admin can see all, public only sees published)
-        const isAdmin = await verifyAdmin(request).catch(() => false);
+        const isAdmin = verifyAdmin(request);
         if (!isAdmin) {
             query.status = 'published';
         } else if (status && status !== 'all') {

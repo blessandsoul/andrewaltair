@@ -255,9 +255,8 @@ MarketplacePromptSchema.index({ featuredOrder: 1 });
 MarketplacePromptSchema.index({ category: 1, status: 1 });
 
 // Pre-save hook to set isFree based on price
-MarketplacePromptSchema.pre('save', function (next) {
+MarketplacePromptSchema.pre('save', async function () {
     this.isFree = this.price === 0;
-    next();
 });
 
 const MarketplacePrompt: Model<IMarketplacePrompt> =

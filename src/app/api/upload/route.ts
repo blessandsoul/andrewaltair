@@ -33,7 +33,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 export async function POST(request: NextRequest) {
     try {
         // 🛡️ Require authentication (Admin only)
-        if (!await verifyAdmin(request)) { // verifyAdmin handles both cookie and header
+        if (!verifyAdmin(request)) { // verifyAdmin handles both cookie and header
             return unauthorizedResponse('Admin access required');
         }
 
