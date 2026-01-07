@@ -48,16 +48,16 @@ export default function NewPostPage() {
                 })
             })
 
-            if (res.ok) {
-                alert("პოსტი წარმატებით შეინახა!")
-                router.push("/admin/posts")
-            } else {
+            if (!res.ok) {
                 const error = await res.json()
-                alert(`შეცდომა: ${error.error || 'პოსტის შენახვა ვერ მოხერხდა'}`)
+                throw new Error(error.error || 'პოსტის შენახვა ვერ მოხერხდა')
             }
-        } catch (error) {
+
+            // Success handled by PostEditor modal
+        } catch (error: any) {
             console.error('Save post error:', error)
-            alert("შეცდომა პოსტის შენახვისას")
+            alert(error.message || "შეცდომა პოსტის შენახვისას")
+            throw error // Re-throw to prevent success modal
         }
     }
 

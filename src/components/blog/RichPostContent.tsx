@@ -13,7 +13,7 @@ interface Section {
     icon?: string;  // lucide icon name
     title?: string;
     content: string;
-    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'cta' | 'hashtags' | 'prompt' | 'author-comment';
+    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'cta' | 'hashtags' | 'prompt' | 'author-comment' | 'image';
 }
 
 interface RichPostContentProps {
@@ -153,6 +153,11 @@ const SECTION_STYLES: Record<Section['type'], {
         borderClass: 'border-l-4 border-amber-500/60',
         iconClass: 'text-amber-500',
         defaultIcon: TbMessage,
+    },
+    image: {
+        bgClass: '',
+        borderClass: '',
+        iconClass: '',
     },
 };
 
@@ -346,6 +351,24 @@ function SectionRenderer({ section, index }: { section: Section; index: number }
                         {section.content}
                     </p>
                 </div>
+            </div>
+        );
+    }
+
+    // Render Image section
+    if (section.type === 'image') {
+        return (
+            <div className="my-8 rounded-xl overflow-hidden shadow-lg border border-border/50">
+                <img
+                    src={section.content}
+                    alt={section.title || 'Post image'}
+                    className="w-full h-auto object-cover"
+                />
+                {section.title && (
+                    <p className="text-sm text-center text-muted-foreground mt-2 italic pb-2">
+                        {section.title}
+                    </p>
+                )}
             </div>
         );
     }

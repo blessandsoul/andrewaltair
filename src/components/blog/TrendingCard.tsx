@@ -162,11 +162,7 @@ export function TrendingCard({ post, rank }: TrendingCardProps) {
                                 <span className="text-xs text-muted-foreground">{post.author.name}</span>
                             </div>
 
-                            {/* Reading time */}
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                <TbClock className="w-3.5 h-3.5" />
-                                <span>{post.readingTime} წთ</span>
-                            </div>
+
                         </div>
                     </div>
                 </CardContent>

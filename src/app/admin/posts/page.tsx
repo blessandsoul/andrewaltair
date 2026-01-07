@@ -1148,6 +1148,46 @@ function EditPostModal({
         scheduledFor: post.scheduledFor || ""
     })
 
+    // Cover images state
+    const [coverImages, setCoverImages] = React.useState<{
+        horizontal?: string
+        vertical?: string
+    }>((post as any).coverImages || {})
+    const [isUploadingH, setIsUploadingH] = React.useState(false)
+    const [isUploadingV, setIsUploadingV] = React.useState(false)
+
+    // File upload handler
+    const handleFileUpload = async (file: File, type: 'horizontal' | 'vertical') => {
+        if (type === 'horizontal') setIsUploadingH(true)
+        else setIsUploadingV(true)
+
+        try {
+            const formDataUpload = new FormData()
+            formDataUpload.append('file', file)
+            formDataUpload.append('title', formData.title || post.slug || 'cover')
+            formDataUpload.append('type', type)
+
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formDataUpload
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.error || 'Upload failed')
+            }
+
+            const result = await response.json()
+            setCoverImages(prev => ({ ...prev, [type]: result.url }))
+        } catch (error: any) {
+            console.error('Upload error:', error)
+            alert(error.message || 'ატვირთვა ვერ მოხერხდა')
+        } finally {
+            if (type === 'horizontal') setIsUploadingH(false)
+            else setIsUploadingV(false)
+        }
+    }
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         onSave({
@@ -1157,8 +1197,9 @@ function EditPostModal({
             category: formData.category,
             tags: formData.tags.split(",").map(t => t.trim()).filter(Boolean),
             status: formData.status as Post["status"],
-            scheduledFor: formData.status === "scheduled" ? formData.scheduledFor : null
-        })
+            scheduledFor: formData.status === "scheduled" ? formData.scheduledFor : null,
+            coverImages
+        } as any)
     }
 
     return (
@@ -1193,6 +1234,171 @@ function EditPostModal({
                                 onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
                             />
                         </div>
+
+                        {/* Cover Images Section */}
+                        <div className="space-y-3 p-3 rounded-lg border bg-muted/20">
+                            <label className="text-sm font-medium flex items-center gap-2">
+                                <TbUpload className="w-4 h-4" />
+                                Cover სურათები
+                            </label>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                {/* Horizontal (Desktop) */}
+                                <div className="space-y-2">
+                                    <span className="text-xs text-muted-foreground">Desktop (16:9)</span>
+                                    {coverImages.horizontal ? (
+                                        <div className="relative">
+                                            <img
+                                                src={coverImages.horizontal}
+                                                alt="Horizontal Cover"
+                                                className="w-full aspect-video object-cover rounded-md border"
+                                            />
+                                            <div className="absolute top-1 right-1 flex gap-1">
+                                                <label className="h-6 w-6 rounded-md bg-primary hover:bg-primary/90 flex items-center justify-center cursor-pointer">
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        onChange={(e) => {
+                                                            const file = e.target.files?.[0]
+                                                            if (file) handleFileUpload(file, 'horizontal')
+                                                        }}
+                                                        disabled={isUploadingH}
+                                                    />
+                                                    {isUploadingH ? (
+                                                        <TbClock className="w-3 h-3 animate-spin text-primary-foreground" />
+                                                    ) : (
+                                                        <TbUpload className="w-3 h-3 text-primary-foreground" />
+                                                    )}
+                                                </label>
+                                                <Button
+                                                    type="button"
+                                                    variant="destructive"
+                                                    size="icon"
+                                                    className="h-6 w-6"
+                                                    onClick={() => setCoverImages(prev => ({ ...prev, horizontal: undefined }))}
+                                                >
+                                                    <TbTrash className="w-3 h-3" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <label className="border-2 border-dashed rounded-md p-3 text-center aspect-video flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0]
+                                                    if (file) handleFileUpload(file, 'horizontal')
+                                                }}
+                                                disabled={isUploadingH}
+                                            />
+                                            {isUploadingH ? (
+                                                <TbClock className="w-5 h-5 animate-spin text-primary" />
+                                            ) : (
+                                                <div className="text-center">
+                                                    <TbUpload className="w-5 h-5 mx-auto text-muted-foreground mb-1" />
+                                                    <p className="text-xs text-muted-foreground">ატვირთვა</p>
+                                                </div>
+                                            )}
+                                        </label>
+                                    )}
+                                    <Input
+                                        placeholder="ან ჩასვით URL..."
+                                        className="text-xs h-7"
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault()
+                                                const url = (e.target as HTMLInputElement).value.trim()
+                                                if (url) {
+                                                    setCoverImages(prev => ({ ...prev, horizontal: url }))
+                                                        ; (e.target as HTMLInputElement).value = ''
+                                                }
+                                            }
+                                        }}
+                                    />
+                                </div>
+
+                                {/* Vertical (Mobile) */}
+                                <div className="space-y-2">
+                                    <span className="text-xs text-muted-foreground">Mobile (9:16)</span>
+                                    {coverImages.vertical ? (
+                                        <div className="relative max-w-[80px]">
+                                            <img
+                                                src={coverImages.vertical}
+                                                alt="Vertical Cover"
+                                                className="w-full aspect-[9/16] object-cover rounded-md border"
+                                            />
+                                            <div className="absolute top-1 right-1 flex flex-col gap-1">
+                                                <label className="h-5 w-5 rounded-md bg-primary hover:bg-primary/90 flex items-center justify-center cursor-pointer">
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        onChange={(e) => {
+                                                            const file = e.target.files?.[0]
+                                                            if (file) handleFileUpload(file, 'vertical')
+                                                        }}
+                                                        disabled={isUploadingV}
+                                                    />
+                                                    {isUploadingV ? (
+                                                        <TbClock className="w-2.5 h-2.5 animate-spin text-primary-foreground" />
+                                                    ) : (
+                                                        <TbUpload className="w-2.5 h-2.5 text-primary-foreground" />
+                                                    )}
+                                                </label>
+                                                <Button
+                                                    type="button"
+                                                    variant="destructive"
+                                                    size="icon"
+                                                    className="h-5 w-5"
+                                                    onClick={() => setCoverImages(prev => ({ ...prev, vertical: undefined }))}
+                                                >
+                                                    <TbTrash className="w-2.5 h-2.5" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <label className="border-2 border-dashed rounded-md p-2 text-center max-w-[80px] aspect-[9/16] flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0]
+                                                    if (file) handleFileUpload(file, 'vertical')
+                                                }}
+                                                disabled={isUploadingV}
+                                            />
+                                            {isUploadingV ? (
+                                                <TbClock className="w-4 h-4 animate-spin text-primary" />
+                                            ) : (
+                                                <div className="text-center">
+                                                    <TbUpload className="w-4 h-4 mx-auto text-muted-foreground" />
+                                                    <p className="text-[10px] text-muted-foreground">9:16</p>
+                                                </div>
+                                            )}
+                                        </label>
+                                    )}
+                                    <Input
+                                        placeholder="ან URL..."
+                                        className="text-xs h-7 max-w-[120px]"
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault()
+                                                const url = (e.target as HTMLInputElement).value.trim()
+                                                if (url) {
+                                                    setCoverImages(prev => ({ ...prev, vertical: url }))
+                                                        ; (e.target as HTMLInputElement).value = ''
+                                                }
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">კატეგორია</label>

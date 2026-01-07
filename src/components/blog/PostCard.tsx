@@ -4,7 +4,7 @@ import Link from "next/link"
 import TbPhoto from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { TbEye, TbFlame, TbHeart, TbMessage, TbShare, TbClock, TbBookmark, TbSparkles } from "react-icons/tb"
+import { TbEye, TbFlame, TbHeart, TbMessage, TbShare, TbClock, TbBookmark, TbSparkles, TbArrowRight } from "react-icons/tb"
 import { brand } from "@/lib/brand"
 import { useState } from "react"
 
@@ -168,83 +168,75 @@ export function PostCard({
                     </div>
 
                     {/* Content */}
-                    <div className="p-4 space-y-3">
-                        {/* Tags Row */}
+                    <div className="p-4 space-y-3 flex flex-col h-full">
+                        {/* Tags Row - Premium Badges */}
                         {showTags && post.tags && post.tags.length > 0 && (
-                            <div className="flex items-center gap-2 flex-wrap">
+                            <div className="flex items-center gap-2 flex-wrap mb-1">
                                 {post.tags.slice(0, 2).map(tag => (
-                                    <span
+                                    <Badge
                                         key={tag}
-                                        className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                                        variant="secondary"
+                                        className="text-[10px] font-medium bg-secondary/50 text-secondary-foreground hover:bg-secondary px-2 py-0.5 rounded-full transition-colors"
                                     >
                                         #{tag}
-                                    </span>
+                                    </Badge>
                                 ))}
                             </div>
                         )}
 
                         {/* Title */}
-                        <h3 className="font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+                        <h3 className="text-lg font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors">
                             {post.title}
                         </h3>
 
-                        {/* Excerpt (only for featured/larger cards) */}
-                        {showExcerpt && variant === "featured" && (
-                            <p className="text-sm text-muted-foreground line-clamp-2">
+                        {/* Excerpt - Ensuring visibility */}
+                        {showExcerpt && variant !== "compact" && (
+                            <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
                                 {post.excerpt}
                             </p>
                         )}
 
+                        <div className="flex-1" /> {/* Spacer */}
+
                         {/* Author & Date Row */}
                         {showAuthor && (
-                            <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                <div className="flex items-center gap-2">
-                                    {/* Author Avatar */}
-                                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-xs font-bold">
+                            <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
+                                <div className="flex items-center gap-2 group/author">
+                                    {/* Author Avatar with Ring */}
+                                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-xs font-bold ring-2 ring-background shadow-sm group-hover/author:scale-110 transition-transform">
                                         {post.author.name.charAt(0)}
                                     </div>
-                                    <span>{post.author.name}</span>
+                                    <span className="font-medium group-hover/author:text-foreground transition-colors">{post.author.name}</span>
                                 </div>
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-1 bg-secondary/30 px-2 py-1 rounded-full">
                                     <TbClock className="w-3 h-3" />
                                     <span>{formatRelativeDate(post.publishedAt)}</span>
                                 </div>
                             </div>
                         )}
 
-                        {/* Stats Row */}
-                        <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                        {/* Stats & Read More Row */}
+                        <div className="flex items-center justify-between pt-4 mt-2 border-t border-border/50">
                             <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                <span className="flex items-center gap-1 hover:text-foreground transition-colors">
-                                    <TbEye className="w-3.5 h-3.5" />
+                                <span className="flex items-center gap-1.5 hover:text-primary transition-colors">
+                                    <TbEye className="w-4 h-4" />
                                     {formatNumber(post.views)}
                                 </span>
-                                <span className="flex items-center gap-1 hover:text-foreground transition-colors">
-                                    <TbMessage className="w-3.5 h-3.5" />
+                                <span className="flex items-center gap-1.5 hover:text-blue-500 transition-colors">
+                                    <TbMessage className="w-4 h-4" />
                                     {formatNumber(post.comments)}
                                 </span>
-                            </div>
-                            <div className="flex items-center gap-3 text-xs">
-                                <span className="flex items-center gap-1 text-red-500 hover:scale-110 transition-transform cursor-pointer">
-                                    <TbHeart className="w-3.5 h-3.5" />
+                                <span className="flex items-center gap-1.5 text-red-500/80 hover:text-red-600 transition-colors">
+                                    <TbHeart className="w-4 h-4" />
                                     {formatNumber(getTotalReactions(post.reactions))}
                                 </span>
-                                <span className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
-                                    <TbShare className="w-3.5 h-3.5" />
-                                    {formatNumber(post.shares)}
-                                </span>
                             </div>
-                        </div>
 
-                        {/* Reading Time Indicator */}
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
-                                <div
-                                    className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-300"
-                                    style={{ width: `${Math.min(post.readingTime * 10, 100)}%` }}
-                                />
+                            {/* Read More Text CTA */}
+                            <div className="text-xs font-semibold text-primary flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                                წაიკითხე
+                                <TbArrowRight className="w-3.5 h-3.5" />
                             </div>
-                            <span>{post.readingTime} წთ</span>
                         </div>
                     </div>
                 </CardContent>
@@ -293,8 +285,7 @@ export function PostCardSkeleton() {
                         </div>
                     </div>
 
-                    {/* Progress skeleton */}
-                    <div className="h-1 bg-muted rounded-full" />
+
                 </div>
             </CardContent>
         </Card>

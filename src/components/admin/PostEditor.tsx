@@ -5,7 +5,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { TbDeviceFloppy, TbEye, TbX, TbPlus, TbPhoto, TbFileText, TbTag, TbFolder, TbClock, TbStar, TbFlame, TbWorld, TbArrowLeft, TbWand, TbDeviceDesktop, TbDeviceMobile, TbTrash, TbChevronDown, TbChevronUp, TbSparkles, TbUpload, TbLoader2, TbFileCheck, TbLayout } from "react-icons/tb"
+import { TbDeviceFloppy, TbEye, TbX, TbPlus, TbPhoto, TbFileText, TbTag, TbFolder, TbClock, TbStar, TbFlame, TbWorld, TbArrowLeft, TbWand, TbDeviceDesktop, TbDeviceMobile, TbTrash, TbChevronDown, TbChevronUp, TbSparkles, TbUpload, TbLoader2, TbFileCheck, TbLayout, TbCheck, TbArrowUp, TbArrowDown } from "react-icons/tb"
+// ... (imports remain the same logic, I need to match the line) 
+
+// ...
+
+
 import { parsePostContent, extractTitle, extractExcerpt, calculateReadingTime } from "@/lib/PostContentParser"
 import { RichPostContent } from "@/components/blog/RichPostContent"
 import { useAutosave, formatTimeSince } from "@/hooks/useAutosave"
@@ -28,7 +33,7 @@ interface Section {
     icon?: string;  // lucide icon name
     title?: string;
     content: string;
-    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'cta' | 'hashtags' | 'author-comment';
+    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'cta' | 'hashtags' | 'author-comment' | 'image';
 }
 
 // Gallery image
@@ -155,7 +160,7 @@ function generateSlug(title: string): string {
 
 interface PostEditorProps {
     initialData?: Partial<PostData>
-    onSave: (data: PostData) => void
+    onSave: (data: PostData) => Promise<void> | void
     onCancel: () => void
     isEditing?: boolean
 }
@@ -238,7 +243,6 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
         setShowTemplateSelector(false)
     }
 
-    // File upload handler
     const handleFileUpload = async (file: File, type: 'horizontal' | 'vertical') => {
         if (type === 'horizontal') setIsUploadingH(true)
         else setIsUploadingV(true)
@@ -271,6 +275,43 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
         } finally {
             if (type === 'horizontal') setIsUploadingH(false)
             else setIsUploadingV(false)
+        }
+    }
+
+    // Section Image Upload
+    const [isUploadingSectionImage, setIsUploadingSectionImage] = React.useState(false)
+    const handleSectionImageUpload = async (file: File) => {
+        setIsUploadingSectionImage(true)
+        try {
+            const formData = new FormData()
+            formData.append('file', file)
+            formData.append('title', `section-${post.id}-${Date.now()}`)
+            formData.append('type', 'section')
+
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            })
+
+            if (!response.ok) throw new Error('Upload failed')
+            const result = await response.json()
+
+            // Add new section
+            const newSection: Section = {
+                type: 'image',
+                content: result.url,
+                title: '' // Optional caption
+            }
+
+            setPost(prev => ({
+                ...prev,
+                sections: [...prev.sections, newSection]
+            }))
+        } catch (error) {
+            console.error('Section Image Upload Error:', error)
+            alert('სურათის ატვირთვა ვერ მოხერხდა')
+        } finally {
+            setIsUploadingSectionImage(false)
         }
     }
 
@@ -558,6 +599,9 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
         }))
     }
 
+    // Success Modal State
+    const [showSuccessModal, setShowSuccessModal] = React.useState(false)
+
     // Handle save with auto-generated viral tags
     const [isSaving, setIsSaving] = React.useState(false)
 
@@ -633,7 +677,15 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                     seoScore
                 }
             }
-            onSave(finalPost)
+
+            // Wait for save to complete
+            await onSave(finalPost)
+
+            // Show success modal
+            setShowSuccessModal(true)
+        } catch (error) {
+            console.error('Save failed:', error)
+            // Error handling should be done by onSave or here if onSave throws
         } finally {
             setIsSaving(false)
         }
@@ -662,6 +714,57 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                 <Button variant="outline" onClick={handleDismissRecovery} className="flex-1">
                                     უარყოფა
                                 </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+
+            {/* Success Modal */}
+            {showSuccessModal && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+                    <Card className="w-full max-w-sm relative overflow-hidden text-center border-0 shadow-2xl">
+                        {/* Decoration */}
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent" />
+                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-2xl" />
+                        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-accent/10 rounded-full blur-2xl" />
+
+                        <CardContent className="pt-10 pb-8 px-6 space-y-6">
+                            <div className="mx-auto w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mb-2">
+                                <TbCheck className="w-8 h-8 text-green-500" />
+                            </div>
+
+                            <div className="space-y-2">
+                                <h2 className="text-2xl font-bold">წარმატება!</h2>
+                                <p className="text-muted-foreground">
+                                    {isEditing ? "პოსტი წარმატებით განახლდა." : "პოსტი წარმატებით გამოქვეყნდა."}
+                                </p>
+                            </div>
+
+                            <div className="grid gap-3 pt-2">
+                                <Button
+                                    onClick={() => window.open(`/blog/${post.slug}`, '_blank')}
+                                    className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+                                >
+                                    <TbEye className="w-4 h-4 mr-2" />
+                                    პოსტის ნახვა
+                                </Button>
+                                <div className="grid grid-cols-2 gap-3">
+                                    {!isEditing && (
+                                        <Button variant="outline" onClick={() => {
+                                            setPost({ ...DEFAULT_POST, id: Math.floor(100000 + Math.random() * 900000).toString() })
+                                            setShowSuccessModal(false)
+                                            window.scrollTo(0, 0)
+                                        }}>
+                                            <TbPlus className="w-4 h-4 mr-2" />
+                                            ახალი
+                                        </Button>
+                                    )}
+                                    <Button variant="outline" onClick={onCancel} className={isEditing ? "col-span-2" : ""}>
+                                        <TbArrowLeft className="w-4 h-4 mr-2" />
+                                        სიაში
+                                    </Button>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
@@ -871,6 +974,109 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                 </span>
                                 <span>{post.rawContent.length} სიმბოლო</span>
                             </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Manage Sections (Manual Edit) */}
+                    <Card>
+                        <CardHeader className="pb-2">
+                            <div className="flex items-center justify-between">
+                                <CardTitle className="text-lg flex items-center gap-2">
+                                    <TbLayout className="w-5 h-5 text-primary" />
+                                    სექციების მართვა ({post.sections.length})
+                                </CardTitle>
+                                <div className="flex gap-2">
+                                    <label className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0]
+                                                if (file) handleSectionImageUpload(file)
+                                            }}
+                                            disabled={isUploadingSectionImage}
+                                        />
+                                        {isUploadingSectionImage ? <TbLoader2 className="w-4 h-4 animate-spin mr-2" /> : <TbPhoto className="w-4 h-4 mr-2" />}
+                                        სურათის დამატება
+                                    </label>
+                                </div>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                დაამატეთ სურათები ან შეცვალეთ სექციების თანმიმდევრობა
+                            </p>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {post.sections.length === 0 ? (
+                                <div className="text-center py-8 text-muted-foreground text-sm border-2 border-dashed rounded-lg">
+                                    ჯერ არ არის სექციები. გამოიყენეთ "ავტო-პარსინგი" ან დაამატეთ ხელით.
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {post.sections.map((section, idx) => (
+                                        <div key={idx} className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg border group">
+                                            {/* Section Type Icon */}
+                                            <div className="mt-1">
+                                                {section.type === 'image' ? (
+                                                    <img src={section.content} alt="section" className="w-10 h-10 object-cover rounded" />
+                                                ) : (
+                                                    <Badge variant="outline">{section.type.slice(0, 3)}</Badge>
+                                                )}
+                                            </div>
+
+                                            {/* Content Preview */}
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-medium truncate">{section.title || section.type}</p>
+                                                <p className="text-xs text-muted-foreground truncate">{section.type === 'image' ? section.content : section.content.slice(0, 50)}</p>
+                                            </div>
+
+                                            {/* Actions */}
+                                            <div className="flex flex-col gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                                <div className="flex gap-1">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-6 w-6"
+                                                        disabled={idx === 0}
+                                                        onClick={() => {
+                                                            const newSections = [...post.sections]
+                                                                ;[newSections[idx - 1], newSections[idx]] = [newSections[idx], newSections[idx - 1]]
+                                                            setPost(prev => ({ ...prev, sections: newSections }))
+                                                        }}
+                                                    >
+                                                        <TbArrowUp className="w-3 h-3" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-6 w-6"
+                                                        disabled={idx === post.sections.length - 1}
+                                                        onClick={() => {
+                                                            const newSections = [...post.sections]
+                                                                ;[newSections[idx + 1], newSections[idx]] = [newSections[idx], newSections[idx + 1]]
+                                                            setPost(prev => ({ ...prev, sections: newSections }))
+                                                        }}
+                                                    >
+                                                        <TbArrowDown className="w-3 h-3" />
+                                                    </Button>
+                                                </div>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-6 w-6 text-destructive hover:text-destructive/90"
+                                                    onClick={() => {
+                                                        const newSections = [...post.sections]
+                                                        newSections.splice(idx, 1)
+                                                        setPost(prev => ({ ...prev, sections: newSections }))
+                                                    }}
+                                                >
+                                                    <TbTrash className="w-3 h-3" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
 

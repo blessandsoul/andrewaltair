@@ -82,16 +82,16 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                 })
             })
 
-            if (res.ok) {
-                alert("პოსტი წარმატებით განახლდა!")
-                router.push("/admin/posts")
-            } else {
+            if (!res.ok) {
                 const error = await res.json()
-                alert(`შეცდომა: ${error.error || 'პოსტის განახლება ვერ მოხერხდა'}`)
+                throw new Error(error.error || 'პოსტის განახლება ვერ მოხერხდა')
             }
-        } catch (error) {
+
+            // Success handled by PostEditor modal
+        } catch (error: any) {
             console.error('Update post error:', error)
-            alert("შეცდომა პოსტის განახლებისას")
+            alert(error.message || "შეცდომა პოსტის განახლებისას")
+            throw error // Re-throw to prevent success modal
         }
     }
 

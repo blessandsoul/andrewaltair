@@ -165,11 +165,7 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
                                 </div>
                                 <span>•</span>
                                 <span>{formatRelativeDate(post.publishedAt)}</span>
-                                <span>•</span>
-                                <span className="flex items-center gap-1">
-                                    <TbClock className="w-4 h-4" />
-                                    {post.readingTime} წთ
-                                </span>
+
                             </div>
                         </div>
                     </div>
