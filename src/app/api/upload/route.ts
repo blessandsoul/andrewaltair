@@ -75,8 +75,9 @@ export async function POST(request: NextRequest) {
         const year = date.getFullYear()
         const month = String(date.getMonth() + 1).padStart(2, '0')
 
-        // Final filename: slug-type.ext (e.g., neuralink-maski-horizontal.jpg)
-        const filename = `${slug}-${type}.${ext}`
+        // Final filename: slug-type-timestamp.ext (e.g., neuralink-maski-horizontal-1767803400123.jpg)
+        const timestamp = Date.now()
+        const filename = `${slug}-${type}-${timestamp}.${ext}`
 
         console.log('Saving file:', filename) // Debug log
 

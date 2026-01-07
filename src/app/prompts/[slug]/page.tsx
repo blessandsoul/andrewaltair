@@ -1,0 +1,351 @@
+import { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import Image from 'next/image'
+import Link from 'next/link'
+import { TbSparkles, TbCopy, TbStar, TbEye, TbDownload, TbShoppingCart, TbArrowLeft, TbBrandTelegram, TbCheck, TbUser, TbCalendar } from 'react-icons/tb'
+
+interface Props {
+    params: Promise<{ slug: string }>
+}
+
+async function getPrompt(slug: string) {
+    try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+        const res = await fetch(`${baseUrl}/api/marketplace-prompts/${slug}`, {
+            next: { revalidate: 60 }
+        })
+        if (!res.ok) return null
+        const data = await res.json()
+        return data.prompt
+    } catch {
+        return null
+    }
+}
+
+async function getRelatedPrompts(category: string, currentSlug: string) {
+    try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+        const res = await fetch(
+            `${baseUrl}/api/marketplace-prompts?category=${category}&status=published&limit=4`,
+            { next: { revalidate: 60 } }
+        )
+        if (!res.ok) return []
+        const data = await res.json()
+        return (data.prompts || []).filter((p: { slug: string }) => p.slug !== currentSlug)
+    } catch {
+        return []
+    }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { slug } = await params
+    const prompt = await getPrompt(slug)
+
+    if (!prompt) {
+        return { title: 'Prompt Not Found' }
+    }
+
+    return {
+        title: `${prompt.title} | AI Prompts`,
+        description: prompt.metaDescription || prompt.excerpt || prompt.description?.substring(0, 160),
+        openGraph: {
+            title: prompt.title,
+            description: prompt.excerpt || prompt.description?.substring(0, 160),
+            images: prompt.coverImage ? [{ url: prompt.coverImage }] : [],
+        }
+    }
+}
+
+export default async function PromptDetailPage({ params }: Props) {
+    const { slug } = await params
+    const prompt = await getPrompt(slug)
+
+    if (!prompt) {
+        notFound()
+    }
+
+    const relatedPrompts = await getRelatedPrompts(prompt.category, prompt.slug)
+
+    return (
+        <div className="min-h-screen py-8 lg:py-12">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+                {/* Back link */}
+                <Link
+                    href="/prompts"
+                    className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-6 transition-colors"
+                >
+                    <TbArrowLeft className="w-4 h-4" />
+                    ყველა პრომპტი
+                </Link>
+
+                <div className="grid lg:grid-cols-3 gap-8">
+                    {/* Main Content */}
+                    <div className="lg:col-span-2 space-y-8">
+                        {/* Gallery */}
+                        <div className="space-y-4">
+                            {/* Main Image */}
+                            <div className="relative aspect-video rounded-xl overflow-hidden bg-muted">
+                                {prompt.coverImage ? (
+                                    <Image
+                                        src={prompt.coverImage}
+                                        alt={prompt.title}
+                                        fill
+                                        className="object-cover"
+                                        priority
+                                    />
+                                ) : (
+                                    <div className="flex items-center justify-center h-full">
+                                        <TbSparkles className="w-16 h-16 text-muted-foreground" />
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Example Images */}
+                            {prompt.exampleImages && prompt.exampleImages.length > 0 && (
+                                <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                                    {prompt.exampleImages.map((img: { src: string; alt?: string }, i: number) => (
+                                        <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-muted cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+                                            <Image
+                                                src={img.src}
+                                                alt={img.alt || `Example ${i + 1}`}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Prompt Template */}
+                        <div className="rounded-xl border bg-card p-6 space-y-4">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-xl font-semibold flex items-center gap-2">
+                                    <TbSparkles className="w-5 h-5 text-primary" />
+                                    Prompt Template
+                                </h2>
+                                {(prompt.isFree || prompt.price === 0) && (
+                                    <button
+                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors"
+                                        onClick={() => navigator.clipboard.writeText(prompt.promptTemplate)}
+                                    >
+                                        <TbCopy className="w-4 h-4" />
+                                        Copy
+                                    </button>
+                                )}
+                            </div>
+
+                            <div className="relative">
+                                <pre className="p-4 rounded-lg bg-muted/50 text-sm overflow-x-auto whitespace-pre-wrap font-mono border">
+                                    {prompt.promptTemplate}
+                                </pre>
+
+                                {!prompt.isFree && prompt.price > 0 && (
+                                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-card via-card/80 to-transparent">
+                                        <div className="text-center">
+                                            <TbShoppingCart className="w-8 h-8 mx-auto mb-2 text-primary" />
+                                            <p className="font-medium">შეიძინეთ სრული პრომპტი</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Variables */}
+                        {prompt.variables && prompt.variables.length > 0 && (
+                            <div className="rounded-xl border bg-card p-6 space-y-4">
+                                <h2 className="text-xl font-semibold">ცვლადები</h2>
+                                <div className="grid sm:grid-cols-2 gap-4">
+                                    {prompt.variables.map((variable: { name: string; description?: string; options?: string[] }, i: number) => (
+                                        <div key={i} className="p-4 rounded-lg bg-muted/50 border">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <span className="px-2 py-0.5 text-xs font-mono bg-primary/10 text-primary rounded">
+                                                    [{variable.name}]
+                                                </span>
+                                            </div>
+                                            {variable.description && (
+                                                <p className="text-sm text-muted-foreground mb-2">{variable.description}</p>
+                                            )}
+                                            {variable.options && variable.options.length > 0 && (
+                                                <div className="flex flex-wrap gap-1">
+                                                    {variable.options.map((opt, j) => (
+                                                        <span key={j} className="px-2 py-0.5 text-xs bg-background rounded border">
+                                                            {opt}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Instructions */}
+                        {prompt.instructions && (
+                            <div className="rounded-xl border bg-card p-6 space-y-4">
+                                <h2 className="text-xl font-semibold">ინსტრუქციები</h2>
+                                <div className="prose prose-invert max-w-none">
+                                    <p className="text-muted-foreground whitespace-pre-wrap">{prompt.instructions}</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Sidebar */}
+                    <div className="space-y-6">
+                        {/* Buy Card */}
+                        <div className="sticky top-24 rounded-xl border bg-card p-6 space-y-4">
+                            <h1 className="text-2xl font-bold">{prompt.title}</h1>
+
+                            {/* Badges */}
+                            <div className="flex flex-wrap gap-2">
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-primary/10 text-primary rounded-full">
+                                    <TbSparkles className="w-3.5 h-3.5" />
+                                    {prompt.aiModel}
+                                </span>
+                                <span className="px-2.5 py-1 text-xs font-medium bg-muted rounded-full">
+                                    {prompt.category}
+                                </span>
+                                <span className="px-2.5 py-1 text-xs font-medium bg-muted rounded-full">
+                                    {prompt.generationType}
+                                </span>
+                            </div>
+
+                            {/* Stats */}
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                <span className="flex items-center gap-1">
+                                    <TbEye className="w-4 h-4" />
+                                    {prompt.views}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                    <TbDownload className="w-4 h-4" />
+                                    {prompt.isFree ? prompt.downloads : prompt.purchases}
+                                </span>
+                                {prompt.rating > 0 && (
+                                    <span className="flex items-center gap-1 text-yellow-500">
+                                        <TbStar className="w-4 h-4 fill-current" />
+                                        {prompt.rating.toFixed(1)} ({prompt.reviewsCount})
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Description */}
+                            <p className="text-muted-foreground text-sm">
+                                {prompt.excerpt || prompt.description?.substring(0, 200)}
+                            </p>
+
+                            {/* Price & CTA */}
+                            <div className="pt-4 border-t space-y-3">
+                                <div className="flex items-baseline gap-2">
+                                    {prompt.isFree || prompt.price === 0 ? (
+                                        <span className="text-3xl font-bold text-green-500">უფასო</span>
+                                    ) : (
+                                        <>
+                                            <span className="text-3xl font-bold">{prompt.price}</span>
+                                            <span className="text-lg text-muted-foreground">{prompt.currency}</span>
+                                            {prompt.originalPrice && (
+                                                <span className="text-lg text-muted-foreground line-through">
+                                                    {prompt.originalPrice} {prompt.currency}
+                                                </span>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+
+                                {prompt.isFree || prompt.price === 0 ? (
+                                    <button className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 text-lg font-semibold bg-green-500 text-white rounded-xl hover:bg-green-600 transition-colors">
+                                        <TbDownload className="w-5 h-5" />
+                                        უფასოდ ჩამოტვირთვა
+                                    </button>
+                                ) : (
+                                    <button className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 text-lg font-semibold bg-gradient-to-r from-primary to-accent text-white rounded-xl hover:opacity-90 transition-opacity">
+                                        <TbShoppingCart className="w-5 h-5" />
+                                        შეძენა
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Features */}
+                            <div className="pt-4 border-t space-y-2">
+                                {[
+                                    'სრული პრომპტი ყველა ცვლადით',
+                                    'დეტალური ინსტრუქციები',
+                                    'უვადო წვდომა',
+                                    'მხარდაჭერა Telegram-ით'
+                                ].map((feature, i) => (
+                                    <div key={i} className="flex items-center gap-2 text-sm">
+                                        <TbCheck className="w-4 h-4 text-green-500 shrink-0" />
+                                        <span>{feature}</span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Author */}
+                            <div className="pt-4 border-t">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                                        <TbUser className="w-5 h-5 text-primary" />
+                                    </div>
+                                    <div>
+                                        <p className="font-medium">{prompt.authorName}</p>
+                                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                            <TbCalendar className="w-3 h-3" />
+                                            {new Date(prompt.createdAt).toLocaleDateString('ka-GE')}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Contact */}
+                            <Link
+                                href="https://t.me/andrewaltair"
+                                target="_blank"
+                                className="flex items-center justify-center gap-2 w-full px-4 py-2 text-sm border rounded-xl hover:bg-muted transition-colors"
+                            >
+                                <TbBrandTelegram className="w-4 h-4" />
+                                კითხვა? დამიკავშირდით Telegram-ზე
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Related Prompts */}
+                {relatedPrompts.length > 0 && (
+                    <section className="mt-16">
+                        <h2 className="text-2xl font-bold mb-6">მსგავსი პრომპტები</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {relatedPrompts.slice(0, 4).map((p: { id: string; slug: string; title: string; coverImage: string; price: number; currency: string; isFree: boolean; aiModel: string }) => (
+                                <Link key={p.id} href={`/prompts/${p.slug}`}>
+                                    <article className="group rounded-xl border bg-card overflow-hidden hover:border-primary/50 transition-all">
+                                        <div className="relative aspect-[4/3] bg-muted">
+                                            {p.coverImage && (
+                                                <Image
+                                                    src={p.coverImage}
+                                                    alt={p.title}
+                                                    fill
+                                                    className="object-cover group-hover:scale-105 transition-transform"
+                                                />
+                                            )}
+                                            <div className="absolute top-2 right-2">
+                                                {p.isFree ? (
+                                                    <span className="px-2 py-0.5 text-xs font-medium bg-green-500 text-white rounded">უფასო</span>
+                                                ) : (
+                                                    <span className="px-2 py-0.5 text-xs font-medium bg-primary text-white rounded">{p.price} {p.currency}</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="p-4">
+                                            <h3 className="font-medium line-clamp-2 group-hover:text-primary transition-colors">{p.title}</h3>
+                                            <span className="text-xs text-muted-foreground">{p.aiModel}</span>
+                                        </div>
+                                    </article>
+                                </Link>
+                            ))}
+                        </div>
+                    </section>
+                )}
+            </div>
+        </div>
+    )
+}

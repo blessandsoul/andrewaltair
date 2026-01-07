@@ -386,7 +386,7 @@ function FullArticle({ post, index }: { post: Post; index: number }) {
                                         <Button size="sm" className="w-full" asChild>
                                             <Link href="/about">
                                                 <TbUser className="w-4 h-4 mr-2" />
-                                                ჩემ შესახებ
+                                                ჩემს შესახებ
                                             </Link>
                                         </Button>
                                     </CardContent>

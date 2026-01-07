@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { TbActivity, TbCheck, TbChevronRight, TbRefresh } from "react-icons/tb";
+import { TbActivity, TbCheck, TbChevronRight, TbRefresh, TbSeeding, TbSchool, TbBolt, TbRocket } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 
 interface Question {
@@ -65,10 +65,10 @@ const QUESTIONS: Question[] = [
 ];
 
 const SCORE_LEVELS = [
-    { min: 0, max: 4, label: 'დამწყები', color: 'from-red-500 to-orange-500', emoji: '🌱', description: 'AI მოგზაურობა ახლა იწყება! დაიწყე ჩვენი მიკრო-გაკვეთილებით.' },
-    { min: 5, max: 8, label: 'მოსწავლე', color: 'from-yellow-500 to-amber-500', emoji: '📚', description: 'კარგი საფუძველი გაქვს! დროა გააღრმავო ცოდნა.' },
-    { min: 9, max: 12, label: 'პრაქტიკოსი', color: 'from-blue-500 to-cyan-500', emoji: '⚡', description: 'AI აქტიურად იყენებ! შეისწავლე მოწინავე ტექნიკები.' },
-    { min: 13, max: 15, label: 'ექსპერტი', color: 'from-purple-500 to-pink-500', emoji: '🚀', description: 'შესანიშნავი! მზად ხარ AI ლიდერობისთვის!' },
+    { min: 0, max: 4, label: 'დამწყები', color: 'from-red-500 to-orange-500', Icon: TbSeeding, description: 'AI მოგზაურობა ახლა იწყება! დაიწყე ჩვენი მიკრო-გაკვეთილებით.' },
+    { min: 5, max: 8, label: 'მოსწავლე', color: 'from-yellow-500 to-amber-500', Icon: TbSchool, description: 'კარგი საფუძველი გაქვს! დროა გააღრმავო ცოდნა.' },
+    { min: 9, max: 12, label: 'პრაქტიკოსი', color: 'from-blue-500 to-cyan-500', Icon: TbBolt, description: 'AI აქტიურად იყენებ! შეისწავლე მოწინავე ტექნიკები.' },
+    { min: 13, max: 15, label: 'ექსპერტი', color: 'from-purple-500 to-pink-500', Icon: TbRocket, description: 'შესანიშნავი! მზად ხარ AI ლიდერობისთვის!' },
 ];
 
 export default function AIHealthScore() {
@@ -107,8 +107,8 @@ export default function AIHealthScore() {
                         <TbActivity className="w-6 h-6 text-purple-400" />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-bold text-white">AI ჯანმრთელობის ქულა</h2>
-                        <p className="text-gray-400 text-sm">შენი შედეგი</p>
+                        <h2 className="text-2xl font-bold text-foreground">AI ჯანმრთელობის ქულა</h2>
+                        <p className="text-muted-foreground text-sm">შენი შედეგი</p>
                     </div>
                 </div>
 
@@ -118,14 +118,16 @@ export default function AIHealthScore() {
                     animate={{ opacity: 1, scale: 1 }}
                     className="text-center py-8"
                 >
-                    <div className="text-6xl mb-4">{level.emoji}</div>
+                    <div className="text-6xl mb-4">
+                        <level.Icon className="w-16 h-16 mx-auto text-foreground" />
+                    </div>
                     <div className={cn(
                         "inline-block px-6 py-2 rounded-full text-lg font-bold mb-4",
                         `bg-gradient-to-r ${level.color} text-white`
                     )}>
                         {level.label}
                     </div>
-                    <div className="text-4xl font-bold text-white mb-2">{totalScore}/{maxScore}</div>
+                    <div className="text-4xl font-bold text-foreground mb-2">{totalScore}/{maxScore}</div>
 
                     {/* Progress Bar */}
                     <div className="max-w-xs mx-auto h-3 bg-gray-700 rounded-full overflow-hidden mb-4">
@@ -137,13 +139,13 @@ export default function AIHealthScore() {
                         />
                     </div>
 
-                    <p className="text-gray-300 max-w-md mx-auto">{level.description}</p>
+                    <p className="text-muted-foreground max-w-md mx-auto">{level.description}</p>
                 </motion.div>
 
                 {/* Reset */}
                 <button
                     onClick={handleReset}
-                    className="w-full py-3 border border-white/10 rounded-xl text-gray-300 hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
+                    className="w-full py-3 border border-border rounded-xl text-muted-foreground hover:bg-muted/50 transition-colors flex items-center justify-center gap-2"
                 >
                     <TbRefresh className="w-4 h-4" />
                     თავიდან გავლა
@@ -163,11 +165,11 @@ export default function AIHealthScore() {
                         <TbActivity className="w-6 h-6 text-purple-400" />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-bold text-white">AI ჯანმრთელობის ტესტი</h2>
-                        <p className="text-gray-400 text-sm">შეაფასე შენი AI მზადყოფნა</p>
+                        <h2 className="text-2xl font-bold text-foreground">AI ჯანმრთელობის ტესტი</h2>
+                        <p className="text-muted-foreground text-sm">შეაფასე შენი AI მზადყოფნა</p>
                     </div>
                 </div>
-                <span className="text-sm text-gray-400">
+                <span className="text-sm text-muted-foreground">
                     {currentQuestion + 1}/{QUESTIONS.length}
                 </span>
             </div>
@@ -188,17 +190,17 @@ export default function AIHealthScore() {
                 animate={{ opacity: 1, x: 0 }}
                 className="space-y-4"
             >
-                <h3 className="text-lg font-medium text-white">{question.text}</h3>
+                <h3 className="text-lg font-medium text-foreground">{question.text}</h3>
 
                 <div className="space-y-2">
                     {question.options.map((option) => (
                         <button
                             key={option.value}
                             onClick={() => handleAnswer(option.value)}
-                            className="w-full p-4 text-left rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-purple-500/50 transition-all group"
+                            className="w-full p-4 text-left rounded-xl border border-border bg-card/50 hover:bg-muted/50 hover:border-purple-500/50 transition-all group"
                         >
                             <div className="flex items-center justify-between">
-                                <span className="text-gray-200">{option.label}</span>
+                                <span className="text-foreground">{option.label}</span>
                                 <TbChevronRight className="w-5 h-5 text-gray-500 group-hover:text-purple-400 transition-colors" />
                             </div>
                         </button>

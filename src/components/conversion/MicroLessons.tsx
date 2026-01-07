@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TbBook, TbClock, TbBolt, TbCheck, TbChevronRight, TbStar, TbTrophy } from "react-icons/tb";
+import { TbBook, TbClock, TbBolt, TbCheck, TbChevronRight, TbStar, TbTrophy, TbX } from "react-icons/tb";
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 
@@ -73,15 +73,15 @@ function LessonCard({
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-white truncate">{lesson.title}</h3>
+                        <h3 className="font-semibold text-foreground truncate">{lesson.title}</h3>
                         <span className={cn("text-xs", difficulty.color)}>
                             {difficulty.label}
                         </span>
                     </div>
-                    <p className="text-gray-400 text-sm line-clamp-2 mb-2">{lesson.description}</p>
+                    <p className="text-muted-foreground text-sm line-clamp-2 mb-2">{lesson.description}</p>
 
                     <div className="flex items-center gap-4 text-xs">
-                        <span className="flex items-center gap-1 text-gray-500">
+                        <span className="flex items-center gap-1 text-muted-foreground">
                             <TbClock className="w-3 h-3" />
                             {Math.floor(lesson.duration / 60)} წთ
                         </span>
@@ -168,9 +168,9 @@ function LessonViewer({
                         </div>
                         <button
                             onClick={onClose}
-                            className="text-gray-400 hover:text-white transition-colors"
+                            className="text-muted-foreground hover:text-foreground transition-colors"
                         >
-                            ✕
+                            <TbX className="w-5 h-5" />
                         </button>
                     </div>
                 </div>
@@ -282,10 +282,13 @@ export default function MicroLessons() {
 
     if (!user) {
         return (
-            <div className="text-center p-8 border border-white/10 rounded-2xl bg-white/5">
-                <TbBook className="w-12 h-12 mx-auto mb-4 text-purple-400" />
-                <h3 className="text-xl font-bold mb-2">⚡ მიკრო-გაკვეთილები</h3>
-                <p className="text-gray-400">გაიარე ავტორიზაცია სწავლის დასაწყებად</p>
+            <div className="text-center p-8 border border-border rounded-2xl bg-card/50">
+                <TbBook className="w-12 h-12 mx-auto mb-4 text-purple-500" />
+                <div className="flex items-center justify-center gap-2 mb-2">
+                    <TbBolt className="w-5 h-5 text-yellow-500" />
+                    <h3 className="text-xl font-bold text-foreground">მიკრო-გაკვეთილები</h3>
+                </div>
+                <p className="text-muted-foreground">გაიარე ავტორიზაცია სწავლის დასაწყებად</p>
             </div>
         );
     }
@@ -301,8 +304,8 @@ export default function MicroLessons() {
                         <TbBook className="w-6 h-6 text-purple-400" />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-bold text-white">მიკრო-გაკვეთილები</h2>
-                        <p className="text-gray-400 text-sm">2-წუთიანი AI გაკვეთილები</p>
+                        <h2 className="text-2xl font-bold text-foreground">მიკრო-გაკვეთილები</h2>
+                        <p className="text-muted-foreground text-sm">2-წუთიანი AI გაკვეთილები</p>
                     </div>
                 </div>
 
@@ -317,8 +320,8 @@ export default function MicroLessons() {
             {/* Progress */}
             <div className="p-4 rounded-xl bg-white/5 border border-white/10">
                 <div className="flex items-center justify-between mb-2 text-sm">
-                    <span className="text-gray-400">პროგრესი</span>
-                    <span className="text-white font-medium">{completedCount}/{lessons.length}</span>
+                    <span className="text-muted-foreground">პროგრესი</span>
+                    <span className="text-foreground font-medium">{completedCount}/{lessons.length}</span>
                 </div>
                 <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
                     <div
@@ -330,9 +333,9 @@ export default function MicroLessons() {
 
             {/* Lessons List */}
             {lessons.length === 0 ? (
-                <div className="text-center p-8 border border-white/10 rounded-2xl bg-white/5">
-                    <TbBook className="w-12 h-12 mx-auto mb-4 text-gray-500" />
-                    <p className="text-gray-400">გაკვეთილები მალე გამოჩნდება</p>
+                <div className="text-center p-8 border border-border rounded-2xl bg-card/50">
+                    <TbBook className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground">გაკვეთილები მალე გამოჩნდება</p>
                 </div>
             ) : (
                 <div className="space-y-3">

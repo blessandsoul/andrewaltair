@@ -118,14 +118,17 @@ export default function MysteryBox() {
     };
 
     if (authLoading || loading) {
-        return <div className="animate-pulse bg-white/5 h-64 rounded-2xl"></div>;
+        return <div className="animate-pulse bg-muted/50 h-64 rounded-2xl"></div>;
     }
 
     if (!user) {
         return (
-            <div className="w-full max-w-sm mx-auto p-6 relative border border-white/10 rounded-2xl bg-white/5 text-center">
-                <h3 className="text-xl font-bold mb-2">🎁 Mystery TbBox</h3>
-                <p className="text-gray-400 mb-4">გაიარე ავტორიზაცია საჩუქრის მისაღებად</p>
+            <div className="w-full max-w-sm mx-auto p-6 relative border border-border rounded-2xl bg-card/50 text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                    <TbGift className="w-6 h-6 text-purple-500" />
+                    <h3 className="text-xl font-bold text-foreground">Mystery Box</h3>
+                </div>
+                <p className="text-muted-foreground mb-4">გაიარე ავტორიზაცია საჩუქრის მისაღებად</p>
             </div>
         );
     }
@@ -136,7 +139,7 @@ export default function MysteryBox() {
                 <h3 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
                     დღიური საჩუქარი
                 </h3>
-                <p className="text-gray-400 text-sm mt-2">
+                <p className="text-muted-foreground text-sm mt-2">
                     გახსენი ყუთი ყოველ 24 საათში და მიიღე პრიზები
                 </p>
             </div>
@@ -171,7 +174,7 @@ export default function MysteryBox() {
                         <motion.div
                             initial={{ scale: 0, rotate: 180 }}
                             animate={{ scale: 1, rotate: 0 }}
-                            className="relative z-10 w-full bg-slate-800/50 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center"
+                            className="relative z-10 w-full bg-card/80 backdrop-blur-xl border border-border rounded-2xl p-6 text-center"
                         >
                             <motion.div
                                 initial={{ scale: 0 }}
@@ -182,8 +185,8 @@ export default function MysteryBox() {
                                 {reward?.icon}
                             </motion.div>
 
-                            <h4 className="text-xl font-bold text-white mb-1">{reward?.value}</h4>
-                            <p className="text-purple-300 text-sm mb-4">{reward?.label}</p>
+                            <h4 className="text-xl font-bold text-foreground mb-1">{reward?.value}</h4>
+                            <p className="text-purple-400 dark:text-purple-300 text-sm mb-4">{reward?.label}</p>
 
                             <button
                                 onClick={(e) => { e.stopPropagation(); setIsOpen(false); checkAvailability(); }}
@@ -224,9 +227,9 @@ export default function MysteryBox() {
 
             {!canClaim && !isOpen && (
                 <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
-                    <div className="bg-black/80 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10 flex items-center gap-2">
-                        <TbClock className="w-4 h-4 text-purple-400" />
-                        <span className="text-sm font-mono text-white">{timeLeft}</span>
+                    <div className="bg-background/80 backdrop-blur-sm px-4 py-2 rounded-full border border-border flex items-center gap-2">
+                        <TbClock className="w-4 h-4 text-purple-500" />
+                        <span className="text-sm font-mono text-foreground">{timeLeft}</span>
                     </div>
                 </div>
             )}

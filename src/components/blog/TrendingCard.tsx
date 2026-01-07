@@ -15,6 +15,10 @@ interface Post {
     excerpt: string
     category: string
     coverImage?: string
+    coverImages?: {
+        horizontal?: string
+        vertical?: string
+    }
     tags: string[]
     author: {
         name: string
@@ -85,9 +89,9 @@ export function TrendingCard({ post, rank }: TrendingCardProps) {
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10" />
 
                         {/* TbPhoto */}
-                        {post.coverImage ? (
+                        {(post.coverImage || post.coverImages?.horizontal) ? (
                             <TbPhoto
-                                src={post.coverImage}
+                                src={post.coverImages?.horizontal || post.coverImage || ''}
                                 alt={post.title}
                                 fill
                                 className="object-cover transition-transform duration-700 group-hover:scale-110"

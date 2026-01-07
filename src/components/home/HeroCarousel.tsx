@@ -34,6 +34,10 @@ interface Post {
     title: string
     excerpt: string
     coverImage?: string
+    coverImages?: {
+        horizontal?: string
+        vertical?: string
+    }
     category?: string
     trending?: boolean
     featured?: boolean
@@ -92,9 +96,9 @@ export function HeroCarousel({ posts, autoPlayInterval = 5000 }: HeroCarouselPro
             <Card className="relative glass-strong rounded-3xl overflow-hidden hover-lift group">
                 <CardContent className="p-0">
                     <div className="aspect-video bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center relative overflow-hidden">
-                        {currentPost.coverImage ? (
+                        {(currentPost.coverImage || currentPost.coverImages?.horizontal) ? (
                             <Image
-                                src={currentPost.coverImage}
+                                src={currentPost.coverImages?.horizontal || currentPost.coverImage || ''}
                                 alt={currentPost.title}
                                 fill
                                 className="object-cover group-hover:scale-105 transition-transform duration-500"

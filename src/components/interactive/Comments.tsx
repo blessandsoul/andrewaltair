@@ -9,6 +9,7 @@ import { useToast } from "@/components/ui/toast"
 import { TbMessage, TbHeart, TbArrowBackUp, TbSend, TbClock } from "react-icons/tb"
 import { cn } from "@/lib/utils"
 import { useVisitorTracking } from "@/hooks/useVisitorTracking"
+import { useAuth } from "@/lib/auth"
 
 // 🎭 სასაცილო ავატარები კომენტატორებისთვის
 const funnyAvatars = [
@@ -171,6 +172,14 @@ export function Comments({ postId, postTitle, className }: CommentsProps) {
     const [isSubmitting, setIsSubmitting] = React.useState(false)
     const toast = useToast()
     const { recordActivity } = useVisitorTracking()
+    const { user } = useAuth()
+
+    // Set author name from authenticated user
+    React.useEffect(() => {
+        if (user) {
+            setAuthorName(user.fullName || user.username)
+        }
+    }, [user])
 
     // Load comments from API on mount
     React.useEffect(() => {
@@ -214,7 +223,7 @@ export function Comments({ postId, postTitle, className }: CommentsProps) {
                     postId,
                     author: {
                         name: authorName,
-                        avatar: getRandomAvatar()
+                        avatar: user?.avatar || getRandomAvatar()
                     },
                     content: newComment
                 })
@@ -231,7 +240,7 @@ export function Comments({ postId, postTitle, className }: CommentsProps) {
                 })
 
                 setNewComment("")
-                setAuthorName("")
+                if (!user) setAuthorName("") // Only reset name for guests
                 toast.success(
                     'კომენტარი გაიგზავნა!',
                     'მოდერაციის შემდეგ გამოჩნდება საიტზე'
@@ -271,12 +280,19 @@ export function Comments({ postId, postTitle, className }: CommentsProps) {
 
             {/* New Comment Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
-                <Input
-                    value={authorName}
-                    onChange={(e) => setAuthorName(e.target.value)}
-                    placeholder="შენი სახელი..."
-                    required
-                />
+                {user ? (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <span>კომენტარი როგორც:</span>
+                        <Badge variant="secondary">{authorName}</Badge>
+                    </div>
+                ) : (
+                    <Input
+                        value={authorName}
+                        onChange={(e) => setAuthorName(e.target.value)}
+                        placeholder="შენი სახელი..."
+                        required
+                    />
+                )}
                 <Textarea
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}

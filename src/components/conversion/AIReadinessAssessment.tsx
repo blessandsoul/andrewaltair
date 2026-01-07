@@ -64,7 +64,7 @@ export default function AIReadinessAssessment() {
                     </div>
                 </div>
 
-                <button onClick={() => { setShowResult(false); setCurrentQ(0); setAnswers({}); }} className="w-full py-3 border border-white/10 rounded-xl text-gray-300 hover:bg-white/5 transition-colors">
+                <button onClick={() => { setShowResult(false); setCurrentQ(0); setAnswers({}); }} className="w-full py-3 border border-border rounded-xl text-muted-foreground hover:bg-muted/50 transition-colors">
                     თავიდან გავლა
                 </button>
             </motion.div>
@@ -81,11 +81,11 @@ export default function AIReadinessAssessment() {
                         <TbClipboardCheck className="w-6 h-6 text-blue-400" />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-bold text-white">AI მზადყოფნის ტესტი</h2>
-                        <p className="text-gray-400 text-sm">კომპანიის შეფასება</p>
+                        <h2 className="text-2xl font-bold text-foreground">AI მზადყოფნის ტესტი</h2>
+                        <p className="text-muted-foreground text-sm">კომპანიის შეფასება</p>
                     </div>
                 </div>
-                <span className="text-sm text-gray-400">{currentQ + 1}/{QUESTIONS.length}</span>
+                <span className="text-sm text-muted-foreground">{currentQ + 1}/{QUESTIONS.length}</span>
             </div>
 
             <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
@@ -94,12 +94,12 @@ export default function AIReadinessAssessment() {
 
             <motion.div key={q.id} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
                 <div className="text-xs text-blue-400 uppercase tracking-wide">{q.category}</div>
-                <h3 className="text-lg font-medium text-white">{q.question}</h3>
+                <h3 className="text-lg font-medium text-foreground">{q.question}</h3>
                 <div className="space-y-2">
                     {q.options.map(opt => (
-                        <button key={opt.value} onClick={() => handleAnswer(opt.value)} className="w-full p-4 text-left rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-blue-500/50 transition-all group">
+                        <button key={opt.value} onClick={() => handleAnswer(opt.value)} className="w-full p-4 text-left rounded-xl border border-border bg-card/50 hover:bg-muted/50 hover:border-blue-500/50 transition-all group">
                             <div className="flex items-center justify-between">
-                                <span className="text-gray-200">{opt.label}</span>
+                                <span className="text-foreground">{opt.label}</span>
                                 <TbChevronRight className="w-5 h-5 text-gray-500 group-hover:text-blue-400 transition-colors" />
                             </div>
                         </button>

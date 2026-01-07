@@ -115,7 +115,7 @@ const FEATURE_SECTIONS = [
     { id: "history", name: "ისტორია", icon: ClockCounterClockwise, color: "#3b82f6" },
     { id: "leaderboard", name: "რეიტინგი", icon: Trophy, color: "#f59e0b" },
     { id: "achievements", name: "ბეჯები", icon: Medal, color: "#ec4899" },
-    { id: "about", name: "ჩემ შესახებ", icon: User, color: "#22c55e" },
+    { id: "about", name: "ჩემს შესახებ", icon: User, color: "#22c55e" },
 ]
 
 // WOW Cosmic Background with nebula and stars

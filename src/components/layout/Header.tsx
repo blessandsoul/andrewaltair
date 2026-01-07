@@ -10,7 +10,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
-import { TbRobot, TbBook, TbVideo, TbSettings, TbBulb, TbBriefcase, TbShoppingBag, TbInfoCircle, TbUser, TbSearch, TbMenu2, TbX, TbLogin, TbUserPlus, TbLogout, TbChevronDown, TbSparkles, TbShield, TbCrown } from "react-icons/tb"
+import { TbRobot, TbBook, TbVideo, TbSettings, TbBulb, TbBriefcase, TbShoppingBag, TbInfoCircle, TbUser, TbSearch, TbMenu2, TbX, TbLogin, TbUserPlus, TbLogout, TbChevronDown, TbSparkles, TbShield, TbCrown, TbGift, TbActivity, TbClipboardCheck } from "react-icons/tb"
 import { useState } from "react"
 import { ThemeToggle } from "./ThemeToggle"
 import { SearchDialog, useSearchDialog } from "@/components/interactive/SearchDialog"
@@ -25,13 +25,10 @@ const readyItems = [
   { href: "/products", label: "პროდუქტები", icon: TbShoppingBag, description: "კურსები და ტემპლეიტები" },
   { href: "/quiz", label: "ქვიზი", icon: TbInfoCircle, description: "იპოვე შენი AI" },
   { href: "/bots", label: "ბოტები", icon: TbRobot, description: "AI ჩატბოტები" },
-  { href: "/about", label: "ჩემ შესახებ", icon: TbUser, description: "Andrew Altair" },
+  { href: "/about", label: "ჩემს შესახებ", icon: TbUser, description: "Andrew Altair" },
 ]
 
-// Demo/WIP Features - shown in demo-features page
-const demoItems = [
-  { href: "/new-features", label: "ახალი ფუნქციები", icon: TbSparkles, description: "20 კონვერსიის კომპონენტი" },
-]
+// Demo items removed - modules now have dedicated pages
 
 // Legacy arrays for backward compat, but we now use readyItems  
 const contentItems = [
@@ -39,6 +36,7 @@ const contentItems = [
   { href: "/blog", label: "ბლოგი", icon: TbBook, description: "სტატიები და სიახლეები" },
   { href: "/videos", label: "ვიდეოები", icon: TbVideo, description: "YouTube ტუტორიალები" },
   { href: "/prompt-builder", label: "Prompt Builder", icon: TbSparkles, description: "AI პრომპტის შემქმნელი" },
+  { href: "/prompts", label: "პრომპტების მაღაზია", icon: TbShoppingBag, description: "AI პრომპტების მარკეტპლეისი" },
 ]
 
 const servicesItems = [
@@ -48,11 +46,14 @@ const servicesItems = [
   { href: "/products", label: "პროდუქტები", icon: TbShoppingBag, description: "კურსები და ტემპლეიტები" },
   { href: "/quiz", label: "AI ქვიზი", icon: TbInfoCircle, description: "იპოვე შენი AI" },
   { href: "/bots", label: "AI ბოტები", icon: TbRobot, description: "ჩატბოტები" },
+  { href: "/mystery-box", label: "საჩუქრის ყუთი", icon: TbGift, description: "ყოველდღიური პრიზები" },
+  { href: "/lessons", label: "მიკრო-გაკვეთილები", icon: TbBook, description: "სწრაფი AI სწავლება" },
+  { href: "/ai-health", label: "AI ჯანმრთელობა", icon: TbActivity, description: "შეაფასე AI მზადყოფნა" },
+  { href: "/ai-readiness", label: "AI მზადყოფნა", icon: TbClipboardCheck, description: "ბიზნეს შეფასება" },
 ]
 
 const aboutItems = [
-  { href: "/about", label: "ჩემ შესახებ", icon: TbUser, description: "Andrew Altair" },
-  { href: "/demo-features", label: "დემო ფიჩერები", icon: TbSparkles, description: "WIP კომპონენტები" },
+  { href: "/about", label: "ჩემს შესახებ", icon: TbUser, description: "Andrew Altair" },
 ]
 
 // All items for mobile

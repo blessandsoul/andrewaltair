@@ -1,5 +1,6 @@
 import Link from "next/link"
-import { TbRobot,
+import {
+  TbRobot,
   TbMail,
   TbBrandGithub,
   TbBrandTwitter,
@@ -7,7 +8,8 @@ import { TbRobot,
   TbBrandInstagram,
   TbBrandYoutube,
   TbSend,
-  TbExternalLink } from "react-icons/tb"
+  TbExternalLink
+} from "react-icons/tb"
 import { brand } from "@/lib/brand"
 
 export function Footer() {
@@ -74,7 +76,7 @@ export function Footer() {
                 </li>
                 <li>
                   <Link href="/about" className="text-muted-foreground hover:text-foreground transition-colors">
-                    ჩემ შესახებ
+                    ჩემს შესახებ
                   </Link>
                 </li>
               </ul>
