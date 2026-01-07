@@ -365,7 +365,7 @@ AI-ასისტირებული პროგრამირების�
         {
             id: "tools-ranking",
             title: "ინსტრუმენტების რეიტინგი 2025",
-            icon: "🏆",
+            icon: "🏆", // Keeping for backward compatibility if needed elsewhere, but ignored in Sidebar
             articles: [
                 {
                     id: "tools-matrix-2025",

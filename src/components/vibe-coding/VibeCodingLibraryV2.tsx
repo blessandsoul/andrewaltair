@@ -6,16 +6,17 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Lock,
-    LockOpen,
-    MagnifyingGlass,
-    List,
-    X,
-    CaretLeft,
-    CaretRight,
-    TelegramLogo,
-    Book
-} from '@phosphor-icons/react';
+    TbLock,
+    TbLockOpen,
+    TbSearch,
+    TbList,
+    TbX,
+    TbChevronLeft,
+    TbChevronRight,
+    TbBrandTelegram,
+    TbBook,
+    TbRocket
+} from 'react-icons/tb';
 import ReactMarkdown from 'react-markdown';
 import {
     VIBE_CODING_DATA,
@@ -193,14 +194,18 @@ function ArticleViewer({
 
                         {/* Lock message */}
                         <div className="relative z-10 text-center py-16 px-6" style={{ backgroundColor: '#fafafa' }}>
-                            <Lock size={56} className="mx-auto text-primary mb-4" weight="duotone" />
-                            <h3 className="text-2xl font-bold mb-2">🔒 კითხვის გაგრძელება</h3>
+                            <TbLock size={56} className="mx-auto text-primary mb-4" />
+                            <div className="flex items-center justify-center gap-2 mb-2">
+                                <TbLock size={24} className="text-primary" />
+                                <h3 className="text-2xl font-bold">კითხვის გაგრძელება</h3>
+                            </div>
                             <p className="text-muted-foreground mb-6 text-lg">დარჩენილია ექსკლუზიური მასალის 85%</p>
                             <button
                                 onClick={onUnlock}
-                                className="px-8 py-3 rounded-xl bg-gradient-to-r from-primary to-purple-500 text-white font-medium hover:scale-105 transition-transform shadow-lg"
+                                className="px-8 py-3 rounded-xl bg-gradient-to-r from-primary to-purple-500 text-white font-medium hover:scale-105 transition-transform shadow-lg flex items-center gap-2 mx-auto"
                             >
-                                🚀 სრული წვდომა
+                                <TbRocket size={20} />
+                                სრული წვდომა
                             </button>
                         </div>
                     </div>
@@ -215,7 +220,7 @@ function ArticleViewer({
                             onClick={() => onNavigate(prev.id)}
                             className="flex items-center gap-2 px-4 py-3 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors text-sm flex-1 max-w-[200px] group"
                         >
-                            <CaretLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+                            <TbChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
                             <span className="truncate">{prev.title}</span>
                         </button>
                     ) : (
@@ -232,9 +237,9 @@ function ArticleViewer({
                         >
                             <span className="truncate">{next.title}</span>
                             {next.isFree ? (
-                                <CaretRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                                <TbChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
                             ) : (
-                                <Lock size={20} />
+                                <TbLock size={20} />
                             )}
                         </button>
                     ) : (
@@ -456,7 +461,7 @@ export default function VibeCodingLibraryV2() {
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 className="fixed top-4 left-4 z-50 lg:hidden p-3 rounded-xl bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg"
             >
-                {isSidebarOpen ? <X size={24} /> : <List size={24} />}
+                {isSidebarOpen ? <TbX size={24} /> : <TbList size={24} />}
             </button>
 
             {/* Desktop Collapse/Expand Button */}
@@ -469,9 +474,9 @@ export default function VibeCodingLibraryV2() {
                 }}
             >
                 {isSidebarCollapsed ? (
-                    <CaretRight size={20} weight="bold" />
+                    <TbChevronRight size={20} />
                 ) : (
-                    <CaretLeft size={20} weight="bold" />
+                    <TbChevronLeft size={20} />
                 )}
             </button>
 
@@ -493,7 +498,7 @@ export default function VibeCodingLibraryV2() {
                     <div className="p-6" style={{ borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
                         <div className="flex items-center gap-3 mb-4">
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                                <Book size={24} className="text-white" weight="fill" />
+                                <TbBook size={24} className="text-white" />
                             </div>
                             <div>
                                 <h1 className="text-xl font-bold" style={{ background: 'linear-gradient(to right, #7c3aed, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
@@ -505,9 +510,9 @@ export default function VibeCodingLibraryV2() {
                             </div>
                         </div>
 
-                        {/* TbSearch */}
+                        {/* Search */}
                         <div className="relative">
-                            <MagnifyingGlass size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <TbSearch size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                             <input
                                 type="text"
                                 placeholder="ძიება (ან #ID)..."
@@ -550,9 +555,9 @@ export default function VibeCodingLibraryV2() {
                                         >
                                             <span className="truncate">{article.title}</span>
                                             {article.isFree ? (
-                                                <LockOpen size={16} className="text-green-500 shrink-0" />
+                                                <TbLockOpen size={16} className="text-green-500 shrink-0" />
                                             ) : (
-                                                <Lock size={16} className="text-orange-500 shrink-0" />
+                                                <TbLock size={16} className="text-orange-500 shrink-0" />
                                             )}
                                         </Link>
                                     ))}
@@ -569,7 +574,7 @@ export default function VibeCodingLibraryV2() {
                             rel="noopener noreferrer"
                             className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-medium hover:from-blue-600 hover:to-blue-700 transition-all"
                         >
-                            <TelegramLogo size={18} weight="fill" />
+                            <TbBrandTelegram size={18} />
                             შეიძინე პრემიუმი
                         </a>
                     </div>
@@ -599,7 +604,7 @@ export default function VibeCodingLibraryV2() {
                         ) : (
                             <div className="flex items-center justify-center h-full min-h-[60vh]">
                                 <div className="text-center">
-                                    <Book size={64} className="mx-auto text-muted-foreground mb-4" />
+                                    <TbBook size={64} className="mx-auto text-muted-foreground mb-4" />
                                     <p className="text-muted-foreground">აირჩიეთ სტატია წასაკითხად</p>
                                 </div>
                             </div>
@@ -638,12 +643,12 @@ export default function VibeCodingLibraryV2() {
                                     }}
                                     className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
                                 >
-                                    <X size={24} weight="bold" />
+                                    <TbX size={24} />
                                 </button>
 
                                 <div className="flex justify-center mb-6">
                                     <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center">
-                                        <Lock size={40} className="text-primary" weight="duotone" />
+                                        <TbLock size={40} className="text-primary" />
                                     </div>
                                 </div>
 
@@ -690,7 +695,7 @@ export default function VibeCodingLibraryV2() {
                                         rel="noopener noreferrer"
                                         className="flex items-center justify-center gap-3 w-full py-3 px-6 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium hover:from-blue-600 hover:to-blue-700 transition-all hover:scale-[1.02] active:scale-[0.98]"
                                     >
-                                        <TelegramLogo size={24} weight="fill" />
+                                        <TbBrandTelegram size={24} />
                                         კოდის მიღება ადმინისტრატორისგან
                                     </a>
                                 </div>

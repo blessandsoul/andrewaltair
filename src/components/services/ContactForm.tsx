@@ -38,19 +38,24 @@ interface Service {
 
 interface ContactFormProps {
     services: Service[]
+    defaultValues?: {
+        service?: string
+        message?: string
+        budget?: string
+    }
 }
 
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error'
 type Urgency = 'low' | 'medium' | 'high' | 'urgent'
 
-export function ContactForm({ services }: ContactFormProps) {
+export function ContactForm({ services, defaultValues }: ContactFormProps) {
     const [formData, setFormData] = React.useState({
         name: "",
         email: "",
         phone: "",
-        service: "",
-        budget: "",
-        message: "",
+        service: defaultValues?.service || "",
+        budget: defaultValues?.budget || "",
+        message: defaultValues?.message || "",
         urgency: "medium" as Urgency
     })
     const [status, setStatus] = React.useState<FormStatus>('idle')
@@ -270,8 +275,8 @@ export function ContactForm({ services }: ContactFormProps) {
                                         type="button"
                                         onClick={() => setFormData({ ...formData, urgency: option.value as Urgency })}
                                         className={`p-4 rounded-xl border-2 text-center transition-all duration-200 ${formData.urgency === option.value
-                                                ? `${option.bgColor} ${option.color} font-semibold scale-105 shadow-lg`
-                                                : `bg-secondary/20 border-border/30 text-muted-foreground ${option.hoverBg}`
+                                            ? `${option.bgColor} ${option.color} font-semibold scale-105 shadow-lg`
+                                            : `bg-secondary/20 border-border/30 text-muted-foreground ${option.hoverBg}`
                                             }`}
                                     >
                                         <option.icon className={`w-6 h-6 mx-auto mb-2 ${formData.urgency === option.value ? option.color : 'text-muted-foreground'}`} />

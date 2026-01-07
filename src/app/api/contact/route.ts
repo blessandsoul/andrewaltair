@@ -8,6 +8,7 @@ interface ContactFormData {
     budget?: string
     message: string
     urgency?: string
+    social?: string
 }
 
 export async function POST(request: NextRequest) {
@@ -49,6 +50,7 @@ ${urgencyEmoji} *პრიორიტეტი:* ${data.urgency === 'urgent' ? 
 👤 *სახელი:* ${escapeMarkdown(data.name)}
 📧 *ელ-ფოსტა:* ${escapeMarkdown(data.email)}
 ${data.phone ? `📱 *ტელეფონი:* ${escapeMarkdown(data.phone)}` : ''}
+${data.social ? `🔗 *სოც. ქსელი:* ${escapeMarkdown(data.social)}` : ''}
 
 🎯 *სერვისი:* ${escapeMarkdown(data.service || 'არ არის მითითებული')}
 ${data.budget ? `💰 *ბიუჯეტი:* ${escapeMarkdown(data.budget)}` : ''}

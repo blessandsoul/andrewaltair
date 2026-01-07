@@ -2,21 +2,25 @@
 
 import { motion } from 'framer-motion';
 import {
-    Book,
-    VideoCamera,
-    Sparkle,
-    ArrowRight,
-    Lock,
-    CheckCircle,
-    Star,
-    Gift,
-    Share,
-    Users,
-    Calendar,
-    Trophy,
-    Download,
-    TelegramLogo
-} from '@phosphor-icons/react';
+    TbBook,
+    TbVideo,
+    TbSparkles,
+    TbArrowRight,
+    TbLock,
+    TbCircleCheck,
+    TbStar,
+    TbGift,
+    TbUsers,
+    TbCalendar,
+    TbBrandTelegram,
+    TbCheck,
+    TbX,
+    TbBulb,
+    TbRocket,
+    TbDeviceLaptop,
+    TbChartBar,
+    TbClock
+} from 'react-icons/tb';
 import { useState } from 'react';
 import Link from 'next/link';
 
@@ -41,12 +45,12 @@ export default function EncyclopediaPage() {
                     className="text-center mb-16"
                 >
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 border border-purple-200 mb-6">
-                        <Book size={20} className="text-purple-600" weight="fill" />
+                        <TbBook size={20} className="text-purple-600" />
                         <span className="text-sm font-medium text-purple-700">სრული ენციკლოპედია AI და პროგრამირებაზე</span>
                     </div>
 
-                    <h1 className="text-5xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 bg-clip-text text-transparent leading-tight pb-2">
-                        📚 ენციკლოპედია
+                    <h1 className="text-5xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 bg-clip-text text-transparent leading-tight pb-2 flex items-center justify-center gap-4">
+                        <TbBook className="text-purple-600" /> ენციკლოპედია
                     </h1>
 
                     <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
@@ -68,10 +72,10 @@ export default function EncyclopediaPage() {
                             <div className="bg-white rounded-2xl shadow-xl p-8 border border-purple-100 hover:shadow-2xl transition-all hover:scale-[1.02] cursor-pointer h-full">
                                 <div className="flex items-start justify-between mb-6">
                                     <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                                        <Book size={32} className="text-white" weight="fill" />
+                                        <TbBook size={32} className="text-white" />
                                     </div>
                                     <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 border border-green-200">
-                                        <CheckCircle size={16} className="text-green-600" weight="fill" />
+                                        <TbCircleCheck size={16} className="text-green-600" />
                                         <span className="text-xs font-semibold text-green-700">ხელმისაწვდომი</span>
                                     </div>
                                 </div>
@@ -87,26 +91,26 @@ export default function EncyclopediaPage() {
 
                                 <div className="space-y-3 mb-6">
                                     {[
-                                        '📖 12+ დეტალური სტატია',
-                                        '🎯 Andrej Karpathy ანალიზი',
-                                        '🛠️ 2025 ინსტრუმენტების რეიტინგი',
-                                        '💡 Prompting სტრატეგიები',
-                                        '🚀 Production-ready case studies'
+                                        { icon: TbBook, text: '12+ დეტალური სტატია' },
+                                        { icon: TbChartBar, text: 'Andrej Karpathy ანალიზი' },
+                                        { icon: TbDeviceLaptop, text: '2025 ინსტრუმენტების რეიტინგი' },
+                                        { icon: TbBulb, text: 'Prompting სტრატეგიები' },
+                                        { icon: TbRocket, text: 'Production-ready case studies' }
                                     ].map((item, idx) => (
                                         <div key={idx} className="flex items-center gap-2 text-sm text-gray-700">
-                                            <CheckCircle size={18} className="text-purple-500 shrink-0" weight="fill" />
-                                            <span>{item}</span>
+                                            <item.icon size={18} className="text-purple-500 shrink-0" />
+                                            <span>{item.text}</span>
                                         </div>
                                     ))}
                                 </div>
 
                                 <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                                     <div className="flex items-center gap-2">
-                                        <Star size={20} className="text-yellow-400" weight="fill" />
+                                        <TbStar size={20} className="text-yellow-400 fill-yellow-400" />
                                         <span className="font-semibold text-gray-900">4.9/5</span>
                                         <span className="text-sm text-gray-500">(2,847 მომხმარებელი)</span>
                                     </div>
-                                    <ArrowRight size={24} className="text-purple-600 group-hover:translate-x-2 transition-transform" weight="bold" />
+                                    <TbArrowRight size={24} className="text-purple-600 group-hover:translate-x-2 transition-transform" />
                                 </div>
                             </div>
                         </Link>
@@ -122,10 +126,10 @@ export default function EncyclopediaPage() {
                         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200 h-full opacity-75">
                             <div className="flex items-start justify-between mb-6">
                                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                                    <VideoCamera size={32} className="text-white" weight="fill" />
+                                    <TbVideo size={32} className="text-white" />
                                 </div>
                                 <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 border border-orange-200">
-                                    <Calendar size={16} className="text-orange-600" weight="fill" />
+                                    <TbCalendar size={16} className="text-orange-600" />
                                     <span className="text-xs font-semibold text-orange-700">მალე</span>
                                 </div>
                             </div>
@@ -141,31 +145,31 @@ export default function EncyclopediaPage() {
 
                             <div className="space-y-3 mb-6">
                                 {[
-                                    '🎥 50+ ვიდეო ტუტორიალი',
-                                    '⏱️ 20+ საათი კონტენტი',
-                                    '🎬 Screen recordings',
-                                    '💻 კოდის მაგალითები',
-                                    '📝 ქვიზები და დავალებები'
+                                    { icon: TbVideo, text: '50+ ვიდეო ტუტორიალი' },
+                                    { icon: TbClock, text: '20+ საათი კონტენტი' },
+                                    { icon: TbDeviceLaptop, text: 'Screen recordings' },
+                                    { icon: TbBook, text: 'კოდის მაგალითები' },
+                                    { icon: TbCheck, text: 'ქვიზები და დავალებები' }
                                 ].map((item, idx) => (
                                     <div key={idx} className="flex items-center gap-2 text-sm text-gray-500">
-                                        <div className="w-[18px] h-[18px] rounded-full border-2 border-gray-300 shrink-0" />
-                                        <span>{item}</span>
+                                        <item.icon size={18} className="shrink-0" />
+                                        <span>{item.text}</span>
                                     </div>
                                 ))}
                             </div>
 
                             <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                                 <div className="flex items-center gap-2">
-                                    <Calendar size={20} className="text-orange-500" weight="fill" />
+                                    <TbCalendar size={20} className="text-orange-500" />
                                     <span className="font-semibold text-gray-700">იანვარი 2026</span>
                                 </div>
-                                <Lock size={24} className="text-gray-400" weight="fill" />
+                                <TbLock size={24} className="text-gray-400" />
                             </div>
 
                             {/* Coming Soon Overlay */}
                             <div className="absolute inset-0 bg-gradient-to-br from-white/60 to-white/40 backdrop-blur-[2px] rounded-2xl flex items-center justify-center">
                                 <div className="text-center">
-                                    <Sparkle size={48} className="mx-auto mb-3 text-orange-500" weight="fill" />
+                                    <TbSparkles size={48} className="mx-auto mb-3 text-orange-500" />
                                     <p className="text-2xl font-bold text-gray-900">მალე დაემატება</p>
                                     <p className="text-sm text-gray-600 mt-1">იანვარი 2026</p>
                                 </div>
@@ -183,9 +187,9 @@ export default function EncyclopediaPage() {
                 >
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                            <Gift size={24} className="text-white" weight="fill" />
+                            <TbGift size={24} className="text-white" />
                         </div>
-                        <h2 className="text-3xl font-bold text-gray-900">💎 რას იღებთ Vibe Coding წვდომით</h2>
+                        <h2 className="text-3xl font-bold text-gray-900">რას იღებთ Vibe Coding წვდომით</h2>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -197,7 +201,7 @@ export default function EncyclopediaPage() {
                             { title: 'რეალური პროექტების case studies', value: '35₾' }
                         ].map((item, idx) => (
                             <div key={idx} className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100">
-                                <CheckCircle size={24} className="text-green-500 shrink-0 mt-0.5" weight="fill" />
+                                <TbCircleCheck size={24} className="text-green-500 shrink-0 mt-0.5" />
                                 <div className="flex-1">
                                     <p className="font-medium text-gray-900">{item.title}</p>
                                     <p className="text-sm text-purple-600 font-semibold">{item.value}</p>
@@ -208,11 +212,11 @@ export default function EncyclopediaPage() {
 
                     <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white">
                         <div>
-                            <p className="text-sm opacity-90 mb-1">🎯 სულ ღირებულება:</p>
+                            <p className="text-sm opacity-90 mb-1 flex items-center gap-1"><TbGift className="w-4 h-4" /> სულ ღირებულება:</p>
                             <p className="text-3xl font-bold">180₾</p>
                         </div>
                         <div className="text-right">
-                            <p className="text-sm opacity-90 mb-1">💰 თქვენი ფასი:</p>
+                            <p className="text-sm opacity-90 mb-1 flex items-center justify-end gap-1">💰 თქვენი ფასი:</p>
                             <p className="text-3xl font-bold">0₾</p>
                             <p className="text-xs opacity-75">(კოდით - დროებითი წვდომა)</p>
                         </div>
@@ -226,7 +230,9 @@ export default function EncyclopediaPage() {
                     transition={{ delay: 0.4 }}
                     className="bg-white rounded-2xl shadow-xl p-8 mb-12 border border-purple-100"
                 >
-                    <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">📊 შედარება</h2>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center flex items-center justify-center gap-2">
+                        <TbChartBar className="text-purple-600" /> შედარება
+                    </h2>
 
                     <div className="overflow-x-auto">
                         <table className="w-full">
@@ -240,18 +246,34 @@ export default function EncyclopediaPage() {
                             </thead>
                             <tbody>
                                 {[
-                                    { feature: 'ძირითადი სტატიები', free: '2', code: '✅ 12', premium: '✅ 12' },
-                                    { feature: 'ექსპერტების ანალიზი', free: '❌', code: '✅', premium: '✅' },
-                                    { feature: 'ინსტრუმენტების შედარება', free: 'TOP-3', code: '✅ 15+', premium: '✅ 15+' },
-                                    { feature: 'რეალური case studies', free: '❌', code: '✅', premium: '✅' },
+                                    { feature: 'ძირითადი სტატიები', free: '2', code: '12', premium: '12' },
+                                    { feature: 'ექსპერტების ანალიზი', free: false, code: true, premium: true },
+                                    { feature: 'ინსტრუმენტების შედარება', free: 'TOP-3', code: '15+', premium: '15+' },
+                                    { feature: 'რეალური case studies', free: false, code: true, premium: true },
                                     { feature: 'ხანგრძლივობა', free: '-', code: '1 საათი', premium: 'უვადოდ' },
                                     { feature: 'ფასი', free: '0₾', code: '0₾', premium: '29₾/თვე' }
                                 ].map((row, idx) => (
                                     <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                                         <td className="py-4 px-4 font-medium text-gray-900">{row.feature}</td>
-                                        <td className="py-4 px-4 text-center text-gray-600">{row.free}</td>
-                                        <td className="py-4 px-4 text-center font-medium text-purple-600 bg-purple-50">{row.code}</td>
-                                        <td className="py-4 px-4 text-center font-medium text-pink-600 bg-pink-50">{row.premium}</td>
+                                        <td className="py-4 px-4 text-center text-gray-600">
+                                            {typeof row.free === 'boolean' ? (
+                                                row.free ? <TbCheck className="mx-auto text-green-500" /> : <TbX className="mx-auto text-red-400" />
+                                            ) : row.free}
+                                        </td>
+                                        <td className="py-4 px-4 text-center font-medium text-purple-600 bg-purple-50">
+                                            {typeof row.code === 'boolean' ? (
+                                                row.code ? <TbCheck className="mx-auto text-green-600" /> : <TbX className="mx-auto text-red-500" />
+                                            ) : (
+                                                (row.code === '12' || row.code === '15+') ? <span className="flex items-center justify-center gap-1"><TbCheck size={14} /> {row.code}</span> : row.code
+                                            )}
+                                        </td>
+                                        <td className="py-4 px-4 text-center font-medium text-pink-600 bg-pink-50">
+                                            {typeof row.premium === 'boolean' ? (
+                                                row.premium ? <TbCheck className="mx-auto text-green-600" /> : <TbX className="mx-auto text-red-500" />
+                                            ) : (
+                                                (row.premium === '12' || row.premium === '15+') ? <span className="flex items-center justify-center gap-1"><TbCheck size={14} /> {row.premium}</span> : row.premium
+                                            )}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -266,7 +288,9 @@ export default function EncyclopediaPage() {
                     transition={{ delay: 0.5 }}
                     className="mb-12"
                 >
-                    <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">💬 რას ამბობენ მომხმარებლები</h2>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center flex items-center justify-center gap-2">
+                        <TbUsers className="text-purple-600" /> რას ამბობენ მომხმარებლები
+                    </h2>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {[
@@ -289,7 +313,7 @@ export default function EncyclopediaPage() {
                             <div key={idx} className="bg-white rounded-xl shadow-lg p-6 border border-purple-100 hover:shadow-xl transition-shadow">
                                 <div className="flex gap-1 mb-4">
                                     {[...Array(testimonial.rating)].map((_, i) => (
-                                        <Star key={i} size={20} className="text-yellow-400" weight="fill" />
+                                        <TbStar key={i} size={20} className="text-yellow-400 fill-yellow-400" />
                                     ))}
                                 </div>
                                 <p className="text-gray-700 mb-4 italic">"{testimonial.text}"</p>
@@ -312,17 +336,18 @@ export default function EncyclopediaPage() {
                         <div className="flex flex-wrap justify-center gap-4">
                             <Link
                                 href="/encyclopedia/vibe-coding"
-                                className="px-8 py-4 rounded-xl bg-white text-purple-600 font-semibold hover:scale-105 transition-transform shadow-lg"
+                                className="px-8 py-4 rounded-xl bg-white text-purple-600 font-semibold hover:scale-105 transition-transform shadow-lg flex items-center gap-2"
                             >
+                                <TbRocket className="w-5 h-5" />
                                 დაიწყე უფასოდ
                             </Link>
                             <a
                                 href="https://t.me/andr3waltairchannel"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="px-8 py-4 rounded-xl bg-transparent border-2 border-white text-white font-semibold hover:bg-white/10 transition-colors"
+                                className="px-8 py-4 rounded-xl bg-transparent border-2 border-white text-white font-semibold hover:bg-white/10 transition-colors flex items-center gap-2"
                             >
-                                <TelegramLogo size={20} weight="fill" className="inline mr-2" />
+                                <TbBrandTelegram size={20} />
                                 პრემიუმის მიღება
                             </a>
                         </div>
