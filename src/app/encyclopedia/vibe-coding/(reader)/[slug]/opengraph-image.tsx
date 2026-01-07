@@ -41,7 +41,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
                         style={{
                             fontSize: '60px',
                             fontWeight: 'bold',
-                            color: 'white',
+
                             marginBottom: '20px',
                             lineHeight: 1.2,
                             background: 'linear-gradient(to right, #a855f7, #ec4899)',
