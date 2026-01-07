@@ -92,8 +92,8 @@ export async function POST(request: NextRequest) {
         const buffer = Buffer.from(await file.arrayBuffer())
         await writeFile(filePath, buffer)
 
-        // Return public URL
-        const publicUrl = `/uploads/${year}/${month}/${filename}`
+        // Return public URL via API route (bypasses Next.js static file caching issues)
+        const publicUrl = `/api/files/${year}/${month}/${filename}`
 
         return NextResponse.json({
             success: true,

@@ -976,45 +976,106 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                     Desktop (16:9)
                                 </label>
                                 {post.coverImages.horizontal ? (
-                                    <div className="relative">
-                                        <img
-                                            src={post.coverImages.horizontal}
-                                            alt="Horizontal Cover"
-                                            className="w-full aspect-video object-cover rounded-md"
-                                        />
-                                        <Button
-                                            variant="destructive"
-                                            size="icon"
-                                            className="absolute top-2 right-2 h-6 w-6"
-                                            onClick={() => setPost(prev => ({
-                                                ...prev,
-                                                coverImages: { ...prev.coverImages, horizontal: undefined }
-                                            }))}
-                                        >
-                                            <TbX className="w-3 h-3" />
-                                        </Button>
+                                    <div className="space-y-2">
+                                        <div className="relative">
+                                            <img
+                                                src={post.coverImages.horizontal}
+                                                alt="Horizontal Cover"
+                                                className="w-full aspect-video object-cover rounded-md"
+                                            />
+                                            <div className="absolute top-2 right-2 flex gap-1">
+                                                {/* Replace Button */}
+                                                <label className="h-6 w-6 rounded-md bg-primary hover:bg-primary/90 flex items-center justify-center cursor-pointer">
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        onChange={(e) => {
+                                                            const file = e.target.files?.[0]
+                                                            if (file) handleFileUpload(file, 'horizontal')
+                                                        }}
+                                                        disabled={isUploadingH}
+                                                    />
+                                                    {isUploadingH ? (
+                                                        <TbLoader2 className="w-3 h-3 animate-spin text-primary-foreground" />
+                                                    ) : (
+                                                        <TbUpload className="w-3 h-3 text-primary-foreground" />
+                                                    )}
+                                                </label>
+                                                {/* Delete Button */}
+                                                <Button
+                                                    variant="destructive"
+                                                    size="icon"
+                                                    className="h-6 w-6"
+                                                    onClick={() => setPost(prev => ({
+                                                        ...prev,
+                                                        coverImages: { ...prev.coverImages, horizontal: undefined }
+                                                    }))}
+                                                >
+                                                    <TbTrash className="w-3 h-3" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        {/* URL Input for replacing via URL */}
+                                        <div className="flex gap-2">
+                                            <Input
+                                                placeholder="ან ჩასვით URL..."
+                                                className="text-xs h-7"
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        const url = (e.target as HTMLInputElement).value.trim()
+                                                        if (url) {
+                                                            setPost(prev => ({
+                                                                ...prev,
+                                                                coverImages: { ...prev.coverImages, horizontal: url }
+                                                            }))
+                                                                ; (e.target as HTMLInputElement).value = ''
+                                                        }
+                                                    }
+                                                }}
+                                            />
+                                        </div>
                                     </div>
                                 ) : (
-                                    <label className="border-2 border-dashed rounded-md p-4 text-center aspect-video flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            className="hidden"
-                                            onChange={(e) => {
-                                                const file = e.target.files?.[0]
-                                                if (file) handleFileUpload(file, 'horizontal')
+                                    <div className="space-y-2">
+                                        <label className="border-2 border-dashed rounded-md p-4 text-center aspect-video flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0]
+                                                    if (file) handleFileUpload(file, 'horizontal')
+                                                }}
+                                                disabled={isUploadingH}
+                                            />
+                                            {isUploadingH ? (
+                                                <TbLoader2 className="w-6 h-6 animate-spin text-primary" />
+                                            ) : (
+                                                <div>
+                                                    <TbUpload className="w-6 h-6 mx-auto text-muted-foreground mb-1" />
+                                                    <p className="text-xs text-muted-foreground">16:9 ატვირთვა</p>
+                                                </div>
+                                            )}
+                                        </label>
+                                        {/* URL Input for adding via URL */}
+                                        <Input
+                                            placeholder="ან ჩასვით სურათის URL..."
+                                            className="text-xs h-7"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    const url = (e.target as HTMLInputElement).value.trim()
+                                                    if (url) {
+                                                        setPost(prev => ({
+                                                            ...prev,
+                                                            coverImages: { ...prev.coverImages, horizontal: url }
+                                                        }))
+                                                            ; (e.target as HTMLInputElement).value = ''
+                                                    }
+                                                }
                                             }}
-                                            disabled={isUploadingH}
                                         />
-                                        {isUploadingH ? (
-                                            <TbLoader2 className="w-6 h-6 animate-spin text-primary" />
-                                        ) : (
-                                            <div>
-                                                <TbUpload className="w-6 h-6 mx-auto text-muted-foreground mb-1" />
-                                                <p className="text-xs text-muted-foreground">16:9 ატვირთვა</p>
-                                            </div>
-                                        )}
-                                    </label>
+                                    </div>
                                 )}
                             </div>
 
@@ -1025,45 +1086,104 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                     Mobile (9:16)
                                 </label>
                                 {post.coverImages.vertical ? (
-                                    <div className="relative max-w-[120px]">
-                                        <img
-                                            src={post.coverImages.vertical}
-                                            alt="Vertical Cover"
-                                            className="w-full aspect-[9/16] object-cover rounded-md"
+                                    <div className="space-y-2">
+                                        <div className="relative max-w-[120px]">
+                                            <img
+                                                src={post.coverImages.vertical}
+                                                alt="Vertical Cover"
+                                                className="w-full aspect-[9/16] object-cover rounded-md"
+                                            />
+                                            <div className="absolute top-1 right-1 flex gap-1">
+                                                {/* Replace Button */}
+                                                <label className="h-5 w-5 rounded-md bg-primary hover:bg-primary/90 flex items-center justify-center cursor-pointer">
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        onChange={(e) => {
+                                                            const file = e.target.files?.[0]
+                                                            if (file) handleFileUpload(file, 'vertical')
+                                                        }}
+                                                        disabled={isUploadingV}
+                                                    />
+                                                    {isUploadingV ? (
+                                                        <TbLoader2 className="w-2.5 h-2.5 animate-spin text-primary-foreground" />
+                                                    ) : (
+                                                        <TbUpload className="w-2.5 h-2.5 text-primary-foreground" />
+                                                    )}
+                                                </label>
+                                                {/* Delete Button */}
+                                                <Button
+                                                    variant="destructive"
+                                                    size="icon"
+                                                    className="h-5 w-5"
+                                                    onClick={() => setPost(prev => ({
+                                                        ...prev,
+                                                        coverImages: { ...prev.coverImages, vertical: undefined }
+                                                    }))}
+                                                >
+                                                    <TbTrash className="w-2.5 h-2.5" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        {/* URL Input for replacing via URL */}
+                                        <Input
+                                            placeholder="ან ჩასვით URL..."
+                                            className="text-xs h-7 max-w-[200px]"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    const url = (e.target as HTMLInputElement).value.trim()
+                                                    if (url) {
+                                                        setPost(prev => ({
+                                                            ...prev,
+                                                            coverImages: { ...prev.coverImages, vertical: url }
+                                                        }))
+                                                            ; (e.target as HTMLInputElement).value = ''
+                                                    }
+                                                }
+                                            }}
                                         />
-                                        <Button
-                                            variant="destructive"
-                                            size="icon"
-                                            className="absolute top-1 right-1 h-5 w-5"
-                                            onClick={() => setPost(prev => ({
-                                                ...prev,
-                                                coverImages: { ...prev.coverImages, vertical: undefined }
-                                            }))}
-                                        >
-                                            <TbX className="w-3 h-3" />
-                                        </Button>
                                     </div>
                                 ) : (
-                                    <label className="border-2 border-dashed rounded-md p-4 text-center max-w-[120px] aspect-[9/16] flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            className="hidden"
-                                            onChange={(e) => {
-                                                const file = e.target.files?.[0]
-                                                if (file) handleFileUpload(file, 'vertical')
+                                    <div className="space-y-2">
+                                        <label className="border-2 border-dashed rounded-md p-4 text-center max-w-[120px] aspect-[9/16] flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0]
+                                                    if (file) handleFileUpload(file, 'vertical')
+                                                }}
+                                                disabled={isUploadingV}
+                                            />
+                                            {isUploadingV ? (
+                                                <TbLoader2 className="w-5 h-5 animate-spin text-primary" />
+                                            ) : (
+                                                <div>
+                                                    <TbUpload className="w-5 h-5 mx-auto text-muted-foreground mb-1" />
+                                                    <p className="text-xs text-muted-foreground">9:16</p>
+                                                </div>
+                                            )}
+                                        </label>
+                                        {/* URL Input for adding via URL */}
+                                        <Input
+                                            placeholder="ან ჩასვით URL..."
+                                            className="text-xs h-7 max-w-[200px]"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    const url = (e.target as HTMLInputElement).value.trim()
+                                                    if (url) {
+                                                        setPost(prev => ({
+                                                            ...prev,
+                                                            coverImages: { ...prev.coverImages, vertical: url }
+                                                        }))
+                                                            ; (e.target as HTMLInputElement).value = ''
+                                                    }
+                                                }
                                             }}
-                                            disabled={isUploadingV}
                                         />
-                                        {isUploadingV ? (
-                                            <TbLoader2 className="w-5 h-5 animate-spin text-primary" />
-                                        ) : (
-                                            <div>
-                                                <TbUpload className="w-5 h-5 mx-auto text-muted-foreground mb-1" />
-                                                <p className="text-xs text-muted-foreground">9:16</p>
-                                            </div>
-                                        )}
-                                    </label>
+                                    </div>
                                 )}
                             </div>
                         </CardContent>
