@@ -4,41 +4,82 @@ import { TbArrowLeft } from "react-icons/tb"
 import BlogPostClient from "./BlogPostClient"
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import dbConnect from '@/lib/db'
+import Post from '@/models/Post'
 
-// Fetch post from MongoDB API
+// Fetch post directly from MongoDB (more reliable for SSR)
 async function getPost(slug: string) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/posts/${slug}`, {
-      next: { revalidate: 60 } // ✅ Updates content every 60 seconds max (ISR)
-    })
-    if (res.ok) {
-      const data = await res.json()
-      return {
-        post: data.post,
-        prevPost: data.prevPost || null,
-        nextPost: data.nextPost || null
-      }
+    await dbConnect()
+
+    const post = await Post.findOne({ slug }).lean()
+
+    if (!post) return { post: null, prevPost: null, nextPost: null }
+
+    // Increment views
+    await Post.findByIdAndUpdate(post._id, { $inc: { views: 1 } })
+
+    // Get previous and next posts for navigation
+    const [prevPost, nextPost] = await Promise.all([
+      Post.findOne({
+        status: 'published',
+        $or: [
+          { order: { $lt: post.order } },
+          { order: post.order, createdAt: { $gt: post.createdAt } }
+        ]
+      })
+        .sort({ order: -1, createdAt: 1 })
+        .select('slug title')
+        .lean(),
+      Post.findOne({
+        status: 'published',
+        $or: [
+          { order: { $gt: post.order } },
+          { order: post.order, createdAt: { $lt: post.createdAt } }
+        ]
+      })
+        .sort({ order: 1, createdAt: -1 })
+        .select('slug title')
+        .lean()
+    ])
+
+    return {
+      post: {
+        ...post,
+        id: post._id.toString(),
+        _id: post._id.toString(),
+        views: (post.views || 0) + 1,
+      },
+      prevPost: prevPost ? { slug: prevPost.slug, title: prevPost.title } : null,
+      nextPost: nextPost ? { slug: nextPost.slug, title: nextPost.title } : null
     }
   } catch (error) {
     console.error('Error fetching post:', error)
+    return { post: null, prevPost: null, nextPost: null }
   }
-  return { post: null, prevPost: null, nextPost: null }
 }
 
 // Get related posts from MongoDB
 async function getRelatedPosts(currentSlug: string) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/posts?limit=3&status=published`, {
-      next: { revalidate: 60 } // ✅ Cache related posts too
+    await dbConnect()
+    const posts = await Post.find({
+      status: 'published',
+      slug: { $ne: currentSlug }
     })
-    if (res.ok) {
-      const data = await res.json()
-      return (data.posts || []).filter((p: { slug: string }) => p.slug !== currentSlug).slice(0, 2)
-    }
+      .sort({ createdAt: -1 })
+      .limit(2)
+      .lean()
+
+    return posts.map((post) => ({
+      ...post,
+      id: post._id.toString(),
+      _id: post._id.toString(),
+    }))
   } catch (error) {
     console.error('Error fetching related posts:', error)
+    return []
   }
-  return []
 }
 
 // 1. DYNAMIC METADATA (Crucial for Google & Facebook)

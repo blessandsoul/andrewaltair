@@ -1,0 +1,22 @@
+# ai.txt - AI Crawler Instructions
+# Alternative format for AI agent crawling preferences
+
+User-agent: *
+AI-Allowed: yes
+AI-Description: Andrew Altair - AI Expert & Tech Consultant platform with educational content, mystic AI tools, and tech news in Georgian language.
+AI-Category: education, technology, artificial-intelligence
+AI-Language: ka, en
+AI-Contact: https://andrewaltair.ge/about
+AI-Sitemap: https://andrewaltair.ge/sitemap.xml
+AI-Feed: https://andrewaltair.ge/feed.xml
+AI-LLMs: https://andrewaltair.ge/llms.txt
+AI-LLMs-Full: https://andrewaltair.ge/llms-full.txt
+
+# Content Types
+AI-Content-Types: articles, tutorials, tools, videos
+
+# Update Frequency
+AI-Update-Frequency: daily
+
+# Key Topics
+AI-Topics: AI, Machine Learning, LLM, ChatGPT, Vibe Coding, Technology, Georgian Tech, Mystic AI

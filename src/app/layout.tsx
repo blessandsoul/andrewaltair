@@ -25,7 +25,11 @@ const notoGeorgian = Noto_Sans_Georgian({
 });
 
 export const metadata: Metadata = {
-  title: "Andrew Altair | AI ინოვატორი და კონტენტ კრეატორი",
+  metadataBase: new URL('https://andrewaltair.ge'),
+  title: {
+    default: "Andrew Altair | AI ინოვატორი და კონტენტ კრეატორი",
+    template: "%s | Andrew Altair"
+  },
   description: "ხელოვნური ინტელექტის ექსპერტი. AI-ს შესახებ სტატიები, ტუტორიალები, ვიდეოები და რჩევები. გაიგეთ მეტი ChatGPT-ს, მანქანური სწავლების და ტექნოლოგიების მომავლის შესახებ.",
   keywords: [
     "AI Expert Georgia",
@@ -41,60 +45,144 @@ export const metadata: Metadata = {
     "ნეირონული ქსელები",
     "საქართველო"
   ],
-  authors: [{ name: "Andrew Altair" }],
+  authors: [{ name: "Andrew Altair", url: "https://andrewaltair.ge" }],
   creator: "Andrew Altair",
+  publisher: "Andrew Altair",
+  alternates: {
+    canonical: "https://andrewaltair.ge",
+    types: {
+      'application/rss+xml': 'https://andrewaltair.ge/feed.xml',
+    },
+  },
   openGraph: {
     title: "Andrew Altair | AI ინოვატორი და კონტენტ კრეატორი",
     description: "ხელოვნური ინტელექტის ექსპერტი. AI-ს შესახებ სტატიები, ტუტორიალები და რჩევები.",
     type: "website",
     locale: "ka_GE",
     siteName: "Andrew Altair",
+    url: "https://andrewaltair.ge",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Andrew Altair - AI ინოვატორი",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    creator: "@andrewaltair",
+    creator: "@andr3waltair",
+    site: "@andr3waltair",
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
+  verification: {
+    google: process.env.GOOGLE_VERIFICATION_CODE,
+  },
+  category: 'technology',
 };
 
-// JSON-LD Schema with geo-targeting for Georgia
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: 'Andrew Altair',
-  url: 'https://andrewaltair.ge',
-  jobTitle: 'AI Expert & Tech Consultant',
-  nationality: {
-    '@type': 'Country',
-    name: 'Georgia'
+// Extended JSON-LD Schemas
+const jsonLdSchemas = [
+  // Person Schema
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    '@id': 'https://andrewaltair.ge/#person',
+    name: 'Andrew Altair',
+    url: 'https://andrewaltair.ge',
+    image: 'https://andrewaltair.ge/logo.png',
+    jobTitle: 'AI Expert & Tech Consultant',
+    description: 'AI ინოვატორი და კონტენტ კრეატორი საქართველოში',
+    nationality: {
+      '@type': 'Country',
+      name: 'Georgia'
+    },
+    homeLocation: {
+      '@type': 'Place',
+      name: 'Tbilisi, Georgia'
+    },
+    areaServed: {
+      '@type': 'Country',
+      name: 'Georgia'
+    },
+    sameAs: [
+      'https://www.youtube.com/@AndrewAltair',
+      'https://www.instagram.com/andr3waltair/',
+      'https://www.tiktok.com/@andrewaltair',
+      'https://t.me/andr3waltairchannel',
+      'https://www.facebook.com/andr3waltair',
+      'https://www.threads.net/@andr3waltair',
+      'https://x.com/andr3waltair',
+      'https://www.linkedin.com/in/andrewaltair'
+    ],
+    worksFor: {
+      '@type': 'Organization',
+      '@id': 'https://andrewaltair.ge/#organization'
+    }
   },
-  homeLocation: {
-    '@type': 'Place',
-    name: 'Tbilisi, Georgia'
-  },
-  areaServed: {
-    '@type': 'Country',
-    name: 'Georgia'
-  },
-  sameAs: [
-    'https://www.youtube.com/@AndrewAltair',
-    'https://www.instagram.com/andr3waltair/',
-    'https://www.tiktok.com/@andrewaltair',
-    'https://t.me/andr3waltairchannel',
-    'https://www.facebook.com/andr3waltair',
-    'https://www.threads.net/@andr3waltair',
-    'https://x.com/andr3waltair',
-    'https://www.linkedin.com/in/andrewaltair'
-  ],
-  worksFor: {
+  // Organization Schema
+  {
+    '@context': 'https://schema.org',
     '@type': 'Organization',
+    '@id': 'https://andrewaltair.ge/#organization',
     name: 'Andrew Altair AI',
-    location: 'Tbilisi, Georgia'
+    url: 'https://andrewaltair.ge',
+    logo: {
+      '@type': 'ImageObject',
+      url: 'https://andrewaltair.ge/logo.png',
+      width: 512,
+      height: 512
+    },
+    description: 'AI-ფოკუსირებული პლატფორმა განათლების, მისტიური ინსტრუმენტებისა და ტექნოლოგიური სიახლეებისთვის',
+    founder: {
+      '@type': 'Person',
+      '@id': 'https://andrewaltair.ge/#person'
+    },
+    areaServed: 'Georgia',
+    sameAs: [
+      'https://www.youtube.com/@AndrewAltair',
+      'https://www.instagram.com/andr3waltair/',
+      'https://www.facebook.com/andr3waltair',
+      'https://x.com/andr3waltair',
+      'https://www.linkedin.com/in/andrewaltair'
+    ]
+  },
+  // WebSite Schema with SearchAction
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': 'https://andrewaltair.ge/#website',
+    name: 'Andrew Altair',
+    url: 'https://andrewaltair.ge',
+    description: 'AI ინოვატორი და კონტენტ კრეატორი - ხელოვნური ინტელექტის ექსპერტი',
+    publisher: {
+      '@type': 'Organization',
+      '@id': 'https://andrewaltair.ge/#organization'
+    },
+    inLanguage: ['ka', 'en'],
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: 'https://andrewaltair.ge/search?q={search_term_string}'
+      },
+      'query-input': 'required name=search_term_string'
+    }
   }
-};
+];
+
 
 export default function RootLayout({
   children,
@@ -121,7 +209,7 @@ export default function RootLayout({
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchemas) }}
         />
       </head>
       <body

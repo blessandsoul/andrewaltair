@@ -438,23 +438,74 @@ export default function PromptBuilderPage() {
 
                     <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
                         <div className="text-center max-w-3xl mx-auto">
-                            <Badge className="mb-4 bg-gradient-to-r from-primary/20 to-accent/20 text-primary border-primary/20 hover:bg-primary/20">
-                                <TbSparkles className="w-3 h-3 mr-1 animate-pulse" />
-                                AI-TbPowered ინსტრუმენტი
-                            </Badge>
+                            {/* User Counter Badge */}
+                            <div className="flex items-center justify-center gap-2 mb-4">
+                                <Badge className="bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20 animate-pulse">
+                                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                                    12,847+ მომხმარებელი
+                                </Badge>
+                                <Badge className="bg-gradient-to-r from-primary/20 to-accent/20 text-primary border-primary/20 hover:bg-primary/20">
+                                    <TbSparkles className="w-3 h-3 mr-1 animate-pulse" />
+                                    AI-Powered ინსტრუმენტი
+                                </Badge>
+                            </div>
+
                             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
                                 AI <span className="text-gradient">Prompt Builder</span>
                             </h1>
-                            <p className="text-xl text-muted-foreground">
+                            <p className="text-xl text-muted-foreground mb-8">
                                 შექმენი სრულყოფილი პრომპტები AI-ის დახმარებით. აირჩიე როლი, დაამატე კონტექსტი,
                                 და მიეცი AI-ს შანსი გააუმჯობესოს შენი პრომპტი!
                             </p>
+
+                            {/* Quick Start CTA */}
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+                                <Button
+                                    size="lg"
+                                    onClick={() => {
+                                        setRole('marketing strategist')
+                                        setTone('direct and concise, no fluff')
+                                        setTask('შექმენი 30-დღიანი სოციალური მედიის კონტენტ კალენდარი ჩემი ბიზნესისთვის')
+                                        setOutputFormat('Provide a step-by-step action plan with numbered steps')
+                                        document.getElementById('builder-section')?.scrollIntoView({ behavior: 'smooth' })
+                                    }}
+                                    className="btn-shine animate-cta-glow bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white text-lg px-8 py-6 shadow-2xl"
+                                >
+                                    <TbBolt className="w-6 h-6 mr-2" />
+                                    დაიწყე ახლავე — უფასოა!
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="lg"
+                                    onClick={() => document.getElementById('pricing-section')?.scrollIntoView({ behavior: 'smooth' })}
+                                    className="px-8 py-6 text-lg hover-spring"
+                                >
+                                    <TbStars className="w-5 h-5 mr-2" />
+                                    ნახე Pro ფუნქციები
+                                </Button>
+                            </div>
+
+                            {/* Stats Row */}
+                            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-2">
+                                    <TbCheck className="w-4 h-4 text-green-500" />
+                                    <span>50,000+ პრომპტი შექმნილია</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <TbCheck className="w-4 h-4 text-green-500" />
+                                    <span>98% კმაყოფილების რეიტინგი</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <TbCheck className="w-4 h-4 text-green-500" />
+                                    <span>7 AI მოდელთან თავსებადი</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
 
                 {/* Main Content */}
-                <section className="py-12 lg:py-20">
+                <section id="builder-section" className="py-12 lg:py-20 scroll-mt-20">
                     <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
                         <div className="grid lg:grid-cols-2 gap-8">
 
@@ -703,10 +754,10 @@ export default function PromptBuilderPage() {
 
                                                 {/* Action Buttons */}
                                                 <div className="flex gap-3 pt-4">
-                                                    <div data-tour-step="generate-btn">
+                                                    <div data-tour-step="generate-btn" className="flex-1">
                                                         <Button
                                                             onClick={generatePrompt}
-                                                            className="flex-1 bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white glow-sm"
+                                                            className="w-full btn-shine animate-cta-pulse bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white"
                                                             size="lg"
                                                         >
                                                             <TbBolt className="w-5 h-5 mr-2" />
@@ -1041,6 +1092,285 @@ export default function PromptBuilderPage() {
                                             </Badge>
                                         ))}
                                     </div>
+                                </CardContent>
+                            </Card>
+                        </section>
+
+                        {/* Before/After Section */}
+                        <section className="mt-20">
+                            <div className="text-center mb-10">
+                                <Badge className="mb-4 bg-accent/10 text-accent border-accent/20">
+                                    <TbSparkles className="w-3 h-3 mr-1" />
+                                    ტრანსფორმაცია
+                                </Badge>
+                                <h2 className="text-2xl sm:text-3xl font-bold mb-3">სანამ და შემდეგ</h2>
+                                <p className="text-muted-foreground">ნახე როგორ გარდაიქმნება ჩვეულებრივი პრომპტი სრულყოფილად</p>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-8">
+                                {/* Before */}
+                                <Card className="border-destructive/30 hover-lift">
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <Badge variant="destructive" className="text-xs">სანამ</Badge>
+                                            <span className="text-sm text-muted-foreground">ჩვეულებრივი პრომპტი</span>
+                                        </div>
+                                        <div className="bg-destructive/5 rounded-lg p-4 text-sm font-mono border border-destructive/20">
+                                            დამიწერე მარკეტინგის გეგმა
+                                        </div>
+                                        <div className="mt-4 space-y-2 text-sm text-muted-foreground">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-destructive">✗</span>
+                                                <span>არ აქვს კონტექსტი</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-destructive">✗</span>
+                                                <span>ბუნდოვანი მოლოდინები</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-destructive">✗</span>
+                                                <span>ზოგადი პასუხი კარგია</span>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                {/* After */}
+                                <Card className="border-green-500/30 hover-lift glow-sm">
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <Badge className="bg-green-500 text-white text-xs">შემდეგ</Badge>
+                                            <span className="text-sm text-muted-foreground">AI Builder-ით</span>
+                                        </div>
+                                        <div className="bg-green-500/5 rounded-lg p-4 text-sm font-mono border border-green-500/20 max-h-40 overflow-y-auto">
+                                            შენ ხარ ექსპერტი მარკეტინგის სტრატეგი. კომუნიკაცია გააკეთე პირდაპირი და ლაკონური სტილით.
+
+                                            **კონტექსტი:**
+                                            მცირე B2B SaaS კომპანია ვმართავ 5 თანამშრომლით
+
+                                            **დავალება:**
+                                            შექმენი 12-კვირიანი მარკეტინგის კამპანიის გეგმა...
+                                        </div>
+                                        <div className="mt-4 space-y-2 text-sm text-muted-foreground">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-green-500">✓</span>
+                                                <span>მკაფიო როლი და ექსპერტიზა</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-green-500">✓</span>
+                                                <span>კონკრეტული კონტექსტი</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-green-500">✓</span>
+                                                <span>სტრუქტურირებული პასუხი</span>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        </section>
+
+                        {/* Pricing Section */}
+                        <section id="pricing-section" className="mt-20 scroll-mt-20">
+                            <div className="text-center mb-10">
+                                <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+                                    <TbStars className="w-3 h-3 mr-1" />
+                                    გეგმები
+                                </Badge>
+                                <h2 className="text-2xl sm:text-3xl font-bold mb-3">აირჩიე შენთვის სასურველი გეგმა</h2>
+                                <p className="text-muted-foreground">დაიწყე უფასოდ, გააფართოე საჭიროებისამებრ</p>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                                {/* Free Plan */}
+                                <Card className="border hover-lift">
+                                    <CardContent className="p-8">
+                                        <div className="text-center mb-6">
+                                            <h3 className="text-2xl font-bold mb-2">უფასო</h3>
+                                            <div className="text-4xl font-bold text-primary">$0</div>
+                                            <p className="text-sm text-muted-foreground mt-1">სამუდამოდ უფასო</p>
+                                        </div>
+                                        <ul className="space-y-3 mb-8">
+                                            <li className="flex items-center gap-2">
+                                                <TbCheck className="w-5 h-5 text-green-500" />
+                                                <span>5 პრომპტი დღეში</span>
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <TbCheck className="w-5 h-5 text-green-500" />
+                                                <span>ბაზისური შაბლონები</span>
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <TbCheck className="w-5 h-5 text-green-500" />
+                                                <span>ისტორიის შენახვა (7 დღე)</span>
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <TbCheck className="w-5 h-5 text-green-500" />
+                                                <span>1 AI გაუმჯობესება დღეში</span>
+                                            </li>
+                                        </ul>
+                                        <Button className="w-full" variant="outline" size="lg">
+                                            დაწყება უფასოდ
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Pro Plan */}
+                                <Card className="border-2 border-primary relative hover-lift animate-rainbow-glow">
+                                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                                        <Badge className="bg-primary text-primary-foreground animate-pulse">
+                                            <TbSparkles className="w-3 h-3 mr-1" />
+                                            პოპულარული
+                                        </Badge>
+                                    </div>
+                                    <CardContent className="p-8">
+                                        <div className="text-center mb-6">
+                                            <h3 className="text-2xl font-bold mb-2">Pro</h3>
+                                            <div className="text-4xl font-bold text-gradient">$9.99</div>
+                                            <p className="text-sm text-muted-foreground mt-1">თვეში</p>
+                                        </div>
+                                        <ul className="space-y-3 mb-8">
+                                            <li className="flex items-center gap-2">
+                                                <TbCheck className="w-5 h-5 text-green-500" />
+                                                <span className="font-medium">უსაზღვრო პრომპტები</span>
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <TbCheck className="w-5 h-5 text-green-500" />
+                                                <span>ყველა შაბლონი</span>
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <TbCheck className="w-5 h-5 text-green-500" />
+                                                <span>უსაზღვრო AI გაუმჯობესება</span>
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <TbCheck className="w-5 h-5 text-green-500" />
+                                                <span>იმპორტი/ექსპორტი</span>
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <TbCheck className="w-5 h-5 text-green-500" />
+                                                <span>A/B ტესტირება</span>
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <TbCheck className="w-5 h-5 text-green-500" />
+                                                <span>პრიორიტეტული მხარდაჭერა</span>
+                                            </li>
+                                        </ul>
+                                        <Button className="w-full btn-shine animate-cta-glow bg-gradient-to-r from-primary to-accent text-white" size="lg">
+                                            <TbBolt className="w-5 h-5 mr-2" />
+                                            გახდი Pro
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        </section>
+
+                        {/* FAQ Section */}
+                        <section className="mt-20">
+                            <div className="text-center mb-10">
+                                <Badge className="mb-4 bg-accent/10 text-accent border-accent/20">
+                                    FAQ
+                                </Badge>
+                                <h2 className="text-2xl sm:text-3xl font-bold mb-3">ხშირად დასმული კითხვები</h2>
+                            </div>
+
+                            <div className="max-w-3xl mx-auto space-y-4">
+                                {[
+                                    {
+                                        q: "რა არის Prompt Builder?",
+                                        a: "Prompt Builder არის AI ინსტრუმენტი, რომელიც გეხმარება შექმნა სრულყოფილი პრომპტები ChatGPT, Claude და სხვა AI მოდელებისთვის. ის აავტომატიზებს საუკეთესო პრაქტიკებს და გეხმარება მიიღო უკეთესი პასუხები AI-სგან."
+                                    },
+                                    {
+                                        q: "რა AI მოდელებთან მუშაობს?",
+                                        a: "Prompt Builder-ით შექმნილი პრომპტები მუშაობს ყველა პოპულარულ AI მოდელთან: ChatGPT (GPT-4, GPT-3.5), Claude, Gemini, Groq, Mistral, LLaMA და Microsoft Copilot."
+                                    },
+                                    {
+                                        q: "რამდენი პრომპტი შემიძლია შევქმნა უფასოდ?",
+                                        a: "უფასო გეგმით შეგიძლია შექმნა 5 პრომპტი დღეში, გამოიყენო 1 AI გაუმჯობესება და შეინახო ისტორია 7 დღის განმავლობაში. Pro გეგმით ყველაფერი უსაზღვროა."
+                                    },
+                                    {
+                                        q: "როგორ მუშაობს AI გაუმჯობესება?",
+                                        a: "როცა შექმნი პრომპტს, შეგიძლია დააჭირო 'AI გაუმჯობესება' ღილაკს. AI გააანალიზებს შენს პრომპტს და დაამატებს დამატებით დეტალებს, გახდის უფრო კონკრეტულს და ეფექტურს."
+                                    },
+                                    {
+                                        q: "შემიძლია გავაზიარო პრომპტები?",
+                                        a: "დიახ! ყველა პრომპტს აქვს უნიკალური ლინკი გაზიარებისთვის. ასევე შეგიძლია გააქვეყნო პრომპტი საჯარო გალერეაში სხვების დასახმარებლად."
+                                    }
+                                ].map((faq, index) => (
+                                    <Card key={index} className="hover-lift">
+                                        <CardContent className="p-6">
+                                            <details className="group">
+                                                <summary className="flex items-center justify-between cursor-pointer list-none">
+                                                    <h4 className="font-medium">{faq.q}</h4>
+                                                    <span className="text-primary transition-transform group-open:rotate-180">
+                                                        ▼
+                                                    </span>
+                                                </summary>
+                                                <p className="mt-4 text-muted-foreground text-sm leading-relaxed">
+                                                    {faq.a}
+                                                </p>
+                                            </details>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        </section>
+
+                        {/* ROI Calculator / Time Saved */}
+                        <section className="mt-20">
+                            <Card className="border bg-gradient-to-br from-green-500/5 to-accent/5 overflow-hidden">
+                                <CardContent className="p-8">
+                                    <div className="grid md:grid-cols-2 gap-8 items-center">
+                                        <div>
+                                            <Badge className="mb-4 bg-green-500/10 text-green-500 border-green-500/20">
+                                                ROI
+                                            </Badge>
+                                            <h3 className="text-2xl font-bold mb-4">რამდენ დროს დაზოგავ?</h3>
+                                            <p className="text-muted-foreground mb-6">
+                                                საშუალო მომხმარებელი ზოგავს 15-20 წუთს ყოველ პრომპტზე.
+                                                თვეში 50 პრომპტით ეს არის 12+ საათი დაზოგილი დრო.
+                                            </p>
+                                            <div className="grid grid-cols-3 gap-4 text-center">
+                                                <div className="bg-background/50 rounded-lg p-4">
+                                                    <div className="text-3xl font-bold text-primary">15</div>
+                                                    <div className="text-xs text-muted-foreground">წუთი / პრომპტი</div>
+                                                </div>
+                                                <div className="bg-background/50 rounded-lg p-4">
+                                                    <div className="text-3xl font-bold text-accent">12+</div>
+                                                    <div className="text-xs text-muted-foreground">საათი / თვე</div>
+                                                </div>
+                                                <div className="bg-background/50 rounded-lg p-4">
+                                                    <div className="text-3xl font-bold text-green-500">3x</div>
+                                                    <div className="text-xs text-muted-foreground">უკეთესი პასუხები</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="text-center">
+                                            <div className="inline-block p-8 bg-background/80 rounded-2xl">
+                                                <div className="text-6xl font-bold text-gradient mb-2">144</div>
+                                                <div className="text-lg text-muted-foreground">საათი წელიწადში</div>
+                                                <p className="text-sm text-muted-foreground mt-2">≈ 6 სამუშაო დღე</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </section>
+
+                        {/* Final CTA */}
+                        <section className="mt-20 mb-10">
+                            <Card className="border-2 border-primary/50 bg-gradient-to-br from-primary/5 to-accent/5">
+                                <CardContent className="p-8 text-center">
+                                    <h3 className="text-2xl sm:text-3xl font-bold mb-4">მზად ხარ დაიწყო?</h3>
+                                    <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
+                                        შეუერთდი 12,847+ მომხმარებელს, რომლებიც უკვე ქმნიან უკეთეს პრომპტებს AI Builder-ით.
+                                    </p>
+                                    <Button
+                                        size="lg"
+                                        onClick={() => document.getElementById('builder-section')?.scrollIntoView({ behavior: 'smooth' })}
+                                        className="btn-shine animate-cta-glow bg-gradient-to-r from-primary to-accent text-white text-lg px-10 py-6"
+                                    >
+                                        <TbBolt className="w-6 h-6 mr-2" />
+                                        შექმენი პირველი პრომპტი
+                                    </Button>
                                 </CardContent>
                             </Card>
                         </section>

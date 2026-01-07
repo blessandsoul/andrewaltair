@@ -22,17 +22,24 @@ import {
 import { brand } from "@/lib/brand"
 import { PostCard } from "@/components/blog/PostCard"
 import { FeaturedCard } from "@/components/blog/FeaturedCard"
+import dbConnect from "@/lib/db"
+import Post from "@/models/Post"
 
-// Fetch posts from MongoDB API
+// Fetch posts directly from MongoDB (more reliable for SSR)
 async function getPosts() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-    const res = await fetch(`${baseUrl}/api/posts?status=published&limit=50`, {
-      cache: 'no-store' // Always get fresh data
-    })
-    if (!res.ok) throw new Error('Failed to fetch posts')
-    const data = await res.json()
-    return data.posts || []
+    await dbConnect()
+    const posts = await Post.find({ status: 'published' })
+      .sort({ order: 1, createdAt: -1 })
+      .limit(50)
+      .lean()
+
+    // Transform MongoDB documents to plain objects with string IDs
+    return posts.map((post) => ({
+      ...post,
+      id: post._id.toString(),
+      _id: post._id.toString(),
+    }))
   } catch (error) {
     console.error('Error fetching posts:', error)
     return []

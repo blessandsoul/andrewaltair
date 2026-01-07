@@ -1,0 +1,77 @@
+{
+    "version": "1.0",
+    "name": "Andrew Altair AI",
+    "description": "AI Expert & Tech Consultant platform",
+    "url": "https://andrewaltair.ge",
+    "owner": {
+        "name": "Andrew Altair",
+        "role": "AI Expert & Tech Consultant",
+        "location": "Tbilisi, Georgia"
+    },
+    "languages": [
+        "ka",
+        "en"
+    ],
+    "categories": [
+        "AI",
+        "Technology",
+        "Education",
+        "Mystic Tools"
+    ],
+    "capabilities": {
+        "content_types": [
+            "articles",
+            "tutorials",
+            "videos",
+            "tools"
+        ],
+        "ai_tools": [
+            "fortune-telling",
+            "tarot",
+            "numerology",
+            "horoscope",
+            "dream-interpretation"
+        ],
+        "api_access": false
+    },
+    "sections": {
+        "blog": {
+            "path": "/blog",
+            "description": "AI news, tutorials, and insights",
+            "update_frequency": "daily"
+        },
+        "encyclopedia": {
+            "path": "/encyclopedia/vibe-coding",
+            "description": "Vibe Coding educational library"
+        },
+        "tools": {
+            "path": "/tools",
+            "description": "AI tools catalog"
+        },
+        "mystic": {
+            "path": "/mystic",
+            "description": "Interactive AI-powered mystic tools"
+        },
+        "videos": {
+            "path": "/videos",
+            "description": "Video content and tutorials"
+        }
+    },
+    "social_links": {
+        "youtube": "https://www.youtube.com/@AndrewAltair",
+        "instagram": "https://www.instagram.com/andr3waltair/",
+        "tiktok": "https://www.tiktok.com/@andrewaltair",
+        "telegram": "https://t.me/andr3waltairchannel",
+        "facebook": "https://www.facebook.com/andr3waltair",
+        "twitter": "https://x.com/andr3waltair",
+        "linkedin": "https://www.linkedin.com/in/andrewaltair"
+    },
+    "crawling": {
+        "robots_txt": "https://andrewaltair.ge/robots.txt",
+        "sitemap": "https://andrewaltair.ge/sitemap.xml",
+        "llms_txt": "https://andrewaltair.ge/llms.txt",
+        "rss_feed": "https://andrewaltair.ge/feed.xml",
+        "rate_limit": "1 request per second"
+    },
+    "last_updated": "2026-01-07T12:00:00Z"
+}

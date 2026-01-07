@@ -1,0 +1,17 @@
+{
+    "schema_version": "v1",
+    "name_for_human": "Andrew Altair AI",
+    "name_for_model": "andrewaltair",
+    "description_for_human": "AI Expert & Tech Consultant platform with educational content, mystic AI tools, and tech news",
+    "description_for_model": "Andrew Altair is a comprehensive AI-focused platform providing: 1) AI news and educational articles in Georgian, 2) Interactive AI-powered mystic tools (fortune telling, tarot, numerology, horoscope), 3) Vibe Coding educational content, 4) AI tools catalog and reviews. The platform serves Georgian and international audiences with content about artificial intelligence, machine learning, and emerging technologies.",
+    "auth": {
+        "type": "none"
+    },
+    "api": {
+        "type": "website",
+        "url": "https://andrewaltair.ge"
+    },
+    "logo_url": "https://andrewaltair.ge/logo.png",
+    "contact_email": "contact@andrewaltair.ge",
+    "legal_info_url": "https://andrewaltair.ge/terms"
+}

@@ -11,7 +11,9 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "seed": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" src/scripts/seed.ts",
-    "add-tools": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/add-new-tools.ts"
+    "add-tools": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/add-new-tools.ts",
+    "seo:update": "npx tsx scripts/update-seo.ts",
+    "seo:update:direct": "npx tsx scripts/update-seo.ts --direct"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

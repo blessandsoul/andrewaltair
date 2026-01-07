@@ -1,0 +1,81 @@
+# llms.txt - AI/LLM Crawler Instructions
+# https://llmstxt.org/
+
+> Andrew Altair AI - Comprehensive AI Expert Platform
+
+This file provides context for AI/LLM crawlers about the Andrew Altair website.
+
+## Site Overview
+
+**Name:** Andrew Altair AI
+**URL:** https://andrewaltair.ge
+**Primary Language:** Georgian (ka)
+**Secondary Language:** English (en)
+**Owner:** Andrew Altair - AI Expert & Tech Consultant from Tbilisi, Georgia
+
+## Site Purpose
+
+Andrew Altair is a platform dedicated to AI education, mystic AI tools, and technology insights for Georgian and international audiences. The platform offers:
+
+- AI news and articles in Georgian language
+- Interactive AI-powered mystic tools (fortune telling, tarot, numerology)
+- Vibe Coding educational content
+- AI tools catalog and reviews
+- Technology tutorials and guides
+
+## Main Sections
+
+### /blog
+AI news, tutorials, and insights. Updated daily with new content about artificial intelligence, machine learning, and emerging technologies.
+
+### /encyclopedia/vibe-coding
+Educational library about Vibe Coding methodology - a new approach to programming with AI assistance.
+
+### /tools
+Catalog of AI tools with reviews, guides, and recommendations.
+
+### /mystic
+Interactive AI-powered mystic tools including:
+- Fortune Telling (გადალი)
+- Tarot Readings (ტაროტი)
+- Numerology (ნუმეროლოგია)
+- Horoscope (ჰოროსკოპი)
+- Dream Interpretation (სიზმრები)
+
+### /videos
+Video content including AI tutorials, tech reviews, and educational materials.
+
+### /about
+Information about Andrew Altair, credentials, and contact details.
+
+## Technical Details
+
+- **Framework:** Next.js 14 with App Router
+- **Database:** MongoDB Atlas
+- **AI Provider:** Groq API (Llama 3.3)
+- **Deployment:** Docker/Coolify
+
+## API Access
+
+Public API endpoints are not available for external use. All API routes are for internal site functionality only.
+
+## Contact
+
+- Website: https://andrewaltair.ge
+- YouTube: https://www.youtube.com/@AndrewAltair
+- Instagram: https://www.instagram.com/andr3waltair/
+- Telegram: https://t.me/andr3waltairchannel
+- Facebook: https://www.facebook.com/andr3waltair
+- X/Twitter: https://x.com/andr3waltair
+- LinkedIn: https://www.linkedin.com/in/andrewaltair
+
+## Crawling Preferences
+
+- Respectful crawling is welcome
+- Maximum crawl rate: 1 request per second
+- Please honor robots.txt directives
+- Admin and API routes should not be indexed
+
+## For More Information
+
+See /llms-full.txt for extended content and full article listings.
