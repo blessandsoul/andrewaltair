@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { TbPlayerPlay, TbBrandYoutube, TbEye, TbClock, TbSparkles, TbArrowRight, TbSend, TbMail, TbTrendingUp, TbBolt, TbHeart, TbBookmark } from "react-icons/tb"
 import { brand } from "@/lib/brand"
-import TbPhoto from "next/image"
+import Image from "next/image"
 
 // TbVideo interface
 interface TbVideo {
@@ -111,7 +111,7 @@ export default async function VideosPage() {
                                     <CardContent className="p-0">
                                         <div className="relative aspect-[9/16] overflow-hidden rounded-xl">
                                             {/* YouTube Thumbnail */}
-                                            <TbPhoto
+                                            <Image
                                                 src={`https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`}
                                                 alt={video.title}
                                                 fill
@@ -188,7 +188,7 @@ export default async function VideosPage() {
                                     <CardContent className="p-0">
                                         <div className="relative aspect-video overflow-hidden">
                                             {/* YouTube Thumbnail */}
-                                            <TbPhoto
+                                            <Image
                                                 src={`https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`}
                                                 alt={video.title}
                                                 fill

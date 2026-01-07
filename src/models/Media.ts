@@ -4,6 +4,8 @@ export interface IMedia extends Document {
     _id: mongoose.Types.ObjectId;
     name: string;
     url: string;
+    data?: string; // base64 encoded image data
+    mimeType?: string; // e.g., 'image/jpeg', 'image/png'
     type: 'image' | 'video';
     size: string;
     sizeBytes: number;
@@ -28,6 +30,12 @@ const MediaSchema = new Schema<IMedia>(
         url: {
             type: String,
             required: [true, 'URL is required'],
+        },
+        data: {
+            type: String, // base64 encoded
+        },
+        mimeType: {
+            type: String,
         },
         type: {
             type: String,

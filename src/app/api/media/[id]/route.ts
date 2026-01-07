@@ -6,17 +6,36 @@ interface RouteParams {
     params: Promise<{ id: string }>;
 }
 
-// GET - Get a single media item
+// GET - Get a single media item (serves image binary if data exists)
 export async function GET(request: Request, { params }: RouteParams) {
     try {
         await dbConnect();
         const { id } = await params;
-        const media = await Media.findById(id).lean();
+
+        // Try to find by ID first, then by name
+        let media = await Media.findById(id).lean();
+        if (!media) {
+            media = await Media.findOne({ name: id }).lean();
+        }
 
         if (!media) {
             return NextResponse.json({ error: 'Media not found' }, { status: 404 });
         }
 
+        // If media has base64 data, serve as binary image
+        if (media.data) {
+            const buffer = Buffer.from(media.data, 'base64');
+            return new NextResponse(buffer, {
+                status: 200,
+                headers: {
+                    'Content-Type': media.mimeType || 'image/jpeg',
+                    'Cache-Control': 'public, max-age=31536000, immutable',
+                    'Content-Length': buffer.length.toString(),
+                },
+            });
+        }
+
+        // Fallback: return JSON metadata (for API clients)
         return NextResponse.json({
             media: { ...media, id: media._id.toString() },
         });

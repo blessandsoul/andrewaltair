@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
+import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth'
 
 // Generate slug from text (Georgian transliteration)
 function generateSlug(text: string): string {
@@ -25,22 +26,20 @@ function generateSlug(text: string): string {
         .slice(0, 60)
 }
 
-import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth'
-
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export async function POST(request: NextRequest) {
     try {
         // 🛡️ Require authentication (Admin only)
-        if (!verifyAdmin(request)) { // verifyAdmin handles both cookie and header
+        if (!verifyAdmin(request)) {
             return unauthorizedResponse('Admin access required');
         }
 
         const formData = await request.formData()
         const file = formData.get('file') as File
         const title = formData.get('title') as string || 'untitled'
-        const type = formData.get('type') as string || 'horizontal' // 'horizontal' or 'vertical'
+        const type = formData.get('type') as string || 'horizontal'
 
         if (!file) {
             return NextResponse.json(
@@ -61,13 +60,9 @@ export async function POST(request: NextRequest) {
 
         // Generate SEO-friendly filename
         let slug = generateSlug(title)
-
-        // Remove leading/trailing hyphens
         slug = slug.replace(/^-+|-+$/g, '')
-
-        // Fallback to random ID if slug is empty or too short
         if (!slug || slug.length < 3) {
-            slug = `image-${Date.now().toString(36)}` // fallback
+            slug = `image-${Date.now().toString(36)}`
         }
 
         const ext = file.name.split('.').pop() || 'jpg'
@@ -75,11 +70,8 @@ export async function POST(request: NextRequest) {
         const year = date.getFullYear()
         const month = String(date.getMonth() + 1).padStart(2, '0')
 
-        // Final filename: slug-type-timestamp.ext (e.g., neuralink-maski-horizontal-1767803400123.jpg)
         const timestamp = Date.now()
         const filename = `${slug}-${type}-${timestamp}.${ext}`
-
-        console.log('Saving file:', filename) // Debug log
 
         // Upload path: public/uploads/YYYY/MM/
         const uploadDir = path.join(process.cwd(), 'public', 'uploads', String(year), month)
@@ -92,7 +84,7 @@ export async function POST(request: NextRequest) {
         const buffer = Buffer.from(await file.arrayBuffer())
         await writeFile(filePath, buffer)
 
-        // Return public URL via API route (bypasses Next.js static file caching issues)
+        // Return public URL via API route
         const publicUrl = `/api/files/${year}/${month}/${filename}`
 
         return NextResponse.json({
