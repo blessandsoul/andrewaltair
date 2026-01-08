@@ -1411,27 +1411,27 @@ function EditPostModal({
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">კატეგორია</label>
-                                <div className="flex flex-col gap-1 max-h-[200px] overflow-y-auto pr-1">
-                                    {brand.categories.map(cat => {
-                                        const IconComponent = ICON_MAP[cat.icon] || TbFileText;
-                                        const isSelected = formData.category === cat.id;
-                                        return (
-                                            <button
-                                                key={cat.id}
-                                                type="button"
-                                                onClick={() => setFormData({ ...formData, category: cat.id })}
-                                                className={`flex items-center gap-2 px-3 py-2 rounded-md border text-left text-sm transition-colors ${isSelected
-                                                    ? 'border-primary bg-primary/10 text-primary'
-                                                    : 'border-input bg-background hover:bg-accent/50'
-                                                    }`}
-                                            >
-                                                <IconComponent className="w-4 h-4" />
-                                                {cat.name}
-                                                {isSelected && <TbCheck className="w-4 h-4 ml-auto" />}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
+                                <Select
+                                    value={formData.category}
+                                    onValueChange={(v) => setFormData({ ...formData, category: v })}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="აირჩიეთ კატეგორია" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {brand.categories.map(cat => {
+                                            const IconComponent = ICON_MAP[cat.icon] || TbFileText;
+                                            return (
+                                                <SelectItem key={cat.id} value={cat.id}>
+                                                    <div className="flex items-center gap-2">
+                                                        <IconComponent className="w-4 h-4" />
+                                                        <span>{cat.name}</span>
+                                                    </div>
+                                                </SelectItem>
+                                            );
+                                        })}
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">სტატუსი</label>

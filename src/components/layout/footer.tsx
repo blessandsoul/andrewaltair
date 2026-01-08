@@ -143,22 +143,15 @@ export function Footer() {
             </div>
           </div>
 
-          {/* TOP.GE Counter - Visible badge */}
+          {/* TOP.GE Counter */}
           <div className="mt-6 flex justify-center">
-            <a href="https://www.top.ge/rating/andrewaltair-ge" target="_blank" rel="noopener noreferrer">
-              <img
-                src="//counter.top.ge/counter.php?id=117786&type=3"
-                alt="TOP.GE Counter"
-                className="h-10"
-              />
-            </a>
+            <div id="top-ge-counter-container" data-site-id="117786" />
           </div>
         </div>
       </div>
 
       {/* TOP.GE Counter Script */}
-      <div id="top-ge-counter-container" data-site-id="117786" className="hidden" />
-      <Script src="//counter.top.ge/counter.js" strategy="lazyOnload" />
+      <Script src="//counter.top.ge/counter.js" strategy="afterInteractive" />
     </footer>
   )
 }
