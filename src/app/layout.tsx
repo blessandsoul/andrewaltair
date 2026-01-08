@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Noto_Sans_Georgian } from "next/font/google";
 import "./globals.css";
+import Script from "next/script";
 import { LayoutWrapper } from "@/components/layout/LayoutWrapper";
 import { AuthProvider } from "@/lib/auth";
 import { ToastProvider } from "@/components/ui/toast";
 import { ConfirmDialogProvider } from "@/components/ui/confirm-dialog";
-import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 
 const inter = Inter({
@@ -224,9 +224,25 @@ export default function RootLayout({
             </ConfirmDialogProvider>
           </ToastProvider>
         </AuthProvider>
-        <GoogleAnalytics GA_MEASUREMENT_ID={process.env.NEXT_PUBLIC_GA_ID || ''} />
 
-
+        {/* Google Tag Manager */}
+        <Script id="google-tag-manager" strategy="afterInteractive">
+          {`
+            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','GTM-P4T74Z4G');
+          `}
+        </Script>
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-P4T74Z4G"
+            height="0"
+            width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
+          />
+        </noscript>
       </body>
     </html>
   );

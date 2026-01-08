@@ -104,6 +104,8 @@ export const brand = {
     { id: "articles", name: "სტატიები", icon: "FileText", color: "#6366f1" },
     { id: "ai", name: "ხელოვნური ინტელექტი", icon: "Bot", color: "#22d3ee" },
     { id: "science", name: "მეცნიერება და ტექნიკა", icon: "Atom", color: "#10b981" },
+    { id: "tutorials", name: "ტუტორიალები", icon: "Book", color: "#f59e0b" },
+    { id: "news", name: "სიახლეები", icon: "News", color: "#ef4444" },
   ],
 
   // Animation presets
