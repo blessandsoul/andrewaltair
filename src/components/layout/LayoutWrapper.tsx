@@ -17,6 +17,8 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
     const isAdminRoute = pathname?.startsWith("/admin")
     const isMysticRoute = pathname === "/mystic"
+    // Check if on blog post detail page (has slug after /blog/)
+    const isBlogPostPage = pathname?.startsWith("/blog/") && pathname !== "/blog/"
 
     // Don't show main layout elements on admin pages
     if (isAdminRoute) {
@@ -90,7 +92,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
             </Suspense>
 
             <ScrollProgress />
-            <BackToTop />
+            {!isBlogPostPage && <BackToTop />}
 
             {/* Global Effects */}
             <EasterEgg />

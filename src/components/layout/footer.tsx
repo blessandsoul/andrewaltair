@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Script from "next/script"
 import {
   TbRobot,
   TbMail,
@@ -143,6 +144,10 @@ export function Footer() {
           </div>
         </div>
       </div>
+
+      {/* TOP.GE Counter */}
+      <div id="top-ge-counter-container" data-site-id="117786" />
+      <Script src="//counter.top.ge/counter.js" strategy="lazyOnload" />
     </footer>
   )
 }

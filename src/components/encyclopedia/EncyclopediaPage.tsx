@@ -19,17 +19,24 @@ import {
     TbRocket,
     TbDeviceLaptop,
     TbChartBar,
-    TbClock
+    TbClock,
+    TbSearch,
+    TbChartPie
 } from 'react-icons/tb';
 import { useState } from 'react';
 import Link from 'next/link';
+import { EncyclopediaSearch, useEncyclopediaSearch } from './EncyclopediaSearch';
 
 export default function EncyclopediaPage() {
     const [shareModalOpen, setShareModalOpen] = useState(false);
     const [referralCode] = useState('USER123');
+    const { isOpen: isSearchOpen, open: openSearch, close: closeSearch } = useEncyclopediaSearch();
 
     return (
         <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: '#fafafa' }}>
+            {/* Global Search Modal */}
+            <EncyclopediaSearch isOpen={isSearchOpen} onClose={closeSearch} />
+
             {/* Animated Background */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-br from-purple-200/40 via-pink-200/30 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
@@ -57,122 +64,234 @@ export default function EncyclopediaPage() {
                         ყველაფერი რაც გჭირდება AI-ით პროგრამირების შესასწავლად.
                         სტატიები, ვიდეოები, case studies და ექსპერტების ანალიზი ერთ ადგილას.
                     </p>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap items-center justify-center gap-4">
+                        <button
+                            onClick={openSearch}
+                            className="inline-flex items-center gap-2 px-5 py-3 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all hover:border-purple-300"
+                        >
+                            <TbSearch size={20} className="text-purple-600" />
+                            <span className="font-medium">ძიება</span>
+                            <kbd className="ml-2 px-2 py-0.5 bg-gray-100 rounded text-xs text-gray-500">⌘K</kbd>
+                        </button>
+                        <Link
+                            href="/encyclopedia/progress"
+                            className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl shadow-sm hover:shadow-md transition-all hover:scale-105"
+                        >
+                            <TbChartPie size={20} />
+                            <span className="font-medium">ჩემი პროგრესი</span>
+                        </Link>
+                    </div>
                 </motion.div>
 
                 {/* Sections Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-                    {/* Section 1: Vibe Coding Encyclopedia */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="group"
-                    >
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-16">
+                    {/* Section 1: Vibe Coding */}
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="group">
                         <Link href="/encyclopedia/vibe-coding">
-                            <div className="bg-white rounded-2xl shadow-xl p-8 border border-purple-100 hover:shadow-2xl transition-all hover:scale-[1.02] cursor-pointer h-full">
-                                <div className="flex items-start justify-between mb-6">
-                                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                                        <TbBook size={32} className="text-white" />
+                            <div className="bg-white rounded-2xl shadow-xl p-6 border border-purple-100 hover:shadow-2xl transition-all hover:scale-[1.02] cursor-pointer h-full">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                                        <TbBook size={28} className="text-white" />
                                     </div>
-                                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 border border-green-200">
-                                        <TbCircleCheck size={16} className="text-green-600" />
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 border border-green-200">
+                                        <TbCircleCheck size={14} className="text-green-600" />
                                         <span className="text-xs font-semibold text-green-700">ხელმისაწვდომი</span>
                                     </div>
                                 </div>
-
-                                <h2 className="text-3xl font-bold text-gray-900 mb-3 group-hover:text-purple-600 transition-colors">
-                                    Vibe Coding ენციკლოპედია
-                                </h2>
-
-                                <p className="text-gray-600 mb-6">
-                                    სრული სახელმძღვანელო AI-ასისტირებულ პროგრამირებაზე.
-                                    12+ სტატია, ექსპერტების ანალიზი, რეალური case studies.
-                                </p>
-
-                                <div className="space-y-3 mb-6">
-                                    {[
-                                        { icon: TbBook, text: '12+ დეტალური სტატია' },
-                                        { icon: TbChartBar, text: 'Andrej Karpathy ანალიზი' },
-                                        { icon: TbDeviceLaptop, text: '2025 ინსტრუმენტების რეიტინგი' },
-                                        { icon: TbBulb, text: 'Prompting სტრატეგიები' },
-                                        { icon: TbRocket, text: 'Production-ready case studies' }
-                                    ].map((item, idx) => (
-                                        <div key={idx} className="flex items-center gap-2 text-sm text-gray-700">
-                                            <item.icon size={18} className="text-purple-500 shrink-0" />
-                                            <span>{item.text}</span>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                                    <div className="flex items-center gap-2">
-                                        <TbStar size={20} className="text-yellow-400 fill-yellow-400" />
-                                        <span className="font-semibold text-gray-900">4.9/5</span>
-                                        <span className="text-sm text-gray-500">(2,847 მომხმარებელი)</span>
+                                <h2 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">Vibe Coding</h2>
+                                <p className="text-gray-600 text-sm mb-4">AI-ასისტირებული პროგრამირება. 12+ სტატია.</p>
+                                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                                    <div className="flex items-center gap-1.5">
+                                        <TbStar size={16} className="text-yellow-400 fill-yellow-400" />
+                                        <span className="text-sm font-semibold text-gray-900">4.9/5</span>
                                     </div>
-                                    <TbArrowRight size={24} className="text-purple-600 group-hover:translate-x-2 transition-transform" />
+                                    <TbArrowRight size={20} className="text-purple-600 group-hover:translate-x-1 transition-transform" />
                                 </div>
                             </div>
                         </Link>
                     </motion.div>
 
-                    {/* Section 2: TbVideo Tutorials (Coming Soon) */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="group relative"
-                    >
-                        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200 h-full opacity-75">
-                            <div className="flex items-start justify-between mb-6">
-                                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                                    <TbVideo size={32} className="text-white" />
+                    {/* Section 2: Prompt Engineering */}
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="group">
+                        <Link href="/encyclopedia/prompt-engineering">
+                            <div className="bg-white rounded-2xl shadow-xl p-6 border border-violet-100 hover:shadow-2xl transition-all hover:scale-[1.02] cursor-pointer h-full">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center">
+                                        <TbSparkles size={28} className="text-white" />
+                                    </div>
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 border border-green-200">
+                                        <TbCircleCheck size={14} className="text-green-600" />
+                                        <span className="text-xs font-semibold text-green-700">ხელმისაწვდომი</span>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 border border-orange-200">
-                                    <TbCalendar size={16} className="text-orange-600" />
+                                <h2 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-violet-600 transition-colors">Prompt Engineering</h2>
+                                <p className="text-gray-600 text-sm mb-4">Chain-of-Thought, Few-Shot, მზა პრომპტები.</p>
+                                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                                    <div className="flex items-center gap-1.5">
+                                        <TbBulb size={16} className="text-violet-500" />
+                                        <span className="text-sm font-semibold text-gray-700">6 სტატია</span>
+                                    </div>
+                                    <TbArrowRight size={20} className="text-violet-600 group-hover:translate-x-1 transition-transform" />
+                                </div>
+                            </div>
+                        </Link>
+                    </motion.div>
+
+                    {/* Section 3: AI Monetization */}
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="group">
+                        <Link href="/encyclopedia/ai-monetization">
+                            <div className="bg-white rounded-2xl shadow-xl p-6 border border-green-100 hover:shadow-2xl transition-all hover:scale-[1.02] cursor-pointer h-full">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                                        <TbGift size={28} className="text-white" />
+                                    </div>
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 border border-green-200">
+                                        <TbCircleCheck size={14} className="text-green-600" />
+                                        <span className="text-xs font-semibold text-green-700">ხელმისაწვდომი</span>
+                                    </div>
+                                </div>
+                                <h2 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">AI მონეტიზაცია</h2>
+                                <p className="text-gray-600 text-sm mb-4">ფრილანსი, პროდუქტები, $2k-15k/თვე.</p>
+                                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                                    <div className="flex items-center gap-1.5">
+                                        <TbRocket size={16} className="text-green-500" />
+                                        <span className="text-sm font-semibold text-gray-700">5 სტატია</span>
+                                    </div>
+                                    <TbArrowRight size={20} className="text-green-600 group-hover:translate-x-1 transition-transform" />
+                                </div>
+                            </div>
+                        </Link>
+                    </motion.div>
+
+                    {/* Section 4: AI Automation */}
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="group">
+                        <Link href="/encyclopedia/ai-automation">
+                            <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100 hover:shadow-2xl transition-all hover:scale-[1.02] cursor-pointer h-full">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                                        <TbChartBar size={28} className="text-white" />
+                                    </div>
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 border border-green-200">
+                                        <TbCircleCheck size={14} className="text-green-600" />
+                                        <span className="text-xs font-semibold text-green-700">ხელმისაწვდომი</span>
+                                    </div>
+                                </div>
+                                <h2 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">AI ავტომატიზაცია</h2>
+                                <p className="text-gray-600 text-sm mb-4">Zapier, Make.com, ROI $2-10k/თვე.</p>
+                                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                                    <div className="flex items-center gap-1.5">
+                                        <TbDeviceLaptop size={16} className="text-blue-500" />
+                                        <span className="text-sm font-semibold text-gray-700">5 სტატია</span>
+                                    </div>
+                                    <TbArrowRight size={20} className="text-blue-600 group-hover:translate-x-1 transition-transform" />
+                                </div>
+                            </div>
+                        </Link>
+                    </motion.div>
+
+                    {/* Section 5: AI Tools */}
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="group">
+                        <Link href="/encyclopedia/ai-tools">
+                            <div className="bg-white rounded-2xl shadow-xl p-6 border border-orange-100 hover:shadow-2xl transition-all hover:scale-[1.02] cursor-pointer h-full">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
+                                        <TbDeviceLaptop size={28} className="text-white" />
+                                    </div>
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 border border-green-200">
+                                        <TbCircleCheck size={14} className="text-green-600" />
+                                        <span className="text-xs font-semibold text-green-700">ხელმისაწვდომი</span>
+                                    </div>
+                                </div>
+                                <h2 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors">AI ინსტრუმენტები</h2>
+                                <p className="text-gray-600 text-sm mb-4">100+ ინსტრუმენტი: Midjourney, Runway...</p>
+                                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                                    <div className="flex items-center gap-1.5">
+                                        <TbCheck size={16} className="text-orange-500" />
+                                        <span className="text-sm font-semibold text-gray-700">5 სტატია</span>
+                                    </div>
+                                    <TbArrowRight size={20} className="text-orange-600 group-hover:translate-x-1 transition-transform" />
+                                </div>
+                            </div>
+                        </Link>
+                    </motion.div>
+
+                    {/* Section 6: AI Career */}
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="group">
+                        <Link href="/encyclopedia/ai-career">
+                            <div className="bg-white rounded-2xl shadow-xl p-6 border border-pink-100 hover:shadow-2xl transition-all hover:scale-[1.02] cursor-pointer h-full">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center">
+                                        <TbUsers size={28} className="text-white" />
+                                    </div>
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 border border-green-200">
+                                        <TbCircleCheck size={14} className="text-green-600" />
+                                        <span className="text-xs font-semibold text-green-700">ხელმისაწვდომი</span>
+                                    </div>
+                                </div>
+                                <h2 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-pink-600 transition-colors">AI კარიერა</h2>
+                                <p className="text-gray-600 text-sm mb-4">Resume, Interview, მომავლის პროფესიები.</p>
+                                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                                    <div className="flex items-center gap-1.5">
+                                        <TbRocket size={16} className="text-pink-500" />
+                                        <span className="text-sm font-semibold text-gray-700">4 სტატია</span>
+                                    </div>
+                                    <TbArrowRight size={20} className="text-pink-600 group-hover:translate-x-1 transition-transform" />
+                                </div>
+                            </div>
+                        </Link>
+                    </motion.div>
+
+                    {/* Section 7: AI Ethics */}
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="group">
+                        <Link href="/encyclopedia/ai-ethics">
+                            <div className="bg-white rounded-2xl shadow-xl p-6 border border-red-100 hover:shadow-2xl transition-all hover:scale-[1.02] cursor-pointer h-full">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center">
+                                        <TbBook size={28} className="text-white" />
+                                    </div>
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 border border-green-200">
+                                        <TbCircleCheck size={14} className="text-green-600" />
+                                        <span className="text-xs font-semibold text-green-700">ხელმისაწვდომი</span>
+                                    </div>
+                                </div>
+                                <h2 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-red-600 transition-colors">AI ეთიკა</h2>
+                                <p className="text-gray-600 text-sm mb-4">Copyright, დეტექტორები, უსაფრთხოება.</p>
+                                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                                    <div className="flex items-center gap-1.5">
+                                        <TbCheck size={16} className="text-red-500" />
+                                        <span className="text-sm font-semibold text-gray-700">4 სტატია</span>
+                                    </div>
+                                    <TbArrowRight size={20} className="text-red-600 group-hover:translate-x-1 transition-transform" />
+                                </div>
+                            </div>
+                        </Link>
+                    </motion.div>
+
+                    {/* Section 8: Video Tutorials (Coming Soon) */}
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="group relative">
+                        <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-200 h-full opacity-60">
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center">
+                                    <TbVideo size={28} className="text-white" />
+                                </div>
+                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-100 border border-orange-200">
+                                    <TbCalendar size={14} className="text-orange-600" />
                                     <span className="text-xs font-semibold text-orange-700">მალე</span>
                                 </div>
                             </div>
-
-                            <h2 className="text-3xl font-bold text-gray-900 mb-3">
-                                ვიდეო გაკვეთილები
-                            </h2>
-
-                            <p className="text-gray-600 mb-6">
-                                ვიზუალური სახელმძღვანელოები AI ინსტრუმენტებზე.
-                                ნაბიჯ-ნაბიჯ ტუტორიალები და პრაქტიკული მაგალითები.
-                            </p>
-
-                            <div className="space-y-3 mb-6">
-                                {[
-                                    { icon: TbVideo, text: '50+ ვიდეო ტუტორიალი' },
-                                    { icon: TbClock, text: '20+ საათი კონტენტი' },
-                                    { icon: TbDeviceLaptop, text: 'Screen recordings' },
-                                    { icon: TbBook, text: 'კოდის მაგალითები' },
-                                    { icon: TbCheck, text: 'ქვიზები და დავალებები' }
-                                ].map((item, idx) => (
-                                    <div key={idx} className="flex items-center gap-2 text-sm text-gray-500">
-                                        <item.icon size={18} className="shrink-0" />
-                                        <span>{item.text}</span>
-                                    </div>
-                                ))}
+                            <h2 className="text-2xl font-bold text-gray-900 mb-2">ვიდეო გაკვეთილები</h2>
+                            <p className="text-gray-600 text-sm mb-4">50+ ვიდეო ტუტორიალი, 20+ საათი.</p>
+                            <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                                <span className="text-sm font-semibold text-gray-500">იანვარი 2026</span>
+                                <TbLock size={20} className="text-gray-400" />
                             </div>
-
-                            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                                <div className="flex items-center gap-2">
-                                    <TbCalendar size={20} className="text-orange-500" />
-                                    <span className="font-semibold text-gray-700">იანვარი 2026</span>
-                                </div>
-                                <TbLock size={24} className="text-gray-400" />
-                            </div>
-
-                            {/* Coming Soon Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-white/60 to-white/40 backdrop-blur-[2px] rounded-2xl flex items-center justify-center">
-                                <div className="text-center">
-                                    <TbSparkles size={48} className="mx-auto mb-3 text-orange-500" />
-                                    <p className="text-2xl font-bold text-gray-900">მალე დაემატება</p>
-                                    <p className="text-sm text-gray-600 mt-1">იანვარი 2026</p>
-                                </div>
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-white/30 backdrop-blur-[1px] rounded-2xl flex items-center justify-center">
+                            <div className="text-center">
+                                <TbSparkles size={32} className="mx-auto mb-2 text-orange-500" />
+                                <p className="text-lg font-bold text-gray-900">მალე</p>
                             </div>
                         </div>
                     </motion.div>

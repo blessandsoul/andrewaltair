@@ -19,7 +19,7 @@ function useTabs() {
 }
 
 interface TabsProps {
-    defaultValue: string
+    defaultValue?: string
     value?: string
     onValueChange?: (value: string) => void
     children: React.ReactNode
@@ -27,14 +27,14 @@ interface TabsProps {
 }
 
 export function Tabs({
-    defaultValue,
+    defaultValue = "",
     value: controlledValue,
     onValueChange,
     children,
     className,
 }: TabsProps) {
     const [internalValue, setInternalValue] = React.useState(defaultValue)
-    const value = controlledValue ?? internalValue
+    const value = controlledValue ?? internalValue ?? ""
 
     const handleValueChange = React.useCallback(
         (newValue: string) => {

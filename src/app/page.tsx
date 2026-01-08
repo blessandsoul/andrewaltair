@@ -249,7 +249,7 @@ export default async function Home() {
               <PostCard
                 key={post.id}
                 post={post as any}
-                showExcerpt={false}
+                showExcerpt={true}
                 showTags={true}
                 showAuthor={true}
               />

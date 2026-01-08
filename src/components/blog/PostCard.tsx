@@ -105,137 +105,99 @@ export function PostCard({
                 onMouseLeave={() => setIsHovered(false)}
             >
                 <CardContent className="p-0">
-                    {/* TbPhoto Container */}
-                    <div className="aspect-video relative overflow-hidden">
-                        {/* Background gradient */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10" />
+                    {/* Horizontal Layout - Compact Design */}
+                    <div className="flex">
+                        {/* Thumbnail - Left Side (compact) */}
+                        <div className="relative w-32 min-h-[140px] flex-shrink-0 overflow-hidden">
+                            {/* Background gradient */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20" />
 
-                        {/* TbPhoto */}
-                        {(post.coverImage || post.coverImages?.horizontal) ? (
-                            <Image
-                                src={post.coverImages?.horizontal || post.coverImage || ''}
-                                alt={post.title}
-                                fill
-                                className="object-cover transition-transform duration-700 group-hover:scale-110"
-                            />
-                        ) : (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <TbSparkles className="w-10 h-10 text-primary/30 group-hover:scale-110 transition-transform" />
-                            </div>
-                        )}
+                            {/* Image */}
+                            {(post.coverImage || post.coverImages?.horizontal) ? (
+                                <Image
+                                    src={post.coverImages?.horizontal || post.coverImage || ''}
+                                    alt={post.title}
+                                    fill
+                                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                />
+                            ) : (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <TbSparkles className="w-8 h-8 text-primary/40 group-hover:scale-110 transition-transform" />
+                                </div>
+                            )}
 
-                        {/* Gradient Overlay - для читаемости текста */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                        {/* Category Badge with color */}
-                        <Badge
-                            className="absolute top-3 left-3 text-xs z-10 border-0 backdrop-blur-sm"
-                            style={{
-                                backgroundColor: `${categoryInfo.color}20`,
-                                color: categoryInfo.color,
-                                borderColor: categoryInfo.color
-                            }}
-                        >
-                            {categoryInfo.name}
-                        </Badge>
-
-                        {/* Trending Badge */}
-                        {post.trending && (
-                            <Badge className="absolute top-3 right-12 bg-red-500 text-white border-0 text-xs z-10 animate-pulse">
-                                <TbFlame className="w-3 h-3 mr-1" />
-                                ცხელი
+                            {/* Category Badge overlay */}
+                            <Badge
+                                className="absolute bottom-2 left-2 text-[10px] z-10 border-0 backdrop-blur-sm"
+                                style={{
+                                    backgroundColor: `${categoryInfo.color}30`,
+                                    color: categoryInfo.color
+                                }}
+                            >
+                                {categoryInfo.name}
                             </Badge>
-                        )}
 
-                        {/* Bookmark Button */}
-                        <button
-                            onClick={handleBookmark}
-                            className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center z-10 transition-all duration-300 ${isBookmarked
-                                ? "bg-primary text-white"
-                                : "bg-background/80 backdrop-blur-sm text-muted-foreground hover:bg-background hover:text-primary"
-                                } ${isHovered || isBookmarked ? "opacity-100" : "opacity-0"}`}
-                        >
-                            <TbBookmark className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`} />
-                        </button>
-
-                        {/* Hover Preview Overlay */}
-                        <div className={`absolute inset-x-0 bottom-0 p-4 transition-all duration-300 ${isHovered ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
-                            }`}>
-                            <p className="text-white text-sm line-clamp-2 drop-shadow-lg">
-                                {post.excerpt}
-                            </p>
+                            {/* Trending Badge */}
+                            {post.trending && (
+                                <Badge className="absolute top-2 left-2 bg-red-500 text-white border-0 text-[10px] z-10 px-1.5 py-0.5">
+                                    <TbFlame className="w-3 h-3" />
+                                </Badge>
+                            )}
                         </div>
-                    </div>
 
-                    {/* Content */}
-                    <div className="p-4 space-y-3 flex flex-col h-full">
-                        {/* Tags Row - Premium Badges */}
-                        {showTags && post.tags && post.tags.length > 0 && (
-                            <div className="flex items-center gap-2 flex-wrap mb-1">
-                                {post.tags.slice(0, 2).map(tag => (
-                                    <Badge
-                                        key={tag}
-                                        variant="secondary"
-                                        className="text-[10px] font-medium bg-secondary/50 text-secondary-foreground hover:bg-secondary px-2 py-0.5 rounded-full transition-colors"
-                                    >
-                                        #{tag}
-                                    </Badge>
-                                ))}
-                            </div>
-                        )}
+                        {/* Content - Right Side */}
+                        <div className="flex-1 p-3 flex flex-col justify-between min-w-0">
+                            {/* Tags */}
+                            {showTags && post.tags && post.tags.length > 0 && (
+                                <div className="flex items-center gap-1.5 flex-wrap mb-1.5">
+                                    {post.tags.slice(0, 2).map(tag => (
+                                        <Badge
+                                            key={tag}
+                                            variant="secondary"
+                                            className="text-[9px] font-medium bg-secondary/50 text-secondary-foreground px-1.5 py-0 rounded-full"
+                                        >
+                                            #{tag}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            )}
 
-                        {/* Title */}
-                        <h3 className="text-lg font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors">
-                            {post.title}
-                        </h3>
+                            {/* Title */}
+                            <h3 className="text-sm font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors mb-1.5">
+                                {post.title}
+                            </h3>
 
-                        {/* Excerpt - Ensuring visibility */}
-                        {showExcerpt && variant !== "compact" && (
-                            <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
-                                {post.excerpt}
-                            </p>
-                        )}
+                            {/* Excerpt */}
+                            {showExcerpt && variant !== "compact" && (
+                                <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mb-2">
+                                    {post.excerpt}
+                                </p>
+                            )}
 
-                        <div className="flex-1" /> {/* Spacer */}
-
-                        {/* Author & Date Row */}
-                        {showAuthor && (
-                            <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
-                                <div className="flex items-center gap-2 group/author">
-                                    {/* Author Avatar with Ring */}
-                                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-xs font-bold ring-2 ring-background shadow-sm group-hover/author:scale-110 transition-transform">
-                                        {post.author.name.charAt(0)}
+                            {/* Bottom Row - Author & Stats */}
+                            <div className="flex items-center justify-between text-[10px] text-muted-foreground mt-auto pt-2 border-t border-border/30">
+                                {/* Author */}
+                                {showAuthor && (
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-[9px] font-bold">
+                                            {post.author.name.charAt(0)}
+                                        </div>
+                                        <span className="font-medium truncate max-w-[60px]">{post.author.name}</span>
                                     </div>
-                                    <span className="font-medium group-hover/author:text-foreground transition-colors">{post.author.name}</span>
-                                </div>
-                                <div className="flex items-center gap-1 bg-secondary/30 px-2 py-1 rounded-full">
-                                    <TbClock className="w-3 h-3" />
-                                    <span>{formatRelativeDate(post.publishedAt)}</span>
-                                </div>
-                            </div>
-                        )}
+                                )}
 
-                        {/* Stats & Read More Row */}
-                        <div className="flex items-center justify-between pt-4 mt-2 border-t border-border/50">
-                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                <span className="flex items-center gap-1.5 hover:text-primary transition-colors">
-                                    <TbEye className="w-4 h-4" />
-                                    {formatNumber(post.views)}
-                                </span>
-                                <span className="flex items-center gap-1.5 hover:text-blue-500 transition-colors">
-                                    <TbMessage className="w-4 h-4" />
-                                    {formatNumber(post.comments)}
-                                </span>
-                                <span className="flex items-center gap-1.5 text-red-500/80 hover:text-red-600 transition-colors">
-                                    <TbHeart className="w-4 h-4" />
-                                    {formatNumber(getTotalReactions(post.reactions))}
-                                </span>
-                            </div>
-
-                            {/* Read More Text CTA */}
-                            <div className="text-xs font-semibold text-primary flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                                წაიკითხე
-                                <TbArrowRight className="w-3.5 h-3.5" />
+                                {/* Stats */}
+                                <div className="flex items-center gap-2">
+                                    <span className="flex items-center gap-0.5">
+                                        <TbEye className="w-3 h-3" />
+                                        {formatNumber(post.views)}
+                                    </span>
+                                    <span className="flex items-center gap-0.5 text-red-500/80">
+                                        <TbHeart className="w-3 h-3" />
+                                        {formatNumber(getTotalReactions(post.reactions))}
+                                    </span>
+                                    <TbArrowRight className="w-3 h-3 text-primary group-hover:translate-x-0.5 transition-transform" />
+                                </div>
                             </div>
                         </div>
                     </div>
