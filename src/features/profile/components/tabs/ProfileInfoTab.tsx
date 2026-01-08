@@ -5,7 +5,7 @@
 "use client"
 
 import * as React from "react"
-import { TbUser, TbMail, TbCalendar, TbFileText, TbEdit, TbX, TbDeviceFloppy } from "react-icons/tb"
+import { TbUser, TbMail, TbCalendar, TbFileText, TbEdit, TbX, TbDeviceFloppy, TbLoader, TbCheck } from "react-icons/tb"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,6 +17,8 @@ export function ProfileInfoTab() {
     const { user, updateUser, token } = useAuth()
     const { success, error: toastError } = useToast()
     const [isEditing, setIsEditing] = React.useState(false)
+    const [isLoading, setIsLoading] = React.useState(false)
+    const [isSaved, setIsSaved] = React.useState(false)
     const [formData, setFormData] = React.useState<ProfileFormData>({
         fullName: user?.fullName || "",
         email: user?.email || "",
@@ -42,6 +44,7 @@ export function ProfileInfoTab() {
         setErrors({})
 
         try {
+            setIsLoading(true)
             const res = await fetch('/api/user/profile', {
                 method: 'PUT',
                 headers: {
@@ -56,12 +59,18 @@ export function ProfileInfoTab() {
             if (res.ok) {
                 updateUser(data.user);
                 success('წარმატება', 'პროფილი წარმატებით განახლდა');
-                setIsEditing(false);
+                setIsSaved(true)
+                setTimeout(() => {
+                    setIsSaved(false)
+                    setIsEditing(false);
+                }, 1000)
             } else {
                 toastError('შეცდომა', data.error || 'პროფილის განახლება ვერ მოხერხდა');
             }
         } catch (e) {
             toastError('შეცდომა', 'სერვერთან დაკავშირება ვერ მოხერხდა');
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -200,9 +209,15 @@ export function ProfileInfoTab() {
 
                 {isEditing && (
                     <div className="flex justify-end pt-4 border-t">
-                        <Button onClick={handleSave} className="gap-2">
-                            <TbDeviceFloppy className="w-4 h-4" />
-                            შენახვა
+                        <Button onClick={handleSave} className="gap-2" disabled={isLoading}>
+                            {isLoading ? (
+                                <TbLoader className="w-4 h-4 animate-spin" />
+                            ) : isSaved ? (
+                                <TbCheck className="w-4 h-4" />
+                            ) : (
+                                <TbDeviceFloppy className="w-4 h-4" />
+                            )}
+                            {isLoading ? "ინახება..." : isSaved ? "შენახულია" : "შენახვა"}
                         </Button>
                     </div>
                 )}

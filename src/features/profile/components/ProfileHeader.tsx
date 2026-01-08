@@ -265,9 +265,8 @@ export function ProfileHeader({ onAvatarChange, onCoverChange, onLogout }: Profi
                                     onChange={handleAvatarFileChange}
                                 />
                                 {isGod && (
-                                    <div className="absolute -top-2 -right-2 text-3xl animate-bounce" aria-label="ღმერთი">
-                                        👑
-                                    </div>
+                                    // Crown removed as requested
+                                    null
                                 )}
                             </div>
 
@@ -288,9 +287,8 @@ export function ProfileHeader({ onAvatarChange, onCoverChange, onLogout }: Profi
                                 </div>
 
                                 {user.badge && (
-                                    <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 text-sm ml-2">
-                                        {user.badge}
-                                    </div>
+                                    // Badge removed as requested
+                                    null
                                 )}
                             </div>
 

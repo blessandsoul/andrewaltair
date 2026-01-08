@@ -151,7 +151,7 @@ export function Footer() {
       </div>
 
       {/* TOP.GE Counter Script */}
-      <Script src="//counter.top.ge/counter.js" strategy="afterInteractive" />
+      <Script src="https://counter.top.ge/counter.js" strategy="afterInteractive" />
     </footer>
   )
 }
