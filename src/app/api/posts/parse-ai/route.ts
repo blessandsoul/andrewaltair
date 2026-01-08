@@ -15,6 +15,7 @@ interface ParseResult {
     sections: ParsedSection[]
     tags: string[]
     focusKeyword?: string  // From ⭐️ Text line
+    telegramContent?: string  // Extracted PART 2 content for Telegram channel
     readingTime: number
 }
 
@@ -126,6 +127,12 @@ const SYSTEM_PROMPT = `შენ ხარ კონტენტ სტრუქ
 2. წაშალე ყველა **bold მარკერი** - დატოვე მხოლოდ ტექსტი შიგნით
 3. არ გამოიყენო emoji - გამოიყენე icon სახელები (lucide)
 
+⚠️ კრიტიკულად მნიშვნელოვანი: INTRO სექციის სრულად შენახვა!
+- intro სექცია = ყველა პარაგრაფი სათაურიდან პირველ emoji-მდე
+- ᲐᲣᲪᲘᲚᲔᲑᲚᲐᲓ ჩართე სრული ტექსტი, ყველა პარაგრაფი, ყველა წინადადება!
+- ნურაფერს გამოტოვებ ან შეამოკლებ intro-ში!
+- თუ intro შეიცავს 3-4 პარაგრაფს, სამივე/ოთხივე უნდა იყოს content-ში
+
 ⚠️ მნიშვნელოვანი: მრავალნაწილიანი კონტენტი
 - თუ ტექსტში არის === [PART 1: ...] და === [PART 2: ...] მარკერები:
   - PART 1 (FACEBOOK) = მთავარი სტატია - ეს უნდა დააპარსო
@@ -141,7 +148,7 @@ const SYSTEM_PROMPT = `შენ ხარ კონტენტ სტრუქ
 5. გამოტოვე www.ANDREWALTAIR.ge ლინკები, Prompt: სექციები, 🎶, ⭐️ და 🫣 ხაზები (რეკლამა)
 
 სექციების ტიპები:
-- "intro" - შესავალი
+- "intro" - შესავალი (ᲡᲠᲣᲚᲘ ტექსტი სათაურიდან პირველ emoji-მდე!)
 - "section" - ჩვეულებრივი სექცია
 - "warning" - გაფრთხილება (🔴 → icon: AlertTriangle)
 - "tip" - რჩევა (🟢 → icon: Lightbulb)
@@ -155,18 +162,18 @@ Icon მაგალითები:
 JSON ფორმატი:
 {
     "title": "სათაური emoji-ს და **-ს გარეშე",
-    "excerpt": "შესავალი 200 სიმბოლომდე (გაწმენდილი)",
+    "excerpt": "პირველი 200 სიმბოლო intro-დან",
     "sections": [
-        {"type": "intro", "content": "გაწმენდილი ტექსტი **-ს გარეშე"},
-        {"type": "section", "icon": "TrendingDown", "title": "სათაური", "content": "გაწმენდილი ტექსტი"},
+        {"type": "intro", "content": "ᲡᲠᲣᲚᲘ შესავალი ტექსტი - ყველა პარაგრაფი პირველ emoji-სექციამდე, არაფერი გამოტოვებული!"},
+        {"type": "section", "icon": "TrendingDown", "title": "სათაური", "content": "სრული ტექსტი"},
         {"type": "author-comment", "icon": "MessageCircle", "content": "ტექნიკური კომენტარი"}
     ],
     "tags": ["tag1", "tag2"],
     "readingTime": 5
 }
 
-❌ არასწორი: PART 2-ის კონტენტის ჩართვა, **bold** მარკერების დატოვება
-✅ სწორი: მხოლოდ PART 1, გაწმენდილი ტექსტი + lucide icon სახელები
+❌ არასწორი: intro-ს შემოკლება, PART 2-ის კონტენტის ჩართვა, **bold** მარკერების დატოვება
+✅ სწორი: სრული intro (ყველა პარაგრაფი!), მხოლოდ PART 1, გაწმენდილი ტექსტი + lucide icon სახელები
 
 არ დაამატო არაფერი JSON-ის გარდა.`
 
@@ -234,10 +241,11 @@ function fallbackParse(rawContent: string): ParseResult {
 
     let currentSection: ParsedSection | null = null
     let focusKeyword = '' // Extract from ⭐️ line
+    let telegramLines: string[] = []  // Accumulate Telegram content
 
     // State machine for multi-part parsing
-    // PART1 → after 1st hashtags → SKIP_PART2 → after 2nd hashtags+--- → AUTHOR_COMMENT → after --- → SKIP_PROMPTS
-    type ParseState = 'PART1' | 'SKIP_PART2' | 'AUTHOR_COMMENT' | 'SKIP_PROMPTS'
+    // PART1 → after 1st hashtags → EXTRACT_PART2 → after 2nd hashtags+--- → AUTHOR_COMMENT → after --- → SKIP_PROMPTS
+    type ParseState = 'PART1' | 'EXTRACT_PART2' | 'AUTHOR_COMMENT' | 'SKIP_PROMPTS'
     let state: ParseState = 'PART1'
     let hashtagCount = 0  // Track hashtag sections seen
 
@@ -284,16 +292,15 @@ function fallbackParse(rawContent: string): ParseResult {
             hashtagCount++
 
             if (state === 'PART1') {
-                // First hashtags - switch to skip mode, but don't add hashtags to sections
+                // First hashtags - switch to extract PART 2 mode
                 if (currentSection) sections.push(currentSection)
-                // Extract tags for internal use but don't add hashtags section to content
+                // Extract tags for internal use
                 extractedTags = (trimmed.match(/#[\u10A0-\u10FFa-zA-Z0-9_]+/g) || []).map(t => t.slice(1))
                 currentSection = null
-                state = 'SKIP_PART2'
-            } else if (state === 'SKIP_PART2') {
-                // Second hashtags - prepare for author comment
-                // Look ahead for --- which signals author comment
-                state = 'SKIP_PART2' // Stay in skip until we see ---
+                state = 'EXTRACT_PART2'
+            } else if (state === 'EXTRACT_PART2') {
+                // Second hashtags in PART 2 - will transition to author comment on ---
+                hashtagCount++
             }
             continue
         }
@@ -311,7 +318,7 @@ function fallbackParse(rawContent: string): ParseResult {
             }
 
             // After second hashtags + --- = author comment section starts
-            if (state === 'SKIP_PART2' && hashtagCount >= 2) {
+            if (state === 'EXTRACT_PART2' && hashtagCount >= 2) {
                 state = 'AUTHOR_COMMENT'
                 currentSection = null
             }
@@ -334,8 +341,10 @@ function fallbackParse(rawContent: string): ParseResult {
         }
 
         // Handle based on state
-        if (state === 'SKIP_PART2') {
-            continue // Skip all PART2 content
+        if (state === 'EXTRACT_PART2') {
+            // Extract Telegram content instead of skipping
+            telegramLines.push(cleanContent(trimmed))
+            continue
         }
 
         if (state === 'AUTHOR_COMMENT') {
@@ -415,6 +424,7 @@ function fallbackParse(rawContent: string): ParseResult {
         sections: cleanSections,
         tags: extractedTags,
         focusKeyword: focusKeyword || '', // From ⭐️ Text line
+        telegramContent: telegramLines.join('\n\n').trim(), // Extracted PART 2 content
         readingTime: Math.max(1, Math.ceil(rawContent.split(/\s+/).length / 200))
     }
 }
@@ -441,6 +451,34 @@ export async function POST(request: NextRequest) {
         try {
             // Try AI parsing first
             result = await callGroq(rawContent, GROQ_API_KEY)
+
+            // Validate AI result - check if intro was truncated
+            const introSection = result.sections?.find(s => s.type === 'intro')
+            if (introSection) {
+                // Estimate expected intro length from rawContent
+                // Find first emoji-prefixed line (excluding title)
+                const lines = rawContent.split('\n')
+                let introEndIndex = lines.length
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim()
+                    // Skip empty lines and lines starting with ** (headers)
+                    if (!line || line.startsWith('**')) continue
+                    // Check for emoji at start (but not the title emoji)
+                    if (/^[\u{1F300}-\u{1F9FF}]/u.test(line) && !line.startsWith('🎬') && !line.startsWith('🧟')) {
+                        introEndIndex = i
+                        break
+                    }
+                }
+
+                // Calculate expected intro content (lines 1 to introEndIndex)
+                const expectedIntroLines = lines.slice(1, introEndIndex).filter(l => l.trim()).join('\n')
+
+                // If AI intro is significantly shorter than expected (less than 50%), use fallback
+                if (expectedIntroLines.length > 500 && introSection.content.length < expectedIntroLines.length * 0.5) {
+                    console.warn('AI truncated intro, using fallback parser. Expected:', expectedIntroLines.length, 'Got:', introSection.content.length)
+                    result = fallbackParse(rawContent)
+                }
+            }
         } catch (aiError) {
             console.error('AI parsing failed, using fallback:', aiError)
             // Use fallback regex parser

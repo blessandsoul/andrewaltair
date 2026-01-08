@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Booking from '@/models/Booking';
+import { getUserFromRequest } from '@/lib/server-auth';
 
 // GET: Get user's bookings
 export async function GET(req: NextRequest) {
     try {
         await dbConnect();
 
-        const userId = req.headers.get('x-user-id');
-        if (!userId) {
+        const user = await getUserFromRequest(req);
+        if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
+        const userId = user._id.toString();
 
         const bookings = await Booking.find({ userId })
             .sort({ date: -1 })
@@ -28,10 +30,11 @@ export async function POST(req: NextRequest) {
     try {
         await dbConnect();
 
-        const userId = req.headers.get('x-user-id');
-        if (!userId) {
+        const user = await getUserFromRequest(req);
+        if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
+        const userId = user._id.toString();
 
         const { expertId, expertName, date, time, notes } = await req.json();
 

@@ -1,20 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
+import { getUserFromRequest } from '@/lib/server-auth';
 
 // GET: Get user gamification stats for progress snapshot
 export async function GET(req: NextRequest) {
     try {
         await dbConnect();
 
-        const userId = req.headers.get('x-user-id');
-        if (!userId) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
-        const user = await User.findById(userId).select('gamification');
+        const user = await getUserFromRequest(req);
         if (!user) {
-            return NextResponse.json({ error: 'User not found' }, { status: 404 });
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         // Calculate weekly stats from gamification data

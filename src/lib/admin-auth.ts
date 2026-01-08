@@ -114,9 +114,8 @@ export function validateAdminPassword(password: string, ip: string): {
         loginAttempts.delete(ip);
         return { valid: true, locked: false, remainingAttempts: MAX_LOGIN_ATTEMPTS };
     } else {
-        console.log('Admin Auth Debug: Password mismatch');
-        console.log('Expected (length):', ADMIN_PASSWORD?.length);
-        console.log('Received (length):', password?.length);
+        // Password mismatch - log without leaking sensitive info
+        console.log('Admin Auth: Invalid password attempt from IP (tracked for rate limiting)');
     }
 
     // Failed attempt - increment counter

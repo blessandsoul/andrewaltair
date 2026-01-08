@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Bot from "@/models/Bot";
+import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 
 // GET - List all bots with filtering
 export async function GET(request: NextRequest) {
@@ -88,6 +89,10 @@ export async function GET(request: NextRequest) {
 
 // POST - Create a new bot
 export async function POST(request: NextRequest) {
+    if (!verifyAdmin(request)) {
+        return unauthorizedResponse('Admin access required');
+    }
+
     try {
         await dbConnect();
 

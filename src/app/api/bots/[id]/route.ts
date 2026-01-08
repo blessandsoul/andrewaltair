@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Bot from "@/models/Bot";
 import mongoose from "mongoose";
+import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -57,6 +58,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
 // PUT - Update bot
 export async function PUT(request: NextRequest, { params }: RouteParams) {
+    if (!verifyAdmin(request)) {
+        return unauthorizedResponse('Admin access required');
+    }
+
     try {
         await dbConnect();
         const { id } = await params;
@@ -105,6 +110,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
 // DELETE - Delete bot
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
+    if (!verifyAdmin(request)) {
+        return unauthorizedResponse('Admin access required');
+    }
+
     try {
         await dbConnect();
         const { id } = await params;

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Comment from '@/models/Comment';
+import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -39,6 +40,10 @@ export async function GET(request: Request, { params }: RouteParams) {
 
 // PUT - Update a comment (approve/reject/edit)
 export async function PUT(request: Request, { params }: RouteParams) {
+    if (!verifyAdmin(request)) {
+        return unauthorizedResponse('Admin access required');
+    }
+
     try {
         await dbConnect();
 
@@ -80,6 +85,10 @@ export async function PUT(request: Request, { params }: RouteParams) {
 
 // DELETE - Delete a comment
 export async function DELETE(request: Request, { params }: RouteParams) {
+    if (!verifyAdmin(request)) {
+        return unauthorizedResponse('Admin access required');
+    }
+
     try {
         await dbConnect();
 

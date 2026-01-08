@@ -1,9 +1,14 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Backup from '@/models/Backup';
+import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 
 // GET - List all backups
-export async function GET() {
+export async function GET(request: Request) {
+    if (!verifyAdmin(request)) {
+        return unauthorizedResponse('Admin access required');
+    }
+
     try {
         await dbConnect();
 
@@ -28,6 +33,10 @@ export async function GET() {
 
 // POST - Create new backup
 export async function POST(request: Request) {
+    if (!verifyAdmin(request)) {
+        return unauthorizedResponse('Admin access required');
+    }
+
     try {
         await dbConnect();
 

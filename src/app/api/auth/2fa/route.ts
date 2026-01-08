@@ -12,7 +12,10 @@ import {
     verifyBackupCode,
 } from '@/lib/totp'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret'
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required');
+}
 
 // Helper to get user from token
 async function getUserFromToken(request: NextRequest) {
@@ -22,7 +25,7 @@ async function getUserFromToken(request: NextRequest) {
     }
     const token = authHeader.substring(7)
     try {
-        const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+        const decoded = jwt.verify(token, JWT_SECRET!) as { userId: string }
         return decoded.userId
     } catch {
         return null

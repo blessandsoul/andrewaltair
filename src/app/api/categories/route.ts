@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Category from '@/models/Category';
+import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 
-// GET - List all categories
+// GET - List all categories (public - needed for navigation)
 export async function GET() {
     try {
         await dbConnect();
@@ -30,6 +31,10 @@ export async function GET() {
 
 // POST - Create a new category
 export async function POST(request: Request) {
+    if (!verifyAdmin(request)) {
+        return unauthorizedResponse('Admin access required');
+    }
+
     try {
         await dbConnect();
 

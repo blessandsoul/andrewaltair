@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { TbDeviceFloppy, TbEye, TbX, TbPlus, TbPhoto, TbFileText, TbTag, TbFolder, TbClock, TbStar, TbFlame, TbWorld, TbArrowLeft, TbWand, TbDeviceDesktop, TbDeviceMobile, TbTrash, TbChevronDown, TbChevronUp, TbSparkles, TbUpload, TbLoader2, TbFileCheck, TbLayout, TbCheck, TbArrowUp, TbArrowDown, TbRobot, TbAtom } from "react-icons/tb"
+import { TbDeviceFloppy, TbEye, TbX, TbPlus, TbPhoto, TbFileText, TbTag, TbFolder, TbClock, TbStar, TbFlame, TbWorld, TbArrowLeft, TbWand, TbDeviceDesktop, TbDeviceMobile, TbTrash, TbChevronDown, TbChevronUp, TbSparkles, TbUpload, TbLoader2, TbFileCheck, TbLayout, TbCheck, TbArrowUp, TbArrowDown, TbRobot, TbAtom, TbBrandTelegram } from "react-icons/tb"
 // ... (imports remain the same logic, I need to match the line) 
 
 // ...
@@ -97,6 +97,8 @@ export interface PostData {
         videoResult: string
         music: string
     }
+    telegramContent?: string  // Short version for Telegram channel
+    postToTelegram?: boolean  // Toggle for auto-posting to Telegram
 }
 
 const DEFAULT_POST: PostData = {
@@ -142,7 +144,9 @@ const DEFAULT_POST: PostData = {
         videoPrompt: "",
         videoResult: "",
         music: ""
-    }
+    },
+    telegramContent: "",
+    postToTelegram: true
 }
 
 // Generate slug from title
@@ -586,6 +590,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                 tags: generatedTags,
                 readingTime: result.readingTime || 5,
                 slug: prev.slug || generateSlug(result.title || prev.title),
+                telegramContent: result.telegramContent || prev.telegramContent || '',  // Save Telegram content
                 seo: {
                     ...prev.seo,
                     focusKeyword: seoData.focusKeyword || prev.seo.focusKeyword,
@@ -1047,6 +1052,54 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                             </div>
                         </CardContent>
                     </Card>
+
+                    {/* Telegram Version */}
+                    {post.telegramContent && (
+                        <Card className="border-2 border-blue-500/30 bg-blue-500/5">
+                            <CardHeader className="pb-2">
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="text-lg flex items-center gap-2">
+                                        <TbBrandTelegram className="w-5 h-5 text-blue-500" />
+                                        Telegram ვერსია
+                                    </CardTitle>
+                                    <div className="flex items-center gap-2">
+                                        <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={post.postToTelegram}
+                                                onChange={(e) => setPost(prev => ({ ...prev, postToTelegram: e.target.checked }))}
+                                                className="w-4 h-4 rounded border-gray-300 text-blue-500 focus:ring-blue-500"
+                                            />
+                                            არხზე გამოქვეყნება
+                                        </label>
+                                    </div>
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                    @andr3waltairchannel - მოკლე ვერსია Telegram-ისთვის
+                                </p>
+                            </CardHeader>
+                            <CardContent>
+                                <textarea
+                                    placeholder="Telegram ვერსია..."
+                                    value={post.telegramContent}
+                                    onChange={(e) => setPost(prev => ({ ...prev, telegramContent: e.target.value }))}
+                                    className="w-full min-h-[200px] px-3 py-2 rounded-md border border-input bg-background font-mono text-sm resize-y"
+                                />
+                                <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                                    <span className="flex items-center gap-1">
+                                        <TbBrandTelegram className="w-3 h-3" />
+                                        {post.telegramContent?.length || 0} სიმბოლო
+                                    </span>
+                                    {post.postToTelegram && (
+                                        <span className="text-blue-500 flex items-center gap-1">
+                                            <TbCheck className="w-3 h-3" />
+                                            გამოქვეყნდება არხზე
+                                        </span>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
 
                     {/* Manage Sections (Manual Edit) */}
                     <Card>

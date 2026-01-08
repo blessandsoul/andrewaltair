@@ -4,7 +4,10 @@ import connectDB from '@/lib/mongodb';
 import Purchase from '@/models/Purchase';
 import User from '@/models/User';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required');
+}
 
 export async function GET(
     request: NextRequest,
@@ -33,7 +36,7 @@ export async function GET(
         let userEmail = null;
 
         try {
-            const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+            const decoded = jwt.verify(token, JWT_SECRET!) as { userId: string };
             const user = await User.findById(decoded.userId);
             if (user) {
                 userEmail = user.email;

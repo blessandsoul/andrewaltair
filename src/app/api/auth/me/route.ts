@@ -4,7 +4,10 @@ import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import Session from '@/models/Session';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required');
+}
 
 export async function GET(request: Request) {
     try {
@@ -20,7 +23,7 @@ export async function GET(request: Request) {
         const token = authHeader.substring(7);
 
         try {
-            const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; role: string };
+            const decoded = jwt.verify(token, JWT_SECRET!) as { userId: string; role: string };
 
             await dbConnect();
 

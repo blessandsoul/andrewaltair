@@ -4,9 +4,14 @@ import Post from '@/models/Post';
 import Video from '@/models/Video';
 import User from '@/models/User';
 import Comment from '@/models/Comment';
+import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 
 // GET - Aggregated analytics data
-export async function GET() {
+export async function GET(request: Request) {
+    if (!verifyAdmin(request)) {
+        return unauthorizedResponse('Admin access required');
+    }
+
     try {
         await dbConnect();
 

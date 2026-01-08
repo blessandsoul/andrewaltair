@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Backup from '@/models/Backup';
+import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -8,6 +9,10 @@ interface RouteParams {
 
 // DELETE - Delete a backup
 export async function DELETE(request: Request, { params }: RouteParams) {
+    if (!verifyAdmin(request)) {
+        return unauthorizedResponse('Admin access required');
+    }
+
     try {
         await dbConnect();
         const { id } = await params;

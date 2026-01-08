@@ -95,6 +95,7 @@ export interface IPost extends Document {
     createdAt: Date;
     updatedAt: Date;
     numericId?: string;
+    telegramContent?: string;  // Short Telegram version for channel posting
 }
 
 const ReactionsSchema = new Schema<IReactions>(
@@ -311,6 +312,10 @@ const PostSchema = new Schema<IPost>(
             unique: true,
             sparse: true,
             index: true
+        },
+        telegramContent: {
+            type: String,
+            default: ''
         }
     },
     {

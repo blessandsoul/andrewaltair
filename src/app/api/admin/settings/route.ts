@@ -2,9 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
 import Setting from '@/models/Setting'
 import { VALID_SETTING_KEYS } from '@/lib/settings'
+import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth'
 
 // GET - Retrieve all settings (masked values for sensitive data)
-export async function GET() {
+export async function GET(request: Request) {
+    if (!verifyAdmin(request)) {
+        return unauthorizedResponse('Admin access required');
+    }
+
     try {
         await dbConnect()
 
@@ -27,6 +32,10 @@ export async function GET() {
 
 // POST - Create or update a setting
 export async function POST(request: NextRequest) {
+    if (!verifyAdmin(request)) {
+        return unauthorizedResponse('Admin access required');
+    }
+
     try {
         await dbConnect()
 

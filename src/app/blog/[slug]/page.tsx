@@ -96,13 +96,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
   // Use the new coverImages structure if available, fallback to coverImage, then default
   const imageUrl = post.coverImages?.horizontal || post.coverImage || `${siteUrl}/default-og.jpg`
+  // Use telegramContent as SEO description fallback (shorter, optimized for social)
+  const seoDescription = post.seo?.metaDescription || post.excerpt || post.telegramContent?.slice(0, 160) || post.title
 
   return {
     title: `${post.title} | Andrew Altair`,
-    description: post.excerpt || post.title,
+    description: seoDescription,
     openGraph: {
       title: post.title,
-      description: post.excerpt,
+      description: seoDescription,
       url: `${siteUrl}/blog/${slug}`,
       images: [{ url: imageUrl, width: 1200, height: 630 }],
       type: 'article',
@@ -114,7 +116,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     twitter: {
       card: 'summary_large_image',
       title: post.title,
-      description: post.excerpt,
+      description: seoDescription,
       images: [imageUrl],
     },
   }
