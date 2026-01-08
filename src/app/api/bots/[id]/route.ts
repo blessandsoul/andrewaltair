@@ -24,8 +24,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             return NextResponse.json({ error: "Bot not found" }, { status: 404 });
         }
 
-        // Increment views/downloads
-        await Bot.findByIdAndUpdate(id, { $inc: { downloads: 1 } });
+        // 🛡️ REMOVED: Auto-increment downloads on every GET
+        // Downloads should only increment on actual bot usage/purchase
 
         // For private bots, hide the prompt
         const masterPrompt = bot.tier === 'private' ? null : bot.masterPrompt;
@@ -141,6 +141,17 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 // POST - Like a bot
 export async function POST(request: NextRequest, { params }: RouteParams) {
     try {
+        // 🛡️ AUTHENTICATION REQUIRED
+        const { getUserFromRequest } = await import('@/lib/server-auth');
+        const user = await getUserFromRequest(request);
+        
+        if (!user) {
+            return NextResponse.json(
+                { error: "ავტორიზაცია აუცილებელია" },
+                { status: 401 }
+            );
+        }
+
         await dbConnect();
         const { id } = await params;
 
@@ -148,6 +159,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
             return NextResponse.json({ error: "Invalid bot ID" }, { status: 400 });
         }
 
+        // 🛡️ Check if user already liked this bot (implement BotLike model later)
+        // For now, just increment - proper implementation needs a BotLike collection
         const bot = await Bot.findByIdAndUpdate(
             id,
             { $inc: { likes: 1 } },
@@ -160,10 +173,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
         return NextResponse.json({
             id: bot._id.toString(),
-            likes: bot.likes
+            likes: bot.likes,
+            message: 'ლაიქი დაემატა'
         });
     } catch (error) {
         console.error("Like bot error:", error);
-        return NextResponse.json({ error: "Failed to like bot" }, { status: 500 });
+        return NextResponse.json({ error: "ლაიქის დამატება ვერ მოხერხდა" }, { status: 500 });
     }
 }

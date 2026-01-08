@@ -99,14 +99,25 @@ export const brand = {
     github: "https://github.com/andrewaltair",
   },
 
-  // Categories for blog posts
+  // Categories for blog posts - articles is parent, others are subcategories
   categories: [
-    { id: "articles", name: "სტატიები", icon: "FileText", color: "#6366f1" },
-    { id: "ai", name: "ხელოვნური ინტელექტი", icon: "Bot", color: "#22d3ee" },
-    { id: "science", name: "მეცნიერება და ტექნიკა", icon: "Atom", color: "#10b981" },
-    { id: "tutorials", name: "ტუტორიალები", icon: "Book", color: "#f59e0b" },
-    { id: "news", name: "სიახლეები", icon: "News", color: "#ef4444" },
+    {
+      id: "articles",
+      name: "სტატიები",
+      icon: "FileText",
+      color: "#6366f1",
+      isParent: true,
+      subcategories: [
+        { id: "ai", name: "ხელოვნური ინტელექტი", icon: "Bot", color: "#22d3ee" },
+        { id: "science", name: "მეცნიერება და ტექნიკა", icon: "Atom", color: "#10b981" },
+        { id: "tutorials", name: "ტუტორიალები", icon: "Book", color: "#f59e0b" },
+        { id: "news", name: "სიახლეები", icon: "News", color: "#ef4444" },
+      ]
+    },
   ],
+
+  // Default category for new posts
+  defaultCategory: "ai",
 
   // Animation presets
   animations: {

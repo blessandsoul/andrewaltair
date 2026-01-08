@@ -143,15 +143,16 @@ export function Footer() {
             </div>
           </div>
 
-          {/* TOP.GE Counter */}
+          {/* TOP.GE ASYNC COUNTER CODE */}
           <div className="mt-6 flex justify-center">
-            <div id="top-ge-counter-container" data-site-id="117786" />
+            <div id="top-ge-counter-container" data-site-id="117786"></div>
           </div>
+          {/* / END OF TOP.GE COUNTER CODE */}
         </div>
       </div>
 
       {/* TOP.GE Counter Script */}
-      <Script src="https://counter.top.ge/counter.js" strategy="afterInteractive" />
+      <Script src="//counter.top.ge/counter.js" strategy="afterInteractive" />
     </footer>
   )
 }

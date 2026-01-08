@@ -40,14 +40,13 @@ export async function POST(request: NextRequest) {
         // Generate JWT token
         const token = generateAdminToken();
 
-        // Create response with httpOnly cookie
+        // 🛡️ Create response WITHOUT token in body (only in httpOnly cookie)
         const response = NextResponse.json({
             success: true,
-            token,
             message: 'წარმატებით შეხვედით'
         });
 
-        // Set httpOnly cookie for extra security
+        // Set httpOnly cookie for security
         response.cookies.set('admin_session', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',

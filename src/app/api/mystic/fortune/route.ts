@@ -1,6 +1,7 @@
 import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
 import { AI_CONFIG, FORTUNE_RULES, pickRandom, parseAIResponse } from "@/lib/mystic-rules"
+import { protectMysticEndpoint, validateInputLength } from "@/lib/mystic-auth"
 
 // Lazy initialization to avoid build-time errors
 function getClient() {
@@ -12,12 +13,20 @@ function getClient() {
 
 export async function POST(request: NextRequest) {
     try {
+        // 🛡️ AUTHENTICATION & RATE LIMITING
+        const { user, error } = await protectMysticEndpoint(request, 'fortune');
+        if (error) return error;
+
         const client = getClient()
         const { name, birthDate } = await request.json()
 
         if (!name) {
             return NextResponse.json({ error: "Name is required" }, { status: 400 })
         }
+
+        // 🛡️ Validate input length
+        const lengthError = validateInputLength(name, 'სახელი', 2, 100);
+        if (lengthError) return lengthError;
 
         const style = pickRandom(FORTUNE_RULES.styles)
         const theme = pickRandom(FORTUNE_RULES.themes)

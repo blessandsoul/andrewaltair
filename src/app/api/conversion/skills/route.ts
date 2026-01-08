@@ -1,20 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
+import { getUserFromRequest } from '@/lib/server-auth';
 
 // GET: Get user's unlocked skills
 export async function GET(req: NextRequest) {
     try {
         await dbConnect();
 
-        const userId = req.headers.get('x-user-id');
-        if (!userId) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
-        const user = await User.findById(userId).select('gamification');
+        const user = await getUserFromRequest(req);
         if (!user) {
-            return NextResponse.json({ error: 'User not found' }, { status: 404 });
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         return NextResponse.json({
@@ -32,19 +28,14 @@ export async function POST(req: NextRequest) {
     try {
         await dbConnect();
 
-        const userId = req.headers.get('x-user-id');
-        if (!userId) {
+        const user = await getUserFromRequest(req);
+        if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const { skillId } = await req.json();
         if (!skillId) {
             return NextResponse.json({ error: 'Skill ID required' }, { status: 400 });
-        }
-
-        const user = await User.findById(userId);
-        if (!user) {
-            return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
         // Initialize gamification if not exists

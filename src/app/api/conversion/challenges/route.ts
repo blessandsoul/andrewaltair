@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Challenge from '@/models/Challenge';
 import User from '@/models/User';
+import { getUserFromRequest } from '@/lib/server-auth';
 
-// GET: List active challenges
+// GET: List active challenges (public)
 export async function GET() {
     try {
         await dbConnect();
@@ -25,10 +26,11 @@ export async function POST(req: NextRequest) {
     try {
         await dbConnect();
 
-        const userId = req.headers.get('x-user-id');
-        if (!userId) {
+        const user = await getUserFromRequest(req);
+        if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
+        const userId = user._id.toString();
 
         const { challengeId, action } = await req.json();
         if (!challengeId) {

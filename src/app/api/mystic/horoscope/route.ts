@@ -1,6 +1,7 @@
 import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
 import { AI_CONFIG, HOROSCOPE_RULES, pickRandom, parseAIResponse } from "@/lib/mystic-rules"
+import { protectMysticEndpoint } from "@/lib/mystic-auth"
 
 // Lazy initialization to avoid build-time errors
 function getClient() {
@@ -12,6 +13,10 @@ function getClient() {
 
 export async function POST(request: NextRequest) {
     try {
+        // 🛡️ AUTHENTICATION & RATE LIMITING
+        const { user, error } = await protectMysticEndpoint(request, 'horoscope');
+        if (error) return error;
+
         const client = getClient()
         const { sign, signName } = await request.json()
 

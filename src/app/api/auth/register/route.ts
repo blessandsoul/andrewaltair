@@ -57,13 +57,21 @@ export async function POST(request: Request) {
             );
         }
 
-        // Create new user
+        // 🛡️ Generate email verification token
+        const crypto = await import('crypto');
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+        // Create new user (NOT verified yet)
         const user = new User({
             username,
             email,
             password,
             fullName,
-            role: 'viewer', // Default role for new users
+            role: 'viewer',
+            isEmailVerified: false,
+            emailVerificationToken: verificationToken,
+            emailVerificationExpires: verificationExpires,
         });
 
         await user.save();
@@ -71,32 +79,16 @@ export async function POST(request: Request) {
         // 🎯 TRACK SIGNUP ACTIVITY
         trackSignup(fullName, user._id.toString()).catch(() => { })
 
-        // Send welcome email (non-blocking)
-        sendWelcomeEmail(fullName, email).catch(err => console.error('Welcome email error:', err))
+        // Send verification email (non-blocking)
+        const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://andrewaltair.ge'}/verify-email?token=${verificationToken}`;
+        sendWelcomeEmail(fullName, email, verificationUrl).catch(err => console.error('Verification email error:', err))
 
-        // Generate JWT token
-        const token = jwt.sign(
-            { userId: user._id, role: user.role },
-            JWT_SECRET!,
-            { expiresIn: '7d' }
-        );
-
-        // Return user data (without password)
-        const userData = {
-            id: user._id.toString(),
-            username: user.username,
-            email: user.email,
-            fullName: user.fullName,
-            avatar: user.avatar,
-            role: user.role,
-            badge: user.badge,
-            createdAt: user.createdAt.toISOString(),
-        };
-
+        // 🛡️ DO NOT issue JWT until email is verified
         return NextResponse.json({
             success: true,
-            user: userData,
-            token,
+            message: 'რეგისტრაცია წარმატებულია! გთხოვთ შეამოწმოთ თქვენი ელ-ფოსტა ანგარიშის გასააქტიურებლად.',
+            email: user.email,
+            requiresVerification: true,
         });
     } catch (error) {
         console.error('Registration error:', error);

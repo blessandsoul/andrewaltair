@@ -64,7 +64,7 @@ export async function POST(request: Request) {
     try {
         await dbConnect();
 
-        const { email, password, username } = await request.json();
+        const { email, password, username, twoFactorCode } = await request.json();
 
         // Allow login with email or username
         const loginField = email || username;
@@ -99,15 +99,60 @@ export async function POST(request: Request) {
             );
         }
 
+        // 🛡️ Check if email is verified
+        if (!user.isEmailVerified) {
+            return NextResponse.json({
+                error: 'გთხოვთ დაადასტუროთ თქვენი ელ-ფოსტა',
+                requiresVerification: true,
+                email: user.email
+            }, { status: 403 });
+        }
+
         // Verify password
         const isMatch = await user.comparePassword(password);
 
         if (!isMatch) {
+            recordFailedAttempt(ip);
             return NextResponse.json(
                 { error: 'არასწორი პაროლი' },
                 { status: 401 }
             );
         }
+
+        // 🛡️ 2FA CHECK: If user has 2FA enabled, require verification
+        if (user.twoFactorEnabled) {
+            if (!twoFactorCode) {
+                return NextResponse.json({
+                    requires2FA: true,
+                    message: 'გთხოვთ შეიყვანოთ 2FA კოდი',
+                    userId: user._id.toString() // Temporary identifier for 2FA flow
+                }, { status: 403 });
+            }
+
+            // Verify 2FA code
+            const { verifyTOTP } = await import('@/lib/totp');
+            const userWithSecret = await User.findById(user._id).select('+twoFactorSecret');
+            
+            if (!userWithSecret?.twoFactorSecret) {
+                return NextResponse.json(
+                    { error: '2FA კონფიგურაცია არასწორია' },
+                    { status: 500 }
+                );
+            }
+
+            const isValid = verifyTOTP(twoFactorCode, userWithSecret.twoFactorSecret);
+            
+            if (!isValid) {
+                recordFailedAttempt(ip);
+                return NextResponse.json(
+                    { error: 'არასწორი 2FA კოდი' },
+                    { status: 401 }
+                );
+            }
+        }
+
+        // Clear failed attempts on successful login
+        clearAttempts(ip);
 
         // Update last login
         user.lastLogin = new Date();

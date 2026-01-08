@@ -15,6 +15,9 @@ export interface IUser extends Document {
     role: 'god' | 'admin' | 'editor' | 'viewer' | 'subscriber';
     badge?: string;
     isBlocked: boolean;
+    isEmailVerified: boolean;
+    emailVerificationToken?: string;
+    emailVerificationExpires?: Date;
     twoFactorEnabled: boolean;
     twoFactorSecret?: string;
     backupCodes?: string[];
@@ -100,6 +103,18 @@ const UserSchema = new Schema<IUser>(
         isBlocked: {
             type: Boolean,
             default: false,
+        },
+        isEmailVerified: {
+            type: Boolean,
+            default: false,
+        },
+        emailVerificationToken: {
+            type: String,
+            select: false,
+        },
+        emailVerificationExpires: {
+            type: Date,
+            select: false,
         },
         twoFactorEnabled: {
             type: Boolean,

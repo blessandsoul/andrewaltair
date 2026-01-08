@@ -2,14 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Lesson from '@/models/Lesson';
 import User from '@/models/User';
+import { getUserFromRequest } from '@/lib/server-auth';
 
-// GET: List lessons
+// GET: List lessons (public, but with user progress if authenticated)
 export async function GET(req: NextRequest) {
     try {
         await dbConnect();
 
-        const { searchParams } = new URL(req.url);
-        const userId = searchParams.get('userId');
+        // Get user if authenticated (optional)
+        const user = await getUserFromRequest(req);
+        const userId = user?._id?.toString();
 
         const lessons = await Lesson.find({ isActive: true })
             .sort({ order: 1 })
@@ -33,10 +35,16 @@ export async function POST(req: NextRequest) {
     try {
         await dbConnect();
 
-        const { lessonId, userId } = await req.json();
+        const user = await getUserFromRequest(req);
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        const userId = user._id.toString();
 
-        if (!lessonId || !userId) {
-            return NextResponse.json({ error: 'lessonId and userId required' }, { status: 400 });
+        const { lessonId } = await req.json();
+
+        if (!lessonId) {
+            return NextResponse.json({ error: 'lessonId required' }, { status: 400 });
         }
 
         const lesson = await Lesson.findById(lessonId);
@@ -65,9 +73,9 @@ export async function POST(req: NextRequest) {
         });
 
         // Check if level up needed (every 100 XP = 1 level)
-        const user = await User.findById(userId);
-        const newLevel = Math.floor((user?.gamification?.xp || 0) / 100) + 1;
-        if (user && newLevel > (user.gamification?.level || 1)) {
+        const updatedUser = await User.findById(userId);
+        const newLevel = Math.floor((updatedUser?.gamification?.xp || 0) / 100) + 1;
+        if (updatedUser && newLevel > (updatedUser.gamification?.level || 1)) {
             await User.findByIdAndUpdate(userId, {
                 $set: { 'gamification.level': newLevel }
             });
@@ -76,7 +84,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
             success: true,
             xpEarned: lesson.xpReward,
-            newTotalXp: (user?.gamification?.xp || 0),
+            newTotalXp: (updatedUser?.gamification?.xp || 0),
         });
 
     } catch (error) {

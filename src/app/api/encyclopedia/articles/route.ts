@@ -34,6 +34,12 @@ export async function GET(request: NextRequest) {
 
 // POST create new article
 export async function POST(request: NextRequest) {
+    // 🛡️ ADMIN ONLY
+    const { verifyAdmin, unauthorizedResponse } = await import('@/lib/admin-auth');
+    if (!verifyAdmin(request)) {
+        return unauthorizedResponse('Admin access required');
+    }
+
     try {
         await dbConnect();
         const body = await request.json();

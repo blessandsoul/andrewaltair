@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Comment from '@/models/Comment';
+import { getUserFromRequest } from '@/lib/server-auth';
 
 // GET - List all comments with filtering
 export async function GET(request: Request) {
@@ -34,33 +35,50 @@ export async function GET(request: Request) {
             .limit(limit)
             .lean();
 
-        // Get post/tool titles for each comment
+        // 🚀 FIX N+1: Import models once, outside loop
         const Tool = (await import('@/models/Tool')).default;
         const Post = (await import('@/models/Post')).default;
 
-        const transformedComments = await Promise.all(comments.map(async (comment) => {
+        // 🚀 FIX N+1: Collect all IDs and batch fetch
+        const toolIds: string[] = [];
+        const postIds: string[] = [];
+
+        comments.forEach(comment => {
+            if (comment.postId && typeof comment.postId === 'string') {
+                if (comment.postId.startsWith('tool-')) {
+                    toolIds.push(comment.postId.replace('tool-', ''));
+                } else {
+                    postIds.push(comment.postId);
+                }
+            }
+        });
+
+        // Batch fetch tools and posts
+        const [tools, posts] = await Promise.all([
+            toolIds.length > 0 ? Tool.find({ _id: { $in: toolIds } }).select('_id name').lean() : Promise.resolve([]),
+            postIds.length > 0 ? Post.find({ _id: { $in: postIds } }).select('_id title').lean() : Promise.resolve([])
+        ]);
+
+        // Create lookup maps
+        const toolMap = new Map(tools.map(t => [t._id.toString(), t.name]));
+        const postMap = new Map(posts.map(p => [p._id.toString(), p.title]));
+
+        // Transform comments using lookup maps
+        const transformedComments = comments.map(comment => {
             let postTitle = 'Unknown Post';
             
-            // Check if postId starts with "tool-" (for tools)
-            if (comment.postId && typeof comment.postId === 'string' && comment.postId.startsWith('tool-')) {
-                const toolId = comment.postId.replace('tool-', '');
-                try {
-                    const tool = await Tool.findById(toolId).select('name').lean();
-                    if (tool) {
-                        postTitle = `Tool: ${tool.name}`;
+            if (comment.postId && typeof comment.postId === 'string') {
+                if (comment.postId.startsWith('tool-')) {
+                    const toolId = comment.postId.replace('tool-', '');
+                    const toolName = toolMap.get(toolId);
+                    if (toolName) {
+                        postTitle = `Tool: ${toolName}`;
                     }
-                } catch (err) {
-                    console.error('Error fetching tool:', err);
-                }
-            } else {
-                // Try to find post
-                try {
-                    const post = await Post.findById(comment.postId).select('title').lean();
-                    if (post) {
-                        postTitle = `Post: ${post.title}`;
+                } else {
+                    const title = postMap.get(comment.postId);
+                    if (title) {
+                        postTitle = `Post: ${title}`;
                     }
-                } catch (err) {
-                    console.error('Error fetching post:', err);
                 }
             }
 
@@ -72,7 +90,7 @@ export async function GET(request: Request) {
                 author: comment.author,
                 _id: undefined,
             };
-        }));
+        });
 
         return NextResponse.json({
             comments: transformedComments,
@@ -91,12 +109,45 @@ export async function GET(request: Request) {
 // POST - Create a new comment
 export async function POST(request: Request) {
     try {
+        // 🛡️ AUTHENTICATION REQUIRED
+        const user = await getUserFromRequest(request);
+        if (!user) {
+            return NextResponse.json(
+                { error: 'ავტორიზაცია აუცილებელია კომენტარის დასატოვებლად' },
+                { status: 401 }
+            );
+        }
+
         await dbConnect();
 
-        const data = await request.json();
+        const { postId, text, parentId } = await request.json();
 
+        // 🛡️ Validate required fields
+        if (!postId || !text) {
+            return NextResponse.json(
+                { error: 'postId და text აუცილებელია' },
+                { status: 400 }
+            );
+        }
+
+        // 🛡️ Validate text length
+        if (text.length < 2 || text.length > 2000) {
+            return NextResponse.json(
+                { error: 'კომენტარი უნდა იყოს 2-2000 სიმბოლო' },
+                { status: 400 }
+            );
+        }
+
+        // Create comment with authenticated user data
         const comment = new Comment({
-            ...data,
+            postId,
+            text: text.trim(),
+            parentId: parentId || null,
+            author: {
+                userId: user._id.toString(),
+                name: user.fullName,
+                avatar: user.avatar,
+            },
             status: 'pending', // Default to pending for moderation
         });
         await comment.save();
@@ -110,9 +161,8 @@ export async function POST(request: Request) {
         });
     } catch (error) {
         console.error('Create comment error:', error);
-        console.error('Error details:', JSON.stringify(error, null, 2));
         return NextResponse.json(
-            { error: 'Failed to create comment', details: error instanceof Error ? error.message : String(error) },
+            { error: 'კომენტარის შექმნა ვერ მოხერხდა' },
             { status: 500 }
         );
     }

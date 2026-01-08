@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Deal from '@/models/Deal';
 import User from '@/models/User';
+import { getUserFromRequest } from '@/lib/server-auth';
 
-// GET: List active deals
+// GET: List active deals (public)
 export async function GET() {
     try {
         await dbConnect();
@@ -26,10 +27,16 @@ export async function POST(req: NextRequest) {
     try {
         await dbConnect();
 
-        const { dealId, userId } = await req.json();
+        const user = await getUserFromRequest(req);
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        const userId = user._id.toString();
 
-        if (!dealId || !userId) {
-            return NextResponse.json({ error: 'dealId and userId required' }, { status: 400 });
+        const { dealId } = await req.json();
+
+        if (!dealId) {
+            return NextResponse.json({ error: 'dealId required' }, { status: 400 });
         }
 
         const deal = await Deal.findById(dealId);

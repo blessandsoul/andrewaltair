@@ -5,6 +5,7 @@ import Quest from '@/models/Quest';
 import Deal from '@/models/Deal';
 import Challenge from '@/models/Challenge';
 import Testimonial from '@/models/Testimonial';
+import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 
 const LESSONS = [
     {
@@ -135,6 +136,10 @@ const TESTIMONIALS = [
 ];
 
 export async function POST(req: NextRequest) {
+    if (!verifyAdmin(req)) {
+        return unauthorizedResponse('Admin access required for seeding');
+    }
+
     try {
         await dbConnect();
 
@@ -167,7 +172,11 @@ export async function POST(req: NextRequest) {
     }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+    if (!verifyAdmin(req)) {
+        return unauthorizedResponse('Admin access required');
+    }
+
     try {
         await dbConnect();
         const [lessons, quests, deals, challenges, testimonials] = await Promise.all([

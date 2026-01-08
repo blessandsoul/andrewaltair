@@ -18,11 +18,13 @@ import { POST_TEMPLATES, type PostTemplate } from "@/lib/postTemplates"
 import { VideoEmbed, type VideoData } from "@/components/admin/VideoEmbed"
 import { RelatedPostsSuggestions } from "@/components/admin/RelatedPostsSuggestions"
 
-// Categories available (hierarchical order)
+// Categories available (hierarchical - articles is parent, others are subcategories)
 const CATEGORIES = [
-    { value: "articles", label: "სტატიები", icon: TbFileText },
-    { value: "ai", label: "ხელოვნური ინტელექტი", icon: TbRobot },
-    { value: "science", label: "მეცნიერება და ტექნიკა", icon: TbAtom },
+    { value: "articles", label: "📁 სტატიები", icon: TbFileText, isParent: true },
+    { value: "ai", label: "  └ ხელოვნური ინტელექტი", icon: TbRobot },
+    { value: "science", label: "  └ მეცნიერება და ტექნიკა", icon: TbAtom },
+    { value: "tutorials", label: "  └ ტუტორიალები", icon: TbFileText },
+    { value: "news", label: "  └ სიახლეები", icon: TbFileText },
 ]
 
 // Section interface
@@ -107,7 +109,7 @@ const DEFAULT_POST: PostData = {
     excerpt: "",
     content: "",
     rawContent: "",
-    category: "articles",
+    category: "ai",
     tags: [],
     coverImage: "",
     coverImages: {},

@@ -11,8 +11,50 @@ interface ContactFormData {
     social?: string
 }
 
+// 🛡️ Rate limiting for contact form
+const contactAttempts = new Map<string, { count: number; resetAt: number }>();
+const MAX_REQUESTS_PER_HOUR = 3;
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour
+
+function checkContactRateLimit(ip: string): { allowed: boolean; remaining: number; resetIn?: number } {
+    const now = Date.now();
+    const userLimit = contactAttempts.get(ip);
+
+    if (userLimit) {
+        if (now < userLimit.resetAt) {
+            if (userLimit.count >= MAX_REQUESTS_PER_HOUR) {
+                return { 
+                    allowed: false, 
+                    remaining: 0,
+                    resetIn: Math.ceil((userLimit.resetAt - now) / 1000)
+                };
+            }
+            userLimit.count++;
+            return { allowed: true, remaining: MAX_REQUESTS_PER_HOUR - userLimit.count };
+        }
+        // Reset window
+        contactAttempts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+        return { allowed: true, remaining: MAX_REQUESTS_PER_HOUR - 1 };
+    }
+
+    contactAttempts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+    return { allowed: true, remaining: MAX_REQUESTS_PER_HOUR - 1 };
+}
+
 export async function POST(request: NextRequest) {
     try {
+        // 🛡️ Get IP for rate limiting
+        const ip = request.headers.get('x-forwarded-for')?.split(',')[0] ||
+            request.headers.get('x-real-ip') || 'unknown';
+
+        // 🛡️ Check rate limit
+        const rateLimit = checkContactRateLimit(ip);
+        if (!rateLimit.allowed) {
+            return NextResponse.json({
+                error: `ძალიან ბევრი მოთხოვნა. გთხოვთ დაელოდოთ ${Math.ceil((rateLimit.resetIn || 0) / 60)} წუთს.`
+            }, { status: 429 });
+        }
+
         const data: ContactFormData = await request.json()
 
         // Validate required fields

@@ -2,14 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Quest from '@/models/Quest';
 import User from '@/models/User';
+import { getUserFromRequest } from '@/lib/server-auth';
 
-// GET: List quests with user progress
+// GET: List quests with user progress (public list, but progress requires auth)
 export async function GET(req: NextRequest) {
     try {
         await dbConnect();
 
-        const { searchParams } = new URL(req.url);
-        const userId = searchParams.get('userId');
+        // Get user if authenticated (optional for viewing progress)
+        const user = await getUserFromRequest(req);
+        const userId = user?._id?.toString();
 
         const quests = await Quest.find({ isActive: true }).lean();
 
@@ -45,10 +47,16 @@ export async function POST(req: NextRequest) {
     try {
         await dbConnect();
 
-        const { questId, userId, stepId, action } = await req.json();
+        const user = await getUserFromRequest(req);
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        const userId = user._id.toString();
 
-        if (!questId || !userId) {
-            return NextResponse.json({ error: 'questId and userId required' }, { status: 400 });
+        const { questId, stepId, action } = await req.json();
+
+        if (!questId) {
+            return NextResponse.json({ error: 'questId required' }, { status: 400 });
         }
 
         const quest = await Quest.findById(questId);

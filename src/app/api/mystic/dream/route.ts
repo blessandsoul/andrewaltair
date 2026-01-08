@@ -1,6 +1,32 @@
 import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
 import { AI_CONFIG, DREAM_RULES, pickRandom, parseAIResponse } from "@/lib/mystic-rules"
+import { getUserFromRequest } from "@/lib/server-auth"
+
+// 🛡️ Rate limiting for dream interpretation
+const dreamRequests = new Map<string, { count: number; resetAt: number }>();
+const MAX_DREAMS_PER_DAY = 10;
+const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24 hours
+
+function checkDreamRateLimit(userId: string): { allowed: boolean; remaining: number } {
+    const now = Date.now();
+    const userLimit = dreamRequests.get(userId);
+
+    if (userLimit) {
+        if (now < userLimit.resetAt) {
+            if (userLimit.count >= MAX_DREAMS_PER_DAY) {
+                return { allowed: false, remaining: 0 };
+            }
+            userLimit.count++;
+            return { allowed: true, remaining: MAX_DREAMS_PER_DAY - userLimit.count };
+        }
+        dreamRequests.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+        return { allowed: true, remaining: MAX_DREAMS_PER_DAY - 1 };
+    }
+
+    dreamRequests.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+    return { allowed: true, remaining: MAX_DREAMS_PER_DAY - 1 };
+}
 
 // Lazy initialization to avoid build-time errors
 function getClient() {
@@ -12,11 +38,37 @@ function getClient() {
 
 export async function POST(request: NextRequest) {
     try {
+        // 🛡️ AUTHENTICATION REQUIRED
+        const user = await getUserFromRequest(request);
+        if (!user) {
+            return NextResponse.json(
+                { error: "ავტორიზაცია აუცილებელია" },
+                { status: 401 }
+            );
+        }
+
+        // 🛡️ RATE LIMITING
+        const rateLimit = checkDreamRateLimit(user._id.toString());
+        if (!rateLimit.allowed) {
+            return NextResponse.json(
+                { error: "ლიმიტი ამოიწურა. შეგიძლიათ განმარტოთ მაქსიმუმ 10 სიზმარი დღეში." },
+                { status: 429 }
+            );
+        }
+
         const client = getClient()
         const { dream } = await request.json()
 
         if (!dream) {
             return NextResponse.json({ error: "Dream description is required" }, { status: 400 })
+        }
+
+        // 🛡️ Validate dream length
+        if (dream.length < 10 || dream.length > 2000) {
+            return NextResponse.json(
+                { error: "სიზმრის აღწერა უნდა იყოს 10-2000 სიმბოლო" },
+                { status: 400 }
+            );
         }
 
         const school = pickRandom(DREAM_RULES.schools)
