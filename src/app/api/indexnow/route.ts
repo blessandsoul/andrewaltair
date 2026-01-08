@@ -15,6 +15,12 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+    // 🛡️ ADMIN ONLY - prevent DDoS via third parties
+    const { verifyAdmin, unauthorizedResponse } = await import('@/lib/admin-auth');
+    if (!verifyAdmin(request)) {
+        return unauthorizedResponse('Admin access required');
+    }
+
     try {
         const { urls } = await request.json()
 

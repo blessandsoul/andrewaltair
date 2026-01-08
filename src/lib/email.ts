@@ -32,20 +32,32 @@ const createTransporter = async () => {
 
 // Email templates
 export const emailTemplates = {
-    welcome: (name: string, email: string) => ({
-        subject: 'მოგესალმებით Fresh-ზე! 🎉',
+    welcome: (name: string, email: string, verificationUrl?: string) => ({
+        subject: 'მოგესალმებით Andrew Altair-ზე! 🎉',
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                 <h1 style="color: #6366f1;">გამარჯობა, ${name}! 👋</h1>
-                <p>მადლობა რომ დარეგისტრირდით Fresh პლატფორმაზე.</p>
+                <p>მადლობა რომ დარეგისტრირდით Andrew Altair პლატფორმაზე.</p>
                 <p>თქვენი ელ-ფოსტა: <strong>${email}</strong></p>
-                <div style="margin: 30px 0;">
-                    <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}" 
-                       style="background: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">
-                        გადავიდეთ პლატფორმაზე
-                    </a>
-                </div>
-                <p style="color: #666; font-size: 12px;">Fresh Team</p>
+                ${verificationUrl ? `
+                    <div style="margin: 30px 0; padding: 20px; background: #fef3c7; border-radius: 8px;">
+                        <p style="margin: 0 0 15px 0; color: #92400e;"><strong>⚠️ გთხოვთ დაადასტუროთ თქვენი ელ-ფოსტა</strong></p>
+                        <p style="margin: 0 0 15px 0;">ანგარიშის გასააქტიურებლად დააჭირეთ ქვემოთ მოცემულ ღილაკს:</p>
+                        <a href="${verificationUrl}" 
+                           style="display: inline-block; background: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">
+                            ელ-ფოსტის დადასტურება
+                        </a>
+                        <p style="margin: 15px 0 0 0; color: #666; font-size: 12px;">ბმული მოქმედებს 24 საათის განმავლობაში.</p>
+                    </div>
+                ` : `
+                    <div style="margin: 30px 0;">
+                        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://andrewaltair.ge'}" 
+                           style="background: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">
+                            გადავიდეთ პლატფორმაზე
+                        </a>
+                    </div>
+                `}
+                <p style="color: #666; font-size: 12px;">Andrew Altair Team</p>
             </div>
         `,
     }),
@@ -144,8 +156,8 @@ export async function sendEmail({
 }
 
 // Convenience functions
-export async function sendWelcomeEmail(name: string, email: string) {
-    const template = emailTemplates.welcome(name, email)
+export async function sendWelcomeEmail(name: string, email: string, verificationUrl?: string) {
+    const template = emailTemplates.welcome(name, email, verificationUrl)
     return sendEmail({ to: email, ...template })
 }
 

@@ -417,9 +417,26 @@ You are a professional translator with deep cultural understanding...`,
 // POST - Seed bots data
 export async function POST(request: Request) {
     try {
+        // 🛡️ SECURITY: Only allow in development
+        if (process.env.NODE_ENV === 'production') {
+            return NextResponse.json(
+                { error: 'Seeding disabled in production' },
+                { status: 403 }
+            );
+        }
+
         const { secret } = await request.json();
 
-        if (secret !== 'seed-mongodb-2024') {
+        // 🛡️ Use env variable instead of hardcoded secret
+        const SEED_SECRET = process.env.SEED_SECRET;
+        if (!SEED_SECRET) {
+            return NextResponse.json(
+                { error: 'SEED_SECRET not configured' },
+                { status: 500 }
+            );
+        }
+
+        if (secret !== SEED_SECRET) {
             return NextResponse.json(
                 { error: 'Invalid secret' },
                 { status: 403 }

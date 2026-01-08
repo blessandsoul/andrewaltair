@@ -23,6 +23,12 @@ function generateCode(length: number = 6): string {
 
 // POST /api/vibe-codes - создание нового кода (для админ панели)
 export async function POST(request: NextRequest) {
+    // 🛡️ ADMIN ONLY
+    const { verifyAdmin, unauthorizedResponse } = await import('@/lib/admin-auth');
+    if (!verifyAdmin(request)) {
+        return unauthorizedResponse('Admin access required');
+    }
+
     try {
         const { type, duration, maxUsage = 1 } = await request.json();
 
