@@ -131,9 +131,19 @@ export function parsePostContent(rawContent: string): ParsedSection[] {
             const icon = EMOJI_TO_ICON[emoji] || 'ChevronRight';
 
             // Extract title if present (bold text after emoji) and clean it
+            // Handle format: 🧬 **Title** - Content text here
+            const titleWithDashMatch = line.match(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]+\s*\*\*([^*]+)\*\*\s*[-–—]\s*(.*)/u);
             const titleMatch = line.match(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]+\s*\*\*([^*]+)\*\*:?\s*(.*)/u);
 
-            if (titleMatch) {
+            if (titleWithDashMatch) {
+                // Format: Emoji **Title** - Content
+                currentSection = {
+                    icon,
+                    title: cleanContent(titleWithDashMatch[1]),
+                    content: cleanContent(titleWithDashMatch[2]),
+                    type,
+                };
+            } else if (titleMatch) {
                 currentSection = {
                     icon,
                     title: cleanContent(titleMatch[1]),

@@ -225,6 +225,10 @@ export default function RootLayout({
           </ToastProvider>
         </AuthProvider>
         <GoogleAnalytics GA_MEASUREMENT_ID={process.env.NEXT_PUBLIC_GA_ID || ''} />
+
+        {/* TOP.GE Counter */}
+        <div id="top-ge-counter-container" data-site-id="117786"></div>
+        <script async src="//counter.top.ge/counter.js"></script>
       </body>
     </html>
   );
