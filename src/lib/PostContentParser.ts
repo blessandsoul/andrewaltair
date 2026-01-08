@@ -7,7 +7,7 @@ export interface ParsedSection {
     icon?: string;  // lucide icon name (e.g., 'Brain', 'Factory', 'AlertTriangle')
     title?: string;
     content: string;
-    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'cta' | 'hashtags' | 'author-comment';
+    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'cta' | 'hashtags' | 'author-comment' | 'prompt' | 'image';
 }
 
 // Emoji to section type mapping
@@ -542,7 +542,6 @@ const EMOJI_TO_ICON: Record<string, string> = {
     '🦢': 'Bird',
     '🦩': 'Bird',
     '🕊️': 'Bird',
-    '🐇': 'Rabbit',
     '🦝': 'Squirrel',
     '🦨': 'Squirrel',
     '🦡': 'Squirrel',
@@ -593,6 +592,41 @@ export function parsePostContent(rawContent: string): ParsedSection[] {
             if (currentSection) {
                 currentSection.content += '\n';
             }
+            continue;
+        }
+
+        // Check for code block start (```)
+        if (line.startsWith('```')) {
+            // Save current section
+            if (currentSection) {
+                sections.push(currentSection);
+                currentSection = null;
+            }
+
+            // Extract language identifier if present (e.g., ```text, ```python)
+            const lang = line.slice(3).trim();
+
+            // Collect code block content until closing ```
+            const codeLines: string[] = [];
+            i++; // Move to next line
+
+            while (i < lines.length && !lines[i].trim().startsWith('```')) {
+                codeLines.push(lines[i]); // Keep original whitespace for code
+                i++;
+            }
+            // i now points to closing ``` or end of lines
+
+            // Create prompt section with the code content
+            if (codeLines.length > 0) {
+                sections.push({
+                    icon: 'Code',
+                    title: lang ? `კოდი (${lang})` : 'კოდი / ბრძანება',
+                    content: codeLines.join('\n').trim(),
+                    type: 'prompt',
+                });
+            }
+
+            introComplete = true;
             continue;
         }
 

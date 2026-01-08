@@ -451,13 +451,16 @@ export function RichPostContent({ sections, className }: RichPostContentProps) {
 
     return (
         <div className={cn("rich-post-content", className)}>
-            {sections.map((section, index) => (
-                <SectionRenderer
-                    key={index}
-                    section={section}
-                    index={index}
-                />
-            ))}
+            {/* Skip intro sections - they duplicate the excerpt shown in hero */}
+            {sections
+                .filter(section => section.type !== 'intro')
+                .map((section, index) => (
+                    <SectionRenderer
+                        key={index}
+                        section={section}
+                        index={index}
+                    />
+                ))}
         </div>
     );
 }

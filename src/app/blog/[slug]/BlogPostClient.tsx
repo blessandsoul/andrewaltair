@@ -267,13 +267,9 @@ console.log(data.result);
                                     {post.title}
                                 </h1>
 
-                                <p className="text-xl text-muted-foreground">
-                                    {post.excerpt}
-                                </p>
-
-                                {/* Featured TbPhoto - Responsive Cover */}
+                                {/* Featured Photo - Responsive Cover (smaller) */}
                                 {(post.coverImages?.horizontal || post.coverImages?.vertical || post.coverImage) && (
-                                    <div className="relative mt-4 -mx-4 sm:-mx-6 lg:-mx-0">
+                                    <div className="relative mt-4 -mx-4 sm:-mx-6 lg:-mx-0 max-h-[400px] overflow-hidden rounded-xl">
                                         <ResponsiveCover
                                             coverImages={post.coverImages}
                                             coverImage={post.coverImage}
@@ -285,6 +281,11 @@ console.log(data.result);
                                         />
                                     </div>
                                 )}
+
+                                {/* Excerpt - below photo */}
+                                <p className="text-lg text-muted-foreground mt-4">
+                                    {post.excerpt}
+                                </p>
                             </div>
                         </div>
                     </section>
