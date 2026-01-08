@@ -30,7 +30,7 @@ interface Section {
     icon?: string;  // lucide icon name
     title?: string;
     content: string;
-    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'cta' | 'hashtags' | 'author-comment' | 'image';
+    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'cta' | 'hashtags' | 'author-comment' | 'image' | 'prompt';
 }
 
 // Gallery image
@@ -1367,8 +1367,8 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                                 type="button"
                                                 onClick={() => setPost(prev => ({ ...prev, category: cat.value }))}
                                                 className={`flex items-center gap-2 px-3 py-2 rounded-md border text-left text-sm transition-colors ${isSelected
-                                                        ? 'border-primary bg-primary/10 text-primary'
-                                                        : 'border-input bg-background hover:bg-accent/50'
+                                                    ? 'border-primary bg-primary/10 text-primary'
+                                                    : 'border-input bg-background hover:bg-accent/50'
                                                     }`}
                                             >
                                                 <IconComponent className="w-4 h-4" />

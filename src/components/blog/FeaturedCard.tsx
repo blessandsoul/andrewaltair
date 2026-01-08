@@ -157,13 +157,6 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
 
                             {/* Stats row */}
                             <div className="flex items-center gap-4 text-white/80 text-sm">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
-                                        {post.author.name.charAt(0)}
-                                    </div>
-                                    <span>{post.author.name}</span>
-                                </div>
-                                <span>•</span>
                                 <span>{formatRelativeDate(post.publishedAt)}</span>
 
                             </div>

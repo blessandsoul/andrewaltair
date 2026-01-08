@@ -154,15 +154,16 @@ export function TrendingCard({ post, rank }: TrendingCardProps) {
 
                         {/* Bottom row */}
                         <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                            {/* Author */}
-                            <div className="flex items-center gap-2">
-                                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-xs font-bold">
-                                    {post.author.name.charAt(0)}
-                                </div>
-                                <span className="text-xs text-muted-foreground">{post.author.name}</span>
-                            </div>
-
-
+                            {/* Empty div to keep spacing if needed, or remove entire bottom row if not needed. But let's check what was there. 
+                                Ah, wait, there were no other items in that row besides author. 
+                                Let's see if there were date or anything else.
+                                Looking at lines 156-166, it was just Author.
+                                So I can remove the entire bottom div or just leave it empty if there might be something else later. 
+                                Actually, checking line 156: <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                                Inside: Author divs.
+                                If I remove it, the bottom padding might look off.
+                                Let's remove the whole div if it only contains author.
+                             */}
                         </div>
                     </div>
                 </CardContent>

@@ -85,7 +85,7 @@ export function PostCard({
     variant = "default",
     showExcerpt = true,
     showTags = true,
-    showAuthor = true
+    showAuthor = false
 }: PostCardProps) {
     const [isBookmarked, setIsBookmarked] = useState(false)
     const [isHovered, setIsHovered] = useState(false)
