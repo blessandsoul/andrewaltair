@@ -450,55 +450,9 @@ export async function POST(request: NextRequest) {
 
         let result: ParseResult
 
-        try {
-            // Try AI parsing first
-            result = await callGroq(rawContent, GROQ_API_KEY)
-
-            // Validate AI result - check if intro was truncated
-            const introSection = result.sections?.find(s => s.type === 'intro')
-            if (introSection) {
-                // Estimate expected intro length from rawContent
-                // Find first emoji-prefixed line that starts a section (excluding title line)
-                const lines = rawContent.split('\n')
-                let introEndIndex = lines.length
-                let foundTitle = false
-
-                for (let i = 0; i < lines.length; i++) {
-                    const line = lines[i].trim()
-                    if (!line) continue
-
-                    // Skip the title line (first non-empty line with emoji at start)
-                    if (!foundTitle) {
-                        foundTitle = true
-                        continue
-                    }
-
-                    // Check for emoji at start of line = section start (🤯, 💀, 📉, etc)
-                    // These emojis mark section headers, not title emojis like 🐷
-                    const sectionEmojis = /^(🤯|💀|📉|🔮|⚠️|🔴|🟢|👁️|🏎️|🧠|💰|📈|🏭|🌍|🎭|👇)/u
-                    if (sectionEmojis.test(line)) {
-                        introEndIndex = i
-                        break
-                    }
-                }
-
-                // Calculate expected intro content (all lines between title and first section)
-                const expectedIntroLines = lines.slice(1, introEndIndex)
-                    .filter(l => l.trim() && !l.trim().startsWith('#')) // exclude hashtags
-                    .join('\n')
-
-                // If AI intro is shorter than expected (less than 70%), use fallback
-                // Lower threshold of 200 chars to catch smaller intros too
-                if (expectedIntroLines.length > 200 && introSection.content.length < expectedIntroLines.length * 0.7) {
-                    console.warn('AI truncated intro, using fallback parser. Expected:', expectedIntroLines.length, 'Got:', introSection.content.length)
-                    result = fallbackParse(rawContent)
-                }
-            }
-        } catch (aiError) {
-            console.error('AI parsing failed, using fallback:', aiError)
-            // Use fallback regex parser
-            result = fallbackParse(rawContent)
-        }
+        // Using fallback regex parser - Groq AI was truncating intro content
+        result = fallbackParse(rawContent)
+        console.log('Parsed with fallback - intro length:', result.sections?.find(s => s.type === 'intro')?.content.length)
 
         return NextResponse.json({
             success: true,

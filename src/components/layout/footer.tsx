@@ -145,7 +145,20 @@ export function Footer() {
 
           {/* TOP.GE ASYNC COUNTER CODE */}
           <div className="mt-6 flex justify-center">
-            <div id="top-ge-counter-container" data-site-id="117786"></div>
+            <div 
+              id="top-ge-counter-container" 
+              data-site-id="117786"
+              style={{ 
+                minHeight: '30px', 
+                backgroundColor: '#f0f0f0', 
+                padding: '5px',
+                borderRadius: '4px',
+                border: '1px solid #ddd'
+              }}
+            >
+              {/* Loading indicator */}
+              <div style={{ fontSize: '12px', color: '#666' }}>Loading counter...</div>
+            </div>
           </div>
           {/* / END OF TOP.GE COUNTER CODE */}
         </div>
@@ -153,6 +166,29 @@ export function Footer() {
 
       {/* TOP.GE Counter Script */}
       <Script src="//counter.top.ge/counter.js" strategy="afterInteractive" />
+      
+      {/* Debug and fallback script */}
+      <Script strategy="afterInteractive">
+        {`
+          setTimeout(() => {
+            const container = document.getElementById('top-ge-counter-container');
+            if (container && container.innerHTML.trim() === 'Loading counter...') {
+              console.log('TOP.GE counter not loaded, trying fallback...');
+              // Fallback: try direct script load
+              const script = document.createElement('script');
+              script.src = 'https://counter.top.ge/counter.js';
+              script.async = true;
+              script.onerror = () => {
+                console.error('TOP.GE counter script failed to load');
+                if (container) {
+                  container.innerHTML = '<div style="font-size: 10px; color: #999;">Counter unavailable</div>';
+                }
+              };
+              document.head.appendChild(script);
+            }
+          }, 3000);
+        `}
+      </Script>
     </footer>
   )
 }
