@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { TbDeviceFloppy, TbEye, TbX, TbPlus, TbPhoto, TbFileText, TbTag, TbFolder, TbClock, TbStar, TbFlame, TbWorld, TbArrowLeft, TbWand, TbDeviceDesktop, TbDeviceMobile, TbTrash, TbChevronDown, TbChevronUp, TbSparkles, TbUpload, TbLoader2, TbFileCheck, TbLayout, TbCheck, TbArrowUp, TbArrowDown } from "react-icons/tb"
+import { TbDeviceFloppy, TbEye, TbX, TbPlus, TbPhoto, TbFileText, TbTag, TbFolder, TbClock, TbStar, TbFlame, TbWorld, TbArrowLeft, TbWand, TbDeviceDesktop, TbDeviceMobile, TbTrash, TbChevronDown, TbChevronUp, TbSparkles, TbUpload, TbLoader2, TbFileCheck, TbLayout, TbCheck, TbArrowUp, TbArrowDown, TbRobot, TbAtom } from "react-icons/tb"
 // ... (imports remain the same logic, I need to match the line) 
 
 // ...
@@ -20,12 +20,9 @@ import { RelatedPostsSuggestions } from "@/components/admin/RelatedPostsSuggesti
 
 // Categories available (hierarchical order)
 const CATEGORIES = [
-    { value: "news", label: "სიახლეები", emoji: "📰" },
-    { value: "videos", label: "ვიდეო", emoji: "🎬" },
-    { value: "prompts", label: "პრომპტები", emoji: "✨" },
-    { value: "tutorials", label: "ტუტორიალები", emoji: "📚" },
-    { value: "business", label: "ბიზნესი", emoji: "💼" },
-    { value: "automation", label: "ავტომატიზაცია", emoji: "⚡" },
+    { value: "articles", label: "სტატიები", icon: TbFileText },
+    { value: "ai", label: "ხელოვნური ინტელექტი", icon: TbRobot },
+    { value: "science", label: "მეცნიერება და ტექნიკა", icon: TbAtom },
 ]
 
 // Section interface
@@ -93,6 +90,13 @@ export interface PostData {
         seoScore: number
         ogImage: string
     }
+    prompts?: {
+        photoPrompt: string
+        photoResult: string
+        videoPrompt: string
+        videoResult: string
+        music: string
+    }
 }
 
 const DEFAULT_POST: PostData = {
@@ -101,7 +105,7 @@ const DEFAULT_POST: PostData = {
     excerpt: "",
     content: "",
     rawContent: "",
-    category: "news",
+    category: "articles",
     tags: [],
     coverImage: "",
     coverImages: {},
@@ -131,6 +135,13 @@ const DEFAULT_POST: PostData = {
         focusKeyword: "",
         seoScore: 0,
         ogImage: ""
+    },
+    prompts: {
+        photoPrompt: "",
+        photoResult: "",
+        videoPrompt: "",
+        videoResult: "",
+        music: ""
     }
 }
 
@@ -419,6 +430,66 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
             alert('ატვირთვა ვერ მოხერხდა')
         } finally {
             setIsUploadingGallery(false)
+        }
+    }
+
+    // Prompt Photo/Video upload handlers
+    const [isUploadingPromptPhoto, setIsUploadingPromptPhoto] = React.useState(false)
+    const [isUploadingPromptVideo, setIsUploadingPromptVideo] = React.useState(false)
+
+    const handlePromptPhotoUpload = async (file: File) => {
+        setIsUploadingPromptPhoto(true)
+        try {
+            const formData = new FormData()
+            formData.append('file', file)
+            formData.append('title', `prompt-photo-${post.id}-${Date.now()}`)
+            formData.append('type', 'prompt-photo')
+
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            })
+
+            if (!response.ok) throw new Error('Upload failed')
+            const result = await response.json()
+
+            setPost(prev => ({
+                ...prev,
+                prompts: { ...prev.prompts!, photoResult: result.url }
+            }))
+        } catch (error) {
+            console.error('Prompt photo upload error:', error)
+            alert('ფოტოს ატვირთვა ვერ მოხერხდა')
+        } finally {
+            setIsUploadingPromptPhoto(false)
+        }
+    }
+
+    const handlePromptVideoUpload = async (file: File) => {
+        setIsUploadingPromptVideo(true)
+        try {
+            const formData = new FormData()
+            formData.append('file', file)
+            formData.append('title', `prompt-video-${post.id}-${Date.now()}`)
+            formData.append('type', 'prompt-video')
+
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            })
+
+            if (!response.ok) throw new Error('Upload failed')
+            const result = await response.json()
+
+            setPost(prev => ({
+                ...prev,
+                prompts: { ...prev.prompts!, videoResult: result.url }
+            }))
+        } catch (error) {
+            console.error('Prompt video upload error:', error)
+            alert('ვიდეოს ატვირთვა ვერ მოხერხდა')
+        } finally {
+            setIsUploadingPromptVideo(false)
         }
     }
 
@@ -1080,6 +1151,141 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                         </CardContent>
                     </Card>
 
+                    {/* Prompts Section */}
+                    <Card>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-lg flex items-center gap-2">
+                                <TbSparkles className="w-5 h-5 text-primary" />
+                                პრომპტები (ფოტო & ვიდეო)
+                            </CardTitle>
+                            <p className="text-xs text-muted-foreground">
+                                დაამატეთ AI გენერაციის პრომპტები და ატვირთეთ შედეგები
+                            </p>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            {/* Photo Prompt */}
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-2">
+                                    <TbPhoto className="w-4 h-4 text-blue-500" />
+                                    <span className="font-medium text-sm">ფოტო პრომპტი</span>
+                                </div>
+                                <textarea
+                                    className="w-full min-h-[120px] p-3 text-sm border rounded-lg bg-muted/30 font-mono resize-y"
+                                    placeholder="Prompt:&#10;Format: Vertical 9:16&#10;Primary Branding: &quot;AndrewAltair.GE&quot;..."
+                                    value={post.prompts?.photoPrompt || ''}
+                                    onChange={(e) => setPost(prev => ({
+                                        ...prev,
+                                        prompts: { ...prev.prompts!, photoPrompt: e.target.value }
+                                    }))}
+                                />
+                                <div className="flex items-center gap-3">
+                                    <label className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0]
+                                                if (file) handlePromptPhotoUpload(file)
+                                            }}
+                                            disabled={isUploadingPromptPhoto}
+                                        />
+                                        {isUploadingPromptPhoto ? <TbLoader2 className="w-4 h-4 animate-spin mr-2" /> : <TbUpload className="w-4 h-4 mr-2" />}
+                                        შედეგის ატვირთვა
+                                    </label>
+                                    {post.prompts?.photoResult && (
+                                        <div className="flex items-center gap-2">
+                                            <img src={post.prompts.photoResult} alt="Photo result" className="w-12 h-12 object-cover rounded border" />
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-destructive"
+                                                onClick={() => setPost(prev => ({
+                                                    ...prev,
+                                                    prompts: { ...prev.prompts!, photoResult: '' }
+                                                }))}
+                                            >
+                                                <TbTrash className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Divider */}
+                            <div className="border-t" />
+
+                            {/* Video Prompt */}
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-2">
+                                    <TbFlame className="w-4 h-4 text-orange-500" />
+                                    <span className="font-medium text-sm">ვიდეო პრომპტი</span>
+                                </div>
+                                <textarea
+                                    className="w-full min-h-[120px] p-3 text-sm border rounded-lg bg-muted/30 font-mono resize-y"
+                                    placeholder="Prompt:&#10;Format: Horizontal 16:9&#10;Primary Branding: &quot;AndrewAltair.GE&quot;..."
+                                    value={post.prompts?.videoPrompt || ''}
+                                    onChange={(e) => setPost(prev => ({
+                                        ...prev,
+                                        prompts: { ...prev.prompts!, videoPrompt: e.target.value }
+                                    }))}
+                                />
+                                <div className="flex items-center gap-3">
+                                    <label className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4">
+                                        <input
+                                            type="file"
+                                            accept="video/*"
+                                            className="hidden"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0]
+                                                if (file) handlePromptVideoUpload(file)
+                                            }}
+                                            disabled={isUploadingPromptVideo}
+                                        />
+                                        {isUploadingPromptVideo ? <TbLoader2 className="w-4 h-4 animate-spin mr-2" /> : <TbUpload className="w-4 h-4 mr-2" />}
+                                        შედეგის ატვირთვა
+                                    </label>
+                                    {post.prompts?.videoResult && (
+                                        <div className="flex items-center gap-2">
+                                            <video src={post.prompts.videoResult} className="w-20 h-12 object-cover rounded border" muted />
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-destructive"
+                                                onClick={() => setPost(prev => ({
+                                                    ...prev,
+                                                    prompts: { ...prev.prompts!, videoResult: '' }
+                                                }))}
+                                            >
+                                                <TbTrash className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Divider */}
+                            <div className="border-t" />
+
+                            {/* Music */}
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-lg">🎶</span>
+                                    <span className="font-medium text-sm">მუსიკა</span>
+                                </div>
+                                <Input
+                                    placeholder="Industrial, Glitch, Heavy Bass, Dark Electronic..."
+                                    value={post.prompts?.music || ''}
+                                    onChange={(e) => setPost(prev => ({
+                                        ...prev,
+                                        prompts: { ...prev.prompts!, music: e.target.value }
+                                    }))}
+                                    className="font-mono text-sm"
+                                />
+                            </div>
+                        </CardContent>
+                    </Card>
+
                     {/* Preview */}
                     {post.sections.length > 0 && (
                         <Card>
@@ -1151,17 +1357,27 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                             {/* Category */}
                             <div className="space-y-2">
                                 <label className="text-xs text-muted-foreground">კატეგორია</label>
-                                <select
-                                    value={post.category}
-                                    onChange={(e) => setPost(prev => ({ ...prev, category: e.target.value }))}
-                                    className="w-full px-3 py-2 rounded-md border border-input bg-background"
-                                >
-                                    {CATEGORIES.map(cat => (
-                                        <option key={cat.value} value={cat.value}>
-                                            {cat.emoji} {cat.label}
-                                        </option>
-                                    ))}
-                                </select>
+                                <div className="flex flex-col gap-1">
+                                    {CATEGORIES.map(cat => {
+                                        const IconComponent = cat.icon;
+                                        const isSelected = post.category === cat.value;
+                                        return (
+                                            <button
+                                                key={cat.value}
+                                                type="button"
+                                                onClick={() => setPost(prev => ({ ...prev, category: cat.value }))}
+                                                className={`flex items-center gap-2 px-3 py-2 rounded-md border text-left text-sm transition-colors ${isSelected
+                                                        ? 'border-primary bg-primary/10 text-primary'
+                                                        : 'border-input bg-background hover:bg-accent/50'
+                                                    }`}
+                                            >
+                                                <IconComponent className="w-4 h-4" />
+                                                {cat.label}
+                                                {isSelected && <TbCheck className="w-4 h-4 ml-auto" />}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         </CardContent>
                     </Card>

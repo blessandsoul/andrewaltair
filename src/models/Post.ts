@@ -54,6 +54,15 @@ export interface IVideo {
     thumbnailUrl?: string;
 }
 
+// Prompt data for photo and video generation
+export interface IPromptData {
+    photoPrompt?: string;      // Prompt text for photo generation
+    photoResult?: string;      // URL of uploaded photo result
+    videoPrompt?: string;      // Prompt text for video generation
+    videoResult?: string;      // URL of uploaded video result
+    music?: string;            // Music style/suggestion
+}
+
 export interface IPost extends Document {
     _id: mongoose.Types.ObjectId;
     slug: string;
@@ -82,6 +91,7 @@ export interface IPost extends Document {
     seo?: ISEO;  // Advanced SEO fields
     videos?: IVideo[];  // Video embeds
     relatedPosts?: string[];  // Related post slugs
+    prompts?: IPromptData;  // Photo and video prompts with results
     createdAt: Date;
     updatedAt: Date;
     numericId?: string;
@@ -161,6 +171,17 @@ const VideoSchema = new Schema<IVideo>(
         },
         videoId: { type: String },
         thumbnailUrl: { type: String },
+    },
+    { _id: false }
+);
+
+const PromptDataSchema = new Schema<IPromptData>(
+    {
+        photoPrompt: { type: String },
+        photoResult: { type: String },
+        videoPrompt: { type: String },
+        videoResult: { type: String },
+        music: { type: String },
     },
     { _id: false }
 );
@@ -280,6 +301,10 @@ const PostSchema = new Schema<IPost>(
         relatedPosts: {
             type: [String],
             default: [],
+        },
+        prompts: {
+            type: PromptDataSchema,
+            default: () => ({}),
         },
         numericId: {
             type: String,

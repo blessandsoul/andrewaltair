@@ -104,11 +104,11 @@ export function PostCard({
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
             >
-                <CardContent className="p-0">
+                <CardContent className="p-0 h-full">
                     {/* Horizontal Layout - Compact Design */}
-                    <div className="flex">
-                        {/* Thumbnail - Left Side (compact) */}
-                        <div className="relative w-32 min-h-[140px] flex-shrink-0 overflow-hidden">
+                    <div className="flex h-full">
+                        {/* Thumbnail - Left Side (compact) - stretches to full height */}
+                        <div className="relative w-32 min-h-[140px] flex-shrink-0 overflow-hidden rounded-l-xl self-stretch">
                             {/* Background gradient */}
                             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20" />
 
@@ -128,9 +128,9 @@ export function PostCard({
 
                             {/* Category Badge overlay */}
                             <Badge
-                                className="absolute bottom-2 left-2 text-[10px] z-10 border-0 backdrop-blur-sm"
+                                className="absolute bottom-2 left-2 text-[10px] z-10 border-0 shadow-md font-semibold"
                                 style={{
-                                    backgroundColor: `${categoryInfo.color}30`,
+                                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
                                     color: categoryInfo.color
                                 }}
                             >

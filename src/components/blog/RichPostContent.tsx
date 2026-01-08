@@ -4,8 +4,9 @@ import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import {
-    TbAlertTriangle, TbBulb, TbEye, TbMessage, TbArrowDown, TbTheater, TbQuote, TbCode, TbCopy, TbCheck, // Additional icons for thematic content
-    TbTrendingDown, TbTrendingUp, TbChartBar, TbBuildingFactory, TbRobot, TbSettings, TbTool, TbHammer, TbWorld, TbMap, TbAlertCircle, TbArrowUp, TbArrowRight, TbMovie, TbVideo, TbBrain, TbPill, TbBuildingHospital, TbHeart, TbCoins, TbCurrencyDollar, TbDiamond, TbPackage, TbSpeakerphone, TbBell, TbChevronRight, TbDroplet, TbBolt, TbFlame, TbTarget, TbPin, TbSparkles, TbDna, TbFileText, TbTrophy, TbStethoscope, TbCpu, TbAtom, TbCircleCheck
+    TbAlertTriangle, TbBulb, TbEye, TbEyeOff, TbMessage, TbArrowDown, TbTheater, TbQuote, TbCode, TbCopy, TbCheck,
+    TbTrendingDown, TbTrendingUp, TbChartBar, TbBuildingFactory, TbRobot, TbSettings, TbTool, TbHammer, TbWorld, TbMap, TbAlertCircle, TbArrowUp, TbArrowRight, TbArrowLeft, TbMovie, TbVideo, TbBrain, TbPill, TbBuildingHospital, TbHeart, TbCoins, TbCurrencyDollar, TbDiamond, TbPackage, TbSpeakerphone, TbBell, TbChevronRight, TbDroplet, TbBolt, TbFlame, TbTarget, TbPin, TbSparkles, TbDna, TbFileText, TbTrophy, TbStethoscope, TbCpu, TbAtom, TbCircleCheck,
+    TbSkull, TbHourglass, TbAlarm, TbMapPin, TbStar, TbLock, TbLockOpen, TbShield, TbGift, TbKey, TbDeviceGamepad2, TbClipboardList, TbPencil, TbFlask, TbLink, TbPaperclip, TbMedal, TbMouse
 } from "react-icons/tb"
 import { useState } from "react"
 
@@ -30,8 +31,13 @@ const ICON_COMPONENTS: Record<string, IconType> = {
     AlertTriangle: TbAlertTriangle,
     Lightbulb: TbBulb,
     Eye: TbEye,
+    EyeOff: TbEyeOff,
     MessageCircle: TbMessage,
+    MessageSquare: TbMessage,
     ArrowDown: TbArrowDown,
+    ArrowUp: TbArrowUp,
+    ArrowRight: TbArrowRight,
+    ArrowLeft: TbArrowLeft,
     Theater: TbTheater,
     Quote: TbQuote,
     Code: TbCode,
@@ -46,9 +52,9 @@ const ICON_COMPONENTS: Record<string, IconType> = {
     Globe: TbWorld,
     Globe2: TbWorld,
     Map: TbMap,
+    MapPin: TbMapPin,
     AlertCircle: TbAlertCircle,
-    ArrowUp: TbArrowUp,
-    ArrowRight: TbArrowRight,
+    Siren: TbAlertCircle,
     Clapperboard: TbMovie,
     Video: TbVideo,
     Brain: TbBrain,
@@ -57,6 +63,8 @@ const ICON_COMPONENTS: Record<string, IconType> = {
     Heart: TbHeart,
     Coins: TbCoins,
     DollarSign: TbCurrencyDollar,
+    Banknote: TbCurrencyDollar,
+    BadgeDollarSign: TbCurrencyDollar,
     Gem: TbDiamond,
     Package: TbPackage,
     Megaphone: TbSpeakerphone,
@@ -69,12 +77,32 @@ const ICON_COMPONENTS: Record<string, IconType> = {
     Pin: TbPin,
     Sparkles: TbSparkles,
     Dna: TbDna,
+    Flask: TbFlask,
     FileText: TbFileText,
     Trophy: TbTrophy,
+    Medal: TbMedal,
     Stethoscope: TbStethoscope,
     Cpu: TbCpu,
     Atom: TbAtom,
     CheckCircle: TbCircleCheck,
+    // New icons added
+    Skull: TbSkull,
+    Hourglass: TbHourglass,
+    AlarmClock: TbAlarm,
+    Clock: TbAlarm,
+    Star: TbStar,
+    Lock: TbLock,
+    Unlock: TbLockOpen,
+    Shield: TbShield,
+    Gift: TbGift,
+    Key: TbKey,
+    Gamepad2: TbDeviceGamepad2,
+    ClipboardList: TbClipboardList,
+    PenLine: TbPencil,
+    Link: TbLink,
+    Paperclip: TbPaperclip,
+    Dice1: TbDeviceGamepad2,
+    MousePointer: TbMouse,
 }
 
 // Get icon component by name

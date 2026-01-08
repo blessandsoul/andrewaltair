@@ -177,7 +177,7 @@ export default async function BlogPage() {
                 <PostCard
                   key={post.id}
                   post={post as any}
-                  showExcerpt={false}
+                  showExcerpt={true}
                   showTags={true}
                   showAuthor={true}
                 />

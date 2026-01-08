@@ -101,12 +101,9 @@ export const brand = {
 
   // Categories for blog posts
   categories: [
-    { id: "news", name: "სიახლეები", icon: "Newspaper", color: "#6366f1" },
-    { id: "videos", name: "ვიდეო", icon: "Video", color: "#ef4444" },
-    { id: "prompts", name: "პრომპტები", icon: "Sparkles", color: "#f59e0b" },
-    { id: "tutorials", name: "ტუტორიალები", icon: "BookOpen", color: "#10b981" },
-    { id: "business", name: "ბიზნესი", icon: "Briefcase", color: "#8b5cf6" },
-    { id: "automation", name: "ავტომატიზაცია", icon: "Zap", color: "#ec4899" },
+    { id: "articles", name: "სტატიები", icon: "FileText", color: "#6366f1" },
+    { id: "ai", name: "ხელოვნური ინტელექტი", icon: "Bot", color: "#22d3ee" },
+    { id: "science", name: "მეცნიერება და ტექნიკა", icon: "Atom", color: "#10b981" },
   ],
 
   // Animation presets
