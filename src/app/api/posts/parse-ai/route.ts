@@ -236,10 +236,10 @@ function fallbackParse(rawContent: string): ParseResult {
     let focusKeyword = '' // Extract from ⭐️ line
 
     // State machine for multi-part parsing
+    // PART1 → after 1st hashtags → SKIP_PART2 → after 2nd hashtags+--- → AUTHOR_COMMENT → after --- → SKIP_PROMPTS
     type ParseState = 'PART1' | 'SKIP_PART2' | 'AUTHOR_COMMENT' | 'SKIP_PROMPTS'
     let state: ParseState = 'PART1'
     let hashtagCount = 0  // Track hashtag sections seen
-    let inPrompt = false
 
     // Patterns
     const PROMPT_STARTERS = /^(Prompt:|Format:|Branding:|Quality:|Subject:|Composition:|Lighting:|Camera:|Environment:|Style:|Negative Prompt:|Role:|You are|Act as|System:)/i
@@ -298,34 +298,38 @@ function fallbackParse(rawContent: string): ParseResult {
             continue
         }
 
-        // Detect --- separator (potential author comment start)
+        // Detect --- separator (potential author comment start or section end)
         if (trimmed === '---') {
+            // When in AUTHOR_COMMENT and we see ---, stop the author comment
+            if (state === 'AUTHOR_COMMENT') {
+                if (currentSection) {
+                    sections.push(currentSection)
+                    currentSection = null
+                }
+                state = 'SKIP_PROMPTS' // After author comment, skip everything else (prompts)
+                continue
+            }
+
+            // After second hashtags + --- = author comment section starts
             if (state === 'SKIP_PART2' && hashtagCount >= 2) {
-                // After second hashtags + --- = author comment section
                 state = 'AUTHOR_COMMENT'
                 currentSection = null
             }
             continue
         }
 
-        // Detect prompt sections
+        // Detect prompt sections - switch to skip mode
         if (PROMPT_STARTERS.test(trimmed)) {
-            if (state === 'PART1' && currentSection) {
+            if (currentSection) {
                 sections.push(currentSection)
                 currentSection = null
             }
-            inPrompt = true
             state = 'SKIP_PROMPTS'
             continue
         }
 
-        // Skip prompt content
-        if (state === 'SKIP_PROMPTS' || inPrompt) {
-            if (/^[\u{1F300}-\u{1F9FF}]/u.test(trimmed) || HASHTAG_LINE.test(trimmed)) {
-                inPrompt = false
-                if (hashtagCount >= 2) state = 'AUTHOR_COMMENT'
-                else state = 'SKIP_PART2'
-            }
+        // Skip prompt content - once in SKIP_PROMPTS, stay there forever
+        if (state === 'SKIP_PROMPTS') {
             continue
         }
 
