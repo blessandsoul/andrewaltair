@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select"
 import { TbFileText, TbSearch, TbEdit, TbTrash, TbEye, TbStar, TbFlame, TbX, TbDeviceFloppy, TbSquareCheck, TbSquare, TbPlus, TbMessage, TbShare, TbHeart, TbCalendar, TbChevronUp, TbChevronDown, TbChevronLeft, TbChevronRight, TbCopy, TbDownload, TbUpload, TbGripVertical, TbClock, TbFileCheck, TbFilePencil, TbArrowsSort, TbRobot, TbAtom, TbBook, TbNews, TbCheck } from "react-icons/tb"
 import { brand } from "@/lib/brand"
+import VideoEmbed, { VideoData } from "@/components/admin/VideoEmbed"
 // Posts fetched from MongoDB API
 
 const ICON_MAP: Record<string, any> = {
@@ -30,7 +31,8 @@ interface Post {
     slug: string
     title: string
     excerpt: string
-    category: string
+    category: string // Legacy
+    categories: string[] // New
     tags: string[]
     author: {
         name: string
@@ -54,6 +56,7 @@ interface Post {
     status: "draft" | "published" | "scheduled"
     scheduledFor: string | null
     order: number
+    videos?: VideoData[]
 }
 
 function formatNumber(num: number): string {
@@ -86,6 +89,8 @@ export default function PostsPage() {
                         ...p,
                         id: p.id || p.slug,
                         order: p.order || i + 1,
+                        categories: p.categories || [p.category || 'ai'],
+                        videos: p.videos || [],
                         status: p.status || 'published',
                         scheduledFor: p.scheduledFor || null,
                         reactions: p.reactions || { fire: 0, love: 0, mindblown: 0, applause: 0, insightful: 0 },
@@ -1148,14 +1153,39 @@ function EditPostModal({
     onSave: (post: Post) => void
     onClose: () => void
 }) {
+    // Initial category logic: ensure it's an array
+    const initialCategories = post.categories && post.categories.length > 0
+        ? post.categories
+        : (post.category ? [post.category] : ['ai', 'articles']);
+
     const [formData, setFormData] = React.useState({
         title: post.title,
         excerpt: post.excerpt,
-        category: post.category,
+        category: post.category, // Keep for legacy
+        categories: initialCategories, // New array support
         tags: post.tags.join(", "),
         status: post.status,
-        scheduledFor: post.scheduledFor || ""
+        scheduledFor: post.scheduledFor || "",
+        videos: post.videos || [] // Video support
     })
+
+    // Auto-parent selection logic (shared with PostEditor)
+    const handleCategoryChange = (catId: string) => {
+        setFormData(prev => {
+            let newCats = prev.categories.includes(catId)
+                ? prev.categories.filter(c => c !== catId)
+                : [...prev.categories, catId];
+
+            // If subcategory selected, ensure parent 'articles' is present
+            if (['ai', 'science', 'tutorials', 'news'].includes(catId) && !prev.categories.includes(catId)) {
+                if (!newCats.includes('articles')) {
+                    newCats.push('articles');
+                }
+            }
+
+            return { ...prev, categories: newCats };
+        });
+    }
 
     // Cover images state
     const [coverImages, setCoverImages] = React.useState<{
@@ -1203,11 +1233,13 @@ function EditPostModal({
             ...post,
             title: formData.title,
             excerpt: formData.excerpt,
-            category: formData.category,
+            category: formData.categories[0] || formData.category, // Fallback
+            categories: formData.categories,
             tags: formData.tags.split(",").map(t => t.trim()).filter(Boolean),
             status: formData.status as Post["status"],
             scheduledFor: formData.status === "scheduled" ? formData.scheduledFor : null,
-            coverImages
+            coverImages,
+            videos: formData.videos
         } as any)
     }
 
@@ -1408,30 +1440,32 @@ function EditPostModal({
                             </div>
                         </div>
 
+                        {/* Categories and Status */}
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">კატეგორია</label>
-                                <Select
-                                    value={formData.category}
-                                    onValueChange={(v) => setFormData({ ...formData, category: v })}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="აირჩიეთ კატეგორია" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {brand.categories.map(cat => {
-                                            const IconComponent = ICON_MAP[cat.icon] || TbFileText;
-                                            return (
-                                                <SelectItem key={cat.id} value={cat.id}>
-                                                    <div className="flex items-center gap-2">
-                                                        <IconComponent className="w-4 h-4" />
-                                                        <span>{cat.name}</span>
-                                                    </div>
-                                                </SelectItem>
-                                            );
-                                        })}
-                                    </SelectContent>
-                                </Select>
+                                <label className="text-sm font-medium">კატეგორიები</label>
+                                <div className="flex flex-wrap gap-2 p-3 border rounded-md min-h-[50px]">
+                                    {brand.categories.map(cat => {
+                                        const isSelected = formData.categories.includes(cat.id);
+                                        const isParent = cat.id === 'articles';
+
+                                        return (
+                                            <Badge
+                                                key={cat.id}
+                                                variant={isSelected ? "default" : "outline"}
+                                                className={`cursor-pointer transition-all ${isSelected
+                                                    ? 'bg-primary text-white hover:bg-primary/90'
+                                                    : 'hover:bg-accent'
+                                                    } ${!isParent && 'ml-2'}`} // Visual indentation
+                                                onClick={() => handleCategoryChange(cat.id)}
+                                            >
+                                                {cat.name}
+                                                {isSelected && <TbCheck className="w-3 h-3 ml-1" />}
+                                            </Badge>
+                                        );
+                                    })}
+                                </div>
+                                <p className="text-[10px] text-muted-foreground">აირჩიეთ ერთი ან მეტი კატეგორია</p>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">სტატუსი</label>
@@ -1470,6 +1504,15 @@ function EditPostModal({
                                 onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
                             />
                         </div>
+
+                        {/* Video Embeds Section */}
+                        <div className="space-y-2 pt-2 border-t">
+                            <VideoEmbed
+                                videos={formData.videos}
+                                onChange={(videos) => setFormData(prev => ({ ...prev, videos }))}
+                            />
+                        </div>
+
                         <div className="flex justify-end gap-2 pt-4">
                             <Button type="button" variant="outline" onClick={onClose}>
                                 გაუქმება

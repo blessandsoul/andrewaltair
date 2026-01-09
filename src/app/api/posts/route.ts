@@ -169,11 +169,26 @@ export async function POST(request: Request) {
                 id: post._id.toString(),
             },
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Create post error:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+        // Detailed error message
+        let errorMessage = 'Failed to create post';
+        let details = error instanceof Error ? error.message : 'Unknown error';
+
+        // Handle Mongoose validation errors specifically
+        if (error.name === 'ValidationError') {
+            errorMessage = 'Validation Failed';
+            details = Object.values(error.errors).map((err: any) => err.message).join(', ');
+        }
+
         return NextResponse.json(
-            { error: 'Failed to create post', details: errorMessage },
+            {
+                error: errorMessage,
+                details: details,
+                // Include full error object in dev for easier debugging
+                debug: process.env.NODE_ENV === 'development' ? error : undefined
+            },
             { status: 500 }
         );
     }

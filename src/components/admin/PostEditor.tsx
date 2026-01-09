@@ -528,7 +528,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                         title: result.title || post.title,
                         excerpt: result.excerpt || post.excerpt,
                         content: post.rawContent,
-                        category: post.categories[0] || ''
+                        category: (post.categories && post.categories[0]) || ''
                     })
                 })
 

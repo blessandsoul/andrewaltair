@@ -74,7 +74,7 @@ function formatRelativeDate(dateString: string): string {
 export function FeaturedCard({ post }: FeaturedCardProps) {
     const [isHovered, setIsHovered] = useState(false)
     const [isBookmarked, setIsBookmarked] = useState(false)
-    const categoryStr = post.categories && post.categories.length > 0 ? post.categories[0] : ((post as any).category || 'ai')
+    const categoryStr = post.categories && post.categories.length > 0 ? post.categories[0] : ((post as unknown as { category: string }).category || 'ai')
     const categoryInfo = getCategoryInfo(categoryStr)
 
     const handleBookmark = (e: React.MouseEvent) => {

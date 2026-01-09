@@ -17,6 +17,32 @@ export default function NewPostPage() {
                 return
             }
 
+            // Log payload for debugging
+            const payload = {
+                title: post.title,
+                slug: post.slug || post.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, ''),
+                excerpt: post.excerpt,
+                content: post.content,
+                rawContent: post.rawContent,
+                coverImage: post.coverImages?.horizontal || post.coverImage,
+                coverImages: post.coverImages,
+                gallery: post.gallery,
+                sections: post.sections,
+                categories: post.categories,
+                tags: post.tags,
+                author: { name: 'Andrew Altair', avatar: '/avatar.jpg', role: 'AI ინოვატორი' },
+                status: post.status || 'published',
+                scheduledFor: post.scheduledFor,
+                featured: post.featured || false,
+                trending: post.trending || false,
+                readingTime: post.readingTime || Math.ceil((post.rawContent?.split(' ').length || 0) / 200),
+                videos: post.videos || [],
+                relatedPosts: post.relatedPosts || [],
+                seo: post.seo,
+                telegramContent: post.telegramContent || ''
+            };
+            console.log('Sending Post Payload:', payload);
+
             // Create post via MongoDB API
             const res = await fetch('/api/posts', {
                 method: 'POST',
@@ -24,34 +50,13 @@ export default function NewPostPage() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({
-                    title: post.title,
-                    slug: post.slug || post.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, ''),
-                    excerpt: post.excerpt,
-                    content: post.content,
-                    rawContent: post.rawContent,
-                    coverImage: post.coverImages?.horizontal || post.coverImage,
-                    coverImages: post.coverImages,
-                    gallery: post.gallery,
-                    sections: post.sections,
-                    categories: post.categories,
-                    tags: post.tags,
-                    author: { name: 'Andrew Altair', avatar: '/avatar.jpg', role: 'AI ინოვატორი' },
-                    status: post.status || 'published',
-                    scheduledFor: post.scheduledFor,
-                    featured: post.featured || false,
-                    trending: post.trending || false,
-                    readingTime: post.readingTime || Math.ceil((post.rawContent?.split(' ').length || 0) / 200),
-                    videos: post.videos || [],
-                    relatedPosts: post.relatedPosts || [],
-                    seo: post.seo,
-                    telegramContent: post.telegramContent || ''
-                })
+                body: JSON.stringify(payload)
             })
 
             if (!res.ok) {
                 const error = await res.json()
-                throw new Error(error.error || 'პოსტის შენახვა ვერ მოხერხდა')
+                console.error('API Error Response:', error);
+                throw new Error(error.details || error.error || 'პოსტის შენახვა ვერ მოხერხდა')
             }
 
             const savedPost = await res.json()
@@ -85,7 +90,7 @@ export default function NewPostPage() {
             // Success handled by PostEditor modal
         } catch (error: any) {
             console.error('Save post error:', error)
-            alert(error.message || "შეცდომა პოსტის შენახვისას")
+            alert(`შეცდომა: ${error.message}`)
             throw error // Re-throw to prevent success modal
         }
     }
