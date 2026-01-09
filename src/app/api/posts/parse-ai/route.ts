@@ -263,9 +263,14 @@ function fallbackParse(rawContent: string): ParseResult {
         const trimmed = line.trim()
 
         // Always skip these regardless of state - but extract focusKeyword from ⭐️ line first
-        if (!trimmed || SKIP_PATTERNS.test(trimmed)) {
-            if (!trimmed && currentSection && state === 'PART1') {
-                currentSection.content += '\n'
+        if (SKIP_PATTERNS.test(trimmed)) {
+            continue
+        }
+        
+        // Handle empty lines - preserve them in intro and other sections
+        if (!trimmed) {
+            if (currentSection && state === 'PART1') {
+                currentSection.content += '\n\n'
             }
             continue
         }
@@ -404,10 +409,12 @@ function fallbackParse(rawContent: string): ParseResult {
                 continue
             }
 
-            // Regular content
+            // Regular content - accumulate into intro or current section
             if (currentSection) {
+                // Append to existing section (intro or regular)
                 currentSection.content += '\n' + cleanContent(trimmed)
             } else {
+                // Create intro section - will accumulate all content until first emoji
                 currentSection = { type: 'intro', content: cleanContent(trimmed) }
             }
         }

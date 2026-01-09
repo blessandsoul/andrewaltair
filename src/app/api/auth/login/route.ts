@@ -99,14 +99,14 @@ export async function POST(request: Request) {
             );
         }
 
-        // 🛡️ Check if email is verified
-        if (!user.isEmailVerified) {
-            return NextResponse.json({
-                error: 'გთხოვთ დაადასტუროთ თქვენი ელ-ფოსტა',
-                requiresVerification: true,
-                email: user.email
-            }, { status: 403 });
-        }
+        // Email verification disabled - allow login without verification
+        // if (!user.isEmailVerified) {
+        //     return NextResponse.json({
+        //         error: 'გთხოვთ დაადასტუროთ თქვენი ელ-ფოსტა',
+        //         requiresVerification: true,
+        //         email: user.email
+        //     }, { status: 403 });
+        // }
 
         // Verify password
         const isMatch = await user.comparePassword(password);
