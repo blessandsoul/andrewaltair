@@ -103,23 +103,24 @@ export async function POST(request: Request) {
 
         const data = await request.json();
 
-        // Generate slug if not provided, with unique suffix
+        // Generate slug if not provided (Clean, no random suffix)
         if (!data.slug) {
             data.slug = (data.title || 'post')
                 .toLowerCase()
                 .replace(/[^a-z0-9\u10A0-\u10FF]+/g, '-')
-                .replace(/(^-|-$)/g, '') + '-' + Math.random().toString(36).substring(2, 7);
+                .replace(/(^-|-$)/g, '');
         }
 
         // Check for duplicate slug and make unique if needed
         let baseSlug = data.slug;
         let uniqueSlug = baseSlug;
-        let counter = 1;
+        let counter = 2; // Start from 2 (e.g. my-post-2)
 
         while (await Post.findOne({ slug: uniqueSlug })) {
-            uniqueSlug = `${baseSlug}-${Date.now()}-${counter}`;
+            uniqueSlug = `${baseSlug}-${counter}`;
             counter++;
-            if (counter > 5) break; // Safety limit
+            // Safety limit increased slightly, though in practice huge overlaps are rare
+            if (counter > 100) break;
         }
         data.slug = uniqueSlug;
 

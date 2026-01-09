@@ -172,7 +172,6 @@ function generateSlug(title: string): string {
         .replace(/\s+/g, "-")
         .replace(/-+/g, "-")
         .trim()
-        .slice(0, 60)
 }
 
 interface PostEditorProps {

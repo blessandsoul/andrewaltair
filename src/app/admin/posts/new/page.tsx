@@ -26,7 +26,7 @@ export default function NewPostPage() {
                 },
                 body: JSON.stringify({
                     title: post.title,
-                    slug: post.slug || (post.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '') + '-' + Math.random().toString(36).substring(2, 7)),
+                    slug: post.slug || post.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, ''),
                     excerpt: post.excerpt,
                     content: post.content,
                     rawContent: post.rawContent,
