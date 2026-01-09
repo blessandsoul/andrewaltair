@@ -262,8 +262,16 @@ function fallbackParse(rawContent: string): ParseResult {
         const line = lines[i]
         const trimmed = line.trim()
 
-        // Always skip these regardless of state - but extract focusKeyword from ⭐️ line first
-        if (SKIP_PATTERNS.test(trimmed)) {
+        // Extract focusKeyword from ⭐️ line but don't skip yet
+        if (trimmed.startsWith('⭐️') || trimmed.startsWith('⭐')) {
+            const match = trimmed.match(/^[⭐️⭐]+\s*(?:Text:)?\s*['"]?(.+?)['"]?\s*$/i)
+            if (match && match[1] && !focusKeyword) {
+                focusKeyword = match[1].trim()
+            }
+        }
+
+        // Skip patterns AFTER extracting focusKeyword
+        if (SKIP_PATTERNS.test(trimmed) || MUSIC_TEXT_SKIP.test(trimmed)) {
             continue
         }
         
@@ -272,20 +280,6 @@ function fallbackParse(rawContent: string): ParseResult {
             if (currentSection && state === 'PART1') {
                 currentSection.content += '\n\n'
             }
-            continue
-        }
-
-        // Extract focusKeyword ONLY from ⭐️ Text line (not 🎶 music line)
-        if (MUSIC_TEXT_SKIP.test(trimmed)) {
-            // Only extract from ⭐️ lines, not 🎶 (music) lines
-            if (trimmed.startsWith('⭐️') || trimmed.startsWith('⭐')) {
-                // Extract text after ⭐️ or ⭐️ Text:
-                const match = trimmed.match(/^[⭐️⭐]+\s*(?:Text:)?\s*['"]?(.+?)['"]?\s*$/i)
-                if (match && match[1] && !focusKeyword) {
-                    focusKeyword = match[1].trim()
-                }
-            }
-            // Skip both ⭐️ and 🎶 lines from content
             continue
         }
 
@@ -371,10 +365,15 @@ function fallbackParse(rawContent: string): ParseResult {
 
         // PART1 - normal parsing
         if (state === 'PART1') {
-            // Detect emoji-prefixed sections
+            // Detect emoji-prefixed sections - FIRST check if line starts with emoji
             const emojiMatch = trimmed.match(/^([\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}])/u)
             if (emojiMatch) {
-                if (currentSection) sections.push(currentSection)
+                // Save current intro section before starting new emoji section
+                if (currentSection) {
+                    sections.push(currentSection)
+                    console.log('📝 Intro completed - final length:', currentSection.content.length, 'chars')
+                }
+                
                 const emoji = emojiMatch[0]
                 const restOfLine = trimmed.slice(emoji.length).trim()
 
@@ -410,18 +409,17 @@ function fallbackParse(rawContent: string): ParseResult {
             }
 
             // Regular content - accumulate into intro or current section
+            // IMPORTANT: Don't use cleanContent here to avoid any text manipulation
             if (currentSection) {
                 // Append to existing section (intro or regular)
-                const cleaned = cleanContent(trimmed)
-                currentSection.content += '\n' + cleaned
+                currentSection.content += '\n' + trimmed
                 if (currentSection.type === 'intro') {
-                    console.log('📝 Appending to intro:', cleaned.slice(0, 50), '... (total length:', currentSection.content.length, ')')
+                    console.log('📝 Appending to intro:', trimmed.slice(0, 80), '... (total:', currentSection.content.length, 'chars)')
                 }
             } else {
                 // Create intro section - will accumulate all content until first emoji
-                const cleaned = cleanContent(trimmed)
-                currentSection = { type: 'intro', content: cleaned }
-                console.log('📝 Starting intro:', cleaned.slice(0, 50), '...')
+                currentSection = { type: 'intro', content: trimmed }
+                console.log('📝 Starting intro:', trimmed.slice(0, 80), '...')
             }
         }
     }
@@ -443,7 +441,7 @@ function fallbackParse(rawContent: string): ParseResult {
 
     return {
         title: cleanContent(title),
-        excerpt: cleanContent(introSection?.content.slice(0, 200) || ''),
+        excerpt: cleanContent(introSection?.content || ''), // Use FULL intro as excerpt
         sections: cleanSections,
         tags: extractedTags,
         focusKeyword: focusKeyword || '', // From ⭐️ Text line
