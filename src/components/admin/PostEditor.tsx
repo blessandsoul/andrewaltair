@@ -56,7 +56,7 @@ export interface PostData {
     excerpt: string
     content: string
     rawContent: string
-    category: string
+    categories: string[]
     tags: string[]
     coverImage: string
     coverImages: CoverImages
@@ -109,7 +109,7 @@ const DEFAULT_POST: PostData = {
     excerpt: "",
     content: "",
     rawContent: "",
-    category: "ai",
+    categories: ["ai", "articles"],
     tags: [],
     coverImage: "",
     coverImages: {},
@@ -529,7 +529,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                         title: result.title || post.title,
                         excerpt: result.excerpt || post.excerpt,
                         content: post.rawContent,
-                        category: post.category
+                        category: post.categories[0] || ''
                     })
                 })
 
@@ -699,7 +699,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                             title: post.title,
                             excerpt: post.excerpt,
                             content: post.rawContent || post.sections.map(s => s.content).join(' '),
-                            category: post.category
+                            category: post.categories[0] || ''
                         })
                     })
 
@@ -1409,22 +1409,48 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                 </div>
                             </div>
 
-                            {/* Category */}
+                            {/* Categories (Multi-select with Parent Auto-select) */}
                             <div className="space-y-2">
-                                <label className="text-xs text-muted-foreground">კატეგორია</label>
+                                <label className="text-xs text-muted-foreground">კატეგორიები</label>
                                 <div className="flex flex-col gap-1">
                                     {CATEGORIES.map(cat => {
                                         const IconComponent = cat.icon;
-                                        const isSelected = post.category === cat.value;
+                                        const isSelected = post.categories.includes(cat.value);
+                                        const isParent = cat.isParent;
+
                                         return (
                                             <button
                                                 key={cat.value}
                                                 type="button"
-                                                onClick={() => setPost(prev => ({ ...prev, category: cat.value }))}
+                                                onClick={() => {
+                                                    setPost(prev => {
+                                                        const currentCats = prev.categories || [];
+                                                        let newCats = [...currentCats];
+
+                                                        if (isSelected) {
+                                                            // Deselect
+                                                            newCats = newCats.filter(c => c !== cat.value);
+                                                            // If unchecking a parent, uncheck all children? No, usually uncheck parent is allowed.
+                                                            // But if unchecking a child, parent remains.
+                                                        } else {
+                                                            // Select
+                                                            newCats.push(cat.value);
+                                                            // If selecting a subcategory, auto-select parent
+                                                            if (!isParent) {
+                                                                // Find parent (assuming 'articles' is the only parent for now, or check brand config)
+                                                                // Hardcoded for now based on CATEGORIES structure where 'articles' is parent
+                                                                if (!newCats.includes('articles')) {
+                                                                    newCats.push('articles');
+                                                                }
+                                                            }
+                                                        }
+                                                        return { ...prev, categories: newCats };
+                                                    });
+                                                }}
                                                 className={`flex items-center gap-2 px-3 py-2 rounded-md border text-left text-sm transition-colors ${isSelected
                                                     ? 'border-primary bg-primary/10 text-primary'
                                                     : 'border-input bg-background hover:bg-accent/50'
-                                                    }`}
+                                                    } ${!isParent ? 'ml-4' : ''}`} // Indent children
                                             >
                                                 <IconComponent className="w-4 h-4" />
                                                 {cat.label}
@@ -1432,6 +1458,70 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                             </button>
                                         );
                                     })}
+                                </div>
+                            </div>
+
+                            {/* Video Embeds */}
+                            <div className="space-y-2 pt-4 border-t">
+                                <label className="text-xs text-muted-foreground flex items-center justify-between">
+                                    <span>Video Embeds (YouTube/Vimeo)</span>
+                                    <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded">{post.videos?.length || 0}</span>
+                                </label>
+                                <div className="space-y-2">
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            placeholder="https://youtube.com/watch?v=..."
+                                            className="flex-1 h-8 text-sm px-2 rounded-md border bg-background"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    e.preventDefault();
+                                                    const url = e.currentTarget.value;
+                                                    if (!url) return;
+
+                                                    // Simple platform detection
+                                                    let platform: 'youtube' | 'vimeo' = 'youtube';
+                                                    if (url.includes('vimeo')) platform = 'vimeo';
+
+                                                    setPost(prev => ({
+                                                        ...prev,
+                                                        videos: [...(prev.videos || []), { url, platform }]
+                                                    }));
+                                                    e.currentTarget.value = '';
+                                                }
+                                            }}
+                                        />
+                                        <Button
+                                            size="sm"
+                                            variant="secondary"
+                                            onClick={(e) => {
+                                                // Need to access input value... workaround: just use Enter key above or State
+                                                // For simplicity, let's just use Enter key instruction placeholder
+                                            }}
+                                            title="Press Enter in input to add"
+                                        >
+                                            <TbPlus className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+
+                                    {/* Video List */}
+                                    <div className="space-y-2">
+                                        {post.videos?.map((video, idx) => (
+                                            <div key={idx} className="flex items-center gap-2 p-2 rounded border bg-muted/20 text-xs group">
+                                                <span className="uppercase font-bold text-[10px] w-12">{video.platform}</span>
+                                                <span className="truncate flex-1" title={video.url}>{video.url}</span>
+                                                <button
+                                                    onClick={() => setPost(prev => ({
+                                                        ...prev,
+                                                        videos: prev.videos?.filter((_, i) => i !== idx)
+                                                    }))}
+                                                    className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition-opacity"
+                                                >
+                                                    <TbTrash className="w-3 h-3" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         </CardContent>
@@ -1779,7 +1869,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                     <RelatedPostsSuggestions
                         title={post.title}
                         tags={post.tags}
-                        category={post.category}
+                        category={post.categories[0] || ''}
                         currentSlug={post.slug}
                         selectedPosts={post.relatedPosts || []}
                         onAddPost={(slug) => setPost(prev => ({

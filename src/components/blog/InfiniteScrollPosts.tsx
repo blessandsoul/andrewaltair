@@ -60,7 +60,7 @@ interface Post {
     excerpt: string
     content?: string
     rawContent?: string
-    category: string
+    categories: string[]
     coverImage?: string
     coverImages?: CoverImages
     gallery?: GalleryImage[]
@@ -91,7 +91,8 @@ interface InfiniteScrollPostsProps {
 
 // Full article component matching BlogPostClient layout
 function FullArticle({ post, index }: { post: Post; index: number }) {
-    const normalizedCat = post.category?.trim().toLowerCase()
+    const categoryStr = post.categories && post.categories.length > 0 ? post.categories[0] : ((post as any).category || 'ai')
+    const normalizedCat = categoryStr?.trim().toLowerCase()
     const categoryInfo = brand.categories.find(c => c.id.toLowerCase() === normalizedCat)
     const { isOpen, images, currentIndex, openLightbox, closeLightbox } = useImageLightbox()
     const [articleImages, setArticleImages] = useState<{ src: string; alt: string }[]>([])
@@ -203,7 +204,7 @@ function FullArticle({ post, index }: { post: Post; index: number }) {
                                     borderColor: `${categoryInfo?.color}40`
                                 }}
                             >
-                                {categoryInfo?.name || post.category}
+                                {categoryInfo?.name || categoryStr}
                             </Badge>
                             <span className="text-sm text-muted-foreground flex items-center gap-1">
                                 <TbCalendar className="w-4 h-4" />

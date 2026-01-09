@@ -26,7 +26,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                         excerpt: p.excerpt,
                         content: p.content,
                         rawContent: p.rawContent,
-                        category: p.category,
+                        categories: p.categories && p.categories.length > 0 ? p.categories : (p.category ? [p.category] : ['ai', 'articles']),
                         tags: p.tags || [],
                         coverImage: p.coverImage,
                         coverImages: p.coverImages || {},
@@ -43,6 +43,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                         scheduledFor: p.scheduledFor,
                         videos: p.videos || [],
                         relatedPosts: p.relatedPosts || [],
+                        telegramContent: p.telegramContent || '',
                         seo: p.seo || {
                             metaTitle: "",
                             metaDescription: "",
@@ -76,9 +77,28 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    ...updatedPost,
+                    title: updatedPost.title,
                     slug: updatedPost.slug || updatedPost.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, ''),
+                    excerpt: updatedPost.excerpt,
+                    content: updatedPost.content,
+                    rawContent: updatedPost.rawContent,
+                    categories: updatedPost.categories,
+                    tags: updatedPost.tags,
+                    coverImage: updatedPost.coverImage,
+                    coverImages: updatedPost.coverImages,
+                    gallery: updatedPost.gallery,
+                    sections: updatedPost.sections,
+                    author: updatedPost.author,
+                    status: updatedPost.status,
+                    scheduledFor: updatedPost.scheduledFor,
+                    settings: { featured: updatedPost.featured, trending: updatedPost.trending },
+                    featured: updatedPost.featured,
+                    trending: updatedPost.trending,
                     readingTime: updatedPost.readingTime || Math.ceil((updatedPost.rawContent?.split(' ').length || 0) / 200),
+                    videos: updatedPost.videos || [],
+                    relatedPosts: updatedPost.relatedPosts || [],
+                    seo: updatedPost.seo,
+                    telegramContent: updatedPost.telegramContent
                 })
             })
 

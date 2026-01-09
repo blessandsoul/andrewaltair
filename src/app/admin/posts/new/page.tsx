@@ -26,7 +26,7 @@ export default function NewPostPage() {
                 },
                 body: JSON.stringify({
                     title: post.title,
-                    slug: post.slug || post.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, ''),
+                    slug: post.slug || (post.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '') + '-' + Math.random().toString(36).substring(2, 7)),
                     excerpt: post.excerpt,
                     content: post.content,
                     rawContent: post.rawContent,
@@ -34,7 +34,7 @@ export default function NewPostPage() {
                     coverImages: post.coverImages,
                     gallery: post.gallery,
                     sections: post.sections,
-                    category: post.category,
+                    categories: post.categories,
                     tags: post.tags,
                     author: { name: 'Andrew Altair', avatar: '/avatar.jpg', role: 'AI ინოვატორი' },
                     status: post.status || 'published',

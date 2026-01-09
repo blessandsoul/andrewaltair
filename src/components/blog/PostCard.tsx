@@ -13,7 +13,7 @@ interface Post {
     slug: string
     title: string
     excerpt: string
-    category: string
+    categories: string[]
     coverImage?: string
     coverImages?: {
         horizontal?: string
@@ -89,7 +89,8 @@ export function PostCard({
 }: PostCardProps) {
     const [isBookmarked, setIsBookmarked] = useState(false)
     const [isHovered, setIsHovered] = useState(false)
-    const categoryInfo = getCategoryInfo(post.category)
+    const categoryStr = post.categories && post.categories.length > 0 ? post.categories[0] : ((post as any).category || 'ai')
+    const categoryInfo = getCategoryInfo(categoryStr)
 
     const handleBookmark = (e: React.MouseEvent) => {
         e.preventDefault()

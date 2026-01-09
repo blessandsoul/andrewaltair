@@ -62,7 +62,7 @@ interface Post {
     excerpt: string
     content?: string
     rawContent?: string
-    category: string
+    categories: string[]
     coverImage?: string
     coverImages?: CoverImages
     gallery?: GalleryImage[]
@@ -105,7 +105,8 @@ interface BlogPostClientProps {
 }
 
 export default function BlogPostClient({ post, prevPost, nextPost, relatedPosts }: BlogPostClientProps) {
-    const categoryInfo = brand.categories.find(c => c.id === post.category)
+    const categoryStr = post.categories && post.categories.length > 0 ? post.categories[0] : ((post as any).category || 'ai')
+    const categoryInfo = brand.categories.find(c => c.id === categoryStr)
     const { isOpen, images, currentIndex, openLightbox, closeLightbox } = useImageLightbox()
     const [articleImages, setArticleImages] = useState<{ src: string; alt: string }[]>([])
 
@@ -235,7 +236,7 @@ console.log(data.result);
                                             borderColor: `${categoryInfo?.color}40`
                                         }}
                                     >
-                                        {categoryInfo?.name || post.category}
+                                        {categoryInfo?.name || categoryStr}
                                     </Badge>
                                     <span className="text-sm text-muted-foreground flex items-center gap-1">
                                         <TbCalendar className="w-4 h-4" />

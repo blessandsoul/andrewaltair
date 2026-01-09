@@ -28,7 +28,7 @@ export async function GET(request: Request) {
         }
 
         if (category) {
-            query.category = category;
+            query.categories = category;
         }
 
         if (featured === 'true') {
@@ -103,12 +103,12 @@ export async function POST(request: Request) {
 
         const data = await request.json();
 
-        // Generate slug if not provided
+        // Generate slug if not provided, with unique suffix
         if (!data.slug) {
-            data.slug = data.title
+            data.slug = (data.title || 'post')
                 .toLowerCase()
                 .replace(/[^a-z0-9\u10A0-\u10FF]+/g, '-')
-                .replace(/(^-|-$)/g, '');
+                .replace(/(^-|-$)/g, '') + '-' + Math.random().toString(36).substring(2, 7);
         }
 
         // Check for duplicate slug and make unique if needed
@@ -147,7 +147,7 @@ export async function POST(request: Request) {
             ...data,
             numericId: numericId, // Add the generated ID
             excerpt: data.excerpt || data.title || 'პოსტი',
-            category: data.category || 'news',
+            categories: data.categories || ['ai', 'articles'], // Default categories
             author: data.author || { name: 'Andrew Altair', avatar: '/avatar.jpg', role: 'AI ინოვატორი' },
             status: data.status || 'published',
             readingTime: data.readingTime || 5,

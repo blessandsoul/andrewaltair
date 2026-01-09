@@ -74,7 +74,7 @@ export interface IPost extends Document {
     coverImages?: ICoverImages;  // New responsive covers
     gallery?: IGalleryImage[];  // Result gallery
     sections?: ISection[];  // Parsed sections
-    category: string;
+    categories: string[];
     tags: string[];
     author: IAuthor;
     publishedAt: Date;
@@ -227,9 +227,9 @@ const PostSchema = new Schema<IPost>(
             type: [SectionSchema],
             default: [],
         },
-        category: {
-            type: String,
-            required: [true, 'Category is required'],
+        categories: {
+            type: [String],
+            default: [],
             index: true,
         },
         tags: {
