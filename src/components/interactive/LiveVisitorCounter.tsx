@@ -68,7 +68,7 @@ export function LiveVisitorCounter({
         return (
             <div
                 className={cn(
-                    "fixed bottom-4 right-4 z-40 flex items-center gap-2 rounded-full bg-card/90 backdrop-blur-lg px-4 py-2 shadow-lg border",
+                    "fixed top-20 right-4 z-40 flex items-center gap-2 rounded-full bg-card/90 backdrop-blur-lg px-4 py-2 shadow-lg border",
                     className
                 )}
             >
