@@ -10,8 +10,8 @@ import { LiveVisitorCounter } from "@/components/interactive/LiveVisitorCounter"
 import { AIChatAssistant } from "@/components/ai/AIChatAssistant"
 import { ScrollProgress, BackToTop } from "@/components/ui/scroll-progress"
 import { VisitorTracker } from "@/components/tracking"
-
 import { HeatmapOverlay } from "@/components/analytics/HeatmapOverlay"
+import { LayoutProvider } from "@/lib/layoutContext"
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
@@ -85,7 +85,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
     }
 
     return (
-        <>
+        <LayoutProvider>
             {/* Visitor Tracking */}
             <Suspense fallback={null}>
                 <VisitorTracker />
@@ -109,7 +109,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
             <Suspense fallback={null}>
                 <HeatmapOverlay />
             </Suspense>
-        </>
+        </LayoutProvider>
     )
 }
 

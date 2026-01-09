@@ -66,7 +66,8 @@ export default function NewPostPage() {
                             title: post.title,
                             telegramContent: post.telegramContent,
                             postUrl: `https://andrewaltair.ge/blog/${savedPost.post?.slug || post.slug}`,
-                            coverImage: post.coverImages?.horizontal || post.coverImage
+                            coverImage: post.coverImages?.horizontal || post.coverImage,
+                            coverImages: post.coverImages
                         })
                     })
                     const telegramResult = await telegramRes.json()

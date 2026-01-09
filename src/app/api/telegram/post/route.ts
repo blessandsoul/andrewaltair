@@ -7,6 +7,10 @@ interface TelegramPostRequest {
     telegramContent: string
     postUrl: string
     coverImage?: string
+    coverImages?: {
+        horizontal?: string
+        vertical?: string
+    }
 }
 
 export async function POST(request: NextRequest) {
@@ -19,32 +23,29 @@ export async function POST(request: NextRequest) {
         }
 
         const body: TelegramPostRequest = await request.json()
-        const { title, telegramContent, postUrl, coverImage } = body
+        const { title, telegramContent, postUrl, coverImage, coverImages } = body
 
         if (!title || !telegramContent) {
             return NextResponse.json({ error: 'title and telegramContent are required' }, { status: 400 })
         }
 
-        // Format message for Telegram
-        const message = `📰 *${escapeMarkdown(title)}*
+        // Format message for Telegram (telegramContent already contains title, emojis, and hashtags)
+        const message = `${telegramContent}
 
-${escapeMarkdown(telegramContent)}
-
-🔗 [სრულად წაიკითხე](${postUrl})
-
-#AndrewAltair #AI #ტექნოლოგიები`
+🔗 [სრულად წაიკითხე](${postUrl})`
 
         // Send message to channel
         let result
+        const imageUrl = coverImages?.horizontal || coverImage
 
-        if (coverImage && coverImage.startsWith('http')) {
+        if (imageUrl && imageUrl.startsWith('http')) {
             // Send with photo
             const photoResponse = await fetch(`${TELEGRAM_API_URL}${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     chat_id: TELEGRAM_CHANNEL_ID,
-                    photo: coverImage,
+                    photo: imageUrl,
                     caption: message,
                     parse_mode: 'Markdown'
                 })
@@ -84,25 +85,5 @@ ${escapeMarkdown(telegramContent)}
     }
 }
 
-// Escape special Markdown characters for Telegram
-function escapeMarkdown(text: string): string {
-    return text
-        .replace(/\*/g, '\\*')
-        .replace(/_/g, '\\_')
-        .replace(/\[/g, '\\[')
-        .replace(/\]/g, '\\]')
-        .replace(/\(/g, '\\(')
-        .replace(/\)/g, '\\)')
-        .replace(/~/g, '\\~')
-        .replace(/`/g, '\\`')
-        .replace(/>/g, '\\>')
-        .replace(/#/g, '\\#')
-        .replace(/\+/g, '\\+')
-        .replace(/-/g, '\\-')
-        .replace(/=/g, '\\=')
-        .replace(/\|/g, '\\|')
-        .replace(/\{/g, '\\{')
-        .replace(/\}/g, '\\}')
-        .replace(/\./g, '\\.')
-        .replace(/!/g, '\\!')
-}
+// Note: telegramContent is already properly formatted by the parser
+// No need to escape markdown characters

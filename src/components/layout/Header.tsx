@@ -13,6 +13,7 @@ import {
 import { TbRobot, TbBook, TbVideo, TbSettings, TbBulb, TbBriefcase, TbShoppingBag, TbInfoCircle, TbUser, TbSearch, TbMenu2, TbX, TbLogin, TbUserPlus, TbLogout, TbChevronDown, TbSparkles, TbShield, TbCrown, TbGift, TbActivity, TbClipboardCheck } from "react-icons/tb"
 import { useState } from "react"
 import { ThemeToggle } from "./ThemeToggle"
+import { LayoutToggle } from "./LayoutToggle"
 import { SearchDialog, useSearchDialog } from "@/components/interactive/SearchDialog"
 import { useAuth, ROLE_CONFIG } from "@/lib/auth"
 
@@ -305,6 +306,7 @@ export function Header() {
               >
                 <TbSearch className="w-5 h-5" />
               </Button>
+              <LayoutToggle />
               <ThemeToggle />
 
               {/* Auth Buttons or User Profile */}

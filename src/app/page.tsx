@@ -32,6 +32,7 @@ import Post from "@/models/Post"
 import Video from "@/models/Video"
 import { HeroCarousel } from "@/components/home/HeroCarousel"
 import { NewsletterForm } from "@/components/home/NewsletterForm"
+import { HomeLayoutSwitcher } from "@/components/home/HomeLayoutSwitcher"
 
 // Fetch posts directly from MongoDB (avoids self-referencing API deadlock)
 async function getPosts() {
@@ -190,137 +191,8 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Trending Section - BuzzFeed Style */}
-      <section className="py-16 lg:py-24 bg-secondary/30">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-          <div className="flex items-center justify-between mb-10">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center">
-                <TbTrendingUp className="w-5 h-5 text-red-500" />
-              </div>
-              <div>
-                <h2 className="text-2xl sm:text-3xl font-bold">ტრენდული ახლა</h2>
-                <p className="text-muted-foreground">ყველაზე პოპულარული სტატიები</p>
-              </div>
-            </div>
-            <Button variant="ghost" asChild>
-              <Link href="/blog?sort=trending">
-                ყველა
-                <TbArrowRight className="w-4 h-4 ml-1" />
-              </Link>
-            </Button>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {trendingPosts.slice(0, 3).map((post, index) => (
-              <TrendingCard
-                key={post.id}
-                post={post as any}
-                rank={index + 1}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Latest Posts Grid */}
-      <section className="py-16 lg:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-          <div className="flex items-center justify-between mb-10">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                <TbBolt className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-2xl sm:text-3xl font-bold">უახლესი პოსტები</h2>
-                <p className="text-muted-foreground">ახალი სტატიები და ტუტორიალები</p>
-              </div>
-            </div>
-            <Button variant="outline" asChild>
-              <Link href="/blog">
-                ყველა სტატია
-                <TbArrowRight className="w-4 h-4 ml-1" />
-              </Link>
-            </Button>
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {latestPosts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post as any}
-                showExcerpt={true}
-                showTags={true}
-                showAuthor={true}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Video Preview Section */}
-      {videosData.length > 0 && (
-        <section className="py-16 lg:py-24 bg-secondary/30">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-            <div className="flex items-center justify-between mb-10">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center">
-                  <TbBrandYoutube className="w-5 h-5 text-red-500" />
-                </div>
-                <div>
-                  <h2 className="text-2xl sm:text-3xl font-bold">ვიდეო კონტენტი</h2>
-                  <p className="text-muted-foreground">AI ტუტორიალები და მიმოხილვები</p>
-                </div>
-              </div>
-              <Button variant="ghost" asChild>
-                <Link href="/videos">
-                  ყველა ვიდეო
-                  <TbArrowRight className="w-4 h-4 ml-1" />
-                </Link>
-              </Button>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {videosData.map((video: any) => (
-                <Link key={video.id} href={`/videos/${video.id}`}>
-                  <Card className="group hover-lift overflow-hidden border-0 shadow-lg">
-                    <CardContent className="p-0">
-                      <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-accent/20">
-                        {video.youtubeId && (
-                          <Image
-                            src={`https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`}
-                            alt={video.title}
-                            fill
-                            className="object-cover"
-                          />
-                        )}
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                          <div className="w-14 h-14 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                            <TbPlayerPlay className="w-6 h-6 text-red-600 fill-red-600 ml-1" />
-                          </div>
-                        </div>
-                        <Badge className="absolute top-2 right-2 bg-black/70 text-white border-0">
-                          {video.duration || '00:00'}
-                        </Badge>
-                      </div>
-                      <div className="p-4">
-                        <h4 className="font-medium line-clamp-2 group-hover:text-primary transition-colors">
-                          {video.title}
-                        </h4>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {formatNumber(video.views || 0)} ნახვა
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-
+      {/* Dynamic Layout Section - User can switch between 4 layouts */}
+      <HomeLayoutSwitcher posts={postsData} videos={videosData} />
 
       {/* Newsletter Section */}
       <section className="py-20 lg:py-32 relative overflow-hidden">

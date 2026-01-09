@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OG Image Generator - Andrew Altair</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 40px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .controls {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .controls h2 {
+            margin-bottom: 20px;
+            color: #6366f1;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a1a1aa;
+            font-size: 14px;
+        }
+        
+        .control-group input,
+        .control-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        .control-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #6366f1 0%, #22d3ee 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+        }
+        
+        .preview {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 12px;
+        }
+        
+        .preview h2 {
+            margin-bottom: 20px;
+            color: #6366f1;
+        }
+        
+        #canvas {
+            width: 100%;
+            max-width: 1200px;
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #a1a1aa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <h2>🎨 OG Image Generator</h2>
+            <div class="control-group">
+                <label>Title</label>
+                <input type="text" id="title" value="Andrew Altair" />
+            </div>
+            <div class="control-group">
+                <label>Description</label>
+                <textarea id="description">AI ინოვატორი და კონტენტ კრეატორი</textarea>
+            </div>
+            <button onclick="generateImage()">Generate Image</button>
+            <button onclick="downloadImage()">Download PNG</button>
+        </div>
+        
+        <div class="preview">
+            <h2>Preview (1200x630)</h2>
+            <canvas id="canvas" width="1200" height="630"></canvas>
+            <div class="info">
+                💡 <strong>Tip:</strong> Click "Download PNG" and save as <code>og-image.png</code> in the <code>public/</code> folder
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function generateImage() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, 1200, 630);
+            
+            // Background
+            const gradient = ctx.createRadialGradient(300, 150, 0, 300, 150, 600);
+            gradient.addColorStop(0, 'rgba(99, 102, 241, 0.15)');
+            gradient.addColorStop(1, 'rgba(10, 10, 15, 1)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 1200, 630);
+            
+            const gradient2 = ctx.createRadialGradient(900, 480, 0, 900, 480, 600);
+            gradient2.addColorStop(0, 'rgba(34, 211, 238, 0.15)');
+            gradient2.addColorStop(1, 'transparent');
+            ctx.fillStyle = gradient2;
+            ctx.fillRect(0, 0, 1200, 630);
+            
+            // Grid pattern
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 1200; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, 630);
+                ctx.stroke();
+            }
+            for (let i = 0; i < 630; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(1200, i);
+                ctx.stroke();
+            }
+            
+            // Badge
+            ctx.fillStyle = 'rgba(99, 102, 241, 0.1)';
+            ctx.strokeStyle = 'rgba(99, 102, 241, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(400, 120, 400, 50, 25);
+            ctx.fill();
+            ctx.stroke();
+            
+            // Badge dot
+            ctx.fillStyle = '#22d3ee';
+            ctx.beginPath();
+            ctx.arc(430, 145, 6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Badge text
+            ctx.fillStyle = '#6366f1';
+            ctx.font = '600 20px Inter, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('AI ინოვატორი და კონტენტ კრეატორი', 450, 150);
+            
+            // Title with gradient effect
+            ctx.font = '900 80px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            const titleGradient = ctx.createLinearGradient(0, 250, 1200, 250);
+            titleGradient.addColorStop(0, '#6366f1');
+            titleGradient.addColorStop(1, '#22d3ee');
+            ctx.fillStyle = titleGradient;
+            ctx.fillText(title, 600, 280);
+            
+            // Description
+            ctx.font = '28px Inter, sans-serif';
+            ctx.fillStyle = '#a1a1aa';
+            ctx.textAlign = 'center';
+            
+            // Word wrap description
+            const words = description.split(' ');
+            let line = '';
+            let y = 340;
+            const maxWidth = 800;
+            
+            for (let i = 0; i < words.length; i++) {
+                const testLine = line + words[i] + ' ';
+                const metrics = ctx.measureText(testLine);
+                
+                if (metrics.width > maxWidth && i > 0) {
+                    ctx.fillText(line, 600, y);
+                    line = words[i] + ' ';
+                    y += 40;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, 600, y);
+            
+            // Stats
+            const stats = [
+                { label: 'წელი გამოცდილება', value: '8+' },
+                { label: 'გამომწერი', value: '50K+' },
+                { label: 'სტატია', value: '200+' }
+            ];
+            
+            const startX = 300;
+            const spacing = 200;
+            
+            stats.forEach((stat, i) => {
+                const x = startX + (i * spacing);
+                
+                // Value
+                ctx.font = '700 32px Inter, sans-serif';
+                ctx.fillStyle = '#e4e4e7';
+                ctx.textAlign = 'center';
+                ctx.fillText(stat.value, x, 480);
+                
+                // Label
+                ctx.font = '16px Inter, sans-serif';
+                ctx.fillStyle = '#71717a';
+                ctx.fillText(stat.label, x, 510);
+            });
+            
+            // Domain
+            ctx.font = '500 20px Inter, sans-serif';
+            ctx.fillStyle = '#71717a';
+            ctx.textAlign = 'right';
+            ctx.fillText('andrewaltair.ge', 1140, 590);
+        }
+        
+        function downloadImage() {
+            const canvas = document.getElementById('canvas');
+            const link = document.createElement('a');
+            link.download = 'og-image.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // Generate on load
+        window.onload = generateImage;
+        
+        // Update on input
+        document.getElementById('title').addEventListener('input', generateImage);
+        document.getElementById('description').addEventListener('input', generateImage);
+    </script>
+</body>
+</html>
