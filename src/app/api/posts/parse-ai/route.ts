@@ -412,10 +412,16 @@ function fallbackParse(rawContent: string): ParseResult {
             // Regular content - accumulate into intro or current section
             if (currentSection) {
                 // Append to existing section (intro or regular)
-                currentSection.content += '\n' + cleanContent(trimmed)
+                const cleaned = cleanContent(trimmed)
+                currentSection.content += '\n' + cleaned
+                if (currentSection.type === 'intro') {
+                    console.log('📝 Appending to intro:', cleaned.slice(0, 50), '... (total length:', currentSection.content.length, ')')
+                }
             } else {
                 // Create intro section - will accumulate all content until first emoji
-                currentSection = { type: 'intro', content: cleanContent(trimmed) }
+                const cleaned = cleanContent(trimmed)
+                currentSection = { type: 'intro', content: cleaned }
+                console.log('📝 Starting intro:', cleaned.slice(0, 50), '...')
             }
         }
     }
@@ -427,9 +433,17 @@ function fallbackParse(rawContent: string): ParseResult {
         .map(s => ({ ...s, content: s.content.trim() }))
         .filter(s => s.content)
 
+    // Debug: Log intro content length
+    const introSection = cleanSections.find(s => s.type === 'intro')
+    if (introSection) {
+        console.log('📝 Intro parsed - length:', introSection.content.length, 'chars')
+        console.log('📝 Intro first 100 chars:', introSection.content.slice(0, 100))
+        console.log('📝 Intro last 100 chars:', introSection.content.slice(-100))
+    }
+
     return {
         title: cleanContent(title),
-        excerpt: cleanContent(cleanSections.find(s => s.type === 'intro')?.content.slice(0, 200) || ''),
+        excerpt: cleanContent(introSection?.content.slice(0, 200) || ''),
         sections: cleanSections,
         tags: extractedTags,
         focusKeyword: focusKeyword || '', // From ⭐️ Text line
