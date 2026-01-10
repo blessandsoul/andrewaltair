@@ -31,6 +31,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
+import { useToast } from "@/components/ui/toast"
 import { TbSparkles, TbPlus, TbTrash, TbArrowLeft, TbLoader2, TbCurrencyDollar, TbPhotoPlus, TbWand, TbX, TbChartBar, TbHistory, TbFlask, TbLink, TbRobot } from "react-icons/tb"
 
 interface PromptVariable {
@@ -143,6 +144,7 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
     const [isUploading, setIsUploading] = React.useState(false)
     const [isGenerating, setIsGenerating] = React.useState(false)
     const [newTag, setNewTag] = React.useState("")
+    const { success, error } = useToast()
 
     // Import state
     const [showImportDialog, setShowImportDialog] = React.useState(false)
@@ -150,7 +152,7 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
 
     const handleBotImport = async () => {
         if (!importText.trim()) {
-            alert("Please paste some text to import")
+            error("იმპორტის შეცდომა", "გთხოვთ ჩასვათ ტექსტი იმპორტისთვის")
             return
         }
 
@@ -158,78 +160,77 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
         const newData = { ...data }
         let parsed = false
 
-        // Parse new format:
-        // [Intro]
-        // ---
-        // [Title]
-        // [Description]
-        // [Tags]
-        // [Category/Keywords]
-        // ```markdown
-        // [Prompt]
-        // --negative_prompt: [Neg]
-        // ```
-
+        // GEORGIAN BOT PARSER LOGIC
         try {
-            // 1. Split by separator
-            const parts = importText.split('---')
-            const contentPart = parts.length > 1 ? parts[1].trim() : parts[0].trim()
+            const lines = importText.split('\n').map(l => l.trim()).filter(Boolean)
 
-            const lines = contentPart.split('\n').map(l => l.trim()).filter(Boolean)
+            let titleFound = false
+            let descFound = false
 
-            if (lines.length > 0) {
-                // First non-empty line is Title
-                newData.title = lines[0]
-
-                // Second block is likely Description
-                if (lines.length > 1) {
-                    newData.description = lines[1]
-                    newData.excerpt = lines[1].substring(0, 150) + '...'
+            // 1. Scan for key fields by suffix
+            for (const line of lines) {
+                // Title
+                if (line.endsWith('(სათაური)')) {
+                    newData.title = line.replace(/\(სათაური\)$/, '').trim().replace(/^.*:\s*/, '') // Remove prefix like "Subject: " if exists
+                    titleFound = true
                 }
+                // Description
+                else if (line.endsWith('(აღწერა)')) {
+                    newData.description = line.replace(/\(აღწერა\)$/, '').trim()
+                    newData.excerpt = newData.description.substring(0, 150) + '...'
+                    descFound = true
+                }
+                // Categories
+                else if (line.endsWith('(კატეგორია)')) {
+                    const cleanLine = line.replace(/\(კატეგორია\)$/, '').trim()
+                    const items = cleanLine.split(/,|და/).map(s => s.trim()) // Split by comma or "and" (და)
 
-                // Look for tags and categories in subsequent lines
-                for (let i = 2; i < lines.length; i++) {
-                    const line = lines[i];
-                    // Stop if line starts with code block or separator
-                    if (line.startsWith('```') || line.startsWith('---') || line.startsWith('###')) break;
-
-                    // Stop if line is too long (likely a paragraph) unless it has many commas
-                    if (line.length > 200 && (line.match(/,/g) || []).length < 3) continue;
-
-                    if (line.includes(',')) {
-                        const items = line.split(',').map(s => s.trim());
-
-                        const catsToAdd: string[] = [];
-                        const tagsToAdd: string[] = [];
-
-                        items.forEach(item => {
-                            const cleanItem = item.replace(/['"]/g, '').trim();
-                            const catMatch = CATEGORIES.find(c =>
-                                c.value.toLowerCase() === cleanItem.toLowerCase() ||
-                                c.label === cleanItem ||
-                                c.label.toLowerCase() === cleanItem.toLowerCase()
-                            );
-
-                            if (catMatch) {
-                                catsToAdd.push(catMatch.value);
-                            } else {
-                                if (cleanItem && !cleanItem.includes('```') && !cleanItem.includes('(') && cleanItem.length < 50) {
-                                    tagsToAdd.push(cleanItem);
-                                }
-                            }
-                        });
-
-                        if (catsToAdd.length > 0) {
-                            newData.category = [...new Set([...newData.category, ...catsToAdd])];
-                        }
-                        if (tagsToAdd.length > 0) {
-                            newData.tags = [...new Set([...newData.tags, ...tagsToAdd])];
-                        }
+                    const catsToAdd: string[] = []
+                    items.forEach(item => {
+                        // Clean up quotes
+                        const cleanItem = item.replace(/['"]/g, '').trim()
+                        const catMatch = CATEGORIES.find(c =>
+                            c.value.toLowerCase() === cleanItem.toLowerCase() ||
+                            c.label === cleanItem ||
+                            c.label.toLowerCase() === cleanItem.toLowerCase()
+                        )
+                        if (catMatch) catsToAdd.push(catMatch.value)
+                    })
+                    if (catsToAdd.length > 0) {
+                        newData.category = [...new Set([...newData.category, ...catsToAdd])]
+                    }
+                }
+                // Tags
+                else if (line.endsWith('(ტეგები)')) {
+                    const cleanLine = line.replace(/\(ტეგები\)$/, '').trim()
+                    const items = cleanLine.split(/,/).map(s => s.trim())
+                    const tagsToAdd = items.filter(t => t.length > 0 && t.length < 50)
+                    if (tagsToAdd.length > 0) {
+                        newData.tags = [...new Set([...newData.tags, ...tagsToAdd])]
                     }
                 }
             }
 
-            // 2. Extract Code Block for Prompt
+            // Fallback for Title/Description if strictly formatted lines weren't found
+            // (Uses the old layout-based logic only if specific fields are missing)
+            if (!titleFound || !descFound) {
+                // Try splitting by --- if exists
+                const parts = importText.split('---')
+                const contentPart = parts.length > 1 ? parts[1].trim() : parts[0].trim()
+                const fallbackLines = contentPart.split('\n').map(l => l.trim()).filter(Boolean)
+
+                if (fallbackLines.length > 0 && !titleFound) {
+                    newData.title = fallbackLines[0]
+                }
+                if (fallbackLines.length > 1 && !descFound) {
+                    // Check if second line is not a code block start
+                    if (!fallbackLines[1].startsWith('```')) {
+                        newData.description = fallbackLines[1]
+                        newData.excerpt = fallbackLines[1].substring(0, 150) + '...'
+                    }
+                }
+            }
+
             // 2. Extract Code Block for Prompt (Relaxed)
             const codeBlockRegex = /```(?:markdown|md|txt)?\s*([\s\S]+?)```/i
             const codeMatch = importText.match(codeBlockRegex)
@@ -248,18 +249,7 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                     promptBody = codeContent.replace(negRegex, '').trim()
                 }
 
-                // Clean prompt body of known flags like --ar, --v, --stylize
-                // But keep them in the prompt string or separate? 
-                // User requirement: "all prompts will be 9:16" but example has 16:9.
-                // The prompt template usually keeps the flags for Midjourney.
-                // We will keep the full prompt logic in promptTemplate but strip the negative prompt part as we store it separately?
-                // Actually, if we use the component to GENERATE images, we might want clean prompt.
-                // But if it's for copy-paste, keep flags.
-                // Let's remove the "negative_prompt" flag line from the template if we stored it in negativePrompt field.
-
-                // Remove the "--negative_prompt: ..." text from promptTemplate
                 newData.promptTemplate = promptBody.replace(/--negative_prompt:.*(\n|$)/g, '').trim()
-
                 parsed = true
             }
 
@@ -303,7 +293,12 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                     if (res.ok) {
                         const generated = await res.json()
                         newData.slug = generated.slug || newData.slug
-                        newData.tags = [...new Set([...newData.tags, ...(generated.tags || [])])]
+
+                        // Merge tags
+                        const aiTags = generated.tags || []
+                        const uniqueTags = [...new Set([...newData.tags, ...aiTags])]
+                        newData.tags = uniqueTags
+
                         newData.metaTitle = generated.metaTitle || newData.metaTitle
                         newData.metaDescription = generated.metaDescription || newData.metaDescription
                         newData.excerpt = generated.excerpt || newData.excerpt
@@ -317,13 +312,14 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                 setData(newData)
                 setShowImportDialog(false)
                 setImportText("")
-                alert("Import Successful! Variables extracted & Magic Fill started.")
+
+                success("იმპორტი წარმატებულია! 🎉", "პრომპტი, აღწერა და დეტალები წარმატებით დაემატა. Magic Fill გააქტიურდა.")
             } else {
-                alert("Import Failed: Could not find code block '```' for the prompt. Please check the format.")
+                error("იმპორტი ვერ მოხერხდა", "ვერ ვიპოვე კოდის ბლოკი (```). გთხოვთ შეამოწმოთ ფორმატი.")
             }
         } catch (e) {
             console.error("Parse error", e)
-            alert("Parsing Error: " + (e as Error).message)
+            error("სისტემური შეცდომა", (e as Error).message)
         }
     }
 
