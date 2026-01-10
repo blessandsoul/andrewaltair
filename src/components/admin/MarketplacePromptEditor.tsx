@@ -149,8 +149,12 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
     const [importText, setImportText] = React.useState("")
 
     const handleBotImport = async () => {
-        if (!importText.trim()) return
+        if (!importText.trim()) {
+            alert("Please paste some text to import")
+            return
+        }
 
+        console.log("Starting Bot Import...", importText.substring(0, 50))
         const newData = { ...data }
         let parsed = false
 
@@ -226,7 +230,8 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
             }
 
             // 2. Extract Code Block for Prompt
-            const codeBlockRegex = /```markdown\s*([\s\S]+?)```/
+            // 2. Extract Code Block for Prompt (Relaxed)
+            const codeBlockRegex = /```(?:markdown|md|txt)?\s*([\s\S]+?)```/i
             const codeMatch = importText.match(codeBlockRegex)
 
             if (codeMatch) {
@@ -281,7 +286,7 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                 // TRIGGER MAGIC FILL (SEO Generation)
                 setIsGenerating(true)
                 try {
-                    const token = localStorage.getItem('token')
+                    const token = localStorage.getItem('auth_token')
                     const res = await fetch('/api/marketplace-prompts/generate', {
                         method: 'POST',
                         headers: {
@@ -312,9 +317,13 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                 setData(newData)
                 setShowImportDialog(false)
                 setImportText("")
+                alert("Import Successful! Variables extracted & Magic Fill started.")
+            } else {
+                alert("Import Failed: Could not find code block '```' for the prompt. Please check the format.")
             }
         } catch (e) {
             console.error("Parse error", e)
+            alert("Parsing Error: " + (e as Error).message)
         }
     }
 
