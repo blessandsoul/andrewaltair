@@ -1,17 +1,59 @@
-'use client';
-
 import { getArticleById, getAdjacentArticles } from "@/data/vibeCodingContent";
 import { notFound } from "next/navigation";
 import VibeArticleViewer from "@/components/vibe-coding/VibeArticleViewer";
 import ArticleSchema, { BreadcrumbSchema } from "@/components/blog/ArticleSchema";
+import { Metadata } from "next";
 
-// Note: generateStaticParams and generateMetadata need to be separate or handled in a server component wrapper
-// BUT since this was a client component before (reading params), we should keep it server if possible
-// The previous implementation was mixing server and client which is tricky in Next.js 14
-// Let's make this page a Server Component that renders a Client Component (VibeArticleViewer)
+interface Props {
+    params: Promise<{ slug: string }>
+}
 
-export default function ArticlePage({ params }: { params: { slug: string } }) {
-    const article = getArticleById(params.slug);
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { slug } = await params
+    const article = getArticleById(slug);
+
+    if (!article) {
+        return {
+            title: "Article Not Found",
+        };
+    }
+
+    const title = `${article.title} | Andrew Altair Encyclopedia`;
+    const description = article.content.substring(0, 160).replace(/[#*]/g, "") + "...";
+    const url = `https://andrewaltair.ge/encyclopedia/vibe-coding/${article.id}`;
+    const imageUrl = `https://andrewaltair.ge/encyclopedia/vibe-coding/${article.id}/opengraph-image`;
+
+    return {
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            url,
+            type: "article",
+            publishedTime: new Date().toISOString(), // In real app, use article date
+            authors: ["Andrew Altair"],
+            images: [
+                {
+                    url: imageUrl,
+                    width: 1200,
+                    height: 630,
+                    alt: article.title,
+                },
+            ],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title,
+            description,
+            images: [imageUrl],
+        },
+    };
+}
+
+export default async function ArticlePage({ params }: Props) {
+    const { slug } = await params
+    const article = getArticleById(slug);
 
     if (!article) {
         notFound();
@@ -46,11 +88,6 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
                 prevArticle={prev}
                 nextArticle={next}
                 isLocked={!article.isFree} // Basic logic for now, enhanced logic in V2
-                onUnlock={() => {
-                    // Logic to open modal - for now alert or we can use Context to trigger modal in layout
-                    alert("Exclusive content coming soon! Join Telegram channel.");
-                    window.open("https://t.me/andr3waltairchannel", "_blank");
-                }}
             />
         </div>
     );

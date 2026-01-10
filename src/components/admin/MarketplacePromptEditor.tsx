@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     Select,
     SelectContent,
@@ -16,13 +17,28 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { TbSparkles, TbPhoto, TbPlus, TbTrash, TbDeviceFloppy, TbArrowLeft, TbLoader2, TbCurrencyDollar, TbUpload, TbX, TbCode, TbFileText, TbSettings, TbPhotoPlus } from "react-icons/tb"
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import { TbSparkles, TbPlus, TbTrash, TbArrowLeft, TbLoader2, TbCurrencyDollar, TbPhotoPlus, TbWand, TbX, TbChartBar, TbHistory, TbFlask, TbLink, TbRobot } from "react-icons/tb"
 
 interface PromptVariable {
     name: string
     description?: string
+    type: 'text' | 'number' | 'select' | 'boolean'
     options?: string[]
+    default?: string
     required: boolean
 }
 
@@ -42,19 +58,30 @@ interface MarketplacePromptData {
     currency: 'GEL' | 'USD'
     originalPrice?: number
     promptTemplate: string
+    negativePrompt?: string
     variables: PromptVariable[]
     instructions: string
     aiModel: string
     aiModelVersion?: string
     generationType: 'text-to-image' | 'text-to-text' | 'image-to-image' | 'text-to-video'
+    aspectRatio?: string
     coverImage: string
     exampleImages: ExampleImage[]
-    category: string
+    category: string[]
     tags: string[]
     status: 'draft' | 'published' | 'archived'
     featuredOrder?: number
     metaTitle?: string
     metaDescription?: string
+
+    // New Fields
+    views: number
+    purchases: number
+    rating: number
+    versions?: { version: number, date: string, changes: string }[]
+    abTests?: { name: string, traffic: number, conversion: number }[]
+    relatedPrompts?: string[]
+    bundles?: string[]
 }
 
 const DEFAULT_DATA: MarketplacePromptData = {
@@ -65,28 +92,21 @@ const DEFAULT_DATA: MarketplacePromptData = {
     price: 0,
     currency: "GEL",
     promptTemplate: "",
+    negativePrompt: "",
     variables: [],
     instructions: "",
     aiModel: "Gemini 2.0",
     generationType: "text-to-image",
+    aspectRatio: "16:9",
     coverImage: "",
     exampleImages: [],
-    category: "illustration",
+    category: [],
     tags: [],
     status: "published",
+    views: 0,
+    purchases: 0,
+    rating: 0
 }
-
-const AI_MODELS = [
-    "Gemini 2.0",
-    "Gemini 2.0 Flash",
-    "Midjourney v6",
-    "DALL-E 3",
-    "Stable Diffusion XL",
-    "Claude 3.5",
-    "GPT-4",
-    "Ideogram",
-    "Flux",
-]
 
 const CATEGORIES = [
     { value: "illustration", label: "ილუსტრაცია" },
@@ -100,12 +120,8 @@ const CATEGORIES = [
     { value: "other", label: "სხვა" },
 ]
 
-const GENERATION_TYPES = [
-    { value: "text-to-image", label: "ტექსტიდან სურათი" },
-    { value: "text-to-text", label: "ტექსტიდან ტექსტი" },
-    { value: "image-to-image", label: "სურათიდან სურათი" },
-    { value: "text-to-video", label: "ტექსტიდან ვიდეო" },
-]
+const ASPECT_RATIOS = ["1:1", "16:9", "9:16", "4:3", "3:4", "2:3", "3:2", "21:9"]
+const VARIABLE_TYPES = ["text", "number", "select", "boolean"]
 
 interface Props {
     initialData?: Partial<MarketplacePromptData>
@@ -114,16 +130,193 @@ interface Props {
 
 export default function MarketplacePromptEditor({ initialData, isEditing = false }: Props) {
     const router = useRouter()
-    const [data, setData] = React.useState<MarketplacePromptData>({
-        ...DEFAULT_DATA,
-        ...initialData,
+    const [data, setData] = React.useState<MarketplacePromptData>(() => {
+        const merged = { ...DEFAULT_DATA, ...initialData }
+        // Runtime check for legacy data where category might be string
+        if (merged.category && !Array.isArray(merged.category)) {
+            // @ts-ignore
+            merged.category = [merged.category]
+        }
+        return merged
     })
     const [isSaving, setIsSaving] = React.useState(false)
     const [isUploading, setIsUploading] = React.useState(false)
     const [isGenerating, setIsGenerating] = React.useState(false)
     const [newTag, setNewTag] = React.useState("")
-    const [newVariableName, setNewVariableName] = React.useState("")
-    const [newVariableOption, setNewVariableOption] = React.useState("")
+
+    // Import state
+    const [showImportDialog, setShowImportDialog] = React.useState(false)
+    const [importText, setImportText] = React.useState("")
+
+    const handleBotImport = async () => {
+        if (!importText.trim()) return
+
+        const newData = { ...data }
+        let parsed = false
+
+        // Parse new format:
+        // [Intro]
+        // ---
+        // [Title]
+        // [Description]
+        // [Tags]
+        // [Category/Keywords]
+        // ```markdown
+        // [Prompt]
+        // --negative_prompt: [Neg]
+        // ```
+
+        try {
+            // 1. Split by separator
+            const parts = importText.split('---')
+            const contentPart = parts.length > 1 ? parts[1].trim() : parts[0].trim()
+
+            const lines = contentPart.split('\n').map(l => l.trim()).filter(Boolean)
+
+            if (lines.length > 0) {
+                // First non-empty line is Title
+                newData.title = lines[0]
+
+                // Second block is likely Description
+                if (lines.length > 1) {
+                    newData.description = lines[1]
+                    newData.excerpt = lines[1].substring(0, 150) + '...'
+                }
+
+                // Look for tags and categories in subsequent lines
+                for (let i = 2; i < lines.length; i++) {
+                    const line = lines[i];
+                    // Stop if line starts with code block or separator
+                    if (line.startsWith('```') || line.startsWith('---') || line.startsWith('###')) break;
+
+                    // Stop if line is too long (likely a paragraph) unless it has many commas
+                    if (line.length > 200 && (line.match(/,/g) || []).length < 3) continue;
+
+                    if (line.includes(',')) {
+                        const items = line.split(',').map(s => s.trim());
+
+                        const catsToAdd: string[] = [];
+                        const tagsToAdd: string[] = [];
+
+                        items.forEach(item => {
+                            const cleanItem = item.replace(/['"]/g, '').trim();
+                            const catMatch = CATEGORIES.find(c =>
+                                c.value.toLowerCase() === cleanItem.toLowerCase() ||
+                                c.label === cleanItem ||
+                                c.label.toLowerCase() === cleanItem.toLowerCase()
+                            );
+
+                            if (catMatch) {
+                                catsToAdd.push(catMatch.value);
+                            } else {
+                                if (cleanItem && !cleanItem.includes('```') && !cleanItem.includes('(') && cleanItem.length < 50) {
+                                    tagsToAdd.push(cleanItem);
+                                }
+                            }
+                        });
+
+                        if (catsToAdd.length > 0) {
+                            newData.category = [...new Set([...newData.category, ...catsToAdd])];
+                        }
+                        if (tagsToAdd.length > 0) {
+                            newData.tags = [...new Set([...newData.tags, ...tagsToAdd])];
+                        }
+                    }
+                }
+            }
+
+            // 2. Extract Code Block for Prompt
+            const codeBlockRegex = /```markdown\s*([\s\S]+?)```/
+            const codeMatch = importText.match(codeBlockRegex)
+
+            if (codeMatch) {
+                const codeContent = codeMatch[1].trim()
+
+                // Extract Negative Prompt
+                const negRegex = /--negative_prompt:\s*([\s\S]+?)(?:$|--)/
+                const negMatch = codeContent.match(negRegex)
+
+                let promptBody = codeContent
+                if (negMatch) {
+                    newData.negativePrompt = negMatch[1].trim()
+                    // Remove negative prompt line from body to get main prompt
+                    promptBody = codeContent.replace(negRegex, '').trim()
+                }
+
+                // Clean prompt body of known flags like --ar, --v, --stylize
+                // But keep them in the prompt string or separate? 
+                // User requirement: "all prompts will be 9:16" but example has 16:9.
+                // The prompt template usually keeps the flags for Midjourney.
+                // We will keep the full prompt logic in promptTemplate but strip the negative prompt part as we store it separately?
+                // Actually, if we use the component to GENERATE images, we might want clean prompt.
+                // But if it's for copy-paste, keep flags.
+                // Let's remove the "negative_prompt" flag line from the template if we stored it in negativePrompt field.
+
+                // Remove the "--negative_prompt: ..." text from promptTemplate
+                newData.promptTemplate = promptBody.replace(/--negative_prompt:.*(\n|$)/g, '').trim()
+
+                parsed = true
+            }
+
+            if (parsed) {
+                // Auto-extract variables from the new template
+                const regex = /\[([A-Z0-9_]+)\]/g
+                const matches = [...(newData.promptTemplate || "").matchAll(regex)]
+                const foundVars = [...new Set(matches.map(m => m[1]))]
+
+                if (foundVars.length > 0) {
+                    const variablesToAdd: PromptVariable[] = foundVars.map(name => ({
+                        name,
+                        description: "",
+                        type: "text",
+                        options: [],
+                        required: true
+                    }))
+                    // Filter out existing ones if any
+                    const currentNames = newData.variables.map(v => v.name)
+                    const uniqueToAdd = variablesToAdd.filter(v => !currentNames.includes(v.name))
+                    newData.variables = [...newData.variables, ...uniqueToAdd]
+                }
+
+                // TRIGGER MAGIC FILL (SEO Generation)
+                setIsGenerating(true)
+                try {
+                    const token = localStorage.getItem('token')
+                    const res = await fetch('/api/marketplace-prompts/generate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            title: newData.title,
+                            description: newData.description,
+                            promptTemplate: newData.promptTemplate
+                        }),
+                    })
+
+                    if (res.ok) {
+                        const generated = await res.json()
+                        newData.slug = generated.slug || newData.slug
+                        newData.tags = [...new Set([...newData.tags, ...(generated.tags || [])])]
+                        newData.metaTitle = generated.metaTitle || newData.metaTitle
+                        newData.metaDescription = generated.metaDescription || newData.metaDescription
+                        newData.excerpt = generated.excerpt || newData.excerpt
+                    }
+                } catch (err) {
+                    console.error("Magic Fill error during import:", err)
+                } finally {
+                    setIsGenerating(false)
+                }
+
+                setData(newData)
+                setShowImportDialog(false)
+                setImportText("")
+            }
+        } catch (e) {
+            console.error("Parse error", e)
+        }
+    }
 
     // Auto-Generate Metadata
     const handleAutoGenerate = async () => {
@@ -154,7 +347,6 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                     metaTitle: generated.metaTitle || prev.metaTitle,
                     metaDescription: generated.metaDescription || prev.metaDescription,
                     excerpt: generated.excerpt || prev.excerpt,
-                    // Apply alt text to existing images if they don't have one
                     exampleImages: prev.exampleImages.map(img => ({
                         ...img,
                         alt: img.alt || generated.altText
@@ -168,23 +360,28 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
         }
     }
 
-    // Generate slug from title
-    const generateSlug = (title: string) => {
-        return title
-            .toLowerCase()
-            .replace(/[ა-ჰ]/g, (char) => {
-                const map: Record<string, string> = {
-                    'ა': 'a', 'ბ': 'b', 'გ': 'g', 'დ': 'd', 'ე': 'e', 'ვ': 'v',
-                    'ზ': 'z', 'თ': 't', 'ი': 'i', 'კ': 'k', 'ლ': 'l', 'მ': 'm',
-                    'ნ': 'n', 'ო': 'o', 'პ': 'p', 'ჟ': 'zh', 'რ': 'r', 'ს': 's',
-                    'ტ': 't', 'უ': 'u', 'ფ': 'f', 'ქ': 'q', 'ღ': 'gh', 'ყ': 'y',
-                    'შ': 'sh', 'ჩ': 'ch', 'ც': 'ts', 'ძ': 'dz', 'წ': 'ts', 'ჭ': 'ch',
-                    'ხ': 'kh', 'ჯ': 'j', 'ჰ': 'h'
-                }
-                return map[char] || char
-            })
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/(^-|-$)/g, '')
+    // Parse variables from prompt template
+    const extractVariables = () => {
+        const regex = /\[([A-Z0-9_]+)\]/g
+        const matches = [...data.promptTemplate.matchAll(regex)]
+        const foundVars = [...new Set(matches.map(m => m[1]))]
+
+        const currentVars = data.variables.map(v => v.name)
+        const newVars = foundVars.filter(v => !currentVars.includes(v))
+
+        if (newVars.length > 0) {
+            const variablesToAdd: PromptVariable[] = newVars.map(name => ({
+                name,
+                description: "",
+                type: "text",
+                options: [],
+                required: true
+            }))
+            setData(prev => ({
+                ...prev,
+                variables: [...prev.variables, ...variablesToAdd]
+            }))
+        }
     }
 
     // Handle title change
@@ -192,31 +389,37 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
         setData(prev => ({
             ...prev,
             title,
-            // Slug will be auto-generated by AI or backend, no manual needed
         }))
     }
 
     // Handle file upload
-    const handleFileUpload = async (file: File, type: 'cover' | 'example') => {
+    const handleFileUpload = async (files: FileList | null, type: 'cover' | 'example') => {
+        if (!files || files.length === 0) return
+
         setIsUploading(true)
         try {
-            const formData = new FormData()
-            formData.append('file', file)
+            // Bulk upload support
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i]
+                const formData = new FormData()
+                formData.append('file', file)
 
-            const res = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData,
-            })
+                const res = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData,
+                })
 
-            if (res.ok) {
-                const { url } = await res.json()
-                if (type === 'cover') {
-                    setData(prev => ({ ...prev, coverImage: url }))
-                } else {
-                    setData(prev => ({
-                        ...prev,
-                        exampleImages: [...prev.exampleImages, { src: url, alt: '', promptUsed: '' }]
-                    }))
+                if (res.ok) {
+                    const { url } = await res.json()
+                    if (type === 'cover') {
+                        setData(prev => ({ ...prev, coverImage: url }))
+                        break; // Only one cover image
+                    } else {
+                        setData(prev => ({
+                            ...prev,
+                            exampleImages: [...prev.exampleImages, { src: url, alt: '', promptUsed: '' }]
+                        }))
+                    }
                 }
             }
         } catch (error) {
@@ -226,7 +429,6 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
         }
     }
 
-    // Add tag
     const addTag = () => {
         if (newTag && !data.tags.includes(newTag)) {
             setData(prev => ({ ...prev, tags: [...prev.tags, newTag] }))
@@ -234,77 +436,13 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
         }
     }
 
-    // Remove tag
     const removeTag = (tag: string) => {
         setData(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) }))
     }
 
-    // Add variable
-    const addVariable = () => {
-        if (newVariableName) {
-            setData(prev => ({
-                ...prev,
-                variables: [...prev.variables, {
-                    name: newVariableName.toUpperCase().replace(/\s+/g, '_'),
-                    description: '',
-                    options: [],
-                    required: true
-                }]
-            }))
-            setNewVariableName("")
-        }
-    }
-
-    // Update variable
-    const updateVariable = (index: number, field: keyof PromptVariable, value: unknown) => {
-        setData(prev => ({
-            ...prev,
-            variables: prev.variables.map((v, i) => i === index ? { ...v, [field]: value } : v)
-        }))
-    }
-
-    // Add option to variable
-    const addVariableOption = (index: number) => {
-        if (newVariableOption) {
-            setData(prev => ({
-                ...prev,
-                variables: prev.variables.map((v, i) =>
-                    i === index ? { ...v, options: [...(v.options || []), newVariableOption] } : v
-                )
-            }))
-            setNewVariableOption("")
-        }
-    }
-
-    // Remove variable
-    const removeVariable = (index: number) => {
-        setData(prev => ({
-            ...prev,
-            variables: prev.variables.filter((_, i) => i !== index)
-        }))
-    }
-
-    // Remove example image
-    const removeExampleImage = (index: number) => {
-        setData(prev => ({
-            ...prev,
-            exampleImages: prev.exampleImages.filter((_, i) => i !== index)
-        }))
-    }
-
-    // Update example image
-    const updateExampleImage = (index: number, field: keyof ExampleImage, value: string) => {
-        setData(prev => ({
-            ...prev,
-            exampleImages: prev.exampleImages.map((img, i) =>
-                i === index ? { ...img, [field]: value } : img
-            )
-        }))
-    }
-
     // Save
     const handleSave = async () => {
-        if (!data.title || !data.promptTemplate || !data.category) {
+        if (!data.title || !data.promptTemplate || data.category.length === 0) {
             alert('გთხოვთ შეავსოთ სათაური, პრომპტის შაბლონი და კატეგორია')
             return
         }
@@ -336,492 +474,582 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
     }
 
     return (
-        <div className="space-y-6">
+        <div className="max-w-7xl mx-auto pb-20">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b pb-4 pt-4 mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <Button variant="ghost" onClick={() => router.back()}>
+                    <Button variant="ghost" size="icon" onClick={() => router.back()}>
                         <TbArrowLeft className="w-5 h-5" />
                     </Button>
                     <div>
                         <h1 className="text-2xl font-bold flex items-center gap-2">
-                            <TbSparkles className="w-6 h-6 text-primary" />
-                            {isEditing ? 'პრომპტის რედაქტირება' : 'ახალი პრომპტი'}
+                            {isEditing ? 'Edit Prompt' : 'New Prompt'}
                         </h1>
-                        <p className="text-muted-foreground text-sm">მარკეტპლეისის პრომპტი</p>
+                        <p className="text-xs text-muted-foreground">{data.slug || 'untitled-prompt'}</p>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-2">
                     <Button
                         variant="outline"
-                        onClick={handleAutoGenerate}
-                        disabled={isGenerating}
-                        className="mr-2 border-primary/50 hover:bg-primary/10"
+                        onClick={() => setShowImportDialog(true)}
+                        className="hidden md:flex gap-2"
                     >
-                        {isGenerating ? (
-                            <TbLoader2 className="w-4 h-4 mr-2 animate-spin" />
-                        ) : (
-                            <TbSparkles className="w-4 h-4 mr-2 text-primary" />
-                        )}
-                        Auto-Fill Info
+                        <TbRobot className="w-4 h-4" />
+                        Bot Import
                     </Button>
+                    <div className="h-6 w-px bg-border mx-2" />
 
                     <Select
                         value={data.status}
                         onValueChange={(v) => setData(prev => ({ ...prev, status: v as MarketplacePromptData['status'] }))}
                     >
-                        <SelectTrigger className="w-[150px]">
+                        <SelectTrigger className="w-[130px] border-none bg-secondary/50">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="draft">დრაფტი</SelectItem>
-                            <SelectItem value="published">გამოქვეყნება</SelectItem>
-                            <SelectItem value="archived">არქივი</SelectItem>
+                            <SelectItem value="draft">Draft</SelectItem>
+                            <SelectItem value="published">Published</SelectItem>
+                            <SelectItem value="archived">Archived</SelectItem>
                         </SelectContent>
                     </Select>
 
-                    <Button onClick={handleSave} disabled={isSaving}>
-                        {isSaving ? (
-                            <TbLoader2 className="w-4 h-4 mr-2 animate-spin" />
-                        ) : (
-                            <TbDeviceFloppy className="w-4 h-4 mr-2" />
-                        )}
-                        შენახვა
+                    <Button onClick={handleSave} disabled={isSaving} className="min-w-[100px]">
+                        {isSaving ? <TbLoader2 className="w-4 h-4 animate-spin" /> : 'Save Prompt'}
                     </Button>
                 </div>
             </div>
 
-            {/* Tabs */}
-            <Tabs defaultValue="basic" className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="basic" className="gap-1">
-                        <TbFileText className="w-4 h-4" /> ძირითადი
-                    </TabsTrigger>
-                    <TabsTrigger value="prompt" className="gap-1">
-                        <TbCode className="w-4 h-4" /> პრომპტი
-                    </TabsTrigger>
-                    <TabsTrigger value="gallery" className="gap-1">
-                        <TbPhoto className="w-4 h-4" /> გალერეა
-                    </TabsTrigger>
-                    <TabsTrigger value="settings" className="gap-1">
-                        <TbSettings className="w-4 h-4" /> პარამეტრები
-                    </TabsTrigger>
+            <Tabs defaultValue="editor" className="w-full">
+                <TabsList className="grid w-full grid-cols-4 max-w-2xl mb-8">
+                    <TabsTrigger value="editor" className="gap-2"><TbSparkles className="w-4 h-4" /> Editor</TabsTrigger>
+                    <TabsTrigger value="analytics" className="gap-2"><TbChartBar className="w-4 h-4" /> Analytics</TabsTrigger>
+                    <TabsTrigger value="versions" className="gap-2"><TbHistory className="w-4 h-4" /> Versions</TabsTrigger>
+                    <TabsTrigger value="abtest" className="gap-2"><TbFlask className="w-4 h-4" /> A/B Tests</TabsTrigger>
                 </TabsList>
 
-                {/* Basic Tab */}
-                <TabsContent value="basic" className="space-y-6">
-                    <div className="grid lg:grid-cols-2 gap-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>ძირითადი ინფორმაცია</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>სათაური *</Label>
-                                    <Input
-                                        value={data.title}
-                                        onChange={(e) => handleTitleChange(e.target.value)}
-                                        placeholder="მაგ: Pinup Illustration Hotties"
-                                    />
-                                </div>
-
-                                {/* Slug Field Removed - Auto Generated */}
-                                <input type="hidden" value={data.slug} />
-
-                                <div className="space-y-2">
-                                    <Label>მოკლე აღწერა</Label>
-                                    <Textarea
-                                        value={data.excerpt}
-                                        onChange={(e) => setData(prev => ({ ...prev, excerpt: e.target.value }))}
-                                        placeholder="მოკლე აღწერა კარტებისთვის"
-                                        rows={2}
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label>სრული აღწერა *</Label>
-                                    <Textarea
-                                        value={data.description}
-                                        onChange={(e) => setData(prev => ({ ...prev, description: e.target.value }))}
-                                        placeholder="დეტალური აღწერა..."
-                                        rows={5}
-                                    />
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>ფასი და კატეგორია</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label>ფასი (0 = უფასო)</Label>
-                                        <div className="relative">
-                                            <TbCurrencyDollar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                                            <Input
-                                                type="number"
-                                                value={data.price}
-                                                onChange={(e) => setData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
-                                                className="pl-10"
-                                                min={0}
-                                                step={0.01}
+                <TabsContent value="editor" className="space-y-8">
+                    <div className="grid lg:grid-cols-3 gap-8">
+                        {/* Left Column: Media & Meta */}
+                        <div className="space-y-6 lg:col-span-1">
+                            {/* Cover Image */}
+                            <Card className="overflow-hidden border-dashed">
+                                <CardHeader className="pb-3">
+                                    <CardTitle className="text-base">Cover Image</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    {data.coverImage ? (
+                                        <div className="relative aspect-video rounded-md overflow-hidden group">
+                                            <Image
+                                                src={data.coverImage}
+                                                alt="Cover"
+                                                fill
+                                                className="object-cover transition-transform group-hover:scale-105"
                                             />
+                                            <Button
+                                                size="icon"
+                                                variant="destructive"
+                                                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                onClick={() => setData(prev => ({ ...prev, coverImage: '' }))}
+                                            >
+                                                <TbTrash className="w-4 h-4" />
+                                            </Button>
+                                            <Badge className="absolute bottom-2 left-2 bg-black/50 text-white backdrop-blur-sm pointer-events-none">
+                                                Main Cover
+                                            </Badge>
+                                        </div>
+                                    ) : (
+                                        <label className="flex flex-col items-center justify-center aspect-video bg-secondary/20 hover:bg-secondary/40 border-2 border-dashed rounded-md cursor-pointer transition-colors">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={(e) => {
+                                                    handleFileUpload(e.target.files, 'cover')
+                                                }}
+                                            />
+                                            {isUploading ? (
+                                                <TbLoader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                                            ) : (
+                                                <>
+                                                    <TbPhotoPlus className="w-8 h-8 text-muted-foreground mb-2" />
+                                                    <span className="text-xs text-muted-foreground">Upload Cover</span>
+                                                </>
+                                            )}
+                                        </label>
+                                    )}
+                                </CardContent>
+                            </Card>
+
+                            {/* Configuration */}
+                            <Card>
+                                <CardHeader className="pb-3">
+                                    <CardTitle className="text-base">Configuration</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-xs text-muted-foreground uppercase tracking-wider">Price</Label>
+                                        <div className="flex gap-2">
+                                            <div className="relative flex-1">
+                                                <TbCurrencyDollar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                                <Input
+                                                    type="number"
+                                                    value={data.price}
+                                                    onChange={(e) => setData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                                                    className="pl-9 !ring-0 !focus-visible:ring-0 !focus-visible:ring-offset-0"
+                                                    min={0}
+                                                    step={0.01}
+                                                />
+                                            </div>
+                                            <Select
+                                                value={data.currency}
+                                                onValueChange={(v) => setData(prev => ({ ...prev, currency: v as 'GEL' | 'USD' }))}
+                                            >
+                                                <SelectTrigger className="w-[80px] !ring-0 !focus-visible:ring-0 !focus-visible:ring-offset-0">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="GEL">GEL</SelectItem>
+                                                    <SelectItem value="USD">USD</SelectItem>
+                                                </SelectContent>
+                                            </Select>
                                         </div>
                                     </div>
+
                                     <div className="space-y-2">
-                                        <Label>ვალუტა</Label>
+                                        <Label className="text-xs text-muted-foreground uppercase tracking-wider">Categories</Label>
+                                        <div className="flex flex-wrap gap-1.5 mb-2">
+                                            {data.category.map(cat => (
+                                                <Badge key={cat} variant="outline" className="text-[10px] px-1.5 h-5 gap-1 hover:bg-destructive hover:text-destructive-foreground cursor-pointer transition-colors"
+                                                    onClick={() => setData(prev => ({ ...prev, category: prev.category.filter(c => c !== cat) }))}
+                                                >
+                                                    {CATEGORIES.find(c => c.value === cat)?.label || cat}
+                                                </Badge>
+                                            ))}
+                                        </div>
                                         <Select
-                                            value={data.currency}
-                                            onValueChange={(v) => setData(prev => ({ ...prev, currency: v as 'GEL' | 'USD' }))}
+                                            value=""
+                                            onValueChange={(v) => {
+                                                if (!data.category.includes(v)) {
+                                                    setData(prev => ({ ...prev, category: [...prev.category, v] }))
+                                                }
+                                            }}
                                         >
-                                            <SelectTrigger>
-                                                <SelectValue />
+                                            <SelectTrigger className="!ring-0 !focus-visible:ring-0 !focus-visible:ring-offset-0">
+                                                <span className="text-muted-foreground text-xs">Select categories...</span>
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="GEL">GEL (ლარი)</SelectItem>
-                                                <SelectItem value="USD">USD ($)</SelectItem>
+                                                {CATEGORIES.map(cat => (
+                                                    <SelectItem key={cat.value} value={cat.value} disabled={data.category.includes(cat.value)}>
+                                                        {cat.label}
+                                                    </SelectItem>
+                                                ))}
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                </div>
 
-                                <div className="space-y-2">
-                                    <Label>ძველი ფასი (ფასდაკლებისთვის)</Label>
-                                    <Input
-                                        type="number"
-                                        value={data.originalPrice || ''}
-                                        onChange={(e) => setData(prev => ({ ...prev, originalPrice: parseFloat(e.target.value) || undefined }))}
-                                        min={0}
-                                        step={0.01}
-                                    />
-                                </div>
+                                    {/* Aspect Ratio Removed */}
 
-                                <div className="space-y-2">
-                                    <Label>კატეგორია *</Label>
-                                    <Select
-                                        value={data.category}
-                                        onValueChange={(v) => setData(prev => ({ ...prev, category: v }))}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {CATEGORIES.map(cat => (
-                                                <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                                    <div className="pt-2 border-t">
+                                        <Label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">Tags</Label>
+                                        <div className="flex flex-wrap gap-1.5 mb-2">
+                                            {data.tags.map(tag => (
+                                                <Badge key={tag} variant="secondary" className="text-[10px] px-1.5 h-5 gap-1 hover:bg-destructive hover:text-destructive-foreground cursor-pointer transition-colors" onClick={() => removeTag(tag)}>
+                                                    {tag}
+                                                </Badge>
                                             ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label>თეგები</Label>
-                                    <div className="flex gap-2">
-                                        <Input
-                                            value={newTag}
-                                            onChange={(e) => setNewTag(e.target.value)}
-                                            placeholder="თეგი..."
-                                            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                                        />
-                                        <Button variant="outline" onClick={addTag}>
-                                            <TbPlus className="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                    <div className="flex flex-wrap gap-2 mt-2">
-                                        {data.tags.map(tag => (
-                                            <Badge key={tag} variant="secondary" className="gap-1">
-                                                {tag}
-                                                <button onClick={() => removeTag(tag)}>
-                                                    <TbX className="w-3 h-3" />
-                                                </button>
-                                            </Badge>
-                                        ))}
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </TabsContent>
-
-                {/* Prompt Tab */}
-                <TabsContent value="prompt" className="space-y-6">
-                    <div className="grid lg:grid-cols-2 gap-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>პრომპტის შაბლონი</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>პრომპტი *</Label>
-                                    <p className="text-xs text-muted-foreground">
-                                        გამოიყენეთ [VARIABLE_NAME] სინტაქსი ცვლადებისთვის
-                                    </p>
-                                    <Textarea
-                                        value={data.promptTemplate}
-                                        onChange={(e) => setData(prev => ({ ...prev, promptTemplate: e.target.value }))}
-                                        placeholder="Highly realistic portrait photo of an adult [GENDER] pin-up model wearing a stylish [CLOTHING]. The scene takes place in [ENVIRONMENT]..."
-                                        rows={10}
-                                        className="font-mono text-sm"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label>ინსტრუქციები</Label>
-                                    <Textarea
-                                        value={data.instructions}
-                                        onChange={(e) => setData(prev => ({ ...prev, instructions: e.target.value }))}
-                                        placeholder="როგორ გამოიყენოთ ეს პრომპტი..."
-                                        rows={5}
-                                    />
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center justify-between">
-                                    <span>პრომპტის ცვლადები</span>
-                                    <Badge variant="outline" className="text-xs font-normal">
-                                        Prompt Variables
-                                    </Badge>
-                                </CardTitle>
-                                <p className="text-xs text-muted-foreground">
-                                    განსაზღვრეთ ცვლადები, რომლებიც მომხმარებელს შეუძლია შეცვალოს (მაგ: ფერი, სტილი).
-                                </p>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="flex gap-2">
-                                    <Input
-                                        value={newVariableName}
-                                        onChange={(e) => setNewVariableName(e.target.value)}
-                                        placeholder="ცვლადის სახელი"
-                                        onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addVariable())}
-                                    />
-                                    <Button onClick={addVariable}>
-                                        <TbPlus className="w-4 h-4 mr-1" />
-                                        დამატება
-                                    </Button>
-                                </div>
-
-                                {data.variables.map((variable, index) => (
-                                    <Card key={index} className="bg-muted/50">
-                                        <CardContent className="p-4 space-y-3">
-                                            <div className="flex items-center justify-between">
-                                                <Badge className="font-mono">[{variable.name}]</Badge>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => removeVariable(index)}
-                                                >
-                                                    <TbTrash className="w-4 h-4 text-red-500" />
-                                                </Button>
-                                            </div>
+                                        </div>
+                                        <div className="flex gap-2">
                                             <Input
-                                                value={variable.description || ''}
-                                                onChange={(e) => updateVariable(index, 'description', e.target.value)}
-                                                placeholder="აღწერა..."
+                                                className="h-8 text-xs !ring-0 !focus-visible:ring-0 !focus-visible:ring-offset-0"
+                                                value={newTag}
+                                                onChange={(e) => setNewTag(e.target.value)}
+                                                placeholder="Add tag..."
+                                                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
                                             />
-                                            <div className="flex gap-2">
-                                                <Input
-                                                    value={newVariableOption}
-                                                    onChange={(e) => setNewVariableOption(e.target.value)}
-                                                    placeholder="ვარიანტი"
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter') {
-                                                            e.preventDefault()
-                                                            addVariableOption(index)
-                                                        }
-                                                    }}
-                                                />
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => addVariableOption(index)}
-                                                >
-                                                    <TbPlus className="w-4 h-4" />
-                                                </Button>
+                                            <Button size="sm" variant="outline" onClick={addTag} className="h-8 w-8 p-0">
+                                                <TbPlus className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Relationships */}
+                            <Accordion type="single" collapsible className="w-full">
+                                <AccordionItem value="relationships" className="border rounded-md px-4">
+                                    <AccordionTrigger className="text-sm text-muted-foreground py-3"><TbLink className="mr-2 w-4 h-4" /> Related & Bundles</AccordionTrigger>
+                                    <AccordionContent className="space-y-4 pt-2">
+                                        <div className="space-y-2">
+                                            <Label className="text-xs">Related Prompts (IDs)</Label>
+                                            <Input
+                                                value={data.relatedPrompts?.join(', ') || ''}
+                                                onChange={(e) => setData(prev => ({ ...prev, relatedPrompts: e.target.value.split(',').map(s => s.trim()) }))}
+                                                placeholder="Comma separated IDs..."
+                                                className="h-8 text-xs !ring-0 !focus-visible:ring-0 !focus-visible:ring-offset-0"
+                                            />
+                                            <p className="text-[10px] text-muted-foreground">Feature coming soon: Visual selector</p>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-xs">Add to Bundle (IDs)</Label>
+                                            <Input
+                                                value={data.bundles?.join(', ') || ''}
+                                                onChange={(e) => setData(prev => ({ ...prev, bundles: e.target.value.split(',').map(s => s.trim()) }))}
+                                                placeholder="Comma separated IDs..."
+                                                className="h-8 text-xs !ring-0 !focus-visible:ring-0 !focus-visible:ring-offset-0"
+                                            />
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
+
+                            {/* Advanced / Auto-Filled (Collapsed) */}
+                            <Accordion type="single" collapsible className="w-full">
+                                <AccordionItem value="advanced" className="border rounded-md px-4">
+                                    <AccordionTrigger className="text-sm text-muted-foreground py-3">Advanced & SEO</AccordionTrigger>
+                                    <AccordionContent className="space-y-4 pt-2">
+                                        <div className="space-y-2">
+                                            <Label className="text-xs">Meta Title</Label>
+                                            <Input
+                                                value={data.metaTitle || ''}
+                                                onChange={(e) => setData(prev => ({ ...prev, metaTitle: e.target.value }))}
+                                                className="h-8 text-xs !ring-0 !focus-visible:ring-0 !focus-visible:ring-offset-0"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-xs">Meta Description</Label>
+                                            <Textarea
+                                                value={data.metaDescription || ''}
+                                                onChange={(e) => setData(prev => ({ ...prev, metaDescription: e.target.value }))}
+                                                className="text-xs min-h-[60px] !ring-0 !focus-visible:ring-0 !focus-visible:ring-offset-0"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-xs">URL Slug</Label>
+                                            <Input
+                                                value={data.slug}
+                                                readOnly
+                                                disabled
+                                                className="h-8 text-xs bg-muted !ring-0 !focus-visible:ring-0 !focus-visible:ring-offset-0"
+                                            />
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
+                        </div>
+
+                        {/* Right Column: Main Content */}
+                        <div className="space-y-6 lg:col-span-2">
+                            <Card className="border-none shadow-none bg-transparent p-0 overflow-visible">
+                                <CardContent className="p-0 space-y-6">
+                                    <div className="space-y-2">
+                                        <Input
+                                            value={data.title}
+                                            onChange={(e) => handleTitleChange(e.target.value)}
+                                            placeholder="Enter prompt title..."
+                                            className="text-3xl font-bold h-auto py-2 px-0 border-0 border-b rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent placeholder:text-muted-foreground/50 !ring-0 !focus-visible:ring-0 !focus-visible:ring-offset-0"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-lg font-medium">Prompt Template</Label>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={extractVariables}
+                                                className="h-7 text-xs gap-1"
+                                            >
+                                                <TbSparkles className="w-3 h-3" />
+                                                Update Variables
+                                            </Button>
+                                        </div>
+                                        <div className="relative">
+                                            <Textarea
+                                                value={data.promptTemplate}
+                                                onChange={(e) => setData(prev => ({ ...prev, promptTemplate: e.target.value }))}
+                                                placeholder="A futuristic city with [FLYING_CARS] and [NEON_LIGHTS]..."
+                                                className="min-h-[200px] font-mono text-base leading-relaxed p-4 resize-y bg-muted/30 focus:bg-background transition-colors !ring-0 !focus-visible:ring-0 !focus-visible:ring-offset-0"
+                                            />
+                                            <div className="absolute bottom-2 right-2 text-[10px] text-muted-foreground bg-background/80 px-2 py-1 rounded border">
+                                                Use [SQUARE_BRACKETS] for variables
                                             </div>
-                                            <div className="flex flex-wrap gap-1">
-                                                {variable.options?.map((opt, i) => (
-                                                    <Badge key={i} variant="outline" className="text-xs">
-                                                        {opt}
-                                                        <button
-                                                            onClick={() => updateVariable(index, 'options',
-                                                                variable.options?.filter((_, j) => j !== i)
-                                                            )}
-                                                        >
-                                                            <TbX className="w-3 h-3 ml-1" />
-                                                        </button>
-                                                    </Badge>
+                                        </div>
+                                    </div>
+
+                                    {/* Negative Prompt */}
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-medium text-muted-foreground">Negative Prompt (What to avoid)</Label>
+                                        <Input
+                                            value={data.negativePrompt || ''}
+                                            onChange={(e) => setData(prev => ({ ...prev, negativePrompt: e.target.value }))}
+                                            placeholder="blurry, low quality, deformed, ugly..."
+                                            className="font-mono text-sm bg-muted/20 border-dashed !ring-0 !focus-visible:ring-0 !focus-visible:ring-offset-0"
+                                        />
+                                    </div>
+
+                                    {/* Variables Section */}
+                                    {data.variables.length > 0 && (
+                                        <div className="space-y-3 p-4 border rounded-lg bg-card/50">
+                                            <Label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Variables Configuration</Label>
+                                            <div className="grid gap-3">
+                                                {data.variables.map((variable, index) => (
+                                                    <div key={index} className="flex flex-col gap-3 bg-background p-4 rounded-md border text-sm">
+                                                        <div className="flex items-center gap-3">
+                                                            <Badge variant="outline" className="font-mono text-primary border-primary/20 bg-primary/5">
+                                                                [{variable.name}]
+                                                            </Badge>
+                                                            <div className="flex-1" />
+                                                            <Button
+                                                                size="icon"
+                                                                variant="ghost"
+                                                                className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                                                                onClick={() => setData(prev => ({ ...prev, variables: prev.variables.filter((_, i) => i !== index) }))}
+                                                            >
+                                                                <TbX className="w-4 h-4" />
+                                                            </Button>
+                                                        </div>
+
+                                                        <div className="grid sm:grid-cols-2 gap-4">
+                                                            <div className="space-y-1">
+                                                                <Label className="text-[10px] uppercase text-muted-foreground">Type</Label>
+                                                                <Select
+                                                                    value={variable.type}
+                                                                    onValueChange={(v) => {
+                                                                        const newVars = [...data.variables]
+                                                                        newVars[index].type = v as any
+                                                                        setData(prev => ({ ...prev, variables: newVars }))
+                                                                    }}
+                                                                >
+                                                                    <SelectTrigger className="h-8 !ring-0 !focus-visible:ring-0 !focus-visible:ring-offset-0">
+                                                                        <SelectValue />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        {VARIABLE_TYPES.map(t => (
+                                                                            <SelectItem key={t} value={t}>{t}</SelectItem>
+                                                                        ))}
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+                                                            <div className="space-y-1">
+                                                                <Label className="text-[10px] uppercase text-muted-foreground">Display Label</Label>
+                                                                <Input
+                                                                    value={variable.description || ''}
+                                                                    onChange={(e) => {
+                                                                        const newVars = [...data.variables]
+                                                                        newVars[index].description = e.target.value
+                                                                        setData(prev => ({ ...prev, variables: newVars }))
+                                                                    }}
+                                                                    className="h-8 !ring-0 !focus-visible:ring-0 !focus-visible:ring-offset-0"
+                                                                    placeholder="e.g. Choose Color"
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        {(variable.type === 'select') && (
+                                                            <div className="space-y-1">
+                                                                <Label className="text-[10px] uppercase text-muted-foreground">Options (comma separated)</Label>
+                                                                <Input
+                                                                    value={variable.options?.join(', ') || ''}
+                                                                    onChange={(e) => {
+                                                                        const newVars = [...data.variables]
+                                                                        newVars[index].options = e.target.value.split(',').map(s => s.trim()).filter(Boolean)
+                                                                        setData(prev => ({ ...prev, variables: newVars }))
+                                                                    }}
+                                                                    className="h-8 !ring-0 !focus-visible:ring-0 !focus-visible:ring-offset-0"
+                                                                    placeholder="red, green, blue..."
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 ))}
                                             </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
-                            </CardContent>
-                        </Card>
+                                        </div>
+                                    )}
+
+                                    <div className="space-y-2">
+                                        <Label className="text-lg font-medium">Description</Label>
+                                        <Textarea
+                                            value={data.description}
+                                            onChange={(e) => setData(prev => ({ ...prev, description: e.target.value }))}
+                                            placeholder="Describe what this prompt does, best settings to use, etc."
+                                            rows={6}
+                                            className="resize-y !ring-0 !focus-visible:ring-0 !focus-visible:ring-offset-0"
+                                        />
+                                    </div>
+
+                                    {/* Gallery Grid */}
+                                    <div className="space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-lg font-medium">Example Gallery</Label>
+                                            <label className="cursor-pointer">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    multiple
+                                                    className="hidden"
+                                                    onChange={(e) => {
+                                                        handleFileUpload(e.target.files, 'example')
+                                                    }}
+                                                />
+                                                <span className="flex items-center gap-2 text-xs font-medium bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:bg-primary/90 transition-colors">
+                                                    <TbPlus className="w-3 h-3" />
+                                                    Bulk Add Images
+                                                </span>
+                                            </label>
+                                        </div>
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                            {data.exampleImages.map((img, index) => (
+                                                <div key={index} className="group relative aspect-square rounded-lg overflow-hidden border bg-muted">
+                                                    <Image
+                                                        src={img.src}
+                                                        alt={img.alt || `Example ${index}`}
+                                                        fill
+                                                        className="object-cover"
+                                                    />
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                        <Button
+                                                            size="icon"
+                                                            variant="destructive"
+                                                            className="h-8 w-8 rounded-full"
+                                                            onClick={() => setData(prev => ({
+                                                                ...prev,
+                                                                exampleImages: prev.exampleImages.filter((_, i) => i !== index)
+                                                            }))}
+                                                        >
+                                                            <TbTrash className="w-4 h-4" />
+                                                        </Button>
+                                                    </div>
+                                                    {img.alt && (
+                                                        <div className="absolute bottom-0 left-0 right-0 p-1 bg-black/60 text-white text-[10px] truncate px-2">
+                                                            {img.alt}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                            {data.exampleImages.length === 0 && (
+                                                <div className="col-span-full py-8 text-center text-muted-foreground bg-secondary/20 border-2 border-dashed rounded-lg">
+                                                    <p className="text-sm">Drag and drop or click "Bulk Add Images" to upload examples.</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
                     </div>
                 </TabsContent>
 
-                {/* Gallery Tab */}
-                <TabsContent value="gallery" className="space-y-6">
-                    <div className="grid lg:grid-cols-2 gap-6">
+                <TabsContent value="analytics" className="min-h-[400px]">
+                    <div className="grid md:grid-cols-3 gap-6 mb-8">
                         <Card>
-                            <CardHeader>
-                                <CardTitle>გარეკანის სურათი</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                {data.coverImage ? (
-                                    <div className="relative aspect-video rounded-lg overflow-hidden">
-                                        <Image
-                                            src={data.coverImage}
-                                            alt="Cover"
-                                            fill
-                                            className="object-cover"
-                                        />
-                                        <Button
-                                            size="sm"
-                                            variant="destructive"
-                                            className="absolute top-2 right-2"
-                                            onClick={() => setData(prev => ({ ...prev, coverImage: '' }))}
-                                        >
-                                            <TbTrash className="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                ) : (
-                                    <label className="flex flex-col items-center justify-center aspect-video border-2 border-dashed rounded-lg hover:border-primary cursor-pointer transition-colors">
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            className="hidden"
-                                            onChange={(e) => {
-                                                const file = e.target.files?.[0]
-                                                if (file) handleFileUpload(file, 'cover')
-                                            }}
-                                        />
-                                        {isUploading ? (
-                                            <TbLoader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                                        ) : (
-                                            <>
-                                                <TbUpload className="w-8 h-8 text-muted-foreground" />
-                                                <span className="text-sm text-muted-foreground mt-2">ატვირთეთ სურათი</span>
-                                            </>
-                                        )}
-                                    </label>
-                                )}
-
-                                <div className="space-y-2">
-                                    <Label>ან URL</Label>
-                                    <Input
-                                        value={data.coverImage}
-                                        onChange={(e) => setData(prev => ({ ...prev, coverImage: e.target.value }))}
-                                        placeholder="https://..."
-                                    />
-                                </div>
-                            </CardContent>
+                            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Total Views</CardTitle></CardHeader>
+                            <CardContent><div className="text-2xl font-bold">{data.views}</div></CardContent>
                         </Card>
-
                         <Card>
-                            <CardHeader>
-                                <CardTitle>მაგალითების გალერეა</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <label className="flex items-center justify-center gap-2 p-4 border-2 border-dashed rounded-lg hover:border-primary cursor-pointer transition-colors">
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        className="hidden"
-                                        multiple
-                                        onChange={(e) => {
-                                            const files = e.target.files
-                                            if (files) {
-                                                Array.from(files).forEach(file => handleFileUpload(file, 'example'))
-                                            }
-                                        }}
-                                    />
-                                    <TbPhotoPlus className="w-5 h-5 text-muted-foreground" />
-                                    <span className="text-sm text-muted-foreground">დაამატეთ მაგალითები</span>
-                                </label>
+                            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Total Purchases</CardTitle></CardHeader>
+                            <CardContent><div className="text-2xl font-bold">{data.purchases}</div></CardContent>
+                        </Card>
+                        <Card>
+                            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Rating</CardTitle></CardHeader>
+                            <CardContent><div className="text-2xl font-bold">{data.rating.toFixed(1)} / 5.0</div></CardContent>
+                        </Card>
+                    </div>
+                    <Card className="h-[300px] flex items-center justify-center border-dashed">
+                        <div className="text-center text-muted-foreground">
+                            <TbChartBar className="w-12 h-12 mx-auto mb-2 opacity-20" />
+                            <p>Detailed sales chart will appear here once data is available.</p>
+                        </div>
+                    </Card>
+                </TabsContent>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    {data.exampleImages.map((img, index) => (
-                                        <Card key={index} className="overflow-hidden">
-                                            <div className="relative aspect-square">
-                                                <Image
-                                                    src={img.src}
-                                                    alt={img.alt || `Example ${index + 1}`}
-                                                    fill
-                                                    className="object-cover"
-                                                />
-                                                <Button
-                                                    size="sm"
-                                                    variant="destructive"
-                                                    className="absolute top-2 right-2"
-                                                    onClick={() => removeExampleImage(index)}
-                                                >
-                                                    <TbTrash className="w-4 h-4" />
-                                                </Button>
+                <TabsContent value="versions" className="min-h-[400px]">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Version History</CardTitle>
+                            <CardDescription>View and rollback to previous versions of your prompt.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {data.versions && data.versions.length > 0 ? (
+                                <div className="space-y-4">
+                                    {data.versions.map((version, i) => (
+                                        <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
+                                            <div>
+                                                <p className="font-medium">Version {version.version}</p>
+                                                <p className="text-xs text-muted-foreground">{new Date(version.date).toLocaleDateString()}</p>
                                             </div>
-                                            <CardContent className="p-3 space-y-2">
-                                                <Input
-                                                    value={img.alt || ''}
-                                                    onChange={(e) => updateExampleImage(index, 'alt', e.target.value)}
-                                                    placeholder="Alt ტექსტი"
-                                                    className="text-xs"
-                                                />
-                                                <Textarea
-                                                    value={img.promptUsed || ''}
-                                                    onChange={(e) => updateExampleImage(index, 'promptUsed', e.target.value)}
-                                                    placeholder="გამოყენებული პრომპტი..."
-                                                    rows={2}
-                                                    className="text-xs"
-                                                />
-                                            </CardContent>
-                                        </Card>
+                                            <div className="text-sm text-muted-foreground">{version.changes}</div>
+                                            <Button variant="outline" size="sm">Rollback</Button>
+                                        </div>
                                     ))}
                                 </div>
-                            </CardContent>
-                        </Card>
-                    </div>
+                            ) : (
+                                <div className="text-sm text-center py-10 text-muted-foreground">
+                                    No previous versions saved yet. Versions are created automatically when you publish.
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
                 </TabsContent>
 
-                {/* Settings Tab */}
-                <TabsContent value="settings" className="space-y-6">
-                    <div className="grid lg:grid-cols-2 gap-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>SEO</CardTitle>
-                                <p className="text-xs text-muted-foreground">ივსება ავტომატურად (Auto-Fill)</p>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>Meta Title</Label>
-                                    <Input
-                                        value={data.metaTitle || ''}
-                                        onChange={(e) => setData(prev => ({ ...prev, metaTitle: e.target.value }))}
-                                        placeholder="SEO სათაური"
-                                        readOnly
-                                        className="bg-muted"
-                                    />
-                                </div>
+                <TabsContent value="abtest" className="min-h-[400px]">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>A/B Testing</CardTitle>
+                            <CardDescription>Create variants to test different prompt structures.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex justify-between items-center mb-6">
+                                <Button variant="outline"><TbPlus className="mr-2 w-4 h-4" /> Create Variant</Button>
+                            </div>
 
-                                <div className="space-y-2">
-                                    <Label>Meta Description</Label>
-                                    <Textarea
-                                        value={data.metaDescription || ''}
-                                        onChange={(e) => setData(prev => ({ ...prev, metaDescription: e.target.value }))}
-                                        placeholder="SEO აღწერა"
-                                        readOnly
-                                        className="bg-muted"
-                                    />
+                            {data.abTests && data.abTests.length > 0 ? (
+                                <div className="space-y-4">
+                                    {data.abTests.map((test, i) => (
+                                        <div key={i} className="p-4 border rounded-lg bg-card text-card-foreground">
+                                            <div className="flex justify-between mb-2">
+                                                <span className="font-semibold">{test.name}</span>
+                                                <Badge variant={i === 0 ? 'default' : 'secondary'}>{i === 0 ? 'Control' : 'Variant'}</Badge>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4 text-sm">
+                                                <div>Traffic: {(test.traffic * 100).toFixed(0)}%</div>
+                                                <div>Conversion: {(test.conversion * 100).toFixed(1)}%</div>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                            </CardContent>
-                        </Card>
-                    </div>
+                            ) : (
+                                <div className="text-sm text-center py-10 text-muted-foreground border-t">
+                                    Active A/B tests will be listed here.
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
                 </TabsContent>
             </Tabs>
+
+            <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
+                <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>Import from Bot Output</DialogTitle>
+                        <DialogDescription>
+                            Paste the full text output from your prompt generation bot. We'll extract the description, prompt, negative prompt, and aspect ratio.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <Textarea
+                            value={importText}
+                            onChange={(e) => setImportText(e.target.value)}
+                            placeholder="Paste bot output here..."
+                            className="h-[300px] font-mono text-xs !ring-0 !focus-visible:ring-0 !focus-visible:ring-offset-0"
+                        />
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setShowImportDialog(false)}>Cancel</Button>
+                        <Button onClick={handleBotImport} disabled={!importText.trim()}>Parse & Import</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

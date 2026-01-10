@@ -4,7 +4,9 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface IPromptVariable {
     name: string;           // "GENDER"
     description?: string;   // "Choose character gender"
+    type: 'text' | 'number' | 'select' | 'boolean';
     options?: string[];     // ["male", "female", "androgynous"]
+    default?: string;
     required: boolean;
 }
 
@@ -13,6 +15,24 @@ export interface IExampleImage {
     src: string;
     alt?: string;
     promptUsed?: string;    // The actual prompt used to generate this image
+}
+
+// Version History
+export interface IPromptVersion {
+    version: number;
+    promptTemplate: string;
+    negativePrompt?: string;
+    createdAt: Date;
+    changelog?: string;
+}
+
+// A/B Test Variant
+export interface IABTestVariant {
+    name: string;
+    promptTemplate: string;
+    trafficSplit: number; // percentage 0-100
+    views: number;
+    conversions: number;
 }
 
 export interface IMarketplacePrompt extends Document {
@@ -32,21 +52,31 @@ export interface IMarketplacePrompt extends Document {
 
     // Prompt Content
     promptTemplate: string;             // The actual prompt with [VARIABLES]
+    negativePrompt?: string;            // What not to generate
     variables: IPromptVariable[];       // Variables that can be customized
     instructions: string;               // How to use the prompt
 
-    // AI Model Info
+    // Technical Details
     aiModel: string;                    // "Gemini 2.0", "Midjourney v6", etc.
     aiModelVersion?: string;            // "Nano", "Flash", "Pro"
     generationType: 'text-to-image' | 'text-to-text' | 'image-to-image' | 'text-to-video';
+    aspectRatio?: string;               // "16:9", "1:1", etc.
 
     // Gallery
     coverImage: string;
     exampleImages: IExampleImage[];
 
     // Categorization
-    category: string;
+    category: string[];
     tags: string[];
+
+    // Relationships
+    relatedPrompts: mongoose.Types.ObjectId[];
+    bundles: mongoose.Types.ObjectId[];
+
+    // Advanced Features
+    versions: IPromptVersion[];
+    abTests: IABTestVariant[];
 
     // Author
     authorId?: mongoose.Types.ObjectId;
@@ -76,7 +106,13 @@ const PromptVariableSchema = new Schema<IPromptVariable>(
     {
         name: { type: String, required: true },
         description: { type: String },
+        type: {
+            type: String,
+            enum: ['text', 'number', 'select', 'boolean'],
+            default: 'text'
+        },
         options: [{ type: String }],
+        default: { type: String },
         required: { type: Boolean, default: true },
     },
     { _id: false }
@@ -87,6 +123,28 @@ const ExampleImageSchema = new Schema<IExampleImage>(
         src: { type: String, required: true },
         alt: { type: String },
         promptUsed: { type: String },
+    },
+    { _id: false }
+);
+
+const PromptVersionSchema = new Schema<IPromptVersion>(
+    {
+        version: { type: Number, required: true },
+        promptTemplate: { type: String, required: true },
+        negativePrompt: { type: String },
+        createdAt: { type: Date, default: Date.now },
+        changelog: { type: String }
+    },
+    { _id: false }
+);
+
+const ABTestVariantSchema = new Schema<IABTestVariant>(
+    {
+        name: { type: String, required: true },
+        promptTemplate: { type: String, required: true },
+        trafficSplit: { type: Number, default: 50 },
+        views: { type: Number, default: 0 },
+        conversions: { type: Number, default: 0 }
     },
     { _id: false }
 );
@@ -141,6 +199,9 @@ const MarketplacePromptSchema = new Schema<IMarketplacePrompt>(
             type: String,
             required: [true, 'Prompt template is required'],
         },
+        negativePrompt: {
+            type: String,
+        },
         variables: {
             type: [PromptVariableSchema],
             default: [],
@@ -150,7 +211,7 @@ const MarketplacePromptSchema = new Schema<IMarketplacePrompt>(
             default: '',
         },
 
-        // AI Model Info
+        // Technical Details
         aiModel: {
             type: String,
             required: [true, 'AI model is required'],
@@ -162,6 +223,9 @@ const MarketplacePromptSchema = new Schema<IMarketplacePrompt>(
             type: String,
             enum: ['text-to-image', 'text-to-text', 'image-to-image', 'text-to-video'],
             default: 'text-to-image',
+        },
+        aspectRatio: {
+            type: String, // e.g., "16:9"
         },
 
         // Gallery
@@ -175,14 +239,35 @@ const MarketplacePromptSchema = new Schema<IMarketplacePrompt>(
         },
 
         // Categorization
+        // Categorization
         category: {
-            type: String,
-            required: true,
+            type: [String],
+            default: [],
             index: true,
         },
         tags: {
             type: [String],
             default: [],
+        },
+
+        // Relationships
+        relatedPrompts: [{
+            type: Schema.Types.ObjectId,
+            ref: 'MarketplacePrompt'
+        }],
+        bundles: [{
+            type: Schema.Types.ObjectId,
+            ref: 'PromptBundle' // Assuming a Bundle model exists or will exist
+        }],
+
+        // Advanced Features
+        versions: {
+            type: [PromptVersionSchema],
+            default: []
+        },
+        abTests: {
+            type: [ABTestVariantSchema],
+            default: []
         },
 
         // Author

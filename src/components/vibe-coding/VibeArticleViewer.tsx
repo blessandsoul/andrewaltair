@@ -18,7 +18,7 @@ interface VibeArticleViewerProps {
     prevArticle?: Article | null;
     nextArticle?: Article | null;
     isLocked: boolean;
-    onUnlock: () => void;
+    onUnlock?: () => void;
 }
 
 export default function VibeArticleViewer({
@@ -192,7 +192,14 @@ export default function VibeArticleViewer({
                             <h3 className="text-2xl font-bold mb-2">კითხვის გაგრძელება</h3>
                             <p className="text-muted-foreground mb-6 text-lg">დარჩენილია ექსკლუზიური მასალის 85%</p>
                             <button
-                                onClick={() => setIsPurchaseModalOpen(true)}
+                                onClick={() => {
+                                    if (onUnlock) {
+                                        onUnlock();
+                                    } else {
+                                        // Default behavior
+                                        setIsPurchaseModalOpen(true);
+                                    }
+                                }}
                                 className="px-8 py-3 rounded-xl bg-gradient-to-r from-primary to-purple-500 text-white font-medium hover:scale-105 transition-transform shadow-lg flex items-center gap-2 mx-auto"
                             >
                                 <TbRocket size={20} />

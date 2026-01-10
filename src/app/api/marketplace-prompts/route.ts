@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
             .sort(sortOrder)
             .skip((page - 1) * limit)
             .limit(limit)
-            .select('-promptTemplate -instructions -variables') // Hide sensitive content in list
+            .select('-promptTemplate -instructions -variables -negativePrompt') // Hide sensitive content in list
             .lean();
 
         const total = await MarketplacePrompt.countDocuments(query);
@@ -135,11 +135,13 @@ export async function POST(request: NextRequest) {
             currency,
             originalPrice,
             promptTemplate,
+            negativePrompt,
             variables,
             instructions,
             aiModel,
             aiModelVersion,
             generationType,
+            aspectRatio,
             coverImage,
             exampleImages,
             category,
@@ -148,6 +150,10 @@ export async function POST(request: NextRequest) {
             featuredOrder,
             metaTitle,
             metaDescription,
+            relatedPrompts,
+            bundles,
+            versions,
+            abTests,
         } = body;
 
         // Validate required fields
@@ -177,11 +183,13 @@ export async function POST(request: NextRequest) {
             originalPrice,
             isFree: !price || price === 0,
             promptTemplate,
+            negativePrompt,
             variables: variables || [],
             instructions: instructions || '',
             aiModel,
             aiModelVersion,
             generationType: generationType || 'text-to-image',
+            aspectRatio,
             coverImage,
             exampleImages: exampleImages || [],
             category,
@@ -191,6 +199,10 @@ export async function POST(request: NextRequest) {
             featuredOrder,
             metaTitle: metaTitle || title,
             metaDescription: metaDescription || excerpt || description.substring(0, 160),
+            relatedPrompts: relatedPrompts || [],
+            bundles: bundles || [],
+            versions: versions || [],
+            abTests: abTests || [],
         });
 
         return NextResponse.json({

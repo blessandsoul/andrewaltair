@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next'
 import { getAllArticles } from '@/data/vibeCodingContent'
 import dbConnect from '@/lib/db'
 import Post from '@/models/Post'
+import MarketplacePrompt from '@/models/MarketplacePrompt'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = 'https://andrewaltair.ge'
@@ -91,5 +92,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         console.error('Sitemap: Error fetching blog posts:', error)
     }
 
-    return [...staticPages, ...libraryUrls, ...blogUrls]
+    // Marketplace Prompts from MongoDB
+    let promptUrls: MetadataRoute.Sitemap = []
+    try {
+        await dbConnect()
+        const prompts = await MarketplacePrompt.find({ status: 'published' })
+            .select('slug updatedAt createdAt')
+            .lean()
+
+        promptUrls = prompts.map((prompt) => ({
+            url: `${baseUrl}/prompts/${prompt.slug}`,
+            lastModified: prompt.updatedAt || prompt.createdAt || new Date(),
+            changeFrequency: 'weekly' as const,
+            priority: 0.8,
+        }))
+    } catch (error) {
+        console.error('Sitemap: Error fetching marketplace prompts:', error)
+    }
+
+    return [...staticPages, ...libraryUrls, ...blogUrls, ...promptUrls]
 }

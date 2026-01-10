@@ -1,15 +1,15 @@
 "use client"
 
-import { use, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import MarketplacePromptEditor from "@/components/admin/MarketplacePromptEditor"
 import { TbLoader2 } from "react-icons/tb"
 
 interface Props {
-    params: Promise<{ id: string }>
+    params: { id: string }
 }
 
 export default function EditMarketplacePromptPage({ params }: Props) {
-    const { id } = use(params)
+    const { id } = params
     const [promptData, setPromptData] = useState(null)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)

@@ -47,6 +47,7 @@ export async function GET(request: NextRequest, { params }: Params) {
             // Show only a preview of the template
             result.promptTemplate = result.promptTemplate.substring(0, 100) + '...[Preview - Purchase to see full prompt]';
             result.instructions = result.instructions ? result.instructions.substring(0, 100) + '...' : '';
+            result.negativePrompt = result.negativePrompt ? result.negativePrompt.substring(0, 50) + '...' : '';
         }
 
         return NextResponse.json({ prompt: result });
@@ -100,10 +101,10 @@ export async function PUT(request: NextRequest, { params }: Params) {
         // Update fields
         const updateFields = [
             'title', 'slug', 'description', 'excerpt', 'price', 'currency',
-            'originalPrice', 'promptTemplate', 'variables', 'instructions',
-            'aiModel', 'aiModelVersion', 'generationType', 'coverImage',
+            'originalPrice', 'promptTemplate', 'negativePrompt', 'variables', 'instructions',
+            'aiModel', 'aiModelVersion', 'generationType', 'aspectRatio', 'coverImage',
             'exampleImages', 'category', 'tags', 'status', 'featuredOrder',
-            'metaTitle', 'metaDescription'
+            'metaTitle', 'metaDescription', 'relatedPrompts', 'bundles', 'versions', 'abTests'
         ];
 
         for (const field of updateFields) {

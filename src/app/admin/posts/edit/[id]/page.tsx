@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation"
 import { PostEditor, PostData } from "@/components/admin/PostEditor"
 import { TbLoader2 } from "react-icons/tb"
 
-export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
+export default function EditPostPage({ params }: { params: { id: string } }) {
     const router = useRouter()
     const [post, setPost] = React.useState<PostData | null>(null)
     const [isLoading, setIsLoading] = React.useState(true)
-    const { id } = React.use(params)
+    const { id } = params
 
     React.useEffect(() => {
         const fetchPost = async () => {

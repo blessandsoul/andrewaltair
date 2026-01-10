@@ -2,14 +2,18 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { TbUserPlus, TbMail, TbLock, TbEye, TbEyeOff, TbSparkles, TbArrowRight, TbBrandGithub, TbBrandChrome, TbUser, TbCheck } from "react-icons/tb"
+import { TbUserPlus, TbMail, TbLock, TbEye, TbEyeOff, TbSparkles, TbArrowRight, TbBrandGithub, TbBrandChrome, TbUser, TbCheck, TbId } from "react-icons/tb"
+import { toast } from "sonner" // Assuming sonner is used, if not we'll fallback to basic alerts or errors state
 
 export default function RegisterPage() {
+    const router = useRouter()
     const [formData, setFormData] = React.useState({
         name: "",
+        username: "",
         email: "",
         password: "",
         confirmPassword: "",
@@ -26,6 +30,12 @@ export default function RegisterPage() {
             newErrors.name = "სახელი სავალდებულოა"
         }
 
+        if (!formData.username.trim()) {
+            newErrors.username = "მომხმარებლის სახელი სავალდებულოა"
+        } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+            newErrors.username = "დაშვებულია მხოლოდ ლათინური ასოები, ციფრები და _"
+        }
+
         if (!formData.email.trim()) {
             newErrors.email = "ელ.ფოსტა სავალდებულოა"
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -34,8 +44,8 @@ export default function RegisterPage() {
 
         if (!formData.password) {
             newErrors.password = "პაროლი სავალდებულოა"
-        } else if (formData.password.length < 6) {
-            newErrors.password = "მინიმუმ 6 სიმბოლო"
+        } else if (formData.password.length < 8) {
+            newErrors.password = "მინიმუმ 8 სიმბოლო"
         }
 
         if (formData.password !== formData.confirmPassword) {
@@ -54,11 +64,46 @@ export default function RegisterPage() {
         e.preventDefault()
         if (validateForm()) {
             setIsLoading(true)
-            // Simulate registration
-            await new Promise(resolve => setTimeout(resolve, 1500))
-            setIsLoading(false)
-            // Redirect to login or home
-            window.location.href = "/login"
+            setErrors({}) // Clear previous errors
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        fullName: formData.name,
+                        username: formData.username,
+                        email: formData.email,
+                        password: formData.password,
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'რეგისტრაცია ვერ მოხერხდა');
+                }
+
+                // Success
+                toast.success("რეგისტრაცია წარმატებულია!", {
+                    description: "გთხოვთ შეამოწმოთ ელ-ფოსტა ანგარიშის გასააქტიურებლად."
+                });
+
+                // Redirect to login after short delay
+                setTimeout(() => {
+                    router.push("/login");
+                }, 2000);
+
+            } catch (error: any) {
+                setErrors(prev => ({
+                    ...prev,
+                    submit: error.message || "დაფიქსირდა შეცდომა, გთხოვთ სცადოთ თავიდან"
+                }));
+            } finally {
+                setIsLoading(false)
+            }
         }
     }
 
@@ -118,6 +163,13 @@ export default function RegisterPage() {
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
+                            {/* General Error Message */}
+                            {errors.submit && (
+                                <div className="p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm text-center">
+                                    {errors.submit}
+                                </div>
+                            )}
+
                             {/* Name */}
                             <div className="space-y-2">
                                 <label className="text-sm font-medium flex items-center gap-2">
@@ -131,6 +183,21 @@ export default function RegisterPage() {
                                     className={errors.name ? "border-destructive" : ""}
                                 />
                                 {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
+                            </div>
+
+                            {/* Username - NEW */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium flex items-center gap-2">
+                                    <TbId className="w-4 h-4 text-muted-foreground" />
+                                    მომხმარებლის სახელი
+                                </label>
+                                <Input
+                                    placeholder="username"
+                                    value={formData.username}
+                                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                                    className={errors.username ? "border-destructive" : ""}
+                                />
+                                {errors.username && <p className="text-sm text-destructive">{errors.username}</p>}
                             </div>
 
                             {/* Email */}
@@ -158,7 +225,7 @@ export default function RegisterPage() {
                                 <div className="relative">
                                     <Input
                                         type={showPassword ? "text" : "password"}
-                                        placeholder="მინიმუმ 6 სიმბოლო"
+                                        placeholder="მინიმუმ 8 სიმბოლო"
                                         value={formData.password}
                                         onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                         className={errors.password ? "border-destructive pr-10" : "pr-10"}
