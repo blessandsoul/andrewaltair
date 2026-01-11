@@ -85,16 +85,9 @@ export default async function PromptDetailPage({ params }: Props) {
         notFound()
     }
 
-<<<<<<< HEAD
-    const relatedPrompts = await getRelatedPrompts(
-        Array.isArray(prompt.category) ? prompt.category[0] : prompt.category,
-        prompt.slug
-    )
-=======
     // Handle category safely for related prompts fetch
     const primaryCategory = Array.isArray(prompt.category) ? prompt.category[0] : prompt.category
     const relatedPrompts = await getRelatedPrompts(primaryCategory, prompt.slug)
->>>>>>> d04c05c2f39e667672ce3e1f25bbeb6ce18bca35
 
     return (
         <div className="min-h-screen py-8 lg:py-12">
@@ -234,17 +227,11 @@ export default async function PromptDetailPage({ params }: Props) {
                                     <TbSparkles className="w-3.5 h-3.5" />
                                     {prompt.aiModel}
                                 </span>
-<<<<<<< HEAD
-                                <span className="px-2.5 py-1 text-xs font-medium bg-muted rounded-full">
-                                    {Array.isArray(prompt.category) ? prompt.category[0] : prompt.category}
-                                </span>
-=======
                                 {prompt.category && (
                                     <span className="px-2.5 py-1 text-xs font-medium bg-muted rounded-full">
                                         {Array.isArray(prompt.category) ? prompt.category[0] : prompt.category}
                                     </span>
                                 )}
->>>>>>> d04c05c2f39e667672ce3e1f25bbeb6ce18bca35
                                 <span className="px-2.5 py-1 text-xs font-medium bg-muted rounded-full">
                                     {prompt.generationType}
                                 </span>
