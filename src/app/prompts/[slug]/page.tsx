@@ -16,6 +16,16 @@ const optimizeYouTubeUrl = (url: string) => {
     return url
 }
 
+const safeRender = (value: any): string => {
+    if (typeof value === 'string') return value
+    if (typeof value === 'number') return String(value)
+    if (Array.isArray(value)) return value.map(safeRender).join(', ')
+    if (typeof value === 'object' && value !== null) {
+        return value.name || value.title || value.slug || value.label || JSON.stringify(value)
+    }
+    return ''
+}
+
 async function getPrompt(slug: string) {
     try {
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
@@ -86,7 +96,16 @@ export default async function PromptDetailPage({ params }: Props) {
     }
 
     // Handle category safely for related prompts fetch
-    const primaryCategory = Array.isArray(prompt.category) ? prompt.category[0] : prompt.category
+    let primaryCategory = ''
+    if (Array.isArray(prompt.category) && prompt.category.length > 0) {
+        primaryCategory = safeRender(prompt.category[0])
+    } else if (prompt.category) {
+        primaryCategory = safeRender(prompt.category)
+    }
+
+    // Clean up if it stringified an object
+    if (primaryCategory.startsWith('{')) primaryCategory = ''
+
     const relatedPrompts = await getRelatedPrompts(primaryCategory, prompt.slug)
 
     return (
@@ -193,7 +212,7 @@ export default async function PromptDetailPage({ params }: Props) {
                                                 <div className="flex flex-wrap gap-1">
                                                     {variable.options.map((opt, j) => (
                                                         <span key={j} className="px-2 py-0.5 text-xs bg-background rounded border">
-                                                            {opt}
+                                                            {safeRender(opt)}
                                                         </span>
                                                     ))}
                                                 </div>
@@ -225,15 +244,15 @@ export default async function PromptDetailPage({ params }: Props) {
                             <div className="flex flex-wrap gap-2">
                                 <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-primary/10 text-primary rounded-full">
                                     <TbSparkles className="w-3.5 h-3.5" />
-                                    {prompt.aiModel}
+                                    {safeRender(prompt.aiModel)}
                                 </span>
                                 {prompt.category && (
                                     <span className="px-2.5 py-1 text-xs font-medium bg-muted rounded-full">
-                                        {Array.isArray(prompt.category) ? prompt.category[0] : prompt.category}
+                                        {safeRender(Array.isArray(prompt.category) ? prompt.category[0] : prompt.category)}
                                     </span>
                                 )}
                                 <span className="px-2.5 py-1 text-xs font-medium bg-muted rounded-full">
-                                    {prompt.generationType}
+                                    {safeRender(prompt.generationType)}
                                 </span>
                             </div>
 
