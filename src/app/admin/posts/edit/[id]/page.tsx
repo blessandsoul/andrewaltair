@@ -51,7 +51,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
                             canonicalUrl: "",
                             focusKeyword: "",
                             seoScore: 0,
-                            seoScore: 0,
+
                             ogImage: ""
                         },
                         repository: p.repository
