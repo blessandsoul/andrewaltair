@@ -41,7 +41,7 @@ Return ONLY valid JSON with this structure:
 Rules:
 1. Slug: English, lowercase, kebab-case (ALWAYS English).
 2. Tags: 5-8 relevant tags. Use the language of the input (Georgian if input is Georgian).
-3. Meta Title: Attractive, includes key terms. MUST BE IN GEORGIAN (if input is Georgian).
+3. Meta Title: Attractive, includes key terms. MUST BE IN GEORGIAN (if input is Georgian). DO NOT ADD "ანდრევ ალტაირი" or any brand name - only the title itself.
 4. Meta Description: clickable, summarizes value. MUST BE IN GEORGIAN (if input is Georgian).
 5. Alt Text: Describe the visual result of the prompt concisely.
 6. Excerpt: A teaser for the card view. MUST BE IN GEORGIAN.
