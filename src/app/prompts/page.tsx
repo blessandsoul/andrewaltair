@@ -54,7 +54,7 @@ function PromptCard({ prompt }: { prompt: Prompt }) {
         <Link href={`/prompts/${prompt.slug}`}>
             <article className="group relative overflow-hidden rounded-xl border bg-card hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
                 {/* Image */}
-                <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                <div className="relative aspect-[16/10] overflow-hidden bg-muted">
                     {prompt.coverImage ? (
                         <Image
                             src={prompt.coverImage}
@@ -68,22 +68,25 @@ function PromptCard({ prompt }: { prompt: Prompt }) {
                         </div>
                     )}
 
+                    {/* Overlay Gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60" />
+
                     {/* Price badge */}
                     <div className="absolute top-3 right-3">
                         {prompt.isFree ? (
-                            <span className="px-2.5 py-1 text-xs font-bold bg-green-500 text-white rounded-full shadow-lg">
+                            <span className="px-3 py-1 text-xs font-bold bg-green-500 text-white rounded-lg shadow-lg backdrop-blur-md">
                                 უფასო
                             </span>
                         ) : (
-                            <span className="px-2.5 py-1 text-xs font-bold bg-gradient-to-r from-primary to-accent text-white rounded-full shadow-lg">
+                            <span className="px-3 py-1 text-xs font-bold bg-primary text-white rounded-lg shadow-lg backdrop-blur-md">
                                 {prompt.price} {prompt.currency}
                             </span>
                         )}
                     </div>
 
                     {/* AI Model badge */}
-                    <div className="absolute bottom-3 left-3">
-                        <span className="px-2 py-0.5 text-xs bg-black/60 text-white rounded backdrop-blur-sm">
+                    <div className="absolute bottom-3 right-3">
+                        <span className="px-2.5 py-1 text-xs font-medium bg-black/60 text-white rounded-lg backdrop-blur-md border border-white/10">
                             {prompt.aiModel}
                         </span>
                     </div>
@@ -91,31 +94,37 @@ function PromptCard({ prompt }: { prompt: Prompt }) {
 
                 {/* Content */}
                 <div className="p-4 space-y-3">
-                    <h3 className="font-semibold line-clamp-2 group-hover:text-primary transition-colors">
+                    <h3 className="font-semibold line-clamp-1 text-lg group-hover:text-primary transition-colors">
                         {prompt.title}
                     </h3>
 
+                    <div className="flex items-center gap-2">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/50 uppercase tracking-wider font-medium">
+                            {prompt.category}
+                        </span>
+                    </div>
+
                     {prompt.excerpt && (
-                        <p className="text-sm text-muted-foreground line-clamp-2">
+                        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
                             {prompt.excerpt}
                         </p>
                     )}
 
                     {/* Stats */}
-                    <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border/50">
                         <div className="flex items-center gap-3">
                             <span className="flex items-center gap-1">
-                                <TbEye className="w-3.5 h-3.5" />
+                                <TbEye className="w-4 h-4 opacity-70" />
                                 {prompt.views}
                             </span>
                             <span className="flex items-center gap-1">
-                                <TbDownload className="w-3.5 h-3.5" />
+                                <TbDownload className="w-4 h-4 opacity-70" />
                                 {prompt.isFree ? prompt.downloads : prompt.purchases}
                             </span>
                         </div>
                         {prompt.rating > 0 && (
-                            <span className="flex items-center gap-1 text-yellow-500">
-                                <TbStar className="w-3.5 h-3.5 fill-current" />
+                            <span className="flex items-center gap-1 text-yellow-500 font-medium">
+                                <TbStar className="w-4 h-4 fill-current" />
                                 {prompt.rating.toFixed(1)}
                             </span>
                         )}

@@ -283,16 +283,16 @@ export default function MarketplacePromptsPage() {
                         {paginatedPrompts.map((prompt) => (
                             <Card
                                 key={prompt.id}
-                                className={`overflow-hidden hover:border-primary/50 transition-colors ${selectedIds.includes(prompt.id) ? 'border-primary ring-1 ring-primary' : ''
+                                className={`group overflow-hidden hover:border-primary/50 transition-all duration-300 ${selectedIds.includes(prompt.id) ? 'border-primary ring-1 ring-primary' : ''
                                     }`}
                             >
-                                <div className="relative aspect-video bg-muted">
+                                <div className="relative aspect-video bg-muted overflow-hidden">
                                     {prompt.coverImage ? (
                                         <Image
                                             src={prompt.coverImage}
                                             alt={prompt.title}
                                             fill
-                                            className="object-cover"
+                                            className="object-cover transition-transform duration-300 group-hover:scale-105"
                                         />
                                     ) : (
                                         <div className="flex items-center justify-center h-full">
@@ -300,83 +300,96 @@ export default function MarketplacePromptsPage() {
                                         </div>
                                     )}
 
+                                    {/* Overlay Gradient */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60" />
+
                                     {/* Select checkbox */}
                                     <button
                                         onClick={() => toggleSelect(prompt.id)}
-                                        className="absolute top-2 left-2 p-1 bg-black/50 rounded hover:bg-black/70"
+                                        className="absolute top-2 left-2 p-1.5 bg-black/40 backdrop-blur-md rounded-lg hover:bg-black/60 transition-colors border border-white/10"
                                     >
                                         {selectedIds.includes(prompt.id) ? (
                                             <TbSquareCheck className="w-5 h-5 text-primary" />
                                         ) : (
-                                            <TbSquare className="w-5 h-5 text-white" />
+                                            <TbSquare className="w-5 h-5 text-white/70 hover:text-white" />
                                         )}
                                     </button>
 
-                                    {/* Price badge */}
+                                    {/* Price/Free Badge */}
                                     <div className="absolute top-2 right-2">
                                         {prompt.isFree ? (
-                                            <Badge className="bg-green-500 text-white">უფასო</Badge>
+                                            <Badge className="bg-green-500/90 hover:bg-green-500 text-white backdrop-blur-md border-0">
+                                                უფასო
+                                            </Badge>
                                         ) : (
-                                            <Badge className="bg-primary text-white">
+                                            <Badge className="bg-primary/90 hover:bg-primary text-white backdrop-blur-md border-0">
                                                 {prompt.price} {prompt.currency}
                                             </Badge>
                                         )}
+                                    </div>
+
+                                    {/* AI Model Badge */}
+                                    <div className="absolute bottom-2 right-2">
+                                        <Badge variant="secondary" className="bg-black/60 text-white backdrop-blur-md border-white/10 hover:bg-black/70">
+                                            {prompt.aiModel}
+                                        </Badge>
                                     </div>
                                 </div>
 
                                 <CardContent className="p-4 space-y-3">
                                     <div>
-                                        <h3 className="font-semibold truncate">{prompt.title}</h3>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <Badge variant="outline" className="text-xs">{prompt.category}</Badge>
-                                            <Badge variant="outline" className="text-xs">{prompt.aiModel}</Badge>
+                                        <h3 className="font-semibold truncate text-base group-hover:text-primary transition-colors">{prompt.title}</h3>
+                                        <div className="flex items-center gap-2 mt-2">
+                                            <Badge variant="outline" className="text-[10px] px-2 py-0.5 h-5 font-normal text-muted-foreground bg-muted/50 border-border/50">
+                                                {prompt.category}
+                                            </Badge>
+                                            <StatusBadge status={prompt.status} />
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                    <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/50">
                                         <div className="flex items-center gap-3">
-                                            <span className="flex items-center gap-1">
+                                            <div className="flex items-center gap-1" title="ნახვები">
                                                 <TbEye className="w-3.5 h-3.5" />
                                                 {prompt.views}
-                                            </span>
-                                            <span className="flex items-center gap-1">
+                                            </div>
+                                            <div className="flex items-center gap-1" title="ჩამოტვირთვები">
                                                 <TbDownload className="w-3.5 h-3.5" />
                                                 {prompt.isFree ? prompt.downloads : prompt.purchases}
-                                            </span>
+                                            </div>
                                             {prompt.rating > 0 && (
-                                                <span className="flex items-center gap-1">
-                                                    <TbStar className="w-3.5 h-3.5 text-yellow-500" />
+                                                <div className="flex items-center gap-1 text-yellow-500">
+                                                    <TbStar className="w-3.5 h-3.5 fill-current" />
                                                     {prompt.rating.toFixed(1)}
-                                                </span>
+                                                </div>
                                             )}
                                         </div>
-                                        <StatusBadge status={prompt.status} />
                                     </div>
 
-                                    <div className="flex items-center gap-2 pt-2 border-t">
+                                    <div className="flex items-center gap-2 pt-1">
                                         <Link href={`/admin/marketplace-prompts/${prompt.id}/edit`} className="flex-1">
-                                            <Button size="sm" variant="outline" className="w-full gap-1">
-                                                <TbEdit className="w-4 h-4" />
+                                            <Button size="sm" variant="outline" className="w-full h-8 text-xs gap-1.5 hover:bg-primary/5 hover:text-primary hover:border-primary/20">
+                                                <TbEdit className="w-3.5 h-3.5" />
                                                 რედაქტირება
                                             </Button>
                                         </Link>
                                         <Link href={`/prompts/${prompt.slug}`} target="_blank">
-                                            <Button size="sm" variant="ghost">
+                                            <Button size="sm" variant="ghost" className="h-8 px-2.5 text-muted-foreground hover:text-primary">
                                                 <TbEye className="w-4 h-4" />
                                             </Button>
                                         </Link>
                                         {deleteConfirm === prompt.id ? (
                                             <div className="flex gap-1">
-                                                <Button size="sm" variant="destructive" onClick={() => handleDelete(prompt.id)}>
+                                                <Button size="sm" variant="destructive" className="h-8 px-3" onClick={() => handleDelete(prompt.id)}>
                                                     დადასტურება
                                                 </Button>
-                                                <Button size="sm" variant="ghost" onClick={() => setDeleteConfirm(null)}>
+                                                <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => setDeleteConfirm(null)}>
                                                     <TbX className="w-4 h-4" />
                                                 </Button>
                                             </div>
                                         ) : (
-                                            <Button size="sm" variant="ghost" onClick={() => setDeleteConfirm(prompt.id)}>
-                                                <TbTrash className="w-4 h-4 text-red-500" />
+                                            <Button size="sm" variant="ghost" className="h-8 px-2.5 text-muted-foreground hover:text-destructive" onClick={() => setDeleteConfirm(prompt.id)}>
+                                                <TbTrash className="w-4 h-4" />
                                             </Button>
                                         )}
                                     </div>
