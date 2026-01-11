@@ -8,6 +8,14 @@ interface Props {
     params: Promise<{ slug: string }>
 }
 
+const optimizeYouTubeUrl = (url: string) => {
+    if (!url) return url
+    if (url.includes('img.youtube.com') || url.includes('i.ytimg.com')) {
+        return url.replace('maxresdefault.jpg', 'hqdefault.jpg')
+    }
+    return url
+}
+
 async function getPrompt(slug: string) {
     try {
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
@@ -16,7 +24,20 @@ async function getPrompt(slug: string) {
         })
         if (!res.ok) return null
         const data = await res.json()
-        return data.prompt
+        const prompt = data.prompt
+
+        if (prompt) {
+            // sanitize images
+            if (prompt.coverImage) prompt.coverImage = optimizeYouTubeUrl(prompt.coverImage)
+            if (prompt.exampleImages) {
+                prompt.exampleImages = prompt.exampleImages.map((img: any) => ({
+                    ...img,
+                    src: optimizeYouTubeUrl(img.src)
+                }))
+            }
+        }
+
+        return prompt
     } catch {
         return null
     }
@@ -64,7 +85,10 @@ export default async function PromptDetailPage({ params }: Props) {
         notFound()
     }
 
-    const relatedPrompts = await getRelatedPrompts(prompt.category, prompt.slug)
+    const relatedPrompts = await getRelatedPrompts(
+        Array.isArray(prompt.category) ? prompt.category[0] : prompt.category,
+        prompt.slug
+    )
 
     return (
         <div className="min-h-screen py-8 lg:py-12">
@@ -205,7 +229,7 @@ export default async function PromptDetailPage({ params }: Props) {
                                     {prompt.aiModel}
                                 </span>
                                 <span className="px-2.5 py-1 text-xs font-medium bg-muted rounded-full">
-                                    {prompt.category}
+                                    {Array.isArray(prompt.category) ? prompt.category[0] : prompt.category}
                                 </span>
                                 <span className="px-2.5 py-1 text-xs font-medium bg-muted rounded-full">
                                     {prompt.generationType}
@@ -225,7 +249,7 @@ export default async function PromptDetailPage({ params }: Props) {
                                 {prompt.rating > 0 && (
                                     <span className="flex items-center gap-1 text-yellow-500">
                                         <TbStar className="w-4 h-4 fill-current" />
-                                        {prompt.rating.toFixed(1)} ({prompt.reviewsCount})
+                                        {(prompt.rating || 0).toFixed(1)} ({prompt.reviewsCount || 0})
                                     </span>
                                 )}
                             </div>
