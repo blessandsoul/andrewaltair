@@ -253,9 +253,11 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                     const generated = await genRes.json()
                     newData.slug = generated.slug || newData.slug
 
-                    // Add AI suggested tags too
+                    // Add AI suggested tags ONLY if we didn't find any in the text
                     const aiTags = generated.tags || []
-                    newData.tags = [...new Set([...newData.tags, ...aiTags])]
+                    if (newData.tags.length === 0) {
+                        newData.tags = aiTags
+                    }
 
                     newData.metaTitle = generated.metaTitle || newData.metaTitle
                     newData.metaDescription = generated.metaDescription || newData.metaDescription

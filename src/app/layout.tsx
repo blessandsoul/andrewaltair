@@ -26,7 +26,7 @@ const notoGeorgian = Noto_Sans_Georgian({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://andrewaltair.ge'),
-  manifest: '/manifest.json',
+  manifest: '/site.webmanifest',
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -37,7 +37,9 @@ export const metadata: Metadata = {
       { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
     other: [
-      { rel: 'manifest', url: '/manifest.json' },
+      { rel: 'manifest', url: '/site.webmanifest' },
+      { rel: 'icon', url: '/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
+      { rel: 'icon', url: '/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
   },
   title: {
