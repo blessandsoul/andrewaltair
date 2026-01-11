@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
 import { cn } from "@/lib/utils"
 
 interface CoverImages {
@@ -57,13 +56,10 @@ export function ResponsiveCover({
                     )}
                     onClick={onClick}
                 >
-                    <Image
+                    <img
                         src={horizontalSrc}
                         alt={title}
-                        fill
-                        className="object-cover"
-                        priority
-                        sizes="(max-width: 768px) 0vw, (max-width: 1200px) 80vw, 900px"
+                        className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
                 </div>
@@ -80,13 +76,10 @@ export function ResponsiveCover({
                 )}
                 onClick={onClick}
             >
-                <Image
+                <img
                     src={verticalSrc || horizontalSrc || ''}
                     alt={title}
-                    fill
-                    className="object-cover"
-                    priority
-                    sizes="100vw"
+                    className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
             </div>

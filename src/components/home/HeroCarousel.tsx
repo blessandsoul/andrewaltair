@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
-import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -106,12 +105,10 @@ export function HeroCarousel({ posts, autoPlayInterval = 5000 }: HeroCarouselPro
                         <CardContent className="p-0">
                             <div className="aspect-video bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center relative overflow-hidden">
                                 {(currentPost.coverImage || currentPost.coverImages?.horizontal) ? (
-                                    <Image
+                                    <img
                                         src={currentPost.coverImages?.horizontal || currentPost.coverImage || ''}
                                         alt={currentPost.title}
-                                        fill
-                                        className="object-cover group-hover:scale-105 transition-transform duration-700"
-                                        priority
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                     />
                                 ) : (
                                     <TbSparkles className="w-16 h-16 text-primary/50" />

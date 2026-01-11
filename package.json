@@ -4,8 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:turbo": "next dev --turbo",
+    "dev:fast": "rmdir /s /q .next 2>nul || true && next dev",
     "build": "next build",
+    "build:analyze": "ANALYZE=true next build",
     "start": "next start",
+    "clean": "rmdir /s /q .next 2>nul || true && rmdir /s /q node_modules\\.cache 2>nul || true",
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -197,7 +196,7 @@ export function HubLayout({ posts, videos }: HubLayoutProps) {
                                 <CardContent className="p-0 h-full flex flex-col">
                                     <div className="relative aspect-video bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
                                         {post.coverImages?.horizontal && (
-                                            <Image src={post.coverImages.horizontal} alt={post.title} fill className="object-cover" />
+                                            <img src={post.coverImages.horizontal} alt={post.title} className="w-full h-full object-cover" />
                                         )}
                                         {post.trending && (
                                             <Badge className="absolute top-2 left-2 bg-red-500 border-0 text-xs">
@@ -241,7 +240,7 @@ export function HubLayout({ posts, videos }: HubLayoutProps) {
                                 <CardContent className="p-0">
                                     <div className="relative aspect-video">
                                         {video.youtubeId && (
-                                            <Image src={`https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`} alt={video.title} fill className="object-cover" />
+                                            <img src={`https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`} alt={video.title} className="w-full h-full object-cover" />
                                         )}
                                         <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
                                             <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">

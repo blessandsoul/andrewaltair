@@ -280,7 +280,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
             formData.append('title', post.title || post.slug || 'cover')
             formData.append('type', type)
 
-            const response = await fetch('/api/upload', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/upload`, {
                 method: 'POST',
                 body: formData
             })
@@ -315,7 +315,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
             formData.append('title', `section-${post.id}-${Date.now()}`)
             formData.append('type', 'section')
 
-            const response = await fetch('/api/upload', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/upload`, {
                 method: 'POST',
                 body: formData
             })
@@ -428,7 +428,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
             formData.append('title', `${post.title || post.slug || 'gallery'}-${post.gallery.length + 1}`)
             formData.append('type', 'gallery')
 
-            const response = await fetch('/api/upload', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/upload`, {
                 method: 'POST',
                 body: formData
             })
@@ -461,7 +461,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
             formData.append('title', `prompt-photo-${post.id}-${Date.now()}`)
             formData.append('type', 'prompt-photo')
 
-            const response = await fetch('/api/upload', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/upload`, {
                 method: 'POST',
                 body: formData
             })
@@ -489,7 +489,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
             formData.append('title', `prompt-video-${post.id}-${Date.now()}`)
             formData.append('type', 'prompt-video')
 
-            const response = await fetch('/api/upload', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/upload`, {
                 method: 'POST',
                 body: formData
             })

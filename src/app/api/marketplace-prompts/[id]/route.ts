@@ -4,14 +4,14 @@ import MarketplacePrompt from '@/models/MarketplacePrompt';
 import { verifyAdmin } from '@/lib/admin-auth';
 
 interface Params {
-    params: Promise<{ id: string }>;
+    params: { id: string };
 }
 
 // GET - Get single prompt by ID or slug
 export async function GET(request: NextRequest, { params }: Params) {
     try {
         await dbConnect();
-        const { id } = await params;
+        const { id } = params;
 
         // Find by ID or slug
         const query = id.match(/^[0-9a-fA-F]{24}$/)
@@ -69,7 +69,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
         }
 
         await dbConnect();
-        const { id } = await params;
+        const { id } = params;
 
         const body = await request.json();
 
@@ -141,7 +141,7 @@ export async function DELETE(request: NextRequest, { params }: Params) {
         }
 
         await dbConnect();
-        const { id } = await params;
+        const { id } = params;
 
         // Find by ID or slug
         const query = id.match(/^[0-9a-fA-F]{24}$/)

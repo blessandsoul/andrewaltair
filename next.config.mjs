@@ -3,15 +3,27 @@ const nextConfig = {
   // 🐳 Docker: Standalone output for optimized container builds
   output: 'standalone',
 
+  // ⚡ Performance optimizations
+  swcMinify: true,
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['@phosphor-icons/react', 'lucide-react', 'react-icons'],
+    serverComponentsExternalPackages: ['mongoose', 'bcryptjs'],
+  },
+
+  // 🚀 Build optimizations
+  distDir: '.next',
+  compress: true,
+
   // 🛡️ Security: Remove X-Powered-By header
   poweredByHeader: false,
 
-  // 🧹 Clean up: Remove console.log from production builds
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production' ? {
+  // 🧹 Clean up: Remove console.log from production builds (not supported by Turbo)
+  compiler: process.env.NODE_ENV === 'production' ? {
+    removeConsole: {
       exclude: ['error', 'warn'],
-    } : false,
-  },
+    },
+  } : {},
 
   images: {
     remotePatterns: [
@@ -22,6 +34,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'img.youtube.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'andrewaltair.ge',
       },
     ],
   },
@@ -60,10 +76,35 @@ const nextConfig = {
           },
         ],
       },
+      {
+        source: '/api/(.*)',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, PUT, DELETE, OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Authorization',
+          },
+        ],
+      },
     ];
   },
   async rewrites() {
     return [
+      {
+        source: '/api/files/:path*',
+        destination: 'https://andrewaltair.ge/api/files/:path*'
+      },
+      {
+        source: '/api/tracking/:path*',
+        destination: 'https://andrewaltair.ge/api/tracking/:path*'
+      },
       {
         source: '/feed.xml',
         destination: '/api/rss',

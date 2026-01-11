@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { TbPlayerPlay, TbBrandYoutube, TbEye, TbClock, TbSparkles, TbArrowRight, TbSend, TbMail, TbTrendingUp, TbBolt, TbHeart, TbBookmark } from "react-icons/tb"
 import { brand } from "@/lib/brand"
-import Image from "next/image"
 
 // TbVideo interface
 interface TbVideo {
@@ -111,11 +110,10 @@ export default async function VideosPage() {
                                     <CardContent className="p-0">
                                         <div className="relative aspect-[9/16] overflow-hidden rounded-xl">
                                             {/* YouTube Thumbnail */}
-                                            <Image
+                                            <img
                                                 src={`https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`}
                                                 alt={video.title}
-                                                fill
-                                                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                             />
 
                                             {/* Gradient overlay */}
@@ -188,11 +186,10 @@ export default async function VideosPage() {
                                     <CardContent className="p-0">
                                         <div className="relative aspect-video overflow-hidden">
                                             {/* YouTube Thumbnail */}
-                                            <Image
+                                            <img
                                                 src={`https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`}
                                                 alt={video.title}
-                                                fill
-                                                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                             />
 
                                             {/* Dark overlay */}

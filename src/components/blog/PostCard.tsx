@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { TbEye, TbFlame, TbHeart, TbMessage, TbShare, TbClock, TbBookmark, TbSparkles, TbArrowRight } from "react-icons/tb"
@@ -115,11 +114,10 @@ export function PostCard({
 
                             {/* Image */}
                             {(post.coverImage || post.coverImages?.horizontal) ? (
-                                <Image
+                                <img
                                     src={post.coverImages?.horizontal || post.coverImage || ''}
                                     alt={post.title}
-                                    fill
-                                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                 />
                             ) : (
                                 <div className="absolute inset-0 flex items-center justify-center">

@@ -1,7 +1,6 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import Link from 'next/link'
-import Image from 'next/image'
 import { TbSparkles, TbDownload, TbStar, TbEye } from 'react-icons/tb'
 import { PromptsFilters } from '@/components/prompts/PromptsFilters'
 
@@ -56,11 +55,10 @@ function PromptCard({ prompt }: { prompt: Prompt }) {
                 {/* Image */}
                 <div className="relative aspect-[16/10] overflow-hidden bg-muted">
                     {prompt.coverImage ? (
-                        <Image
+                        <img
                             src={prompt.coverImage}
                             alt={prompt.title}
-                            fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                         />
                     ) : (
                         <div className="flex items-center justify-center h-full">
