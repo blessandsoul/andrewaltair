@@ -48,21 +48,66 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Text is required" }, { status: 400 })
         }
 
+        // --- HYBRID PARSING STRATEGY ---
+        // 1. EXTRACT CODE BLOCK (PROMPT) MANUALLY via Regex
+        // We do this because LLMs (especially smaller ones) struggle to keep code blocks verbatim/untranslated.
+        let promptTemplate = ""
+        let negativePrompt = ""
+        let textForAI = text // We will remove the code block from this to help the AI focus
+
+        const codeBlockRegex = /```(?:markdown|md|txt)?\s*([\s\S]+?)```/i
+        const codeMatch = text.match(codeBlockRegex)
+
+        if (codeMatch) {
+            const codeContent = codeMatch[1].trim()
+
+            // Remove the code block from the text sent to AI to reduce noise
+            textForAI = text.replace(codeMatch[0], '[PROMPT_CODE_BLOCK_EXTRACTED]').trim()
+
+            // Parse content inside code block
+            const negRegex = /--negative_prompt:\s*([\s\S]+?)(?:$|--)/i
+            const negMatch = codeContent.match(negRegex)
+
+            if (negMatch) {
+                negativePrompt = negMatch[1].trim()
+                promptTemplate = codeContent.replace(negRegex, '').trim()
+            } else {
+                promptTemplate = codeContent
+            }
+
+            // Cleanup specific args from prompt body if they linger (optional, but good for cleanliness)
+            promptTemplate = promptTemplate.replace(/--negative_prompt:.*(\n|$)/gi, '').trim()
+        }
+
+        // 2. USE AI ONLY FOR METADATA (Title, Desc, Tags)
+        // We give it the "cleaned" text without the confusion of the prompt block.
         const completion = await client.chat.completions.create({
             model: "llama-3.1-8b-instant",
             messages: [
                 { role: "system", content: SYSTEM_PROMPT },
-                { role: "user", content: text }
+                { role: "user", content: textForAI }
             ],
-            temperature: 0.1, // Low temp for extraction precision
+            temperature: 0.1,
             response_format: { type: "json_object" }
         })
 
         const content = completion.choices[0]?.message?.content
         if (!content) throw new Error("No content from AI")
 
-        const result = JSON.parse(content)
-        return NextResponse.json(result)
+        const aiResult = JSON.parse(content)
+
+        // 3. COMBINE RESULTS
+        // We prefer our Regex extracted prompt over anything the AI might have hallucinated
+        const finalResult = {
+            title: aiResult.title,
+            description: aiResult.description,
+            category: aiResult.category,
+            tags: aiResult.tags,
+            promptTemplate: promptTemplate || aiResult.promptTemplate, // Fallback to AI if regex failed (unlikely)
+            negativePrompt: negativePrompt || aiResult.negativePrompt
+        }
+
+        return NextResponse.json(finalResult)
 
     } catch (error) {
         console.error("Parse API Error:", error)
