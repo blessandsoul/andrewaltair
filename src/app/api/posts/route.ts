@@ -18,6 +18,7 @@ export async function GET(request: Request) {
         const featured = searchParams.get('featured');
         const afterSlug = searchParams.get('afterSlug');
         const trending = searchParams.get('trending');
+        const type = searchParams.get('type');
 
         // Build query
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,6 +42,10 @@ export async function GET(request: Request) {
 
         if (search) {
             query.$text = { $search: search };
+        }
+
+        if (type === 'repository') {
+            query['repository.url'] = { $exists: true };
         }
 
         // Handle keyset pagination via afterSlug

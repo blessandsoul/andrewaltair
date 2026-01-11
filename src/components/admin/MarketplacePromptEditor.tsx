@@ -156,129 +156,153 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
     const [showImportDialog, setShowImportDialog] = React.useState(false)
     const [importText, setImportText] = React.useState("")
 
-    const handleBotImport = async () => {
+    const handleBotImport = () => {
         if (!importText.trim()) {
             error("იმპორტის შეცდომა", "გთხოვთ ჩასვათ ტექსტი იმპორტისთვის")
             return
         }
 
-        console.log("Starting AI Bot Import...")
+        console.log("Starting FAST Regex Import...")
         const newData = { ...data }
 
-        setIsGenerating(true) // Reuse generating state for loader
+        // 1. CLEAN & SPLIT
+        // Normalize newlines and remove BOM
+        const rawText = importText.replace(/\r\n/g, '\n').trim()
+        const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean)
 
-        try {
-            // 1. CALL THE PARSER API
-            const token = localStorage.getItem('auth_token')
-            const parseRes = await fetch('/api/marketplace-prompts/parse', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ text: importText }),
-            })
+        // 2. EXTRACT PROMPT & NEGATIVE (Code Block)
+        const codeBlockRegex = /```(?:markdown|md|txt)?\s*([\s\S]+?)```/i
+        const codeMatch = rawText.match(codeBlockRegex)
+        let promptFound = false
 
-            if (!parseRes.ok) {
-                throw new Error("AI Parsing failed")
+        if (codeMatch) {
+            const codeContent = codeMatch[1].trim()
+
+            // Extract Negative
+            const negRegex = /--negative_prompt:\s*([\s\S]+?)(?:$|--)/i
+            const negMatch = codeContent.match(negRegex)
+
+            if (negMatch) {
+                newData.negativePrompt = negMatch[1].trim()
+                // Remove negative prompt from body
+                newData.promptTemplate = codeContent.replace(negRegex, '').trim()
+            } else {
+                newData.promptTemplate = codeContent
             }
 
-            const parsedData = await parseRes.json()
-            console.log("Parsed Data:", parsedData)
+            // Cleanup args
+            newData.promptTemplate = newData.promptTemplate.replace(/--negative_prompt:.*(\n|$)/gi, '').trim()
+            promptFound = true
+        } else {
+            error("ფორმატის ხარვეზი", "ვერ ვიპოვე კოდის ბლოკი (```) პრომპტისთვის.")
+            return
+        }
 
-            // 2. MAP PARSED DATA TO STATE
-            if (parsedData.title) newData.title = parsedData.title
-            if (parsedData.description) {
-                newData.description = parsedData.description
-                newData.excerpt = parsedData.description.substring(0, 150) + '...'
-            }
+        // 3. PARSE METADATA (Title, Desc, Casts, Tags)
+        // Strategy: Iterate lines and identify based on patterns
 
-            if (parsedData.promptTemplate) newData.promptTemplate = parsedData.promptTemplate
-            if (parsedData.negativePrompt) newData.negativePrompt = parsedData.negativePrompt
+        let titleFound = false
+        let descFound = false
+        let catsFound = false
+        let innerTagsFound = false
 
-            // Merge categories
-            if (parsedData.category && Array.isArray(parsedData.category)) {
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i]
+
+            // Skip code block separators or "How to use" lines
+            if (line.startsWith('```') || line.includes('როგორ მივიღოთ') || line.includes('---')) continue
+
+            // A) CATEGORIES (Look for folder emoji or "Category:")
+            // Example: 📂 **კატეგორია:** 👗 Fashion (მოდა)...
+            if (line.match(/^(📂|📁)?\s*\**\s*(კატეგორია|Category|Категория)/i)) {
+                // Manual strict mapping
+                const lowerLine = line.toLowerCase()
                 const catsToAdd: string[] = []
-                parsedData.category.forEach((catKey: string) => {
-                    // The API returns keys like 'fashion', 'gaming'. 
-                    // We verify they exist in our allowed CATEGORIES list
-                    const match = CATEGORIES.find(c => c.value === catKey)
-                    if (match) catsToAdd.push(match.value)
+
+                CATEGORIES.forEach(cat => {
+                    // Check strict tokens: value 'fashion', label 'მოდა', label 'fashion'
+                    // We split line by comma to avoid false partial matches across words
+                    if (lowerLine.includes(cat.value.toLowerCase()) || lowerLine.includes(cat.label.toLocaleLowerCase())) {
+                        catsToAdd.push(cat.value)
+                    }
                 })
+
                 if (catsToAdd.length > 0) {
                     newData.category = [...new Set([...newData.category, ...catsToAdd])]
+                    catsFound = true
+                }
+                continue
+            }
+
+            // B) TITLE (First significant line OR line with double asterisks `**Title**`)
+            if (!titleFound) {
+                // If line starts with emoji and has **, it's likely a title
+                // Example: ⛷️ **მომავლის ზამთარი...**
+                if (line.includes('**') || i === 0) {
+                    // Clean: remove ** and emojis
+                    let clean = line.replace(/\*\*/g, '')
+                    // Remove leading emojis
+                    clean = clean.replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]\s*/u, '')
+                    newData.title = clean.trim()
+                    titleFound = true
+                    continue
                 }
             }
 
-            // Merge tags
-            if (parsedData.tags && Array.isArray(parsedData.tags)) {
-                newData.tags = [...new Set([...newData.tags, ...parsedData.tags])]
+            // C) DESCRIPTION
+            // Usually follows title. Starts with emoji sometimes. Long text.
+            if (titleFound && !descFound && !catsFound && !line.includes('კატეგორია')) {
+                // Logic: If it's a long line (e.g. > 20 chars) and not the title, it's bio.
+                if (line.length > 20) {
+                    let clean = line.replace(/^\**\s*/, '').replace(/\*\*/g, '')
+                    clean = clean.replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]\s*/u, '')
+                    newData.description = clean.trim()
+                    newData.excerpt = newData.description.substring(0, 150) + '...'
+                    descFound = true
+                    continue
+                }
             }
 
-            // Extract variables from the prompt template (Client-side regex is still fast/good for this)
-            const varRegex = /\[([A-Z0-9_]+)\]/g
-            const matches = [...(newData.promptTemplate || "").matchAll(varRegex)]
-            const foundVars = [...new Set(matches.map(m => m[1]))]
-
-            if (foundVars.length > 0) {
-                const variablesToAdd: PromptVariable[] = foundVars.map(name => ({
-                    name,
-                    description: "",
-                    type: "text",
-                    options: [],
-                    required: true
-                }))
-                const currentNames = newData.variables.map(v => v.name)
-                const uniqueToAdd = variablesToAdd.filter(v => !currentNames.includes(v.name))
-                newData.variables = [...newData.variables, ...uniqueToAdd]
-            }
-
-            // 3. TRIGGER MAGIC FILL (SEO Generation) based on the NEW data
-            // We do this immediately to get the slug and meta tags
-            try {
-                const genRes = await fetch('/api/marketplace-prompts/generate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        title: newData.title,
-                        description: newData.description,
-                        promptTemplate: newData.promptTemplate
-                    }),
-                })
-
-                if (genRes.ok) {
-                    const generated = await genRes.json()
-                    newData.slug = generated.slug || newData.slug
-
-                    // Add AI suggested tags ONLY if we didn't find any in the text
-                    const aiTags = generated.tags || []
-                    if (newData.tags.length === 0) {
-                        newData.tags = aiTags
+            // D) TAGS (Loose list at the bottom usually)
+            // Example: ზამთარი, მოდა, წითელი, მომავალი...
+            if (line.includes(',') && !line.includes('Code:') && !line.includes('Google') && !line.includes('http')) {
+                // If it has many commas (e.g. > 3), it's likely tags
+                if ((line.match(/,/g) || []).length >= 3) {
+                    const items = line.split(/[,،]+/).map(s => s.trim())
+                    // Filter out garbage
+                    const validTags = items.filter(t => t.length > 1 && t.length < 40 && !t.includes('**'))
+                    if (validTags.length > 0) {
+                        newData.tags = [...new Set([...newData.tags, ...validTags])]
+                        innerTagsFound = true
                     }
-
-                    newData.metaTitle = generated.metaTitle || newData.metaTitle
-                    newData.metaDescription = generated.metaDescription || newData.metaDescription
-                    newData.excerpt = generated.excerpt || newData.excerpt
                 }
-            } catch (err) {
-                console.error("Magic Fill error:", err)
             }
-
-            newData.status = 'published'
-            setData(newData)
-            setShowImportDialog(false)
-            setImportText("")
-            success("AI იმპორტი წარმატებულია! 🧠", "ტექსტი გაანალიზდა და მონაცემები შეივსო.")
-
-        } catch (e) {
-            console.error("Import error", e)
-            error("იმპორტი ვერ მოხერხდა", (e as Error).message)
-        } finally {
-            setIsGenerating(false)
         }
+
+        // 4. VARIABLE EXTRACTION (Client Regex)
+        const varRegex = /\[([A-Z0-9_]+)\]/g
+        const matches = [...(newData.promptTemplate || "").matchAll(varRegex)]
+        const foundVars = [...new Set(matches.map(m => m[1]))]
+
+        if (foundVars.length > 0) {
+            const variablesToAdd: PromptVariable[] = foundVars.map(name => ({
+                name,
+                description: "",
+                type: "text",
+                options: [],
+                required: true
+            }))
+            const currentNames = newData.variables.map(v => v.name)
+            const uniqueToAdd = variablesToAdd.filter(v => !currentNames.includes(v.name))
+            newData.variables = [...newData.variables, ...uniqueToAdd]
+        }
+
+        newData.status = 'published'
+
+        setData(newData)
+        setShowImportDialog(false)
+        setImportText("")
+        success("იმპორტი დასრულდა (Fast Mode) ⚡", "მონაცემები ამოღებულია.")
     }
 
     // Auto-Generate Metadata

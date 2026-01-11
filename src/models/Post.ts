@@ -96,6 +96,7 @@ export interface IPost extends Document {
     updatedAt: Date;
     numericId?: string;
     telegramContent?: string;  // Short Telegram version for channel posting
+    repository?: IRepository;  // Optional repository data
 }
 
 const ReactionsSchema = new Schema<IReactions>(
@@ -183,6 +184,39 @@ const PromptDataSchema = new Schema<IPromptData>(
         videoPrompt: { type: String },
         videoResult: { type: String },
         music: { type: String },
+    },
+    { _id: false }
+);
+
+// Repository Data Schema
+export interface IRepository {
+    type: 'github' | 'gitlab' | 'other';
+    url: string;
+    name: string;
+    description: string;
+    stars: number;
+    forks: number;
+    language: string;
+    topics: string[];
+    license?: string;
+}
+
+const RepositorySchema = new Schema<IRepository>(
+    {
+        type: {
+            type: String,
+            enum: ['github', 'gitlab', 'other'],
+            default: 'github',
+            required: true
+        },
+        url: { type: String, required: true },
+        name: { type: String, required: true },
+        description: { type: String },
+        stars: { type: Number, default: 0 },
+        forks: { type: Number, default: 0 },
+        language: { type: String },
+        topics: { type: [String], default: [] },
+        license: { type: String },
     },
     { _id: false }
 );
@@ -306,6 +340,9 @@ const PostSchema = new Schema<IPost>(
         prompts: {
             type: PromptDataSchema,
             default: () => ({}),
+        },
+        repository: {
+            type: RepositorySchema,
         },
         numericId: {
             type: String,

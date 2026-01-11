@@ -22,6 +22,7 @@ export interface Post {
     reactions: Reactions
     featured?: boolean
     trending?: boolean
+    repository?: GitHubRepo
 }
 
 export interface Reactions {
@@ -80,13 +81,15 @@ export interface Tool {
 }
 
 export interface GitHubRepo {
+    type: 'github' | 'gitlab' | 'other'
+    url: string
     name: string
     description: string
-    url: string
     stars: number
     forks: number
     language?: string
     topics?: string[]
+    license?: string
 }
 
 export interface NowItem {
