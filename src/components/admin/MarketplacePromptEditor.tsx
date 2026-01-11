@@ -210,46 +210,64 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
             // Skip garbage
             if (line.includes('როგორ მივიღოთ') || line.includes('---')) continue
 
-            // A) CATEGORIES
-            if (line.match(/(კატეგორია|Category|Категория)/i)) {
-                const lowerLine = line.toLowerCase()
+            // A) CATEGORIES HEADER
+            // New format: 📂 **კატეგორიები** (followed by bullets)
+            if (line.match(/^(📂|📁)?\s*\**\s*(კატეგორიები|კატეგორია|Categories|Category|Категории)/i)) {
+                // If it's the old single-line format: "📂 Category: Fashion, Art"
+                if (line.includes(':') || line.includes(',')) {
+                    const lowerLine = line.toLowerCase()
+                    const catsToAdd: string[] = []
+                    CATEGORIES.forEach(cat => {
+                        const valClean = cat.value.replace(/-/g, ' ')
+                        const labelClean = cat.label.toLowerCase()
+                        if (lowerLine.includes(cat.value.toLowerCase()) || lowerLine.includes(valClean) || lowerLine.includes(labelClean)) {
+                            if (!newData.category.includes(cat.value)) newData.category.push(cat.value)
+                        }
+                    })
+                } else {
+                    // It's a header for a list, enable flag
+                    // (We don't really need a flag if we just look for bullets in general, but let's be safe or just parse bullets generally)
+                }
+                continue
+            }
 
+            // A.1) CATEGORY BULLET ITEMS (e.g. * 🎨 Illustration (ილუსტრაცია))
+            if (line.trim().startsWith('*') || line.trim().startsWith('-')) {
+                const lowerLine = line.toLowerCase()
                 CATEGORIES.forEach(cat => {
-                    // Normalize: "3d-assets" -> "3d assets", "ui-ux" -> "ui ux" or "ui/ux"
                     const valClean = cat.value.replace(/-/g, ' ')
                     const labelClean = cat.label.toLowerCase()
 
-                    // Check various permutations
                     if (
                         lowerLine.includes(cat.value.toLowerCase()) ||
                         lowerLine.includes(valClean) ||
-                        lowerLine.includes(valClean.replace(' ', '')) || // 3dassets
                         lowerLine.includes(labelClean)
                     ) {
                         if (!newData.category.includes(cat.value)) {
                             newData.category.push(cat.value)
+                            catsFound = true
                         }
                     }
                 })
-
-                catsFound = true
-                continue
+                // If we found a category, we continue, otherwise check if it's something else
+                if (catsFound) continue
             }
 
             // B) TITLE
             if (!titleFound) {
-                if (line.includes('**') || i === 0) {
+                if ((line.includes('**') && !line.includes('Cat') && !line.includes('კატეგორია')) || i === 0) {
                     let clean = line.replace(/\*\*/g, '')
-                    // Remove leading emojis/symbols
                     clean = clean.replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]*/u, '')
-                    newData.title = clean.trim()
-                    titleFound = true
-                    continue
+                    if (clean.trim().length > 3) { // Avoid garbage
+                        newData.title = clean.trim()
+                        titleFound = true
+                        continue
+                    }
                 }
             }
 
-            // C) DESCRIPTION (Must be after title)
-            if (titleFound && !descFound && !catsFound && !line.includes('კატეგორია')) {
+            // C) DESCRIPTION
+            if (titleFound && !descFound && !line.includes('კატეგორი') && !line.startsWith('*') && !line.startsWith('#')) {
                 if (line.length > 20) {
                     let clean = line.replace(/^\**\s*/, '').replace(/\*\*/g, '')
                     clean = clean.replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]*/u, '')
@@ -260,21 +278,26 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                 }
             }
 
-            // D) TAGS
-            // Stricter logic: Must contain commas, NOT contain "Code:", NOT contain URL, NOT be a sentence ending in '.', NOT contains 'How to'
+            // D) TAGS (Hashtags style: #tag1 #tag2)
+            if (line.includes('#')) {
+                // Check if line has multiple hashtags
+                const hashtagMatches = line.match(/#[^\s#]+/g)
+                if (hashtagMatches && hashtagMatches.length >= 2) {
+                    const validTags = hashtagMatches.map(t => t.replace('#', '').trim())
+                        .filter(t => t.length > 1 && !t.includes('**'))
+
+                    if (validTags.length > 0) {
+                        newData.tags = [...new Set([...newData.tags, ...validTags])]
+                    }
+                    continue
+                }
+            }
+
+            // D.2) TAGS (Old Comma style fallback)
             if (line.includes(',') && !line.includes('Code:') && !line.includes('Google') && !line.includes('http') && !line.includes('როგორ')) {
-                // If it has >= 2 items
                 if ((line.match(/,/g) || []).length >= 2) {
                     const items = line.split(/[,،]+/).map(s => s.trim())
-                    // Filter: must be short (max 2 words or 30 chars), no **
-                    const validTags = items.filter(t =>
-                        t.length > 2 &&
-                        t.length < 35 &&
-                        !t.includes('**') &&
-                        !t.includes('Maintain') &&
-                        !t.includes('--')
-                    )
-
+                    const validTags = items.filter(t => t.length > 2 && t.length < 35 && !t.includes('**') && !t.includes('--'))
                     if (validTags.length > 0) {
                         newData.tags = [...new Set([...newData.tags, ...validTags])]
                     }
