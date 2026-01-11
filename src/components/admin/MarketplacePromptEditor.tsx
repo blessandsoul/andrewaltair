@@ -211,20 +211,28 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
             if (line.includes('როგორ მივიღოთ') || line.includes('---')) continue
 
             // A) CATEGORIES
-            if (line.match(/^(📂|📁)?\s*\**\s*(კატეგორია|Category|Категория)/i)) {
+            if (line.match(/(კატეგორია|Category|Категория)/i)) {
                 const lowerLine = line.toLowerCase()
-                const catsToAdd: string[] = []
 
                 CATEGORIES.forEach(cat => {
-                    if (lowerLine.includes(cat.value.toLowerCase()) || lowerLine.includes(cat.label.toLocaleLowerCase())) {
-                        catsToAdd.push(cat.value)
+                    // Normalize: "3d-assets" -> "3d assets", "ui-ux" -> "ui ux" or "ui/ux"
+                    const valClean = cat.value.replace(/-/g, ' ')
+                    const labelClean = cat.label.toLowerCase()
+
+                    // Check various permutations
+                    if (
+                        lowerLine.includes(cat.value.toLowerCase()) ||
+                        lowerLine.includes(valClean) ||
+                        lowerLine.includes(valClean.replace(' ', '')) || // 3dassets
+                        lowerLine.includes(labelClean)
+                    ) {
+                        if (!newData.category.includes(cat.value)) {
+                            newData.category.push(cat.value)
+                        }
                     }
                 })
 
-                if (catsToAdd.length > 0) {
-                    newData.category = [...new Set([...newData.category, ...catsToAdd])]
-                    catsFound = true
-                }
+                catsFound = true
                 continue
             }
 
@@ -232,7 +240,8 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
             if (!titleFound) {
                 if (line.includes('**') || i === 0) {
                     let clean = line.replace(/\*\*/g, '')
-                    clean = clean.replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]\s*/u, '')
+                    // Remove leading emojis/symbols
+                    clean = clean.replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]*/u, '')
                     newData.title = clean.trim()
                     titleFound = true
                     continue
@@ -243,7 +252,7 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
             if (titleFound && !descFound && !catsFound && !line.includes('კატეგორია')) {
                 if (line.length > 20) {
                     let clean = line.replace(/^\**\s*/, '').replace(/\*\*/g, '')
-                    clean = clean.replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]\s*/u, '')
+                    clean = clean.replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]*/u, '')
                     newData.description = clean.trim()
                     newData.excerpt = newData.description.substring(0, 150) + '...'
                     descFound = true
@@ -252,17 +261,17 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
             }
 
             // D) TAGS
-            // Stricter logic: Must contain commas, NOT contain "Code:", NOT contain URL, NOT be a sentence ending in '.'
-            if (line.includes(',') && !line.includes('Code:') && !line.includes('Google') && !line.includes('http')) {
-                // If it has >= 3 items
+            // Stricter logic: Must contain commas, NOT contain "Code:", NOT contain URL, NOT be a sentence ending in '.', NOT contains 'How to'
+            if (line.includes(',') && !line.includes('Code:') && !line.includes('Google') && !line.includes('http') && !line.includes('როგორ')) {
+                // If it has >= 2 items
                 if ((line.match(/,/g) || []).length >= 2) {
                     const items = line.split(/[,،]+/).map(s => s.trim())
                     // Filter: must be short (max 2 words or 30 chars), no **
                     const validTags = items.filter(t =>
-                        t.length > 1 &&
-                        t.length < 30 &&
+                        t.length > 2 &&
+                        t.length < 35 &&
                         !t.includes('**') &&
-                        !t.includes('Maintain') && // Specific blacklist based on user screenshot
+                        !t.includes('Maintain') &&
                         !t.includes('--')
                     )
 
