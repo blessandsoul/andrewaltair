@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const SOURCE_IMAGE = path.join(__dirname, 'favicon-source.png');
+const SOURCE_IMAGE = path.join(__dirname, '../public/ai.png');
 const PUBLIC_DIR = path.join(__dirname, '../public');
 
 const TARGETS = [

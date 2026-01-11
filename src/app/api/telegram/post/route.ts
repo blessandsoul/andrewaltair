@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
         // Format message for Telegram (telegramContent already contains title, emojis, and hashtags)
         const message = `${telegramContent}
 
-🔗 [სრულად წაიკითხე](${postUrl})`
+🔗 [სრულად წაკითხვა](${postUrl})`
 
         // Send message to channel
         let result
