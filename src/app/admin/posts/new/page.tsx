@@ -39,7 +39,8 @@ export default function NewPostPage() {
                 videos: post.videos || [],
                 relatedPosts: post.relatedPosts || [],
                 seo: post.seo,
-                telegramContent: post.telegramContent || ''
+                telegramContent: post.telegramContent || '',
+                repository: post.repository
             };
             console.log('Sending Post Payload:', payload);
 

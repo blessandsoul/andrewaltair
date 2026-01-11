@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { TbDeviceFloppy, TbEye, TbX, TbPlus, TbPhoto, TbFileText, TbTag, TbFolder, TbClock, TbStar, TbFlame, TbWorld, TbArrowLeft, TbWand, TbDeviceDesktop, TbDeviceMobile, TbTrash, TbChevronDown, TbChevronUp, TbSparkles, TbUpload, TbLoader2, TbFileCheck, TbLayout, TbCheck, TbArrowUp, TbArrowDown, TbRobot, TbAtom, TbBrandTelegram } from "react-icons/tb"
+import { TbDeviceFloppy, TbEye, TbX, TbPlus, TbPhoto, TbFileText, TbTag, TbFolder, TbClock, TbStar, TbFlame, TbWorld, TbArrowLeft, TbWand, TbDeviceDesktop, TbDeviceMobile, TbTrash, TbChevronDown, TbChevronUp, TbSparkles, TbUpload, TbLoader2, TbFileCheck, TbLayout, TbCheck, TbArrowUp, TbArrowDown, TbRobot, TbAtom, TbBrandTelegram, TbBrandGithub, TbBrandGitlab, TbGitFork, TbCode } from "react-icons/tb"
 // ... (imports remain the same logic, I need to match the line) 
 
 // ...
@@ -101,6 +101,17 @@ export interface PostData {
     }
     telegramContent?: string  // Short version for Telegram channel
     postToTelegram?: boolean  // Toggle for auto-posting to Telegram
+    repository?: {
+        type: 'github' | 'gitlab' | 'other'
+        url: string
+        name: string
+        description: string
+        stars: number
+        forks: number
+        language: string
+        topics: string[]
+        license?: string
+    }
 }
 
 const DEFAULT_POST: PostData = {
@@ -1408,7 +1419,91 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                 </div>
                             </div>
 
-                            {/* Categories (Multi-select with Parent Auto-select) */}
+                            {/* Repository Details (Sidebar) */}
+                            <Card className={`border-2 ${post.repository?.url ? 'border-purple-500/50 bg-purple-500/5' : ''}`}>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-sm flex items-center gap-2">
+                                        <TbBrandGithub className="w-4 h-4 text-purple-500" />
+                                        Repository Data
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="text-xs text-muted-foreground">GitHub/GitLab URL</label>
+                                        <Input
+                                            placeholder="https://github.com/username/repo"
+                                            value={post.repository?.url || ''}
+                                            onChange={(e) => {
+                                                const url = e.target.value;
+                                                setPost(prev => ({
+                                                    ...prev,
+                                                    repository: {
+                                                        type: url.includes('gitlab') ? 'gitlab' : 'other',
+                                                        url,
+                                                        name: url.split('/').pop() || '',
+                                                        description: prev.repository?.description || '',
+                                                        stars: prev.repository?.stars || 0,
+                                                        forks: prev.repository?.forks || 0,
+                                                        language: prev.repository?.language || '',
+                                                        topics: prev.repository?.topics || [],
+                                                        license: prev.repository?.license || ''
+                                                    }
+                                                }))
+                                            }}
+                                            className="text-xs font-mono"
+                                        />
+                                    </div>
+
+                                    {post.repository?.url && (
+                                        <>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <div className="space-y-1">
+                                                    <label className="text-xs text-muted-foreground flex items-center gap-1">
+                                                        <TbStar className="w-3 h-3" /> Stars
+                                                    </label>
+                                                    <Input
+                                                        type="number"
+                                                        value={post.repository.stars}
+                                                        onChange={(e) => setPost(prev => ({
+                                                            ...prev,
+                                                            repository: { ...prev.repository!, stars: parseInt(e.target.value) || 0 }
+                                                        }))}
+                                                        className="text-xs"
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-xs text-muted-foreground flex items-center gap-1">
+                                                        <TbGitFork className="w-3 h-3" /> Forks
+                                                    </label>
+                                                    <Input
+                                                        type="number"
+                                                        value={post.repository.forks}
+                                                        onChange={(e) => setPost(prev => ({
+                                                            ...prev,
+                                                            repository: { ...prev.repository!, forks: parseInt(e.target.value) || 0 }
+                                                        }))}
+                                                        className="text-xs"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <label className="text-xs text-muted-foreground flex items-center gap-1">
+                                                    <TbCode className="w-3 h-3" /> Language
+                                                </label>
+                                                <Input
+                                                    placeholder="TypeScript"
+                                                    value={post.repository.language}
+                                                    onChange={(e) => setPost(prev => ({
+                                                        ...prev,
+                                                        repository: { ...prev.repository!, language: e.target.value }
+                                                    }))}
+                                                    className="text-xs"
+                                                />
+                                            </div>
+                                        </>
+                                    )}
+                                </CardContent>
+                            </Card>
                             <div className="space-y-2">
                                 <label className="text-xs text-muted-foreground">კატეგორიები</label>
                                 <div className="flex flex-col gap-1">
@@ -1523,6 +1618,92 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                     </div>
                                 </div>
                             </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Repository Details (Sidebar) */}
+                    <Card className={post.repository?.url ? "border-purple-500/50 bg-purple-500/5" : ""}>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm flex items-center gap-2">
+                                <TbBrandGithub className="w-4 h-4 text-purple-500" />
+                                Repository Data
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-xs text-muted-foreground">GitHub/GitLab URL</label>
+                                <Input
+                                    placeholder="https://github.com/username/repo"
+                                    value={post.repository?.url || ''}
+                                    onChange={(e) => {
+                                        const url = e.target.value;
+                                        setPost(prev => ({
+                                            ...prev,
+                                            repository: {
+                                                type: url.includes('gitlab') ? 'gitlab' : 'github',
+                                                url,
+                                                name: url.split('/').pop() || '',
+                                                description: prev.repository?.description || '',
+                                                stars: prev.repository?.stars || 0,
+                                                forks: prev.repository?.forks || 0,
+                                                language: prev.repository?.language || '',
+                                                topics: prev.repository?.topics || [],
+                                                license: prev.repository?.license || ''
+                                            }
+                                        }))
+                                    }}
+                                    className="text-xs font-mono"
+                                />
+                            </div>
+
+                            {post.repository?.url && (
+                                <>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div className="space-y-1">
+                                            <label className="text-xs text-muted-foreground flex items-center gap-1">
+                                                <TbStar className="w-3 h-3" /> Stars
+                                            </label>
+                                            <Input
+                                                type="number"
+                                                value={post.repository.stars}
+                                                onChange={(e) => setPost(prev => ({
+                                                    ...prev,
+                                                    repository: { ...prev.repository!, stars: parseInt(e.target.value) || 0 }
+                                                }))}
+                                                className="text-xs"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs text-muted-foreground flex items-center gap-1">
+                                                <TbGitFork className="w-3 h-3" /> Forks
+                                            </label>
+                                            <Input
+                                                type="number"
+                                                value={post.repository.forks}
+                                                onChange={(e) => setPost(prev => ({
+                                                    ...prev,
+                                                    repository: { ...prev.repository!, forks: parseInt(e.target.value) || 0 }
+                                                }))}
+                                                className="text-xs"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-muted-foreground flex items-center gap-1">
+                                            <TbCode className="w-3 h-3" /> Language
+                                        </label>
+                                        <Input
+                                            placeholder="TypeScript"
+                                            value={post.repository.language}
+                                            onChange={(e) => setPost(prev => ({
+                                                ...prev,
+                                                repository: { ...prev.repository!, language: e.target.value }
+                                            }))}
+                                            className="text-xs"
+                                        />
+                                    </div>
+                                </>
+                            )}
                         </CardContent>
                     </Card>
 

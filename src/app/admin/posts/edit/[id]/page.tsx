@@ -51,8 +51,10 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
                             canonicalUrl: "",
                             focusKeyword: "",
                             seoScore: 0,
+                            seoScore: 0,
                             ogImage: ""
-                        }
+                        },
+                        repository: p.repository
                     })
                 } else {
                     alert("პოსტი ვერ მოიძებნა")
@@ -98,7 +100,8 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
                     videos: updatedPost.videos || [],
                     relatedPosts: updatedPost.relatedPosts || [],
                     seo: updatedPost.seo,
-                    telegramContent: updatedPost.telegramContent
+                    telegramContent: updatedPost.telegramContent,
+                    repository: updatedPost.repository
                 })
             })
 

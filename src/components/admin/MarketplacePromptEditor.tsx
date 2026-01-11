@@ -156,7 +156,7 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
     const [showImportDialog, setShowImportDialog] = React.useState(false)
     const [importText, setImportText] = React.useState("")
 
-    const handleBotImport = () => {
+    const handleBotImport = async () => {
         if (!importText.trim()) {
             error("იმპორტის შეცდომა", "გთხოვთ ჩასვათ ტექსტი იმპორტისთვის")
             return
@@ -165,18 +165,18 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
         console.log("Starting FAST Regex Import...")
         const newData = { ...data }
 
-        // 1. CLEAN & SPLIT
-        // Normalize newlines and remove BOM
+        // 1. EXTRACT PROMPT & NEGATIVE (Code Block)
+        // We do this FIRST so we can remove it from the text to avoid polluting tags
         const rawText = importText.replace(/\r\n/g, '\n').trim()
-        const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean)
-
-        // 2. EXTRACT PROMPT & NEGATIVE (Code Block)
         const codeBlockRegex = /```(?:markdown|md|txt)?\s*([\s\S]+?)```/i
         const codeMatch = rawText.match(codeBlockRegex)
-        let promptFound = false
+        let cleanTextForMeta = rawText
 
         if (codeMatch) {
             const codeContent = codeMatch[1].trim()
+
+            // Remove the code block from the text used for metadata
+            cleanTextForMeta = rawText.replace(codeMatch[0], '')
 
             // Extract Negative
             const negRegex = /--negative_prompt:\s*([\s\S]+?)(?:$|--)/i
@@ -192,36 +192,30 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
 
             // Cleanup args
             newData.promptTemplate = newData.promptTemplate.replace(/--negative_prompt:.*(\n|$)/gi, '').trim()
-            promptFound = true
         } else {
             error("ფორმატის ხარვეზი", "ვერ ვიპოვე კოდის ბლოკი (```) პრომპტისთვის.")
             return
         }
 
-        // 3. PARSE METADATA (Title, Desc, Casts, Tags)
-        // Strategy: Iterate lines and identify based on patterns
+        // 2. PARSE METADATA FROM REMAINING TEXT
+        const lines = cleanTextForMeta.split('\n').map(l => l.trim()).filter(Boolean)
 
         let titleFound = false
         let descFound = false
         let catsFound = false
-        let innerTagsFound = false
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i]
 
-            // Skip code block separators or "How to use" lines
-            if (line.startsWith('```') || line.includes('როგორ მივიღოთ') || line.includes('---')) continue
+            // Skip garbage
+            if (line.includes('როგორ მივიღოთ') || line.includes('---')) continue
 
-            // A) CATEGORIES (Look for folder emoji or "Category:")
-            // Example: 📂 **კატეგორია:** 👗 Fashion (მოდა)...
+            // A) CATEGORIES
             if (line.match(/^(📂|📁)?\s*\**\s*(კატეგორია|Category|Категория)/i)) {
-                // Manual strict mapping
                 const lowerLine = line.toLowerCase()
                 const catsToAdd: string[] = []
 
                 CATEGORIES.forEach(cat => {
-                    // Check strict tokens: value 'fashion', label 'მოდა', label 'fashion'
-                    // We split line by comma to avoid false partial matches across words
                     if (lowerLine.includes(cat.value.toLowerCase()) || lowerLine.includes(cat.label.toLocaleLowerCase())) {
                         catsToAdd.push(cat.value)
                     }
@@ -234,14 +228,10 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                 continue
             }
 
-            // B) TITLE (First significant line OR line with double asterisks `**Title**`)
+            // B) TITLE
             if (!titleFound) {
-                // If line starts with emoji and has **, it's likely a title
-                // Example: ⛷️ **მომავლის ზამთარი...**
                 if (line.includes('**') || i === 0) {
-                    // Clean: remove ** and emojis
                     let clean = line.replace(/\*\*/g, '')
-                    // Remove leading emojis
                     clean = clean.replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]\s*/u, '')
                     newData.title = clean.trim()
                     titleFound = true
@@ -249,10 +239,8 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                 }
             }
 
-            // C) DESCRIPTION
-            // Usually follows title. Starts with emoji sometimes. Long text.
+            // C) DESCRIPTION (Must be after title)
             if (titleFound && !descFound && !catsFound && !line.includes('კატეგორია')) {
-                // Logic: If it's a long line (e.g. > 20 chars) and not the title, it's bio.
                 if (line.length > 20) {
                     let clean = line.replace(/^\**\s*/, '').replace(/\*\*/g, '')
                     clean = clean.replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]\s*/u, '')
@@ -263,23 +251,29 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                 }
             }
 
-            // D) TAGS (Loose list at the bottom usually)
-            // Example: ზამთარი, მოდა, წითელი, მომავალი...
+            // D) TAGS
+            // Stricter logic: Must contain commas, NOT contain "Code:", NOT contain URL, NOT be a sentence ending in '.'
             if (line.includes(',') && !line.includes('Code:') && !line.includes('Google') && !line.includes('http')) {
-                // If it has many commas (e.g. > 3), it's likely tags
-                if ((line.match(/,/g) || []).length >= 3) {
+                // If it has >= 3 items
+                if ((line.match(/,/g) || []).length >= 2) {
                     const items = line.split(/[,،]+/).map(s => s.trim())
-                    // Filter out garbage
-                    const validTags = items.filter(t => t.length > 1 && t.length < 40 && !t.includes('**'))
+                    // Filter: must be short (max 2 words or 30 chars), no **
+                    const validTags = items.filter(t =>
+                        t.length > 1 &&
+                        t.length < 30 &&
+                        !t.includes('**') &&
+                        !t.includes('Maintain') && // Specific blacklist based on user screenshot
+                        !t.includes('--')
+                    )
+
                     if (validTags.length > 0) {
                         newData.tags = [...new Set([...newData.tags, ...validTags])]
-                        innerTagsFound = true
                     }
                 }
             }
         }
 
-        // 4. VARIABLE EXTRACTION (Client Regex)
+        // 3. VARIABLE EXTRACTION (Client Regex)
         const varRegex = /\[([A-Z0-9_]+)\]/g
         const matches = [...(newData.promptTemplate || "").matchAll(varRegex)]
         const foundVars = [...new Set(matches.map(m => m[1]))]
@@ -299,10 +293,51 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
 
         newData.status = 'published'
 
+        // 4. SET DATA INSTANTLY (UI Updates now)
         setData(newData)
         setShowImportDialog(false)
         setImportText("")
-        success("იმპორტი დასრულდა (Fast Mode) ⚡", "მონაცემები ამოღებულია.")
+        success("იმპორტი დასრულდა ⚡", "მონაცემები ამოღებულია.")
+
+        // 5. ASYNC SEO FILL (Background)
+        // Only run if we are missing key SEO fields to avoid overwriting if user manually entered them (unlikely here but good practice)
+        // Actually, for a fresh import, we always want to generate SLUG at least.
+        const token = localStorage.getItem('auth_token')
+        setIsGenerating(true)
+        console.log("Triggering Background SEO Gen...")
+
+        try {
+            const genRes = await fetch('/api/marketplace-prompts/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    title: newData.title,
+                    description: newData.description,
+                    promptTemplate: newData.promptTemplate
+                }),
+            })
+
+            if (genRes.ok) {
+                const generated = await genRes.json()
+
+                setData(current => ({
+                    ...current,
+                    slug: current.slug || generated.slug, // Only if empty
+                    metaTitle: current.metaTitle || generated.metaTitle,
+                    metaDescription: current.metaDescription || generated.metaDescription,
+                    excerpt: current.excerpt || generated.excerpt,
+                    // DO NOT TOUCH TAGS - User specific request
+                }))
+                success("SEO მონაცემები შეავსო AI-მ ✨", "Slug და Meta Tags დაემატა.")
+            }
+        } catch (e) {
+            console.error("Background SEO Gen failed", e)
+        } finally {
+            setIsGenerating(false)
+        }
     }
 
     // Auto-Generate Metadata
