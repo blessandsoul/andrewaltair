@@ -23,7 +23,6 @@ export function PromptsFilters({ categories, aiModels }: FilterProps) {
     }
 
     return (
-    return (
         <div className="w-full flex flex-col sm:flex-row flex-wrap gap-4 items-center justify-between p-1">
             {/* Left Side: Filters */}
             <div className="flex flex-wrap gap-3 w-full sm:w-auto">

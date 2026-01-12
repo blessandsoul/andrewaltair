@@ -1,5 +1,5 @@
 
-import { parseRepositoryPost } from '../src/lib/RepositoryParser.ts';
+import { parseRepositoryPost } from '../src/lib/RepositoryParser';
 
 const rawText = `
 **icloud_photos_downloader**
