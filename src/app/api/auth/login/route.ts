@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import crypto from 'crypto';
 import User from '@/models/User';
@@ -47,7 +47,12 @@ function clearAttempts(ip: string) {
     loginAttempts.delete(ip);
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+    // 🛡️ CSRF PROTECTION
+    const { requireCSRF } = await import('@/lib/csrf');
+    const csrfError = requireCSRF(request);
+    if (csrfError) return csrfError;
+
     // 🛡️ Rate limit check
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0] ||
         request.headers.get('x-real-ip') || 'unknown';

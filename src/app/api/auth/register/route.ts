@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
@@ -10,8 +10,13 @@ if (!JWT_SECRET) {
     throw new Error('JWT_SECRET environment variable is required');
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     try {
+        // 🛡️ CSRF PROTECTION
+        const { requireCSRF } = await import('@/lib/csrf');
+        const csrfError = requireCSRF(request);
+        if (csrfError) return csrfError;
+
         await dbConnect();
 
         const { username, email, password, fullName } = await request.json();

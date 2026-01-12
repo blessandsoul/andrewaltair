@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { TbSparkles, TbArrowsShuffle, TbRefresh, TbLoader2, TbEye, TbLock } from "react-icons/tb"
 
@@ -41,6 +42,7 @@ interface TarotCardsProps {
 }
 
 export function TarotCards({ isPremium = false }: TarotCardsProps) {
+    const { csrfToken } = useAuth()
     const [selectedCards, setSelectedCards] = useState<typeof TAROT_CARDS[number][]>([])
     const [isShuffling, setIsShuffling] = useState(false)
     const [isRevealing, setIsRevealing] = useState(false)
@@ -74,7 +76,10 @@ export function TarotCards({ isPremium = false }: TarotCardsProps) {
             try {
                 const response = await fetch("/api/mystic/tarot", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-csrf-token": csrfToken || ""
+                    },
                     body: JSON.stringify({
                         cards: selectedCards.map(c => c.name),
                         spreadType,
@@ -135,8 +140,8 @@ export function TarotCards({ isPremium = false }: TarotCardsProps) {
                                 <button
                                     onClick={() => setSpreadType('three')}
                                     className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${spreadType === 'three'
-                                            ? 'bg-indigo-600 text-white'
-                                            : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                                        ? 'bg-indigo-600 text-white'
+                                        : 'bg-white/5 text-gray-400 hover:bg-white/10'
                                         }`}
                                 >
                                     3 კარტი
@@ -145,8 +150,8 @@ export function TarotCards({ isPremium = false }: TarotCardsProps) {
                                     onClick={() => setSpreadType('celtic')}
                                     disabled={!isPremium}
                                     className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${spreadType === 'celtic'
-                                            ? 'bg-indigo-600 text-white'
-                                            : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                                        ? 'bg-indigo-600 text-white'
+                                        : 'bg-white/5 text-gray-400 hover:bg-white/10'
                                         } ${!isPremium ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
                                     {!isPremium && <TbLock className="w-3 h-3" />}
@@ -188,8 +193,8 @@ export function TarotCards({ isPremium = false }: TarotCardsProps) {
                                             onClick={() => handleRevealCard(index)}
                                             disabled={isRevealed}
                                             className={`aspect-[2/3] rounded-lg sm:rounded-xl transition-all duration-500 ${isRevealed
-                                                    ? 'bg-gradient-to-br from-indigo-600/20 to-violet-600/20 border border-indigo-500/30'
-                                                    : 'bg-gradient-to-br from-indigo-900 to-violet-900 hover:scale-105 cursor-pointer border border-indigo-500/50'
+                                                ? 'bg-gradient-to-br from-indigo-600/20 to-violet-600/20 border border-indigo-500/30'
+                                                : 'bg-gradient-to-br from-indigo-900 to-violet-900 hover:scale-105 cursor-pointer border border-indigo-500/50'
                                                 }`}
                                         >
                                             <div className="w-full h-full flex flex-col items-center justify-center p-1 sm:p-2">

@@ -18,20 +18,32 @@ function getNumberMeaning(num: number): string {
 
 export async function POST(request: NextRequest) {
     try {
+        // 🛡️ CSRF PROTECTION
+        const { requireCSRF } = await import('@/lib/csrf');
+        const csrfError = requireCSRF(request);
+        if (csrfError) return csrfError;
+
         const client = getClient()
         const { fullName, birthDate, lifePath, destiny, soul, personality } = await request.json()
 
-        if (!fullName || !birthDate) {
-            return NextResponse.json({ error: "Name and birth date are required" }, { status: 400 })
+        // 🛡️ API VALIDATION & SANITIZATION
+        const { validateAIInput, sanitizeAIInput, sanitizeAIResponse } = await import('@/lib/prompt-sanitizer');
+
+        const nameValidation = validateAIInput(fullName, 'სახელი', 2, 100);
+        if (!nameValidation.valid) {
+            return NextResponse.json({ error: nameValidation.error }, { status: 400 });
         }
+
+        const safeFullName = sanitizeAIInput(fullName, { maxLength: 100, allowSpecialChars: false });
+        const safeBirthDate = sanitizeAIInput(birthDate, { maxLength: 20, allowSpecialChars: false });
 
         const currentYear = new Date().getFullYear()
         const personalYear = ((currentYear % 10) + lifePath) % 9 || 9
 
         const prompt = `შენ ხარ ნუმეროლოგიის ექსპერტი, რომელსაც საუკუნეოვანი ცოდნა აქვს რიცხვების ენერგიის შესახებ.
 
-მომხმარებლის სახელი: "${fullName}"
-დაბადების თარიღი: ${birthDate}
+მომხმარებლის სახელი: "${safeFullName}"
+დაბადების თარიღი: ${safeBirthDate}
 
 გამოთვლილი რიცხვები:
 - სიცოცხლის გზა: ${lifePath} (${getNumberMeaning(lifePath)})
@@ -71,12 +83,17 @@ export async function POST(request: NextRequest) {
         })
 
         const content = response.choices[0]?.message?.content || ""
+        const safeContent = sanitizeAIResponse(content);
 
         try {
-            const jsonMatch = content.match(/\{[\s\S]*\}/)
+            const jsonMatch = safeContent.match(/\{[\s\S]*\}/)
             if (jsonMatch) {
                 const parsed = JSON.parse(jsonMatch[0])
-                return NextResponse.json(parsed)
+
+                return NextResponse.json({
+                    interpretation: sanitizeAIResponse(parsed.interpretation || ''),
+                    yearForecast: sanitizeAIResponse(parsed.yearForecast || '')
+                })
             }
         } catch {
             // Parsing failed

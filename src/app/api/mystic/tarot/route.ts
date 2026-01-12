@@ -12,18 +12,29 @@ function getClient() {
 
 export async function POST(request: NextRequest) {
     try {
+        // 🛡️ CSRF PROTECTION
+        const { requireCSRF } = await import('@/lib/csrf');
+        const csrfError = requireCSRF(request);
+        if (csrfError) return csrfError;
+
         const client = getClient()
         const { cards, spreadType = 'three' } = await request.json()
+
+        // 🛡️ API VALIDATION & SANITIZATION
+        const { sanitizeAIInput, sanitizeAIResponse } = await import('@/lib/prompt-sanitizer');
 
         if (!cards || !Array.isArray(cards) || cards.length === 0) {
             return NextResponse.json({ error: "Cards are required" }, { status: 400 })
         }
 
+        // Sanitize card names
+        const safeCards = cards.map(card => sanitizeAIInput(card, { maxLength: 50, allowSpecialChars: false }));
+
         const spreadPrompt = TAROT_RULES.spreads[spreadType as keyof typeof TAROT_RULES.spreads] || TAROT_RULES.spreads.three
 
         const prompt = `შენ ხარ უძველესი ტაროს მკითხავი, რომელიც საუკუნეებით დაგროვილ სიბრძნეს ფლობს.
 
-გამოცხადებული კარტები (თანმიმდევრობით): ${cards.join(', ')}
+გამოცხადებული კარტები (თანმიმდევრობით): ${safeCards.join(', ')}
 
 ${spreadPrompt}
 
@@ -58,15 +69,16 @@ ${spreadPrompt}
         })
 
         const content = response.choices[0]?.message?.content || ""
+        const safeContent = sanitizeAIResponse(content);
 
         try {
-            const jsonMatch = content.match(/\{[\s\S]*\}/)
+            const jsonMatch = safeContent.match(/\{[\s\S]*\}/)
             if (jsonMatch) {
                 const parsed = JSON.parse(jsonMatch[0])
                 return NextResponse.json({
-                    cards,
-                    interpretation: parsed.interpretation,
-                    advice: parsed.advice
+                    cards: safeCards,
+                    interpretation: sanitizeAIResponse(parsed.interpretation || ''),
+                    advice: sanitizeAIResponse(parsed.advice || '')
                 })
             }
         } catch {

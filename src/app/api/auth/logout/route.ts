@@ -10,6 +10,11 @@ if (!JWT_SECRET) {
 
 export async function POST(request: NextRequest) {
     try {
+        // 🛡️ CSRF PROTECTION
+        const { requireCSRF } = await import('@/lib/csrf');
+        const csrfError = requireCSRF(request);
+        if (csrfError) return csrfError;
+
         const authHeader = request.headers.get('authorization');
 
         if (!authHeader || !authHeader.startsWith('Bearer ')) {

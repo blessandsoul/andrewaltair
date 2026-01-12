@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
+import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { TbMessage, TbSend, TbLoader2, TbSparkles, TbUser, TbRobot, TbTrash } from "react-icons/tb"
@@ -18,6 +19,7 @@ interface MysticChatProps {
 }
 
 export function MysticChat({ userName, zodiacSign }: MysticChatProps) {
+    const { csrfToken } = useAuth()
     const [messages, setMessages] = useState<Message[]>([])
     const [input, setInput] = useState("")
     const [isLoading, setIsLoading] = useState(false)
@@ -63,7 +65,10 @@ export function MysticChat({ userName, zodiacSign }: MysticChatProps) {
         try {
             const response = await fetch("/api/mystic/chat", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-csrf-token": csrfToken || ""
+                },
                 body: JSON.stringify({
                     message: userMessage.content,
                     history: messages.slice(-10).map(m => ({ role: m.role, content: m.content })),
@@ -154,8 +159,8 @@ export function MysticChat({ userName, zodiacSign }: MysticChatProps) {
                             )}
                             <div
                                 className={`max-w-[80%] p-3 rounded-2xl text-sm leading-relaxed ${message.role === 'user'
-                                        ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white rounded-br-sm'
-                                        : 'bg-white/5 text-gray-300 rounded-bl-sm border border-white/5'
+                                    ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white rounded-br-sm'
+                                    : 'bg-white/5 text-gray-300 rounded-bl-sm border border-white/5'
                                     }`}
                             >
                                 {message.content}

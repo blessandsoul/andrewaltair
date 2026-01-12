@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { TbHash, TbSparkles, TbRefresh, TbLoader2, TbCalendar, TbUser, TbHeart, TbStar } from "react-icons/tb"
@@ -81,6 +82,7 @@ const NUMBER_MEANINGS: Record<number, { title: string; traits: string }> = {
 }
 
 export function Numerology() {
+    const { csrfToken } = useAuth()
     const [fullName, setFullName] = useState("")
     const [birthDate, setBirthDate] = useState("")
     const [result, setResult] = useState<NumerologyResult | null>(null)
@@ -97,7 +99,10 @@ export function Numerology() {
         try {
             const response = await fetch("/api/mystic/numerology", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-csrf-token": csrfToken || ""
+                },
                 body: JSON.stringify({ fullName, birthDate, lifePath, destiny, soul, personality }),
             })
 

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { TbStar, TbHeart, TbBriefcase, TbActivity, TbRefresh, TbCalendar, TbLoader2 } from "react-icons/tb"
 
@@ -27,6 +28,7 @@ interface HoroscopeResult {
 }
 
 export function Horoscope() {
+    const { csrfToken } = useAuth()
     const [selectedSign, setSelectedSign] = useState<typeof ZODIAC_SIGNS[0] | null>(null)
     const [horoscope, setHoroscope] = useState<HoroscopeResult | null>(null)
     const [isLoading, setIsLoading] = useState(false)
@@ -38,7 +40,10 @@ export function Horoscope() {
         try {
             const response = await fetch("/api/mystic/horoscope", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-csrf-token": csrfToken || ""
+                },
                 body: JSON.stringify({ sign: sign.id, signName: sign.name }),
             })
 

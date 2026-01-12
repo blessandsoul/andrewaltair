@@ -38,6 +38,11 @@ function getClient() {
 
 export async function POST(request: NextRequest) {
     try {
+        // 🛡️ CSRF PROTECTION
+        const { requireCSRF } = await import('@/lib/csrf');
+        const csrfError = requireCSRF(request);
+        if (csrfError) return csrfError;
+
         // 🛡️ AUTHENTICATION REQUIRED
         const user = await getUserFromRequest(request);
         if (!user) {
@@ -59,17 +64,15 @@ export async function POST(request: NextRequest) {
         const client = getClient()
         const { dream } = await request.json()
 
-        if (!dream) {
-            return NextResponse.json({ error: "Dream description is required" }, { status: 400 })
+        // 🛡️ API VALIDATION & SANITIZATION
+        const { validateAIInput, sanitizeAIInput, sanitizeAIResponse } = await import('@/lib/prompt-sanitizer');
+
+        const dreamValidation = validateAIInput(dream, 'სიზმარი', 10, 2000);
+        if (!dreamValidation.valid) {
+            return NextResponse.json({ error: dreamValidation.error }, { status: 400 });
         }
 
-        // 🛡️ Validate dream length
-        if (dream.length < 10 || dream.length > 2000) {
-            return NextResponse.json(
-                { error: "სიზმრის აღწერა უნდა იყოს 10-2000 სიმბოლო" },
-                { status: 400 }
-            );
-        }
+        const safeDream = sanitizeAIInput(dream, { maxLength: 2000, allowNewlines: true });
 
         const school = pickRandom(DREAM_RULES.schools)
         const focus = pickRandom(DREAM_RULES.focuses)
@@ -77,7 +80,7 @@ export async function POST(request: NextRequest) {
         const prompt = `შენ ხარ სიზმრების ოსტატი და ფსიქოანალიტიკოსი.
 
 მომხმარებლის სიზმარი:
-"${dream}"
+"${safeDream}"
 
 ინტერპრეტაციის მიდგომა: ${school} სკოლის პერსპექტივით
 ფოკუსი: ${focus}
@@ -113,11 +116,23 @@ export async function POST(request: NextRequest) {
         })
 
         const content = response.choices[0]?.message?.content || ""
+        const safeContent = sanitizeAIResponse(content);
 
         try {
-            const jsonMatch = content.match(/\{[\s\S]*\}/)
+            const jsonMatch = safeContent.match(/\{[\s\S]*\}/)
             if (jsonMatch) {
                 const parsed = JSON.parse(jsonMatch[0])
+
+                // Sanitize parsed content recursively
+                if (parsed.symbols && Array.isArray(parsed.symbols)) {
+                    parsed.symbols = parsed.symbols.map((s: any) => ({
+                        word: sanitizeAIResponse(s.word || ''),
+                        meaning: sanitizeAIResponse(s.meaning || ''),
+                        category: sanitizeAIResponse(s.category || '')
+                    }));
+                }
+                parsed.generalMessage = sanitizeAIResponse(parsed.generalMessage || '');
+
                 return NextResponse.json(parsed)
             }
         } catch {

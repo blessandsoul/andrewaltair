@@ -44,6 +44,11 @@ function getZodiacTrait(sign: string): string | undefined {
 
 export async function POST(request: NextRequest) {
     try {
+        // 🛡️ CSRF PROTECTION
+        const { requireCSRF } = await import('@/lib/csrf');
+        const csrfError = requireCSRF(request);
+        if (csrfError) return csrfError;
+
         // 🛡️ AUTHENTICATION REQUIRED
         const user = await getUserFromRequest(request);
         if (!user) {
@@ -65,24 +70,23 @@ export async function POST(request: NextRequest) {
         const client = getClient()
         const { message, history = [], userName, zodiacSign } = await request.json()
 
-        if (!message) {
-            return NextResponse.json({ error: "Message is required" }, { status: 400 })
+        // 🛡️ API VALIDATION & SANITIZATION
+        const { validateAIInput, sanitizeAIInput, sanitizeAIResponse } = await import('@/lib/prompt-sanitizer');
+
+        const messageValidation = validateAIInput(message, 'შეტყობინება', 1, 1000);
+        if (!messageValidation.valid) {
+            return NextResponse.json({ error: messageValidation.error }, { status: 400 });
         }
 
-        // 🛡️ Validate message length
-        if (message.length > 1000) {
-            return NextResponse.json(
-                { error: "შეტყობინება ძალიან გრძელია (მაქს. 1000 სიმბოლო)" },
-                { status: 400 }
-            );
-        }
+        const safeMessage = sanitizeAIInput(message, { maxLength: 1000 });
+        const safeUserName = userName ? sanitizeAIInput(userName, { maxLength: 50, allowSpecialChars: false }) : '';
 
         const zodiacTrait = zodiacSign ? getZodiacTrait(zodiacSign) : undefined
         const zodiacContext = zodiacTrait
             ? `მომხმარებელი ${zodiacSign} ნიშნის ქვეშ არის დაბადებული - ${zodiacTrait}.`
             : ""
 
-        const userContext = userName ? `მომხმარებლის სახელია ${userName}.` : ""
+        const userContext = safeUserName ? `მომხმარებლის სახელია ${safeUserName}.` : ""
 
         // Добавляем динамический контекст к централизованному системному промпту
         const fullSystemPrompt = `${CHAT_RULES.systemPrompt}
@@ -90,13 +94,16 @@ export async function POST(request: NextRequest) {
 ${userContext}
 ${zodiacContext}`
 
+        // Sanitize history to prevent injection via history
+        const safeHistory = history.map((m: { role: string; content: string }) => ({
+            role: m.role as 'user' | 'assistant',
+            content: sanitizeAIInput(m.content, { maxLength: 1000 })
+        }));
+
         const messages = [
             { role: "system" as const, content: fullSystemPrompt },
-            ...history.slice(-8).map((m: { role: string; content: string }) => ({
-                role: m.role as 'user' | 'assistant',
-                content: m.content
-            })),
-            { role: "user" as const, content: message }
+            ...safeHistory.slice(-8),
+            { role: "user" as const, content: safeMessage }
         ]
 
         const response = await client.chat.completions.create({
@@ -108,7 +115,10 @@ ${zodiacContext}`
 
         const content = response.choices[0]?.message?.content || "ვარსკვლავები დროებით დადუმდნენ... გთხოვ სცადო ხელახლა."
 
-        return NextResponse.json({ response: content })
+        // 🛡️ Sanitize Response
+        const safeContent = sanitizeAIResponse(content);
+
+        return NextResponse.json({ response: safeContent })
 
     } catch (error) {
         console.error("Mystic Chat API error:", error)

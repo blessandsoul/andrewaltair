@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { TbHistory, TbSparkles, TbMoon, TbHeart, TbStar, TbHash, TbRefresh, TbTrash, TbShare, TbChevronRight, TbLoader2 } from "react-icons/tb"
 
@@ -57,9 +58,16 @@ export function MysticHistory() {
         return sessionId
     }
 
+    const { csrfToken } = useAuth()
+
     const handleDelete = async (id: string) => {
         try {
-            const response = await fetch(`/api/mystic/history?id=${id}`, { method: 'DELETE' })
+            const response = await fetch(`/api/mystic/history?id=${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'x-csrf-token': csrfToken || ''
+                }
+            })
             if (response.ok) {
                 setHistory(prev => prev.filter(item => item.id !== id))
                 if (selectedItem?.id === id) setSelectedItem(null)

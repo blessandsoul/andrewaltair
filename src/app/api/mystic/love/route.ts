@@ -13,6 +13,11 @@ function getClient() {
 
 export async function POST(request: NextRequest) {
     try {
+        // 🛡️ CSRF PROTECTION
+        const { requireCSRF } = await import('@/lib/csrf');
+        const csrfError = requireCSRF(request);
+        if (csrfError) return csrfError;
+
         // 🛡️ AUTHENTICATION & RATE LIMITING
         const { user, error } = await protectMysticEndpoint(request, 'love');
         if (error) return error;

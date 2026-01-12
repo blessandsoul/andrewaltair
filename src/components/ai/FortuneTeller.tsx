@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { TbSparkles, TbStar, TbRefresh, TbPalette, TbHash, TbCalendar, TbLoader2 } from "react-icons/tb"
@@ -13,6 +14,7 @@ interface FortunePrediction {
 }
 
 export function FortuneTeller() {
+    const { csrfToken } = useAuth()
     const [name, setName] = useState("")
     const [birthDate, setBirthDate] = useState("")
     const [result, setResult] = useState<FortunePrediction | null>(null)
@@ -26,7 +28,10 @@ export function FortuneTeller() {
         try {
             const response = await fetch("/api/mystic/fortune", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-csrf-token": csrfToken || ""
+                },
                 body: JSON.stringify({ name, birthDate }),
             })
 

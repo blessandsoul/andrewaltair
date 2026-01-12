@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { TbHeart, TbRefresh, TbShare, TbSparkles, TbLoader2 } from "react-icons/tb"
@@ -12,6 +13,7 @@ interface LoveResult {
 }
 
 export function LoveCalculator() {
+    const { csrfToken } = useAuth()
     const [name1, setName1] = useState("")
     const [name2, setName2] = useState("")
     const [result, setResult] = useState<LoveResult | null>(null)
@@ -25,7 +27,10 @@ export function LoveCalculator() {
         try {
             const response = await fetch("/api/mystic/love", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-csrf-token": csrfToken || ""
+                },
                 body: JSON.stringify({ name1, name2 }),
             })
 

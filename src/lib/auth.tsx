@@ -37,6 +37,7 @@ interface AuthContextType {
     canEdit: boolean
     token: string | null
     updateUser: (user: User) => void
+    csrfToken: string | null
 }
 
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined)
@@ -45,12 +46,20 @@ const AuthContext = React.createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = React.useState<User | null>(null)
     const [token, setToken] = React.useState<string | null>(null)
+    const [csrfToken, setCsrfToken] = React.useState<string | null>(null)
     const [isLoading, setIsLoading] = React.useState(true)
 
-    // Load user on mount (token is in httpOnly cookie)
+    // Load user and CSRF token on mount
     React.useEffect(() => {
-        const loadUser = async () => {
+        const loadAuth = async () => {
             try {
+                // Fetch CSRF token
+                const csrfRes = await fetch("/api/csrf")
+                if (csrfRes.ok) {
+                    const csrfData = await csrfRes.json()
+                    setCsrfToken(csrfData.csrfToken)
+                }
+
                 // Token automatically sent via cookie
                 const response = await fetch("/api/auth/me", {
                     // credentials: 'include' is default for same-origin, but explicit doesn't hurt if using cross-origin later
@@ -61,13 +70,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     setUser(data.user)
                 }
             } catch (error) {
-                console.error('Failed to load user:', error)
+                console.error('Failed to load auth:', error)
             } finally {
                 setIsLoading(false)
             }
         }
 
-        loadUser()
+        loadAuth()
     }, [])
 
     const login = async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
@@ -75,7 +84,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const response = await fetch("/api/auth/login", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "x-csrf-token": csrfToken || ""
                 },
                 body: JSON.stringify({ username, password })
             })
@@ -100,7 +110,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const response = await fetch("/api/auth/register", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "x-csrf-token": csrfToken || ""
                 },
                 body: JSON.stringify(data)
             })
@@ -122,12 +133,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const updateUser = (userData: User) => {
         setUser(userData)
-        localStorage.setItem("auth_user", JSON.stringify(userData))
+        // localStorage.setItem("auth_user", JSON.stringify(userData)) - REMOVED for security
     }
 
     const logout = async () => {
         try {
-            await fetch("/api/auth/logout", { method: "POST" })
+            await fetch("/api/auth/logout", {
+                method: "POST",
+                headers: {
+                    "x-csrf-token": csrfToken || ""
+                }
+            })
         } catch (e) {
             console.error(e)
         }
@@ -146,7 +162,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const canEdit = user?.role === "god" || user?.role === "admin" || user?.role === "editor"
 
     return (
-        <AuthContext.Provider value={{ user, isLoading, login, register, logout, isGod, isAdmin, canEdit, token, updateUser }}>
+        <AuthContext.Provider value={{ user, isLoading, login, register, logout, isGod, isAdmin, canEdit, token, updateUser, csrfToken }}>
             {children}
         </AuthContext.Provider>
     )

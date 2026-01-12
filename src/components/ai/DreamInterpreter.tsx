@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { TbMoon, TbStar, TbRefresh, TbSparkles, TbTree, TbWalk, TbPaw, TbHome, TbUser, TbLoader2 } from "react-icons/tb"
 
@@ -25,6 +26,7 @@ const categoryIcons: Record<string, { icon: typeof TbStar; color: string }> = {
 }
 
 export function DreamInterpreter() {
+    const { csrfToken } = useAuth()
     const [dreamText, setDreamText] = useState("")
     const [result, setResult] = useState<DreamResult | null>(null)
     const [isInterpreting, setIsInterpreting] = useState(false)
@@ -37,7 +39,10 @@ export function DreamInterpreter() {
         try {
             const response = await fetch("/api/mystic/dream", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-csrf-token": csrfToken || ""
+                },
                 body: JSON.stringify({ dream: dreamText }),
             })
 

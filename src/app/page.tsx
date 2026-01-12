@@ -225,8 +225,7 @@ export default async function Home() {
       {/* Dynamic Layout Section - User can switch between 4 layouts */}
       <HomeLayoutSwitcher posts={postsData} videos={videosData} />
 
-      {/* Dynamic Layout Section - User can switch between 4 layouts */}
-      <HomeLayoutSwitcher posts={postsData} videos={videosData} />
+
 
       {/* Latest Prompts Section */}
       <section className="py-20 lg:py-24 bg-muted/20 border-t border-b border-border/50">
