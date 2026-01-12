@@ -164,6 +164,41 @@ export async function GET(request: NextRequest) {
             })
         }
 
+        // Search Marketplace Prompts
+        if (!type || type === "prompts") {
+            const MarketplacePrompt = (await import("@/models/MarketplacePrompt")).default;
+
+            // Check if query is numeric ID
+            const isNumericId = /^\d+$/.test(query);
+
+            const promptQuery = {
+                status: "published",
+                $or: [
+                    { title: regex },
+                    { description: regex },
+                    { tags: regex },
+                    ...(isNumericId ? [{ numericId: query }] : [])
+                ]
+            };
+
+            const prompts = await MarketplacePrompt.find(promptQuery)
+                .limit(limit)
+                .select("title slug description coverImage category numericId price currency isFree")
+                .lean();
+
+            prompts.forEach(p => {
+                results.push({
+                    type: "prompt",
+                    id: p._id.toString(),
+                    title: p.title,
+                    description: p.description.substring(0, 100) + "...",
+                    url: `/prompts/${p.slug}`,
+                    image: p.coverImage,
+                    category: p.category[0] || "General"
+                });
+            });
+        }
+
         return NextResponse.json({
             results,
             total: results.length,

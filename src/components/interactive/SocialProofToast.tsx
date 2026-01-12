@@ -283,7 +283,7 @@ export function SocialProofToast({ enabled = true }: { enabled?: boolean }) {
                                     </div>
                                 ) : (
                                     <Image
-                                        src={toast.avatarUrl || '/avatar-placeholder.png'}
+                                        src={toast.avatarUrl || '/logo.png'}
                                         alt={toast.displayName}
                                         width={44}
                                         height={44}

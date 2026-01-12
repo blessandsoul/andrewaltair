@@ -1,6 +1,6 @@
 'use client'
 
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import Image from "next/image"
 import { TbDownload, TbShoppingCart, TbStar, TbEye, TbCheck } from "react-icons/tb"
 import { Button } from "@/components/ui/button"
@@ -28,14 +28,14 @@ export function PromptQuickView({ prompt, isOpen, onClose }: PromptQuickViewProp
                             className="object-cover"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-6 md:hidden">
-                            <h2 className="text-white font-bold text-xl">{prompt.title}</h2>
+                            <DialogTitle className="text-white font-bold text-xl">{prompt.title}</DialogTitle>
                         </div>
                     </div>
 
                     {/* Details Side */}
                     <div className="p-6 flex flex-col h-full bg-card overflow-y-auto">
                         <div className="mb-6 hidden md:block">
-                            <h2 className="text-2xl font-bold mb-2">{prompt.title}</h2>
+                            <DialogTitle className="text-2xl font-bold mb-2">{prompt.title}</DialogTitle>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <Badge variant="outline">{prompt.category}</Badge>
                                 <span className="flex items-center gap-1">
