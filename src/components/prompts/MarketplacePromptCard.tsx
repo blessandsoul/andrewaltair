@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
 import { PromptQuickView } from './PromptQuickView'
-import { PromptHoverCard } from './PromptHoverCard'
+import { PromptImagesPopup } from './PromptImagesPopup'
 import { formatId } from '@/lib/id-format'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
@@ -77,7 +77,7 @@ interface PromptCardProps {
 }
 
 export default function MarketplacePromptCard({ prompt }: PromptCardProps) {
-    const [isHovered, setIsHovered] = useState(false)
+    const [showImagesPopup, setShowImagesPopup] = useState(false)
     const [copied, setCopied] = useState(false)
     const [showQuickView, setShowQuickView] = useState(false)
 
@@ -87,6 +87,12 @@ export default function MarketplacePromptCard({ prompt }: PromptCardProps) {
         : typeof prompt.category === 'string'
             ? (prompt.category as string).split(',').map((c: string) => c.trim())
             : []
+
+    // Prepare all images for the popup
+    const allImages = [
+        prompt.coverImage,
+        ...(prompt.exampleImages?.map((img: any) => img.src) || [])
+    ].filter(Boolean)
 
     const handleCopy = (e: React.MouseEvent) => {
         e.preventDefault()
@@ -137,20 +143,20 @@ export default function MarketplacePromptCard({ prompt }: PromptCardProps) {
     const isTrending = prompt.views > 1000
 
     return (
-        <div
-            className="block h-full group relative"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
+        <div className="block h-full group relative">
             <Link href={`/prompts/${prompt.slug}`} className="block h-full">
                 <Card className="h-full flex flex-col overflow-hidden bg-card/50 backdrop-blur-sm border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg relative">
 
-                    {/* Rich Hover Overlay */}
-                    <PromptHoverCard prompt={prompt} isVisible={isHovered} />
-
                     {/* Image Container */}
                     <CardHeader className="p-0">
-                        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                        <div
+                            className="relative aspect-[4/3] overflow-hidden bg-muted"
+                            onMouseEnter={() => setShowImagesPopup(true)}
+                            onMouseLeave={() => setShowImagesPopup(false)}
+                        >
+                            {/* The Popup - Only appears here */}
+                            <PromptImagesPopup images={allImages} isVisible={showImagesPopup} />
+
                             {prompt.coverImage ? (
                                 <Image
                                     src={prompt.coverImage}
@@ -165,13 +171,13 @@ export default function MarketplacePromptCard({ prompt }: PromptCardProps) {
                                 </div>
                             )}
 
-                            {/* Overlay Gradient on Hover */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
+                            {/* Overlay Gradient on Hover (Standard CSS hover allowed) */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
                             {/* Top Badges */}
-                            <div className="absolute top-3 left-3 right-3 flex justify-between items-start z-10">
+                            <div className="absolute top-3 left-3 right-3 flex justify-between items-start z-10 pointer-events-none">
                                 <div className="flex flex-col gap-2">
-                                    <Badge variant="secondary" className="bg-black/60 text-white border-white/10 hover:bg-black/70 backdrop-blur-md gap-1.5 pl-2">
+                                    <Badge variant="secondary" className="bg-black/60 text-white border-white/10 backdrop-blur-md gap-1.5 pl-2">
                                         {getTypeIcon()}
                                         {getTypeLabel()}
                                     </Badge>
@@ -190,35 +196,35 @@ export default function MarketplacePromptCard({ prompt }: PromptCardProps) {
                                     )}
 
                                     {isTrending && (
-                                        <Badge className="bg-orange-500 hover:bg-orange-600 text-white border-none gap-1 pl-1.5 animate-pulse">
+                                        <Badge className="bg-orange-500 text-white border-none gap-1 pl-1.5 animate-pulse">
                                             <TbFlame className="w-3 h-3 fill-white" />
                                             TOP
                                         </Badge>
                                     )}
 
                                     {isNew && (
-                                        <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white border-none gap-1 pl-1.5">
+                                        <Badge className="bg-emerald-500 text-white border-none gap-1 pl-1.5">
                                             <TbSparkles className="w-3 h-3 fill-white" />
                                             NEW
                                         </Badge>
                                     )}
 
                                     {isBestSeller && !isTrending && (
-                                        <Badge className="bg-blue-500 hover:bg-blue-600 text-white border-none gap-1 pl-1.5">
+                                        <Badge className="bg-blue-500 text-white border-none gap-1 pl-1.5">
                                             <TbCertificate className="w-3 h-3 fill-white" />
                                             BEST
                                         </Badge>
                                     )}
                                 </div>
 
-                                <div className="flex gap-2">
+                                <div className="flex gap-2 pointer-events-auto">
                                     <Button
                                         size="icon"
                                         variant="secondary"
                                         className={`
                                         h-8 w-8 rounded-lg bg-black/60 text-white hover:bg-white hover:text-black border border-white/10 backdrop-blur-md
                                         transition-all duration-300
-                                        ${isHovered ? 'translate-y-0 opacity-100' : '-translate-y-2 opacity-0'}
+                                        ${showImagesPopup ? '-translate-y-2 opacity-0' : 'translate-y-0 opacity-100'} 
                                         ${copied ? 'bg-green-500 hover:bg-green-600 text-white' : ''}
                                     `}
                                         onClick={handleCopy}
