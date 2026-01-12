@@ -1,5 +1,6 @@
 import { authenticator } from 'otplib'
 import * as QRCode from 'qrcode'
+import bcrypt from 'bcryptjs'
 
 // Configure authenticator
 authenticator.options = {
@@ -55,35 +56,56 @@ export function verifyTOTP(token: string, secret: string): boolean {
 
 /**
  * Generate backup codes (one-time use)
+ * Format: XXXX-XXXX (8 characters with dash for readability)
  */
 export function generateBackupCodes(count: number = 8): string[] {
-    const codes: string[] = []
+    const codes: string[] = [];
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed ambiguous chars like I, O, 0, 1
+
     for (let i = 0; i < count; i++) {
-        // Generate 8-character alphanumeric codes
         const code = Array.from({ length: 8 }, () =>
-            'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random() * 36)]
-        ).join('')
-        codes.push(code)
+            chars[Math.floor(Math.random() * chars.length)]
+        ).join('');
+
+        // Format as XXXX-XXXX for readability
+        const formatted = `${code.slice(0, 4)}-${code.slice(4)}`;
+        codes.push(formatted);
     }
-    return codes
+
+    return codes;
 }
 
 /**
- * Hash backup codes for storage (simple hash for now)
+ * Hash backup codes for secure storage
+ * Uses bcrypt with salt rounds of 10
  */
-export function hashBackupCode(code: string): string {
-    // In production, use bcrypt or similar
-    return Buffer.from(code).toString('base64')
+export async function hashBackupCode(code: string): Promise<string> {
+    const normalizedCode = code.toUpperCase().replace(/\s/g, '');
+    const salt = await bcrypt.genSalt(10);
+    return bcrypt.hash(normalizedCode, salt);
 }
 
 /**
  * Verify a backup code against stored hashes
+ * Returns the index of the matched code for removal
  */
-export function verifyBackupCode(code: string, hashedCodes: string[]): { valid: boolean; index: number } {
-    const hashedInput = hashBackupCode(code.toUpperCase().replace(/\s/g, ''))
-    const index = hashedCodes.indexOf(hashedInput)
-    return {
-        valid: index !== -1,
-        index,
+export async function verifyBackupCode(
+    code: string,
+    hashedCodes: string[]
+): Promise<{ valid: boolean; index: number }> {
+    const normalizedCode = code.toUpperCase().replace(/\s/g, '');
+
+    for (let i = 0; i < hashedCodes.length; i++) {
+        try {
+            const isMatch = await bcrypt.compare(normalizedCode, hashedCodes[i]);
+            if (isMatch) {
+                return { valid: true, index: i };
+            }
+        } catch (error) {
+            console.error('Backup code verification error:', error);
+            continue;
+        }
     }
+
+    return { valid: false, index: -1 };
 }

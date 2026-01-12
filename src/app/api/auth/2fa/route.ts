@@ -101,7 +101,7 @@ export async function PUT(request: NextRequest) {
 
             // Generate backup codes
             const backupCodes = generateBackupCodes()
-            const hashedCodes = backupCodes.map(hashBackupCode)
+            const hashedCodes = await Promise.all(backupCodes.map(code => hashBackupCode(code)))
 
             user.twoFactorEnabled = true
             user.backupCodes = hashedCodes
@@ -147,7 +147,7 @@ export async function PUT(request: NextRequest) {
 
             // If not valid, try backup codes
             if (!isValid && user.backupCodes) {
-                const backupResult = verifyBackupCode(token, user.backupCodes)
+                const backupResult = await verifyBackupCode(token, user.backupCodes)
                 if (backupResult.valid) {
                     // Remove used backup code
                     user.backupCodes.splice(backupResult.index, 1)

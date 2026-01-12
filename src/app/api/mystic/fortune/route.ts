@@ -1,7 +1,7 @@
 import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
 import { AI_CONFIG, FORTUNE_RULES, pickRandom, parseAIResponse } from "@/lib/mystic-rules"
-import { protectMysticEndpoint, validateInputLength } from "@/lib/mystic-auth"
+import { protectMysticEndpoint } from "@/lib/mystic-auth"
 
 // Lazy initialization to avoid build-time errors
 function getClient() {
@@ -20,13 +20,27 @@ export async function POST(request: NextRequest) {
         const client = getClient()
         const { name, birthDate } = await request.json()
 
-        if (!name) {
-            return NextResponse.json({ error: "Name is required" }, { status: 400 })
+        // 🛡️ Validate input (using new sanitizer lib)
+        const { validateAIInput, sanitizeAIInput, sanitizeAIResponse } = await import('@/lib/prompt-sanitizer');
+
+        const nameValidation = validateAIInput(name, 'სახელი', 2, 100);
+        if (!nameValidation.valid) {
+            return NextResponse.json(
+                { error: nameValidation.error },
+                { status: 400 }
+            );
         }
 
-        // 🛡️ Validate input length
-        const lengthError = validateInputLength(name, 'სახელი', 2, 100);
-        if (lengthError) return lengthError;
+        // Sanitize inputs
+        const safeName = sanitizeAIInput(name, {
+            maxLength: 100,
+            allowNewlines: false,
+            allowSpecialChars: false
+        });
+
+        const safeBirthDate = birthDate
+            ? sanitizeAIInput(birthDate, { maxLength: 20, allowSpecialChars: false })
+            : '';
 
         const style = pickRandom(FORTUNE_RULES.styles)
         const theme = pickRandom(FORTUNE_RULES.themes)
@@ -34,7 +48,7 @@ export async function POST(request: NextRequest) {
 
         const prompt = `შენ ხარ უძველესი მისტიკოსი და წინასწარმეტყველი. დღეს არის ${currentDate}.
 
-მომხმარებლის სახელი: "${name}"${birthDate ? `\nდაბადების თარიღი: ${birthDate}` : ""}
+მომხმარებლის სახელი: "${safeName}"${safeBirthDate ? `\nდაბადების თარიღი: ${safeBirthDate}` : ""}
 
 შექმენი **უნიკალური** და **პერსონალური** წინასწარმეტყველება ${style}.
 ფოკუსირდი თემაზე: ${theme}.
@@ -71,11 +85,19 @@ export async function POST(request: NextRequest) {
 
         const content = response.choices[0]?.message?.content || ""
 
+        // Sanitize AI response
+        const safeContent = sanitizeAIResponse(content);
+
         try {
-            const jsonMatch = content.match(/\{[\s\S]*\}/)
+            const jsonMatch = safeContent.match(/\{[\s\S]*\}/)
             if (jsonMatch) {
                 const parsed = JSON.parse(jsonMatch[0])
-                return NextResponse.json(parsed)
+                return NextResponse.json({
+                    prediction: sanitizeAIResponse(parsed.prediction || ''),
+                    luckyColor: sanitizeAIResponse(parsed.luckyColor || ''),
+                    luckyNumber: sanitizeAIResponse(parsed.luckyNumber || ''),
+                    luckyDay: sanitizeAIResponse(parsed.luckyDay || '')
+                })
             }
         } catch {
             // If parsing fails, return structured fallback

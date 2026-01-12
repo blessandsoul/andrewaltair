@@ -78,7 +78,7 @@ async function getVideos() {
     return []
   }
 }
-}
+
 
 // Fetch latest prompts directly from MongoDB
 async function getLatestPrompts() {

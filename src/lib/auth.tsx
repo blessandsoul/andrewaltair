@@ -47,42 +47,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [token, setToken] = React.useState<string | null>(null)
     const [isLoading, setIsLoading] = React.useState(true)
 
-    // Load user from localStorage on mount
+    // Load user on mount (token is in httpOnly cookie)
     React.useEffect(() => {
         const loadUser = async () => {
-            const savedToken = localStorage.getItem("auth_token")
-            const savedUser = localStorage.getItem("auth_user")
+            try {
+                // Token automatically sent via cookie
+                const response = await fetch("/api/auth/me", {
+                    // credentials: 'include' is default for same-origin, but explicit doesn't hurt if using cross-origin later
+                })
 
-            if (savedToken && savedUser) {
-                try {
-                    // Verify token is still valid
-                    const response = await fetch("/api/auth/me", {
-                        headers: {
-                            "Authorization": `Bearer ${savedToken}`
-                        }
-                    })
-
-                    if (response.ok) {
-                        const data = await response.json()
-                        setUser(data.user)
-                        setToken(savedToken)
-                    } else {
-                        // Token invalid, clear storage
-                        localStorage.removeItem("auth_token")
-                        localStorage.removeItem("auth_user")
-                    }
-                } catch {
-                    // On error, try to use cached user
-                    try {
-                        setUser(JSON.parse(savedUser))
-                        setToken(savedToken)
-                    } catch {
-                        localStorage.removeItem("auth_token")
-                        localStorage.removeItem("auth_user")
-                    }
+                if (response.ok) {
+                    const data = await response.json()
+                    setUser(data.user)
                 }
+            } catch (error) {
+                console.error('Failed to load user:', error)
+            } finally {
+                setIsLoading(false)
             }
-            setIsLoading(false)
         }
 
         loadUser()
@@ -105,9 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
 
             setUser(data.user)
-            setToken(data.token)
-            localStorage.setItem("auth_token", data.token)
-            localStorage.setItem("auth_user", JSON.stringify(data.user))
+            // Token is now in httpOnly cookie, no need to store it
 
             return { success: true }
         } catch {
@@ -132,9 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
 
             setUser(result.user)
-            setToken(result.token)
-            localStorage.setItem("auth_token", result.token)
-            localStorage.setItem("auth_user", JSON.stringify(result.user))
+            // Token is in cookie now
 
             return { success: true }
         } catch {
@@ -147,11 +125,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem("auth_user", JSON.stringify(userData))
     }
 
-    const logout = () => {
+    const logout = async () => {
+        try {
+            await fetch("/api/auth/logout", { method: "POST" })
+        } catch (e) {
+            console.error(e)
+        }
         setUser(null)
         setToken(null)
+        // Cleanup legacy items if present
         localStorage.removeItem("auth_token")
         localStorage.removeItem("auth_user")
+
+        // Force reload to clear all state
+        window.location.href = '/'
     }
 
     const isGod = user?.role === "god"

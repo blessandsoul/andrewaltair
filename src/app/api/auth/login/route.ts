@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/db';
+import crypto from 'crypto';
 import User from '@/models/User';
 import Session from '@/models/Session';
 
@@ -99,14 +99,14 @@ export async function POST(request: Request) {
             );
         }
 
-        // Email verification disabled - allow login without verification
-        // if (!user.isEmailVerified) {
-        //     return NextResponse.json({
-        //         error: 'გთხოვთ დაადასტუროთ თქვენი ელ-ფოსტა',
-        //         requiresVerification: true,
-        //         email: user.email
-        //     }, { status: 403 });
-        // }
+        // Email verification check
+        if (!user.isEmailVerified) {
+            return NextResponse.json({
+                error: 'გთხოვთ დაადასტუროთ თქვენი ელ-ფოსტა',
+                requiresVerification: true,
+                email: user.email
+            }, { status: 403 });
+        }
 
         // Verify password
         const isMatch = await user.comparePassword(password);
@@ -132,7 +132,7 @@ export async function POST(request: Request) {
             // Verify 2FA code
             const { verifyTOTP } = await import('@/lib/totp');
             const userWithSecret = await User.findById(user._id).select('+twoFactorSecret');
-            
+
             if (!userWithSecret?.twoFactorSecret) {
                 return NextResponse.json(
                     { error: '2FA კონფიგურაცია არასწორია' },
@@ -141,7 +141,7 @@ export async function POST(request: Request) {
             }
 
             const isValid = verifyTOTP(twoFactorCode, userWithSecret.twoFactorSecret);
-            
+
             if (!isValid) {
                 recordFailedAttempt(ip);
                 return NextResponse.json(
@@ -158,12 +158,13 @@ export async function POST(request: Request) {
         user.lastLogin = new Date();
         await user.save();
 
-        // Generate JWT token
-        const token = jwt.sign(
-            { userId: user._id, role: user.role },
-            JWT_SECRET!,
-            { expiresIn: '7d' }
-        );
+        // Generate JWT token using secure config
+        const { signToken } = await import('@/lib/jwt-config');
+        const token = signToken({
+            userId: user._id,
+            role: user.role,
+            sessionId: crypto.randomBytes(16).toString('hex')
+        });
 
         // Create session record for tracking
         const userAgent = request.headers.get('user-agent') || ''
@@ -190,11 +191,21 @@ export async function POST(request: Request) {
             createdAt: user.createdAt.toISOString(),
         };
 
-        return NextResponse.json({
+        const response = NextResponse.json({
             success: true,
-            user: userData,
-            token,
+            user: userData
         });
+
+        // ✅ Set httpOnly cookie
+        response.cookies.set('auth_token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
+            path: '/'
+        });
+
+        return response;
     } catch (error) {
         console.error('Login error:', error);
         // Return more details in development
