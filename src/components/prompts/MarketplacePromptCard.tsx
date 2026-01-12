@@ -85,7 +85,7 @@ export default function MarketplacePromptCard({ prompt }: PromptCardProps) {
                 whileHover={{ y: -5 }}
                 onHoverStart={() => setIsHovered(true)}
                 onHoverEnd={() => setIsHovered(false)}
-                className="group relative h-full flex flex-col overflow-hidden rounded-2xl border bg-card/50 hover:bg-card hover:border-primary/50 transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-primary/5"
+                className="group relative h-full flex flex-col overflow-hidden rounded-2xl border border-border/40 bg-card/30 backdrop-blur-sm hover:bg-card hover:border-primary/50 transition-all duration-300 shadow-lg shadow-black/5 hover:shadow-2xl hover:shadow-primary/10"
             >
                 {/* Image Container */}
                 <div className="relative aspect-[4/3] overflow-hidden bg-muted">
@@ -165,39 +165,42 @@ export default function MarketplacePromptCard({ prompt }: PromptCardProps) {
                 </div>
 
                 {/* Content */}
-                <div className="p-4 flex flex-col flex-grow space-y-3">
-                    <div className="space-y-1">
+                <div className="p-5 flex flex-col flex-grow space-y-4">
+                    <div className="space-y-2">
                         <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
-                            <span className="px-2 py-0.5 rounded bg-muted/50 border border-border/50">
+                            <span className="px-2 py-0.5 rounded-md bg-secondary/50 border border-border/50">
                                 {prompt.category}
                             </span>
                         </div>
-                        <h3 className="font-bold text-lg leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                        <h3 className="font-bold text-lg leading-snug group-hover:text-primary transition-colors line-clamp-2">
                             {prompt.title}
                         </h3>
 
                         {/* Author Trust Badge */}
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <span>by Andrew Altair</span>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1">
+                            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-[8px] text-white font-bold">
+                                AA
+                            </div>
+                            <span>Andrew Altair</span>
                             <TbCertificate className="w-3.5 h-3.5 text-blue-400" />
                         </div>
                     </div>
 
                     {/* Stats Footer */}
-                    <div className="mt-auto pt-3 border-t border-border/50 flex items-center justify-between text-xs text-muted-foreground">
+                    <div className="mt-auto pt-4 border-t border-border/30 flex items-center justify-between text-xs text-muted-foreground">
                         <div className="flex items-center gap-3">
-                            <span className="flex items-center gap-1.5" title="ნახვები">
-                                <TbEye className="w-3.5 h-3.5" />
+                            <span className="flex items-center gap-1.5 hover:text-foreground transition-colors" title="ნახვები">
+                                <TbEye className="w-4 h-4 opacity-70" />
                                 {prompt.views || 0}
                             </span>
-                            <span className="flex items-center gap-1.5" title={prompt.isFree ? "ჩამოტვირთვები" : "გაყიდვები"}>
-                                <TbDownload className="w-3.5 h-3.5" />
+                            <span className="flex items-center gap-1.5 hover:text-foreground transition-colors" title={prompt.isFree ? "ჩამოტვირთვები" : "გაყიდვები"}>
+                                <TbDownload className="w-4 h-4 opacity-70" />
                                 {prompt.isFree ? (prompt.downloads || 0) : (prompt.purchases || 0)}
                             </span>
                         </div>
 
                         {(prompt.rating || 0) > 0 && (
-                            <span className="flex items-center gap-1 text-amber-500 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded">
+                            <span className="flex items-center gap-1 text-amber-500 font-bold bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
                                 <TbStar className="w-3.5 h-3.5 fill-current" />
                                 {(prompt.rating || 0).toFixed(1)}
                             </span>

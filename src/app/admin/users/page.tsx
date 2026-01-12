@@ -109,8 +109,10 @@ export default function UsersPage() {
 
             try {
                 const res = await fetch('/api/users?limit=100', {
-                    headers
+                    headers,
+                    credentials: 'include' // 🍪 Ensure cookies are sent!
                 })
+
                 if (res.ok) {
                     const data = await res.json()
                     const formattedUsers = (data.users || []).map((u: { id?: string; username?: string; email?: string; role?: string; lastLogin?: string; status?: string; twoFA?: boolean; createdAt?: string; sessions?: number; fullName?: string }) => ({
@@ -125,6 +127,9 @@ export default function UsersPage() {
                         sessions: u.sessions || 0
                     }))
                     setUsers(formattedUsers)
+                } else {
+                    console.error('Failed to fetch users:', res.status, res.statusText)
+                    // Optional: Show a toast or error state here
                 }
             } catch (error) {
                 console.error('Error fetching users:', error)

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { TbSparkles, TbVideo, TbPhoto, TbFileDescription, TbArrowRight } from 'react-icons/tb'
 import { PromptsFilters } from '@/components/prompts/PromptsFilters'
 import { PromptsTagsCloud } from '@/components/prompts/PromptsTagsCloud'
+import { PromptsSearch } from '@/components/prompts/PromptsSearch'
 import MarketplacePromptCard from '@/components/prompts/MarketplacePromptCard'
 
 export const metadata: Metadata = {
@@ -134,26 +135,40 @@ export default async function PromptsPage({
     return (
         <div className="min-h-screen">
             {/* Hero */}
-            <section className="relative py-16 lg:py-24 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5">
-                    <div className="absolute inset-0 noise-overlay"></div>
-                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            {/* Hero Section */}
+            <section className="relative pt-24 pb-32 lg:pt-32 lg:pb-40 overflow-hidden">
+                {/* Background Effects */}
+                <div className="absolute inset-0 z-0">
+                    <div className="absolute inset-0 bg-background/90 z-10" />
+                    <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-20 z-0" />
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-primary/20 rounded-full blur-[120px] opacity-50 animate-pulse" />
+                    <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-accent/10 rounded-full blur-[100px] opacity-30" />
                 </div>
 
-                <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-                    <div className="text-center max-w-3xl mx-auto">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-                            <TbSparkles className="w-4 h-4" />
-                            AI Prompts Marketplace
+                <div className="container relative z-20 mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+                    <div className="text-center max-w-4xl mx-auto space-y-8">
+                        {/* Badge */}
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold uppercase tracking-wider mb-4 backdrop-blur-sm">
+                            <TbSparkles className="w-3.5 h-3.5" />
+                            Premium Prompts Marketplace
                         </div>
-                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-                            მაღალხარისხიანი <span className="text-gradient">AI პრომპტები</span>
+
+                        {/* Title */}
+                        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-foreground">
+                            აღმოაჩინე <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-accent animate-gradient">საუკეთესო AI პრომპტები</span>
                         </h1>
-                        <p className="text-xl text-muted-foreground mb-8">
-                            პროფესიონალური პრომპტები Gemini, Midjourney, DALL-E და სხვა AI მოდელებისთვის.
-                            შექმენით საოცარი კონტენტი რამდენიმე წამში.
+
+                        <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                            პროფესიონალური პრომპტები Gemini, Midjourney, DALL-E და სხვა მოდელებისთვის.
+                            დაზოგე დრო და მიიღე უკეთესი შედეგი.
                         </p>
+
+                        {/* Search Component */}
+                        <div className="pt-4">
+                            <PromptsSearch />
+                        </div>
+
+                        {/* Quick Stats or Trust Indicators could go here */}
                     </div>
                 </div>
             </section>

@@ -33,6 +33,9 @@ async function verifyAdmin(request: Request) {
 // GET - List all users (admin only)
 export async function GET(request: Request) {
     try {
+        console.time('UsersAPI:Total');
+
+        console.time('UsersAPI:Auth');
         let admin = await verifyAdmin(request);
 
         // If not authenticated as User (JWT), try Admin Panel Session (Cookie)
@@ -43,6 +46,7 @@ export async function GET(request: Request) {
                 admin = { userId: 'admin-panel', role: 'admin' };
             }
         }
+        console.timeEnd('UsersAPI:Auth');
 
         if (!admin) {
             return NextResponse.json(
@@ -51,7 +55,9 @@ export async function GET(request: Request) {
             );
         }
 
+        console.time('UsersAPI:DBConnect');
         await dbConnect();
+        console.timeEnd('UsersAPI:DBConnect');
 
         const { searchParams } = new URL(request.url);
         const role = searchParams.get('role');
@@ -75,20 +81,26 @@ export async function GET(request: Request) {
             ];
         }
 
+        console.time('UsersAPI:Count');
         const total = await User.countDocuments(query);
+        console.timeEnd('UsersAPI:Count');
 
+        console.time('UsersAPI:Find');
         const users = await User.find(query)
             .select('-password')
             .sort({ createdAt: -1 })
             .skip((page - 1) * limit)
             .limit(limit)
             .lean();
+        console.timeEnd('UsersAPI:Find');
 
         const transformedUsers = users.map(user => ({
             ...user,
             id: user._id.toString(),
             _id: undefined,
         }));
+
+        console.timeEnd('UsersAPI:Total');
 
         return NextResponse.json({
             users: transformedUsers,

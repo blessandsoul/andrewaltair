@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 import { motion } from "framer-motion"
 import { TbTag } from "react-icons/tb"
+import { useRouter } from "next/navigation"
 
 const POPULAR_TAGS = [
     "Cyberpunk", "Realistic", "Anime", "3D Render", "Logo Design",
@@ -11,40 +12,46 @@ const POPULAR_TAGS = [
 ]
 
 export function PromptsTagsCloud() {
+    const router = useRouter() // Ensure imports!
+
+    const handleTagClick = (tag: string) => {
+        const url = new URL(window.location.href)
+        url.searchParams.set('search', tag)
+        router.push(url.pathname + url.search)
+    }
+
     return (
-        <div className="w-full overflow-hidden">
-            <div className="flex items-center gap-2 mb-3">
+        <div className="w-full overflow-hidden py-2">
+            <div className="flex items-center gap-2 mb-4 px-1">
                 <TbTag className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Popular Tags</span>
+                <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Trending Topics</span>
             </div>
 
             <div className="relative group">
                 {/* Fade edges */}
-                <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-                <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+                <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+                <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
 
-                <div className="flex overflow-x-auto gap-2 pb-4 scrollbar-hide mask-linear">
+                <div className="flex overflow-x-auto gap-3 pb-4 px-4 scrollbar-hide mask-linear">
                     {POPULAR_TAGS.map((tag, i) => (
-                        <motion.div
+                        <motion.button
                             key={tag}
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: i * 0.05 }}
+                            onClick={() => handleTagClick(tag)}
+                            className="
+                                group/tag relative px-4 py-2 rounded-xl
+                                bg-card/50 backdrop-blur-sm border border-border/50
+                                hover:border-primary/50 hover:bg-primary/5
+                                transition-all duration-300
+                                text-sm font-medium text-muted-foreground hover:text-primary
+                                whitespace-nowrap flex items-center gap-2
+                            "
                         >
-                            <Badge
-                                variant="secondary"
-                                className="px-4 py-1.5 text-sm font-normal cursor-pointer hover:bg-primary hover:text-white transition-colors whitespace-nowrap border-border/50 hover:border-primary"
-                                onClick={() => {
-                                    // In a real app, this would toggle a filter
-                                    const url = new URL(window.location.href)
-                                    url.searchParams.set('search', tag)
-                                    window.history.pushState({}, '', url.toString())
-                                    window.location.reload() // Simple reload for now
-                                }}
-                            >
-                                #{tag}
-                            </Badge>
-                        </motion.div>
+                            <span className="opacity-50 text-xs">#</span>
+                            {tag}
+                        </motion.button>
                     ))}
                 </div>
             </div>

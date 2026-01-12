@@ -24,15 +24,23 @@ if (!global.mongoose) {
 
 async function dbConnect(): Promise<typeof mongoose> {
     if (cached.conn) {
+        // console.log('Using cached MongoDB connection');
         return cached.conn;
     }
 
     if (!cached.promise) {
         const opts = {
             bufferCommands: false,
+            // Optimization for local development to avoid IPv6 delays
+            family: 4,
+            serverSelectionTimeoutMS: 5000,
         };
 
+        console.log('Creating new MongoDB connection...');
+        console.time('MongooseConnect');
         cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+            console.timeEnd('MongooseConnect');
+            console.log('MongoDB Connected successfully');
             return mongoose;
         });
     }
@@ -41,6 +49,7 @@ async function dbConnect(): Promise<typeof mongoose> {
         cached.conn = await cached.promise;
     } catch (e) {
         cached.promise = null;
+        console.error('MongoDB Connection Error:', e);
         throw e;
     }
 
