@@ -100,13 +100,16 @@ export default function UsersPage() {
     React.useEffect(() => {
         async function fetchUsers() {
             const token = getAuthToken()
-            if (!token) {
-                setIsLoading(false)
-                return
+
+            // Allow fetching even without token (using Admin Session Cookie)
+            const headers: Record<string, string> = {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
             }
+
             try {
                 const res = await fetch('/api/users?limit=100', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers
                 })
                 if (res.ok) {
                     const data = await res.json()

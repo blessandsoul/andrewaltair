@@ -33,7 +33,16 @@ async function verifyAdmin(request: Request) {
 // GET - List all users (admin only)
 export async function GET(request: Request) {
     try {
-        const admin = await verifyAdmin(request);
+        let admin = await verifyAdmin(request);
+
+        // If not authenticated as User (JWT), try Admin Panel Session (Cookie)
+        if (!admin) {
+            const { verifyAdmin: verifyAdminSession } = await import('@/lib/admin-auth');
+            if (verifyAdminSession(request)) {
+                // Create a mock admin object to satisfy the check
+                admin = { userId: 'admin-panel', role: 'admin' };
+            }
+        }
 
         if (!admin) {
             return NextResponse.json(
@@ -102,7 +111,15 @@ export async function GET(request: Request) {
 // POST - Create a new user (admin only)
 export async function POST(request: Request) {
     try {
-        const admin = await verifyAdmin(request);
+        let admin = await verifyAdmin(request);
+
+        // If not authenticated as User (JWT), try Admin Panel Session (Cookie)
+        if (!admin) {
+            const { verifyAdmin: verifyAdminSession } = await import('@/lib/admin-auth');
+            if (verifyAdminSession(request)) {
+                admin = { userId: 'admin-panel', role: 'admin' };
+            }
+        }
 
         if (!admin) {
             return NextResponse.json(
