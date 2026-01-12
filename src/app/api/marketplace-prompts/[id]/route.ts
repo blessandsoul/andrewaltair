@@ -50,6 +50,25 @@ export async function GET(request: NextRequest, { params }: Params) {
             result.negativePrompt = result.negativePrompt ? result.negativePrompt.substring(0, 50) + '...' : '';
         }
 
+        // Backfill numericId if missing
+        if (!prompt.numericId) {
+            let numericId: string | undefined;
+            let attempts = 0;
+            while (!numericId && attempts < 5) {
+                const potentialId = Math.floor(100000 + Math.random() * 900000).toString();
+                const existing = await MarketplacePrompt.findOne({ numericId: potentialId });
+                if (!existing) {
+                    numericId = potentialId;
+                }
+                attempts++;
+            }
+            if (numericId) {
+                await MarketplacePrompt.updateOne({ _id: prompt._id }, { numericId });
+                // @ts-ignore
+                result.numericId = numericId;
+            }
+        }
+
         return NextResponse.json({ prompt: result });
     } catch (error) {
         console.error('Get marketplace prompt error:', error);

@@ -249,10 +249,6 @@ export default async function PromptDetailPage({ params }: Props) {
 
                             {/* Badges */}
                             <div className="flex flex-wrap gap-2">
-                                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-primary/10 text-primary rounded-full">
-                                    <TbSparkles className="w-3.5 h-3.5" />
-                                    {safeRender(prompt.aiModel)}
-                                </span>
                                 {prompt.category && (
                                     <span className="px-2.5 py-1 text-xs font-medium bg-muted rounded-full">
                                         {safeRender(Array.isArray(prompt.category) ? prompt.category[0] : prompt.category)}
@@ -261,11 +257,14 @@ export default async function PromptDetailPage({ params }: Props) {
                                 <span className="px-2.5 py-1 text-xs font-medium bg-muted rounded-full">
                                     {safeRender(prompt.generationType)}
                                 </span>
-                                {prompt.numericId && (
-                                    <span className="px-2.5 py-1 text-xs font-mono bg-muted rounded-full text-muted-foreground border">
-                                        #{prompt.numericId}
-                                    </span>
-                                )}
+                            </div>
+
+                            {/* Prominent ID Display */}
+                            <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg border border-border/50">
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">ID:</span>
+                                <span className="text-sm font-mono font-bold text-primary">
+                                    #{prompt.numericId || '---'}
+                                </span>
                             </div>
 
                             {/* Stats */}
@@ -393,7 +392,6 @@ export default async function PromptDetailPage({ params }: Props) {
                                         </div>
                                         <div className="p-4">
                                             <h3 className="font-medium line-clamp-2 group-hover:text-primary transition-colors">{safeRender(p.title)}</h3>
-                                            <span className="text-xs text-muted-foreground">{safeRender(p.aiModel)}</span>
                                         </div>
                                     </article>
                                 </Link>

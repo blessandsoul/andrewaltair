@@ -51,6 +51,7 @@ interface ExampleImage {
 
 interface MarketplacePromptData {
     id?: string
+    numericId?: string
     slug: string
     title: string
     description: string
@@ -564,7 +565,14 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                         <h1 className="text-2xl font-bold flex items-center gap-2">
                             {isEditing ? 'Edit Prompt' : 'New Prompt'}
                         </h1>
-                        <p className="text-xs text-muted-foreground">{data.slug || 'untitled-prompt'}</p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-2">
+                            <span>{data.slug || 'untitled-prompt'}</span>
+                            {data.numericId && (
+                                <span className="px-1.5 py-0.5 rounded-md bg-muted font-mono text-[10px] border">
+                                    #{data.numericId}
+                                </span>
+                            )}
+                        </p>
                     </div>
                 </div>
 
@@ -666,6 +674,30 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                                     <CardTitle className="text-base">Configuration</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-xs text-muted-foreground uppercase tracking-wider">ID (Auto-Generated)</Label>
+                                        <div className="flex items-center gap-2">
+                                            <Input
+                                                value={data.numericId ? `#${data.numericId}` : 'Will be generated on save...'}
+                                                readOnly
+                                                className="bg-muted/50 font-mono text-xs"
+                                            />
+                                            {data.numericId && (
+                                                <Button
+                                                    size="icon"
+                                                    variant="outline"
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(`#${data.numericId || ''}`)
+                                                        success("Copied", "ID copied to clipboard")
+                                                    }}
+                                                    className="shrink-0"
+                                                >
+                                                    <TbCopy className="w-4 h-4" />
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+
                                     <div className="space-y-2">
                                         <Label className="text-xs text-muted-foreground uppercase tracking-wider">Price</Label>
                                         <div className="flex gap-2">
