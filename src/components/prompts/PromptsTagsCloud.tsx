@@ -11,6 +11,24 @@ const POPULAR_TAGS = [
     "Watercolor", "Sketch", "Isometric", "Pixel Art", "Pattern"
 ]
 
+const tagTranslations: Record<string, string> = {
+    "Cyberpunk": "კიბერპანკი",
+    "Realistic": "რეალისტური",
+    "Anime": "ანიმე",
+    "3D Render": "3D რენდერი",
+    "Logo Design": "ლოგო დიზაინი",
+    "Portrait": "პორტრეტი",
+    "Landscape": "პეიზაჟი",
+    "Abstract": "აბსტრაქტული",
+    "Minimalist": "მინიმალისტური",
+    "Neon": "ნეონი",
+    "Watercolor": "აკვარელი",
+    "Sketch": "ესკიზი",
+    "Isometric": "იზომეტრიული",
+    "Pixel Art": "პიქსელ არტი",
+    "Pattern": "პატერნი"
+}
+
 export function PromptsTagsCloud() {
     const router = useRouter() // Ensure imports!
 
@@ -50,7 +68,7 @@ export function PromptsTagsCloud() {
                             "
                         >
                             <span className="opacity-50 text-xs">#</span>
-                            {tag}
+                            {tagTranslations[tag] || tag}
                         </motion.button>
                     ))}
                 </div>

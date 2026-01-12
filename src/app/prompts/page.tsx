@@ -183,28 +183,7 @@ export default async function PromptsPage({
                     <PromptsTagsCloud />
 
                     {/* Featured Bundles Mockup (If not filtering) */}
-                    {!isFiltering && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {[1, 2, 3].map((i) => (
-                                <Card key={i} className="relative group overflow-hidden border-none aspect-[16/9] md:aspect-[21/9] lg:aspect-[16/6] shadow-xl">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-purple-600/80 via-primary/80 to-blue-600/80 z-0 opacity-90 transition-opacity" />
-                                    <div className="absolute inset-0 z-0 bg-[url('/grid-pattern.svg')] opacity-30 mix-blend-overlay" />
-
-                                    <div className="absolute inset-0 p-6 flex flex-col justify-end z-10">
-                                        <Badge className="w-fit mb-4 bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-md">
-                                            BUNDLE
-                                        </Badge>
-                                        <h3 className="text-xl font-bold text-white mb-1 drop-shadow-md">Cyberpunk City Pack</h3>
-                                        <p className="text-sm text-white/90 mb-4 font-medium drop-shadow-sm">10 Premium Prompts • Save 40%</p>
-                                        <Button size="sm" variant="secondary" className="w-fit font-bold shadow-lg hover:scale-105 transition-transform">
-                                            ნახვა
-                                        </Button>
-                                    </div>
-                                    <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
-                                </Card>
-                            ))}
-                        </div>
-                    )}
+                    {/* Featured Bundles Mockup Removed as per user request */}
 
                     {/* Filters */}
                     <PromptsFilters

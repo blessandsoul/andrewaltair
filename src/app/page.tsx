@@ -30,6 +30,8 @@ import { TrendingCard } from "@/components/blog/TrendingCard"
 import dbConnect from "@/lib/db"
 import Post from "@/models/Post"
 import Video from "@/models/Video"
+import MarketplacePrompt from "@/models/MarketplacePrompt"
+import MarketplacePromptCard from "@/components/prompts/MarketplacePromptCard"
 import { HeroCarousel } from "@/components/home/HeroCarousel"
 import { NewsletterForm } from "@/components/home/NewsletterForm"
 import { HomeLayoutSwitcher } from "@/components/home/HomeLayoutSwitcher"
@@ -76,6 +78,34 @@ async function getVideos() {
     return []
   }
 }
+}
+
+// Fetch latest prompts directly from MongoDB
+async function getLatestPrompts() {
+  try {
+    await dbConnect()
+
+    const prompts = await MarketplacePrompt.find({ status: 'published' })
+      .sort({ createdAt: -1 })
+      .limit(8)
+      .lean()
+
+    return prompts.map(prompt => ({
+      ...prompt,
+      id: prompt._id.toString(),
+      _id: undefined,
+      authorId: prompt.authorId?.toString(),
+      relatedPrompts: prompt.relatedPrompts?.map((id: any) => id.toString()),
+      bundles: prompt.bundles?.map((id: any) => id.toString()),
+      createdAt: prompt.createdAt?.toISOString(),
+      updatedAt: prompt.updatedAt?.toISOString(),
+      // Ensure numeric fields are numbers, not potentially undefined/null if lean is weird (usually fine with TS)
+    }))
+  } catch (error) {
+    console.error('Error fetching prompts:', error)
+    return []
+  }
+}
 
 // Helper to format numbers
 function formatNumber(num: number): string {
@@ -92,6 +122,7 @@ function getTotalReactions(reactions: Record<string, number>): number {
 export default async function Home() {
   const postsData = await getPosts()
   const videosData = await getVideos()
+  const promptsData = await getLatestPrompts()
   // Get up to 5 posts for hero carousel
   const heroPosts = postsData.filter((p: any) => p.featured || p.trending).slice(0, 5)
   if (heroPosts.length === 0 && postsData.length > 0) {
@@ -193,6 +224,40 @@ export default async function Home() {
 
       {/* Dynamic Layout Section - User can switch between 4 layouts */}
       <HomeLayoutSwitcher posts={postsData} videos={videosData} />
+
+      {/* Dynamic Layout Section - User can switch between 4 layouts */}
+      <HomeLayoutSwitcher posts={postsData} videos={videosData} />
+
+      {/* Latest Prompts Section */}
+      <section className="py-20 lg:py-24 bg-muted/20 border-t border-b border-border/50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+          <div className="flex flex-col md:flex-row items-end justify-between gap-4 mb-12">
+            <div className="space-y-4 max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold uppercase tracking-wider w-fit">
+                <TbSparkles className="w-3.5 h-3.5" />
+                Premium Marketplace
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight">უახლესი AI პრომპტები</h2>
+              <p className="text-muted-foreground text-lg">
+                აღმოაჩინე პროფესიონალური პრომპტები Midjourney, DALL-E და სხვა მოდელებისთვის
+              </p>
+            </div>
+
+            <Link href="/prompts">
+              <Button variant="outline" className="gap-2 group">
+                ყველას ნახვა
+                <TbArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {promptsData.map((prompt: any) => (
+              <MarketplacePromptCard key={prompt.id} prompt={prompt} />
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Newsletter Section */}
       <section className="py-20 lg:py-32 relative overflow-hidden">

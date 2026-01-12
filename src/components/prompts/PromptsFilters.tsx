@@ -11,6 +11,41 @@ import {
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 
+const categoryTranslations: Record<string, string> = {
+    "Art": "ხელოვნება",
+    "Photography": "ფოტოგრაფია",
+    "Digital Art": "ციფრული ხელოვნება",
+    "3D": "3D",
+    "3D Model": "3D მოდელი",
+    "Anime": "ანიმე",
+    "Logo": "ლოგო",
+    "Texture": "ტექსტურა",
+    "Web Design": "ვებ დიზაინი",
+    "Fashion": "მოდა",
+    "Portrait": "პორტრეტი",
+    "Landscape": "პეიზაჟი",
+    "Architecture": "არქიტექტურა",
+    "Cyberpunk": "კიბერპანკი",
+    "Fantasy": "ფენტეზი",
+    "Sci-Fi": "სამეცნიერო ფანტასტიკა",
+    "Realistic": "რეალისტური",
+    "Abstract": "აბსტრაქტული",
+    "Nature": "ბუნება",
+    "Animals": "ცხოველები",
+    "Character": "პერსონაჟი",
+    "Vehicle": "ტრანსპორტი",
+    "Food": "საკვები",
+    "Concept Art": "კონცეპტ არტი",
+    "Illustration": "ილუსტრაცია",
+    "Background": "ფონი",
+    "Pattern": "პატერნი",
+    "Icon": "იკონი",
+    "Vector": "ვექტორი",
+    "Typography": "ტიპოგრაფია",
+    "Game Asset": "თამაშის ასეტი",
+    "Pixel Art": "პიქსელ არტი"
+}
+
 interface FilterProps {
     categories: string[]
     aiModels: string[]
@@ -45,7 +80,7 @@ export function PromptsFilters({ categories, aiModels }: FilterProps) {
                     <SelectContent>
                         <SelectItem value="all">ყველა კატეგორია</SelectItem>
                         {categories.map((cat) => (
-                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                            <SelectItem key={cat} value={cat}>{categoryTranslations[cat] || cat}</SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
