@@ -98,6 +98,8 @@ export interface IMarketplacePrompt extends Document {
     metaTitle?: string;
     metaDescription?: string;
 
+    numericId?: string;
+
     createdAt: Date;
     updatedAt: Date;
 }
@@ -325,6 +327,12 @@ const MarketplacePromptSchema = new Schema<IMarketplacePrompt>(
         metaDescription: {
             type: String,
         },
+        numericId: {
+            type: String,
+            unique: true,
+            sparse: true,
+            index: true
+        }
     },
     {
         timestamps: true,
@@ -332,7 +340,7 @@ const MarketplacePromptSchema = new Schema<IMarketplacePrompt>(
 );
 
 // Indexes
-MarketplacePromptSchema.index({ title: 'text', description: 'text', tags: 'text' });
+MarketplacePromptSchema.index({ title: 'text', description: 'text', tags: 'text', numericId: 'text' });
 MarketplacePromptSchema.index({ createdAt: -1 });
 MarketplacePromptSchema.index({ purchases: -1 });
 MarketplacePromptSchema.index({ rating: -1 });

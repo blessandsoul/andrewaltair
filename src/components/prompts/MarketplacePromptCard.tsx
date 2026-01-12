@@ -24,6 +24,7 @@ interface PromptCardProps {
         purchases: number
         downloads: number
         rating: number
+        numericId?: string
     }
 }
 
@@ -109,6 +110,13 @@ export default function MarketplacePromptCard({ prompt }: PromptCardProps) {
                                 {getTypeIcon()}
                                 {getTypeLabel()}
                             </span>
+
+                            {/* ID Badge */}
+                            {prompt.numericId && (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono bg-black/60 backdrop-blur-md text-white/80 rounded-lg border border-white/10 w-fit">
+                                    #{prompt.numericId}
+                                </span>
+                            )}
 
                             {/* Social Proof: Trending - Show if high views or rating */}
                             {((prompt.views > 1000) || (prompt.rating > 4.5)) && (

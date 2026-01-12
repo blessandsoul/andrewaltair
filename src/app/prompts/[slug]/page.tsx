@@ -261,6 +261,11 @@ export default async function PromptDetailPage({ params }: Props) {
                                 <span className="px-2.5 py-1 text-xs font-medium bg-muted rounded-full">
                                     {safeRender(prompt.generationType)}
                                 </span>
+                                {prompt.numericId && (
+                                    <span className="px-2.5 py-1 text-xs font-mono bg-muted rounded-full text-muted-foreground border">
+                                        #{prompt.numericId}
+                                    </span>
+                                )}
                             </div>
 
                             {/* Stats */}

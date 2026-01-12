@@ -185,6 +185,19 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // Generate numericId
+        let numericId: string | undefined;
+        let attempts = 0;
+        while (!numericId && attempts < 5) {
+            const potentialId = Math.floor(100000 + Math.random() * 900000).toString();
+            // Check if exists
+            const existing = await MarketplacePrompt.findOne({ numericId: potentialId });
+            if (!existing) {
+                numericId = potentialId;
+            }
+            attempts++;
+        }
+
         const prompt = await MarketplacePrompt.create({
             title,
             slug,
@@ -215,6 +228,7 @@ export async function POST(request: NextRequest) {
             bundles: bundles || [],
             versions: versions || [],
             abTests: abTests || [],
+            numericId,
         });
 
         return NextResponse.json({
