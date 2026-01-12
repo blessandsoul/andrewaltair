@@ -8,7 +8,7 @@ interface Props {
     params: { slug: string }
 }
 
-const optimizeYouTubeUrl = (url: string) => {
+const optimizeYouTubeUrl = (url: any) => {
     if (!url || typeof url !== 'string') return ''
     if (url.includes('img.youtube.com') || url.includes('i.ytimg.com')) {
         return url.replace('maxresdefault.jpg', 'hqdefault.jpg')
@@ -17,15 +17,28 @@ const optimizeYouTubeUrl = (url: string) => {
 }
 
 const safeRender = (value: any): string => {
-    if (value === null || value === undefined) return ''
-    if (typeof value === 'string') return value
-    if (typeof value === 'number') return String(value)
-    if (typeof value === 'boolean') return String(value)
-    if (Array.isArray(value)) return value.map(safeRender).join(', ')
-    if (typeof value === 'object') {
-        return value.name || value.title || value.slug || value.label || JSON.stringify(value)
+    try {
+        if (value === null || value === undefined) return ''
+        if (typeof value === 'string') return value
+        if (typeof value === 'number') return String(value)
+        if (typeof value === 'boolean') return String(value)
+        if (Array.isArray(value)) return value.map(safeRender).join(', ')
+        if (typeof value === 'object') {
+            return value.name || value.title || value.slug || value.label || JSON.stringify(value)
+        }
+        return String(value)
+    } catch (e) {
+        return ''
     }
-    return String(value)
+}
+
+const safeDate = (dateString: any): string => {
+    try {
+        if (!dateString) return ''
+        return new Date(dateString).toLocaleDateString('ka-GE')
+    } catch (e) {
+        return ''
+    }
 }
 
 async function getPrompt(slug: string) {
@@ -41,11 +54,13 @@ async function getPrompt(slug: string) {
         if (prompt) {
             // sanitize images
             if (prompt.coverImage) prompt.coverImage = optimizeYouTubeUrl(prompt.coverImage)
-            if (prompt.exampleImages) {
+            if (Array.isArray(prompt.exampleImages)) {
                 prompt.exampleImages = prompt.exampleImages.map((img: any) => ({
                     ...img,
                     src: optimizeYouTubeUrl(img.src)
                 }))
+            } else {
+                prompt.exampleImages = []
             }
         }
 
@@ -64,7 +79,8 @@ async function getRelatedPrompts(category: string, currentSlug: string) {
         )
         if (!res.ok) return []
         const data = await res.json()
-        return (data.prompts || []).filter((p: { slug: string }) => p.slug !== currentSlug)
+        if (!Array.isArray(data.prompts)) return []
+        return data.prompts.filter((p: { slug: string }) => p.slug !== currentSlug)
     } catch {
         return []
     }
@@ -114,6 +130,9 @@ export default async function PromptDetailPage({ params }: Props) {
 
     const relatedPrompts = await getRelatedPrompts(primaryCategory, prompt.slug)
 
+    // Helper for safe image validation
+    const hasValidImage = (src: any) => typeof src === 'string' && src.length > 0;
+
     return (
         <div className="min-h-screen py-8 lg:py-12">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
@@ -133,9 +152,9 @@ export default async function PromptDetailPage({ params }: Props) {
                         <div className="space-y-4">
                             {/* Main Image */}
                             <div className="relative aspect-video rounded-xl overflow-hidden bg-muted">
-                                {prompt.coverImage ? (
+                                {hasValidImage(prompt.coverImage) ? (
                                     <Image
-                                        src={typeof prompt.coverImage === 'string' ? prompt.coverImage : ''}
+                                        src={prompt.coverImage}
                                         alt={safeRender(prompt.title)}
                                         fill
                                         className="object-cover"
@@ -149,16 +168,18 @@ export default async function PromptDetailPage({ params }: Props) {
                             </div>
 
                             {/* Example Images */}
-                            {prompt.exampleImages && prompt.exampleImages.length > 0 && (
+                            {Array.isArray(prompt.exampleImages) && prompt.exampleImages.length > 0 && (
                                 <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                                     {prompt.exampleImages.map((img: { src: string; alt?: string }, i: number) => (
                                         <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-muted cursor-pointer hover:ring-2 hover:ring-primary transition-all">
-                                            <Image
-                                                src={typeof img.src === 'string' ? img.src : ''}
-                                                alt={safeRender(img.alt) || `Example ${i + 1}`}
-                                                fill
-                                                className="object-cover"
-                                            />
+                                            {hasValidImage(img.src) && (
+                                                <Image
+                                                    src={img.src}
+                                                    alt={safeRender(img.alt) || `Example ${i + 1}`}
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -175,7 +196,12 @@ export default async function PromptDetailPage({ params }: Props) {
                                 {(prompt.isFree || prompt.price === 0) && (
                                     <button
                                         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors"
-                                        onClick={() => navigator.clipboard.writeText(safeRender(prompt.promptTemplate))}
+                                        onClick={() => {
+                                            // Client-side only interaction, minimal risk but good to be safe
+                                            if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                                                navigator.clipboard.writeText(safeRender(prompt.promptTemplate))
+                                            }
+                                        }}
                                     >
                                         <TbCopy className="w-4 h-4" />
                                         Copy
@@ -200,7 +226,7 @@ export default async function PromptDetailPage({ params }: Props) {
                         </div>
 
                         {/* Variables */}
-                        {prompt.variables && prompt.variables.length > 0 && (
+                        {Array.isArray(prompt.variables) && prompt.variables.length > 0 && (
                             <div className="rounded-xl border bg-card p-6 space-y-4">
                                 <h2 className="text-xl font-semibold">ცვლადები</h2>
                                 <div className="grid sm:grid-cols-2 gap-4">
@@ -214,7 +240,7 @@ export default async function PromptDetailPage({ params }: Props) {
                                             {variable.description && (
                                                 <p className="text-sm text-muted-foreground mb-2">{safeRender(variable.description)}</p>
                                             )}
-                                            {variable.options && variable.options.length > 0 && (
+                                            {Array.isArray(variable.options) && variable.options.length > 0 && (
                                                 <div className="flex flex-wrap gap-1">
                                                     {variable.options.map((opt, j) => (
                                                         <span key={j} className="px-2 py-0.5 text-xs bg-background rounded border">
@@ -341,7 +367,7 @@ export default async function PromptDetailPage({ params }: Props) {
                                         <p className="font-medium">{safeRender(prompt.authorName)}</p>
                                         <p className="text-xs text-muted-foreground flex items-center gap-1">
                                             <TbCalendar className="w-3 h-3" />
-                                            {prompt.createdAt ? new Date(prompt.createdAt).toLocaleDateString('ka-GE') : ''}
+                                            {safeDate(prompt.createdAt)}
                                         </p>
                                     </div>
                                 </div>
@@ -361,7 +387,7 @@ export default async function PromptDetailPage({ params }: Props) {
                 </div>
 
                 {/* Related Prompts */}
-                {relatedPrompts.length > 0 && (
+                {Array.isArray(relatedPrompts) && relatedPrompts.length > 0 && (
                     <section className="mt-16">
                         <h2 className="text-2xl font-bold mb-6">მსგავსი პრომპტები</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -369,10 +395,10 @@ export default async function PromptDetailPage({ params }: Props) {
                                 <Link key={p.id} href={`/prompts/${p.slug}`}>
                                     <article className="group rounded-xl border bg-card overflow-hidden hover:border-primary/50 transition-all">
                                         <div className="relative aspect-[4/3] bg-muted">
-                                            {p.coverImage && (
+                                            {hasValidImage(p.coverImage) && (
                                                 <Image
                                                     src={p.coverImage}
-                                                    alt={p.title}
+                                                    alt={safeRender(p.title)}
                                                     fill
                                                     className="object-cover group-hover:scale-105 transition-transform"
                                                 />
