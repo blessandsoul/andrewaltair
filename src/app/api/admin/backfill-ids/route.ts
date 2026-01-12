@@ -3,11 +3,13 @@ import dbConnect from '@/lib/db';
 import Post from '@/models/Post';
 import MarketplacePrompt from '@/models/MarketplacePrompt';
 import { generateUniqueId } from '@/lib/id-system';
-import { verifyAdmin } from '@/lib/admin-auth';
+import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 
 export async function POST(request: Request) {
     try {
-        await verifyAdmin();
+        if (!verifyAdmin(request)) {
+            return unauthorizedResponse();
+        }
         await dbConnect();
 
         // 1. Backfill Posts
