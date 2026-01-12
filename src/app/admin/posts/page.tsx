@@ -115,8 +115,8 @@ export default function PostsPage() {
     const [tagFilter, setTagFilter] = React.useState("all")
     const [statusFilter, setStatusFilter] = React.useState("all")
     const [sortConfig, setSortConfig] = React.useState<{ key: SortKey; direction: SortDirection }>({
-        key: "order",
-        direction: "asc"
+        key: "publishedAt",
+        direction: "desc"
     })
 
     // Pagination states

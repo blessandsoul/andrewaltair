@@ -67,7 +67,7 @@ export async function GET(request: Request) {
 
         // Get posts
         const posts = await Post.find(query)
-            .sort({ order: 1, createdAt: -1 })
+            .sort({ publishedAt: -1 })
             .limit(limit)
             .lean();
 

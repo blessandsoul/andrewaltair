@@ -40,7 +40,7 @@ async function getPosts() {
     await dbConnect()
 
     const posts = await Post.find({ status: 'published' })
-      .sort({ order: 1, createdAt: -1 })
+      .sort({ publishedAt: -1 })
       .limit(10)
       .lean()
 
