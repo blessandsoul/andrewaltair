@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache';
 import dbConnect from '@/lib/db';
 import Post from '@/models/Post';
 import mongoose from 'mongoose';
+import { generateUniqueId } from '@/lib/id-system';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
