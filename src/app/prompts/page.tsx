@@ -6,6 +6,9 @@ import { PromptsFilters } from '@/components/prompts/PromptsFilters'
 import { PromptsTagsCloud } from '@/components/prompts/PromptsTagsCloud'
 import { PromptsSearch } from '@/components/prompts/PromptsSearch'
 import MarketplacePromptCard from '@/components/prompts/MarketplacePromptCard'
+import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
 export const metadata: Metadata = {
     title: 'AI Prompts Marketplace | Andrew Altair',
@@ -183,19 +186,22 @@ export default async function PromptsPage({
                     {!isFiltering && (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {[1, 2, 3].map((i) => (
-                                <div key={i} className="relative group rounded-2xl overflow-hidden border bg-card aspect-[16/9] md:aspect-[21/9] lg:aspect-[16/6]">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-accent/20 z-0" />
+                                <Card key={i} className="relative group overflow-hidden border-none aspect-[16/9] md:aspect-[21/9] lg:aspect-[16/6] shadow-xl">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-purple-600/80 via-primary/80 to-blue-600/80 z-0 opacity-90 transition-opacity" />
+                                    <div className="absolute inset-0 z-0 bg-[url('/grid-pattern.svg')] opacity-30 mix-blend-overlay" />
+
                                     <div className="absolute inset-0 p-6 flex flex-col justify-end z-10">
-                                        <h3 className="text-xl font-bold text-white mb-1">Cyberpunk City Pack</h3>
-                                        <p className="text-sm text-white/80 mb-3">10 Premium Prompts • Save 40%</p>
-                                        <button className="w-fit px-4 py-2 bg-white text-black text-xs font-bold rounded-lg hover:scale-105 transition-transform">
-                                            View Bundle
-                                        </button>
+                                        <Badge className="w-fit mb-4 bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-md">
+                                            BUNDLE
+                                        </Badge>
+                                        <h3 className="text-xl font-bold text-white mb-1 drop-shadow-md">Cyberpunk City Pack</h3>
+                                        <p className="text-sm text-white/90 mb-4 font-medium drop-shadow-sm">10 Premium Prompts • Save 40%</p>
+                                        <Button size="sm" variant="secondary" className="w-fit font-bold shadow-lg hover:scale-105 transition-transform">
+                                            ნახვა
+                                        </Button>
                                     </div>
-                                    <div className="absolute top-0 right-0 p-4 opacity-50 text-9xl font-black text-white/5 select-none pointer-events-none">
-                                        BUNDLE
-                                    </div>
-                                </div>
+                                    <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+                                </Card>
                             ))}
                         </div>
                     )}

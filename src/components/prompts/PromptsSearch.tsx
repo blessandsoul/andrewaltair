@@ -1,7 +1,9 @@
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation"
-import { TbSearch, TbCommand } from "react-icons/tb"
+import { TbSearch, TbCommand, TbArrowRight } from "react-icons/tb"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 
@@ -44,64 +46,69 @@ export function PromptsSearch() {
             `}
         >
             <div className={`
-                relative flex items-center
+                relative flex items-center gap-2
+                p-2
                 bg-background/80 backdrop-blur-xl
-                border-2 rounded-2xl overflow-hidden
+                border rounded-2xl
                 transition-colors duration-300
-                ${isFocused ? 'border-primary shadow-[0_0_40px_-10px_rgba(var(--primary-rgb),0.3)]' : 'border-white/10 hover:border-white/20'}
+                ${isFocused ? 'border-primary ring-2 ring-primary/20' : 'border-border/50 hover:border-border'}
             `}>
-                <div className="pl-5 text-muted-foreground">
-                    <TbSearch className={`w-6 h-6 transition-colors ${isFocused ? 'text-primary' : ''}`} />
+                <div className="pl-3 text-muted-foreground">
+                    <TbSearch className={`w-5 h-5 transition-colors ${isFocused ? 'text-primary' : ''}`} />
                 </div>
 
-                <input
+                <Input
                     type="text"
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
                     onKeyDown={handleKeyDown}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
-                    placeholder="რას ეძებთ? მაგ: 'Cyberpunk City' ან 'Minimal Logo'..."
-                    className="w-full px-4 py-5 bg-transparent border-none outline-none text-lg placeholder:text-muted-foreground/50"
+                    placeholder="რას ეძებთ? მაგ: 'Cyberpunk City'..."
+                    className="flex-1 border-none shadow-none focus-visible:ring-0 bg-transparent text-lg h-auto py-2 placeholder:text-muted-foreground/50"
                 />
 
-                <div className="pr-4 flex items-center gap-2">
-                    <div className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 text-xs font-mono text-muted-foreground border border-white/5">
+                <div className="flex items-center gap-2 pr-2">
+                    <div className="hidden sm:flex items-center gap-1 px-2 py-1 rounded bg-muted text-[10px] font-mono text-muted-foreground border border-border/50">
                         <TbCommand className="w-3 h-3" />
                         <span>K</span>
                     </div>
-                    <button
+                    <Button
+                        size="icon"
                         onClick={() => handleSearch(searchValue)}
                         className={`
-                            p-2 rounded-xl transition-all duration-300
-                            ${searchValue ? 'bg-primary text-white hover:bg-primary/90' : 'bg-transparent text-muted-foreground hover:bg-muted'}
+                            h-10 w-10 rounded-xl transition-all duration-300
+                            ${searchValue ? '' : 'bg-muted text-muted-foreground hover:bg-muted/80'}
                         `}
+                        variant={searchValue ? "default" : "ghost"}
                     >
-                        <TbSearch className="w-5 h-5" />
-                    </button>
+                        <TbArrowRight className="w-5 h-5" />
+                    </Button>
                 </div>
             </div>
 
-            {/* Quick Suggestions - Could be dynamic later */}
+            {/* Quick Suggestions */}
             {isFocused && (
                 <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="absolute top-full left-0 right-0 mt-3 p-2 bg-card/90 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl z-50 text-sm"
+                    className="absolute top-full left-0 right-0 mt-2 p-1 bg-popover/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl z-50 overflow-hidden"
                 >
-                    <div className="p-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">პოპულარული ძიებები</div>
-                    <div className="flex flex-wrap gap-2 p-2">
+                    <div className="p-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">პოპულარული ძიებები</div>
+                    <div className="flex flex-wrap gap-2 p-2 pt-0">
                         {['Logo Design', 'Anime Portrait', 'Interior Design', 'Web UI', 'Isometric 3D'].map((tag) => (
-                            <button
+                            <Button
                                 key={tag}
+                                variant="secondary"
+                                size="sm"
                                 onClick={() => {
                                     setSearchValue(tag)
                                     handleSearch(tag)
                                 }}
-                                className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 transition-colors text-sm"
+                                className="h-8 text-xs font-normal"
                             >
                                 {tag}
-                            </button>
+                            </Button>
                         ))}
                     </div>
                 </motion.div>
