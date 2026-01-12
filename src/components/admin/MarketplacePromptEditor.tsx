@@ -32,7 +32,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/toast"
-import { TbSparkles, TbPlus, TbTrash, TbArrowLeft, TbLoader2, TbCurrencyDollar, TbPhotoPlus, TbWand, TbX, TbChartBar, TbHistory, TbFlask, TbLink, TbRobot } from "react-icons/tb"
+import { TbSparkles, TbPlus, TbTrash, TbArrowLeft, TbLoader2, TbCurrencyDollar, TbPhotoPlus, TbWand, TbX, TbChartBar, TbHistory, TbFlask, TbLink, TbRobot, TbCopy } from "react-icons/tb"
 
 interface PromptVariable {
     name: string
