@@ -4,7 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { TbLayoutDashboard, TbFileText, TbVideo, TbMessage, TbChevronLeft, TbMenu2, TbX, TbSparkles, TbSun, TbMoon, TbSearch, TbBell, TbSettings, TbDownload, TbChartBar, TbActivity, TbTag, TbFolderOpen, TbPhoto, TbUsers, TbWorld, TbTool, TbPencil, TbKeyboard, TbCommand, TbBook } from "react-icons/tb"
+import { TbLayoutDashboard, TbFileText, TbVideo, TbMessage, TbChevronLeft, TbMenu2, TbX, TbSparkles, TbSun, TbMoon, TbSearch, TbBell, TbSettings, TbDownload, TbChartBar, TbActivity, TbTag, TbFolderOpen, TbPhoto, TbUsers, TbWorld, TbTool, TbPencil, TbKeyboard, TbCommand, TbBook, TbBrandGithub } from "react-icons/tb"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
@@ -21,6 +21,7 @@ const contentItems: NavItem[] = [
     { href: "/admin/posts", label: "პოსტები", icon: <TbFileText className="w-5 h-5" /> },
     { href: "/admin/encyclopedia", label: "ენციკლოპედია", icon: <TbBook className="w-5 h-5" />, badge: "new" },
     { href: "/admin/marketplace-prompts", label: "პრომპტები", icon: <TbSparkles className="w-5 h-5" /> },
+    { href: "/admin/repositories", label: "რეპოზიტორიები", icon: <TbBrandGithub className="w-5 h-5" />, badge: "beta" },
     { href: "/admin/videos", label: "ვიდეოები", icon: <TbVideo className="w-5 h-5" /> },
     { href: "/admin/media", label: "მედია", icon: <TbPhoto className="w-5 h-5" /> },
 ]

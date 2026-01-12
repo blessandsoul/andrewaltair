@@ -9,7 +9,7 @@ interface Props {
 }
 
 const optimizeYouTubeUrl = (url: string) => {
-    if (!url) return url
+    if (!url || typeof url !== 'string') return ''
     if (url.includes('img.youtube.com') || url.includes('i.ytimg.com')) {
         return url.replace('maxresdefault.jpg', 'hqdefault.jpg')
     }
@@ -17,13 +17,15 @@ const optimizeYouTubeUrl = (url: string) => {
 }
 
 const safeRender = (value: any): string => {
+    if (value === null || value === undefined) return ''
     if (typeof value === 'string') return value
     if (typeof value === 'number') return String(value)
+    if (typeof value === 'boolean') return String(value)
     if (Array.isArray(value)) return value.map(safeRender).join(', ')
-    if (typeof value === 'object' && value !== null) {
+    if (typeof value === 'object') {
         return value.name || value.title || value.slug || value.label || JSON.stringify(value)
     }
-    return ''
+    return String(value)
 }
 
 async function getPrompt(slug: string) {
@@ -76,13 +78,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         return { title: 'Prompt Not Found' }
     }
 
+    const title = safeRender(prompt.title)
+    const excerpt = safeRender(prompt.excerpt || prompt.description?.substring(0, 160))
+    const coverImage = typeof prompt.coverImage === 'string' ? prompt.coverImage : ''
+
     return {
-        title: `${prompt.title} | AI Prompts`,
-        description: prompt.metaDescription || prompt.excerpt || prompt.description?.substring(0, 160),
+        title: `${title} | AI Prompts`,
+        description: excerpt,
         openGraph: {
-            title: prompt.title,
-            description: prompt.excerpt || prompt.description?.substring(0, 160),
-            images: prompt.coverImage ? [{ url: prompt.coverImage }] : [],
+            title: title,
+            description: excerpt,
+            images: coverImage ? [{ url: coverImage }] : [],
         }
     }
 }
@@ -129,8 +135,8 @@ export default async function PromptDetailPage({ params }: Props) {
                             <div className="relative aspect-video rounded-xl overflow-hidden bg-muted">
                                 {prompt.coverImage ? (
                                     <Image
-                                        src={prompt.coverImage}
-                                        alt={prompt.title}
+                                        src={typeof prompt.coverImage === 'string' ? prompt.coverImage : ''}
+                                        alt={safeRender(prompt.title)}
                                         fill
                                         className="object-cover"
                                         priority
@@ -148,8 +154,8 @@ export default async function PromptDetailPage({ params }: Props) {
                                     {prompt.exampleImages.map((img: { src: string; alt?: string }, i: number) => (
                                         <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-muted cursor-pointer hover:ring-2 hover:ring-primary transition-all">
                                             <Image
-                                                src={img.src}
-                                                alt={img.alt || `Example ${i + 1}`}
+                                                src={typeof img.src === 'string' ? img.src : ''}
+                                                alt={safeRender(img.alt) || `Example ${i + 1}`}
                                                 fill
                                                 className="object-cover"
                                             />
@@ -169,7 +175,7 @@ export default async function PromptDetailPage({ params }: Props) {
                                 {(prompt.isFree || prompt.price === 0) && (
                                     <button
                                         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors"
-                                        onClick={() => navigator.clipboard.writeText(prompt.promptTemplate)}
+                                        onClick={() => navigator.clipboard.writeText(safeRender(prompt.promptTemplate))}
                                     >
                                         <TbCopy className="w-4 h-4" />
                                         Copy
@@ -179,7 +185,7 @@ export default async function PromptDetailPage({ params }: Props) {
 
                             <div className="relative">
                                 <pre className="p-4 rounded-lg bg-muted/50 text-sm overflow-x-auto whitespace-pre-wrap font-mono border">
-                                    {prompt.promptTemplate}
+                                    {safeRender(prompt.promptTemplate)}
                                 </pre>
 
                                 {!prompt.isFree && prompt.price > 0 && (
@@ -202,11 +208,11 @@ export default async function PromptDetailPage({ params }: Props) {
                                         <div key={i} className="p-4 rounded-lg bg-muted/50 border">
                                             <div className="flex items-center gap-2 mb-2">
                                                 <span className="px-2 py-0.5 text-xs font-mono bg-primary/10 text-primary rounded">
-                                                    [{variable.name}]
+                                                    [{safeRender(variable.name)}]
                                                 </span>
                                             </div>
                                             {variable.description && (
-                                                <p className="text-sm text-muted-foreground mb-2">{variable.description}</p>
+                                                <p className="text-sm text-muted-foreground mb-2">{safeRender(variable.description)}</p>
                                             )}
                                             {variable.options && variable.options.length > 0 && (
                                                 <div className="flex flex-wrap gap-1">
@@ -228,7 +234,7 @@ export default async function PromptDetailPage({ params }: Props) {
                             <div className="rounded-xl border bg-card p-6 space-y-4">
                                 <h2 className="text-xl font-semibold">ინსტრუქციები</h2>
                                 <div className="prose prose-invert max-w-none">
-                                    <p className="text-muted-foreground whitespace-pre-wrap">{prompt.instructions}</p>
+                                    <p className="text-muted-foreground whitespace-pre-wrap">{safeRender(prompt.instructions)}</p>
                                 </div>
                             </div>
                         )}
@@ -238,7 +244,7 @@ export default async function PromptDetailPage({ params }: Props) {
                     <div className="space-y-6">
                         {/* Buy Card */}
                         <div className="sticky top-24 rounded-xl border bg-card p-6 space-y-4">
-                            <h1 className="text-2xl font-bold">{prompt.title}</h1>
+                            <h1 className="text-2xl font-bold">{safeRender(prompt.title)}</h1>
 
                             {/* Badges */}
                             <div className="flex flex-wrap gap-2">
@@ -260,23 +266,23 @@ export default async function PromptDetailPage({ params }: Props) {
                             <div className="flex items-center gap-4 text-sm text-muted-foreground">
                                 <span className="flex items-center gap-1">
                                     <TbEye className="w-4 h-4" />
-                                    {prompt.views || 0}
+                                    {safeRender(prompt.views || 0)}
                                 </span>
                                 <span className="flex items-center gap-1">
                                     <TbDownload className="w-4 h-4" />
-                                    {prompt.isFree ? (prompt.downloads || 0) : (prompt.purchases || 0)}
+                                    {safeRender(prompt.isFree ? (prompt.downloads || 0) : (prompt.purchases || 0))}
                                 </span>
                                 {(prompt.rating || 0) > 0 && (
                                     <span className="flex items-center gap-1 text-yellow-500">
                                         <TbStar className="w-4 h-4 fill-current" />
-                                        {(prompt.rating || 0).toFixed(1)} ({prompt.reviewsCount || 0})
+                                        {safeRender((prompt.rating || 0).toFixed(1))} ({safeRender(prompt.reviewsCount || 0)})
                                     </span>
                                 )}
                             </div>
 
                             {/* Description */}
                             <p className="text-muted-foreground text-sm">
-                                {prompt.excerpt || prompt.description?.substring(0, 200)}
+                                {safeRender(prompt.excerpt || prompt.description?.substring(0, 200))}
                             </p>
 
                             {/* Price & CTA */}
@@ -286,11 +292,11 @@ export default async function PromptDetailPage({ params }: Props) {
                                         <span className="text-3xl font-bold text-green-500">უფასო</span>
                                     ) : (
                                         <>
-                                            <span className="text-3xl font-bold">{prompt.price}</span>
-                                            <span className="text-lg text-muted-foreground">{prompt.currency}</span>
+                                            <span className="text-3xl font-bold">{safeRender(prompt.price)}</span>
+                                            <span className="text-lg text-muted-foreground">{safeRender(prompt.currency)}</span>
                                             {prompt.originalPrice && (
                                                 <span className="text-lg text-muted-foreground line-through">
-                                                    {prompt.originalPrice} {prompt.currency}
+                                                    {safeRender(prompt.originalPrice)} {safeRender(prompt.currency)}
                                                 </span>
                                             )}
                                         </>
@@ -332,7 +338,7 @@ export default async function PromptDetailPage({ params }: Props) {
                                         <TbUser className="w-5 h-5 text-primary" />
                                     </div>
                                     <div>
-                                        <p className="font-medium">{prompt.authorName}</p>
+                                        <p className="font-medium">{safeRender(prompt.authorName)}</p>
                                         <p className="text-xs text-muted-foreground flex items-center gap-1">
                                             <TbCalendar className="w-3 h-3" />
                                             {prompt.createdAt ? new Date(prompt.createdAt).toLocaleDateString('ka-GE') : ''}
@@ -375,13 +381,13 @@ export default async function PromptDetailPage({ params }: Props) {
                                                 {p.isFree ? (
                                                     <span className="px-2 py-0.5 text-xs font-medium bg-green-500 text-white rounded">უფასო</span>
                                                 ) : (
-                                                    <span className="px-2 py-0.5 text-xs font-medium bg-primary text-white rounded">{p.price} {p.currency}</span>
+                                                    <span className="px-2 py-0.5 text-xs font-medium bg-primary text-white rounded">{safeRender(p.price)} {safeRender(p.currency)}</span>
                                                 )}
                                             </div>
                                         </div>
                                         <div className="p-4">
-                                            <h3 className="font-medium line-clamp-2 group-hover:text-primary transition-colors">{p.title}</h3>
-                                            <span className="text-xs text-muted-foreground">{p.aiModel}</span>
+                                            <h3 className="font-medium line-clamp-2 group-hover:text-primary transition-colors">{safeRender(p.title)}</h3>
+                                            <span className="text-xs text-muted-foreground">{safeRender(p.aiModel)}</span>
                                         </div>
                                     </article>
                                 </Link>
