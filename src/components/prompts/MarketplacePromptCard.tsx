@@ -73,6 +73,7 @@ interface PromptCardProps {
         authorAvatar?: string
         reviewsCount?: number
         description?: string
+        exampleImages?: { src: string }[]
     }
 }
 
