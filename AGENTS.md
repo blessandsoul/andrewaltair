@@ -21,9 +21,10 @@
 | **Mystic AI Tools** | 8 интерактивных инструментов с Groq AI |
 | **Bots Marketplace** | Маркетплейс AI ботов с tier системой |
 | **Prompts Marketplace** | Продажа AI промптов |
+| **Repositories** | Каталог Open Source решений |
 | **Encyclopedia** | Vibe Coding образовательный курс |
 | **Conversion System** | 21 компонент для конверсии пользователей |
-| **Admin Panel** | 16 разделов управления контентом |
+| **Admin Panel** | 17 разделов управления контентом |
 | **User Profile** | 21 фича профиля с 2FA и gamification |
 
 ---
@@ -342,6 +343,17 @@ interface IPost {
     status: 'draft' | 'published' | 'scheduled' | 'archived';
     seo?: { metaTitle, metaDescription, keywords, canonicalUrl, focusKeyword, seoScore, ogImage };
     videos?: Array<{ url, platform, videoId, thumbnailUrl }>;
+    repository?: {
+        type: 'github' | 'gitlab' | 'other';
+        url: string;
+        name: string;
+        description: string;
+        stars: number;
+        forks: number;
+        language: string;
+        topics: string[];
+        license: string;
+    };
 }
 ```
 

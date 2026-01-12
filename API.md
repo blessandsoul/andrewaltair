@@ -447,6 +447,38 @@ Authorization: Bearer <admin_token>
 ### DELETE `/api/posts/[id]` 🔒 Admin
 Удалить пост.
 
+
+
+---
+
+## 📦 Репозитории (через Posts API)
+
+Репозитории управляются через стандартный `/api/posts`, но с типом `type=repository` и дополнительным полем `repository`.
+
+### GET `/api/posts?type=repository`
+Получить список репозиториев.
+
+### POST `/api/posts`
+Создать репозиторий.
+
+**Request Body (Specific fields):**
+```json
+{
+  "title": "Repo Name",
+  "type": "repository",
+  "repository": {
+    "url": "https://github.com/...",
+    "name": "Repo Name",
+    "description": "Description...",
+    "stars": 100,
+    "forks": 50,
+    "language": "TypeScript",
+    "topics": ["react", "ui"],
+    "license": "MIT"
+  }
+}
+```
+
 ---
 
 ## 💬 Комментарии

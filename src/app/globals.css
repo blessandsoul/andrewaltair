@@ -107,6 +107,11 @@
   --glow-accent: rgba(34, 211, 238, 0.5);
   --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
   --gradient-accent: linear-gradient(135deg, #22d3ee 0%, #6366f1 100%);
+  
+  /* Cyberpunk Additions */
+  --neon-green: #00ff9d;
+  --neon-blue: #00f3ff;
+  --neon-purple: #bc13fe;
 }
 
 /* Dark Theme - Cyber Premium */
@@ -164,6 +169,11 @@
   --glow-accent: rgba(34, 211, 238, 0.4);
   --gradient-primary: linear-gradient(135deg, #818cf8 0%, #a78bfa 50%, #e879f9 100%);
   --gradient-accent: linear-gradient(135deg, #22d3ee 0%, #818cf8 100%);
+
+  /* Cyberpunk Additions */
+  --neon-green: #00ff9d;
+  --neon-blue: #00f3ff;
+  --neon-purple: #d946ef;
 }
 
 @layer base {
@@ -239,6 +249,16 @@
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .neon-border {
+    border: 1px solid var(--neon-blue);
+    box-shadow: 0 0 5px var(--neon-blue), inset 0 0 5px var(--neon-blue);
+  }
+  
+  .neon-text {
+    color: var(--neon-green);
+    text-shadow: 0 0 5px var(--neon-green);
   }
 
   /* Animated gradient background */

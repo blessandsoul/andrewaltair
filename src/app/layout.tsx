@@ -143,7 +143,7 @@ const jsonLdSchemas = [
       'https://www.facebook.com/andr3waltair',
       'https://www.threads.net/@andr3waltair',
       'https://x.com/andr3waltair',
-      'https://www.linkedin.com/in/andrewaltair'
+      'https://www.linkedin.com/in/andr3waltair'
     ],
     worksFor: {
       '@type': 'Organization',

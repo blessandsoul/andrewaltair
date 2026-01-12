@@ -94,9 +94,9 @@ export const brand = {
     facebook: "https://www.facebook.com/andr3waltair",
     tiktok: "https://www.tiktok.com/@andrewaltair",
     telegram: "https://t.me/andr3waltairchannel",
-    linkedin: "https://www.linkedin.com/in/andrewaltair",
+    linkedin: "https://www.linkedin.com/in/andr3waltair",
     twitter: "https://x.com/andr3waltair",
-    github: "https://github.com/andrewaltair",
+    github: "https://github.com/andr3waltair",
   },
 
   // Categories for blog posts - articles is parent, others are subcategories

@@ -2,6 +2,10 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
+import PromptUnlocker from '@/components/prompts/PromptUnlocker'
+import SocialSidebarWidget from '@/components/prompts/SocialSidebarWidget'
+import SocialFooterBanner from '@/components/prompts/SocialFooterBanner'
+import SocialFloatingButton from '@/components/prompts/SocialFloatingButton'
 import { TbSparkles, TbCopy, TbStar, TbEye, TbDownload, TbShoppingCart, TbArrowLeft, TbBrandTelegram, TbCheck, TbUser, TbCalendar } from 'react-icons/tb'
 
 interface Props {
@@ -187,43 +191,11 @@ export default async function PromptDetailPage({ params }: Props) {
                         </div>
 
                         {/* Prompt Template */}
-                        <div className="rounded-xl border bg-card p-6 space-y-4">
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-xl font-semibold flex items-center gap-2">
-                                    <TbSparkles className="w-5 h-5 text-primary" />
-                                    Prompt Template
-                                </h2>
-                                {(prompt.isFree || prompt.price === 0) && (
-                                    <button
-                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors"
-                                        onClick={() => {
-                                            // Client-side only interaction, minimal risk but good to be safe
-                                            if (typeof navigator !== 'undefined' && navigator.clipboard) {
-                                                navigator.clipboard.writeText(safeRender(prompt.promptTemplate))
-                                            }
-                                        }}
-                                    >
-                                        <TbCopy className="w-4 h-4" />
-                                        Copy
-                                    </button>
-                                )}
-                            </div>
-
-                            <div className="relative">
-                                <pre className="p-4 rounded-lg bg-muted/50 text-sm overflow-x-auto whitespace-pre-wrap font-mono border">
-                                    {safeRender(prompt.promptTemplate)}
-                                </pre>
-
-                                {!prompt.isFree && prompt.price > 0 && (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-card via-card/80 to-transparent">
-                                        <div className="text-center">
-                                            <TbShoppingCart className="w-8 h-8 mx-auto mb-2 text-primary" />
-                                            <p className="font-medium">შეიძინეთ სრული პრომპტი</p>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+                        <PromptUnlocker
+                            template={safeRender(prompt.promptTemplate)}
+                            isFree={prompt.isFree}
+                            price={prompt.price}
+                        />
 
                         {/* Variables */}
                         {Array.isArray(prompt.variables) && prompt.variables.length > 0 && (
@@ -264,6 +236,9 @@ export default async function PromptDetailPage({ params }: Props) {
                                 </div>
                             </div>
                         )}
+
+                        {/* Footer Banner */}
+                        <SocialFooterBanner />
                     </div>
 
                     {/* Sidebar */}
@@ -375,7 +350,7 @@ export default async function PromptDetailPage({ params }: Props) {
 
                             {/* Contact */}
                             <Link
-                                href="https://t.me/andrewaltair"
+                                href="https://t.me/andr3waltair"
                                 target="_blank"
                                 className="flex items-center justify-center gap-2 w-full px-4 py-2 text-sm border rounded-xl hover:bg-muted transition-colors"
                             >

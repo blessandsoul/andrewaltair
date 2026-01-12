@@ -240,7 +240,7 @@ export default async function Home() {
                 <p className="text-muted-foreground">ღია კოდის პროექტები</p>
               </div>
             </div>
-            <Link href="https://github.com/andrewaltair" target="_blank">
+            <Link href="https://github.com/andr3waltair" target="_blank">
               <Button variant="outline" className="gap-2">
                 ყველა პროექტი
                 <TbExternalLink className="w-4 h-4" />
@@ -255,7 +255,7 @@ export default async function Home() {
               { name: "make-automation-recipes", desc: "Make.com ავტომატიზაციის რეცეპტები", stars: 156, lang: "JSON" },
               { name: "ai-image-generator", desc: "DALL-E 3 სურათების გენერატორი", stars: 98, lang: "Python" },
             ].map((repo) => (
-              <Link key={repo.name} href={`https://github.com/andrewaltair/${repo.name}`} target="_blank">
+              <Link key={repo.name} href={`https://github.com/andr3waltair/${repo.name}`} target="_blank">
                 <Card className="group h-full hover-lift border shadow-sm hover:shadow-lg transition-all">
                   <CardContent className="p-5">
                     <div className="flex items-start justify-between">

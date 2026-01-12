@@ -556,7 +556,7 @@ export function ShareToUnlock({
             const data = await response.json();
 
             // Open share dialog
-            const shareUrl = `https://andrewaltair.com/vibe-coding?share=${data.code}`;
+            const shareUrl = `https://andrewaltair.ge/vibe-coding?share=${data.code}`;
             const shareText = `🚀 ვიბ კოდინგი - AI-ით პროგრამირება! გამოიყენე კოდი ${data.code} 15 წუთიანი უფასო წვდომისთვის!`;
 
             if (platform === 'twitter') {
@@ -616,7 +616,7 @@ export function ShareToUnlock({
 
 // 18. Referral Program Component
 export function ReferralProgram({ userId }: { userId?: string }) {
-    const referralLink = `andrewaltair.com/vibe?ref=${userId || 'USER123'}`;
+    const referralLink = `andrewaltair.ge/vibe?ref=${userId || 'USER123'}`;
     const [copied, setCopied] = useState(false);
 
     const copyLink = () => {

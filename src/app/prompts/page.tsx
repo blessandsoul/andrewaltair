@@ -1,9 +1,10 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import Link from 'next/link'
-import Image from 'next/image'
-import { TbSparkles, TbDownload, TbStar, TbEye } from 'react-icons/tb'
+import { TbSparkles, TbVideo, TbPhoto, TbFileDescription, TbArrowRight } from 'react-icons/tb'
 import { PromptsFilters } from '@/components/prompts/PromptsFilters'
+import { PromptsTagsCloud } from '@/components/prompts/PromptsTagsCloud'
+import MarketplacePromptCard from '@/components/prompts/MarketplacePromptCard'
 
 export const metadata: Metadata = {
     title: 'AI Prompts Marketplace | Andrew Altair',
@@ -18,7 +19,8 @@ async function getPrompts(searchParams: { [key: string]: string | undefined }) {
     if (searchParams.free) params.set('isFree', searchParams.free)
     if (searchParams.sort) params.set('sort', searchParams.sort)
     if (searchParams.search) params.set('search', searchParams.search)
-    params.set('limit', '24')
+    if (searchParams.generationType) params.set('generationType', searchParams.generationType)
+    params.set('limit', searchParams.limit || '24')
 
     try {
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
@@ -43,96 +45,11 @@ interface Prompt {
     isFree: boolean
     category: string
     aiModel: string
+    generationType?: string
     views: number
     purchases: number
     downloads: number
     rating: number
-}
-
-function PromptCard({ prompt }: { prompt: Prompt }) {
-    return (
-        <Link href={`/prompts/${prompt.slug}`}>
-            <article className="group relative overflow-hidden rounded-xl border bg-card hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
-                {/* Image */}
-                <div className="relative aspect-[16/10] overflow-hidden bg-muted">
-                    {prompt.coverImage ? (
-                        <Image
-                            src={prompt.coverImage}
-                            alt={prompt.title}
-                            fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                    ) : (
-                        <div className="flex items-center justify-center h-full">
-                            <TbSparkles className="w-12 h-12 text-muted-foreground" />
-                        </div>
-                    )}
-
-                    {/* Overlay Gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60" />
-
-                    {/* Price badge */}
-                    <div className="absolute top-3 right-3">
-                        {prompt.isFree ? (
-                            <span className="px-3 py-1 text-xs font-bold bg-green-500 text-white rounded-lg shadow-lg backdrop-blur-md">
-                                უფასო
-                            </span>
-                        ) : (
-                            <span className="px-3 py-1 text-xs font-bold bg-primary text-white rounded-lg shadow-lg backdrop-blur-md">
-                                {prompt.price} {prompt.currency}
-                            </span>
-                        )}
-                    </div>
-
-                    {/* AI Model badge */}
-                    <div className="absolute bottom-3 right-3">
-                        <span className="px-2.5 py-1 text-xs font-medium bg-black/60 text-white rounded-lg backdrop-blur-md border border-white/10">
-                            {prompt.aiModel}
-                        </span>
-                    </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-4 space-y-3">
-                    <h3 className="font-semibold line-clamp-1 text-lg group-hover:text-primary transition-colors">
-                        {prompt.title}
-                    </h3>
-
-                    <div className="flex items-center gap-2">
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/50 uppercase tracking-wider font-medium">
-                            {prompt.category}
-                        </span>
-                    </div>
-
-                    {prompt.excerpt && (
-                        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                            {prompt.excerpt}
-                        </p>
-                    )}
-
-                    {/* Stats */}
-                    <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border/50">
-                        <div className="flex items-center gap-3">
-                            <span className="flex items-center gap-1">
-                                <TbEye className="w-4 h-4 opacity-70" />
-                                {prompt.views}
-                            </span>
-                            <span className="flex items-center gap-1">
-                                <TbDownload className="w-4 h-4 opacity-70" />
-                                {prompt.isFree ? prompt.downloads : prompt.purchases}
-                            </span>
-                        </div>
-                        {prompt.rating > 0 && (
-                            <span className="flex items-center gap-1 text-yellow-500 font-medium">
-                                <TbStar className="w-4 h-4 fill-current" />
-                                {prompt.rating.toFixed(1)}
-                            </span>
-                        )}
-                    </div>
-                </div>
-            </article>
-        </Link>
-    )
 }
 
 function PromptsLoading() {
@@ -168,8 +85,37 @@ async function PromptsGrid({ searchParams }: { searchParams: { [key: string]: st
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {prompts.map((prompt: Prompt) => (
-                <PromptCard key={prompt.id} prompt={prompt} />
+                <MarketplacePromptCard key={prompt.id} prompt={prompt} />
             ))}
+        </div>
+    )
+}
+
+async function PromptsSection({ title, icon: Icon, type, description }: { title: string, icon: any, type: string, description: string }) {
+    const { prompts } = await getPrompts({ generationType: type, limit: '4' })
+    if (prompts.length === 0) return null
+
+    return (
+        <div className="space-y-6">
+            <div className="flex items-end justify-between border-b pb-4">
+                <div className="space-y-1">
+                    <h2 className="text-2xl font-bold flex items-center gap-2">
+                        <Icon className="w-6 h-6 text-primary" />
+                        {title}
+                    </h2>
+                    <p className="text-muted-foreground text-sm">{description}</p>
+                </div>
+                <Link href={`/prompts?generationType=${type}`} className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
+                    ყველას ნახვა
+                    <TbArrowRight className="w-4 h-4" />
+                </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {prompts.map((prompt: Prompt) => (
+                    <MarketplacePromptCard key={prompt.id} prompt={prompt} />
+                ))}
+            </div>
         </div>
     )
 }
@@ -180,7 +126,10 @@ export default async function PromptsPage({
     searchParams: Promise<{ [key: string]: string | undefined }>
 }) {
     const params = await searchParams
-    const { filters } = await getPrompts(params)
+    const { filters } = await getPrompts({}) // Get basic filters
+
+    // Check if user is filtering
+    const isFiltering = params.category || params.aiModel || params.isFree || params.search || params.generationType
 
     return (
         <div className="min-h-screen">
@@ -211,17 +160,65 @@ export default async function PromptsPage({
 
             {/* Filters & Content */}
             <section className="py-12">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl space-y-12">
+                    {/* Tags Cloud */}
+                    <PromptsTagsCloud />
+
+                    {/* Featured Bundles Mockup (If not filtering) */}
+                    {!isFiltering && (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {[1, 2, 3].map((i) => (
+                                <div key={i} className="relative group rounded-2xl overflow-hidden border bg-card aspect-[16/9] md:aspect-[21/9] lg:aspect-[16/6]">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-accent/20 z-0" />
+                                    <div className="absolute inset-0 p-6 flex flex-col justify-end z-10">
+                                        <h3 className="text-xl font-bold text-white mb-1">Cyberpunk City Pack</h3>
+                                        <p className="text-sm text-white/80 mb-3">10 Premium Prompts • Save 40%</p>
+                                        <button className="w-fit px-4 py-2 bg-white text-black text-xs font-bold rounded-lg hover:scale-105 transition-transform">
+                                            View Bundle
+                                        </button>
+                                    </div>
+                                    <div className="absolute top-0 right-0 p-4 opacity-50 text-9xl font-black text-white/5 select-none pointer-events-none">
+                                        BUNDLE
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
                     {/* Filters */}
                     <PromptsFilters
                         categories={filters.categories || []}
                         aiModels={filters.aiModels || []}
                     />
 
-                    {/* Grid */}
-                    <Suspense fallback={<PromptsLoading />}>
-                        <PromptsGrid searchParams={params} />
-                    </Suspense>
+                    {isFiltering ? (
+                        <Suspense fallback={<PromptsLoading />}>
+                            <PromptsGrid searchParams={params} />
+                        </Suspense>
+                    ) : (
+                        <div className="space-y-16">
+                            <Suspense fallback={<PromptsLoading />}>
+                                <PromptsSection
+                                    title="Video Generation"
+                                    icon={TbVideo}
+                                    type="video"
+                                    description="საუკეთესო პრომპტები ვიდეოების გენერაციისთვის (Runway, Pika, Sora)"
+                                />
+                                <PromptsSection
+                                    title="Image Generation"
+                                    icon={TbPhoto}
+                                    type="image"
+                                    description="მაღალი ხარისხის ფოტო პრომპტები (Midjourney, DALL-E, Stable Diffusion)"
+                                />
+                                <PromptsSection
+                                    title="Text Generation"
+                                    icon={TbFileDescription}
+                                    type="text-generation"
+                                    description="ტექსტური პრომპტები GPT-4, Claude და Gemini-სთვის"
+                                />
+                            </Suspense>
+                        </div>
+                    )}
                 </div>
             </section>
         </div>

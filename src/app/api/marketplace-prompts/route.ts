@@ -38,6 +38,18 @@ export async function GET(request: NextRequest) {
             query.aiModel = aiModel;
         }
 
+        const generationType = searchParams.get('generationType');
+        if (generationType) {
+            // Support partial matching if needed, or specific types
+            if (generationType === 'video') {
+                query.generationType = { $in: ['text-to-video', 'image-to-video', 'video-to-video'] };
+            } else if (generationType === 'image') {
+                query.generationType = { $in: ['text-to-image', 'image-to-image'] };
+            } else {
+                query.generationType = generationType;
+            }
+        }
+
         if (isFree !== null && isFree !== undefined) {
             query.isFree = isFree === 'true';
         }

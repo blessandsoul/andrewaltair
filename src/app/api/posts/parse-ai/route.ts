@@ -274,7 +274,7 @@ function fallbackParse(rawContent: string): ParseResult {
         if (SKIP_PATTERNS.test(trimmed) || MUSIC_TEXT_SKIP.test(trimmed)) {
             continue
         }
-        
+
         // Handle empty lines - preserve them in intro and other sections
         if (!trimmed) {
             if (currentSection && state === 'PART1') {
@@ -284,7 +284,7 @@ function fallbackParse(rawContent: string): ParseResult {
         }
 
         // Skip PART headers (=== [PART 1: ...] ===)
-        if (PART_HEADER.test(trimmed) || /^===/.test(trimmed)) {
+        if (PART_HEADER.test(trimmed) || /^===/.test(trimmed) || trimmed.includes('[TELEGRAM CONTENT STARTS HERE]')) {
             continue
         }
 
@@ -307,7 +307,7 @@ function fallbackParse(rawContent: string): ParseResult {
         }
 
         // Detect --- separator (potential author comment start or section end)
-        if (trimmed === '---') {
+        if (trimmed === '---' || trimmed.includes('[META-COMMENTARY STARTS HERE]')) {
             // When in AUTHOR_COMMENT and we see ---, stop the author comment
             if (state === 'AUTHOR_COMMENT') {
                 if (currentSection) {
@@ -373,7 +373,7 @@ function fallbackParse(rawContent: string): ParseResult {
                     sections.push(currentSection)
                     console.log('📝 Intro completed - final length:', currentSection.content.length, 'chars')
                 }
-                
+
                 const emoji = emojiMatch[0]
                 const restOfLine = trimmed.slice(emoji.length).trim()
 

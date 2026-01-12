@@ -30,7 +30,7 @@ import {
 // Marketing components removed for clean reading experience
 
 // Premium users list
-const PREMIUM_USERS = ['Andrew Altair', 'andrewaltair'];
+const PREMIUM_USERS = ['Andrew Altair', 'andr3waltair'];
 
 // Article Viewer with Preview/Blur Effect
 function ArticleViewer({
