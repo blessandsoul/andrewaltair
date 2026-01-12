@@ -6,6 +6,7 @@ import { TbSparkles, TbDownload, TbStar, TbEye, TbVideo, TbPhoto, TbFileDescript
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { PromptQuickView } from './PromptQuickView'
+import { formatId } from '@/lib/id-format'
 
 interface PromptCardProps {
     prompt: {
@@ -36,7 +37,9 @@ export default function MarketplacePromptCard({ prompt }: PromptCardProps) {
     const handleCopy = (e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
-        navigator.clipboard.writeText(`https://andrewaltair.ge/prompts/${prompt.slug}`)
+        // Smart Copy (Georgian)
+        const textToCopy = `ნახეთ ეს: ${prompt.title} (ID: ${formatId(prompt.numericId)}) https://andrewaltair.ge/s/${prompt.numericId}`
+        navigator.clipboard.writeText(textToCopy)
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
     }
@@ -114,7 +117,7 @@ export default function MarketplacePromptCard({ prompt }: PromptCardProps) {
                             {/* ID Badge */}
                             {prompt.numericId && (
                                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono bg-black/60 backdrop-blur-md text-white/80 rounded-lg border border-white/10 w-fit">
-                                    #{prompt.numericId}
+                                    {formatId(prompt.numericId)}
                                 </span>
                             )}
 

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import dbConnect from '@/lib/db';
 import Post from '@/models/Post';
+import { generateUniqueId } from '@/lib/id-system';
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 
 // GET - List all posts with filtering and pagination
@@ -41,54 +42,44 @@ export async function GET(request: Request) {
         }
 
         if (search) {
-            query.$text = { $search: search };
-        }
-
-        if (type === 'repository') {
-            query['repository.url'] = { $exists: true };
-        }
-
-        // Handle keyset pagination via afterSlug
-        if (afterSlug) {
-            const lastPost = await Post.findOne({ slug: afterSlug });
-            if (lastPost) {
-                query.$or = [
-                    { order: { $gt: lastPost.order || 0 } },
-                    {
-                        order: lastPost.order || 0,
-                        createdAt: { $lt: lastPost.createdAt }
-                    }
-                ];
+            // Check if search query is likely a numeric ID (6 digits)
+            if (/^\d{6}$/.test(search)) {
+                query.numericId = search;
+            } else {
+                query.$text = { $search: search };
             }
         }
 
-        // Get total count (approximation if afterSlug is used, but query filters it)
-        const total = await Post.countDocuments(query);
+        if (type === 'repository') {
+            query.repository = { $exists: true, $ne: null };
+        } else if (type === 'article') {
+            query.repository = { $exists: false };
+        }
 
-        // Get posts
+        const skip = (page - 1) * limit;
+
         const posts = await Post.find(query)
             .sort({ publishedAt: -1 })
+            .skip(skip)
             .limit(limit)
             .lean();
 
-        // Transform _id to id
-        const transformedPosts = posts.map(post => ({
-            ...post,
-            id: post._id.toString(),
-            _id: undefined,
-        }));
+        const total = await Post.countDocuments(query);
 
         return NextResponse.json({
-            posts: transformedPosts,
+            posts: posts.map((post: any) => ({
+                ...post,
+                id: post._id.toString(),
+            })),
             pagination: {
-                page: 1, // Page isn't meaningful with cursor pagination
-                limit,
                 total,
-                totalPages: Math.ceil(total / limit),
-            },
+                pages: Math.ceil(total / limit),
+                page,
+                limit
+            }
         });
     } catch (error) {
-        console.error('Get posts error:', error);
+        console.error('Fetch posts error:', error);
         return NextResponse.json(
             { error: 'Failed to fetch posts' },
             { status: 500 }
@@ -129,19 +120,13 @@ export async function POST(request: Request) {
         }
         data.slug = uniqueSlug;
 
+        import { generateUniqueId } from '@/lib/id-system';
+
+        // ... existing imports ...
+
+        // In POST function:
         // Generate numericId
-        // Try to generate a unique 6-digit ID
-        let numericId: string | undefined;
-        let attempts = 0;
-        while (!numericId && attempts < 5) {
-            const potentialId = Math.floor(100000 + Math.random() * 900000).toString();
-            // Check if exists
-            const existing = await Post.findOne({ numericId: potentialId });
-            if (!existing) {
-                numericId = potentialId;
-            }
-            attempts++;
-        }
+        let numericId = await generateUniqueId();
 
         // If explicitly provided in data (e.g. migration or manual override), use that
         if (data.numericId) {

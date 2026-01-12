@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react'
+import { formatId } from '@/lib/id-format'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
@@ -263,7 +265,7 @@ export default async function PromptDetailPage({ params }: Props) {
                             <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg border border-border/50">
                                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">ID:</span>
                                 <span className="text-sm font-mono font-bold text-primary">
-                                    #{prompt.numericId || '---'}
+                                    {formatId(prompt.numericId) || '---'}
                                 </span>
                             </div>
 

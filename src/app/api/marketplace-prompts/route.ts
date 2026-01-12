@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import MarketplacePrompt from '@/models/MarketplacePrompt';
+import { generateUniqueId } from '@/lib/id-system';
 import { verifyAdmin } from '@/lib/admin-auth';
 
 // GET - List prompts with filters and pagination
@@ -59,7 +60,12 @@ export async function GET(request: NextRequest) {
         }
 
         if (search) {
-            query.$text = { $search: search };
+            // Check if search query is likely a numeric ID (6 digits)
+            if (/^\d{6}$/.test(search)) {
+                query.numericId = search;
+            } else {
+                query.$text = { $search: search };
+            }
         }
 
         // Build sort
@@ -186,17 +192,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Generate numericId
-        let numericId: string | undefined;
-        let attempts = 0;
-        while (!numericId && attempts < 5) {
-            const potentialId = Math.floor(100000 + Math.random() * 900000).toString();
-            // Check if exists
-            const existing = await MarketplacePrompt.findOne({ numericId: potentialId });
-            if (!existing) {
-                numericId = potentialId;
-            }
-            attempts++;
-        }
+        const numericId = await generateUniqueId();
 
         const prompt = await MarketplacePrompt.create({
             title,

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import MarketplacePrompt from '@/models/MarketplacePrompt';
+import { generateUniqueId } from '@/lib/id-system';
 import { verifyAdmin } from '@/lib/admin-auth';
 
 interface Params {
@@ -52,21 +53,10 @@ export async function GET(request: NextRequest, { params }: Params) {
 
         // Backfill numericId if missing
         if (!prompt.numericId) {
-            let numericId: string | undefined;
-            let attempts = 0;
-            while (!numericId && attempts < 5) {
-                const potentialId = Math.floor(100000 + Math.random() * 900000).toString();
-                const existing = await MarketplacePrompt.findOne({ numericId: potentialId });
-                if (!existing) {
-                    numericId = potentialId;
-                }
-                attempts++;
-            }
-            if (numericId) {
-                await MarketplacePrompt.updateOne({ _id: prompt._id }, { numericId });
-                // @ts-ignore
-                result.numericId = numericId;
-            }
+            const numericId = await generateUniqueId(); // Assuming generateUniqueId is imported or defined elsewhere
+            await MarketplacePrompt.updateOne({ _id: prompt._id }, { numericId });
+            // @ts-ignore
+            result.numericId = numericId;
         }
 
         return NextResponse.json({ prompt: result });
@@ -123,7 +113,8 @@ export async function PUT(request: NextRequest, { params }: Params) {
             'originalPrice', 'promptTemplate', 'negativePrompt', 'variables', 'instructions',
             'aiModel', 'aiModelVersion', 'generationType', 'aspectRatio', 'coverImage',
             'exampleImages', 'category', 'tags', 'status', 'featuredOrder',
-            'metaTitle', 'metaDescription', 'relatedPrompts', 'bundles', 'versions', 'abTests'
+            'metaTitle', 'metaDescription', 'relatedPrompts', 'bundles', 'versions', 'abTests',
+            'numericId'
         ];
 
         for (const field of updateFields) {

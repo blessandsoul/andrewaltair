@@ -9,6 +9,16 @@ import { TbDeviceFloppy, TbArrowLeft, TbWorld, TbFileText, TbStar, TbGitFork, Tb
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { useAutosave } from "@/hooks/useAutosave"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import { parseRepositoryPost } from "@/lib/RepositoryParser"
 
 // Reuse PostData interface but focus on repository fields
 import { PostData } from "./PostEditor"
@@ -82,6 +92,36 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
 
     const [isSaving, setIsSaving] = React.useState(false)
     const [isFetchingInfo, setIsFetchingInfo] = React.useState(false)
+    const [showImportDialog, setShowImportDialog] = React.useState(false)
+    const [importText, setImportText] = React.useState("")
+
+    const handleImport = async () => {
+        if (!importText.trim()) return;
+
+        const result = parseRepositoryPost(importText);
+
+        if (result.success && result.repository) {
+            setPost(prev => ({
+                ...prev,
+                title: result.title || prev.title,
+                slug: result.title ? generateSlug(result.title) : prev.slug,
+                excerpt: result.excerpt || prev.excerpt,
+                tags: [...new Set([...prev.tags, ...(result.tags || [])])],
+                sections: [...prev.sections, ...(result.sections || [])],
+                repository: {
+                    ...prev.repository!,
+                    ...result.repository,
+                    // Preserve existing type if not detected as github
+                    type: result.repository.type === 'other' ? prev.repository?.type || 'other' : result.repository.type,
+                }
+            }));
+            setShowImportDialog(false);
+            setImportText("");
+            toast.success("Repository data imported successfully");
+        } else {
+            toast.error(result.error || "Failed to parse repository text");
+        }
+    }
 
     // Generate slug from title (shared logic)
     const generateSlug = (title: string): string => {
@@ -169,6 +209,9 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
+                    <Button variant="outline" onClick={() => setShowImportDialog(true)} className="gap-2">
+                        <TbCode className="w-4 h-4" /> Import from Text
+                    </Button>
                     <Button variant="outline" onClick={onCancel}>Cancel</Button>
                     <Button onClick={handleSave} disabled={isSaving} className="gap-2 bg-purple-600 hover:bg-purple-700 text-white">
                         {isSaving ? <TbLoader2 className="w-4 h-4 animate-spin" /> : <TbDeviceFloppy className="w-4 h-4" />}
@@ -378,6 +421,30 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
                     </Card>
                 </div>
             </div>
-        </div>
+
+
+            <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
+                <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>Import Repository Post</DialogTitle>
+                        <DialogDescription>
+                            Paste the Georgian repository post template here. The system will extract title, description, stats, and prompts.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <Textarea
+                            placeholder="Paste your text here..."
+                            className="min-h-[300px] font-mono text-xs"
+                            value={importText}
+                            onChange={(e) => setImportText(e.target.value)}
+                        />
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setShowImportDialog(false)}>Cancel</Button>
+                        <Button onClick={handleImport}>Import Data</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </div >
     )
 }

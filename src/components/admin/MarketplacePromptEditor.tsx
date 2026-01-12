@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/toast"
 import { TbSparkles, TbPlus, TbTrash, TbArrowLeft, TbLoader2, TbCurrencyDollar, TbPhotoPlus, TbWand, TbX, TbChartBar, TbHistory, TbFlask, TbLink, TbRobot, TbCopy } from "react-icons/tb"
+import { formatId } from "@/lib/id-format"
 
 interface PromptVariable {
     name: string
@@ -569,7 +570,7 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                             <span>{data.slug || 'untitled-prompt'}</span>
                             {data.numericId && (
                                 <span className="px-1.5 py-0.5 rounded-md bg-muted font-mono text-[10px] border">
-                                    #{data.numericId}
+                                    {formatId(data.numericId)}
                                 </span>
                             )}
                         </p>
@@ -675,11 +676,12 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     <div className="space-y-2">
-                                        <Label className="text-xs text-muted-foreground uppercase tracking-wider">ID (Auto-Generated)</Label>
+                                        <Label className="text-xs text-muted-foreground uppercase tracking-wider">ID (Vanity / Auto)</Label>
                                         <div className="flex items-center gap-2">
                                             <Input
-                                                value={data.numericId ? `#${data.numericId}` : 'Will be generated on save...'}
-                                                readOnly
+                                                value={data.numericId || ''} // Allow raw editing
+                                                onChange={(e) => setData(prev => ({ ...prev, numericId: e.target.value }))}
+                                                placeholder="Auto-generated on save..."
                                                 className="bg-muted/50 font-mono text-xs"
                                             />
                                             {data.numericId && (
@@ -687,8 +689,9 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                                                     size="icon"
                                                     variant="outline"
                                                     onClick={() => {
-                                                        navigator.clipboard.writeText(`#${data.numericId || ''}`)
-                                                        success("Copied", "ID copied to clipboard")
+                                                        const textToCopy = `ნახეთ ეს: ${data.title} (ID: ${formatId(data.numericId)}) https://andrewaltair.ge/s/${data.numericId}`
+                                                        navigator.clipboard.writeText(textToCopy)
+                                                        success("Copied", "Smart ID copied to clipboard")
                                                     }}
                                                     className="shrink-0"
                                                 >
@@ -696,6 +699,7 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                                                 </Button>
                                             )}
                                         </div>
+                                        <p className="text-[10px] text-muted-foreground">Format: {formatId(data.numericId)}</p>
                                     </div>
 
                                     <div className="space-y-2">

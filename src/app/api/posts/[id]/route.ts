@@ -34,6 +34,15 @@ export async function GET(request: Request, { params }: RouteParams) {
             );
         }
 
+
+        // Backfill numericId if missing
+        if (!post.numericId) {
+            const numericId = await generateUniqueId();
+            await Post.updateOne({ _id: post._id }, { numericId });
+            // @ts-ignore
+            post.numericId = numericId;
+        }
+
         // Increment views
         await Post.findByIdAndUpdate(post._id, { $inc: { views: 1 } });
 
