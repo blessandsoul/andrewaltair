@@ -112,7 +112,7 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
                     ...prev.repository!,
                     ...result.repository,
                     // Preserve existing type if not detected as github
-                    type: result.repository.type === 'other' ? prev.repository?.type || 'other' : result.repository.type,
+                    type: (result.repository && result.repository.type === 'other') ? prev.repository?.type || 'other' : (result.repository?.type || 'other'),
                 }
             }));
             setShowImportDialog(false);
