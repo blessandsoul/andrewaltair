@@ -12,14 +12,14 @@ import { Button } from '@/components/ui/button'
 
 export const metadata: Metadata = {
     title: 'AI Prompts Marketplace | Andrew Altair',
-    description: 'მაღალხარისხიანი AI პრომპტები Gemini, Midjourney, DALL-E და სხვა მოდელებისთვის. უფასო და პრემიუმ პრომპტები.',
+    description: 'მაღალხარისხიანი AI პრომპტები ყველა მოდელისთვის. უფასო და პრემიუმ პრომპტები.',
 }
 
 async function getPrompts(searchParams: { [key: string]: string | undefined }) {
     const params = new URLSearchParams()
     params.set('status', 'published')
     if (searchParams.category) params.set('category', searchParams.category)
-    if (searchParams.aiModel) params.set('aiModel', searchParams.aiModel)
+
     if (searchParams.free) params.set('isFree', searchParams.free)
     if (searchParams.sort) params.set('sort', searchParams.sort)
     if (searchParams.search) params.set('search', searchParams.search)
@@ -133,7 +133,7 @@ export default async function PromptsPage({
     const { filters } = await getPrompts({}) // Get basic filters
 
     // Check if user is filtering
-    const isFiltering = params.category || params.aiModel || params.isFree || params.search || params.generationType
+    const isFiltering = params.category || params.isFree || params.search || params.generationType
 
     return (
         <div className="min-h-screen">
@@ -162,7 +162,7 @@ export default async function PromptsPage({
                         </h1>
 
                         <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                            პროფესიონალური პრომპტები Gemini, Midjourney, DALL-E და სხვა მოდელებისთვის.
+                            პროფესიონალური პრომპტები ყველა AI მოდელისთვის.
                             დაზოგე დრო და მიიღე უკეთესი შედეგი.
                         </p>
 
@@ -188,7 +188,6 @@ export default async function PromptsPage({
                     {/* Filters */}
                     <PromptsFilters
                         categories={filters.categories || []}
-                        aiModels={filters.aiModels || []}
                     />
 
                     {isFiltering ? (
@@ -214,7 +213,7 @@ export default async function PromptsPage({
                                     title="Text Generation"
                                     icon={TbFileDescription}
                                     type="text-generation"
-                                    description="ტექსტური პრომპტები GPT-4, Claude და Gemini-სთვის"
+                                    description="ტექსტური პრომპტები ყველა ტექსტური მოდელისთვის"
                                 />
                             </Suspense>
                         </div>

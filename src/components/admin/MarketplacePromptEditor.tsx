@@ -132,22 +132,7 @@ const CATEGORIES = [
 const ASPECT_RATIOS = ["1:1", "16:9", "9:16", "4:3", "3:4", "2:3", "3:2", "21:9"]
 const VARIABLE_TYPES = ["text", "number", "select", "boolean"]
 
-const AI_MODELS = [
-    "Gemini 2.0",
-    "Gemini 1.5 Pro",
-    "Midjourney v6",
-    "Midjourney v5.2",
-    "DALL-E 3",
-    "Stable Diffusion XL",
-    "Stable Diffusion 3",
-    "Leonardo AI",
-    "Runway Gen-2",
-    "Pika Labs",
-    "Sora",
-    "GPT-4",
-    "Claude 3",
-    "Llama 3"
-]
+
 
 const GENERATION_TYPES = [
     { value: "text-to-image", label: "Text to Image (Photo)" },
@@ -731,22 +716,7 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                                         </div>
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <Label className="text-xs text-muted-foreground uppercase tracking-wider">AI Model</Label>
-                                        <Select
-                                            value={data.aiModel}
-                                            onValueChange={(v) => setData(prev => ({ ...prev, aiModel: v }))}
-                                        >
-                                            <SelectTrigger className="!ring-0 !focus-visible:ring-0 !focus-visible:ring-offset-0">
-                                                <SelectValue placeholder="Select Model" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {AI_MODELS.map(model => (
-                                                    <SelectItem key={model} value={model}>{model}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
+
 
                                     <div className="space-y-2">
                                         <Label className="text-xs text-muted-foreground uppercase tracking-wider">Generation Type</Label>

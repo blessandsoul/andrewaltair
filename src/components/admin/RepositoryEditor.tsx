@@ -300,7 +300,7 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
                     {/* Stats & Metadata */}
                     <Card>
                         <CardHeader><CardTitle className="text-lg">Stats & Metadata</CardTitle></CardHeader>
-                        <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <CardContent className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
                                     <TbStar className="w-3 h-3" /> Stars
@@ -316,19 +316,6 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
                             </div>
                             <div className="space-y-2">
                                 <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
-                                    <TbGitFork className="w-3 h-3" /> Forks
-                                </label>
-                                <Input
-                                    type="number"
-                                    value={post.repository?.forks || 0}
-                                    onChange={(e) => setPost(prev => ({
-                                        ...prev,
-                                        repository: { ...prev.repository!, forks: parseInt(e.target.value) || 0 }
-                                    }))}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
                                     <TbCode className="w-3 h-3" /> Language
                                 </label>
                                 <Input
@@ -339,6 +326,41 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
                                         repository: { ...prev.repository!, language: e.target.value }
                                     }))}
                                 />
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Cover Images */}
+                    <Card>
+                        <CardHeader><CardTitle className="text-lg">Result Images</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Horizontal (16:9)</label>
+                                <Input
+                                    placeholder="https://.../horizontal.jpg"
+                                    value={post.coverImages?.horizontal || ''}
+                                    onChange={(e) => setPost(prev => ({
+                                        ...prev,
+                                        coverImages: { ...prev.coverImages, horizontal: e.target.value }
+                                    }))}
+                                />
+                                {post.coverImages?.horizontal && (
+                                    <img src={post.coverImages.horizontal} alt="Preview" className="w-full h-32 object-cover rounded-md border" />
+                                )}
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Vertical (9:16)</label>
+                                <Input
+                                    placeholder="https://.../vertical.jpg"
+                                    value={post.coverImages?.vertical || ''}
+                                    onChange={(e) => setPost(prev => ({
+                                        ...prev,
+                                        coverImages: { ...prev.coverImages, vertical: e.target.value }
+                                    }))}
+                                />
+                                {post.coverImages?.vertical && (
+                                    <img src={post.coverImages.vertical} alt="Preview" className="w-32 h-48 object-cover rounded-md border" />
+                                )}
                             </div>
                         </CardContent>
                     </Card>
@@ -400,22 +422,6 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
                                         }))}><TbX className="w-3 h-3 hover:text-destructive" /></button>
                                     </Badge>
                                 ))}
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Status */}
-                    <Card>
-                        <CardHeader><CardTitle className="text-sm">Status</CardTitle></CardHeader>
-                        <CardContent>
-                            <div className="flex items-center justify-between p-2 border rounded-md">
-                                <span className="text-sm font-medium capitalize">{post.status}</span>
-                                <Button variant="outline" size="sm" onClick={() => setPost(prev => ({
-                                    ...prev,
-                                    status: prev.status === 'published' ? 'draft' : 'published'
-                                }))}>
-                                    Toggle
-                                </Button>
                             </div>
                         </CardContent>
                     </Card>

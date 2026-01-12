@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { TbEye, TbFlame, TbHeart, TbMessage, TbShare, TbClock, TbBookmark, TbSparkles, TbArrowRight } from "react-icons/tb"
 import { brand } from "@/lib/brand"
 import { useState } from "react"
+import { cn } from "@/lib/utils"
 
 interface Post {
     id: string
@@ -41,6 +42,7 @@ interface PostCardProps {
     showExcerpt?: boolean
     showTags?: boolean
     showAuthor?: boolean
+    className?: string
 }
 
 // Format numbers (15420 -> 15.4K)
@@ -85,54 +87,56 @@ export function PostCard({
     variant = "default",
     showExcerpt = true,
     showTags = true,
-    showAuthor = false
+    showAuthor = true,
+    className
 }: PostCardProps) {
-    const [isBookmarked, setIsBookmarked] = useState(false)
     const [isHovered, setIsHovered] = useState(false)
     const categoryStr = post.categories && post.categories.length > 0 ? post.categories[0] : ((post as any).category || 'ai')
     const categoryInfo = getCategoryInfo(categoryStr)
 
-    const handleBookmark = (e: React.MouseEvent) => {
-        e.preventDefault()
-        e.stopPropagation()
-        setIsBookmarked(!isBookmarked)
-    }
-
     return (
         <Link href={`/blog/${post.slug}`}>
             <Card
-                className="group h-full border-0 shadow-lg bg-card transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
+                className={cn(
+                    "group h-full border-0 bg-card overflow-hidden transition-all duration-500",
+                    "hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] hover:-translate-y-2",
+                    "dark:hover:shadow-[0_20px_40px_-15px_rgba(255,255,255,0.05)]",
+                    className
+                )}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
             >
-                <CardContent className="p-0 h-full">
-                    {/* Horizontal Layout - Compact Design */}
-                    <div className="flex h-full">
-                        {/* Thumbnail - Left Side (compact) - stretches to full height */}
-                        <div className="relative w-32 min-h-[140px] flex-shrink-0 overflow-hidden rounded-l-xl self-stretch">
-                            {/* Background gradient */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20" />
+                <CardContent className="p-0 h-full flex flex-col">
+                    {/* Image Container */}
+                    <div className="relative w-full aspect-[16/10] overflow-hidden">
+                        {/* Background Gradient Placeholder */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5" />
 
-                            {/* Image */}
-                            {(post.coverImage || post.coverImages?.horizontal) ? (
-                                <Image
-                                    src={post.coverImages?.horizontal || post.coverImage || ''}
-                                    alt={post.title}
-                                    fill
-                                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                                />
-                            ) : (
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <TbSparkles className="w-8 h-8 text-primary/40 group-hover:scale-110 transition-transform" />
-                                </div>
-                            )}
+                        {/* Image */}
+                        {(post.coverImage || post.coverImages?.horizontal) ? (
+                            <Image
+                                src={post.coverImages?.horizontal || post.coverImage || ''}
+                                alt={post.title}
+                                fill
+                                className="object-cover transition-transform duration-700 will-change-transform group-hover:scale-110"
+                            />
+                        ) : (
+                            <div className="absolute inset-0 flex items-center justify-center bg-secondary/30">
+                                <TbSparkles className="w-10 h-10 text-primary/20" />
+                            </div>
+                        )}
 
-                            {/* Category Badge overlay */}
+                        {/* Gradient Overlay - fades in on hover */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+
+                        {/* Top Badges */}
+                        <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
+                            {/* Category Badge */}
                             <Badge
-                                className="absolute bottom-2 left-2 text-[10px] z-10 border-0 shadow-md font-semibold"
+                                className="backdrop-blur-md border-0 text-[10px] font-bold px-2.5 py-1 tracking-wider uppercase shadow-lg"
                                 style={{
-                                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                                    color: categoryInfo.color
+                                    backgroundColor: isHovered ? categoryInfo.color : `${categoryInfo.color}D9`, // More vivid on hover
+                                    color: '#fff'
                                 }}
                             >
                                 {categoryInfo.name}
@@ -140,65 +144,81 @@ export function PostCard({
 
                             {/* Trending Badge */}
                             {post.trending && (
-                                <Badge className="absolute top-2 left-2 bg-red-500 text-white border-0 text-[10px] z-10 px-1.5 py-0.5">
-                                    <TbFlame className="w-3 h-3" />
+                                <Badge className="bg-red-500/90 backdrop-blur-sm text-white border-0 text-[10px] px-2 py-0.5 animate-pulse">
+                                    <TbFlame className="w-3 h-3 mr-1" />
+                                    HOT
                                 </Badge>
                             )}
                         </div>
 
-                        {/* Content - Right Side */}
-                        <div className="flex-1 p-3 flex flex-col justify-between min-w-0">
-                            {/* Tags */}
-                            {showTags && post.tags && post.tags.length > 0 && (
-                                <div className="flex items-center gap-1.5 flex-wrap mb-1.5">
-                                    {post.tags.slice(0, 2).map(tag => (
-                                        <Badge
-                                            key={tag}
-                                            variant="secondary"
-                                            className="text-[9px] font-medium bg-secondary/50 text-secondary-foreground px-1.5 py-0 rounded-full"
-                                        >
-                                            #{tag}
-                                        </Badge>
-                                    ))}
-                                </div>
-                            )}
+                        {/* Bottom Stats Overlay (on image) */}
+                        <div className="absolute bottom-3 right-3 flex items-center gap-3 text-white/90 text-xs font-medium z-10">
+                            <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-black/20 backdrop-blur-sm">
+                                <TbClock className="w-3.5 h-3.5" />
+                                {post.readingTime} წთ
+                            </span>
+                        </div>
+                    </div>
 
-                            {/* Title */}
-                            <h3 className="text-sm font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors mb-1.5">
-                                {post.title}
-                            </h3>
+                    {/* Content Section */}
+                    <div className="flex-1 p-5 flex flex-col">
+                        {/* Tags */}
+                        {showTags && post.tags && post.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mb-3 opacity-80 group-hover:opacity-100 transition-opacity">
+                                {post.tags.slice(0, 2).map(tag => (
+                                    <span key={tag} className="text-[10px] font-medium text-primary/80 bg-primary/5 px-2 py-0.5 rounded-full">
+                                        #{tag}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
 
-                            {/* Excerpt */}
-                            {showExcerpt && variant !== "compact" && (
-                                <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mb-2">
-                                    {post.excerpt}
-                                </p>
-                            )}
+                        {/* Title */}
+                        <h3 className="text-lg font-bold leading-snug mb-3 group-hover:text-primary transition-colors line-clamp-2">
+                            {post.title}
+                        </h3>
 
-                            {/* Bottom Row - Author & Stats */}
-                            <div className="flex items-center justify-between text-[10px] text-muted-foreground mt-auto pt-2 border-t border-border/30">
-                                {/* Author */}
-                                {showAuthor && (
-                                    <div className="flex items-center gap-1.5">
-                                        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-[9px] font-bold">
+                        {/* Excerpt */}
+                        {showExcerpt && (
+                            <p className="text-sm text-muted-foreground line-clamp-2 mb-4 leading-relaxed">
+                                {post.excerpt}
+                            </p>
+                        )}
+
+                        <div className="mt-auto pt-4 border-t border-border/40 flex items-center justify-between">
+                            {/* Author */}
+                            {showAuthor && post.author && (
+                                <div className="flex items-center gap-2">
+                                    {post.author.avatar ? (
+                                        <div className="relative w-6 h-6 rounded-full overflow-hidden ring-1 ring-border">
+                                            <Image
+                                                src={post.author.avatar}
+                                                alt={post.author.name}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
                                             {post.author.name.charAt(0)}
                                         </div>
-                                        <span className="font-medium truncate max-w-[60px]">{post.author.name}</span>
-                                    </div>
-                                )}
-
-                                {/* Stats */}
-                                <div className="flex items-center gap-2">
-                                    <span className="flex items-center gap-0.5">
-                                        <TbEye className="w-3 h-3" />
-                                        {formatNumber(post.views)}
+                                    )}
+                                    <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                                        {post.author.name}
                                     </span>
-                                    <span className="flex items-center gap-0.5 text-red-500/80">
-                                        <TbHeart className="w-3 h-3" />
-                                        {formatNumber(getTotalReactions(post.reactions))}
-                                    </span>
-                                    <TbArrowRight className="w-3 h-3 text-primary group-hover:translate-x-0.5 transition-transform" />
                                 </div>
+                            )}
+
+                            {/* Interactions */}
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground/80">
+                                <span className="flex items-center gap-1 hover:text-primary transition-colors">
+                                    <TbEye className="w-3.5 h-3.5" />
+                                    {formatNumber(post.views)}
+                                </span>
+                                <span className="flex items-center gap-1 hover:text-red-500 transition-colors">
+                                    <TbHeart className="w-3.5 h-3.5" />
+                                    {formatNumber(getTotalReactions(post.reactions))}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -211,44 +231,35 @@ export function PostCard({
 // Skeleton component for loading state
 export function PostCardSkeleton() {
     return (
-        <Card className="h-full border-0 shadow-lg bg-card animate-pulse">
-            <CardContent className="p-0">
-                {/* TbPhoto skeleton */}
-                <div className="aspect-video bg-muted" />
+        <Card className="h-full border-0 bg-card rounded-xl overflow-hidden shadow-sm">
+            <CardContent className="p-0 h-full flex flex-col">
+                {/* Image Skeleton */}
+                <div className="aspect-[16/10] bg-muted animate-pulse" />
 
-                {/* Content skeleton */}
-                <div className="p-4 space-y-3">
-                    {/* Tags skeleton */}
+                {/* Content Skeleton */}
+                <div className="p-5 flex-1 flex flex-col space-y-4">
                     <div className="flex gap-2">
-                        <div className="h-4 w-16 bg-muted rounded" />
-                        <div className="h-4 w-12 bg-muted rounded" />
+                        <div className="h-3 w-16 bg-muted rounded-full" />
+                        <div className="h-3 w-12 bg-muted rounded-full" />
                     </div>
 
-                    {/* Title skeleton */}
                     <div className="space-y-2">
-                        <div className="h-5 bg-muted rounded w-full" />
-                        <div className="h-5 bg-muted rounded w-3/4" />
+                        <div className="h-5 bg-muted rounded-md w-full" />
+                        <div className="h-5 bg-muted rounded-md w-2/3" />
                     </div>
 
-                    {/* Author skeleton */}
-                    <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-muted" />
-                        <div className="h-4 w-24 bg-muted rounded" />
-                    </div>
+                    <div className="h-10 w-full bg-muted/50 rounded-md" />
 
-                    {/* Stats skeleton */}
-                    <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                        <div className="flex gap-3">
-                            <div className="h-4 w-12 bg-muted rounded" />
-                            <div className="h-4 w-12 bg-muted rounded" />
+                    <div className="mt-auto pt-4 border-t border-border/40 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-muted" />
+                            <div className="h-3 w-20 bg-muted rounded" />
                         </div>
-                        <div className="flex gap-3">
-                            <div className="h-4 w-12 bg-muted rounded" />
-                            <div className="h-4 w-12 bg-muted rounded" />
+                        <div className="flex gap-2">
+                            <div className="h-3 w-8 bg-muted rounded" />
+                            <div className="h-3 w-8 bg-muted rounded" />
                         </div>
                     </div>
-
-
                 </div>
             </CardContent>
         </Card>

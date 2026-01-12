@@ -4,9 +4,10 @@ import Link from "next/link"
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { TbEye, TbFlame, TbHeart, TbMessage, TbShare, TbClock, TbBookmark, TbSparkles, TbTrendingUp } from "react-icons/tb"
+import { TbEye, TbFlame, TbHeart, TbSparkles, TbTrendingUp, TbChartLine } from "react-icons/tb"
 import { brand } from "@/lib/brand"
 import { useState } from "react"
+import { cn } from "@/lib/utils"
 
 interface Post {
     id: string
@@ -68,27 +69,35 @@ export function TrendingCard({ post, rank }: TrendingCardProps) {
 
     // Rank colors
     const rankColors = {
-        1: "from-yellow-400 to-orange-500", // Gold
-        2: "from-gray-300 to-gray-400",     // Silver
-        3: "from-amber-600 to-amber-700"    // Bronze
+        1: "from-yellow-400 to-orange-500 shadow-yellow-500/20", // Gold
+        2: "from-slate-300 to-slate-400 shadow-slate-400/20",     // Silver
+        3: "from-amber-600 to-amber-700 shadow-amber-600/20"    // Bronze
     }
 
-    const rankColor = rankColors[rank as keyof typeof rankColors] || "from-primary to-accent"
+    const rankGradient = rankColors[rank as keyof typeof rankColors] || "from-primary to-accent shadow-primary/20"
 
     return (
-        <Link href={`/blog/${post.slug}`}>
+        <Link href={`/blog/${post.slug}`} className="block h-full">
             <Card
-                className="group h-full border-0 shadow-lg bg-card transition-all duration-300 hover:shadow-2xl hover:-translate-y-2"
+                className="group h-full border-0 bg-card overflow-hidden transition-all duration-500 hover:shadow-xl hover:-translate-y-1"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
             >
-                <CardContent className="p-0">
-                    {/* TbPhoto Container */}
-                    <div className="aspect-video relative overflow-hidden">
-                        {/* Background */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10" />
+                <CardContent className="p-0 flex h-24 sm:h-28">
+                    {/* Rank Indicator */}
+                    <div className="w-12 sm:w-14 flex items-center justify-center bg-secondary/30 border-r border-dashed border-border/60 relative overflow-hidden group-hover:bg-secondary/50 transition-colors">
+                        <span className={cn(
+                            "text-3xl sm:text-4xl font-black bg-gradient-to-br bg-clip-text text-transparent transform transition-transform duration-500",
+                            rankGradient,
+                            isHovered ? "scale-110" : ""
+                        )}>
+                            {rank}
+                        </span>
+                        <div className={cn("absolute inset-0 bg-gradient-to-b from-transparent to-black/5 pointer-events-none")} />
+                    </div>
 
-                        {/* TbPhoto */}
+                    {/* Image (Small Thumbnail) */}
+                    <div className="relative w-24 sm:w-32 h-full overflow-hidden">
                         {(post.coverImage || post.coverImages?.horizontal) ? (
                             <Image
                                 src={post.coverImages?.horizontal || post.coverImage || ''}
@@ -97,74 +106,34 @@ export function TrendingCard({ post, rank }: TrendingCardProps) {
                                 className="object-cover transition-transform duration-700 group-hover:scale-110"
                             />
                         ) : (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <TbSparkles className="w-12 h-12 text-primary/30" />
+                            <div className="absolute inset-0 flex items-center justify-center bg-secondary/10">
+                                <TbSparkles className="w-6 h-6 text-primary/20" />
                             </div>
                         )}
-
-                        {/* Dark gradient overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-
-                        {/* Rank Badge - Premium style */}
-                        <div className={`absolute top-3 left-3 w-12 h-12 bg-gradient-to-br ${rankColor} text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-lg z-10 transition-transform duration-300 ${isHovered ? 'scale-110 rotate-3' : ''}`}>
-                            {rank}
-                        </div>
-
-                        {/* Category Badge */}
-                        <Badge
-                            className="absolute top-3 right-3 text-xs z-10 border-0 backdrop-blur-md"
-                            style={{
-                                backgroundColor: `${categoryInfo.color}30`,
-                                color: categoryInfo.color
-                            }}
-                        >
-                            {categoryInfo.name}
-                        </Badge>
-
-                        {/* Trending indicator */}
-                        <div className="absolute bottom-3 left-3 flex items-center gap-1 text-white text-xs z-10">
-                            <TbTrendingUp className="w-4 h-4 text-red-400" />
-                            <span className="font-medium">ტრენდში</span>
-                        </div>
-
-                        {/* Stats on image */}
-                        <div className="absolute bottom-3 right-3 flex items-center gap-3 text-white/90 text-xs z-10">
-                            <span className="flex items-center gap-1">
-                                <TbEye className="w-3.5 h-3.5" />
-                                {formatNumber(post.views)}
-                            </span>
-                            <span className="flex items-center gap-1">
-                                <TbHeart className="w-3.5 h-3.5 text-red-400" />
-                                {formatNumber(getTotalReactions(post.reactions))}
-                            </span>
-                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-l from-card/0 to-black/20" />
                     </div>
 
                     {/* Content */}
-                    <div className="p-5 space-y-3">
+                    <div className="flex-1 p-3 sm:p-4 flex flex-col justify-center min-w-0">
+                        {/* Category & Stats */}
+                        <div className="flex items-center gap-2 mb-1.5 text-[10px] text-muted-foreground">
+                            <span
+                                className="font-bold uppercase tracking-wider"
+                                style={{ color: categoryInfo.color }}
+                            >
+                                {categoryInfo.name}
+                            </span>
+                            <span className="w-0.5 h-0.5 rounded-full bg-border" />
+                            <span className="flex items-center gap-1">
+                                <TbChartLine className="w-3 h-3 text-green-500" />
+                                +{formatNumber(post.views)}
+                            </span>
+                        </div>
+
                         {/* Title */}
-                        <h3 className="text-lg font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+                        <h3 className="text-sm sm:text-base font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors">
                             {post.title}
                         </h3>
-
-                        {/* Excerpt */}
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                            {post.excerpt}
-                        </p>
-
-                        {/* Bottom row */}
-                        <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                            {/* Empty div to keep spacing if needed, or remove entire bottom row if not needed. But let's check what was there. 
-                                Ah, wait, there were no other items in that row besides author. 
-                                Let's see if there were date or anything else.
-                                Looking at lines 156-166, it was just Author.
-                                So I can remove the entire bottom div or just leave it empty if there might be something else later. 
-                                Actually, checking line 156: <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                                Inside: Author divs.
-                                If I remove it, the bottom padding might look off.
-                                Let's remove the whole div if it only contains author.
-                             */}
-                        </div>
                     </div>
                 </CardContent>
             </Card>

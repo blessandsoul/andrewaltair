@@ -183,13 +183,6 @@ export default function MarketplacePromptCard({ prompt }: PromptCardProps) {
                                         {getTypeLabel()}
                                     </Badge>
 
-                                    {prompt.aiModel && (
-                                        <Badge variant="outline" className="bg-indigo-500/80 text-white border-white/10 backdrop-blur-md gap-1.5 pl-2">
-                                            <TbSparkles className="w-3 h-3" />
-                                            {prompt.aiModel}
-                                        </Badge>
-                                    )}
-
                                     {prompt.numericId && (
                                         <Badge variant="outline" className="bg-black/60 text-white/80 border-white/10 backdrop-blur-md font-mono text-[10px]">
                                             {formatId(prompt.numericId)}

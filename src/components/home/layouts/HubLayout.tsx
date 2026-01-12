@@ -32,6 +32,7 @@ import {
     TbPencil,
     TbBrain
 } from "react-icons/tb"
+import { PostCard } from "@/components/blog/PostCard"
 
 interface HubLayoutProps {
     posts: any[]
@@ -192,33 +193,18 @@ export function HubLayout({ posts, videos }: HubLayoutProps) {
                 </div>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {posts.slice(0, 4).map((post) => (
-                        <Link key={post.id} href={`/blog/${post.slug}`} className="group">
-                            <Card className="h-full overflow-hidden shadow-md hover-lift">
-                                <CardContent className="p-0 h-full flex flex-col">
-                                    <div className="relative aspect-video bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
-                                        {post.coverImages?.horizontal && (
-                                            <Image src={post.coverImages.horizontal} alt={post.title} fill className="object-cover" />
-                                        )}
-                                        {post.trending && (
-                                            <Badge className="absolute top-2 left-2 bg-red-500 border-0 text-xs">
-                                                <TbFlame className="w-3 h-3 mr-1" />Hot
-                                            </Badge>
-                                        )}
-                                    </div>
-                                    <div className="p-3 flex-1 flex flex-col">
-                                        <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors flex-1">
-                                            {post.title}
-                                        </h4>
-                                        <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                                            <TbEye className="w-3 h-3" />{post.views || 0}
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </Link>
+                        <PostCard
+                            key={post.id}
+                            post={post}
+                            showExcerpt={false}
+                            showTags={false}
+                            showAuthor={false}
+                            className="h-full shadow-md hover:shadow-xl"
+                        />
                     ))}
                 </div>
             </section>
+
 
             {/* Videos Section */}
             <section>

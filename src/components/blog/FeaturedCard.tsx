@@ -4,9 +4,10 @@ import Link from "next/link"
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { TbEye, TbFlame, TbHeart, TbMessage, TbShare, TbClock, TbBookmark, TbSparkles, TbStar, TbArrowRight } from "react-icons/tb"
+import { TbEye, TbFlame, TbHeart, TbMessage, TbShare, TbBookmark, TbSparkles, TbStar, TbArrowRight, TbClock } from "react-icons/tb"
 import { brand } from "@/lib/brand"
 import { useState } from "react"
+import { cn } from "@/lib/utils"
 
 interface Post {
     id: string
@@ -84,115 +85,126 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
     }
 
     return (
-        <Link href={`/blog/${post.slug}`}>
+        <Link href={`/blog/${post.slug}`} className="block h-full">
             <Card
-                className="group h-full border-0 shadow-xl bg-card transition-all duration-500 hover:shadow-2xl hover:-translate-y-2"
+                className="group h-full border-0 bg-card overflow-hidden shadow-2xl transition-all duration-700 hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] hover:-translate-y-1"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
             >
-                <CardContent className="p-0">
-                    {/* TbPhoto Container - Larger aspect ratio for featured */}
-                    <div className="aspect-[2/1] relative overflow-hidden">
-                        {/* Background */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20" />
-
-                        {/* TbPhoto */}
+                <CardContent className="p-0 h-full relative">
+                    {/* Background Image Container */}
+                    <div className="absolute inset-0 z-0">
                         {post.coverImage ? (
                             <Image
                                 src={post.coverImage}
                                 alt={post.title}
                                 fill
-                                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                className="object-cover transition-transform duration-1000 group-hover:scale-110"
                             />
                         ) : (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <TbSparkles className="w-16 h-16 text-primary/30" />
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                                <TbSparkles className="w-20 h-20 text-white/20" />
                             </div>
                         )}
 
-                        {/* Premium gradient overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                        {/* Gradient Overlays */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-90 transition-opacity duration-500 group-hover:opacity-80" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-transparent opacity-60" />
+                    </div>
 
-                        {/* Featured Badge */}
-                        <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
-                            <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 px-3 py-1">
-                                <TbStar className="w-3 h-3 mr-1 fill-current" />
-                                რჩეული
+                    {/* Content Container */}
+                    <div className="relative z-10 p-8 h-full flex flex-col justify-end">
+
+                        {/* Top Badges */}
+                        <div className="absolute top-6 left-6 flex items-center gap-3">
+                            <Badge className="bg-amber-400/90 text-black border-0 px-3 py-1 text-xs font-bold shadow-[0_0_15px_rgba(251,191,36,0.5)] animate-pulse">
+                                <TbStar className="w-3.5 h-3.5 mr-1.5 fill-black" />
+                                FEATURED
                             </Badge>
-                            {post.trending && (
-                                <Badge className="bg-red-500/90 text-white border-0 backdrop-blur-sm">
-                                    <TbFlame className="w-3 h-3 mr-1" />
-                                    ტრენდში
-                                </Badge>
-                            )}
+
+                            <Badge
+                                className="backdrop-blur-md border border-white/20 text-xs font-bold px-3 py-1 shadow-lg"
+                                style={{
+                                    backgroundColor: `${categoryInfo.color}CC`,
+                                    color: "white"
+                                }}
+                            >
+                                {categoryInfo.name}
+                            </Badge>
                         </div>
 
-                        {/* Category Badge */}
-                        <Badge
-                            className="absolute top-4 right-4 text-xs z-10 border-0 backdrop-blur-md"
-                            style={{
-                                backgroundColor: `${categoryInfo.color}40`,
-                                color: "white"
-                            }}
-                        >
-                            {categoryInfo.name}
-                        </Badge>
-
-                        {/* Bookmark */}
+                        {/* Bookmark Button */}
                         <button
                             onClick={handleBookmark}
-                            className={`absolute top-4 right-24 w-8 h-8 rounded-full flex items-center justify-center z-10 transition-all duration-300 ${isBookmarked
-                                ? "bg-primary text-white"
-                                : "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
-                                } ${isHovered || isBookmarked ? "opacity-100" : "opacity-0"}`}
+                            className={cn(
+                                "absolute top-6 right-6 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-md",
+                                isBookmarked
+                                    ? "bg-primary text-white shadow-[0_0_15px_rgba(var(--primary-rgb),0.5)]"
+                                    : "bg-white/10 text-white hover:bg-white/20 border border-white/10"
+                            )}
                         >
-                            <TbBookmark className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`} />
+                            <TbBookmark className={cn("w-5 h-5", isBookmarked && "fill-current")} />
                         </button>
 
-                        {/* Content overlay on image */}
-                        <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
+                        <div className="space-y-4 max-w-2xl transform transition-transform duration-500 group-hover:translate-x-2">
+                            {/* Meta Info */}
+                            <div className="flex items-center gap-3 text-white/70 text-sm font-medium">
+                                <span className="flex items-center gap-1.5">
+                                    <TbClock className="w-4 h-4" />
+                                    {formatRelativeDate(post.publishedAt)}
+                                </span>
+                                <span className="w-1 h-1 rounded-full bg-white/30" />
+                                <span>{post.readingTime} წთ კითხვა</span>
+                            </div>
+
                             {/* Title */}
-                            <h3 className="text-xl md:text-2xl font-bold text-white leading-tight line-clamp-2 mb-3 group-hover:text-primary-foreground transition-colors">
+                            <h3 className="text-3xl sm:text-4xl font-bold text-white leading-tight drop-shadow-lg">
                                 {post.title}
                             </h3>
 
-                            {/* Stats row */}
-                            <div className="flex items-center gap-4 text-white/80 text-sm">
-                                <span>{formatRelativeDate(post.publishedAt)}</span>
+                            {/* Excerpt */}
+                            <p className="text-lg text-white/80 line-clamp-2 leading-relaxed max-w-xl">
+                                {post.excerpt}
+                            </p>
 
+                            {/* Author & Actions */}
+                            <div className="pt-6 flex items-center justify-between border-t border-white/10">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full ring-2 ring-white/20 overflow-hidden relative">
+                                        <Image
+                                            src={post.author.avatar}
+                                            alt={post.author.name}
+                                            fill
+                                            className="object-cover"
+                                        />
+                                    </div>
+                                    <div>
+                                        <div className="text-white font-medium text-sm">{post.author.name}</div>
+                                        <div className="text-white/50 text-xs">{post.author.role}</div>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                    <ButtonGhost icon={TbEye} count={formatNumber(post.views)} />
+                                    <ButtonGhost icon={TbHeart} count={formatNumber(getTotalReactions(post.reactions))} className="hover:text-red-400" />
+                                </div>
                             </div>
-                        </div>
-                    </div>
-
-                    {/* Bottom stats bar */}
-                    <div className="px-6 py-4 flex items-center justify-between border-t border-border/50">
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span className="flex items-center gap-1 hover:text-foreground transition-colors">
-                                <TbEye className="w-4 h-4" />
-                                {formatNumber(post.views)}
-                            </span>
-                            <span className="flex items-center gap-1 hover:text-foreground transition-colors">
-                                <TbMessage className="w-4 h-4" />
-                                {formatNumber(post.comments)}
-                            </span>
-                            <span className="flex items-center gap-1 text-red-500">
-                                <TbHeart className="w-4 h-4" />
-                                {formatNumber(getTotalReactions(post.reactions))}
-                            </span>
-                            <span className="flex items-center gap-1 hover:text-foreground transition-colors">
-                                <TbShare className="w-4 h-4" />
-                                {formatNumber(post.shares)}
-                            </span>
-                        </div>
-
-                        {/* Read more */}
-                        <div className={`flex items-center gap-1 text-primary text-sm font-medium transition-all duration-300 ${isHovered ? 'translate-x-1' : ''}`}>
-                            <span>წაიკითხე</span>
-                            <TbArrowRight className="w-4 h-4" />
                         </div>
                     </div>
                 </CardContent>
             </Card>
         </Link>
+    )
+}
+
+function ButtonGhost({ icon: Icon, count, className }: { icon: any, count: string, className?: string }) {
+    return (
+        <div className={cn(
+            "flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 text-white/80 text-xs font-medium transition-colors hover:bg-white/10",
+            className
+        )}>
+            <Icon className="w-4 h-4" />
+            {count}
+        </div>
     )
 }

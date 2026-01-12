@@ -48,10 +48,10 @@ const categoryTranslations: Record<string, string> = {
 
 interface FilterProps {
     categories: string[]
-    aiModels: string[]
+
 }
 
-export function PromptsFilters({ categories, aiModels }: FilterProps) {
+export function PromptsFilters({ categories }: FilterProps) {
     const router = useRouter()
     const searchParams = useSearchParams()
 
@@ -85,21 +85,7 @@ export function PromptsFilters({ categories, aiModels }: FilterProps) {
                     </SelectContent>
                 </Select>
 
-                {/* AI Model Filter */}
-                <Select
-                    value={searchParams.get('aiModel') || "all"}
-                    onValueChange={(value) => updateParams('aiModel', value === "all" ? "" : value)}
-                >
-                    <SelectTrigger className="w-[180px] bg-card border-border/50 hover:border-primary/50 transition-colors">
-                        <SelectValue placeholder="ყველა AI მოდელი" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">ყველა AI მოდელი</SelectItem>
-                        {aiModels.map((model) => (
-                            <SelectItem key={model} value={model}>{model}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+
 
                 {/* Free/Paid Filter */}
                 <Select
@@ -137,7 +123,7 @@ export function PromptsFilters({ categories, aiModels }: FilterProps) {
             </div>
 
             {/* Active Filters Reset Button */}
-            {(searchParams.get('category') || searchParams.get('aiModel') || searchParams.get('free') || searchParams.get('search')) && (
+            {(searchParams.get('category') || searchParams.get('free') || searchParams.get('search')) && (
                 <Button
                     variant="ghost"
                     size="sm"
