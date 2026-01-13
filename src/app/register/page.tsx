@@ -88,13 +88,14 @@ export default function RegisterPage() {
 
                 // Success
                 toast.success("რეგისტრაცია წარმატებულია!", {
-                    description: "გთხოვთ შეამოწმოთ ელ-ფოსტა ანგარიშის გასააქტიურებლად."
+                    description: "გადამისამართება მთავარ გვერდზე..."
                 });
 
-                // Redirect to login after short delay
+                // Auto-login success set by server cookie, redirect to home
                 setTimeout(() => {
-                    router.push("/login");
-                }, 2000);
+                    router.push("/");
+                    router.refresh(); // Refresh to update auth state
+                }, 1500);
 
             } catch (error: any) {
                 setErrors(prev => ({

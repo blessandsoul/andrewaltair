@@ -104,7 +104,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Email verification check
+        // Email verification check - REMOVED
+        /*
         if (!user.isEmailVerified) {
             return NextResponse.json({
                 error: 'გთხოვთ დაადასტუროთ თქვენი ელ-ფოსტა',
@@ -112,6 +113,7 @@ export async function POST(request: NextRequest) {
                 email: user.email
             }, { status: 403 });
         }
+        */
 
         // Verify password
         const isMatch = await user.comparePassword(password);

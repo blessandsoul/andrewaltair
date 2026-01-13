@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
+import Session from '@/models/Session'; // Import Session model
 import { sendWelcomeEmail } from '@/lib/email';
 import { trackSignup } from '@/lib/activityTracker';
+import crypto from 'crypto'; // Import crypto
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -62,21 +63,15 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // 🛡️ Generate email verification token
-        const crypto = await import('crypto');
-        const verificationToken = crypto.randomBytes(32).toString('hex');
-        const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-
-        // Create new user (NOT verified yet)
+        // Create new user (Auto-Verified)
         const user = new User({
             username,
             email,
             password,
             fullName,
             role: 'viewer',
-            isEmailVerified: false,
-            emailVerificationToken: verificationToken,
-            emailVerificationExpires: verificationExpires,
+            isEmailVerified: true, // ✅ Immediately verified
+            // No verification token needed
         });
 
         await user.save();
@@ -84,17 +79,66 @@ export async function POST(request: NextRequest) {
         // 🎯 TRACK SIGNUP ACTIVITY
         trackSignup(fullName, user._id.toString()).catch(() => { })
 
-        // Send verification email (non-blocking)
-        const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://andrewaltair.ge'}/verify-email?token=${verificationToken}`;
-        sendWelcomeEmail(fullName, email, verificationUrl).catch(err => console.error('Verification email error:', err))
+        // Send welcome email (just welcome, no verification link)
+        // Passing empty string or null for verificationUrl if the function supports it,
+        // otherwise we might need to adjust sendWelcomeEmail or just send a generic welcome.
+        // Assuming sendWelcomeEmail might expect a URL, we'll pass the home URL.
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://andrewaltair.ge';
+        sendWelcomeEmail(fullName, email, appUrl).catch(err => console.error('Welcome email error:', err))
 
-        // 🛡️ DO NOT issue JWT until email is verified
-        return NextResponse.json({
-            success: true,
-            message: 'რეგისტრაცია წარმატებულია! გთხოვთ შეამოწმოთ თქვენი ელ-ფოსტა ანგარიშის გასააქტიურებლად.',
-            email: user.email,
-            requiresVerification: true,
+        // ✅ AUTO LOGIN LOGIC
+
+        // Generate JWT token
+        const { signToken } = await import('@/lib/jwt-config');
+        const token = signToken({
+            userId: user._id,
+            role: user.role,
+            sessionId: crypto.randomBytes(16).toString('hex')
         });
+
+        // Create session record
+        const userAgent = request.headers.get('user-agent') || ''
+        await Session.create({
+            userId: user._id,
+            token,
+            deviceInfo: {
+                browser: userAgent.includes('Chrome') ? 'Chrome' : userAgent.includes('Firefox') ? 'Firefox' : userAgent.includes('Safari') ? 'Safari' : 'Other',
+                os: userAgent.includes('Windows') ? 'Windows' : userAgent.includes('Mac') ? 'macOS' : userAgent.includes('Linux') ? 'Linux' : 'Other',
+                device: userAgent.includes('Mobile') ? 'Mobile' : 'Desktop',
+            },
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        })
+
+        // Return user data
+        const userData = {
+            id: user._id.toString(),
+            username: user.username,
+            email: user.email,
+            fullName: user.fullName,
+            avatar: user.avatar,
+            role: user.role,
+            badge: user.badge,
+            createdAt: user.createdAt.toISOString(),
+        };
+
+        const response = NextResponse.json({
+            success: true,
+            message: 'რეგისტრაცია წარმატებულია!',
+            user: userData,
+            requiresVerification: false,
+        });
+
+        // ✅ Set httpOnly cookie
+        response.cookies.set('auth_token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60, // 7 days
+            path: '/'
+        });
+
+        return response;
+
     } catch (error) {
         console.error('Registration error:', error);
         return NextResponse.json(
@@ -103,3 +147,4 @@ export async function POST(request: NextRequest) {
         );
     }
 }
+
