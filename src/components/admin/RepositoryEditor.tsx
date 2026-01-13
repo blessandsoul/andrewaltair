@@ -169,9 +169,12 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
                 setFeatures(featuresSection.features);
             }
 
+            // Debug: log parsed tags
+            console.log('Parsed tags:', result.tags);
+
             setShowImportDialog(false);
             setImportText("");
-            toast.success("Repository data imported successfully");
+            toast.success(`Repository imported! Tags: ${result.tags?.length || 0}`);
         } else {
             toast.error(result.error || "Failed to parse repository text");
         }
@@ -385,142 +388,75 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
                     </Card>
 
 
-                    {/* Cover Images - Upload Only */}
+                    {/* Cover Images - Compact Upload */}
                     <Card>
                         <CardHeader><CardTitle className="text-lg flex items-center gap-2"><TbPhoto className="w-5 h-5" /> Result Images</CardTitle></CardHeader>
-                        <CardContent className="space-y-6">
-                            {/* Horizontal 16:9 */}
-                            <div className="space-y-3">
-                                <label className="text-sm font-medium flex items-center gap-2">
-                                    Horizontal (16:9)
-                                </label>
-                                {post.coverImages?.horizontal ? (
-                                    <div className="relative group">
-                                        <img
-                                            src={post.coverImages.horizontal}
-                                            alt="Horizontal Preview"
-                                            className="w-full h-40 object-cover rounded-lg border-2 border-purple-500/30"
-                                        />
-                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-3">
-                                            <label className="cursor-pointer">
-                                                <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    className="hidden"
-                                                    onChange={(e) => {
-                                                        const file = e.target.files?.[0]
-                                                        if (file) handleFileUpload(file, 'horizontal')
-                                                    }}
-                                                />
-                                                <Button variant="secondary" size="sm" className="gap-2" asChild>
-                                                    <span><TbUpload className="w-4 h-4" /> Replace</span>
+                        <CardContent className="space-y-4">
+                            {/* Two compact upload buttons */}
+                            <div className="grid grid-cols-2 gap-4">
+                                {/* Horizontal 16:9 */}
+                                <div className="space-y-2">
+                                    <label className="text-xs font-medium text-muted-foreground">Horizontal (16:9)</label>
+                                    {post.coverImages?.horizontal ? (
+                                        <div className="relative group">
+                                            <img
+                                                src={post.coverImages.horizontal}
+                                                alt="Horizontal"
+                                                className="w-full h-24 object-cover rounded-md border"
+                                            />
+                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center gap-2">
+                                                <label className="cursor-pointer">
+                                                    <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f, 'horizontal'); }} />
+                                                    <Button variant="secondary" size="sm" asChild><span><TbUpload className="w-3 h-3" /></span></Button>
+                                                </label>
+                                                <Button variant="destructive" size="sm" onClick={() => setPost(p => ({ ...p, coverImages: { ...p.coverImages, horizontal: '' } }))}>
+                                                    <TbX className="w-3 h-3" />
                                                 </Button>
-                                            </label>
-                                            <Button
-                                                variant="destructive"
-                                                size="sm"
-                                                onClick={() => setPost(prev => ({
-                                                    ...prev,
-                                                    coverImages: { ...prev.coverImages, horizontal: '' }
-                                                }))}
-                                            >
-                                                <TbX className="w-4 h-4" />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <label className="cursor-pointer block">
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            className="hidden"
-                                            onChange={(e) => {
-                                                const file = e.target.files?.[0]
-                                                if (file) handleFileUpload(file, 'horizontal')
-                                            }}
-                                        />
-                                        <div className="border-2 border-dashed border-purple-500/40 rounded-lg p-8 hover:border-purple-500 hover:bg-purple-500/5 transition-all">
-                                            <div className="flex flex-col items-center justify-center gap-3 text-muted-foreground">
-                                                {isUploadingH ? (
-                                                    <TbLoader2 className="w-10 h-10 animate-spin text-purple-500" />
-                                                ) : (
-                                                    <>
-                                                        <TbUpload className="w-10 h-10 text-purple-500" />
-                                                        <span className="text-lg font-medium">Upload Horizontal Image</span>
-                                                        <span className="text-sm">16:9 aspect ratio recommended</span>
-                                                    </>
-                                                )}
                                             </div>
                                         </div>
-                                    </label>
-                                )}
-                            </div>
+                                    ) : (
+                                        <label className="cursor-pointer block">
+                                            <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f, 'horizontal'); }} />
+                                            <div className="border-2 border-dashed border-purple-500/40 rounded-md p-4 hover:border-purple-500 hover:bg-purple-500/5 transition-all text-center">
+                                                {isUploadingH ? <TbLoader2 className="w-5 h-5 animate-spin mx-auto text-purple-500" /> : (
+                                                    <><TbUpload className="w-5 h-5 mx-auto text-purple-500 mb-1" /><span className="text-xs">16:9</span></>
+                                                )}
+                                            </div>
+                                        </label>
+                                    )}
+                                </div>
 
-                            {/* Vertical 9:16 */}
-                            <div className="space-y-3">
-                                <label className="text-sm font-medium flex items-center gap-2">
-                                    Vertical (9:16)
-                                </label>
-                                {post.coverImages?.vertical ? (
-                                    <div className="relative group w-40 mx-auto">
-                                        <img
-                                            src={post.coverImages.vertical}
-                                            alt="Vertical Preview"
-                                            className="w-40 h-64 object-cover rounded-lg border-2 border-cyan-500/30"
-                                        />
-                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2 flex-col">
-                                            <label className="cursor-pointer">
-                                                <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    className="hidden"
-                                                    onChange={(e) => {
-                                                        const file = e.target.files?.[0]
-                                                        if (file) handleFileUpload(file, 'vertical')
-                                                    }}
-                                                />
-                                                <Button variant="secondary" size="sm" className="gap-2" asChild>
-                                                    <span><TbUpload className="w-4 h-4" /> Replace</span>
+                                {/* Vertical 9:16 */}
+                                <div className="space-y-2">
+                                    <label className="text-xs font-medium text-muted-foreground">Vertical (9:16)</label>
+                                    {post.coverImages?.vertical ? (
+                                        <div className="relative group">
+                                            <img
+                                                src={post.coverImages.vertical}
+                                                alt="Vertical"
+                                                className="w-full h-24 object-cover rounded-md border"
+                                            />
+                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center gap-2">
+                                                <label className="cursor-pointer">
+                                                    <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f, 'vertical'); }} />
+                                                    <Button variant="secondary" size="sm" asChild><span><TbUpload className="w-3 h-3" /></span></Button>
+                                                </label>
+                                                <Button variant="destructive" size="sm" onClick={() => setPost(p => ({ ...p, coverImages: { ...p.coverImages, vertical: '' } }))}>
+                                                    <TbX className="w-3 h-3" />
                                                 </Button>
-                                            </label>
-                                            <Button
-                                                variant="destructive"
-                                                size="sm"
-                                                onClick={() => setPost(prev => ({
-                                                    ...prev,
-                                                    coverImages: { ...prev.coverImages, vertical: '' }
-                                                }))}
-                                            >
-                                                <TbX className="w-4 h-4" />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <label className="cursor-pointer block max-w-xs mx-auto">
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            className="hidden"
-                                            onChange={(e) => {
-                                                const file = e.target.files?.[0]
-                                                if (file) handleFileUpload(file, 'vertical')
-                                            }}
-                                        />
-                                        <div className="border-2 border-dashed border-cyan-500/40 rounded-lg p-8 hover:border-cyan-500 hover:bg-cyan-500/5 transition-all">
-                                            <div className="flex flex-col items-center justify-center gap-3 text-muted-foreground">
-                                                {isUploadingV ? (
-                                                    <TbLoader2 className="w-10 h-10 animate-spin text-cyan-500" />
-                                                ) : (
-                                                    <>
-                                                        <TbUpload className="w-10 h-10 text-cyan-500" />
-                                                        <span className="text-lg font-medium">Upload Vertical Image</span>
-                                                        <span className="text-sm">9:16 aspect ratio recommended</span>
-                                                    </>
-                                                )}
                                             </div>
                                         </div>
-                                    </label>
-                                )}
+                                    ) : (
+                                        <label className="cursor-pointer block">
+                                            <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f, 'vertical'); }} />
+                                            <div className="border-2 border-dashed border-cyan-500/40 rounded-md p-4 hover:border-cyan-500 hover:bg-cyan-500/5 transition-all text-center">
+                                                {isUploadingV ? <TbLoader2 className="w-5 h-5 animate-spin mx-auto text-cyan-500" /> : (
+                                                    <><TbUpload className="w-5 h-5 mx-auto text-cyan-500 mb-1" /><span className="text-xs">9:16</span></>
+                                                )}
+                                            </div>
+                                        </label>
+                                    )}
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
@@ -631,6 +567,43 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
                                         }))}><TbX className="w-3 h-3 hover:text-destructive" /></button>
                                     </Badge>
                                 ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Tags (All hashtags including Georgian) */}
+                    <Card>
+                        <CardHeader><CardTitle className="text-sm flex items-center gap-2"><TbTag className="w-4 h-4" /> Tags</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                            <Input
+                                placeholder="Add tag (Enter)"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        const val = e.currentTarget.value.trim().replace('#', '');
+                                        if (val && !post.tags.includes(val)) {
+                                            setPost(prev => ({
+                                                ...prev,
+                                                tags: [...prev.tags, val]
+                                            }));
+                                            e.currentTarget.value = '';
+                                        }
+                                    }
+                                }}
+                            />
+                            <div className="flex flex-wrap gap-1.5">
+                                {post.tags?.map(tag => (
+                                    <Badge key={tag} variant="outline" className="gap-1 text-xs bg-purple-500/10 border-purple-500/30">
+                                        #{tag}
+                                        <button onClick={() => setPost(prev => ({
+                                            ...prev,
+                                            tags: prev.tags.filter(t => t !== tag)
+                                        }))}><TbX className="w-3 h-3 hover:text-destructive" /></button>
+                                    </Badge>
+                                ))}
+                                {post.tags?.length === 0 && (
+                                    <span className="text-xs text-muted-foreground">No tags. Import text to extract.</span>
+                                )}
                             </div>
                         </CardContent>
                     </Card>
