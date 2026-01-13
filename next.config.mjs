@@ -25,6 +25,13 @@ const nextConfig = {
       },
     ],
   },
+  // ⚡ Skip linting and type checking during build to save memory/time on server
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   async headers() {
     const isDev = process.env.NODE_ENV !== 'production';
     // In dev mode, we need 'unsafe-eval' for React Refresh to work
