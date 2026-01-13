@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import { useState } from "react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -11,7 +12,8 @@ import {
     TbPhone,
     TbMail,
     TbCheck,
-    TbMessageCircle
+    TbMessageCircle,
+    TbLoader2
 } from "react-icons/tb"
 import { brand } from "@/lib/brand"
 
@@ -20,33 +22,44 @@ export function AboutContactWidget() {
     const [message, setMessage] = useState("")
     const [sending, setSending] = useState(false)
     const [sent, setSent] = useState(false)
+    const [error, setError] = useState("")
 
     const telegramUsername = "andr3waltair"
-    const phoneNumber = "+995 555 123 456" // Replace with actual number
+    const phoneNumber = "+995 599 701 552"
 
-    const handleSendToTelegram = () => {
+    const handleSendMessage = async () => {
         if (!message.trim()) return
 
         setSending(true)
+        setError("")
 
-        // Create Telegram message link
-        const text = name
-            ? `გამარჯობა! მე ვარ ${name}.\n\n${message}`
-            : message
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: name.trim() || 'ანონიმური',
+                    email: 'about-page@andrewaltair.ge',
+                    message: message.trim(),
+                    service: 'საიტიდან შეტყობინება'
+                })
+            })
 
-        const telegramUrl = `https://t.me/${telegramUsername}?text=${encodeURIComponent(text)}`
+            const data = await response.json()
 
-        // Open in new tab
-        window.open(telegramUrl, "_blank")
-
-        setTimeout(() => {
+            if (data.success) {
+                setSent(true)
+                setName("")
+                setMessage("")
+                setTimeout(() => setSent(false), 5000)
+            } else {
+                setError(data.error || 'შეცდომა გაგზავნისას')
+            }
+        } catch (err) {
+            setError('შეტყობინების გაგზავნა ვერ მოხერხდა')
+        } finally {
             setSending(false)
-            setSent(true)
-            setName("")
-            setMessage("")
-
-            setTimeout(() => setSent(false), 3000)
-        }, 500)
+        }
     }
 
     return (
@@ -83,13 +96,19 @@ export function AboutContactWidget() {
                         viewport={{ once: true }}
                         className="bg-card/50 backdrop-blur-md rounded-3xl border border-white/10 p-8"
                     >
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="w-10 h-10 bg-sky-500/20 rounded-xl flex items-center justify-center">
-                                <TbBrandTelegram className="w-5 h-5 text-sky-500" />
+                        {/* Profile photo */}
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="relative w-14 h-14 rounded-2xl overflow-hidden border-2 border-primary/30">
+                                <Image
+                                    src="/i.png"
+                                    alt="Andrew Altair"
+                                    fill
+                                    className="object-cover"
+                                />
                             </div>
                             <div>
-                                <h3 className="font-bold">გაგზავნე Telegram-ში</h3>
-                                <p className="text-sm text-muted-foreground">პირდაპირი შეტყობინება</p>
+                                <h3 className="font-bold">გაგზავნე შეტყობინება</h3>
+                                <p className="text-sm text-muted-foreground">პირდაპირ Telegram-ში მივიღებ</p>
                             </div>
                         </div>
 
@@ -98,31 +117,39 @@ export function AboutContactWidget() {
                                 placeholder="შენი სახელი (არასავალდებულო)"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="bg-background/50 border-white/10 focus:border-sky-500/50"
+                                className="bg-background/50 border-white/10 focus:border-primary/50"
                             />
                             <Textarea
                                 placeholder="დაწერე შეტყობინება..."
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                                 rows={4}
-                                className="bg-background/50 border-white/10 focus:border-sky-500/50 resize-none"
+                                className="bg-background/50 border-white/10 focus:border-primary/50 resize-none"
                             />
+
+                            {error && (
+                                <p className="text-sm text-red-500">{error}</p>
+                            )}
+
                             <Button
-                                onClick={handleSendToTelegram}
+                                onClick={handleSendMessage}
                                 disabled={!message.trim() || sending}
-                                className="w-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white gap-2"
+                                className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white gap-2"
                             >
                                 {sent ? (
                                     <>
                                         <TbCheck className="w-4 h-4" />
-                                        გაიგზავნა!
+                                        გაიგზავნა წარმატებით!
                                     </>
                                 ) : sending ? (
-                                    "იგზავნება..."
+                                    <>
+                                        <TbLoader2 className="w-4 h-4 animate-spin" />
+                                        იგზავნება...
+                                    </>
                                 ) : (
                                     <>
                                         <TbSend className="w-4 h-4" />
-                                        გაგზავნა Telegram-ში
+                                        გაგზავნა
                                     </>
                                 )}
                             </Button>

@@ -10,16 +10,15 @@ import {
     TbSchool,
     TbSparkles,
     TbArrowRight,
-    TbBrandYoutube,
-    TbSend,
-    TbMail
+    TbBrandYoutube
 } from "react-icons/tb"
 import { brand } from "@/lib/brand"
 
 const paths = [
     {
         icon: TbPlayerPlay,
-        title: "🆕 ახალი ხარ AI-ში?",
+        badge: TbBrandYoutube,
+        title: "ახალი ხარ AI-ში?",
         description: "დაიწყე ჩემი YouTube არხით — უფასო ვიდეოები ChatGPT-სა და AI-ს შესახებ",
         cta: "YouTube არხი",
         href: brand.social.youtube,
@@ -28,7 +27,8 @@ const paths = [
     },
     {
         icon: TbSchool,
-        title: "📚 გინდა ისწავლო?",
+        badge: TbSchool,
+        title: "გინდა ისწავლო?",
         description: "საბაზისო ტუტორიალებიდან დაწყებული Advanced Prompt Engineering-ით დამთავრებული",
         cta: "ტუტორიალები",
         href: "/tutorials",
@@ -37,7 +37,8 @@ const paths = [
     },
     {
         icon: TbBriefcase,
-        title: "💼 ბიზნესი ხარ?",
+        badge: TbBriefcase,
+        title: "ბიზნესი ხარ?",
         description: "AI სტრატეგია, ავტომატიზაცია, კორპორატიული ტრეინინგი — დამიკავშირდი პირადად",
         cta: "კონსულტაცია",
         href: brand.social.telegram.replace("channel", ""),
@@ -86,7 +87,10 @@ export function AboutStartPath() {
                                         <path.icon className="w-7 h-7" style={{ color: path.color }} />
                                     </div>
 
-                                    <h3 className="text-xl font-bold mb-3">{path.title}</h3>
+                                    <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
+                                        <path.badge className="w-5 h-5" style={{ color: path.color }} />
+                                        {path.title}
+                                    </h3>
                                     <p className="text-muted-foreground flex-grow mb-6 leading-relaxed">
                                         {path.description}
                                     </p>

@@ -18,16 +18,16 @@ const movies = [
         reason: "სიზმრის ფენები და რეალობის აღქმა"
     },
     {
-        title: "Ex Machina",
-        src: "/inspiration/ex-machina.jpg",
+        title: "Transcendence",
+        src: "/inspiration/transcendence.jpg",
         year: "2014",
-        reason: "AI ეთიკა და ცნობიერების საზღვრები"
+        reason: "AI ცნობიერება და ადამიანობის საზღვრები"
     },
     {
-        title: "Her",
-        src: "/inspiration/her.jpg",
-        year: "2013",
-        reason: "ადამიანი და AI-ს ურთიერთობა"
+        title: "Ex Machina",
+        src: "https://m.media-amazon.com/images/M/MV5BMTUxNzc0OTIxMV5BMl5BanBnXkFtZTgwNDI3NzU2NDE@._V1_.jpg",
+        year: "2014",
+        reason: "AI ეთიკა და ცნობიერების ტესტი"
     },
 ]
 

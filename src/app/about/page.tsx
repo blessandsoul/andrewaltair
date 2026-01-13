@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -10,12 +11,12 @@ import {
   TbBrandInstagram,
   TbBriefcase,
   TbSchool,
-  TbAward,
-  TbUsers,
   TbFileText,
   TbBulb,
   TbRocket,
-  TbCalendar
+  TbCalendar,
+  TbTarget,
+  TbTimeline
 } from "react-icons/tb"
 import { brand } from "@/lib/brand"
 import { AboutManifest } from "@/components/about/AboutManifest"
@@ -95,8 +96,14 @@ export default function AboutPage() {
             <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
               <div className="relative mb-8">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent rounded-3xl blur-2xl opacity-50"></div>
-                <div className="relative w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-br from-primary to-accent rounded-3xl flex items-center justify-center shadow-2xl">
-                  <TbSparkles className="w-24 h-24 text-white" />
+                <div className="relative w-48 h-48 sm:w-64 sm:h-64 rounded-3xl overflow-hidden shadow-2xl border-2 border-white/10">
+                  <Image
+                    src="/i.png"
+                    alt="Andrew Altair"
+                    fill
+                    className="object-cover"
+                    priority
+                  />
                 </div>
               </div>
 
@@ -199,7 +206,11 @@ export default function AboutPage() {
       <section className="py-16 lg:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold">🎯 ჩემი ექსპერტიზა</h2>
+            <div className="inline-flex items-center gap-2 mb-4 text-primary">
+              <TbTarget className="w-6 h-6" />
+              <span className="text-sm font-bold uppercase tracking-widest">ექსპერტიზა</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold">ჩემი ექსპერტიზა</h2>
             <p className="text-muted-foreground mt-2">რაში შემიძლია დაგეხმაროთ</p>
           </div>
 
@@ -232,7 +243,11 @@ export default function AboutPage() {
       <section className="py-16 lg:py-24 bg-secondary/30">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold">📅 ჩემი გზა</h2>
+            <div className="inline-flex items-center gap-2 mb-4 text-primary">
+              <TbTimeline className="w-6 h-6" />
+              <span className="text-sm font-bold uppercase tracking-widest">გზა</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold">ჩემი გზა</h2>
             <p className="text-muted-foreground mt-2">კარიერული ისტორია</p>
           </div>
 

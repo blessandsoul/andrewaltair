@@ -1,32 +1,45 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { TbFlame } from "react-icons/tb"
+import {
+    TbFlame,
+    TbBolt,
+    TbSparkles,
+    TbSchool,
+    TbFlag,
+    TbRocket
+} from "react-icons/tb"
 
 const beliefs = [
     {
         text: "AI არ ჩაანაცვლებს ადამიანებს, მაგრამ ადამიანები AI-ით ჩაანაცვლებენ მათ, ვინც მას არ იყენებს",
-        emoji: "🔮"
+        icon: TbBolt,
+        color: "#a855f7"
     },
     {
         text: "ტექნოლოგია უნდა ემსახურებოდეს ადამიანს და არა პირიქით",
-        emoji: "⚡"
+        icon: TbSparkles,
+        color: "#f59e0b"
     },
     {
         text: "კრეატიულობა არის და იქნება ყველაზე ძვირფასი ვალუტა",
-        emoji: "✨"
+        icon: TbFlame,
+        color: "#ef4444"
     },
     {
         text: "განათლება AI-ში უნდა იყოს ხელმისაწვდომი ყველასთვის — უფასოდ",
-        emoji: "🎓"
+        icon: TbSchool,
+        color: "#10b981"
     },
     {
         text: "საქართველოს შეუძლია გახდეს რეგიონალური ტექნოლოგიური ჰაბი",
-        emoji: "🇬🇪"
+        icon: TbFlag,
+        color: "#dc2626"
     },
     {
         text: "მომავალი ეკუთვნის მათ, ვინც დღეს სწავლობს",
-        emoji: "🚀"
+        icon: TbRocket,
+        color: "#6366f1"
     },
 ]
 
@@ -64,9 +77,12 @@ export function AboutManifest() {
                             className="group"
                         >
                             <div className="flex items-start gap-4 p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-white/5 hover:border-primary/30 hover:bg-card/80 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5">
-                                <span className="text-3xl flex-shrink-0 group-hover:scale-125 transition-transform duration-300">
-                                    {belief.emoji}
-                                </span>
+                                <div
+                                    className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300"
+                                    style={{ backgroundColor: `${belief.color}15` }}
+                                >
+                                    <belief.icon className="w-6 h-6" style={{ color: belief.color }} />
+                                </div>
                                 <p className="text-lg sm:text-xl font-medium leading-relaxed text-foreground/90">
                                     "{belief.text}"
                                 </p>
