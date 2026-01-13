@@ -64,8 +64,8 @@ export function AboutPhilosophy() {
                             მე ვემხრობი გამჭვირვალე და ეთიკურ AI განვითარებას.
                         </p>
                         <div className="flex gap-2">
-                            <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs">Human Centric</span>
-                            <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs">Transparency</span>
+                            <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300 text-xs font-medium border border-emerald-200 dark:border-emerald-500/30">Human Centric</span>
+                            <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300 text-xs font-medium border border-emerald-200 dark:border-emerald-500/30">Transparency</span>
                         </div>
                     </motion.div>
                 </div>
