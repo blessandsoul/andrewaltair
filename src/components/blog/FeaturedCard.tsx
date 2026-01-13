@@ -122,7 +122,7 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
                         <div className="absolute top-6 left-6 flex items-center gap-3">
                             <Badge className="bg-amber-400/90 text-black border-0 px-3 py-1 text-xs font-bold shadow-[0_0_15px_rgba(251,191,36,0.5)] animate-pulse">
                                 <TbStar className="w-3.5 h-3.5 mr-1.5 fill-black" />
-                                <FEATURED>FEATURED</FEATURED>
+                                FEATURED
                             </Badge>
 
                             <Badge
