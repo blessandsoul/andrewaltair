@@ -80,14 +80,17 @@ export function parseRepositoryPost(text: string): ParsedRepoData {
 
         // Remove leading emojis and whitespace
         descText = descText.replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]\s*/gmu, '');
-        // Remove ** markers from the start of the description if present (e.g. **Intro Check**)
-        descText = descText.replace(/^\*\*(.*?)\*\*/, '$1');
+        // Remove ALL ** markers from description (not just at start)
+        descText = descText.replace(/\*\*/g, '');
+        // Remove leading emojis again after cleanup
+        descText = descText.replace(/^[☁️\s]+/u, '');
 
         descText = descText.trim();
 
+        // Store clean description (no markdown)
         if (data.repository) data.repository.description = descText;
-        // Strip Markdown for excerpt
-        const plainDesc = descText.replace(/\*\*/g, '').replace(/☁️/g, '').trim();
+        // Strip any remaining special chars for excerpt
+        const plainDesc = descText.replace(/[☁️]/gu, '').trim();
         data.excerpt = plainDesc.slice(0, 160) + '...';
 
 
@@ -103,6 +106,8 @@ export function parseRepositoryPost(text: string): ParsedRepoData {
         } else if (featuresMatchGeneric) {
             featuresContent = featuresMatchGeneric[1].trim();
         }
+        // Remove all ** markers from features content
+        featuresContent = featuresContent.replace(/\*\*/g, '');
 
         // If simple regex missed the "header text" part of the features block, try to capture it
         // The regex `🛠\s*\*\*[^]*?\*\*:\s*` skips the header "What it offers".
@@ -147,8 +152,8 @@ export function parseRepositoryPost(text: string): ParsedRepoData {
 
         // 6. EXTRACT TAGS
         // Hashtags at the end or typically in the text. 
-        // UPDATED: Support Georgian characters \u10A0-\u10FF
-        const hashtagRegex = /#([\w\u10A0-\u10FF]+)/g;
+        // UPDATED: Support Georgian characters \u10A0-\u10FF with Unicode flag
+        const hashtagRegex = /#([\w\u10A0-\u10FF]+)/gu;
         const tags = [...cleanText.matchAll(hashtagRegex)].map(m => m[1]);
         if (tags.length > 0) {
             // Filter out common metadata tags if needed, or keep all

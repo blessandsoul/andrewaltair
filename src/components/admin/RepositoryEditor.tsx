@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { TbDeviceFloppy, TbArrowLeft, TbWorld, TbFileText, TbStar, TbGitFork, TbCode, TbTag, TbBrandGithub, TbBrandGitlab, TbRefresh, TbX, TbLoader2, TbCheck } from "react-icons/tb"
+import { TbDeviceFloppy, TbArrowLeft, TbWorld, TbFileText, TbStar, TbGitFork, TbCode, TbTag, TbBrandGithub, TbBrandGitlab, TbRefresh, TbX, TbLoader2, TbCheck, TbUpload, TbPhoto } from "react-icons/tb"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { useAutosave } from "@/hooks/useAutosave"
@@ -94,6 +94,45 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
     const [isFetchingInfo, setIsFetchingInfo] = React.useState(false)
     const [showImportDialog, setShowImportDialog] = React.useState(false)
     const [importText, setImportText] = React.useState("")
+    const [isUploadingH, setIsUploadingH] = React.useState(false)
+    const [isUploadingV, setIsUploadingV] = React.useState(false)
+
+    // File upload handler
+    const handleFileUpload = async (file: File, type: 'horizontal' | 'vertical') => {
+        if (type === 'horizontal') setIsUploadingH(true)
+        else setIsUploadingV(true)
+
+        try {
+            const formData = new FormData()
+            formData.append('file', file)
+            formData.append('title', post.title || post.slug || 'cover')
+            formData.append('type', type)
+
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.error || 'Upload failed')
+            }
+
+            const result = await response.json()
+
+            setPost(prev => ({
+                ...prev,
+                coverImages: { ...prev.coverImages, [type]: result.url }
+            }))
+            toast.success(`${type === 'horizontal' ? 'Horizontal' : 'Vertical'} image uploaded!`)
+        } catch (error: any) {
+            console.error('Upload error:', error)
+            toast.error(error.message || 'Upload failed')
+        } finally {
+            if (type === 'horizontal') setIsUploadingH(false)
+            else setIsUploadingV(false)
+        }
+    }
 
     const handleImport = async () => {
         if (!importText.trim()) return;
@@ -333,49 +372,141 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
                     </Card>
 
 
-                    {/* Cover Images */}
+                    {/* Cover Images - Upload Only */}
                     <Card>
-                        <CardHeader><CardTitle className="text-lg">Result Images</CardTitle></CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Horizontal (16:9)</label>
-                                <div className="flex gap-2">
-                                    <Input
-                                        placeholder="https://.../horizontal.jpg"
-                                        value={post.coverImages?.horizontal || ''}
-                                        onChange={(e) => setPost(prev => ({
-                                            ...prev,
-                                            coverImages: { ...prev.coverImages, horizontal: e.target.value }
-                                        }))}
-                                        className="flex-1"
-                                    />
-                                    {/* Placeholder for Upload Button - In a real scenario, use <ImageUpload /> */}
-                                    <Button variant="outline" size="icon" onClick={() => toast.info("Image upload implementation pending - use URL for now")}>
-                                        <TbDeviceFloppy className="w-4 h-4" />
-                                    </Button>
-                                </div>
-                                {post.coverImages?.horizontal && (
-                                    <img src={post.coverImages.horizontal} alt="Preview" className="w-full h-32 object-cover rounded-md border mt-2" />
+                        <CardHeader><CardTitle className="text-lg flex items-center gap-2"><TbPhoto className="w-5 h-5" /> Result Images</CardTitle></CardHeader>
+                        <CardContent className="space-y-6">
+                            {/* Horizontal 16:9 */}
+                            <div className="space-y-3">
+                                <label className="text-sm font-medium flex items-center gap-2">
+                                    Horizontal (16:9)
+                                </label>
+                                {post.coverImages?.horizontal ? (
+                                    <div className="relative group">
+                                        <img
+                                            src={post.coverImages.horizontal}
+                                            alt="Horizontal Preview"
+                                            className="w-full h-40 object-cover rounded-lg border-2 border-purple-500/30"
+                                        />
+                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-3">
+                                            <label className="cursor-pointer">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files?.[0]
+                                                        if (file) handleFileUpload(file, 'horizontal')
+                                                    }}
+                                                />
+                                                <Button variant="secondary" size="sm" className="gap-2" asChild>
+                                                    <span><TbUpload className="w-4 h-4" /> Replace</span>
+                                                </Button>
+                                            </label>
+                                            <Button
+                                                variant="destructive"
+                                                size="sm"
+                                                onClick={() => setPost(prev => ({
+                                                    ...prev,
+                                                    coverImages: { ...prev.coverImages, horizontal: '' }
+                                                }))}
+                                            >
+                                                <TbX className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <label className="cursor-pointer block">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0]
+                                                if (file) handleFileUpload(file, 'horizontal')
+                                            }}
+                                        />
+                                        <div className="border-2 border-dashed border-purple-500/40 rounded-lg p-8 hover:border-purple-500 hover:bg-purple-500/5 transition-all">
+                                            <div className="flex flex-col items-center justify-center gap-3 text-muted-foreground">
+                                                {isUploadingH ? (
+                                                    <TbLoader2 className="w-10 h-10 animate-spin text-purple-500" />
+                                                ) : (
+                                                    <>
+                                                        <TbUpload className="w-10 h-10 text-purple-500" />
+                                                        <span className="text-lg font-medium">Upload Horizontal Image</span>
+                                                        <span className="text-sm">16:9 aspect ratio recommended</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </label>
                                 )}
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Vertical (9:16)</label>
-                                <div className="flex gap-2">
-                                    <Input
-                                        placeholder="https://.../vertical.jpg"
-                                        value={post.coverImages?.vertical || ''}
-                                        onChange={(e) => setPost(prev => ({
-                                            ...prev,
-                                            coverImages: { ...prev.coverImages, vertical: e.target.value }
-                                        }))}
-                                        className="flex-1"
-                                    />
-                                    <Button variant="outline" size="icon" onClick={() => toast.info("Image upload implementation pending - use URL for now")}>
-                                        <TbDeviceFloppy className="w-4 h-4" />
-                                    </Button>
-                                </div>
-                                {post.coverImages?.vertical && (
-                                    <img src={post.coverImages.vertical} alt="Preview" className="w-32 h-48 object-cover rounded-md border mt-2" />
+
+                            {/* Vertical 9:16 */}
+                            <div className="space-y-3">
+                                <label className="text-sm font-medium flex items-center gap-2">
+                                    Vertical (9:16)
+                                </label>
+                                {post.coverImages?.vertical ? (
+                                    <div className="relative group w-40 mx-auto">
+                                        <img
+                                            src={post.coverImages.vertical}
+                                            alt="Vertical Preview"
+                                            className="w-40 h-64 object-cover rounded-lg border-2 border-cyan-500/30"
+                                        />
+                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2 flex-col">
+                                            <label className="cursor-pointer">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files?.[0]
+                                                        if (file) handleFileUpload(file, 'vertical')
+                                                    }}
+                                                />
+                                                <Button variant="secondary" size="sm" className="gap-2" asChild>
+                                                    <span><TbUpload className="w-4 h-4" /> Replace</span>
+                                                </Button>
+                                            </label>
+                                            <Button
+                                                variant="destructive"
+                                                size="sm"
+                                                onClick={() => setPost(prev => ({
+                                                    ...prev,
+                                                    coverImages: { ...prev.coverImages, vertical: '' }
+                                                }))}
+                                            >
+                                                <TbX className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <label className="cursor-pointer block max-w-xs mx-auto">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0]
+                                                if (file) handleFileUpload(file, 'vertical')
+                                            }}
+                                        />
+                                        <div className="border-2 border-dashed border-cyan-500/40 rounded-lg p-8 hover:border-cyan-500 hover:bg-cyan-500/5 transition-all">
+                                            <div className="flex flex-col items-center justify-center gap-3 text-muted-foreground">
+                                                {isUploadingV ? (
+                                                    <TbLoader2 className="w-10 h-10 animate-spin text-cyan-500" />
+                                                ) : (
+                                                    <>
+                                                        <TbUpload className="w-10 h-10 text-cyan-500" />
+                                                        <span className="text-lg font-medium">Upload Vertical Image</span>
+                                                        <span className="text-sm">9:16 aspect ratio recommended</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </label>
                                 )}
                             </div>
                         </CardContent>
