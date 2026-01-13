@@ -23,6 +23,7 @@ const contentItems: NavItem[] = [
     { href: "/admin/marketplace-prompts", label: "პრომპტები", icon: <TbSparkles className="w-5 h-5" /> },
     { href: "/admin/repositories", label: "რეპოზიტორიები", icon: <TbBrandGithub className="w-5 h-5" />, badge: "beta" },
     { href: "/admin/videos", label: "ვიდეოები", icon: <TbVideo className="w-5 h-5" /> },
+    { href: "/admin/tutorials", label: "ტუტორიალები", icon: <TbBook className="w-5 h-5" />, badge: "beta" },
     { href: "/admin/media", label: "მედია", icon: <TbPhoto className="w-5 h-5" /> },
 ]
 

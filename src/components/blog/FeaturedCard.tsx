@@ -75,6 +75,8 @@ function formatRelativeDate(dateString: string): string {
 export function FeaturedCard({ post }: FeaturedCardProps) {
     const [imageError, setImageError] = useState(false)
     const [avatarError, setAvatarError] = useState(false)
+    const [isBookmarked, setIsBookmarked] = useState(false)
+    const [isHovered, setIsHovered] = useState(false)
     const categoryStr = post.categories && post.categories.length > 0 ? post.categories[0] : ((post as unknown as { category: string }).category || 'ai')
     const categoryInfo = getCategoryInfo(categoryStr)
 

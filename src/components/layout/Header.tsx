@@ -35,6 +35,7 @@ const readyItems = [
 const contentItems = [
   { href: "/encyclopedia", label: "ენციკლოპედია", icon: TbBook, description: "AI ცოდნის ბაზა" },
   { href: "/blog", label: "ბლოგი", icon: TbBook, description: "სტატიები და სიახლეები" },
+  { href: "/tutorials", label: "Blueprints", icon: TbBook, description: "სისტემური ტუტორიალები" },
   { href: "/videos", label: "ვიდეოები", icon: TbVideo, description: "YouTube ტუტორიალები" },
   { href: "/prompt-builder", label: "Prompt Builder", icon: TbSparkles, description: "AI პრომპტის შემქმნელი" },
   { href: "/prompts", label: "პრომპტების მაღაზია", icon: TbShoppingBag, description: "AI პრომპტების მარკეტპლეისი" },
