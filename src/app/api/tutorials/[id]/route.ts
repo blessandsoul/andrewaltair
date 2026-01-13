@@ -7,7 +7,7 @@ export async function GET(
     { params }: { params: { id: string } }
 ) {
     try {
-        await connectToDatabase();
+        await dbConnect();
         const tutorial = await Tutorial.findById(params.id); // Or findBySlug if we use slug in URL
 
         if (!tutorial) {
@@ -30,7 +30,7 @@ export async function PUT(
     { params }: { params: { id: string } }
 ) {
     try {
-        await connectToDatabase();
+        await dbConnect();
         const body = await req.json();
 
         const tutorial = await Tutorial.findByIdAndUpdate(
@@ -55,7 +55,7 @@ export async function DELETE(
     { params }: { params: { id: string } }
 ) {
     try {
-        await connectToDatabase();
+        await dbConnect();
         const tutorial = await Tutorial.findByIdAndDelete(params.id);
 
         if (!tutorial) {
