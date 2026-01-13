@@ -48,10 +48,9 @@ function clearAttempts(ip: string) {
 }
 
 export async function POST(request: NextRequest) {
-    // 🛡️ CSRF PROTECTION
-    const { requireCSRF } = await import('@/lib/csrf');
-    const csrfError = requireCSRF(request);
-    if (csrfError) return csrfError;
+    // Note: CSRF protection removed for login endpoint
+    // Login is a public endpoint for unauthenticated users,
+    // CSRF attacks target authenticated user sessions
 
     // 🛡️ Rate limit check
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0] ||

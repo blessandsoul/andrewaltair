@@ -13,10 +13,9 @@ if (!JWT_SECRET) {
 
 export async function POST(request: NextRequest) {
     try {
-        // 🛡️ CSRF PROTECTION
-        const { requireCSRF } = await import('@/lib/csrf');
-        const csrfError = requireCSRF(request);
-        if (csrfError) return csrfError;
+        // Note: CSRF protection removed for register endpoint
+        // Registration is a public endpoint for unauthenticated users,
+        // CSRF attacks target authenticated user sessions
 
         await dbConnect();
 

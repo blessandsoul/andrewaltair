@@ -1,11 +1,15 @@
 # 1. Base image
 FROM node:20-alpine AS base
 
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+RUN apk add --no-cache libc6-compat
+
 # 2. Dependencies
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+# Mount npm cache to speed up subsequent builds
+RUN --mount=type=cache,target=/root/.npm npm ci
 
 # 3. Builder
 FROM base AS builder
@@ -43,7 +47,10 @@ ENV NEXT_PUBLIC_GA_ID=${NEXT_PUBLIC_GA_ID}
 ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
 ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
 
-RUN npm run build
+ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
+
+# Mount .next/cache to speed up Next.js builds
+RUN --mount=type=cache,target=/app/.next/cache npm run build
 
 # 4. Production Runner
 FROM base AS runner
