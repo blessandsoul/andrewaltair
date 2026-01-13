@@ -18,8 +18,8 @@ const paths = [
     {
         icon: TbPlayerPlay,
         badge: TbBrandYoutube,
-        title: "ახალი ხარ AI-ში?",
-        description: "დაიწყე ჩემი YouTube არხით — უფასო ვიდეოები ChatGPT-სა და AI-ს შესახებ",
+        title: "დამწყები ხარ AI-ში?",
+        description: "დაიწყეთ ჩემი YouTube არხით — უფასო ვიდეოები ChatGPT-სა და AI-ს შესახებ",
         cta: "YouTube არხი",
         href: brand.social.youtube,
         color: "#ef4444",
@@ -28,7 +28,7 @@ const paths = [
     {
         icon: TbSchool,
         badge: TbSchool,
-        title: "გინდა ისწავლო?",
+        title: "გსურთ სიღრმისეული ცოდნა?",
         description: "საბაზისო ტუტორიალებიდან დაწყებული Advanced Prompt Engineering-ით დამთავრებული",
         cta: "ტუტორიალები",
         href: "/tutorials",
@@ -38,8 +38,8 @@ const paths = [
     {
         icon: TbBriefcase,
         badge: TbBriefcase,
-        title: "ბიზნესი ხარ?",
-        description: "AI სტრატეგია, ავტომატიზაცია, კორპორატიული ტრეინინგი — დამიკავშირდი პირადად",
+        title: "ეძებთ ბიზნეს გადაწყვეტილებებს?",
+        description: "AI სტრატეგია, ავტომატიზაცია, კორპორატიული ტრეინინგები — დამიკავშირდით პირადად",
         cta: "კონსულტაცია",
         href: brand.social.telegram.replace("channel", ""),
         color: "#6366f1",
@@ -62,10 +62,10 @@ export function AboutStartPath() {
                         <span className="text-sm font-bold uppercase tracking-widest">დაიწყე აქ</span>
                     </div>
                     <h2 className="text-3xl sm:text-4xl font-bold">
-                        შენთვის სწორი <span className="text-gradient">გზა</span>
+                        აირჩიე შენი <span className="text-gradient">გზა</span>
                     </h2>
                     <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
-                        აირჩიე შენი ამჟამინდელი მდგომარეობა და მე დაგეხმარები შემდეგ ნაბიჯებში
+                        აირჩიეთ მიმართულება და მე დაგეხმარებით შემდეგ ნაბიჯებში
                     </p>
                 </motion.div>
 

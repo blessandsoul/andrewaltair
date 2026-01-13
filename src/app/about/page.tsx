@@ -160,7 +160,7 @@ export default function AboutPage() {
                 <Button size="lg" className="bg-gradient-to-r from-primary to-accent text-white glow-sm" asChild>
                   <Link href="#contact">
                     <TbMail className="w-4 h-4 mr-2" />
-                    დამიკავშირდი
+                    დაკავშირება
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>

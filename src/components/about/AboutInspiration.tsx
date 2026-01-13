@@ -15,19 +15,19 @@ const movies = [
         title: "Inception",
         src: "/inspiration/inception.jpg",
         year: "2010",
-        reason: "სიზმრის ფენები და რეალობის აღქმა"
+        reason: "რეალობის აღქმა და ცნობიერების სიღრმეები"
     },
     {
         title: "Transcendence",
         src: "/inspiration/transcendence.jpg",
         year: "2014",
-        reason: "AI ცნობიერება და ადამიანობის საზღვრები"
+        reason: "სინგულარობა და ციფრული უკვდავება"
     },
     {
         title: "Ex Machina",
         src: "https://m.media-amazon.com/images/M/MV5BMTUxNzc0OTIxMV5BMl5BanBnXkFtZTgwNDI3NzU2NDE@._V1_.jpg",
         year: "2014",
-        reason: "AI ეთიკა და ცნობიერების ტესტი"
+        reason: "ხელოვნური ინტელექტი და ტიურინგი ტესტი"
     },
 ]
 
@@ -49,10 +49,10 @@ export function AboutInspiration() {
                         <span className="text-sm font-bold uppercase tracking-widest">ინსპირაცია</span>
                     </div>
                     <h2 className="text-3xl sm:text-4xl font-bold">
-                        ფილმები რომლებმაც <span className="text-gradient">ჩამაფიქრეს</span>
+                        ფილმები, რომლებმაც <span className="text-gradient">დამაფიქრა</span>
                     </h2>
                     <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
-                        ეს ფილმები ხელოვნური ინტელექტისა და ადამიანობის შესახებ ფიქრს მაიძულებენ
+                        ეს ისტორიები გვაფიქრებს ტექნოლოგიების მომავალსა და ადამიანურ ღირებულებებზე
                     </p>
                 </motion.div>
 

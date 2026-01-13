@@ -81,10 +81,10 @@ export function AboutContactWidget() {
                         <span className="text-sm font-bold uppercase tracking-widest">კონტაქტი</span>
                     </div>
                     <h2 className="text-3xl sm:text-4xl font-bold">
-                        დამიწერე <span className="text-gradient">პირდაპირ</span>
+                        მომწერეთ <span className="text-gradient">პირდაპირ</span>
                     </h2>
                     <p className="text-muted-foreground mt-4">
-                        შეკითხვა, იდეა, თანამშრომლობა — მზად ვარ მოსასმენად
+                        შეკითხვები, იდეები, თანამშრომლობა — მზად ვარ გისმინოთ
                     </p>
                 </motion.div>
 
@@ -107,20 +107,20 @@ export function AboutContactWidget() {
                                 />
                             </div>
                             <div>
-                                <h3 className="font-bold">გაგზავნე შეტყობინება</h3>
-                                <p className="text-sm text-muted-foreground">პირდაპირ Telegram-ში მივიღებ</p>
+                                <h3 className="font-bold">პირდაპირი კავშირი</h3>
+                                <p className="text-sm text-muted-foreground">{phoneNumber} • Telegram</p>
                             </div>
                         </div>
 
                         <div className="space-y-4">
                             <Input
-                                placeholder="შენი სახელი (არასავალდებულო)"
+                                placeholder="თქვენი სახელი (არასავალდებულო)"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 className="bg-background/50 border-white/10 focus:border-primary/50"
                             />
                             <Textarea
-                                placeholder="დაწერე შეტყობინება..."
+                                placeholder="დაწერეთ შეტყობინება..."
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                                 rows={4}
@@ -139,7 +139,7 @@ export function AboutContactWidget() {
                                 {sent ? (
                                     <>
                                         <TbCheck className="w-4 h-4" />
-                                        გაიგზავნა წარმატებით!
+                                        წარმატებით გაიგზავნა!
                                     </>
                                 ) : sending ? (
                                     <>
@@ -204,7 +204,7 @@ export function AboutContactWidget() {
                                 <TbMail className="w-7 h-7 text-primary" />
                             </div>
                             <div className="flex-grow">
-                                <div className="font-bold text-lg">Email</div>
+                                <div className="font-bold text-lg">ელ-ფოსტა</div>
                                 <div className="text-muted-foreground">{brand.email}</div>
                             </div>
                             <TbSend className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
