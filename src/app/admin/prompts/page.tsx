@@ -53,7 +53,7 @@ export default function MarketplacePromptsPage() {
     React.useEffect(() => {
         async function fetchPrompts() {
             try {
-                const res = await fetch('/api/marketplace-prompts?limit=100&status=all')
+                const res = await fetch('/api/prompts?limit=100&status=all')
                 if (res.ok) {
                     const data = await res.json()
                     setPrompts(data.prompts || [])
@@ -125,7 +125,7 @@ export default function MarketplacePromptsPage() {
     // Delete handler
     const handleDelete = async (id: string) => {
         try {
-            const res = await fetch(`/api/marketplace-prompts/${id}`, { method: 'DELETE' })
+            const res = await fetch(`/api/prompts/${id}`, { method: 'DELETE' })
             if (res.ok) {
                 setPrompts(prompts.filter(p => p.id !== id))
                 setDeleteConfirm(null)
@@ -139,7 +139,7 @@ export default function MarketplacePromptsPage() {
     const bulkDelete = async () => {
         try {
             await Promise.all(selectedIds.map(id =>
-                fetch(`/api/marketplace-prompts/${id}`, { method: 'DELETE' })
+                fetch(`/api/prompts/${id}`, { method: 'DELETE' })
             ))
             setPrompts(prompts.filter(p => !selectedIds.includes(p.id)))
             setSelectedIds([])
@@ -181,7 +181,7 @@ export default function MarketplacePromptsPage() {
                     </p>
                 </div>
 
-                <Link href="/admin/marketplace-prompts/new">
+                <Link href="/admin/prompts/new">
                     <Button className="gap-2">
                         <TbPlus className="w-4 h-4" />
                         ახალი პრომპტი
@@ -257,7 +257,7 @@ export default function MarketplacePromptsPage() {
                         <TbSparkles className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                         <h3 className="text-xl font-semibold mb-2">პრომპტები არ მოიძებნა</h3>
                         <p className="text-muted-foreground mb-4">შექმენით პირველი პრომპტი მარკეტპლეისისთვის</p>
-                        <Link href="/admin/marketplace-prompts/new">
+                        <Link href="/admin/prompts/new">
                             <Button>
                                 <TbPlus className="w-4 h-4 mr-2" />
                                 ახალი პრომპტი
@@ -367,7 +367,7 @@ export default function MarketplacePromptsPage() {
                                     </div>
 
                                     <div className="flex items-center gap-2 pt-1">
-                                        <Link href={`/admin/marketplace-prompts/${prompt.id}/edit`} className="flex-1">
+                                        <Link href={`/admin/prompts/${prompt.id}/edit`} className="flex-1">
                                             <Button size="sm" variant="outline" className="w-full h-8 text-xs gap-1.5 hover:bg-primary/5 hover:text-primary hover:border-primary/20">
                                                 <TbEdit className="w-3.5 h-3.5" />
                                                 რედაქტირება

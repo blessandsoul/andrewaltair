@@ -14,6 +14,7 @@ interface TelegramPostRequest {
 }
 
 export async function POST(request: NextRequest) {
+    // Force rebuild
     try {
         const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
         const TELEGRAM_CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID || '@andr3waltairchannel'
@@ -36,7 +37,13 @@ export async function POST(request: NextRequest) {
 
         // Send message to channel
         let result
-        const imageUrl = coverImages?.horizontal || coverImage
+        let imageUrl = coverImages?.horizontal || coverImage
+
+        if (imageUrl && !imageUrl.startsWith('http')) {
+            // Ensure absolute URL for Telegram
+            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://andrewaltair.ge'
+            imageUrl = `${baseUrl}${imageUrl}`
+        }
 
         if (imageUrl && imageUrl.startsWith('http')) {
             // Send with photo
@@ -78,7 +85,6 @@ export async function POST(request: NextRequest) {
             success: true,
             messageId: result.result?.message_id
         })
-
     } catch (error) {
         console.error('Telegram post error:', error)
         return NextResponse.json({ error: 'Failed to post to Telegram' }, { status: 500 })

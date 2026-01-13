@@ -351,7 +351,7 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
         console.log("Triggering Background SEO Gen...")
 
         try {
-            const genRes = await fetch('/api/marketplace-prompts/generate', {
+            const genRes = await fetch('/api/prompts/generate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -393,7 +393,7 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
 
         setIsGenerating(true)
         try {
-            const res = await fetch('/api/marketplace-prompts/generate', {
+            const res = await fetch('/api/prompts/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -516,8 +516,8 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
         setIsSaving(true)
         try {
             const url = isEditing
-                ? `/api/marketplace-prompts/${data.id}`
-                : '/api/marketplace-prompts'
+                ? `/api/prompts/${data.id}`
+                : '/api/prompts'
 
             const res = await fetch(url, {
                 method: isEditing ? 'PUT' : 'POST',
@@ -526,7 +526,7 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
             })
 
             if (res.ok) {
-                router.push('/admin/marketplace-prompts')
+                router.push('/admin/prompts')
             } else {
                 const error = await res.json()
                 alert(error.error || 'შეცდომა შენახვისას')

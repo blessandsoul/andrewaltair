@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { TbPhoto } from "react-icons/tb"
 
 interface CoverImages {
     horizontal?: string;  // 16:9 for desktop
@@ -25,6 +26,8 @@ export function ResponsiveCover({
     className
 }: ResponsiveCoverProps) {
     const [isMobile, setIsMobile] = useState(false);
+    const [horizontalError, setHorizontalError] = useState(false);
+    const [verticalError, setVerticalError] = useState(false);
 
     // Determine which image to show
     const horizontalSrc = coverImages?.horizontal || coverImage;
@@ -57,14 +60,22 @@ export function ResponsiveCover({
                     )}
                     onClick={onClick}
                 >
-                    <Image
-                        src={horizontalSrc}
-                        alt={title}
-                        fill
-                        className="object-cover"
-                        priority
-                        sizes="(max-width: 768px) 0vw, (max-width: 1200px) 80vw, 900px"
-                    />
+                    {!horizontalError ? (
+                        <Image
+                            src={horizontalSrc}
+                            alt={title}
+                            fill
+                            className="object-cover"
+                            priority
+                            sizes="(max-width: 768px) 0vw, (max-width: 1200px) 80vw, 900px"
+                            onError={() => setHorizontalError(true)}
+                        />
+                    ) : (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10 text-muted-foreground">
+                            <TbPhoto className="w-16 h-16 mb-2 opacity-40" />
+                            <span className="text-sm font-medium opacity-60">Image unavailable</span>
+                        </div>
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
                 </div>
             )}
@@ -80,14 +91,22 @@ export function ResponsiveCover({
                 )}
                 onClick={onClick}
             >
-                <Image
-                    src={verticalSrc || horizontalSrc || ''}
-                    alt={title}
-                    fill
-                    className="object-cover"
-                    priority
-                    sizes="100vw"
-                />
+                {!verticalError ? (
+                    <Image
+                        src={verticalSrc || horizontalSrc || ''}
+                        alt={title}
+                        fill
+                        className="object-cover"
+                        priority
+                        sizes="100vw"
+                        onError={() => setVerticalError(true)}
+                    />
+                ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10 text-muted-foreground">
+                        <TbPhoto className="w-12 h-12 mb-2 opacity-40" />
+                        <span className="text-xs font-medium opacity-60">Image unavailable</span>
+                    </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
             </div>
         </div>

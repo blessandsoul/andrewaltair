@@ -47,36 +47,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = React.useState<User | null>(null)
     const [token, setToken] = React.useState<string | null>(null)
     const [csrfToken, setCsrfToken] = React.useState<string | null>(null)
-    const [isLoading, setIsLoading] = React.useState(true)
+    const [isLoading, setIsLoading] = React.useState(false)
+    const [hasMounted, setHasMounted] = React.useState(false)
 
     // Load user and CSRF token on mount
     React.useEffect(() => {
+        let mounted = true
+        const abortController = new AbortController()
+
+        // Mark as mounted and loading
+        setHasMounted(true)
+        setIsLoading(true)
+
         const loadAuth = async () => {
             try {
                 // Fetch CSRF token
-                const csrfRes = await fetch("/api/csrf")
-                if (csrfRes.ok) {
+                const csrfRes = await fetch("/api/csrf", {
+                    signal: abortController.signal
+                })
+                if (csrfRes.ok && mounted) {
                     const csrfData = await csrfRes.json()
                     setCsrfToken(csrfData.csrfToken)
                 }
 
                 // Token automatically sent via cookie
                 const response = await fetch("/api/auth/me", {
-                    // credentials: 'include' is default for same-origin, but explicit doesn't hurt if using cross-origin later
+                    signal: abortController.signal
                 })
 
-                if (response.ok) {
+                if (response.ok && mounted) {
                     const data = await response.json()
                     setUser(data.user)
                 }
             } catch (error) {
+                // Ignore abort errors
+                if (error instanceof Error && error.name === 'AbortError') {
+                    return
+                }
                 console.error('Failed to load auth:', error)
             } finally {
-                setIsLoading(false)
+                if (mounted) {
+                    setIsLoading(false)
+                }
             }
         }
 
         loadAuth()
+
+        return () => {
+            mounted = false
+            abortController.abort()
+        }
     }, [])
 
     const login = async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {

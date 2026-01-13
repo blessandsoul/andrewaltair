@@ -1,220 +1,178 @@
-import { NextRequest, NextResponse } from 'next/server'
-import dbConnect from '@/lib/db'
-import Prompt from '@/models/Prompt'
-import { nanoid } from 'nanoid'
+import { NextRequest, NextResponse } from 'next/server';
+import dbConnect from '@/lib/db';
+import MarketplacePrompt from '@/models/MarketplacePrompt';
+import { generateUniqueId } from '@/lib/id-system';
+import { verifyAdmin } from '@/lib/admin-auth';
 
-interface RouteParams {
-    params: Promise<{ id: string }>
+interface Params {
+    params: Promise<{ id: string }>;
 }
 
-// GET - Get single prompt
-export async function GET(request: NextRequest, { params }: RouteParams) {
+// GET - Get single prompt by ID or slug
+export async function GET(request: NextRequest, { params }: Params) {
     try {
-        await dbConnect()
-        const { id } = await params
+        await dbConnect();
+        const { id } = await params;
 
-        const prompt = await Prompt.findById(id).lean()
+        // Find by ID or slug
+        const query = id.match(/^[0-9a-fA-F]{24}$/)
+            ? { _id: id }
+            : { slug: id };
+
+        const prompt = await MarketplacePrompt.findOne(query).lean();
 
         if (!prompt) {
             return NextResponse.json(
                 { error: 'Prompt not found' },
                 { status: 404 }
-            )
+            );
+        }
+
+        // Check if admin or if prompt is published
+        const isAdmin = verifyAdmin(request);
+
+        if (prompt.status !== 'published' && !isAdmin) {
+            return NextResponse.json(
+                { error: 'Prompt not found' },
+                { status: 404 }
+            );
         }
 
         // Increment views
-        await Prompt.findByIdAndUpdate(id, { $inc: { views: 1 } })
+        await MarketplacePrompt.updateOne(query, { $inc: { views: 1 } });
 
-        return NextResponse.json({
-            ...prompt,
-            id: prompt._id.toString(),
-            _id: undefined,
-        })
+        // For non-admin and paid prompts, hide the full template
+        const result = { ...prompt, id: prompt._id.toString(), _id: undefined };
 
+        if (!isAdmin && !prompt.isFree) {
+            // Show only a preview of the template
+            result.promptTemplate = result.promptTemplate.substring(0, 100) + '...[Preview - Purchase to see full prompt]';
+            result.instructions = result.instructions ? result.instructions.substring(0, 100) + '...' : '';
+            result.negativePrompt = result.negativePrompt ? result.negativePrompt.substring(0, 50) + '...' : '';
+        }
+
+        // Backfill numericId if missing
+        if (!prompt.numericId) {
+            const numericId = await generateUniqueId(); // Assuming generateUniqueId is imported or defined elsewhere
+            await MarketplacePrompt.updateOne({ _id: prompt._id }, { numericId });
+            // @ts-ignore
+            result.numericId = numericId;
+        }
+
+        return NextResponse.json({ prompt: result });
     } catch (error) {
-        console.error('Get prompt error:', error)
+        console.error('Get marketplace prompt error:', error);
         return NextResponse.json(
             { error: 'Failed to fetch prompt' },
             { status: 500 }
-        )
+        );
     }
 }
 
-// PUT - Update prompt
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+// PUT - Update prompt (admin only)
+export async function PUT(request: NextRequest, { params }: Params) {
     try {
-        await dbConnect()
-        const { id } = await params
-        const body = await request.json()
+        const admin = await verifyAdmin(request);
+        if (!admin) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
 
-        const sessionId = request.cookies.get('prompt_session_id')?.value
+        await dbConnect();
+        const { id } = await params;
 
-        // Check ownership
-        const prompt = await Prompt.findById(id)
+        const body = await request.json();
+
+        // Find by ID or slug
+        const query = id.match(/^[0-9a-fA-F]{24}$/)
+            ? { _id: id }
+            : { slug: id };
+
+        const prompt = await MarketplacePrompt.findOne(query);
+
         if (!prompt) {
             return NextResponse.json(
                 { error: 'Prompt not found' },
                 { status: 404 }
-            )
+            );
         }
 
-        if (prompt.sessionId !== sessionId && !prompt.isTemplate) {
-            return NextResponse.json(
-                { error: 'Not authorized' },
-                { status: 403 }
-            )
-        }
-
-        const {
-            isFavorite,
-            isPublic,
-            title,
-            description,
-            category,
-            tags,
-            qualityScore,
-            qualityFeedback,
-            translations,
-            variations,
-            lastTestResponse,
-            content,
-            formData,
-        } = body
-
-        const updateData: Record<string, any> = {}
-        const pushData: Record<string, any> = {}
-
-        // If content is being updated, save current version to history
-        if (content && content !== prompt.content) {
-            pushData.versions = {
-                content: prompt.content,
-                formData: prompt.formData,
-                createdAt: new Date()
-            }
-            updateData.content = content
-            if (formData) {
-                updateData.formData = formData
+        // If slug is being changed, check for uniqueness
+        if (body.slug && body.slug !== prompt.slug) {
+            const existingSlug = await MarketplacePrompt.findOne({ slug: body.slug });
+            if (existingSlug) {
+                return NextResponse.json(
+                    { error: 'A prompt with this slug already exists' },
+                    { status: 400 }
+                );
             }
         }
 
-        if (typeof isFavorite === 'boolean') updateData.isFavorite = isFavorite
-        if (typeof isPublic === 'boolean') updateData.isPublic = isPublic
-        if (title !== undefined) updateData.title = title
-        if (description !== undefined) updateData.description = description
-        if (category !== undefined) updateData.category = category
-        if (tags !== undefined) updateData.tags = tags
-        if (qualityScore !== undefined) updateData.qualityScore = qualityScore
-        if (qualityFeedback !== undefined) updateData.qualityFeedback = qualityFeedback
-        if (translations !== undefined) updateData.translations = translations
-        if (variations !== undefined) updateData.variations = variations
-        if (lastTestResponse !== undefined) {
-            updateData.lastTestResponse = lastTestResponse
-            updateData.lastTestedAt = new Date()
+        // Update fields
+        const updateFields = [
+            'title', 'slug', 'description', 'excerpt', 'price', 'currency',
+            'originalPrice', 'promptTemplate', 'negativePrompt', 'variables', 'instructions',
+            'aiModel', 'aiModelVersion', 'generationType', 'aspectRatio', 'coverImage',
+            'exampleImages', 'category', 'tags', 'status', 'featuredOrder',
+            'metaTitle', 'metaDescription', 'relatedPrompts', 'bundles', 'versions', 'abTests',
+            'numericId'
+        ];
+
+        for (const field of updateFields) {
+            if (body[field] !== undefined) {
+                (prompt as any)[field] = body[field];
+            }
         }
 
-        // Generate share token if making public
-        if (isPublic && !prompt.shareToken) {
-            updateData.shareToken = nanoid(10)
-        }
+        // Auto-set isFree based on price
+        prompt.isFree = prompt.price === 0;
 
-        const updateQuery: Record<string, any> = { $set: updateData }
-        if (Object.keys(pushData).length > 0) {
-            updateQuery.$push = pushData
-        }
-
-        const updated = await Prompt.findByIdAndUpdate(
-            id,
-            updateQuery,
-            { new: true, lean: true }
-        )
+        await prompt.save();
 
         return NextResponse.json({
-            ...updated,
-            id: updated._id.toString(),
-            _id: undefined,
-        })
-
+            success: true,
+            id: prompt._id.toString(),
+            slug: prompt.slug,
+        });
     } catch (error) {
-        console.error('Update prompt error:', error)
+        console.error('Update marketplace prompt error:', error);
         return NextResponse.json(
             { error: 'Failed to update prompt' },
             { status: 500 }
-        )
+        );
     }
 }
 
-// DELETE - Delete prompt
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+// DELETE - Delete prompt (admin only)
+export async function DELETE(request: NextRequest, { params }: Params) {
     try {
-        await dbConnect()
-        const { id } = await params
+        const admin = await verifyAdmin(request);
+        if (!admin) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
 
-        const sessionId = request.cookies.get('prompt_session_id')?.value
+        await dbConnect();
+        const { id } = await params;
 
-        // Check ownership
-        const prompt = await Prompt.findById(id)
-        if (!prompt) {
+        // Find by ID or slug
+        const query = id.match(/^[0-9a-fA-F]{24}$/)
+            ? { _id: id }
+            : { slug: id };
+
+        const result = await MarketplacePrompt.deleteOne(query);
+
+        if (result.deletedCount === 0) {
             return NextResponse.json(
                 { error: 'Prompt not found' },
                 { status: 404 }
-            )
+            );
         }
 
-        if (prompt.sessionId !== sessionId) {
-            return NextResponse.json(
-                { error: 'Not authorized' },
-                { status: 403 }
-            )
-        }
-
-        await Prompt.findByIdAndDelete(id)
-
-        return NextResponse.json({ success: true })
-
+        return NextResponse.json({ success: true });
     } catch (error) {
-        console.error('Delete prompt error:', error)
+        console.error('Delete marketplace prompt error:', error);
         return NextResponse.json(
             { error: 'Failed to delete prompt' },
             { status: 500 }
-        )
-    }
-}
-
-// PATCH - Increment counters (uses, copies, likes)
-export async function PATCH(request: NextRequest, { params }: RouteParams) {
-    try {
-        await dbConnect()
-        const { id } = await params
-        const { action } = await request.json()
-
-        const incrementField: Record<string, any> = {}
-
-        switch (action) {
-            case 'use':
-                incrementField.uses = 1
-                break
-            case 'copy':
-                incrementField.copies = 1
-                break
-            case 'like':
-                incrementField.likes = 1
-                break
-            default:
-                return NextResponse.json(
-                    { error: 'Invalid action' },
-                    { status: 400 }
-                )
-        }
-
-        await Prompt.findByIdAndUpdate(id, { $inc: incrementField })
-
-        return NextResponse.json({ success: true })
-
-    } catch (error) {
-        console.error('Patch prompt error:', error)
-        return NextResponse.json(
-            { error: 'Failed to update prompt' },
-            { status: 500 }
-        )
+        );
     }
 }

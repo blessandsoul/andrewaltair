@@ -1,183 +1,242 @@
-import { NextRequest, NextResponse } from 'next/server'
-import dbConnect from '@/lib/db'
-import Prompt from '@/models/Prompt'
-import { nanoid } from 'nanoid'
+import { NextRequest, NextResponse } from 'next/server';
+import dbConnect from '@/lib/db';
+import MarketplacePrompt from '@/models/MarketplacePrompt';
+import { generateUniqueId } from '@/lib/id-system';
+import { verifyAdmin } from '@/lib/admin-auth';
 
-// Helper to get session ID from cookies or create new
-function getSessionId(request: NextRequest): string {
-    const sessionId = request.cookies.get('prompt_session_id')?.value
-    return sessionId || nanoid()
-}
-
-// Helper to estimate token count (rough approximation)
-function estimateTokens(text: string): number {
-    // Roughly 4 characters per token for English, 2 for non-Latin
-    const hasNonLatin = /[^\x00-\x7F]/.test(text)
-    const charsPerToken = hasNonLatin ? 2 : 4
-    return Math.ceil(text.length / charsPerToken)
-}
-
-// GET - List prompts (with filters)
+// GET - List prompts with filters and pagination
 export async function GET(request: NextRequest) {
     try {
-        await dbConnect()
+        await dbConnect();
 
-        const { searchParams } = new URL(request.url)
-        const type = searchParams.get('type') || 'history' // history, favorites, templates, gallery
-        const sessionId = getSessionId(request)
-        const category = searchParams.get('category')
-        const search = searchParams.get('search')
-        const page = parseInt(searchParams.get('page') || '1')
-        const limit = parseInt(searchParams.get('limit') || '20')
-        const sort = searchParams.get('sort') || 'createdAt' // createdAt, likes, uses
+        const { searchParams } = new URL(request.url);
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '12');
+        const category = searchParams.get('category');
+        const aiModel = searchParams.get('aiModel');
+        const isFree = searchParams.get('isFree');
+        const status = searchParams.get('status') || 'published';
+        const sort = searchParams.get('sort') || 'createdAt';
+        const search = searchParams.get('search');
+        const featured = searchParams.get('featured');
 
-        let query: Record<string, any> = {}
+        // Build query
+        const query: Record<string, unknown> = {};
 
-        switch (type) {
-            case 'history':
-                query = { sessionId, isTemplate: false }
-                break
-            case 'favorites':
-                query = { sessionId, isFavorite: true }
-                break
-            case 'templates':
-                query = { isTemplate: true }
-                break
-            case 'gallery':
-                query = { isPublic: true, isTemplate: false }
-                break
+        // Status filter (admin can see all, public only sees published)
+        const isAdmin = verifyAdmin(request);
+        if (!isAdmin) {
+            query.status = 'published';
+        } else if (status && status !== 'all') {
+            query.status = status;
         }
 
         if (category) {
-            query.category = category
+            query.category = category;
+        }
+
+        if (aiModel) {
+            query.aiModel = aiModel;
+        }
+
+        const generationType = searchParams.get('generationType');
+        if (generationType) {
+            // Support partial matching if needed, or specific types
+            if (generationType === 'video') {
+                query.generationType = { $in: ['text-to-video', 'image-to-video', 'video-to-video'] };
+            } else if (generationType === 'image') {
+                query.generationType = { $in: ['text-to-image', 'image-to-image'] };
+            } else {
+                query.generationType = generationType;
+            }
+        }
+
+        if (isFree !== null && isFree !== undefined) {
+            query.isFree = isFree === 'true';
+        }
+
+        if (featured === 'true') {
+            query.featuredOrder = { $exists: true, $ne: null };
         }
 
         if (search) {
-            query.$text = { $search: search }
+            // Check if search query is likely a numeric ID (6 digits)
+            if (/^\d{6}$/.test(search)) {
+                query.numericId = search;
+            } else {
+                query.$text = { $search: search };
+            }
         }
 
-        const sortOrder: Record<string, any> = {}
-        sortOrder[sort] = sort === 'createdAt' ? -1 : -1
+        // Build sort
+        let sortOrder: Record<string, 1 | -1> = {};
+        switch (sort) {
+            case 'price-asc':
+                sortOrder = { price: 1 };
+                break;
+            case 'price-desc':
+                sortOrder = { price: -1 };
+                break;
+            case 'popular':
+                sortOrder = { purchases: -1 };
+                break;
+            case 'rating':
+                sortOrder = { rating: -1 };
+                break;
+            case 'featured':
+                sortOrder = { featuredOrder: 1, createdAt: -1 };
+                break;
+            case 'oldest':
+                sortOrder = { createdAt: 1 };
+                break;
+            default:
+                sortOrder = { createdAt: -1 };
+        }
 
-        const prompts = await Prompt.find(query)
+        const prompts = await MarketplacePrompt.find(query)
             .sort(sortOrder)
             .skip((page - 1) * limit)
             .limit(limit)
-            .lean()
+            .select('-promptTemplate -instructions -variables -negativePrompt') // Hide sensitive content in list
+            .lean();
 
-        const total = await Prompt.countDocuments(query)
+        const total = await MarketplacePrompt.countDocuments(query);
 
-        // Transform for response
-        const data = prompts.map(p => ({
-            ...p,
-            id: p._id.toString(),
-            _id: undefined,
-        }))
+        // Get unique categories for filters
+        const categories = await MarketplacePrompt.distinct('category', { status: 'published' });
+        const aiModels = await MarketplacePrompt.distinct('aiModel', { status: 'published' });
 
-        const response = NextResponse.json({
-            prompts: data,
+        return NextResponse.json({
+            prompts: prompts.map(p => ({
+                ...p,
+                id: p._id.toString(),
+                _id: undefined,
+            })),
             pagination: {
                 page,
                 limit,
                 total,
-                pages: Math.ceil(total / limit)
-            }
-        })
-
-        // Set session cookie if new
-        if (!request.cookies.get('prompt_session_id')) {
-            response.cookies.set('prompt_session_id', sessionId, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
-                maxAge: 60 * 60 * 24 * 365, // 1 year
-            })
-        }
-
-        return response
-
+                pages: Math.ceil(total / limit),
+            },
+            filters: {
+                categories,
+                aiModels,
+            },
+        });
     } catch (error) {
-        console.error('Get prompts error:', error)
+        console.error('Get marketplace prompts error:', error);
         return NextResponse.json(
             { error: 'Failed to fetch prompts' },
             { status: 500 }
-        )
+        );
     }
 }
 
-// POST - Create new prompt
+// POST - Create new prompt (admin only)
 export async function POST(request: NextRequest) {
     try {
-        await dbConnect()
+        // Verify admin
+        const admin = await verifyAdmin(request);
+        if (!admin) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
 
-        const body = await request.json()
-        const sessionId = getSessionId(request)
+        await dbConnect();
 
+        const body = await request.json();
         const {
-            content,
-            formData,
             title,
+            slug,
             description,
+            excerpt,
+            price,
+            currency,
+            originalPrice,
+            promptTemplate,
+            negativePrompt,
+            variables,
+            instructions,
+            aiModel,
+            aiModelVersion,
+            generationType,
+            aspectRatio,
+            coverImage,
+            exampleImages,
             category,
             tags,
-            isTemplate,
-            isPublic,
-        } = body
+            status,
+            featuredOrder,
+            metaTitle,
+            metaDescription,
+            relatedPrompts,
+            bundles,
+            versions,
+            abTests,
+        } = body;
 
-        if (!content || !formData?.role || !formData?.task) {
+        // Validate required fields
+        if (!title || !slug || !description || !promptTemplate || !aiModel || !category || !coverImage) {
             return NextResponse.json(
-                { error: 'Content, role, and task are required' },
+                { error: 'Missing required fields' },
                 { status: 400 }
-            )
+            );
         }
 
-        const tokenCount = estimateTokens(content)
-        const shareToken = nanoid(10)
+        // Check if slug is unique
+        const existingPrompt = await MarketplacePrompt.findOne({ slug });
+        if (existingPrompt) {
+            return NextResponse.json(
+                { error: 'A prompt with this slug already exists' },
+                { status: 400 }
+            );
+        }
 
-        const prompt = await Prompt.create({
-            content,
-            formData,
-            sessionId,
+        // Generate numericId
+        const numericId = await generateUniqueId();
+
+        const prompt = await MarketplacePrompt.create({
             title,
+            slug,
             description,
+            excerpt: excerpt || description.substring(0, 150) + '...',
+            price: price || 0,
+            currency: currency || 'GEL',
+            originalPrice,
+            isFree: !price || price === 0,
+            promptTemplate,
+            negativePrompt,
+            variables: variables || [],
+            instructions: instructions || '',
+            aiModel,
+            aiModelVersion,
+            generationType: generationType || 'text-to-image',
+            aspectRatio,
+            coverImage,
+            exampleImages: exampleImages || [],
             category,
             tags: tags || [],
-            isTemplate: isTemplate || false,
-            isPublic: isPublic || false,
-            tokenCount,
-            shareToken,
-            versions: [{
-                content,
-                formData,
-                createdAt: new Date(),
-                changeNote: 'პირველი ვერსია'
-            }],
-        })
+            authorName: 'Andrew Altair',
+            status: status || 'draft',
+            featuredOrder,
+            metaTitle: metaTitle || title,
+            metaDescription: metaDescription || excerpt || description.substring(0, 160),
+            relatedPrompts: relatedPrompts || [],
+            bundles: bundles || [],
+            versions: versions || [],
+            abTests: abTests || [],
+            numericId,
+        });
 
-        const response = NextResponse.json({
+        return NextResponse.json({
+            success: true,
             id: prompt._id.toString(),
-            shareToken: prompt.shareToken,
-            tokenCount,
-        })
-
-        // Set session cookie if new
-        if (!request.cookies.get('prompt_session_id')) {
-            response.cookies.set('prompt_session_id', sessionId, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
-                maxAge: 60 * 60 * 24 * 365,
-            })
-        }
-
-        return response
-
+            slug: prompt.slug,
+        });
     } catch (error) {
-        console.error('Create prompt error:', error)
+        console.error('Create marketplace prompt error:', error);
         return NextResponse.json(
             { error: 'Failed to create prompt' },
             { status: 500 }
-        )
+        );
     }
 }
-

@@ -17,7 +17,7 @@ export default function EditMarketplacePromptPage({ params }: Props) {
     useEffect(() => {
         async function fetchPrompt() {
             try {
-                const res = await fetch(`/api/marketplace-prompts/${id}`)
+                const res = await fetch(`/api/prompts/${id}`)
                 if (res.ok) {
                     const data = await res.json()
                     setPromptData(data.prompt)

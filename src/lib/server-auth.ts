@@ -1,4 +1,4 @@
-import { headers } from 'next/headers';
+import { headers, cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
@@ -12,11 +12,25 @@ if (!JWT_SECRET) {
 export async function getUserFromRequest(req: Request) {
     const authHeader = req.headers.get('authorization');
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return null;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        return await verifyToken(token);
     }
 
-    const token = authHeader.substring(7);
+    // Fallback to checking cookie
+    const cookieStore = await cookies();
+    const cookieToken = cookieStore.get('auth_token')?.value;
+
+    if (cookieToken) {
+        return await verifyToken(cookieToken);
+    }
+
+    return null;
+}
+
+// Helper to verify token and return user
+async function verifyToken(token: string) {
+
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET!) as { userId: string; role: string };

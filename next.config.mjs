@@ -26,6 +26,12 @@ const nextConfig = {
     ],
   },
   async headers() {
+    const isDev = process.env.NODE_ENV !== 'production';
+    // In dev mode, we need 'unsafe-eval' for React Refresh to work
+    const scriptSrc = isDev
+      ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://counter.top.ge https://www.google-analytics.com"
+      : "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://counter.top.ge https://www.google-analytics.com";
+
     return [
       {
         source: '/(.*)',
@@ -56,7 +62,7 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://counter.top.ge https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://region1.google-analytics.com https://www.google-analytics.com https://api.groq.com; frame-src 'self' https://www.youtube.com https://player.vimeo.com; media-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests",
+            value: `default-src 'self'; ${scriptSrc}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://region1.google-analytics.com https://www.google-analytics.com https://api.groq.com; frame-src 'self' https://www.youtube.com https://player.vimeo.com; media-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests`,
           },
         ],
       },

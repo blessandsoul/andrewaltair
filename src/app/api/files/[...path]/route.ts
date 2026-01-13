@@ -33,7 +33,18 @@ export async function GET(
         try {
             await stat(filePath)
         } catch {
-            return NextResponse.json({ error: 'File not found' }, { status: 404 })
+            // Return a transparent 1x1 PNG instead of JSON to avoid Next.js image optimization errors
+            const transparentPng = Buffer.from(
+                'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+                'base64'
+            )
+            return new NextResponse(transparentPng, {
+                status: 404,
+                headers: {
+                    'Content-Type': 'image/png',
+                    'Cache-Control': 'no-store',
+                },
+            })
         }
 
         // Read file

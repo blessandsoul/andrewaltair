@@ -25,15 +25,15 @@ export function generateCSRFToken(): string {
 export function verifyCSRFToken(request: NextRequest): boolean {
     // Get token from header
     const headerToken = request.headers.get(CSRF_HEADER_NAME);
-    
+
     // Get token from cookie
     const cookieToken = request.cookies.get(CSRF_COOKIE_NAME)?.value;
-    
+
     // Both must exist and match
     if (!headerToken || !cookieToken) {
         return false;
     }
-    
+
     return headerToken === cookieToken;
 }
 
@@ -44,7 +44,7 @@ export function setCSRFCookie(response: NextResponse, token: string): void {
     response.cookies.set(CSRF_COOKIE_NAME, token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax',
         maxAge: 60 * 60 * 24 // 24 hours
     });
 }
@@ -54,7 +54,7 @@ export function setCSRFCookie(response: NextResponse, token: string): void {
  */
 export function requireCSRF(request: NextRequest): NextResponse | null {
     const method = request.method;
-    
+
     // Only check CSRF for state-changing methods
     if (method === 'POST' || method === 'PUT' || method === 'DELETE' || method === 'PATCH') {
         if (!verifyCSRFToken(request)) {
@@ -64,6 +64,6 @@ export function requireCSRF(request: NextRequest): NextResponse | null {
             );
         }
     }
-    
+
     return null;
 }

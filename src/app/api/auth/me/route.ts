@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
@@ -9,18 +9,27 @@ if (!JWT_SECRET) {
     throw new Error('JWT_SECRET environment variable is required');
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
     try {
         const authHeader = request.headers.get('authorization');
 
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return NextResponse.json(
-                { error: 'არ ხართ ავტორიზებული' },
-                { status: 401 }
-            );
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            var token = authHeader.substring(7);
+        } else {
+            // Fallback to cookie
+            const cookieStore = request.cookies;
+            const cookieToken = cookieStore.get('auth_token')?.value;
+
+            if (!cookieToken) {
+                return NextResponse.json(
+                    { error: 'არ ხართ ავტორიზებული' },
+                    { status: 401 }
+                );
+            }
+            var token = cookieToken;
         }
 
-        const token = authHeader.substring(7);
+
 
         try {
             const decoded = jwt.verify(token, JWT_SECRET!) as { userId: string; role: string };
