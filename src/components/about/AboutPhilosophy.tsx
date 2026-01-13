@@ -37,10 +37,10 @@ export function AboutPhilosophy() {
                         <p className="text-lg leading-relaxed text-foreground/90 mb-6">
                             "2030 წლისთვის AI არ ჩაანაცვლებს ადამიანებს, მაგრამ ადამიანები,
                             რომლებიც იყენებენ AI-ს, ჩაანაცვლებენ მათ, ვინც მას არ იყენებს.
-                            კreatiულობა გახდება ყველაზე ღირებული ვალუტა."
+                            კრეატიულობა გახდება ყველაზე ღირებული ვალუტა."
                         </p>
                         <div className="text-sm font-mono text-indigo-400 opacity-60">
-              // Andrew Altair
+                            // Andrew Altair
                         </div>
                     </motion.div>
 

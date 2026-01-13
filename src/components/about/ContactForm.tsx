@@ -18,13 +18,42 @@ import { TbSend } from "react-icons/tb"
 export function ContactForm() {
     const [loading, setLoading] = useState(false)
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setLoading(true)
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500))
-        setLoading(false)
-        toast.success("შეტყობინება გაიგზავნა წარმატებით!")
+
+        const formData = new FormData(e.currentTarget)
+        const data = {
+            name: formData.get("name"),
+            email: formData.get("email"),
+            phone: formData.get("phone"),
+            service: formData.get("service") || "not-selected",
+            message: formData.get("message"),
+            urgency: "medium", // default
+            source: "about_page"
+        }
+
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+
+            if (!response.ok) {
+                throw new Error('Failed to send message')
+            }
+
+            toast.success("შეტყობინება წარმატებით გაიგზავნა!")
+            e.currentTarget.reset() // Clear form
+        } catch (error) {
+            toast.error("შეცდომა გაგზავნისას. გთხოვთ სცადოთ მოგვიანებით.")
+            console.error(error)
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -49,17 +78,22 @@ export function ContactForm() {
                         <div className="grid sm:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">სახელი</label>
-                                <Input required placeholder="თქვენი სახელი" className="bg-background/50" />
+                                <Input name="name" required placeholder="თქვენი სახელი" className="bg-background/50" />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">ელ. ფოსტა</label>
-                                <Input required type="email" placeholder="example@mail.com" className="bg-background/50" />
+                                <Input name="email" required type="email" placeholder="example@mail.com" className="bg-background/50" />
                             </div>
                         </div>
 
                         <div className="space-y-2">
+                            <label className="text-sm font-medium">ტელეფონის ნომერი</label>
+                            <Input name="phone" type="tel" placeholder="+995 555 00 00 00" className="bg-background/50" />
+                        </div>
+
+                        <div className="space-y-2">
                             <label className="text-sm font-medium">თემა</label>
-                            <Select>
+                            <Select name="service">
                                 <SelectTrigger className="bg-background/50">
                                     <SelectValue placeholder="აირჩიეთ თემა" />
                                 </SelectTrigger>
@@ -75,7 +109,7 @@ export function ContactForm() {
 
                         <div className="space-y-2">
                             <label className="text-sm font-medium">შეტყობინება</label>
-                            <Textarea required placeholder="მოგვიყევით თქვენი იდეის ან პროექტის შესახებ..." className="min-h-[120px] bg-background/50" />
+                            <Textarea name="message" required placeholder="მოგვიყევით თქვენი იდეის ან პროექტის შესახებ..." className="min-h-[120px] bg-background/50" />
                         </div>
 
                         <Button disabled={loading} type="submit" className="w-full text-lg h-12 bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity">
