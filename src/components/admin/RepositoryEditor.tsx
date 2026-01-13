@@ -531,45 +531,6 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
 
                 {/* Sidebar */}
                 <div className="space-y-6">
-                    {/* Topics */}
-                    <Card>
-                        <CardHeader><CardTitle className="text-sm">Topics</CardTitle></CardHeader>
-                        <CardContent className="space-y-4">
-                            <Input
-                                placeholder="Add topic (Enter)"
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        const val = e.currentTarget.value.trim();
-                                        if (val && !post.repository?.topics.includes(val)) {
-                                            setPost(prev => ({
-                                                ...prev,
-                                                repository: {
-                                                    ...prev.repository!,
-                                                    topics: [...(prev.repository?.topics || []), val]
-                                                }
-                                            }));
-                                            e.currentTarget.value = '';
-                                        }
-                                    }
-                                }}
-                            />
-                            <div className="flex flex-wrap gap-2">
-                                {post.repository?.topics?.map(topic => (
-                                    <Badge key={topic} variant="secondary" className="gap-1">
-                                        {topic}
-                                        <button onClick={() => setPost(prev => ({
-                                            ...prev,
-                                            repository: {
-                                                ...prev.repository!,
-                                                topics: prev.repository?.topics.filter(t => t !== topic) || []
-                                            }
-                                        }))}><TbX className="w-3 h-3 hover:text-destructive" /></button>
-                                    </Badge>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
 
                     {/* Tags (All hashtags including Georgian) */}
                     <Card>
