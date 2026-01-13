@@ -19,6 +19,7 @@ import { brand } from "@/lib/brand"
 
 export function AboutContactWidget() {
     const [name, setName] = useState("")
+    const [phoneNumberInput, setPhoneNumberInput] = useState("")
     const [message, setMessage] = useState("")
     const [sending, setSending] = useState(false)
     const [sent, setSent] = useState(false)
@@ -40,6 +41,7 @@ export function AboutContactWidget() {
                 body: JSON.stringify({
                     name: name.trim() || 'ანონიმური',
                     email: 'about-page@andrewaltair.ge',
+                    phone: phoneNumberInput.trim(),
                     message: message.trim(),
                     service: 'საიტიდან შეტყობინება'
                 })
@@ -119,6 +121,12 @@ export function AboutContactWidget() {
                                 onChange={(e) => setName(e.target.value)}
                                 className="bg-background/50 border-white/10 focus:border-primary/50"
                             />
+                            <Input
+                                placeholder="თქვენი ტელეფონი (აუცილებელია)"
+                                value={phoneNumberInput}
+                                onChange={(e) => setPhoneNumberInput(e.target.value)}
+                                className="bg-background/50 border-white/10 focus:border-primary/50"
+                            />
                             <Textarea
                                 placeholder="დაწერეთ შეტყობინება..."
                                 value={message}
@@ -133,7 +141,7 @@ export function AboutContactWidget() {
 
                             <Button
                                 onClick={handleSendMessage}
-                                disabled={!message.trim() || sending}
+                                disabled={!message.trim() || !phoneNumberInput.trim() || sending}
                                 className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white gap-2"
                             >
                                 {sent ? (

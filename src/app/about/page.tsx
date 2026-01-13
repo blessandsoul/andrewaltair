@@ -54,28 +54,28 @@ const expertise = [
 
 const timeline = [
   {
+    year: "2025",
+    title: "AI ლექტორი და სპიკერი",
+    company: "Tech Park & Universities",
+    description: "AI მასტერკლასები, კორპორატიული ტრეინინგები და საჯარო გამოსვლები"
+  },
+  {
     year: "2024",
     title: "AI კონტენტ კრეატორი",
     company: "AndrewAltair.GE",
-    description: "AI-ს შესახებ კონტენტის შექმნა და გაზიარება სოციალურ ქსელებში"
+    description: "საქართველოში პირველი მასშტაბური AI საგანმანათლებლო პლატფორმის შექმნა"
   },
   {
-    year: "2022",
-    title: "AI სტარტაპის დამფუძნებელი",
-    company: "AI Solutions",
-    description: "კომპანიებისთვის AI გადაწყვეტილებების შექმნა და დანერგვა"
+    year: "2023",
+    title: "Chief AI Officer",
+    company: "Future Tech Solutions",
+    description: "კომპანიის ტრანსფორმაცია და AI აგენტური სისტემების დანერგვა"
   },
   {
     year: "2020",
-    title: "ტექნოლოგიური კონსულტანტი",
-    company: "Tech Consulting",
-    description: "ციფრული ტრანსფორმაცია და ტექნოლოგიური სტრატეგია"
-  },
-  {
-    year: "2017",
-    title: "პროდუქტის მენეჯერი",
-    company: "Digital Agency",
-    description: "ციფრული პროდუქტების მართვა და განვითარება"
+    title: "Senior Tech Consultant",
+    company: "Global Innovation Hub",
+    description: "ციფრული პროდუქტების სტრატეგია და ტექნოლოგიური განვითარება"
   }
 ]
 
@@ -138,7 +138,7 @@ export default function AboutPage() {
             <div className="space-y-6">
               <Badge variant="secondary" className="px-4 py-2">
                 <div className="w-2 h-2 bg-accent rounded-full mr-2 animate-pulse"></div>
-                AI ინოვატორი
+                AI არქიტექტორი & ფუტურისტი
               </Badge>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
@@ -146,14 +146,14 @@ export default function AboutPage() {
               </h1>
 
               <p className="text-xl text-muted-foreground leading-relaxed">
-                ვარ ხელოვნური ინტელექტის ენთუზიასტი და კონტენტ კრეატორი.
-                {brand.stats.yearsExperience} წელზე მეტია ვმუშაობ ტექნოლოგიების სფეროში და
-                ვეხმარები ადამიანებს AI-ს შესაძლებლობების გამოყენებაში.
+                ვარ AI არქიტექტორი და ტექნოლოგიური ევანგელისტი.
+                {brand.stats.yearsExperience} წელზე მეტია ვქმნი ციფრულ მომავალს და
+                ვეხმარები ადამიანებს, გამოიყენონ <strong>აგენტური სისტემები</strong> და <strong>მულტიმოდალური მოდელები</strong>.
               </p>
 
               <p className="text-lg text-muted-foreground/80 leading-relaxed">
-                ჩემი მისიაა — გავხადო რთული AI კონცეფციები მარტივი და ხელმისაწვდომი ყველასთვის.
-                ვქმნი კონტენტს ChatGPT-ს, DALL-E-ს და სხვა AI ინსტრუმენტების შესახებ.
+                ჩემი მისიაა — გავხადო <strong>General Purpose AI</strong> და <strong>Reasoning Models</strong> (o1, Claude 3.5, Gemini 2) ხელმისაწვდომი და გასაგები.
+                ვქმნი კონტენტს სუპერ-ინტელექტის, ავტონომიური აგენტებისა და ციფრული სინთეზის შესახებ.
               </p>
 
               <div className="flex gap-4">
@@ -181,19 +181,19 @@ export default function AboutPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-gradient">{brand.stats.yearsExperience}</div>
-              <div className="text-sm text-muted-foreground mt-1">წელი გამოცდილება</div>
+              <div className="text-sm text-muted-foreground mt-1">წელი ტექნოლოგიებში</div>
             </div>
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-gradient">{brand.stats.subscribers}</div>
-              <div className="text-sm text-muted-foreground mt-1">გამომწერი</div>
+              <div className="text-sm text-muted-foreground mt-1">კომუნიტის წევრი</div>
             </div>
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-gradient">{brand.stats.articles}</div>
-              <div className="text-sm text-muted-foreground mt-1">სტატია</div>
+              <div className="text-sm text-muted-foreground mt-1">პუბლიკაცია</div>
             </div>
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-gradient">{brand.stats.projects}</div>
-              <div className="text-sm text-muted-foreground mt-1">პროექტი</div>
+              <div className="text-sm text-muted-foreground mt-1">დანერგილი სისტემა</div>
             </div>
           </div>
         </div>
@@ -211,7 +211,7 @@ export default function AboutPage() {
               <span className="text-sm font-bold uppercase tracking-widest">ექსპერტიზა</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-bold">ჩემი ექსპერტიზა</h2>
-            <p className="text-muted-foreground mt-2">რაში შემიძლია დაგეხმაროთ</p>
+            <p className="text-muted-foreground mt-2">მომავლის ტექნოლოგიები</p>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -248,7 +248,7 @@ export default function AboutPage() {
               <span className="text-sm font-bold uppercase tracking-widest">გზა</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-bold">ჩემი გზა</h2>
-            <p className="text-muted-foreground mt-2">კარიერული ისტორია</p>
+            <p className="text-muted-foreground mt-2">პროექტები და გამოცდილება</p>
           </div>
 
           <div className="space-y-8">
