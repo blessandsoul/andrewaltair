@@ -73,8 +73,8 @@ function formatRelativeDate(dateString: string): string {
 }
 
 export function FeaturedCard({ post }: FeaturedCardProps) {
-    const [isHovered, setIsHovered] = useState(false)
-    const [isBookmarked, setIsBookmarked] = useState(false)
+    const [imageError, setImageError] = useState(false)
+    const [avatarError, setAvatarError] = useState(false)
     const categoryStr = post.categories && post.categories.length > 0 ? post.categories[0] : ((post as unknown as { category: string }).category || 'ai')
     const categoryInfo = getCategoryInfo(categoryStr)
 
@@ -94,12 +94,13 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
                 <CardContent className="p-0 h-full relative">
                     {/* Background Image Container */}
                     <div className="absolute inset-0 z-0">
-                        {post.coverImage ? (
+                        {post.coverImage && !imageError ? (
                             <Image
                                 src={post.coverImage}
                                 alt={post.title}
                                 fill
                                 className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                                onError={() => setImageError(true)}
                             />
                         ) : (
                             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
@@ -119,7 +120,7 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
                         <div className="absolute top-6 left-6 flex items-center gap-3">
                             <Badge className="bg-amber-400/90 text-black border-0 px-3 py-1 text-xs font-bold shadow-[0_0_15px_rgba(251,191,36,0.5)] animate-pulse">
                                 <TbStar className="w-3.5 h-3.5 mr-1.5 fill-black" />
-                                FEATURED
+                                <FEATURED>FEATURED</FEATURED>
                             </Badge>
 
                             <Badge
@@ -170,14 +171,22 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
                             {/* Author & Actions */}
                             <div className="pt-6 flex items-center justify-between border-t border-white/10">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full ring-2 ring-white/20 overflow-hidden relative">
-                                        <Image
-                                            src={post.author.avatar}
-                                            alt={post.author.name}
-                                            fill
-                                            className="object-cover"
-                                        />
-                                    </div>
+                                    {post.author.avatar && !avatarError ? (
+                                        <div className="w-10 h-10 rounded-full ring-2 ring-white/20 overflow-hidden relative">
+                                            <Image
+                                                src={post.author.avatar}
+                                                alt={post.author.name}
+                                                fill
+                                                className="object-cover"
+                                                onError={() => setAvatarError(true)}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-sm font-bold text-white ring-2 ring-white/20">
+                                            {post.author.name.charAt(0)}
+                                        </div>
+                                    )}
+
                                     <div>
                                         <div className="text-white font-medium text-sm">{post.author.name}</div>
                                         <div className="text-white/50 text-xs">{post.author.role}</div>

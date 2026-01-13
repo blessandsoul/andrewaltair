@@ -107,7 +107,9 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
                 slug: result.title ? generateSlug(result.title) : prev.slug,
                 excerpt: result.excerpt || prev.excerpt,
                 tags: [...new Set([...prev.tags, ...(result.tags || [])])],
-                sections: [...prev.sections, ...(result.sections || [])],
+                sections: [...prev.sections, ...(result.sections || []).filter(s => s.type !== 'section')], // Add non-feature sections (e.g. prompts)
+                // Extracted "Features" section content goes to main content
+                content: result.sections?.find(s => s.title === 'Features')?.content || prev.content,
                 repository: {
                     ...prev.repository!,
                     ...result.repository,
@@ -330,55 +332,76 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
                         </CardContent>
                     </Card>
 
+
                     {/* Cover Images */}
                     <Card>
                         <CardHeader><CardTitle className="text-lg">Result Images</CardTitle></CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Horizontal (16:9)</label>
-                                <Input
-                                    placeholder="https://.../horizontal.jpg"
-                                    value={post.coverImages?.horizontal || ''}
-                                    onChange={(e) => setPost(prev => ({
-                                        ...prev,
-                                        coverImages: { ...prev.coverImages, horizontal: e.target.value }
-                                    }))}
-                                />
+                                <div className="flex gap-2">
+                                    <Input
+                                        placeholder="https://.../horizontal.jpg"
+                                        value={post.coverImages?.horizontal || ''}
+                                        onChange={(e) => setPost(prev => ({
+                                            ...prev,
+                                            coverImages: { ...prev.coverImages, horizontal: e.target.value }
+                                        }))}
+                                        className="flex-1"
+                                    />
+                                    {/* Placeholder for Upload Button - In a real scenario, use <ImageUpload /> */}
+                                    <Button variant="outline" size="icon" onClick={() => toast.info("Image upload implementation pending - use URL for now")}>
+                                        <TbDeviceFloppy className="w-4 h-4" />
+                                    </Button>
+                                </div>
                                 {post.coverImages?.horizontal && (
-                                    <img src={post.coverImages.horizontal} alt="Preview" className="w-full h-32 object-cover rounded-md border" />
+                                    <img src={post.coverImages.horizontal} alt="Preview" className="w-full h-32 object-cover rounded-md border mt-2" />
                                 )}
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Vertical (9:16)</label>
-                                <Input
-                                    placeholder="https://.../vertical.jpg"
-                                    value={post.coverImages?.vertical || ''}
-                                    onChange={(e) => setPost(prev => ({
-                                        ...prev,
-                                        coverImages: { ...prev.coverImages, vertical: e.target.value }
-                                    }))}
-                                />
+                                <div className="flex gap-2">
+                                    <Input
+                                        placeholder="https://.../vertical.jpg"
+                                        value={post.coverImages?.vertical || ''}
+                                        onChange={(e) => setPost(prev => ({
+                                            ...prev,
+                                            coverImages: { ...prev.coverImages, vertical: e.target.value }
+                                        }))}
+                                        className="flex-1"
+                                    />
+                                    <Button variant="outline" size="icon" onClick={() => toast.info("Image upload implementation pending - use URL for now")}>
+                                        <TbDeviceFloppy className="w-4 h-4" />
+                                    </Button>
+                                </div>
                                 {post.coverImages?.vertical && (
-                                    <img src={post.coverImages.vertical} alt="Preview" className="w-32 h-48 object-cover rounded-md border" />
+                                    <img src={post.coverImages.vertical} alt="Preview" className="w-32 h-48 object-cover rounded-md border mt-2" />
                                 )}
                             </div>
                         </CardContent>
                     </Card>
 
-                    {/* Readme / Long Content */}
+                    {/* Features Content (Instead of Readme) */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-lg flex items-center gap-2">
-                                <TbFileText className="w-5 h-5 text-muted-foreground" />
-                                Readme / Detailed Content
+                                <TbCheck className="w-5 h-5 text-green-500" />
+                                Features & Capabilities
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
+                            <CardDescription className="mb-2">
+                                List the key features of the repository (extracted from the post).
+                            </CardDescription>
+
+                            {/* We bind this to a specific section for features, or use content field if appropriate. 
+                                Let's use 'content' for the main features list since 'rawContent' was for Readme/Full Text.
+                            */}
                             <textarea
                                 className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[300px]"
-                                placeholder="# Project Readme..."
-                                value={post.rawContent || ''}
-                                onChange={(e) => setPost(prev => ({ ...prev, rawContent: e.target.value }))}
+                                placeholder="* Feature 1&#10;* Feature 2&#10;* Feature 3"
+                                value={post.content || ''}
+                                onChange={(e) => setPost(prev => ({ ...prev, content: e.target.value }))}
                             />
                         </CardContent>
                     </Card>

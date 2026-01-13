@@ -77,7 +77,11 @@ export function parseRepositoryPost(text: string): ParsedRepoData {
         // We want to keep the text but remove the "header-like" formatting if possible, 
         // OR just treat the whole block as description.
         // User wants the emoji line to be part of the description usually, but maybe cleaned up?
-        // Let's just trim whitespace.
+
+        // Remove leading emojis and whitespace
+        descText = descText.replace(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]\s*/gmu, '');
+        // Remove ** markers from the start of the description if present (e.g. **Intro Check**)
+        descText = descText.replace(/^\*\*(.*?)\*\*/, '$1');
 
         descText = descText.trim();
 
@@ -99,6 +103,11 @@ export function parseRepositoryPost(text: string): ParsedRepoData {
         } else if (featuresMatchGeneric) {
             featuresContent = featuresMatchGeneric[1].trim();
         }
+
+        // If simple regex missed the "header text" part of the features block, try to capture it
+        // The regex `🛠\s*\*\*[^]*?\*\*:\s*` skips the header "What it offers".
+        // We want the content *after* the header.
+        // That seems correct.
 
         if (featuresContent) {
             data.sections?.push({
@@ -137,7 +146,8 @@ export function parseRepositoryPost(text: string): ParsedRepoData {
         }
 
         // 6. EXTRACT TAGS
-        // Hashtags at the end or typically in the text
+        // Hashtags at the end or typically in the text. 
+        // UPDATED: Support Georgian characters \u10A0-\u10FF
         const hashtagRegex = /#([\w\u10A0-\u10FF]+)/g;
         const tags = [...cleanText.matchAll(hashtagRegex)].map(m => m[1]);
         if (tags.length > 0) {

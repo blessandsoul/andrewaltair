@@ -65,6 +65,7 @@ function getCategoryInfo(categoryId: string) {
 
 export function TrendingCard({ post, rank }: TrendingCardProps) {
     const [isHovered, setIsHovered] = useState(false)
+    const [imageError, setImageError] = useState(false)
     const categoryInfo = getCategoryInfo(post.category)
 
     // Rank colors
@@ -75,6 +76,8 @@ export function TrendingCard({ post, rank }: TrendingCardProps) {
     }
 
     const rankGradient = rankColors[rank as keyof typeof rankColors] || "from-primary to-accent shadow-primary/20"
+
+    const coverImage = post.coverImages?.horizontal || post.coverImage
 
     return (
         <Link href={`/blog/${post.slug}`} className="block h-full">
@@ -98,12 +101,13 @@ export function TrendingCard({ post, rank }: TrendingCardProps) {
 
                     {/* Image (Small Thumbnail) */}
                     <div className="relative w-24 sm:w-32 h-full overflow-hidden">
-                        {(post.coverImage || post.coverImages?.horizontal) ? (
+                        {coverImage && !imageError ? (
                             <Image
-                                src={post.coverImages?.horizontal || post.coverImage || ''}
+                                src={coverImage}
                                 alt={post.title}
                                 fill
                                 className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                onError={() => setImageError(true)}
                             />
                         ) : (
                             <div className="absolute inset-0 flex items-center justify-center bg-secondary/10">
