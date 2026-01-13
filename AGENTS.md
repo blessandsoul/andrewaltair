@@ -1,5 +1,5 @@
 # AGENTS.md - AI Agent Guidelines
-
+.
 > Полное руководство для AI агентов по работе с проектом Andrew Altair
 
 ---
