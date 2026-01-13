@@ -346,7 +346,6 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
         // 5. ASYNC SEO FILL (Background)
         // Only run if we are missing key SEO fields to avoid overwriting if user manually entered them (unlikely here but good practice)
         // Actually, for a fresh import, we always want to generate SLUG at least.
-        const token = localStorage.getItem('auth_token')
         setIsGenerating(true)
         console.log("Triggering Background SEO Gen...")
 
@@ -355,7 +354,7 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    // No auth header needed - admin_session cookie sent automatically
                 },
                 body: JSON.stringify({
                     title: newData.title,

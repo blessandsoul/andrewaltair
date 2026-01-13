@@ -175,9 +175,18 @@ export async function POST(request: NextRequest) {
         } = body;
 
         // Validate required fields
-        if (!title || !slug || !description || !promptTemplate || !aiModel || !category || !coverImage) {
+        const missingFields = [];
+        if (!title) missingFields.push('title');
+        if (!slug) missingFields.push('slug');
+        if (!description) missingFields.push('description');
+        if (!promptTemplate) missingFields.push('promptTemplate');
+        if (!aiModel) missingFields.push('aiModel');
+        if (!category || (Array.isArray(category) && category.length === 0)) missingFields.push('category');
+        if (!coverImage) missingFields.push('coverImage');
+
+        if (missingFields.length > 0) {
             return NextResponse.json(
-                { error: 'Missing required fields' },
+                { error: `Missing required fields: ${missingFields.join(', ')}` },
                 { status: 400 }
             );
         }

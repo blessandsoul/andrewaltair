@@ -1,6 +1,6 @@
 import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
-import { getUserFromRequest } from "@/lib/server-auth"
+import { verifyAdmin } from "@/lib/admin-auth"
 
 // Initialize OpenAI client for Groq
 const client = new OpenAI({
@@ -10,9 +10,9 @@ const client = new OpenAI({
 
 export async function POST(request: NextRequest) {
     try {
-        // Auth check
-        const user = await getUserFromRequest(request);
-        if (!user) {
+        // Auth check - use admin auth for admin panel
+        const isAdmin = verifyAdmin(request);
+        if (!isAdmin) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
