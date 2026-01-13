@@ -94,11 +94,11 @@ export function parseTutorialPost(text: string): ParsedTutorial {
             const chunk = text.substring(current.index, chunkEnd);
 
             // Extract Quote: "> " to newline or ℹ️
-            const quoteMatch = chunk.match(/>\s"([\s\S]*?)"/) || chunk.match(/>\s([\s\S]*?)(?=\n|ℹ️)/);
+            const quoteMatch = chunk.match(/>\s"(.*?)"/s) || chunk.match(/>\s(.*?)(?=\n|ℹ️)/s);
             const quote = quoteMatch ? quoteMatch[1].trim() : '';
 
             // Extract Explanation: "ℹ️ *...*"
-            const infoMatch = chunk.match(/ℹ️\s*\*\[?([\s\S]*?)\]?\*/);
+            const infoMatch = chunk.match(/ℹ️\s*\*\[?(.*?)\]?\*/s);
             const explanation = infoMatch ? infoMatch[1].trim() : '';
 
             result.modules.push({
