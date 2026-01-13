@@ -109,23 +109,61 @@ export function parseRepositoryPost(text: string): ParsedRepoData {
         // Remove all ** markers from features content
         featuresContent = featuresContent.replace(/\*\*/g, '');
 
-        // If simple regex missed the "header text" part of the features block, try to capture it
-        // The regex `🛠\s*\*\*[^]*?\*\*:\s*` skips the header "What it offers".
-        // We want the content *after* the header.
-        // That seems correct.
+        // Remove the header line like "რას გთავაზობს:"
+        featuresContent = featuresContent.replace(/^[^\n]*გთავაზობს[^\n]*:?\s*/i, '');
 
+        // Parse features into individual items with icons
         if (featuresContent) {
+            // Split by lines starting with * or bullet points
+            const featureLines = featuresContent
+                .split(/\n/)
+                .map(line => line.trim())
+                .filter(line => line.length > 0)
+                .map(line => {
+                    // Remove leading asterisks, bullets, dashes
+                    return line.replace(/^[\*\-•]\s*/, '').trim();
+                })
+                .filter(line => line.length > 0);
+
+            // Map features to icons based on content keywords
+            const getFeatureIcon = (text: string): string => {
+                const lower = text.toLowerCase();
+                if (lower.includes('python') || lower.includes('დაწერილ') || lower.includes('script')) return 'TbBrandPython';
+                if (lower.includes('download') || lower.includes('ჩამოტვირთ') || lower.includes('გადმოწერ')) return 'TbDownload';
+                if (lower.includes('filter') || lower.includes('გაფილტვრა') || lower.includes('ფილტრ')) return 'TbFilter';
+                if (lower.includes('folder') || lower.includes('დირექტორია') || lower.includes('დახარისხება')) return 'TbFolderOpen';
+                if (lower.includes('cron') || lower.includes('scheduler') || lower.includes('დამგეგმავ') || lower.includes('ავტომატ')) return 'TbClock';
+                if (lower.includes('docker') || lower.includes('container') || lower.includes('სერვერ')) return 'TbBrandDocker';
+                if (lower.includes('2fa') || lower.includes('ავტორიზაცია') || lower.includes('auth')) return 'TbShieldCheck';
+                if (lower.includes('photo') || lower.includes('ფოტო') || lower.includes('image') || lower.includes('სურათ')) return 'TbPhoto';
+                if (lower.includes('video') || lower.includes('ვიდეო')) return 'TbVideo';
+                if (lower.includes('backup') || lower.includes('ბექაპ')) return 'TbDatabaseExport';
+                if (lower.includes('metadata') || lower.includes('მეტამონაცემ')) return 'TbFileInfo';
+                if (lower.includes('album') || lower.includes('ალბომ')) return 'TbAlbum';
+                if (lower.includes('face') || lower.includes('სახ')) return 'TbMoodSmile';
+                if (lower.includes('date') || lower.includes('თარიღ') || lower.includes('წელი') || lower.includes('თვე')) return 'TbCalendar';
+                if (lower.includes('resume') || lower.includes('გაგრძელება') || lower.includes('შეჩერება')) return 'TbPlayerPlay';
+                return 'TbCheck'; // Default icon
+            };
+
+            // Create structured features array
+            const featuresArray = featureLines.map(line => ({
+                icon: getFeatureIcon(line),
+                text: line
+            }));
+
             data.sections?.push({
                 type: 'section',
                 icon: 'TbListCheck',
                 title: 'Features',
-                content: featuresContent
+                content: featuresContent, // Keep raw for backward compat
+                features: featuresArray // New structured format
             });
         }
 
         // 4. EXTRACT STATS
         // 📊 **სტატისტიკა:**
-        const langMatch = cleanText.match(/Language: #?(\w+)/i);
+        const langMatch = cleanText.match(/Language: #?([\w]+)/i);
         if (langMatch && data.repository) {
             data.repository.language = langMatch[1];
         }
@@ -152,8 +190,9 @@ export function parseRepositoryPost(text: string): ParsedRepoData {
 
         // 6. EXTRACT TAGS
         // Hashtags at the end or typically in the text. 
-        // UPDATED: Support Georgian characters \u10A0-\u10FF with Unicode flag
-        const hashtagRegex = /#([\w\u10A0-\u10FF]+)/gu;
+        // Support Georgian characters with extended Unicode range (Mkhedruli + Asomtavruli)
+        // Georgian: \u10A0-\u10FF (main), \u1C90-\u1CBF (extended), \u2D00-\u2D2F (supplement)
+        const hashtagRegex = /#([\w\u10A0-\u10FF\u1C90-\u1CBF\u2D00-\u2D2F]+)/gu;
         const tags = [...cleanText.matchAll(hashtagRegex)].map(m => m[1]);
         if (tags.length > 0) {
             // Filter out common metadata tags if needed, or keep all

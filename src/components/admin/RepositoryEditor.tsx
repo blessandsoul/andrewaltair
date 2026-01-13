@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { TbDeviceFloppy, TbArrowLeft, TbWorld, TbFileText, TbStar, TbGitFork, TbCode, TbTag, TbBrandGithub, TbBrandGitlab, TbRefresh, TbX, TbLoader2, TbCheck, TbUpload, TbPhoto } from "react-icons/tb"
+import { TbDeviceFloppy, TbArrowLeft, TbWorld, TbFileText, TbStar, TbGitFork, TbCode, TbTag, TbBrandGithub, TbBrandGitlab, TbRefresh, TbX, TbLoader2, TbCheck, TbUpload, TbPhoto, TbBrandPython, TbDownload, TbFilter, TbFolderOpen, TbClock, TbBrandDocker, TbShieldCheck, TbVideo, TbDatabaseExport, TbFileInfo, TbAlbum, TbMoodSmile, TbCalendar, TbPlayerPlay, TbPlus, TbTrash } from "react-icons/tb"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { useAutosave } from "@/hooks/useAutosave"
@@ -96,6 +96,14 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
     const [importText, setImportText] = React.useState("")
     const [isUploadingH, setIsUploadingH] = React.useState(false)
     const [isUploadingV, setIsUploadingV] = React.useState(false)
+    const [features, setFeatures] = React.useState<{ icon: string; text: string }[]>([])
+
+    // Icon component map for dynamic rendering
+    const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+        TbBrandPython, TbDownload, TbFilter, TbFolderOpen, TbClock, TbBrandDocker,
+        TbShieldCheck, TbPhoto, TbVideo, TbDatabaseExport, TbFileInfo, TbAlbum,
+        TbMoodSmile, TbCalendar, TbPlayerPlay, TbCheck
+    }
 
     // File upload handler
     const handleFileUpload = async (file: File, type: 'horizontal' | 'vertical') => {
@@ -147,8 +155,6 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
                 excerpt: result.excerpt || prev.excerpt,
                 tags: [...new Set([...prev.tags, ...(result.tags || [])])],
                 sections: [...prev.sections, ...(result.sections || []).filter(s => s.type !== 'section')], // Add non-feature sections (e.g. prompts)
-                // Extracted "Features" section content goes to main content
-                content: result.sections?.find(s => s.title === 'Features')?.content || prev.content,
                 repository: {
                     ...prev.repository!,
                     ...result.repository,
@@ -156,6 +162,13 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
                     type: (result.repository && result.repository.type === 'other') ? prev.repository?.type || 'other' : (result.repository?.type || 'other'),
                 }
             }));
+
+            // Extract structured features from parser result
+            const featuresSection = result.sections?.find(s => s.title === 'Features');
+            if (featuresSection?.features) {
+                setFeatures(featuresSection.features);
+            }
+
             setShowImportDialog(false);
             setImportText("");
             toast.success("Repository data imported successfully");
@@ -512,7 +525,7 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
                         </CardContent>
                     </Card>
 
-                    {/* Features Content (Instead of Readme) */}
+                    {/* Features Content with Icons */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-lg flex items-center gap-2">
@@ -520,20 +533,62 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
                                 Features & Capabilities
                             </CardTitle>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="space-y-4">
                             <CardDescription className="mb-2">
-                                List the key features of the repository (extracted from the post).
+                                Features extracted from the post with thematic icons.
                             </CardDescription>
 
-                            {/* We bind this to a specific section for features, or use content field if appropriate. 
-                                Let's use 'content' for the main features list since 'rawContent' was for Readme/Full Text.
-                            */}
-                            <textarea
-                                className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[300px]"
-                                placeholder="* Feature 1&#10;* Feature 2&#10;* Feature 3"
-                                value={post.content || ''}
-                                onChange={(e) => setPost(prev => ({ ...prev, content: e.target.value }))}
-                            />
+                            {/* Features List with Icons */}
+                            {features.length > 0 ? (
+                                <div className="space-y-3">
+                                    {features.map((feature, index) => {
+                                        const IconComponent = iconMap[feature.icon] || TbCheck;
+                                        return (
+                                            <div key={index} className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg border border-border/50 group">
+                                                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500/20 to-cyan-500/20 flex items-center justify-center">
+                                                    <IconComponent className="w-4 h-4 text-purple-500" />
+                                                </div>
+                                                <Input
+                                                    value={feature.text}
+                                                    onChange={(e) => {
+                                                        const newFeatures = [...features];
+                                                        newFeatures[index] = { ...feature, text: e.target.value };
+                                                        setFeatures(newFeatures);
+                                                    }}
+                                                    className="flex-1 bg-transparent border-0 focus-visible:ring-1 text-sm"
+                                                />
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    onClick={() => {
+                                                        setFeatures(features.filter((_, i) => i !== index));
+                                                    }}
+                                                >
+                                                    <TbTrash className="w-4 h-4 text-destructive" />
+                                                </Button>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
+                                    <TbCheck className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                                    <p>No features extracted yet.</p>
+                                    <p className="text-sm">Import from text to extract features automatically.</p>
+                                </div>
+                            )}
+
+                            {/* Add new feature button */}
+                            <Button
+                                variant="outline"
+                                className="w-full gap-2"
+                                onClick={() => {
+                                    setFeatures([...features, { icon: 'TbCheck', text: '' }]);
+                                }}
+                            >
+                                <TbPlus className="w-4 h-4" /> Add Feature
+                            </Button>
                         </CardContent>
                     </Card>
                 </div>
