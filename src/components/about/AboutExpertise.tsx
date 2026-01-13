@@ -6,7 +6,8 @@ import {
     TbBulb,
     TbRocket,
     TbBriefcase,
-    TbSchool
+    TbSchool,
+    TbTarget
 } from "react-icons/tb"
 
 const expertise = [
@@ -64,9 +65,10 @@ export function AboutExpertise() {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-3xl sm:text-4xl font-bold"
+                        className="text-3xl sm:text-4xl font-bold flex items-center justify-center gap-3"
                     >
-                        🎯 ჩემი ექსპერტიზა
+                        <TbTarget className="w-8 h-8 text-primary" />
+                        ჩემი ექსპერტიზა
                     </motion.h2>
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}

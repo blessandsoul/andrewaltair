@@ -7,13 +7,13 @@ import {
     AvatarFallback,
     AvatarImage,
 } from "@/components/ui/avatar"
-import { TbQuote } from "react-icons/tb"
+import { TbQuote, TbMessageCircle } from "react-icons/tb"
 
 const testimonials = [
     {
         name: "გიორგი ბერიძე",
         role: "Marketing Manager",
-        content: "ანდრიას კონსულტაციამ ჩვენი მარკეტინგული გუნდის პროდუქტიულობა 300%-ით გაზარდა. AI ინსტრუმენტების დანერგვა საუკეთესო ინვესტიცია იყო.",
+        content: "ანდროს კონსულტაციამ ჩვენი მარკეტინგული გუნდის პროდუქტიულობა 300%-ით გაზარდა. AI ინსტრუმენტების დანერგვა საუკეთესო ინვესტიცია იყო.",
         avatar: "/avatars/giorgi.jpg"
     },
     {
@@ -35,7 +35,10 @@ export function Testimonials() {
         <section className="py-16 lg:py-24 bg-card/50">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
                 <div className="text-center mb-12">
-                    <h2 className="text-3xl sm:text-4xl font-bold">💬 რას ამბობენ</h2>
+                    <h2 className="text-3xl sm:text-4xl font-bold flex items-center justify-center gap-3">
+                        <TbMessageCircle className="w-8 h-8 text-primary" />
+                        რას ამბობენ
+                    </h2>
                     <p className="text-muted-foreground mt-2">კლიენტების და გამომწერების შეფასებები</p>
                 </div>
 

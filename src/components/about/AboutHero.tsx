@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Sparkles } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { brand } from "@/lib/brand"
@@ -42,7 +42,13 @@ export function AboutHero() {
                             >
                                 <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent rounded-3xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500"></div>
                                 <div className="relative w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-br from-primary to-accent rounded-3xl flex items-center justify-center shadow-2xl overflow-hidden border border-white/10">
-                                    <Sparkles className="w-24 h-24 text-white animate-pulse" />
+                                    <Image
+                                        src="/andrewaltair.png"
+                                        alt="Andrew Altair"
+                                        fill
+                                        className="object-cover"
+                                        priority
+                                    />
                                 </div>
                             </motion.div>
 

@@ -27,12 +27,12 @@ export function StickyCTA() {
         >
             <div className="container mx-auto px-4 flex items-center justify-between max-w-7xl">
                 <div className="font-bold text-sm sm:text-base">
-                    Mada for Collaboration?
+                    მზად ხართ თანამშრომლობისთვის?
                 </div>
                 <div className="flex gap-3">
                     <Button size="sm" className="bg-primary text-white hover:bg-primary/90">
                         <TbMail className="mr-2 w-4 h-4" />
-                        Let's Talk
+                        დამიკავშირდი
                     </Button>
                 </div>
             </div>

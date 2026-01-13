@@ -40,9 +40,10 @@ export function Timeline() {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-3xl sm:text-4xl font-bold"
+                        className="text-3xl sm:text-4xl font-bold flex items-center justify-center gap-3"
                     >
-                        📅 ჩემი გზა
+                        <TbCalendar className="w-8 h-8 text-primary" />
+                        ჩემი გზა
                     </motion.h2>
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
