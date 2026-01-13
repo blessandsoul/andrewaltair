@@ -58,7 +58,7 @@ export function Testimonials() {
                                 <CardContent className="p-6 flex flex-col h-full">
                                     <div className="flex items-center gap-4 mb-4">
                                         <Avatar className="w-12 h-12 border-2 border-primary/20">
-                                            <AvatarImage src={t.avatar} />
+                                            {/* <AvatarImage src={t.avatar} /> */}
                                             <AvatarFallback>{t.name[0]}</AvatarFallback>
                                         </Avatar>
                                         <div>

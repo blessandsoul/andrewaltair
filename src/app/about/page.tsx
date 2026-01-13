@@ -8,6 +8,10 @@ import { Testimonials } from "@/components/about/Testimonials"
 import { ContactForm } from "@/components/about/ContactForm"
 import { StickyCTA } from "@/components/about/StickyCTA"
 import { AboutFAQ } from "@/components/about/AboutFAQ"
+import { AboutMission } from "@/components/about/AboutMission"
+import { AboutPhilosophy } from "@/components/about/AboutPhilosophy"
+import { AboutInspiration } from "@/components/about/AboutInspiration"
+import { AboutAMA } from "@/components/about/AboutAMA"
 
 export const metadata: Metadata = {
   title: "Andrew Altair - AI ექსპერტი და ინოვატორი",
@@ -43,11 +47,15 @@ export default function AboutPage() {
 
       <main>
         <AboutHero />
+        <AboutMission />
         <TechMarquee />
         <AboutStats />
         <Timeline />
+        <AboutPhilosophy />
         <AboutExpertise />
+        <AboutInspiration />
         <Testimonials />
+        <AboutAMA />
         <AboutFAQ />
         <ContactForm />
       </main>
