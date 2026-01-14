@@ -261,6 +261,10 @@ export default async function Home() {
           </div>
         </section>
 
+
+        {/* Dynamic Layout Section - User can switch between 4 layouts */}
+        <HomeLayoutSwitcher posts={postsData} videos={videosData} />
+
         {/* Latest Prompts Section */}
         <section className="py-20 lg:py-24 bg-muted/20 border-t border-b border-border/50">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
@@ -291,10 +295,6 @@ export default async function Home() {
             </div>
           </div>
         </section>
-
-        {/* Dynamic Layout Section - User can switch between 4 layouts */}
-        <HomeLayoutSwitcher posts={postsData} videos={videosData} />
-
 
 
 

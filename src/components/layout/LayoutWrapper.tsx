@@ -11,6 +11,7 @@ import { AIChatAssistant } from "@/components/ai/AIChatAssistant"
 import { ScrollProgress, BackToTop } from "@/components/ui/scroll-progress"
 import { VisitorTracker } from "@/components/tracking"
 import { HeatmapOverlay } from "@/components/analytics/HeatmapOverlay"
+import { PageTransition } from "@/components/layout/PageTransition"
 
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
@@ -66,7 +67,9 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
 
                 {/* Main content with padding for fixed header */}
                 <main className="pt-14 sm:pt-16">
-                    {children}
+                    <PageTransition>
+                        {children}
+                    </PageTransition>
                 </main>
 
                 {/* Simple mystic footer */}
@@ -99,7 +102,11 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
 
             {/* Main Layout */}
             <Header />
-            <main className="min-h-screen">{children}</main>
+            <main className="min-h-screen">
+                <PageTransition>
+                    {children}
+                </PageTransition>
+            </main>
             <Footer />
 
             {/* Floating Elements */}

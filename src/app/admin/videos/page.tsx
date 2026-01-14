@@ -44,8 +44,18 @@ function formatDate(dateStr: string): string {
 }
 
 function extractYouTubeId(url: string): string {
-    const match = url.match(/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/watch\?.+&v=))([^"&?\/\s]{11})/)
-    return match ? match[1] : url
+    // Shorts URL: youtube.com/shorts/B8dXf9gbQKY
+    const shortsMatch = url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/)
+    if (shortsMatch) return shortsMatch[1]
+
+    // Standard URLs: youtube.com/watch?v=..., youtu.be/..., embed, etc.
+    const standardMatch = url.match(/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/watch\?.+&v=))([^"&?\/\s]{11})/)
+    if (standardMatch) return standardMatch[1]
+
+    // Direct video ID (11 characters)
+    if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url
+
+    return url
 }
 
 export default function VideosPage() {

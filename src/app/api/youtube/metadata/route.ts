@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 
 // YouTube oEmbed API for fetching video metadata
 const YOUTUBE_OEMBED_URL = 'https://www.youtube.com/oembed'
+const YOUTUBE_DATA_API_URL = 'https://www.googleapis.com/youtube/v3/videos'
 
 interface YouTubeMetadata {
     title: string
@@ -37,7 +38,7 @@ function extractYouTubeId(url: string): string | null {
 // Parse ISO 8601 duration to human readable format
 function parseISO8601Duration(duration: string): string {
     const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/)
-    if (!match) return '00:00'
+    if (!match) return ''
 
     const hours = match[1] ? parseInt(match[1]) : 0
     const minutes = match[2] ? parseInt(match[2]) : 0
@@ -70,35 +71,78 @@ export async function GET(request: NextRequest) {
             )
         }
 
-        // Fetch oEmbed data
-        const oembedUrl = `${YOUTUBE_OEMBED_URL}?url=https://www.youtube.com/watch?v=${videoId}&format=json`
-        const oembedResponse = await fetch(oembedUrl)
+        let title = ''
+        let description = ''
+        let duration = ''
+        let authorName = ''
+        let authorUrl = ''
+        let publishedAt = new Date().toISOString()
+        let isShort = false
 
-        if (!oembedResponse.ok) {
-            return NextResponse.json(
-                { error: 'Video not found or unavailable' },
-                { status: 404 }
-            )
+        // Try YouTube Data API v3 first (if API key is configured)
+        const apiKey = process.env.YOUTUBE_API_KEY
+        if (apiKey) {
+            try {
+                const apiUrl = `${YOUTUBE_DATA_API_URL}?part=snippet,contentDetails&id=${videoId}&key=${apiKey}`
+                const apiRes = await fetch(apiUrl)
+                if (apiRes.ok) {
+                    const data = await apiRes.json()
+                    if (data.items && data.items.length > 0) {
+                        const item = data.items[0]
+                        title = item.snippet?.title || ''
+                        description = item.snippet?.description || ''
+                        authorName = item.snippet?.channelTitle || ''
+                        publishedAt = item.snippet?.publishedAt || new Date().toISOString()
+                        duration = parseISO8601Duration(item.contentDetails?.duration || '')
+
+                        // Check if it's a Short (duration <= 60 seconds)
+                        const durationMatch = item.contentDetails?.duration?.match(/PT(?:(\d+)M)?(?:(\d+)S)?/)
+                        if (durationMatch) {
+                            const mins = parseInt(durationMatch[1] || '0')
+                            const secs = parseInt(durationMatch[2] || '0')
+                            isShort = (mins === 0 && secs <= 60) || (mins === 1 && secs === 0)
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('YouTube Data API error:', e)
+            }
         }
 
-        const oembedData: YouTubeMetadata = await oembedResponse.json()
+        // Fallback to oEmbed if no API key or API failed
+        if (!title) {
+            const oembedUrl = `${YOUTUBE_OEMBED_URL}?url=https://www.youtube.com/watch?v=${videoId}&format=json`
+            const oembedResponse = await fetch(oembedUrl)
+
+            if (!oembedResponse.ok) {
+                return NextResponse.json(
+                    { error: 'Video not found or unavailable' },
+                    { status: 404 }
+                )
+            }
+
+            const oembedData: YouTubeMetadata = await oembedResponse.json()
+            title = oembedData.title || ''
+            authorName = oembedData.author_name || ''
+            authorUrl = oembedData.author_url || ''
+
+            // Determine video type from oEmbed dimensions or title
+            isShort = oembedData.title?.toLowerCase().includes('#short') ||
+                oembedData.title?.toLowerCase().includes('shorts') ||
+                (oembedData.width < oembedData.height)
+        }
 
         // Get high-quality thumbnail
         const thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
-
-        // Determine video type based on embed dimensions or title
-        const isShort = oembedData.title?.toLowerCase().includes('#short') ||
-            oembedData.title?.toLowerCase().includes('shorts') ||
-            (oembedData.width < oembedData.height)
 
         return NextResponse.json({
             success: true,
             videoId,
             data: {
-                title: oembedData.title || '',
-                description: '', // oEmbed doesn't provide descriptions - user must enter manually
-                author: oembedData.author_name || '',
-                authorUrl: oembedData.author_url || '',
+                title,
+                description,
+                author: authorName,
+                authorUrl,
                 thumbnail,
                 thumbnails: {
                     default: `https://img.youtube.com/vi/${videoId}/default.jpg`,
@@ -106,11 +150,10 @@ export async function GET(request: NextRequest) {
                     high: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
                     maxres: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
                 },
-                duration: '', // oEmbed doesn't provide duration
-                viewCount: 0, // Real views not available, start at 0
-                publishedAt: new Date().toISOString(),
+                duration,
+                viewCount: 0,
+                publishedAt,
                 type: isShort ? 'short' : 'long',
-                embedHtml: oembedData.html,
             }
         })
 
