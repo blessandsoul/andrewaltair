@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+export const dynamic = 'force-dynamic'
+
 // YouTube oEmbed API for fetching video metadata
 const YOUTUBE_OEMBED_URL = 'https://www.youtube.com/oembed'
 

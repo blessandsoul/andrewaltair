@@ -23,8 +23,8 @@ export function AboutBioDetail() {
                                 დღეს, მე ვიკვლევ საზღვრებს <strong className="text-foreground">ბიოლოგიურ ინტელექტსა</strong> და <strong className="text-foreground">სინთეზურ გონებას</strong> (Artificial Intelligence) შორის.
                             </p>
                             <p>
-                                ჩემი მისიაა, გავხადო 2026 წლის უახლესი ტექნოლოგიები — <strong>Autonomous Agents</strong>, <strong>Reasoning Models</strong> (როგორიცაა GPT-5.2, Gemini 3, Claude 4.5) და <strong>Neuro-Symbolic AI</strong> — ხელმისაწვდომი თითოეული ადამიანისთვის.
-                                მე მჯერა, რომ მომავალი ეკუთვნის მათ, ვინც შეძლებს ამ ინსტრუმენტების ჰარმონიულად ინტეგრირებას ყოველდღიურობაში.
+                                ჩემი მისიაა — გავხადო <strong>General Purpose AI</strong> და <strong>Reasoning Models</strong> (GPT-5.2, Gemini 3, Grok 3, Claude 4.5) ხელმისაწვდომი და გასაგები.
+                                ვქმნი კონტენტს <strong>სუპერ-ინტელექტის</strong>, <strong>ავტონომიური აგენტებისა</strong> და <strong>ციფრული სინთეზის</strong> შესახებ.
                             </p>
                         </div>
                     </motion.div>

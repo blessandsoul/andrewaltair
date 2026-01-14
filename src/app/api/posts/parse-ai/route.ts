@@ -343,6 +343,10 @@ function fallbackParse(rawContent: string): ParseResult {
 
         // Handle based on state
         if (state === 'EXTRACT_PART2') {
+            // Skip marker lines like [TELEGRAM CONTENT] or similar headers
+            if (/^\[.*TELEGRAM.*\]$/i.test(trimmed) || /^\[.*CONTENT.*\]$/i.test(trimmed)) {
+                continue
+            }
             // Extract Telegram content instead of skipping
             telegramLines.push(cleanContent(trimmed))
             continue

@@ -152,10 +152,10 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
                         <div className="space-y-4 max-w-2xl transform transition-transform duration-500 group-hover:translate-x-2">
                             {/* Meta Info */}
                             <div className="flex items-center gap-3 text-white/70 text-sm font-medium">
-                                <span className="flex items-center gap-1.5">
+                                <time dateTime={post.publishedAt} className="flex items-center gap-1.5">
                                     <TbClock className="w-4 h-4" />
                                     {formatRelativeDate(post.publishedAt)}
-                                </span>
+                                </time>
                                 <span className="w-1 h-1 rounded-full bg-white/30" />
                                 <span>{post.readingTime} წთ კითხვა</span>
                             </div>

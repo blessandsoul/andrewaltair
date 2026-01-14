@@ -4,6 +4,8 @@ import Visitor from '@/models/Visitor'
 import Activity from '@/models/Activity'
 import Click from '@/models/Click'
 
+export const dynamic = 'force-dynamic'
+
 // GET - Export data as CSV
 export async function GET(request: NextRequest) {
     try {

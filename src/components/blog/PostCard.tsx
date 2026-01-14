@@ -217,9 +217,9 @@ export function PostCard({
                                         <span className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">
                                             {post.author.name}
                                         </span>
-                                        <span className="text-[10px] text-muted-foreground">
+                                        <time dateTime={post.publishedAt} className="text-[10px] text-muted-foreground">
                                             {formatDateShort(post.publishedAt)}
-                                        </span>
+                                        </time>
                                     </div>
                                 </div>
                             )}

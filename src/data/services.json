@@ -24,11 +24,11 @@
         "id": "ai-training",
         "title": "AI ტრეინინგი",
         "titleEn": "AI Training",
-        "description": "კორპორატიული ტრეინინგები AI ინსტრუმენტების ეფექტურად გამოყენებაზე. თქვენი გუნდი შეისწავლის ChatGPT, Claude, Midjourney და სხვას.",
+        "description": "კორპორატიული ტრეინინგები AI ინსტრუმენტების ეფექტურად გამოყენებაზე. თქვენი გუნდი შეისწავლის GPT-5.2, Claude 4.5, Midjourney 7 და სხვას.",
         "icon": "GraduationCap",
         "color": "#10b981",
         "features": [
-            "ChatGPT & Claude მასტერკლასი",
+            "GPT-5.2 & Claude 4.5 მასტერკლასი",
             "Prompt Engineering",
             "AI ხელსაწყოების ინტეგრაცია",
             "პრაქტიკული დავალებები"
