@@ -207,13 +207,12 @@ export default function VideosPage() {
         }
     }
 
-    // Sync with YouTube (mock)
+    // Sync with YouTube - updates lastSynced timestamp
     const syncWithYouTube = async () => {
         setSyncing(true)
         await new Promise(resolve => setTimeout(resolve, 2000))
         setVideos(videos.map(v => ({
             ...v,
-            views: v.views + Math.floor(Math.random() * 500),
             lastSynced: new Date().toISOString()
         })))
         setSyncing(false)

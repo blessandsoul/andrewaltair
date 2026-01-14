@@ -183,6 +183,47 @@ export function HubLayout({ posts, videos }: HubLayoutProps) {
                 </div>
             </section>
 
+            {/* Prompts Section */}
+            <section>
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-2xl font-bold flex items-center gap-2">
+                        <TbSparkles className="text-violet-500" />
+                        პრომპტები
+                    </h3>
+                    <Button variant="ghost" size="sm" asChild>
+                        <Link href="/prompts">
+                            მაღაზია
+                            <TbArrowRight className="w-4 h-4 ml-1" />
+                        </Link>
+                    </Button>
+                </div>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {featuredPrompts.map((prompt, index) => (
+                        <Link key={index} href="/prompts" className="group">
+                            <Card className="h-full overflow-hidden shadow-md hover-lift border-violet-500/20 hover:border-violet-500/50">
+                                <CardContent className="p-4">
+                                    <div className="flex items-start justify-between mb-3">
+                                        <Badge variant="outline" className="text-xs border-violet-500/50 text-violet-500">
+                                            {prompt.category}
+                                        </Badge>
+                                        <span className={`text-sm font-bold ${prompt.price === 'უფასო' ? 'text-green-500' : 'text-foreground'}`}>
+                                            {prompt.price}
+                                        </span>
+                                    </div>
+                                    <h4 className="font-bold mb-3 group-hover:text-violet-500 transition-colors">
+                                        {prompt.title}
+                                    </h4>
+                                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                        <TbDownload className="w-3 h-3" />
+                                        {prompt.downloads}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </Link>
+                    ))}
+                </div>
+            </section>
+
             {/* Articles Section */}
             <section>
                 <div className="flex items-center justify-between mb-6">
@@ -210,7 +251,6 @@ export function HubLayout({ posts, videos }: HubLayoutProps) {
                     ))}
                 </div>
             </section>
-
 
             {/* Videos Section */}
             <section>
@@ -310,84 +350,6 @@ export function HubLayout({ posts, videos }: HubLayoutProps) {
                 </div>
             </section>
 
-            {/* Tutorials Section */}
-            <section>
-                <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-2xl font-bold flex items-center gap-2">
-                        <TbSchool className="text-amber-500" />
-                        ტუტორიალები
-                    </h3>
-                    <Button variant="ghost" size="sm" asChild>
-                        <Link href="/lessons">
-                            ყველა
-                            <TbArrowRight className="w-4 h-4 ml-1" />
-                        </Link>
-                    </Button>
-                </div>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {tutorialTopics.map((tutorial, index) => (
-                        <Link key={index} href="/lessons" className="group">
-                            <Card className="h-full overflow-hidden shadow-md hover-lift border-amber-500/20 hover:border-amber-500/50">
-                                <CardContent className="p-4">
-                                    <div className="text-3xl mb-3 text-amber-500">
-                                        <tutorial.icon className="w-8 h-8" />
-                                    </div>
-                                    <h4 className="font-bold mb-2 group-hover:text-amber-500 transition-colors">
-                                        {tutorial.title}
-                                    </h4>
-                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                        <Badge variant="secondary" className="text-xs">{tutorial.level}</Badge>
-                                        <span>•</span>
-                                        <span>{tutorial.duration}</span>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </Link>
-                    ))}
-                </div>
-            </section>
-
-            {/* Prompts Section */}
-            <section>
-                <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-2xl font-bold flex items-center gap-2">
-                        <TbSparkles className="text-violet-500" />
-                        პრომპტები
-                    </h3>
-                    <Button variant="ghost" size="sm" asChild>
-                        <Link href="/prompts">
-                            მაღაზია
-                            <TbArrowRight className="w-4 h-4 ml-1" />
-                        </Link>
-                    </Button>
-                </div>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {featuredPrompts.map((prompt, index) => (
-                        <Link key={index} href="/prompts" className="group">
-                            <Card className="h-full overflow-hidden shadow-md hover-lift border-violet-500/20 hover:border-violet-500/50">
-                                <CardContent className="p-4">
-                                    <div className="flex items-start justify-between mb-3">
-                                        <Badge variant="outline" className="text-xs border-violet-500/50 text-violet-500">
-                                            {prompt.category}
-                                        </Badge>
-                                        <span className={`text-sm font-bold ${prompt.price === 'უფასო' ? 'text-green-500' : 'text-foreground'}`}>
-                                            {prompt.price}
-                                        </span>
-                                    </div>
-                                    <h4 className="font-bold mb-3 group-hover:text-violet-500 transition-colors">
-                                        {prompt.title}
-                                    </h4>
-                                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                        <TbDownload className="w-3 h-3" />
-                                        {prompt.downloads}
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </Link>
-                    ))}
-                </div>
-            </section>
-
             {/* Services Section */}
             <section>
                 <div className="flex items-center justify-between mb-6">
@@ -427,6 +389,43 @@ export function HubLayout({ posts, videos }: HubLayoutProps) {
                                                 </div>
                                             ))}
                                         </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </Link>
+                    ))}
+                </div>
+            </section>
+
+            {/* Tutorials Section */}
+            <section>
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-2xl font-bold flex items-center gap-2">
+                        <TbSchool className="text-amber-500" />
+                        ტუტორიალები
+                    </h3>
+                    <Button variant="ghost" size="sm" asChild>
+                        <Link href="/lessons">
+                            ყველა
+                            <TbArrowRight className="w-4 h-4 ml-1" />
+                        </Link>
+                    </Button>
+                </div>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {tutorialTopics.map((tutorial, index) => (
+                        <Link key={index} href="/lessons" className="group">
+                            <Card className="h-full overflow-hidden shadow-md hover-lift border-amber-500/20 hover:border-amber-500/50">
+                                <CardContent className="p-4">
+                                    <div className="text-3xl mb-3 text-amber-500">
+                                        <tutorial.icon className="w-8 h-8" />
+                                    </div>
+                                    <h4 className="font-bold mb-2 group-hover:text-amber-500 transition-colors">
+                                        {tutorial.title}
+                                    </h4>
+                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                        <Badge variant="secondary" className="text-xs">{tutorial.level}</Badge>
+                                        <span>•</span>
+                                        <span>{tutorial.duration}</span>
                                     </div>
                                 </CardContent>
                             </Card>

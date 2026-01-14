@@ -11,6 +11,8 @@ export interface IVideo extends Document {
     views: number;
     duration?: string;
     type: 'long' | 'short';
+    authorName?: string;
+    authorAvatar?: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -56,6 +58,14 @@ const VideoSchema = new Schema<IVideo>(
             enum: ['long', 'short'],
             default: 'long',
         },
+        authorName: {
+            type: String,
+            default: 'Andrew Altair',
+        },
+        authorAvatar: {
+            type: String,
+            default: '/images/avatar.jpg',
+        },
     },
     {
         timestamps: true,
@@ -65,3 +75,4 @@ const VideoSchema = new Schema<IVideo>(
 const Video = mongoose.models.Video || mongoose.model<IVideo>('Video', VideoSchema);
 
 export default Video;
+

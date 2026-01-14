@@ -19,8 +19,12 @@ interface YouTubeMetadata {
 // Extract video ID from various YouTube URL formats
 function extractYouTubeId(url: string): string | null {
     const patterns = [
+        // Shorts URL: youtube.com/shorts/B8dXf9gbQKY
+        /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+        // Standard URLs: youtube.com/watch?v=..., youtu.be/..., embed, etc.
         /(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/watch\?.+&v=))([^"&?\/\s]{11})/,
-        /^[a-zA-Z0-9_-]{11}$/  // Direct video ID
+        // Direct video ID (11 characters)
+        /^[a-zA-Z0-9_-]{11}$/
     ]
 
     for (const pattern of patterns) {
@@ -82,23 +86,6 @@ export async function GET(request: NextRequest) {
         // Get high-quality thumbnail
         const thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
 
-        // Try to get more data via noembed (provides more info)
-        let duration = ''
-        let description = ''
-        let viewCount = 0
-        let publishedAt = new Date().toISOString()
-
-        try {
-            // Use noembed for additional metadata
-            const noembedRes = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`)
-            if (noembedRes.ok) {
-                const noembedData = await noembedRes.json()
-                // noembed doesn't provide duration/views, but provides consistent title
-            }
-        } catch {
-            // Ignore noembed errors
-        }
-
         // Determine video type based on embed dimensions or title
         const isShort = oembedData.title?.toLowerCase().includes('#short') ||
             oembedData.title?.toLowerCase().includes('shorts') ||
@@ -109,7 +96,7 @@ export async function GET(request: NextRequest) {
             videoId,
             data: {
                 title: oembedData.title || '',
-                description: description || `ვიდეო ${oembedData.author_name}-სგან`,
+                description: '', // oEmbed doesn't provide descriptions - user must enter manually
                 author: oembedData.author_name || '',
                 authorUrl: oembedData.author_url || '',
                 thumbnail,
@@ -119,9 +106,9 @@ export async function GET(request: NextRequest) {
                     high: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
                     maxres: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
                 },
-                duration,
-                viewCount,
-                publishedAt,
+                duration: '', // oEmbed doesn't provide duration
+                viewCount: 0, // Real views not available, start at 0
+                publishedAt: new Date().toISOString(),
                 type: isShort ? 'short' : 'long',
                 embedHtml: oembedData.html,
             }

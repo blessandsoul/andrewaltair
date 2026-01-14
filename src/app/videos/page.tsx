@@ -2,7 +2,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { TbPlayerPlay, TbBrandYoutube, TbEye, TbClock, TbSend, TbMail, TbTrendingUp, TbBolt, TbHeart, TbBookmark } from "react-icons/tb"
+import { TbPlayerPlay, TbBrandYoutube, TbEye, TbClock, TbTrendingUp, TbBolt, TbShare, TbBookmark, TbArrowRight, TbCalendar } from "react-icons/tb"
 import { brand } from "@/lib/brand"
 import Image from "next/image"
 import { Metadata } from "next"
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     },
 }
 
-// TbVideo interface
+// Video interface
 interface TbVideo {
     id: string
     youtubeId: string
@@ -38,9 +38,10 @@ interface TbVideo {
     views: number
     publishedAt: string
     type?: 'long' | 'short'
+    authorName?: string
+    authorAvatar?: string
 }
 
-// Fetch videos from MongoDB API
 // Fetch videos directly from MongoDB
 async function getVideos(): Promise<TbVideo[]> {
     try {
@@ -59,6 +60,8 @@ async function getVideos(): Promise<TbVideo[]> {
             publishedAt: video.publishedAt ? new Date(video.publishedAt).toISOString() : new Date().toISOString(),
             createdAt: video.createdAt ? new Date(video.createdAt).toISOString() : new Date().toISOString(),
             updatedAt: video.updatedAt ? new Date(video.updatedAt).toISOString() : new Date().toISOString(),
+            authorName: video.authorName || 'Andrew Altair',
+            authorAvatar: video.authorAvatar || '/images/avatar.jpg',
         }))
     } catch (error) {
         console.error('Error fetching videos:', error)
@@ -71,6 +74,34 @@ function formatNumber(num: number): string {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M'
     if (num >= 1000) return (num / 1000).toFixed(1) + 'K'
     return num.toString()
+}
+
+// Format relative date
+function formatRelativeDate(dateString: string): string {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffTime = Math.abs(now.getTime() - date.getTime())
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+
+    if (diffDays === 0) return "დღეს"
+    if (diffDays === 1) return "გუშინ"
+    if (diffDays < 7) return `${diffDays} დღის წინ`
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} კვირის წინ`
+    if (diffDays < 365) return `${Math.floor(diffDays / 30)} თვის წინ`
+    return `${Math.floor(diffDays / 365)} წლის წინ`
+}
+
+// Get category color
+function getCategoryColor(category: string): string {
+    const colors: Record<string, string> = {
+        'ტუტორიალი': '#3b82f6',
+        'მიმოხილვა': '#8b5cf6',
+        'ხრიკები': '#f59e0b',
+        'ინტერვიუ': '#10b981',
+        'პოდკასტი': '#ec4899',
+        'ვლოგი': '#06b6d4',
+    }
+    return colors[category] || '#6366f1'
 }
 
 export default async function VideosPage() {
@@ -144,7 +175,7 @@ export default async function VideosPage() {
                                 </Button>
                                 <Button size="lg" variant="outline">
                                     <TbTrendingUp className="w-5 h-5 mr-2" />
-                                    {formatNumber(longVideos.reduce((a, v) => a + v.views, 0))} ნახვა
+                                    {videosData.length} ვიდეო
                                 </Button>
                             </div>
                         </div>
@@ -161,7 +192,7 @@ export default async function VideosPage() {
                                 </div>
                                 <div>
                                     <h2 className="text-2xl font-bold">მოკლე ვიდეოები</h2>
-                                    <p className="text-muted-foreground">60 წამში AI ხრიკები</p>
+                                    <p className="text-muted-foreground">60 წამში AI ინსაიტები</p>
                                 </div>
                             </div>
                         </div>
@@ -172,7 +203,7 @@ export default async function VideosPage() {
                                     key={video.id}
                                     href={`/videos/${video.id}`}
                                 >
-                                    <Card className="group border-0 shadow-lg bg-card transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02]">
+                                    <Card className="group border-0 shadow-lg bg-card/50 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] hover:bg-card">
                                         <CardContent className="p-0">
                                             <div className="relative aspect-[9/16] overflow-hidden rounded-xl">
                                                 {/* YouTube Thumbnail */}
@@ -200,23 +231,25 @@ export default async function VideosPage() {
                                                 </Badge>
 
                                                 {/* Duration badge */}
-                                                <Badge className="absolute top-2 right-2 bg-black/70 text-white border-0 text-xs backdrop-blur-sm">
-                                                    {video.duration}
-                                                </Badge>
+                                                {video.duration && (
+                                                    <Badge className="absolute top-2 right-2 bg-black/70 text-white border-0 text-xs backdrop-blur-sm">
+                                                        {video.duration}
+                                                    </Badge>
+                                                )}
 
                                                 {/* Content overlay */}
                                                 <div className="absolute bottom-0 inset-x-0 p-3">
-                                                    <h4 className="font-bold text-white text-sm line-clamp-2 mb-1">
+                                                    <h4 className="font-bold text-white text-sm line-clamp-2 mb-2">
                                                         {video.title}
                                                     </h4>
                                                     <div className="flex items-center gap-2 text-white/80 text-xs">
-                                                        <span className="flex items-center gap-1">
-                                                            <TbEye className="w-3 h-3" />
-                                                            {formatNumber(video.views)}
-                                                        </span>
-                                                        <span className="flex items-center gap-1">
-                                                            <TbHeart className="w-3 h-3 text-red-400" />
-                                                        </span>
+                                                        {video.views > 0 && (
+                                                            <span className="flex items-center gap-1">
+                                                                <TbEye className="w-3 h-3" />
+                                                                {formatNumber(video.views)}
+                                                            </span>
+                                                        )}
+                                                        <span>{formatRelativeDate(video.publishedAt)}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -228,7 +261,7 @@ export default async function VideosPage() {
                     </div>
                 </section>
 
-                {/* Long Videos */}
+                {/* Long Videos - PostCard Style */}
                 <section className="py-16 lg:py-24">
                     <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
                         <div className="flex items-center justify-between mb-10">
@@ -245,74 +278,112 @@ export default async function VideosPage() {
 
                         <div className="grid gap-6 md:grid-cols-2">
                             {longVideos.map((video) => (
-                                <Link
-                                    key={video.id}
-                                    href={`/videos/${video.id}`}
-                                >
-                                    <Card className="group h-full border-0 shadow-xl bg-card transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
-                                        <CardContent className="p-0">
-                                            <div className="relative aspect-video overflow-hidden">
-                                                {/* YouTube Thumbnail */}
-                                                <Image
-                                                    src={`https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`}
-                                                    alt={video.title}
-                                                    fill
-                                                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                                                />
+                                <div key={video.id} className="block h-full group">
+                                    <Card className="h-full border-0 bg-card/50 dark:bg-card/40 overflow-hidden transition-all duration-500 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] group-hover:-translate-y-2 group-hover:bg-card dark:group-hover:bg-card dark:group-hover:shadow-[0_20px_40px_-15px_rgba(255,255,255,0.05)]">
+                                        <CardContent className="p-0 h-full flex flex-col">
+                                            {/* Image Container */}
+                                            <Link href={`/videos/${video.id}`}>
+                                                <div className="relative w-full aspect-video overflow-hidden">
+                                                    {/* Thumbnail */}
+                                                    <Image
+                                                        src={`https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`}
+                                                        alt={video.title}
+                                                        fill
+                                                        className="object-cover transition-transform duration-700 will-change-transform group-hover:scale-110"
+                                                    />
 
-                                                {/* Dark overlay */}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                                                    {/* Gradient Overlay */}
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
 
-                                                {/* Play Button */}
-                                                <div className="absolute inset-0 flex items-center justify-center">
-                                                    <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-xl shadow-red-500/30 transition-all duration-300 group-hover:scale-110 group-hover:shadow-red-500/50">
-                                                        <TbPlayerPlay className="w-7 h-7 text-white fill-white ml-1" />
+                                                    {/* Category Badge */}
+                                                    <div className="absolute top-3 left-3 z-10">
+                                                        <Badge
+                                                            className="backdrop-blur-md border-0 text-[10px] font-bold px-2.5 py-1 tracking-wider uppercase shadow-lg text-white"
+                                                            style={{ backgroundColor: getCategoryColor(video.category) }}
+                                                        >
+                                                            {video.category}
+                                                        </Badge>
+                                                    </div>
+
+                                                    {/* Play Button */}
+                                                    <div className="absolute inset-0 flex items-center justify-center">
+                                                        <div className="w-16 h-16 bg-red-600/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xl shadow-red-500/30 transition-all duration-300 group-hover:scale-110 group-hover:bg-red-600 group-hover:shadow-red-500/50">
+                                                            <TbPlayerPlay className="w-7 h-7 text-white fill-white ml-1" />
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Bottom Stats */}
+                                                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between z-10">
+                                                        <div className="flex items-center gap-4 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white/90 text-[10px] font-medium shadow-lg">
+                                                            {video.views > 0 && (
+                                                                <div className="flex items-center gap-1.5" title="ნახვები">
+                                                                    <TbEye className="w-3.5 h-3.5 text-blue-400" />
+                                                                    <span>{formatNumber(video.views)}</span>
+                                                                </div>
+                                                            )}
+                                                            {video.duration && (
+                                                                <div className="flex items-center gap-1.5" title="ხანგრძლივობა">
+                                                                    <TbClock className="w-3.5 h-3.5 text-green-400" />
+                                                                    <span>{video.duration}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
+                                            </Link>
 
-                                                {/* Duration Badge */}
-                                                <Badge className="absolute bottom-3 right-3 bg-black/80 text-white border-0 backdrop-blur-sm">
-                                                    {video.duration}
-                                                </Badge>
+                                            {/* Content Section */}
+                                            <div className="flex-1 p-5 flex flex-col border-t border-border/20">
+                                                <Link href={`/videos/${video.id}`} className="block">
+                                                    <h3 className="text-lg font-bold leading-snug mb-3 group-hover:text-red-500 transition-colors line-clamp-2">
+                                                        {video.title}
+                                                    </h3>
+                                                </Link>
 
-                                                {/* Category Badge */}
-                                                <Badge className="absolute top-3 left-3 bg-red-600/90 text-white border-0 backdrop-blur-sm">
-                                                    {video.category}
-                                                </Badge>
+                                                {/* Description */}
+                                                {video.description && (
+                                                    <p className="text-sm text-muted-foreground line-clamp-2 mb-4 leading-relaxed">
+                                                        {video.description}
+                                                    </p>
+                                                )}
 
-                                                {/* Views on image */}
-                                                <div className="absolute bottom-3 left-3 flex items-center gap-1 text-white/90 text-sm">
-                                                    <TbEye className="w-4 h-4" />
-                                                    {formatNumber(video.views)}
-                                                </div>
-                                            </div>
-
-                                            <div className="p-5 space-y-3">
-                                                <h3 className="font-bold text-lg group-hover:text-red-500 transition-colors line-clamp-2">
-                                                    {video.title}
-                                                </h3>
-                                                <p className="text-sm text-muted-foreground line-clamp-2">
-                                                    {video.description}
-                                                </p>
-
-                                                {/* Bottom row */}
-                                                <div className="flex items-center justify-between pt-3 border-t border-border/50 text-xs text-muted-foreground">
-                                                    <div className="flex items-center gap-3">
-                                                        <span className="flex items-center gap-1">
-                                                            <TbClock className="w-3.5 h-3.5" />
-                                                            {video.duration}
-                                                        </span>
-                                                        <span>{video.publishedAt}</span>
+                                                {/* Footer */}
+                                                <div className="mt-auto pt-4 border-t border-border/40 flex items-center justify-between gap-4">
+                                                    {/* Author Info */}
+                                                    <div className="flex items-center gap-2.5">
+                                                        <div className="relative w-8 h-8 rounded-full overflow-hidden ring-2 ring-border/50">
+                                                            <Image
+                                                                src={video.authorAvatar || '/images/avatar.jpg'}
+                                                                alt={video.authorName || 'Andrew Altair'}
+                                                                fill
+                                                                className="object-cover"
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-col">
+                                                            <span className="text-xs font-semibold">{video.authorName || 'Andrew Altair'}</span>
+                                                            <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                                                                <TbCalendar className="w-3 h-3" />
+                                                                {formatRelativeDate(video.publishedAt)}
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <TbHeart className="w-4 h-4 text-red-500 hover:scale-125 transition-transform cursor-pointer" />
-                                                        <TbBookmark className="w-4 h-4 hover:text-primary transition-colors cursor-pointer" />
-                                                    </div>
+
+                                                    {/* Action Button */}
+                                                    <Link href={`/videos/${video.id}`}>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="secondary"
+                                                            className="h-8 text-[10px] font-bold tracking-wide transition-all duration-300 group-hover:bg-gradient-to-r group-hover:from-red-500 group-hover:to-orange-500 group-hover:text-white"
+                                                        >
+                                                            ნახვა
+                                                            <TbArrowRight className="w-3 h-3 ml-1.5 group-hover:translate-x-1 transition-transform" />
+                                                        </Button>
+                                                    </Link>
                                                 </div>
                                             </div>
                                         </CardContent>
                                     </Card>
-                                </Link>
+                                </div>
                             ))}
                         </div>
                     </div>
@@ -342,3 +413,4 @@ export default async function VideosPage() {
         </>
     )
 }
+
