@@ -11,16 +11,11 @@ import {
     TbBook,
     TbSettings,
     TbBriefcase,
-    TbShoppingBag,
-    TbInfoCircle,
     TbRobot,
     TbGift,
-    TbActivity,
     TbSparkles,
     TbVideo,
     TbPlayerPlay,
-    TbEye,
-    TbFlame,
     TbSchool,
     TbFileText,
     TbDownload,
@@ -30,7 +25,10 @@ import {
     TbCheck,
     TbMessage,
     TbPencil,
-    TbBrain
+    TbBrain,
+    TbPalette,
+    TbDeviceLaptop,
+    TbRocket,
 } from "react-icons/tb"
 import { PostCard } from "@/components/blog/PostCard"
 
@@ -43,39 +41,43 @@ interface HubLayoutProps {
 const servicesData = [
     {
         id: "consultation",
-        title: "💡 AI კონსულტაცია",
+        title: "AI კონსულტაცია",
         description: "1-on-1 სესიები AI სტრატეგიისთვის",
         price: "150₾",
         unit: "საათში",
         features: ["პირადი ზარი", "სტრატეგიის გეგმა", "Follow-up მხარდაჭერა"],
-        gradient: "from-blue-500 to-cyan-500"
+        gradient: "from-blue-500 to-cyan-500",
+        icon: TbBulb
     },
     {
         id: "training",
-        title: "📚 AI ტრენინგი",
+        title: "AI ტრენინგი",
         description: "გუნდის სწავლება AI ინსტრუმენტებზე",
         price: "500₾",
         unit: "გუნდზე",
         features: ["4 საათი", "პრაქტიკული სავარჯიშოები", "მასალები"],
-        gradient: "from-purple-500 to-pink-500"
+        gradient: "from-purple-500 to-pink-500",
+        icon: TbSchool
     },
     {
         id: "automation",
-        title: "⚡ AI ავტომატიზაცია",
+        title: "AI ავტომატიზაცია",
         description: "ბიზნეს პროცესების ავტომატიზაცია",
         price: "1000₾",
         unit: "პროექტი",
         features: ["აუდიტი", "იმპლემენტაცია", "მხარდაჭერა 1 თვე"],
-        gradient: "from-orange-500 to-red-500"
+        gradient: "from-orange-500 to-red-500",
+        icon: TbBolt
     },
     {
         id: "content",
-        title: "✍️ AI კონტენტი",
+        title: "AI კონტენტი",
         description: "AI-ით კონტენტის შექმნა",
         price: "200₾",
         unit: "პოსტი",
         features: ["სტატია/ვიდეო სკრიპტი", "SEO ოპტიმიზაცია", "რევიზია"],
-        gradient: "from-emerald-500 to-teal-500"
+        gradient: "from-emerald-500 to-teal-500",
+        icon: TbPencil
     },
 ]
 
@@ -127,12 +129,12 @@ const botsShowcase = [
 
 // Quick promo items
 const quickPromos = [
-    { href: "/quiz", title: "🧠 AI ქვიზი", gradient: "from-amber-500 to-orange-500" },
-    { href: "/mystic", title: "🔮 მისტიკური AI", gradient: "from-purple-600 to-pink-500" },
-    { href: "/mystery-box", title: "🎁 საჩუქრის ყუთი", gradient: "from-pink-500 to-rose-500" },
-    { href: "/encyclopedia", title: "📚 ენციკლოპედია", gradient: "from-blue-500 to-cyan-500" },
-    { href: "/tools", title: "⚙️ AI ინსტრუმენტები", gradient: "from-emerald-500 to-teal-500" },
-    { href: "/prompt-builder", title: "✨ Prompt Builder", gradient: "from-violet-500 to-purple-500" },
+    { href: "/quiz", title: "AI ქვიზი", gradient: "from-amber-500 to-orange-500", icon: TbBrain },
+    { href: "/mystic", title: "მისტიკური AI", gradient: "from-purple-600 to-pink-500", icon: TbSparkles },
+    { href: "/mystery-box", title: "საჩუქრის ყუთი", gradient: "from-pink-500 to-rose-500", icon: TbGift },
+    { href: "/encyclopedia", title: "ენციკლოპედია", gradient: "from-blue-500 to-cyan-500", icon: TbBook },
+    { href: "/tools", title: "AI ინსტრუმენტები", gradient: "from-emerald-500 to-teal-500", icon: TbSettings },
+    { href: "/prompt-builder", title: "Prompt Builder", gradient: "from-violet-500 to-purple-500", icon: TbSparkles },
 ]
 
 // Prompt examples
@@ -145,10 +147,10 @@ const featuredPrompts = [
 
 // Tutorial topics
 const tutorialTopics = [
-    { title: "ChatGPT დამწყებთათვის", level: "დამწყები", duration: "15 წთ", icon: "🎓" },
-    { title: "Midjourney მასტერკლასი", level: "საშუალო", duration: "30 წთ", icon: "🎨" },
-    { title: "AI ავტომატიზაცია", level: "მოწინავე", duration: "45 წთ", icon: "⚡" },
-    { title: "Claude API ინტეგრაცია", level: "მოწინავე", duration: "60 წთ", icon: "💻" },
+    { title: "ChatGPT დამწყებთათვის", level: "დამწყები", duration: "15 წთ", icon: TbSchool },
+    { title: "Midjourney მასტერკლასი", level: "საშუალო", duration: "30 წთ", icon: TbPalette },
+    { title: "AI ავტომატიზაცია", level: "მოწინავე", duration: "45 წთ", icon: TbBolt },
+    { title: "Claude API ინტეგრაცია", level: "მოწინავე", duration: "60 წთ", icon: TbDeviceLaptop },
 ]
 
 export function HubLayout({ posts, videos }: HubLayoutProps) {
@@ -156,7 +158,10 @@ export function HubLayout({ posts, videos }: HubLayoutProps) {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-12 space-y-14">
             {/* Header */}
             <div className="text-center">
-                <h2 className="text-3xl sm:text-4xl font-bold mb-4">🚀 აღმოაჩინე ყველაფერი</h2>
+                <h2 className="text-3xl sm:text-4xl font-bold mb-4 flex items-center justify-center gap-3">
+                    <TbRocket className="text-lg md:text-4xl text-primary" />
+                    აღმოაჩინე ყველაფერი
+                </h2>
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                     AI-ს სრული სამყარო — სტატიები, ვიდეოები, ბოტები, პრომპტები და სერვისები
                 </p>
@@ -168,7 +173,8 @@ export function HubLayout({ posts, videos }: HubLayoutProps) {
                     {quickPromos.map((promo) => (
                         <Link key={promo.href} href={promo.href} className="group">
                             <Card className={`overflow-hidden border-0 shadow-lg bg-gradient-to-r ${promo.gradient} text-white hover-lift h-full`}>
-                                <CardContent className="p-3 text-center">
+                                <CardContent className="p-3 text-center flex flex-col items-center justify-center gap-2">
+                                    <promo.icon className="w-6 h-6 mb-1" />
                                     <span className="font-bold text-sm whitespace-nowrap">{promo.title}</span>
                                 </CardContent>
                             </Card>
@@ -323,7 +329,9 @@ export function HubLayout({ posts, videos }: HubLayoutProps) {
                         <Link key={index} href="/lessons" className="group">
                             <Card className="h-full overflow-hidden shadow-md hover-lift border-amber-500/20 hover:border-amber-500/50">
                                 <CardContent className="p-4">
-                                    <div className="text-3xl mb-3">{tutorial.icon}</div>
+                                    <div className="text-3xl mb-3 text-amber-500">
+                                        <tutorial.icon className="w-8 h-8" />
+                                    </div>
                                     <h4 className="font-bold mb-2 group-hover:text-amber-500 transition-colors">
                                         {tutorial.title}
                                     </h4>
@@ -400,7 +408,10 @@ export function HubLayout({ posts, videos }: HubLayoutProps) {
                             <Card className="h-full overflow-hidden shadow-lg hover-lift border-0">
                                 <CardContent className="p-0">
                                     <div className={`p-4 bg-gradient-to-r ${service.gradient} text-white`}>
-                                        <h4 className="font-bold text-lg mb-1">{service.title}</h4>
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <service.icon className="w-6 h-6" />
+                                            <h4 className="font-bold text-lg">{service.title}</h4>
+                                        </div>
                                         <div className="flex items-baseline gap-1">
                                             <span className="text-2xl font-bold">{service.price}</span>
                                             <span className="text-white/70 text-sm">/ {service.unit}</span>
@@ -430,7 +441,10 @@ export function HubLayout({ posts, videos }: HubLayoutProps) {
                     <Card className="h-full border-2 border-dashed border-primary/30 hover:border-primary bg-primary/5 hover:bg-primary/10 transition-all">
                         <CardContent className="p-6 flex items-center justify-between">
                             <div>
-                                <h3 className="text-lg font-bold mb-1">📝 ბლოგი</h3>
+                                <h3 className="text-lg font-bold mb-1 flex items-center gap-2">
+                                    <TbFileText className="w-5 h-5" />
+                                    ბლოგი
+                                </h3>
                                 <p className="text-sm text-muted-foreground">{posts.length}+ სტატია AI-ზე</p>
                             </div>
                             <TbArrowRight className="w-6 h-6 text-primary group-hover:translate-x-2 transition-transform" />
@@ -441,7 +455,10 @@ export function HubLayout({ posts, videos }: HubLayoutProps) {
                     <Card className="h-full border-2 border-dashed border-violet-500/30 hover:border-violet-500 bg-violet-500/5 hover:bg-violet-500/10 transition-all">
                         <CardContent className="p-6 flex items-center justify-between">
                             <div>
-                                <h3 className="text-lg font-bold mb-1">💼 დაჯავშნე კონსულტაცია</h3>
+                                <h3 className="text-lg font-bold mb-1 flex items-center gap-2">
+                                    <TbBriefcase className="w-5 h-5" />
+                                    დაჯავშნე კონსულტაცია
+                                </h3>
                                 <p className="text-sm text-muted-foreground">უფასო 15-წუთიანი ზარი</p>
                             </div>
                             <TbArrowRight className="w-6 h-6 text-violet-500 group-hover:translate-x-2 transition-transform" />

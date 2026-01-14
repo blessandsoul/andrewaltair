@@ -182,18 +182,21 @@ export function PostCard({
     const handleLike = async (e: React.MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
-        if (isLiked) return // Prevent multiple likes for demo
 
-        setIsLiked(true)
-        setLikes(prev => prev + 1)
+        const newIsLiked = !isLiked
+        setIsLiked(newIsLiked)
+        setLikes(prev => newIsLiked ? prev + 1 : prev - 1)
 
         try {
             await fetch(`/api/posts/${post.id}/react`, {
                 method: 'POST',
-                body: JSON.stringify({ type: 'like' })
+                body: JSON.stringify({ type: newIsLiked ? 'like' : 'unlike' })
             })
         } catch (error) {
-            console.error('Failed to like post', error)
+            console.error('Failed to update like status', error)
+            // Revert optimistic update
+            setIsLiked(!newIsLiked)
+            setLikes(prev => !newIsLiked ? prev + 1 : prev - 1)
         }
     }
 
@@ -412,7 +415,7 @@ export function PostCard({
                                     <Button
                                         size="sm"
                                         variant="secondary"
-                                        className="h-8 text-[10px] font-bold tracking-wide group-hover:bg-primary group-hover:text-white transition-colors"
+                                        className="h-8 text-[10px] font-bold tracking-wide transition-all duration-300 group-hover:bg-gradient-to-r group-hover:from-cyan-400 group-hover:to-blue-600 group-hover:text-white"
                                     >
                                         სრულად
                                         <TbArrowRight className="w-3 h-3 ml-1.5 group-hover:translate-x-1 transition-transform" />

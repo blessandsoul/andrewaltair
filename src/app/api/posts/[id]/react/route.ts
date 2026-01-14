@@ -12,9 +12,12 @@ export async function POST(
 
         // In a real app, strict validation of 'id' and body 'type'
 
+        const { type } = await req.json();
+        const increment = type === 'unlike' ? -1 : 1;
+
         const post = await Post.findByIdAndUpdate(
             id,
-            { $inc: { "reactions.like": 1 } },
+            { $inc: { "reactions.like": increment } },
             { new: true }
         );
 

@@ -2,9 +2,9 @@
 
 import { useState, useCallback } from "react"
 import Image from "next/image"
-import { TbChevronLeft, TbChevronRight, TbX, TbZoomIn } from "react-icons/tb"
+import { TbChevronLeft, TbChevronRight, TbZoomIn } from "react-icons/tb"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { ImageLightbox } from "@/components/interactive/ImageLightbox"
 
 interface GalleryImage {
     src: string;
@@ -21,7 +21,6 @@ interface PostGalleryProps {
 export function PostGallery({ images, title = "შედეგების გალერეა", className }: PostGalleryProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-    const [lightboxIndex, setLightboxIndex] = useState(0);
 
     if (!images || images.length === 0) {
         return null;
@@ -36,59 +35,57 @@ export function PostGallery({ images, title = "შედეგების გ�
     }, [images.length]);
 
     const openLightbox = (index: number) => {
-        setLightboxIndex(index);
+        setCurrentIndex(index);
         setIsLightboxOpen(true);
-        document.body.style.overflow = 'hidden';
-    };
-
-    const closeLightbox = () => {
-        setIsLightboxOpen(false);
-        document.body.style.overflow = '';
-    };
-
-    const lightboxNext = () => {
-        setLightboxIndex((prev) => (prev + 1) % images.length);
-    };
-
-    const lightboxPrev = () => {
-        setLightboxIndex((prev) => (prev - 1 + images.length) % images.length);
     };
 
     return (
         <>
-            <div className={cn("post-gallery", className)}>
+            <div className={cn("post-gallery space-y-4", className)}>
                 {/* Title */}
                 {title && (
-                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                    <h3 className="text-xl font-bold flex items-center gap-2">
                         <TbZoomIn className="w-5 h-5 text-primary" />
                         {title}
                     </h3>
                 )}
 
-                {/* Carousel container */}
-                <div className="relative group">
-                    {/* Main image */}
+                {/* Main Image Container */}
+                <div className="relative group rounded-xl overflow-hidden bg-black/5 border border-white/10 shadow-2xl">
+                    {/* Main image with fixed aspect ratio container but contain mode */}
                     <div
-                        className="relative aspect-[4/3] rounded-xl overflow-hidden cursor-zoom-in"
+                        className="relative aspect-video w-full cursor-zoom-in"
                         onClick={() => openLightbox(currentIndex)}
                     >
+                        {/* Blurred background for fill */}
+                        <div className="absolute inset-0 overflow-hidden">
+                            <Image
+                                src={images[currentIndex].src}
+                                alt="Background blur"
+                                fill
+                                className="object-cover opacity-30 blur-2xl scale-110"
+                            />
+                        </div>
+
+                        {/* Main Image */}
                         <Image
                             src={images[currentIndex].src}
                             alt={images[currentIndex].alt || `Gallery image ${currentIndex + 1}`}
                             fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
-                            sizes="(max-width: 768px) 100vw, 600px"
+                            className="object-contain relative z-10 transition-transform duration-300 group-hover:scale-[1.02]"
+                            sizes="(max-width: 768px) 100vw, 800px"
+                            priority
                         />
 
-                        {/* TbPhoto counter */}
-                        <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-white text-sm font-medium">
+                        {/* Counter */}
+                        <div className="absolute top-4 right-4 z-20 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-medium border border-white/10">
                             {currentIndex + 1} / {images.length}
                         </div>
 
                         {/* Caption */}
                         {images[currentIndex].caption && (
-                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 pt-12">
-                                <p className="text-white text-sm">
+                            <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6 pt-12">
+                                <p className="text-white font-medium text-sm md:text-base max-w-2xl">
                                     {images[currentIndex].caption}
                                 </p>
                             </div>
@@ -99,14 +96,22 @@ export function PostGallery({ images, title = "შედეგების გ�
                     {images.length > 1 && (
                         <>
                             <button
-                                onClick={goToPrev}
-                                className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    goToPrev();
+                                }}
+                                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-black/70 hover:scale-110 border border-white/10"
+                                aria-label="Previous image"
                             >
                                 <TbChevronLeft className="w-6 h-6" />
                             </button>
                             <button
-                                onClick={goToNext}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    goToNext();
+                                }}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-black/70 hover:scale-110 border border-white/10"
+                                aria-label="Next image"
                             >
                                 <TbChevronRight className="w-6 h-6" />
                             </button>
@@ -116,16 +121,16 @@ export function PostGallery({ images, title = "შედეგების გ�
 
                 {/* Thumbnails */}
                 {images.length > 1 && (
-                    <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide py-1">
                         {images.map((image, index) => (
                             <button
                                 key={index}
                                 onClick={() => setCurrentIndex(index)}
                                 className={cn(
-                                    "relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden transition-all",
+                                    "relative w-20 h-20 flex-shrink-0 rounded-md overflow-hidden transition-all duration-200 border border-transparent",
                                     index === currentIndex
-                                        ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
-                                        : "opacity-60 hover:opacity-100"
+                                        ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-105 opacity-100 z-10"
+                                        : "opacity-50 hover:opacity-100 grayscale hover:grayscale-0"
                                 )}
                             >
                                 <Image
@@ -133,7 +138,7 @@ export function PostGallery({ images, title = "შედეგების გ�
                                     alt={image.alt || `Thumbnail ${index + 1}`}
                                     fill
                                     className="object-cover"
-                                    sizes="64px"
+                                    sizes="80px"
                                 />
                             </button>
                         ))}
@@ -141,65 +146,18 @@ export function PostGallery({ images, title = "შედეგების გ�
                 )}
             </div>
 
-            {/* Lightbox */}
-            {isLightboxOpen && (
-                <div
-                    className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
-                    onClick={closeLightbox}
-                >
-                    {/* Close button */}
-                    <button
-                        onClick={closeLightbox}
-                        className="absolute top-4 right-4 w-12 h-12 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors z-10"
-                    >
-                        <TbX className="w-6 h-6" />
-                    </button>
-
-                    {/* TbPhoto */}
-                    <div
-                        className="relative max-w-[90vw] max-h-[90vh] w-full h-full flex items-center justify-center"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <Image
-                            src={images[lightboxIndex].src}
-                            alt={images[lightboxIndex].alt || `Gallery image ${lightboxIndex + 1}`}
-                            fill
-                            className="object-contain"
-                            sizes="90vw"
-                        />
-                    </div>
-
-                    {/* Navigation */}
-                    {images.length > 1 && (
-                        <>
-                            <button
-                                onClick={(e) => { e.stopPropagation(); lightboxPrev(); }}
-                                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors"
-                            >
-                                <TbChevronLeft className="w-6 h-6" />
-                            </button>
-                            <button
-                                onClick={(e) => { e.stopPropagation(); lightboxNext(); }}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors"
-                            >
-                                <TbChevronRight className="w-6 h-6" />
-                            </button>
-                        </>
-                    )}
-
-                    {/* Counter and caption */}
-                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center">
-                        <div className="bg-black/60 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm font-medium mb-2">
-                            {lightboxIndex + 1} / {images.length}
-                        </div>
-                        {images[lightboxIndex].caption && (
-                            <p className="text-white/80 text-sm max-w-lg">
-                                {images[lightboxIndex].caption}
-                            </p>
-                        )}
-                    </div>
-                </div>
-            )}
+            {/* Reused ImageLightbox Component */}
+            <ImageLightbox
+                src={images[currentIndex].src}
+                alt={images[currentIndex].alt || ""}
+                isOpen={isLightboxOpen}
+                onClose={() => setIsLightboxOpen(false)}
+                images={images.map(img => ({
+                    src: img.src,
+                    alt: img.alt || ""
+                }))}
+                initialIndex={currentIndex}
+            />
         </>
     );
 }

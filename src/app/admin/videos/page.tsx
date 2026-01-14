@@ -23,6 +23,7 @@ interface VideoItem {
     scheduledAt?: string
     order?: number
     lastSynced?: string
+    thumbnail?: string
 }
 
 const CATEGORIES = ["ტუტორიალი", "მიმოხილვა", "ხრიკები", "ინტერვიუ", "პოდკასტი", "ვლოგი"]
@@ -754,16 +755,20 @@ function AddVideoModal({
         status: "published" as "published" | "draft" | "scheduled",
         scheduledAt: "",
         views: 0,
-        publishedAt: new Date().toISOString().split("T")[0]
+        publishedAt: new Date().toISOString().split("T")[0],
+        thumbnail: ""
     })
     const [tagInput, setTagInput] = React.useState("")
     const [fetching, setFetching] = React.useState(false)
     const [fetchError, setFetchError] = React.useState("")
     const [previewThumbnail, setPreviewThumbnail] = React.useState("")
+    const [syncData, setSyncData] = React.useState(true)
 
     // Auto-fetch YouTube metadata
     const handleYouTubeUrl = async (url: string) => {
         const id = extractYouTubeId(url)
+
+        // Always update the ID in the form
         setFormData(prev => ({ ...prev, youtubeId: id }))
         setFetchError("")
 
@@ -773,7 +778,12 @@ function AddVideoModal({
         }
 
         // Show thumbnail preview immediately
-        setPreviewThumbnail(`https://img.youtube.com/vi/${id}/mqdefault.jpg`)
+        const thumbUrl = `https://img.youtube.com/vi/${id}/mqdefault.jpg`
+        setPreviewThumbnail(thumbUrl)
+        setFormData(prev => ({ ...prev, thumbnail: thumbUrl }))
+
+        // Only fetch metadata if sync is enabled
+        if (!syncData) return
 
         // Fetch metadata from our API
         setFetching(true)
@@ -784,10 +794,11 @@ function AddVideoModal({
                 setFormData(prev => ({
                     ...prev,
                     youtubeId: id,
-                    title: prev.title || data.title || "",
-                    description: prev.description || data.description || "",
+                    title: data.title || prev.title || "",
+                    description: data.description || prev.description || "",
                     type: data.type || "long",
                     duration: data.duration || prev.duration,
+                    thumbnail: data.thumbnail || thumbUrl
                 }))
             } else {
                 const error = await res.json()
@@ -851,7 +862,18 @@ function AddVideoModal({
 
                         {/* YouTube URL with Preview */}
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">YouTube URL ან ID *</label>
+                            <div className="flex justify-between items-center">
+                                <label className="text-sm font-medium">YouTube URL ან ID *</label>
+                                <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+                                    <input
+                                        type="checkbox"
+                                        checked={syncData}
+                                        onChange={(e) => setSyncData(e.target.checked)}
+                                        className="w-4 h-4 rounded border-input"
+                                    />
+                                    მონაცემების სინქრონიზაცია
+                                </label>
+                            </div>
                             <div className="flex gap-3">
                                 <div className="flex-1 space-y-2">
                                     <div className="relative">
@@ -915,7 +937,6 @@ function AddVideoModal({
                                 <Input
                                     value={formData.duration}
                                     onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                                    placeholder="12:34"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -1123,7 +1144,6 @@ function EditVideoModal({
                                 <Input
                                     value={formData.duration}
                                     onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                                    placeholder="12:34"
                                 />
                             </div>
                             <div className="space-y-2">
