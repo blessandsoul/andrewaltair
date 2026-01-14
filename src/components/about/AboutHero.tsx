@@ -35,8 +35,7 @@ export function AboutHero() {
                             </h1>
 
                             <p className="text-xl sm:text-2xl text-muted-foreground/80 max-w-2xl leading-relaxed font-light">
-                                ვქმნი <span className="text-foreground font-medium">Neuro-Aesthetic</span> ინტერფეისებს
-                                აგენტური ვებ-სამყაროსთვის. სპეციალიზაცია: Reasoning Models და მაღალი წარმადობის UI.
+                                <span className="text-foreground font-medium">AI ინოვატორი და ტრენერი.</span> ვნერგავ ხელოვნურ ინტელექტს ბიზნესში და ვასწავლი მის ეფექტურ გამოყენებას. გეხმარებით Reasoning Model-ების და ავტონომიური აგენტების დანერგვაში.
                             </p>
                         </motion.div>
 

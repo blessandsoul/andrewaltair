@@ -44,16 +44,17 @@ const jsonLd = {
 }
 
 // Unified Expertise Data (Translated to Georgian)
+// Unified Expertise Data (Translated to Georgian)
 const expertise = [
   { icon: TbBrain, title: "ნეირო-არქიტექტურა", desc: "LLM ინტეგრაცია & Reasoning მოდელები" },
-  { icon: TbCode, title: "თანამედროვე Frontend", desc: "Next.js 15, React Server Components" },
-  { icon: TbAnalyze, title: "წარმადობა", desc: "Core Web Vitals & Neuro-UX ოპტიმიზაცია" },
-  { icon: TbCpu, title: "AI აგენტები", desc: "ავტონომიური სისტემები & Multi-agent workflows" },
+  { icon: TbCode, title: "თანამედროვე Fullstack", desc: "Next.js 15, Node.js, AI Agents Integration" },
+  { icon: TbAnalyze, title: "ბიზნეს ავტომატიზაცია", desc: "AI workflow-ების დანერგვა & ოპტიმიზაცია" },
+  { icon: TbCpu, title: "AI ტრენინგი", desc: "გუნდების გადამზადება & მენტორინგი" },
 ]
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-background text-foreground selection:bg-primary/20 selection:text-primary">
+    <main className="min-h-screen bg-background text-foreground selection:bg-primary/20 selection:text-primary font-georgian">
 
       {/* JSON-LD Script */}
       <script
@@ -74,8 +75,9 @@ export default function AboutPage() {
               <h2 className="text-3xl font-bold tracking-tight"><span className="text-primary">ფილოსოფია</span></h2>
               <p className="text-xl text-muted-foreground leading-relaxed">
                 ჩვენ შევდივართ <span className="text-foreground font-medium">ჰიბრიდული ინტელექტის</span> ეპოქაში.
-                ჩემი საქმიანობა აკავშირებს ბიოლოგიურ აზროვნებასა და სინთეზურ გონებას.
-                ვქმნი ინტერფეისებს, რომლებიც პატივს სცემენ ადამიანის კოგნიტურ რესურსს და ამავდროულად მაქსიმალურად იყენებენ ისეთი მოდელების ძალას, როგორიცაა GPT-5.2 და Gemini 3.
+                ჩემი მიზანია ბიზნესის და ადამიანების გაძლიერება AI-ს მეშვეობით.
+                როგორც **AI არქიტექტორი**, ვქმნი სისტემებს, რომლებიც აერთიანებს ბიოლოგიურ კრეატიულობასა და სინთეზურ გონებას,
+                რათა მივიღოთ მაქსიმალური შედეგი ისეთი მოდელებისგან, როგორიცაა GPT-5.2 და Gemini 3.
               </p>
               <AboutOnlineStatus />
             </div>
