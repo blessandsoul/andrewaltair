@@ -762,13 +762,10 @@ function AddVideoModal({
     const [fetching, setFetching] = React.useState(false)
     const [fetchError, setFetchError] = React.useState("")
     const [previewThumbnail, setPreviewThumbnail] = React.useState("")
-    const [syncData, setSyncData] = React.useState(true)
 
-    // Auto-fetch YouTube metadata
-    const handleYouTubeUrl = async (url: string) => {
+    // Handle YouTube URL input - only update ID and thumbnail preview
+    const handleYouTubeUrl = (url: string) => {
         const id = extractYouTubeId(url)
-
-        // Always update the ID in the form
         setFormData(prev => ({ ...prev, youtubeId: id }))
         setFetchError("")
 
@@ -781,24 +778,29 @@ function AddVideoModal({
         const thumbUrl = `https://img.youtube.com/vi/${id}/mqdefault.jpg`
         setPreviewThumbnail(thumbUrl)
         setFormData(prev => ({ ...prev, thumbnail: thumbUrl }))
+    }
 
-        // Only fetch metadata if sync is enabled
-        if (!syncData) return
+    // Sync data from YouTube - triggered by button click
+    const syncFromYouTube = async () => {
+        const id = formData.youtubeId
+        if (!id || id.length !== 11) {
+            setFetchError("YouTube ID არასწორია")
+            return
+        }
 
-        // Fetch metadata from our API
         setFetching(true)
+        setFetchError("")
         try {
             const res = await fetch(`/api/youtube/metadata?id=${id}`)
             if (res.ok) {
                 const { data } = await res.json()
                 setFormData(prev => ({
                     ...prev,
-                    youtubeId: id,
                     title: data.title || prev.title || "",
                     description: data.description || prev.description || "",
                     type: data.type || "long",
                     duration: data.duration || prev.duration,
-                    thumbnail: data.thumbnail || thumbUrl
+                    thumbnail: data.thumbnail || prev.thumbnail
                 }))
             } else {
                 const error = await res.json()
@@ -841,42 +843,12 @@ function AddVideoModal({
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
+                        {/* YouTube URL with Preview - MOVED TO TOP */}
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">სათაური *</label>
-                            <Input
-                                required
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                placeholder="ვიდეოს სათაური"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">აღწერა</label>
-                            <textarea
-                                className="w-full min-h-[80px] px-3 py-2 rounded-md border border-input bg-background"
-                                value={formData.description}
-                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                placeholder="ვიდეოს აღწერა"
-                            />
-                        </div>
-
-                        {/* YouTube URL with Preview */}
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <label className="text-sm font-medium">YouTube URL ან ID *</label>
-                                <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
-                                    <input
-                                        type="checkbox"
-                                        checked={syncData}
-                                        onChange={(e) => setSyncData(e.target.checked)}
-                                        className="w-4 h-4 rounded border-input"
-                                    />
-                                    მონაცემების სინქრონიზაცია
-                                </label>
-                            </div>
+                            <label className="text-sm font-medium">YouTube URL ან ID *</label>
                             <div className="flex gap-3">
                                 <div className="flex-1 space-y-2">
-                                    <div className="relative">
+                                    <div className="flex gap-2">
                                         <Input
                                             required
                                             value={formData.youtubeId}
@@ -884,16 +856,25 @@ function AddVideoModal({
                                             placeholder="https://youtube.com/watch?v=... ან ID"
                                             className={fetchError ? "border-red-500" : ""}
                                         />
-                                        {fetching && (
-                                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                                                <TbRefresh className="w-4 h-4 animate-spin text-primary" />
-                                            </div>
-                                        )}
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={syncFromYouTube}
+                                            disabled={fetching || !formData.youtubeId || formData.youtubeId.length !== 11}
+                                            className="shrink-0"
+                                        >
+                                            {fetching ? (
+                                                <TbRefresh className="w-4 h-4 animate-spin" />
+                                            ) : (
+                                                <TbDownload className="w-4 h-4" />
+                                            )}
+                                            <span className="ml-2">სინქრო</span>
+                                        </Button>
                                     </div>
                                     {fetchError && (
                                         <p className="text-xs text-red-500">{fetchError}</p>
                                     )}
-                                    {formData.youtubeId && !fetchError && (
+                                    {formData.youtubeId && formData.youtubeId.length === 11 && !fetchError && (
                                         <p className="text-xs text-green-600 flex items-center gap-1">
                                             <TbCheck className="w-3 h-3" />
                                             YouTube ID: {formData.youtubeId}
@@ -917,6 +898,25 @@ function AddVideoModal({
                                     </div>
                                 )}
                             </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">სათაური *</label>
+                            <Input
+                                required
+                                value={formData.title}
+                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                placeholder="ვიდეოს სათაური"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">აღწერა</label>
+                            <textarea
+                                className="w-full min-h-[80px] px-3 py-2 rounded-md border border-input bg-background"
+                                value={formData.description}
+                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                placeholder="ვიდეოს აღწერა"
+                            />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">

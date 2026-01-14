@@ -261,11 +261,6 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Dynamic Layout Section - User can switch between 4 layouts */}
-        <HomeLayoutSwitcher posts={postsData} videos={videosData} />
-
-
-
         {/* Latest Prompts Section */}
         <section className="py-20 lg:py-24 bg-muted/20 border-t border-b border-border/50">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
@@ -273,11 +268,11 @@ export default async function Home() {
               <div className="space-y-4 max-w-2xl">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold uppercase tracking-wider w-fit">
                   <TbSparkles className="w-3.5 h-3.5" />
-                  Premium Marketplace
+                  პრემიუმ ხარისხის პრომპტები
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold tracking-tight">უახლესი AI პრომპტები</h2>
                 <p className="text-muted-foreground text-lg">
-                  აღმოაჩინე პროფესიონალური პრომპტები Midjourney, DALL-E და სხვა მოდელებისთვის
+                  CHATGPT 5.2, GEMINI 3 / NANO BANANA, GROK 3, CLAUDE 4.5
                 </p>
               </div>
 
@@ -296,6 +291,13 @@ export default async function Home() {
             </div>
           </div>
         </section>
+
+        {/* Dynamic Layout Section - User can switch between 4 layouts */}
+        <HomeLayoutSwitcher posts={postsData} videos={videosData} />
+
+
+
+
 
         {/* Newsletter Section */}
         <section className="py-20 lg:py-32 relative overflow-hidden">
