@@ -18,10 +18,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         };
     }
 
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
     const title = `${article.title} | Andrew Altair Encyclopedia`;
     const description = article.content.substring(0, 160).replace(/[#*]/g, "") + "...";
-    const url = `https://andrewaltair.ge/encyclopedia/vibe-coding/${article.id}`;
-    const imageUrl = `https://andrewaltair.ge/encyclopedia/vibe-coding/${article.id}/opengraph-image`;
+    const url = `${siteUrl}/encyclopedia/vibe-coding/${article.id}`;
+    const imageUrl = `${siteUrl}/encyclopedia/vibe-coding/${article.id}/opengraph-image`;
 
     return {
         title,

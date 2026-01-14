@@ -102,7 +102,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     const title = safeRender(prompt.title)
     const excerpt = safeRender(prompt.excerpt || prompt.description?.substring(0, 160))
-    const coverImage = typeof prompt.coverImage === 'string' ? prompt.coverImage : ''
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
+    let coverImage = typeof prompt.coverImage === 'string' ? prompt.coverImage : ''
+
+    // Ensure absolute URL
+    if (coverImage && !coverImage.startsWith('http')) {
+        coverImage = `${siteUrl}${coverImage.startsWith('/') ? '' : '/'}${coverImage}`
+    } else if (!coverImage) {
+        coverImage = `${siteUrl}/default-og.jpg`
+    }
 
     return {
         title: `${title} | AI Prompts`,
@@ -111,6 +120,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             title: title,
             description: excerpt,
             images: coverImage ? [{ url: coverImage }] : [],
+            type: 'article',
+            url: `${siteUrl}/prompts/${slug}`,
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: title,
+            description: excerpt,
+            images: [coverImage],
         }
     }
 }

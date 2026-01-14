@@ -92,6 +92,10 @@ import { ImageComparison } from "./editor/ImageComparisonExtension"
 import { ChartBlock } from "./editor/ChartExtension"
 import { MermaidDiagram } from "./editor/MermaidExtension"
 
+interface MarkdownStorage {
+    getMarkdown: () => string;
+}
+
 interface RichTextEditorProps {
     content: string
     onChange: (content: string) => void
@@ -209,7 +213,7 @@ export function RichTextEditor({
         ],
         content,
         onUpdate: ({ editor }) => {
-            const markdownStorage = editor.storage.markdown as { getMarkdown: () => string }
+            const markdownStorage = (editor.storage as any).markdown as MarkdownStorage
             const markdown = markdownStorage.getMarkdown()
             onChange(markdown)
 
@@ -238,7 +242,7 @@ export function RichTextEditor({
 
     React.useEffect(() => {
         if (editor) {
-            const markdownStorage = editor.storage.markdown as { getMarkdown: () => string }
+            const markdownStorage = (editor.storage as any).markdown as MarkdownStorage
             if (content !== markdownStorage.getMarkdown()) {
                 editor.commands.setContent(content)
             }

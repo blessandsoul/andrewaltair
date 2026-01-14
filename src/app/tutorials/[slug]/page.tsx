@@ -16,9 +16,32 @@ async function getTutorial(slug: string) {
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
     const tutorial = await getTutorial(params.slug)
     if (!tutorial) return {}
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
+    let coverImage = tutorial.coverImage
+
+    if (coverImage && !coverImage.startsWith('http')) {
+        coverImage = `${siteUrl}${coverImage.startsWith('/') ? '' : '/'}${coverImage}`
+    } else if (!coverImage) {
+        coverImage = `${siteUrl}/default-og.jpg`
+    }
+
     return {
         title: `${tutorial.title} | Andrew Altair`,
         description: tutorial.intro,
+        openGraph: {
+            title: tutorial.title,
+            description: tutorial.intro,
+            url: `${siteUrl}/tutorials/${params.slug}`, // Added absolute URL for openGraph.url
+            images: [{ url: coverImage }],
+            type: 'article',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: tutorial.title,
+            description: tutorial.intro,
+            images: [coverImage],
+        }
     }
 }
 

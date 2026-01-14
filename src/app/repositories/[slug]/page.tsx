@@ -41,7 +41,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     if (!post) return { title: 'პროექტი არ მოიძებნა | Andrew Altair' }
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
-    const imageUrl = post.coverImages?.horizontal || post.coverImage || `${siteUrl}/default-og.jpg`
+    let imageUrl = post.coverImages?.horizontal || post.coverImage
+
+    if (imageUrl && !imageUrl.startsWith('http')) {
+        imageUrl = `${siteUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`
+    } else if (!imageUrl) {
+        imageUrl = `${siteUrl}/default-og.jpg`
+    }
+
     const seoDescription = post.seo?.metaDescription || post.excerpt
 
     return {
@@ -53,6 +60,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
             url: `${siteUrl}/repositories/${slug}`,
             images: [{ url: imageUrl }],
             type: 'article',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: post.title,
+            description: seoDescription,
+            images: [imageUrl],
         }
     }
 }

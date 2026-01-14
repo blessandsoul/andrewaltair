@@ -196,7 +196,7 @@ export function HubLayout({ posts, videos }: HubLayoutProps) {
                         <PostCard
                             key={post.id}
                             post={post}
-                            showExcerpt={false}
+                            showExcerpt={true}
                             showTags={false}
                             showAuthor={false}
                             className="h-full shadow-md hover:shadow-xl"

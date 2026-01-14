@@ -95,7 +95,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
   // Use the new coverImages structure if available, fallback to coverImage, then default
-  const imageUrl = post.coverImages?.horizontal || post.coverImage || `${siteUrl}/default-og.jpg`
+  let imageUrl = post.coverImages?.horizontal || post.coverImage
+
+  // Ensure absolute URL
+  if (imageUrl && !imageUrl.startsWith('http')) {
+    imageUrl = `${siteUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`
+  } else if (!imageUrl) {
+    imageUrl = `${siteUrl}/default-og.jpg`
+  }
+
   // Use telegramContent as SEO description fallback (shorter, optimized for social)
   const seoDescription = post.seo?.metaDescription || post.excerpt || post.telegramContent?.slice(0, 160) || post.title
 
