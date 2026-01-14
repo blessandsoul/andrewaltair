@@ -76,7 +76,7 @@ export default function AboutPage() {
               <p className="text-xl text-muted-foreground leading-relaxed">
                 ჩვენ შევდივართ <span className="text-foreground font-medium">ჰიბრიდული ინტელექტის</span> ეპოქაში.
                 ჩემი მიზანია ბიზნესის და ადამიანების გაძლიერება AI-ს მეშვეობით.
-                როგორც **AI არქიტექტორი**, ვქმნი სისტემებს, რომლებიც აერთიანებს ბიოლოგიურ კრეატიულობასა და სინთეზურ გონებას,
+                როგორც <span className="text-foreground font-medium">AI არქიტექტორი</span>, ვქმნი სისტემებს, რომლებიც აერთიანებს ბიოლოგიურ კრეატიულობასა და სინთეზურ გონებას,
                 რათა მივიღოთ მაქსიმალური შედეგი ისეთი მოდელებისგან, როგორიცაა GPT-5.2 და Gemini 3.
               </p>
               <AboutOnlineStatus />

@@ -97,7 +97,7 @@ export function AboutHero() {
                         {/* Floating Metric Card */}
                         <div className="absolute -bottom-8 -left-8 bg-card border border-white/10 p-6 rounded-2xl shadow-xl backdrop-blur-md hidden sm:block">
                             <div className="text-sm text-muted-foreground uppercase tracking-wider mb-1">გამოცდილება</div>
-                            <div className="text-3xl font-bold font-mono text-primary">{brand.stats.yearsExperience} წელი</div>
+                            <div className="text-3xl font-bold text-primary">{brand.stats.yearsExperience} წელი</div>
                         </div>
                     </motion.div>
 
