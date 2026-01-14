@@ -109,7 +109,59 @@ export async function GET(request: NextRequest) {
             }
         }
 
-        // Fallback to oEmbed if no API key or API failed
+        // 2. Try Scraping (Good fallback for no key)
+        if (!title) {
+            try {
+                const scrapeRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                        'Accept-Language': 'ka-GE,ka;q=0.9,en-US;q=0.8,en;q=0.7'
+                    }
+                })
+
+                if (scrapeRes.ok) {
+                    const html = await scrapeRes.text()
+
+                    // Helper to decode HTML entities
+                    const decodeHtml = (txt: string) => txt.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+
+                    // Extract Title
+                    const titleMatch = html.match(/<meta name="title" content="([^"]+)">/)
+                    if (titleMatch) title = decodeHtml(titleMatch[1])
+
+                    // Extract Description
+                    const descMatch = html.match(/<meta name="description" content="([^"]+)">/)
+                    if (descMatch) description = decodeHtml(descMatch[1])
+
+                    // Extract Date
+                    const dateMatch = html.match(/itemprop="datePublished" content="([^"]+)"/)
+                    if (dateMatch) publishedAt = dateMatch[1]
+
+                    // Extract Duration
+                    const durMatch = html.match(/itemprop="duration" content="([^"]+)"/)
+                    const durRaw = durMatch ? durMatch[1] : (html.match(/"duration":"(PT[^"]+)"/)?.[1])
+
+                    if (durRaw) {
+                        duration = parseISO8601Duration(durRaw)
+                        // Check for short (<= 60s)
+                        const durationMatch = durRaw.match(/PT(?:(\d+)M)?(?:(\d+)S)?/)
+                        if (durationMatch) {
+                            const mins = parseInt(durationMatch[1] || '0')
+                            const secs = parseInt(durationMatch[2] || '0')
+                            isShort = (mins === 0 && secs <= 60) || (mins === 1 && secs === 0)
+                        }
+                    }
+
+                    // Extract Author
+                    const authorMatch = html.match(/"author":"([^"]+)"/) || html.match(/<link itemprop="name" content="([^"]+)">/)
+                    if (authorMatch) authorName = decodeHtml(authorMatch[1])
+                }
+            } catch (e) {
+                console.error('Scraping error:', e)
+            }
+        }
+
+        // 3. Fallback to oEmbed if no API key or API failed
         if (!title) {
             const oembedUrl = `${YOUTUBE_OEMBED_URL}?url=https://www.youtube.com/watch?v=${videoId}&format=json`
             const oembedResponse = await fetch(oembedUrl)
