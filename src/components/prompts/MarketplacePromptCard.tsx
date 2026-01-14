@@ -351,16 +351,11 @@ export default function MarketplacePromptCard({ prompt }: PromptCardProps) {
                         {/* Tags/Categories */}
                         {categories.length > 0 && (
                             <div className="flex flex-wrap gap-1.5 mb-3 opacity-80 group-hover:opacity-100 transition-opacity">
-                                {categories.slice(0, 2).map((category: string, idx: number) => (
+                                {categories.slice(0, 3).map((category: string, idx: number) => (
                                     <span key={idx} className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground bg-secondary/50 px-2 py-1 rounded-md">
                                         #{translateCategory(category)}
                                     </span>
                                 ))}
-                                {prompt.aiModel && (
-                                    <span className="text-[9px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-1 rounded-md">
-                                        {prompt.aiModel}
-                                    </span>
-                                )}
                             </div>
                         )}
 
