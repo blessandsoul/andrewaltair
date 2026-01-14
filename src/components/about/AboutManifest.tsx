@@ -1,107 +1,47 @@
 "use client"
 
 import { motion } from "framer-motion"
-import {
-    TbFlame,
-    TbBolt,
-    TbSparkles,
-    TbSchool,
-    TbFlag,
-    TbRocket
-} from "react-icons/tb"
+import { TbBulb, TbBrain, TbCode, TbRocket, TbUsers, TbWorld } from "react-icons/tb"
 
 const beliefs = [
-    {
-        text: "AI არ ჩაანაცვლებს ადამიანებს, მაგრამ ადამიანები AI-ით ჩაანაცვლებენ მათ, ვინც მას არ იყენებს",
-        icon: TbBolt,
-        color: "#a855f7"
-    },
-    {
-        text: "ტექნოლოგია უნდა ემსახურებოდეს ადამიანს და არა პირიქით",
-        icon: TbSparkles,
-        color: "#f59e0b"
-    },
-    {
-        text: "კრეატიულობა არის და იქნება ყველაზე ძვირფასი ვალუტა",
-        icon: TbFlame,
-        color: "#ef4444"
-    },
-    {
-        text: "განათლება AI-ში უნდა იყოს ხელმისაწვდომი ყველასთვის — უფასოდ",
-        icon: TbSchool,
-        color: "#10b981"
-    },
-    {
-        text: "საქართველოს შეუძლია გახდეს რეგიონალური ტექნოლოგიური ჰაბი",
-        icon: TbFlag,
-        color: "#dc2626"
-    },
-    {
-        text: "მომავალი ეკუთვნის მათ, ვინც დღეს სწავლობს",
-        icon: TbRocket,
-        color: "#6366f1"
-    },
+    { icon: TbBrain, text: "AI არ ჩაანაცვლებს ადამიანს. ის გააფართოებს მას." },
+    { icon: TbCode, text: "კოდი — მომავლის ლოგიკის ენაა." },
+    { icon: TbBulb, text: "კრეატიულობა — ახალი პროდუქტიულობაა." },
+    { icon: TbRocket, text: "ააშენე სწრაფად, დახვეწე უფრო სწრაფად." },
+    { icon: TbUsers, text: "კომუნა კონკურენციაზე მაღლა დგას." },
+    { icon: TbWorld, text: "მომავალი ღია კოდშია (Open Source)." }
 ]
 
 export function AboutManifest() {
     return (
-        <section className="py-20 lg:py-28 relative overflow-hidden">
-            {/* Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-3xl" />
+        <section className="py-24 border-b border-white/5">
+            <div className="container mx-auto px-6 lg:px-12 max-w-[90rem]">
+                <div className="text-center mb-16">
+                    <h2 className="text-3xl font-bold tracking-tight mb-4">მანიფესტი</h2>
+                    <p className="text-muted-foreground">მთავარი პრინციპები, რომლითაც ვხელმძღვანელობ</p>
+                </div>
 
-            <div className="container relative mx-auto px-4 max-w-4xl">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="text-center mb-16"
-                >
-                    <div className="inline-flex items-center gap-2 mb-4 text-primary">
-                        <TbFlame className="w-6 h-6" />
-                        <span className="text-sm font-bold uppercase tracking-widest">მანიფესტი</span>
-                    </div>
-                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold">
-                        რისი <span className="text-gradient">მჯერა</span>
-                    </h2>
-                </motion.div>
-
-                <div className="grid gap-4 sm:gap-6">
-                    {beliefs.map((belief, idx) => (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
+                    {beliefs.map((item, idx) => (
                         <motion.div
                             key={idx}
-                            initial={{ opacity: 0, x: idx % 2 === 0 ? -30 : 30 }}
-                            whileInView={{ opacity: 1, x: 0 }}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.1 }}
-                            className="group"
+                            className="flex gap-4 items-start group"
                         >
-                            <div className="flex items-start gap-4 p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-white/5 hover:border-primary/30 hover:bg-card/80 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5">
-                                <div
-                                    className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300"
-                                    style={{ backgroundColor: `${belief.color}15` }}
-                                >
-                                    <belief.icon className="w-6 h-6" style={{ color: belief.color }} />
-                                </div>
-                                <p className="text-lg sm:text-xl font-medium leading-relaxed text-foreground/90">
-                                    "{belief.text}"
-                                </p>
+                            <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center shrink-0 group-hover:border-primary/50 group-hover:bg-primary/5 transition-colors duration-300">
+                                <item.icon className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-medium leading-tight group-hover:text-primary transition-colors duration-300">
+                                    {item.text}
+                                </h3>
                             </div>
                         </motion.div>
                     ))}
                 </div>
-
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.6 }}
-                    className="text-center mt-12"
-                >
-                    <p className="text-muted-foreground font-mono text-sm">
-                        // Andrew Altair, 2024
-                    </p>
-                </motion.div>
             </div>
         </section>
     )

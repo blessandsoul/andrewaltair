@@ -2,87 +2,60 @@
 
 import { motion } from "framer-motion"
 import Image from "next/image"
-import { TbMovie } from "react-icons/tb"
 
 const movies = [
     {
         title: "Interstellar",
         src: "/inspiration/interstellar.jpg",
         year: "2014",
-        reason: "სიყვარული, მეცნიერება და დროის ფარდობითობა"
     },
     {
         title: "Inception",
         src: "/inspiration/inception.jpg",
         year: "2010",
-        reason: "რეალობის აღქმა და ცნობიერების სიღრმეები"
     },
     {
         title: "Transcendence",
         src: "/inspiration/transcendence.jpg",
         year: "2014",
-        reason: "სინგულარობა და ციფრული უკვდავება"
     },
     {
         title: "Ex Machina",
         src: "https://m.media-amazon.com/images/M/MV5BMTUxNzc0OTIxMV5BMl5BanBnXkFtZTgwNDI3NzU2NDE@._V1_.jpg",
         year: "2014",
-        reason: "ხელოვნური ინტელექტი და ტიურინგი ტესტი"
     },
 ]
 
 export function AboutInspiration() {
     return (
-        <section className="py-20 lg:py-28 bg-background relative overflow-hidden">
-            {/* Background */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
-
-            <div className="container relative mx-auto px-4 max-w-6xl">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="text-center mb-16"
-                >
-                    <div className="inline-flex items-center gap-2 mb-4 text-primary">
-                        <TbMovie className="w-6 h-6" />
-                        <span className="text-sm font-bold uppercase tracking-widest">ინსპირაცია</span>
+        <section className="py-24 border-b border-white/5">
+            <div className="container mx-auto px-6 lg:px-12 max-w-[90rem]">
+                <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+                    <div>
+                        <h2 className="text-3xl font-bold tracking-tight mb-2">Cinematic DNA</h2>
+                        <p className="text-muted-foreground">ფილმები, რომლებმაც შეცვალეს ჩემი ხედვა AI-ზე.</p>
                     </div>
-                    <h2 className="text-3xl sm:text-4xl font-bold">
-                        ფილმები, რომლებმაც <span className="text-gradient">დამაფიქრა</span>
-                    </h2>
-                    <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
-                        ეს ისტორიები გვაფიქრებს ტექნოლოგიების მომავალსა და ადამიანურ ღირებულებებზე
-                    </p>
-                </motion.div>
+                </div>
 
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     {movies.map((movie, idx) => (
                         <motion.div
                             key={movie.title}
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
+                            initial={{ opacity: 0 }}
+                            whileInView={{ opacity: 1 }}
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.1 }}
-                            className="group relative aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl cursor-pointer border border-white/10 hover:border-primary/30 transition-all duration-500"
+                            className="group relative aspect-[2/3] overflow-hidden bg-muted"
                         >
                             <Image
                                 src={movie.src}
                                 alt={movie.title}
                                 fill
-                                className="object-cover transition-all duration-700 group-hover:scale-110 brightness-75 group-hover:brightness-100"
+                                className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-out"
                             />
-
-                            {/* Overlay gradient */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80" />
-
-                            {/* Content */}
-                            <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6">
-                                <div className="text-xs text-primary font-mono mb-1">{movie.year}</div>
-                                <h3 className="text-white font-bold text-lg mb-2">{movie.title}</h3>
-                                <p className="text-white/70 text-sm leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-300 line-clamp-2">
-                                    {movie.reason}
-                                </p>
+                            <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                                <h3 className="text-white font-medium text-sm">{movie.title}</h3>
+                                <p className="text-white/60 text-xs font-mono">{movie.year}</p>
                             </div>
                         </motion.div>
                     ))}

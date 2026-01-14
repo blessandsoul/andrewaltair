@@ -151,10 +151,39 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       name: 'Andrew Altair',
       logo: {
         '@type': 'ImageObject',
-        url: `${siteUrl}/logo.png` // Ensure this exists or use a valid path
+        url: `${siteUrl}/logo.png`
       }
     },
-    description: post.excerpt
+    description: post.excerpt,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${siteUrl}/blog/${slug}`
+    }
+  }
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: siteUrl
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Blog',
+        item: `${siteUrl}/blog`
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: post.title,
+        item: `${siteUrl}/blog/${slug}`
+      }
+    ]
   }
 
   return (
@@ -163,6 +192,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
 
       <BlogPostClient

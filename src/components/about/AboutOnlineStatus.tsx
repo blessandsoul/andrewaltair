@@ -23,7 +23,7 @@ export function AboutOnlineStatus() {
 
             {/* Response time */}
             <span className="text-sm text-muted-foreground border-l border-white/10 pl-3">
-                ვპასუხობ მყისიერად
+                ვპასუხობ 1 საათის განმავლობაში
             </span>
         </motion.div>
     )

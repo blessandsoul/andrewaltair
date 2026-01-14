@@ -4,135 +4,104 @@ import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { TbArrowRight, TbBrandGithub, TbBrandLinkedin, TbBrandTwitter } from "react-icons/tb"
 import { brand } from "@/lib/brand"
-import { TbBrandYoutube, TbBrandInstagram, TbSend, TbMail, TbFileText } from "react-icons/tb"
 
 export function AboutHero() {
     return (
-        <section className="relative py-20 lg:py-32 overflow-hidden">
-            {/* Background Ambience */}
-            <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5">
-                <div className="absolute inset-0 noise-overlay"></div>
-                <motion.div
-                    animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-                    transition={{ duration: 8, repeat: Infinity }}
-                    className="absolute top-1/4 right-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl"
-                />
-                <motion.div
-                    animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
-                    transition={{ duration: 10, repeat: Infinity, delay: 1 }}
-                    className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-accent/20 rounded-full blur-3xl"
-                />
-            </div>
+        <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden border-b border-white/5">
+            {/* Neuro-Grid Background */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
-            <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-                <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
-                    {/* Left: Interactive 3D/Photo Element */}
-                    <motion.div
-                        initial={{ opacity: 0, x: -50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.8 }}
-                        className="flex flex-col items-center lg:items-start text-center lg:text-left"
-                    >
-                        <div className="relative mb-8 group cursor-pointer perspective-1000">
-                            <motion.div
-                                whileHover={{ rotateY: 15, rotateX: -5 }}
-                                transition={{ type: "spring", stiffness: 300 }}
-                                className="relative"
-                            >
-                                <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent rounded-3xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500"></div>
-                                <div className="relative w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-br from-primary to-accent rounded-3xl flex items-center justify-center shadow-2xl overflow-hidden border border-white/10">
-                                    <Image
-                                        src="/andrewaltair.png"
-                                        alt="Andrew Altair"
-                                        fill
-                                        className="object-cover"
-                                        priority
-                                    />
-                                </div>
-                            </motion.div>
+            <div className="container relative mx-auto px-6 lg:px-12 max-w-[90rem]">
+                <div className="grid lg:grid-cols-12 gap-12 lg:gap-24 items-center">
 
-                            {/* Floating Video Avatar Indicator */}
-                            <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                transition={{ delay: 0.5 }}
-                                className="absolute -bottom-4 -right-4 w-12 h-12 bg-red-500 rounded-full border-4 border-background flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
-                            >
-                                <TbBrandYoutube className="text-white w-6 h-6" />
-                            </motion.div>
-                        </div>
+                    {/* Typography / Content (Left - 7 cols) */}
+                    <div className="lg:col-span-7 space-y-8 lg:space-y-10">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5 }}
+                            className="space-y-6"
+                        >
+                            <Badge variant="outline" className="px-4 py-1.5 text-sm tracking-widest uppercase border-primary/20 text-primary bg-primary/5 rounded-full">
+                                AI ინოვატორი
+                            </Badge>
 
-                        <div className="flex gap-3 flex-wrap justify-center lg:justify-start">
+                            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.9] text-foreground">
+                                Andrew <br />
+                                <span className="text-muted-foreground/30">Altair.</span>
+                            </h1>
+
+                            <p className="text-xl sm:text-2xl text-muted-foreground/80 max-w-2xl leading-relaxed font-light">
+                                ვქმნი <span className="text-foreground font-medium">Neuro-Aesthetic</span> ინტერფეისებს
+                                აგენტური ვებ-სამყაროსთვის. სპეციალიზაცია: Reasoning Models და მაღალი წარმადობის UI.
+                            </p>
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                            className="flex flex-wrap gap-4"
+                        >
+                            <Button size="lg" className="h-14 px-8 text-base rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-[0_0_20px_-5px_var(--primary)]" asChild>
+                                <Link href="#contact">
+                                    თანამშრომლობა <TbArrowRight className="ml-2 w-5 h-5" />
+                                </Link>
+                            </Button>
+                            <Button size="lg" variant="ghost" className="h-14 px-8 text-base rounded-full border border-white/10 hover:bg-white/5" asChild>
+                                <Link href="/blog">
+                                    წაიკითხე მანიფესტი
+                                </Link>
+                            </Button>
+                        </motion.div>
+
+                        {/* Social Proof - Monochrome */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.5, delay: 0.4 }}
+                            className="pt-8 flex gap-6 text-muted-foreground"
+                        >
                             {[
-                                { icon: TbBrandYoutube, label: "YouTube", href: brand.social.youtube, color: "text-red-500" },
-                                { icon: TbBrandInstagram, label: "Instagram", href: brand.social.instagram, color: "text-pink-500" },
-                                { icon: TbSend, label: "Telegram", href: brand.social.telegram, color: "text-sky-500" }
-                            ].map((social, idx) => (
-                                <Link key={social.label} href={social.href}>
-                                    <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}>
-                                        <Button variant="outline" size="sm" className="gap-2 bg-background/50 backdrop-blur-sm hover:bg-background/80">
-                                            <social.icon className={`w-4 h-4 ${social.color}`} />
-                                            {social.label}
-                                        </Button>
-                                    </motion.div>
+                                { icon: TbBrandGithub, href: brand.social.github },
+                                { icon: TbBrandLinkedin, href: brand.social.linkedin },
+                                { icon: TbBrandTwitter, href: brand.social.twitter }
+                            ].map((social, i) => (
+                                <Link key={i} href={social.href || "#"} className="hover:text-primary transition-colors">
+                                    <social.icon className="w-6 h-6" />
                                 </Link>
                             ))}
-                        </div>
-                    </motion.div>
+                        </motion.div>
+                    </div>
 
-                    {/* Right: Bio */}
+                    {/* Image / Visual (Right - 5 cols) */}
                     <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
-                        className="space-y-6"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.7, ease: "easeOut" }}
+                        className="lg:col-span-5 relative aspect-square lg:aspect-[4/5] max-w-lg mx-auto lg:mx-0"
                     >
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-medium">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
-                            </span>
-                            AI ინოვატორი
+                        <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent rounded-3xl -rotate-6 blur-2xl" />
+                        <div className="relative h-full w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-muted">
+                            <Image
+                                src="/i.png"
+                                alt="Andrew Altair"
+                                fill
+                                className="object-cover grayscale hover:grayscale-0 transition-all duration-700"
+                                priority
+                            />
                         </div>
 
-                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
-                            <span className="block text-2xl sm:text-3xl font-medium text-muted-foreground mb-2">
-                                {new Date().getHours() < 12 ? "დილა მშვიდობისა," : new Date().getHours() < 18 ? "გამარჯობა," : "საღამო მშვიდობისა,"} მე ვარ
-                            </span>
-                            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] animate-gradient">
-                                Andrew Altair
-                            </span>
-                        </h1>
-
-                        <p className="text-xl text-muted-foreground leading-relaxed">
-                            ვარ ხელოვნური ინტელექტის ენთუზიასტი და კონტენტ კრეატორი.
-                            <span className="text-foreground font-semibold"> {brand.stats.yearsExperience} წელზე მეტია </span>
-                            ვმუშაობ ტექნოლოგიების სფეროში და ვეხმარები ადამიანებს AI-ს შესაძლებლობების გამოყენებაში.
-                        </p>
-
-                        <p className="text-lg text-muted-foreground/80 leading-relaxed">
-                            ჩემი მისიაა — გავხადო რთული AI კონცეფციები მარტივი და ხელმისაწვდომი ყველასთვის.
-                            ვქმნი კონტენტს ChatGPT-ს, DALL-E-ს და სხვა AI ინსტრუმენტების შესახებ.
-                        </p>
-
-                        <div className="flex gap-4">
-                            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                <Button size="lg" className="bg-gradient-to-r from-primary to-accent text-white shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all">
-                                    <TbMail className="w-4 h-4 mr-2" />
-                                    დამიკავშირდი
-                                </Button>
-                            </motion.div>
-                            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                <Button size="lg" variant="outline" asChild className="hover:bg-accent/5">
-                                    <Link href="/blog">
-                                        <TbFileText className="w-4 h-4 mr-2" />
-                                        ბლოგი
-                                    </Link>
-                                </Button>
-                            </motion.div>
+                        {/* Floating Metric Card */}
+                        <div className="absolute -bottom-8 -left-8 bg-card border border-white/10 p-6 rounded-2xl shadow-xl backdrop-blur-md hidden sm:block">
+                            <div className="text-sm text-muted-foreground uppercase tracking-wider mb-1">გამოცდილება</div>
+                            <div className="text-3xl font-bold font-mono text-primary">{brand.stats.yearsExperience} წელი</div>
                         </div>
                     </motion.div>
+
                 </div>
             </div>
         </section>

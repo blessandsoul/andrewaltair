@@ -202,13 +202,31 @@ const jsonLdSchemas = [
 ];
 
 
+// Brand JSON-LD (Global Entity)
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Andrew Altair - AI Innovator",
+  "url": "https://andrewaltair.ge",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://andrewaltair.ge/search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Andrew Altair",
+    "url": "https://andrewaltair.ge"
+  }
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ka" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{

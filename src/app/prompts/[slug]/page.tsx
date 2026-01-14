@@ -139,8 +139,41 @@ export default async function PromptDetailPage({ params }: Props) {
     // Helper for safe image validation
     const hasValidImage = (src: any) => typeof src === 'string' && src.length > 0;
 
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
+    const imageUrl = hasValidImage(prompt.coverImage) ? prompt.coverImage : `${siteUrl}/default-og.jpg`
+
+    const productJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: safeRender(prompt.title),
+        image: imageUrl,
+        description: safeRender(prompt.excerpt || prompt.description),
+        brand: {
+            '@type': 'Brand',
+            name: 'Andrew Altair Prompts'
+        },
+        offers: {
+            '@type': 'Offer',
+            url: `${siteUrl}/prompts/${prompt.slug}`,
+            priceCurrency: safeRender(prompt.currency || 'USD'),
+            price: prompt.isFree ? '0' : safeRender(prompt.price),
+            availability: 'https://schema.org/OnlineOnly'
+        },
+        aggregateRating: (prompt.rating || 0) > 0 ? {
+            '@type': 'AggregateRating',
+            ratingValue: safeRender(prompt.rating),
+            reviewCount: safeRender(prompt.reviewsCount || 1),
+            bestRating: "5",
+            worstRating: "1"
+        } : undefined
+    }
+
     return (
         <div className="min-h-screen py-8 lg:py-12">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+            />
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
                 {/* Back link */}
                 <Link
