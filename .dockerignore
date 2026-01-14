@@ -43,11 +43,7 @@ Thumbs.db
 # Deploy folder (we're building FROM parent context)
 deploy/
 
-# Scripts not needed for runtime
-*.mjs
-*.js
-!next.config.mjs
-!postcss.config.mjs
+# Scripts not needed for runtime (but allow configs)
 scripts/
 
 # Documentation
