@@ -241,11 +241,14 @@ console.log(data.result);
                                     </Badge>
                                     <span className="text-sm text-muted-foreground flex items-center gap-1">
                                         <TbCalendar className="w-4 h-4" />
-                                        {new Date(post.publishedAt).toLocaleDateString('ka-GE', {
-                                            year: 'numeric',
-                                            month: 'long',
-                                            day: 'numeric'
-                                        })}
+                                        {(() => {
+                                            const date = new Date(post.publishedAt);
+                                            const months = [
+                                                'იანვარი', 'თებერვალი', 'მარტი', 'აპრილი', 'მაისი', 'ივნისი',
+                                                'ივლისი', 'აგვისტო', 'სექტემბერი', 'ოქტომბერი', 'ნოემბერი', 'დეკემბერი'
+                                            ];
+                                            return `${date.getDate()} ${months[date.getMonth()]}, ${date.getFullYear()}`;
+                                        })()}
                                     </span>
                                     <span className="text-sm text-muted-foreground flex items-center gap-1">
                                         <TbClock className="w-4 h-4" />
