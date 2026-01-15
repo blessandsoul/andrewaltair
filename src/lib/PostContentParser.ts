@@ -565,8 +565,8 @@ const OPINION_PATTERNS = [
 // Clean content from ** markers
 function cleanContent(text: string): string {
     return text
-        .replace(/\*\*([^*]+)\*\*/g, '$1')  // Remove ** markers, keep content
-        .replace(/^\*\*|\*\*$/g, '')
+        //.replace(/\*\*([^*]+)\*\*/g, '$1')  // Keep ** markers for markdown rendering
+        .replace(/^\*\*|\*\*$/g, '') // Remove lead/trail ** if it's just a wrapper (optional, maybe keep too?)
         .trim();
 }
 

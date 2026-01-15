@@ -9,6 +9,8 @@ import {
     TbSkull, TbHourglass, TbAlarm, TbMapPin, TbStar, TbLock, TbLockOpen, TbShield, TbGift, TbKey, TbDeviceGamepad2, TbClipboardList, TbPencil, TbFlask, TbLink, TbPaperclip, TbMedal, TbMouse
 } from "react-icons/tb"
 import { useState } from "react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface Section {
     icon?: string;  // lucide icon name
@@ -436,9 +438,22 @@ function SectionRenderer({ section, index }: { section: Section; index: number }
                         <IconComponent className="w-5 h-5" aria-hidden="true" />
                     </span>
                 )}
-                <p className="text-muted-foreground leading-relaxed whitespace-pre-line m-0">
-                    {section.content}
-                </p>
+                {/* Render content with ReactMarkdown for formatting support */}
+                <div className="text-muted-foreground leading-relaxed m-0">
+                    <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                            p: ({ node, ...props }) => <p className="mb-4 last:mb-0" {...props} />,
+                            a: ({ node, ...props }) => <a className="text-primary hover:underline" {...props} />,
+                            ul: ({ node, ...props }) => <ul className="list-disc pl-4 mb-4" {...props} />,
+                            ol: ({ node, ...props }) => <ol className="list-decimal pl-4 mb-4" {...props} />,
+                            li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+                            code: ({ node, ...props }) => <code className="bg-muted px-1 py-0.5 rounded font-mono text-sm" {...props} />,
+                        }}
+                    >
+                        {section.content}
+                    </ReactMarkdown>
+                </div>
             </div>
         </div>
     );
