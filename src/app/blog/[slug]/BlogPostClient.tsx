@@ -17,12 +17,17 @@ import {
     EditSuggestion,
     EnhancedContent
 } from "@/components/interactive"
+import { AuroraReactionBar } from "@/components/interactive/AuroraReactionBar"
 import { ImageLightbox, useImageLightbox } from "@/components/interactive/ImageLightbox"
 import { PostNavigation } from "@/components/blog/PostNavigation"
 import { InfiniteScrollPosts } from "@/components/blog/InfiniteScrollPosts"
 import { RichPostContent } from "@/components/blog/RichPostContent"
 import { ResponsiveCover } from "@/components/blog/ResponsiveCover"
 import { PostGallery } from "@/components/blog/PostGallery"
+import { Breadcrumbs } from "@/components/blog/Breadcrumbs"
+import { FontSizeControl } from "@/components/blog/FontSizeControl"
+import { FloatingShareBar } from "@/components/blog/FloatingShareBar"
+import { InlineRelatedPosts } from "@/components/blog/InlineRelatedPosts"
 import { brand } from "@/lib/brand"
 
 // Rich content section type
@@ -175,6 +180,12 @@ console.log(data.result);
             {/* Reading Progress Bar */}
             <ReadingProgress showPercentage />
 
+            {/* Floating Share Bar */}
+            <FloatingShareBar
+                url={`https://andrewaltair.ge/blog/${post.slug}`}
+                title={post.title}
+            />
+
             {/* TbPhoto Lightbox */}
             <ImageLightbox
                 src={articleImages[0]?.src || ""}
@@ -194,6 +205,13 @@ console.log(data.result);
                         </div>
 
                         <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+                            {/* Breadcrumbs */}
+                            <Breadcrumbs
+                                category={categoryStr}
+                                categoryName={categoryInfo?.name || categoryStr}
+                                title={post.title}
+                            />
+
                             {/* Back Button */}
                             <div className="flex items-center justify-between mb-4">
                                 <Link
@@ -206,9 +224,10 @@ console.log(data.result);
 
                                 {/* Actions */}
                                 <div className="flex items-center gap-2">
+                                    <FontSizeControl />
                                     <button
                                         onClick={() => navigator.clipboard.writeText(post.numericId || post.id)}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary/50 hover:bg-secondary rounded-full text-xs font-medium transition-colors cursor-pointer text-muted-foreground hover:text-foreground mr-2"
+                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary/50 hover:bg-secondary rounded-full text-xs font-medium transition-colors cursor-pointer text-muted-foreground hover:text-foreground"
                                         title={`Copy ID: ${post.numericId || post.id}`}
                                     >
                                         <TbHash className="w-3.5 h-3.5" />
@@ -330,6 +349,9 @@ console.log(data.result);
                                         )}
                                     </article>
 
+                                    {/* Inline Related Posts */}
+                                    <InlineRelatedPosts posts={relatedPosts} />
+
                                     {/* Gallery */}
                                     {post.gallery && post.gallery.length > 0 && (
                                         <div className="mt-12">
@@ -390,7 +412,11 @@ console.log(data.result);
                                     <div className="mt-12 pt-8 border-t border-border space-y-8">
                                         <div>
                                             <h4 className="text-sm font-medium text-muted-foreground mb-4">რეაქციები</h4>
-                                            <ReactionBar reactions={post.reactions as any} size="lg" />
+                                            <AuroraReactionBar
+                                                reactions={post.reactions as any}
+                                                postId={post.id}
+                                                postTitle={post.title}
+                                            />
                                         </div>
 
                                         <ShareButtons
@@ -435,12 +461,20 @@ console.log(data.result);
                                                 <p className="text-sm text-muted-foreground mb-4">
                                                     {brand.stats.yearsExperience} წელზე მეტი გამოცდილება AI-ში.
                                                 </p>
-                                                <Button size="sm" className="w-full" asChild>
-                                                    <Link href="/about">
-                                                        <TbUser className="w-4 h-4 mr-2" />
-                                                        ჩემს შესახებ
-                                                    </Link>
-                                                </Button>
+                                                <div className="flex gap-2">
+                                                    <Button size="sm" variant="outline" className="flex-1" asChild>
+                                                        <Link href="/about">
+                                                            <TbUser className="w-4 h-4 mr-1" />
+                                                            შესახებ
+                                                        </Link>
+                                                    </Button>
+                                                    <Button size="sm" className="flex-1" asChild>
+                                                        <a href="https://t.me/andr3waltairchannel" target="_blank" rel="noopener noreferrer">
+                                                            <TbSend className="w-4 h-4 mr-1" />
+                                                            გამოწერა
+                                                        </a>
+                                                    </Button>
+                                                </div>
                                             </CardContent>
                                         </Card>
 
