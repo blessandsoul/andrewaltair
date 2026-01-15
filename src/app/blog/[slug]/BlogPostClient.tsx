@@ -28,6 +28,8 @@ import { Breadcrumbs } from "@/components/blog/Breadcrumbs"
 import { FontSizeControl } from "@/components/blog/FontSizeControl"
 import { FloatingShareBar } from "@/components/blog/FloatingShareBar"
 import { InlineRelatedPosts } from "@/components/blog/InlineRelatedPosts"
+import { FloatingTagCloud } from "@/components/blog/FloatingTagCloud"
+import { TypoReporter, TypoHint } from "@/components/blog/TypoReporter"
 import { brand } from "@/lib/brand"
 
 // Rich content section type
@@ -81,6 +83,7 @@ interface Post {
         role?: string
     }
     publishedAt: string
+    updatedAt?: string
     readingTime: number
     views: number
     comments: number
@@ -271,7 +274,7 @@ console.log(data.result);
                                     </span>
                                     <span className="text-sm text-muted-foreground flex items-center gap-1">
                                         <TbClock className="w-4 h-4" />
-                                        {post.readingTime} წთ
+                                        {post.readingTime} წთ კითხვა
                                     </span>
                                     <span className="text-sm text-muted-foreground flex items-center gap-1">
                                         <TbEye className="w-4 h-4" />
@@ -313,12 +316,15 @@ console.log(data.result);
                                 {/* Excerpt - Styled Block */}
                                 <div className="mt-8 p-6 lg:p-8 bg-gradient-to-br from-secondary/40 to-secondary/20 backdrop-blur-sm rounded-2xl border border-secondary/50 relative overflow-hidden">
                                     <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-primary via-accent to-primary/50" />
-                                    <p className="text-lg md:text-xl text-foreground/80 leading-relaxed pl-4">
+                                    <p className="text-lg md:text-xl text-foreground/80 leading-relaxed pl-4 mb-6">
                                         {post.excerpt}
                                     </p>
                                 </div>
+
+
                             </div>
                         </div>
+
                     </section>
 
                     {/* Content with Sidebar */}
@@ -385,26 +391,11 @@ console.log(data.result);
                                         </div>
                                     )}
 
-                                    {/* Tags Section - SEO Internal Links */}
+                                    {/* Tags Section - Animated Cloud */}
                                     {post.tags && post.tags.length > 0 && (
                                         <div className="mt-12 pt-8 border-t border-border">
                                             <h4 className="text-sm font-medium text-muted-foreground mb-4">თეგები</h4>
-                                            <div className="flex flex-wrap gap-2">
-                                                {post.tags.slice(0, 20).map((tag: string) => (
-                                                    <Link
-                                                        key={tag}
-                                                        href={`/blog?tag=${encodeURIComponent(tag)}`}
-                                                        className="inline-flex"
-                                                    >
-                                                        <Badge
-                                                            variant="secondary"
-                                                            className="hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer"
-                                                        >
-                                                            #{tag}
-                                                        </Badge>
-                                                    </Link>
-                                                ))}
-                                            </div>
+                                            <FloatingTagCloud tags={post.tags} />
                                         </div>
                                     )}
 
@@ -540,8 +531,11 @@ console.log(data.result);
                             </div>
                         </div>
                     </section>
-                </div>
-            </InfiniteScrollPosts>
+                </div >
+            </InfiniteScrollPosts >
+            {/* Typo Reporter */}
+            < TypoReporter />
+            <TypoHint />
         </>
     )
 }

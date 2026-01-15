@@ -11,7 +11,7 @@ import { TbDeviceFloppy, TbEye, TbX, TbPlus, TbPhoto, TbFileText, TbTag, TbFolde
 // ...
 
 
-import { parsePostContent, extractTitle, extractExcerpt, calculateReadingTime } from "@/lib/PostContentParser"
+import { parsePostContent, extractTitle, extractExcerpt, calculateReadingTime, parseMultiChannelContent } from "@/lib/PostContentParser"
 import { RichPostContent } from "@/components/blog/RichPostContent"
 import { useAutosave, formatTimeSince } from "@/hooks/useAutosave"
 import { POST_TEMPLATES, type PostTemplate } from "@/lib/postTemplates"
@@ -510,8 +510,60 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
     }
 
     // Auto-parse raw content using AI
+    // Auto-parse raw content using AI (or deterministic format)
     const handleAutoparse = async () => {
-        if (!post.rawContent.trim()) return
+        const rawContent = post.rawContent;
+        if (!rawContent.trim()) return
+
+        // 1. Check for Andrew's Multi-Channel Format (Telegram/Meta delimiters)
+        if (rawContent.includes('--- [START OF TELEGRAM] ---')) {
+            try {
+                const multiResult = parseMultiChannelContent(rawContent);
+
+                // Parse sections from the CLEAN main content
+                const sections = parsePostContent(multiResult.mainContent);
+                const title = extractTitle(multiResult.mainContent);
+                const excerpt = extractExcerpt(multiResult.mainContent, 200);
+                const readingTime = calculateReadingTime(multiResult.mainContent);
+
+                const slug = post.slug || generateSlug(title);
+
+                setPost(prev => ({
+                    ...prev,
+                    title: prev.title || title,
+                    excerpt: prev.excerpt || excerpt,
+                    sections: sections,
+                    // We keep rawContent as full input, or update it to main? 
+                    // Usually rawContent stays as user input.
+                    telegramContent: multiResult.telegramContent,
+                    postToTelegram: !!multiResult.telegramContent,
+                    readingTime,
+                    slug,
+                    prompts: {
+                        ...prev.prompts!,
+                        photoPrompt: multiResult.prompts.horizontal,
+                        videoPrompt: multiResult.prompts.vertical,
+                        music: multiResult.music
+                    }
+                }));
+
+                // If successful, we can return early or optionally continue to generate Tags/SEO via AI
+                // Let's allow the AI part to run for Tags/SEO but with the mainContent
+                // We'll update the 'post' state but we realize state updates are async.
+                // so we need to set local variables to pass to the AI part if we continue.
+
+                // For now, let's just return and let user click 'Generate AI Tags' if they want, 
+                // or we can invoke it. 
+                // The existing logic mixes parsing + SEO.
+                // Let's just set Preview Mode and stop, it's safer.
+                setPreviewMode(true);
+                return;
+
+            } catch (error) {
+                console.error('Multi-channel parse error:', error);
+                // Fallthrough to standard AI parse
+            }
+        }
 
         setIsParsing(true)
 

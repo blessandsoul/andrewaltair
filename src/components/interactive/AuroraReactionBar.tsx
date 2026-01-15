@@ -62,10 +62,12 @@ function FloatingParticle({ Icon, color, onComplete }: { Icon: React.ElementType
     )
 }
 
+// LocalStorage key for user reactions
+const getUserReactionsKey = (postId: string) => `aurora_reactions_${postId}`
+
 export function AuroraReactionBar({ reactions, postId, postTitle, onReact, className }: AuroraReactionBarProps) {
     const [userReactions, setUserReactions] = React.useState<Set<string>>(new Set())
     const [localReactions, setLocalReactions] = React.useState<Record<string, number>>(() => {
-        // Initialize with all reaction keys
         const initial: Record<string, number> = {}
         REACTIONS.forEach(r => {
             initial[r.key] = reactions[r.key] || 0
@@ -74,14 +76,63 @@ export function AuroraReactionBar({ reactions, postId, postTitle, onReact, class
     })
     const [particles, setParticles] = React.useState<{ id: number; key: string }[]>([])
     const [pulsingKey, setPulsingKey] = React.useState<string | null>(null)
+    const [isLoading, setIsLoading] = React.useState<string | null>(null)
     const { recordActivity } = useVisitorTracking()
     const particleId = React.useRef(0)
 
-    const handleReact = (key: string) => {
+    // Load user's previous reactions from localStorage
+    React.useEffect(() => {
+        if (postId) {
+            try {
+                const saved = localStorage.getItem(getUserReactionsKey(postId))
+                if (saved) {
+                    setUserReactions(new Set(JSON.parse(saved)))
+                }
+            } catch (e) {
+                console.error('Error loading user reactions:', e)
+            }
+        }
+    }, [postId])
+
+    // Save user reactions to localStorage
+    const saveUserReactions = React.useCallback((reactions: Set<string>) => {
+        if (postId) {
+            try {
+                localStorage.setItem(getUserReactionsKey(postId), JSON.stringify([...reactions]))
+            } catch (e) {
+                console.error('Error saving user reactions:', e)
+            }
+        }
+    }, [postId])
+
+    // Call API to persist reaction
+    const persistReaction = async (key: string, action: 'add' | 'remove') => {
+        if (!postId) return
+
+        try {
+            const res = await fetch(`/api/posts/${postId}/react`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: key, action })
+            })
+
+            if (!res.ok) {
+                console.error('Failed to persist reaction')
+            }
+        } catch (error) {
+            console.error('Error persisting reaction:', error)
+        }
+    }
+
+    const handleReact = async (key: string) => {
+        if (isLoading) return
+        setIsLoading(key)
+
         const newUserReactions = new Set(userReactions)
         const newLocalReactions = { ...localReactions }
+        const isRemoving = userReactions.has(key)
 
-        if (userReactions.has(key)) {
+        if (isRemoving) {
             newUserReactions.delete(key)
             newLocalReactions[key] = Math.max(0, (newLocalReactions[key] || 0) - 1)
         } else {
@@ -111,8 +162,15 @@ export function AuroraReactionBar({ reactions, postId, postTitle, onReact, class
             }
         }
 
+        // Update state immediately for responsiveness
         setUserReactions(newUserReactions)
         setLocalReactions(newLocalReactions)
+        saveUserReactions(newUserReactions)
+
+        // Persist to database
+        await persistReaction(key, isRemoving ? 'remove' : 'add')
+
+        setIsLoading(null)
         onReact?.(key)
     }
 
@@ -130,6 +188,7 @@ export function AuroraReactionBar({ reactions, postId, postTitle, onReact, class
                     const count = localReactions[reaction.key] || 0
                     const isActive = userReactions.has(reaction.key)
                     const isPulsing = pulsingKey === reaction.key
+                    const isButtonLoading = isLoading === reaction.key
                     const Icon = reaction.icon
 
                     return (
@@ -154,9 +213,11 @@ export function AuroraReactionBar({ reactions, postId, postTitle, onReact, class
 
                             <button
                                 onClick={() => handleReact(reaction.key)}
+                                disabled={isButtonLoading}
                                 className={cn(
                                     "relative flex items-center gap-1.5 px-3 py-2 rounded-xl border-2 transition-all duration-300",
                                     "hover:scale-110 hover:-translate-y-0.5 active:scale-95",
+                                    "disabled:opacity-50 disabled:cursor-not-allowed",
                                     isActive
                                         ? cn(
                                             `bg-gradient-to-br ${reaction.color}`,
@@ -174,7 +235,8 @@ export function AuroraReactionBar({ reactions, postId, postTitle, onReact, class
                                 <Icon className={cn(
                                     "w-5 h-5 transition-transform duration-200",
                                     isActive && "drop-shadow-lg",
-                                    "group-hover:scale-110"
+                                    "group-hover:scale-110",
+                                    isButtonLoading && "animate-spin"
                                 )} />
 
                                 {/* Count */}

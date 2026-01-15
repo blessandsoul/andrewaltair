@@ -797,3 +797,141 @@ export function calculateReadingTime(content: string): number {
     const wordCount = content.split(/\s+/).length;
     return Math.max(1, Math.ceil(wordCount / wordsPerMinute));
 }
+
+/**
+ * Parse multi-channel content format
+ * Separates Main article, Telegram content, and Meta commentary
+ * Also extracts prompts and music info
+ */
+export interface MultiChannelParsed {
+    mainContent: string;
+    telegramContent: string;
+    metaContent: string;
+    prompts: {
+        horizontal: string;
+        vertical: string;
+    };
+    music: string;
+    rating: string;
+}
+
+export function parseMultiChannelContent(fullText: string): MultiChannelParsed {
+    const result: MultiChannelParsed = {
+        mainContent: '',
+        telegramContent: '',
+        metaContent: '',
+        prompts: { horizontal: '', vertical: '' },
+        music: '',
+        rating: ''
+    };
+
+    if (!fullText) return result;
+
+    // 1. Split by main delimiters
+    let sections = {
+        main: fullText,
+        telegram: '',
+        meta: ''
+    };
+
+    // Find Telegram Section
+    if (fullText.includes('--- [START OF TELEGRAM] ---')) {
+        const parts = fullText.split('--- [START OF TELEGRAM] ---');
+        sections.main = parts[0].trim();
+        sections.telegram = parts[1].trim();
+
+        // Check if Meta is inside Telegram part (it should be)
+        if (sections.telegram.includes('--- [START OF META] ---')) {
+            const teleParts = sections.telegram.split('--- [START OF META] ---');
+            sections.telegram = teleParts[0].trim();
+            sections.meta = teleParts[1].trim();
+        }
+        // Or if Meta is in main (unlikely based on example) but for safety:
+        else if (sections.main.includes('--- [START OF META] ---')) {
+            const mainParts = sections.main.split('--- [START OF META] ---');
+            sections.main = mainParts[0].trim();
+            sections.meta = mainParts[1].trim() + '\n' + sections.telegram; // This logic is weird, sticking to the standard Format
+        }
+    } else if (fullText.includes('--- [START OF META] ---')) {
+        // Only Meta present
+        const parts = fullText.split('--- [START OF META] ---');
+        sections.main = parts[0].trim();
+        sections.meta = parts[1].trim();
+    }
+
+    // 2. Clean up Main Content (remove any trailing ---)
+    sections.main = sections.main.replace(/---\s*$/, '').trim();
+
+    // 3. Process Meta Section to extract Prompts, Music, Rating which are usually at the end of Meta
+    // or at the end of whatever section they are in.
+
+    // Helper to extract and remove patterns
+    const extractAndRemove = (text: string): string => {
+        let processed = text;
+
+        // Extract Music
+        // Pattern: 🎶 Artist - Title (Genre)
+        const musicMatch = processed.match(/🎶\s*([^\n]+)/);
+        if (musicMatch) {
+            result.music = musicMatch[1].trim();
+            // Remove the line
+            processed = processed.replace(musicMatch[0], '');
+        }
+
+        // Extract Star/Rating
+        // Pattern: ⭐️ Text
+        const ratingMatch = processed.match(/⭐️\s*([^\n]+)/);
+        if (ratingMatch) {
+            result.rating = ratingMatch[1].trim();
+            // Remove the line
+            processed = processed.replace(ratingMatch[0], '');
+        }
+
+        // Extract Prompts (Block based)
+        // Look for ```Prompt: ... ``` blocks
+        const codeBlockRegex = /```[\s\S]*?```/g;
+        const codeBlocks = processed.match(codeBlockRegex) || [];
+
+        codeBlocks.forEach(block => {
+            if (block.toLowerCase().includes('prompt:')) {
+                // Determine if vertical or horizontal
+                if (block.toLowerCase().includes('vertical') || block.toLowerCase().includes('9:16')) {
+                    result.prompts.vertical = block.replace(/```/g, '').trim();
+                } else if (block.toLowerCase().includes('horizontal') || block.toLowerCase().includes('16:9')) {
+                    result.prompts.horizontal = block.replace(/```/g, '').trim();
+                }
+                // Remove the block from content
+                processed = processed.replace(block, '');
+            }
+        });
+
+        // Also clean up any loose "---" lines that might have separated these items
+        processed = processed.replace(/\n\s*---\s*\n/g, '\n').trim();
+        processed = processed.replace(/\n\s*---\s*$/g, '').trim();
+
+        return processed;
+    };
+
+    // Apply extraction to Meta section (where they are most likely to be)
+    // But if Meta is missing, they might be in Telegram or Main? 
+    // Usually they are at the very end of the file.
+
+    // If we have a 'Meta' section, the extra info is likely there.
+    if (sections.meta) {
+        sections.meta = extractAndRemove(sections.meta);
+    }
+    // If no Meta, check Telegram (if it was the last part)
+    else if (sections.telegram) {
+        sections.telegram = extractAndRemove(sections.telegram);
+    }
+    // If no Telegram, check Main
+    else {
+        sections.main = extractAndRemove(sections.main);
+    }
+
+    result.mainContent = sections.main;
+    result.telegramContent = sections.telegram;
+    result.metaContent = sections.meta;
+
+    return result;
+}
