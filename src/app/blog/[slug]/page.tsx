@@ -114,7 +114,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: post.title,
       description: seoDescription,
       url: `${siteUrl}/blog/${slug}`,
-      images: [{ url: imageUrl, width: 1200, height: 630 }],
+      images: [{ url: imageUrl }],
       type: 'article',
       siteName: 'Andrew Altair',
       authors: [post.author?.name || 'Andrew Altair'],

@@ -80,8 +80,6 @@ export const metadata: Metadata = {
     images: [
       {
         url: "https://andrewaltair.ge/og.png",
-        width: 1200,
-        height: 630,
         alt: "Andrew Altair - AI ინოვატორი და კონტენტ კრეატორი",
       },
     ],
