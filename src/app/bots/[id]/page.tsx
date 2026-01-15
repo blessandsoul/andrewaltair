@@ -199,9 +199,9 @@ export default function BotDetailPage() {
     // ═══════════════════════════════════════════════════════════════════════
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 flex items-center justify-center">
+            <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="relative">
-                    <div className="w-16 h-16 border-4 border-violet-200 rounded-full" />
+                    <div className="w-16 h-16 border-4 border-muted/30 rounded-full" />
                     <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-violet-500 rounded-full animate-spin" />
                 </div>
             </div>
@@ -210,13 +210,13 @@ export default function BotDetailPage() {
 
     if (!bot) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 flex items-center justify-center">
+            <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="text-center">
-                    <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center">
-                        <TbX className="w-10 h-10 text-red-400" />
+                    <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                        <TbX className="w-10 h-10 text-red-500" />
                     </div>
-                    <h1 className="text-2xl font-bold text-slate-900 mb-4">ბოტი ვერ მოიძებნა</h1>
-                    <Button onClick={() => router.push('/bots')} variant="outline" className="border-slate-200">
+                    <h1 className="text-2xl font-bold text-foreground mb-4">ბოტი ვერ მოიძებნა</h1>
+                    <Button onClick={() => router.push('/bots')} variant="outline" className="border-border">
                         <TbArrowLeft className="w-4 h-4 mr-2" />
                         უკან დაბრუნება
                     </Button>
@@ -234,14 +234,12 @@ export default function BotDetailPage() {
     const tierInfo = tierConfig[bot.tier] || tierConfig.free;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 text-slate-900">
+        <div className="min-h-screen bg-background text-foreground">
+
             {/* ═══════════════════════════════════════════════════════════════════
                 AMBIENT BACKGROUND GLOW
             ═══════════════════════════════════════════════════════════════════ */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute -top-[30%] -left-[20%] w-[60vw] h-[60vw] rounded-full blur-[150px] opacity-30 bg-gradient-to-br from-blue-300 to-violet-300" />
-                <div className="absolute top-[40%] -right-[20%] w-[50vw] h-[50vw] rounded-full blur-[150px] opacity-20 bg-gradient-to-br from-pink-300 to-rose-300" />
-            </div>
+
 
             {/* ═══════════════════════════════════════════════════════════════════
                 HERO SECTION - LIGHT MINIMALIST
@@ -253,7 +251,7 @@ export default function BotDetailPage() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         onClick={() => router.push('/bots')}
-                        className="flex items-center gap-2 text-slate-500 hover:text-slate-900 mb-8 group transition-colors"
+                        className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 group transition-colors"
                     >
                         <TbArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                         <span className="font-medium">ყველა ბოტი</span>
@@ -263,7 +261,7 @@ export default function BotDetailPage() {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-white/80 backdrop-blur-xl border border-white/50 shadow-xl shadow-slate-200/50 rounded-3xl overflow-hidden"
+                        className="bg-card border border-border shadow-xl rounded-3xl overflow-hidden"
                     >
                         {/* Gradient Header */}
                         <div className={`h-32 bg-gradient-to-br ${bot.color} relative`}>
@@ -301,14 +299,14 @@ export default function BotDetailPage() {
                                 {/* Left: Title & Meta */}
                                 <div>
                                     <div className="flex items-center gap-3 mb-2">
-                                        <span className="text-xs font-mono text-slate-400 bg-slate-100 px-2 py-1 rounded">
+                                        <span className="text-xs font-mono text-muted-foreground bg-secondary px-2 py-1 rounded">
                                             {bot.codename} • v{bot.version}
                                         </span>
                                     </div>
-                                    <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-3">
+                                    <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
                                         {bot.name}
                                     </h1>
-                                    <p className="text-lg text-slate-600 max-w-xl">
+                                    <p className="text-lg text-muted-foreground max-w-xl">
                                         {bot.shortDescription}
                                     </p>
                                 </div>
@@ -320,11 +318,11 @@ export default function BotDetailPage() {
                                         { icon: TbDownload, value: `${(bot.downloads / 1000).toFixed(1)}k`, label: 'გადმოწერა', color: 'text-blue-500' },
                                         { icon: TbHeart, value: bot.likes, label: 'ლაიქი', color: 'text-pink-500' },
                                     ].map((stat, i) => (
-                                        <div key={i} className="flex items-center gap-3 px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl">
+                                        <div key={i} className="flex items-center gap-3 px-4 py-3 bg-secondary/50 border border-border rounded-xl">
                                             <stat.icon className={`w-5 h-5 ${stat.color} ${stat.fill ? 'fill-current' : ''}`} />
                                             <div>
-                                                <div className="text-lg font-bold text-slate-900">{stat.value}</div>
-                                                <div className="text-[10px] text-slate-400 uppercase tracking-wider">{stat.label}</div>
+                                                <div className="text-lg font-bold text-foreground">{stat.value}</div>
+                                                <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{stat.label}</div>
                                             </div>
                                         </div>
                                     ))}
@@ -332,7 +330,7 @@ export default function BotDetailPage() {
                             </div>
 
                             {/* Action Buttons */}
-                            <div className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-slate-100">
+                            <div className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-border">
                                 {bot.tier === 'premium' ? (
                                     <Button className={`px-6 py-3 h-auto bg-gradient-to-r ${bot.color} text-white font-bold text-base shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]`}>
                                         <TbShoppingCart className="w-5 h-5 mr-2" />
@@ -344,7 +342,7 @@ export default function BotDetailPage() {
                                         კოპირება უფასოდ
                                     </Button>
                                 ) : (
-                                    <Button disabled className="px-6 py-3 h-auto bg-slate-200 text-slate-500 font-bold cursor-not-allowed">
+                                    <Button disabled className="px-6 py-3 h-auto bg-muted text-muted-foreground font-bold cursor-not-allowed">
                                         <TbLock className="w-5 h-5 mr-2" />
                                         პირადი ბოტი
                                     </Button>
@@ -353,12 +351,12 @@ export default function BotDetailPage() {
                                 <Button
                                     variant="outline"
                                     onClick={() => setIsLiked(!isLiked)}
-                                    className={`px-4 py-3 h-auto border-2 transition-all ${isLiked ? 'bg-pink-50 border-pink-200 text-pink-500' : 'border-slate-200 text-slate-500 hover:border-pink-200 hover:text-pink-500'}`}
+                                    className={`px-4 py-3 h-auto border-2 transition-all ${isLiked ? 'bg-pink-500/10 border-pink-500/30 text-pink-500' : 'border-border text-muted-foreground hover:border-pink-500/30 hover:text-pink-500'}`}
                                 >
                                     <TbHeart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
                                 </Button>
 
-                                <Button variant="outline" className="px-4 py-3 h-auto border-2 border-slate-200 text-slate-500 hover:border-blue-200 hover:text-blue-500">
+                                <Button variant="outline" className="px-4 py-3 h-auto border-2 border-border text-muted-foreground hover:border-blue-500/30 hover:text-blue-500">
                                     <TbShare className="w-5 h-5" />
                                 </Button>
                             </div>
@@ -379,15 +377,15 @@ export default function BotDetailPage() {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="bg-white/80 backdrop-blur-xl border border-white/50 shadow-lg shadow-slate-200/30 rounded-2xl p-6"
+                            className="bg-card border border-border shadow-lg rounded-2xl p-6"
                         >
                             <div className="flex items-center gap-3 mb-4">
                                 <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${bot.color} flex items-center justify-center text-white`}>
                                     <TbMessage className="w-5 h-5" />
                                 </div>
-                                <h2 className="text-xl font-bold text-slate-900">აღწერა</h2>
+                                <h2 className="text-xl font-bold text-foreground">აღწერა</h2>
                             </div>
-                            <p className="text-slate-600 leading-relaxed whitespace-pre-line">
+                            <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
                                 {bot.description}
                             </p>
                         </motion.div>
@@ -398,21 +396,21 @@ export default function BotDetailPage() {
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                className="bg-white/80 backdrop-blur-xl border border-white/50 shadow-lg shadow-slate-200/30 rounded-2xl p-6"
+                                className="bg-card border border-border shadow-lg rounded-2xl p-6"
                             >
                                 <div className="flex items-center gap-3 mb-6">
                                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-green-500 flex items-center justify-center text-white">
                                         <TbCheck className="w-5 h-5" />
                                     </div>
-                                    <h2 className="text-xl font-bold text-slate-900">ფუნქციები</h2>
+                                    <h2 className="text-xl font-bold text-foreground">ფუნქციები</h2>
                                 </div>
                                 <div className="grid md:grid-cols-2 gap-3">
                                     {bot.features.map((feature, i) => (
-                                        <div key={i} className="flex items-start gap-3 p-3 bg-emerald-50 border border-emerald-100 rounded-xl">
+                                        <div key={i} className="flex items-start gap-3 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
                                             <div className="w-6 h-6 rounded-lg bg-emerald-500 flex items-center justify-center flex-shrink-0">
                                                 <TbCheck className="w-4 h-4 text-white" />
                                             </div>
-                                            <span className="text-slate-700 text-sm font-medium">{feature}</span>
+                                            <span className="text-foreground text-sm font-medium">{feature}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -426,15 +424,15 @@ export default function BotDetailPage() {
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
-                                    className="bg-white/80 backdrop-blur-xl border border-white/50 shadow-lg shadow-slate-200/30 rounded-2xl p-5"
+                                    className="bg-card border border-border shadow-lg rounded-2xl p-5"
                                 >
                                     <div className="flex items-center gap-2 mb-4">
                                         <TbUsers className="w-5 h-5 text-violet-500" />
-                                        <h3 className="font-bold text-slate-900">ვისთვის არის</h3>
+                                        <h3 className="font-bold text-foreground">ვისთვის არის</h3>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
                                         {bot.targetAudience.map((audience, i) => (
-                                            <span key={i} className="px-3 py-1.5 bg-violet-50 border border-violet-100 rounded-lg text-sm text-violet-700 font-medium">
+                                            <span key={i} className="px-3 py-1.5 bg-violet-500/10 border border-violet-500/20 rounded-lg text-sm text-violet-500 font-medium">
                                                 {audience}
                                             </span>
                                         ))}
@@ -447,15 +445,15 @@ export default function BotDetailPage() {
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
-                                    className="bg-white/80 backdrop-blur-xl border border-white/50 shadow-lg shadow-slate-200/30 rounded-2xl p-5"
+                                    className="bg-card border border-border shadow-lg rounded-2xl p-5"
                                 >
                                     <div className="flex items-center gap-2 mb-4">
                                         <TbWorld className="w-5 h-5 text-blue-500" />
-                                        <h3 className="font-bold text-slate-900">ენები</h3>
+                                        <h3 className="font-bold text-foreground">ენები</h3>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
                                         {bot.languages.map((lang, i) => (
-                                            <span key={i} className="px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-700 font-medium">
+                                            <span key={i} className="px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-sm text-blue-500 font-medium">
                                                 {lang}
                                             </span>
                                         ))}
@@ -469,41 +467,41 @@ export default function BotDetailPage() {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="bg-white/80 backdrop-blur-xl border border-white/50 shadow-lg shadow-slate-200/30 rounded-2xl p-6"
+                            className="bg-card border border-border shadow-lg rounded-2xl p-6"
                         >
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-fuchsia-500 to-pink-500 flex items-center justify-center text-white">
                                     <TbMessage className="w-5 h-5" />
                                 </div>
-                                <h2 className="text-xl font-bold text-slate-900">
-                                    კომენტარები <span className="text-slate-400 font-normal">({comments.length})</span>
+                                <h2 className="text-xl font-bold text-foreground">
+                                    კომენტარები <span className="text-muted-foreground font-normal">({comments.length})</span>
                                 </h2>
                             </div>
 
                             {/* Comment form */}
                             {checkingPurchase ? (
-                                <div className="mb-6 p-6 bg-slate-50 rounded-xl flex items-center justify-center gap-3 text-slate-400">
-                                    <div className="w-5 h-5 border-2 border-slate-300 border-t-transparent rounded-full animate-spin" />
+                                <div className="mb-6 p-6 bg-secondary/50 rounded-xl flex items-center justify-center gap-3 text-muted-foreground">
+                                    <div className="w-5 h-5 border-2 border-muted-foreground/30 border-t-transparent rounded-full animate-spin" />
                                     <span>მოწმდება...</span>
                                 </div>
                             ) : !hasPurchased ? (
-                                <div className="mb-6 p-5 bg-amber-50 border border-amber-100 rounded-xl flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                                <div className="mb-6 p-5 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
                                         <TbLock className="w-6 h-6 text-amber-600" />
                                     </div>
                                     <div className="flex-1">
-                                        <h3 className="font-bold text-amber-800 mb-1">მხოლოდ მყიდველებს</h3>
-                                        <p className="text-amber-600 text-sm">შეიძინე ბოტი რომ დატოვო შეფასება</p>
+                                        <h3 className="font-bold text-amber-500 mb-1">მხოლოდ მყიდველებს</h3>
+                                        <p className="text-amber-500/80 text-sm">შეიძინე ბოტი რომ დატოვო შეფასება</p>
                                     </div>
                                 </div>
                             ) : (
-                                <div className="mb-6 p-5 bg-slate-50 border border-slate-100 rounded-xl space-y-4">
+                                <div className="mb-6 p-5 bg-secondary/30 border border-border rounded-xl space-y-4">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-sm font-medium text-slate-600">შეფასება</span>
+                                        <span className="text-sm font-medium text-muted-foreground">შეფასება</span>
                                         <div className="flex gap-1">
                                             {[1, 2, 3, 4, 5].map((star) => (
                                                 <button key={star} onClick={() => setRating(star)}>
-                                                    <TbStar className={`w-6 h-6 transition-colors ${star <= rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200 hover:text-slate-300'}`} />
+                                                    <TbStar className={`w-6 h-6 transition-colors ${star <= rating ? 'fill-amber-400 text-amber-400' : 'text-muted/50 hover:text-muted-foreground'}`} />
                                                 </button>
                                             ))}
                                         </div>
@@ -512,12 +510,12 @@ export default function BotDetailPage() {
                                         value={newComment}
                                         onChange={(e) => setNewComment(e.target.value)}
                                         placeholder="გაუზიარე გამოცდილება..."
-                                        className="min-h-[100px] bg-white border-slate-200 focus:border-violet-400 resize-none"
+                                        className="min-h-[100px] bg-background border-border focus:border-violet-400 resize-none"
                                     />
                                     <Button
                                         onClick={handleSubmitComment}
                                         disabled={!newComment.trim()}
-                                        className={`w-full h-11 font-bold transition-all ${newComment.trim() ? `bg-gradient-to-r ${bot.color} text-white hover:opacity-90` : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}
+                                        className={`w-full h-11 font-bold transition-all ${newComment.trim() ? `bg-gradient-to-r ${bot.color} text-white hover:opacity-90` : 'bg-muted text-muted-foreground cursor-not-allowed'}`}
                                     >
                                         <TbSend className="w-5 h-5 mr-2" />
                                         გაგზავნა
@@ -528,36 +526,36 @@ export default function BotDetailPage() {
                             {/* Comments list */}
                             <div className="space-y-4">
                                 {comments.length === 0 ? (
-                                    <div className="text-center py-10 border-2 border-dashed border-slate-100 rounded-xl">
-                                        <TbMessage className="w-10 h-10 text-slate-200 mx-auto mb-3" />
-                                        <p className="text-slate-400">კომენტარები არ არის</p>
+                                    <div className="text-center py-10 border-2 border-dashed border-border rounded-xl">
+                                        <TbMessage className="w-10 h-10 text-muted mx-auto mb-3" />
+                                        <p className="text-muted-foreground">კომენტარები არ არის</p>
                                     </div>
                                 ) : (
                                     comments.map((comment) => (
-                                        <div key={comment.id} className="p-4 bg-slate-50 hover:bg-slate-100/50 border border-slate-100 rounded-xl transition-colors">
+                                        <div key={comment.id} className="p-4 bg-secondary/30 hover:bg-secondary/50 border border-border rounded-xl transition-colors">
                                             <div className="flex items-start gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 border border-slate-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                                <div className="w-10 h-10 rounded-full bg-secondary border border-border flex items-center justify-center flex-shrink-0 overflow-hidden">
                                                     {comment.userAvatar ? (
                                                         <img src={comment.userAvatar} alt={comment.userName} className="w-full h-full object-cover" />
                                                     ) : (
-                                                        <TbUser className="w-5 h-5 text-slate-400" />
+                                                        <TbUser className="w-5 h-5 text-muted-foreground" />
                                                     )}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center justify-between mb-1">
-                                                        <span className="font-semibold text-slate-900">{comment.userName}</span>
-                                                        <span className="text-xs text-slate-400">
+                                                        <span className="font-semibold text-foreground">{comment.userName}</span>
+                                                        <span className="text-xs text-muted-foreground">
                                                             {new Date(comment.createdAt).toLocaleDateString('ka-GE')}
                                                         </span>
                                                     </div>
                                                     {comment.rating && (
                                                         <div className="flex gap-0.5 mb-2">
                                                             {[...Array(5)].map((_, i) => (
-                                                                <TbStar key={i} className={`w-3.5 h-3.5 ${i < comment.rating! ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`} />
+                                                                <TbStar key={i} className={`w-3.5 h-3.5 ${i < comment.rating! ? 'fill-amber-400 text-amber-400' : 'text-muted'}`} />
                                                             ))}
                                                         </div>
                                                     )}
-                                                    <p className="text-slate-600 text-sm">{comment.text}</p>
+                                                    <p className="text-muted-foreground text-sm">{comment.text}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -574,7 +572,7 @@ export default function BotDetailPage() {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="bg-white/80 backdrop-blur-xl border border-white/50 shadow-lg shadow-slate-200/30 rounded-2xl overflow-hidden"
+                            className="bg-card border border-border shadow-lg rounded-2xl overflow-hidden"
                         >
                             <div className={`h-2 bg-gradient-to-r ${bot.color}`} />
                             <div className="p-5">
@@ -584,9 +582,9 @@ export default function BotDetailPage() {
                                             <span className="animate-ping absolute h-full w-full rounded-full bg-emerald-400 opacity-75" />
                                             <span className="relative h-2 w-2 rounded-full bg-emerald-500" />
                                         </span>
-                                        <span className="text-sm font-bold text-slate-900">Live Demo</span>
+                                        <span className="text-sm font-bold text-foreground">Live Demo</span>
                                     </div>
-                                    <span className="text-xs px-2 py-1 bg-slate-100 rounded text-slate-500 font-mono">
+                                    <span className="text-xs px-2 py-1 bg-secondary rounded text-muted-foreground font-mono">
                                         {Math.floor(chatMessages.length / 2)}/5
                                     </span>
                                 </div>
@@ -598,14 +596,14 @@ export default function BotDetailPage() {
                                             <div className={`w-12 h-12 mx-auto mb-3 rounded-xl bg-gradient-to-br ${bot.color} flex items-center justify-center opacity-50`}>
                                                 <TbMessage className="w-6 h-6 text-white" />
                                             </div>
-                                            <p className="text-xs text-slate-400">სცადე ბოტი — 5 მესიჯი უფასოდ</p>
+                                            <p className="text-xs text-muted-foreground">სცადე ბოტი — 5 მესიჯი უფასოდ</p>
                                         </div>
                                     ) : (
                                         chatMessages.map((msg, idx) => (
                                             <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                                 <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${msg.role === 'user'
                                                     ? `bg-gradient-to-r ${bot.color} text-white rounded-br-none`
-                                                    : 'bg-slate-100 text-slate-700 rounded-bl-none'
+                                                    : 'bg-secondary text-secondary-foreground rounded-bl-none'
                                                     }`}>
                                                     {msg.text}
                                                 </div>
@@ -614,14 +612,14 @@ export default function BotDetailPage() {
                                     )}
                                     {isChatLoading && (
                                         <div className="flex justify-start">
-                                            <div className="bg-slate-100 rounded-2xl rounded-bl-none px-4 py-3">
+                                            <div className="bg-secondary rounded-2xl rounded-bl-none px-4 py-3">
                                                 <div className="flex gap-1">
                                                     {[0, 1, 2].map((i) => (
                                                         <motion.div
                                                             key={i}
                                                             animate={{ y: [0, -4, 0] }}
                                                             transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.1 }}
-                                                            className="w-1.5 h-1.5 bg-slate-300 rounded-full"
+                                                            className="w-1.5 h-1.5 bg-muted-foreground/30 rounded-full"
                                                         />
                                                     ))}
                                                 </div>
@@ -637,7 +635,7 @@ export default function BotDetailPage() {
                                             <button
                                                 key={idx}
                                                 onClick={() => handleSendMessage(msg)}
-                                                className="w-full text-left text-xs px-3 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-lg text-slate-600 hover:text-slate-900 transition-all"
+                                                className="w-full text-left text-xs px-3 py-2 bg-secondary/50 hover:bg-secondary border border-border rounded-lg text-muted-foreground hover:text-foreground transition-all"
                                             >
                                                 {msg}
                                             </button>
@@ -648,10 +646,10 @@ export default function BotDetailPage() {
                                 {/* Input */}
                                 <div className="relative">
                                     {chatMessages.length >= 10 && (
-                                        <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-10 flex items-center justify-center rounded-xl">
+                                        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex items-center justify-center rounded-xl">
                                             <div className="text-center">
                                                 <TbLock className="w-5 h-5 text-amber-500 mx-auto mb-1" />
-                                                <p className="text-xs text-slate-500">ლიმიტი ამოიწურა</p>
+                                                <p className="text-xs text-muted-foreground">ლიმიტი ამოიწურა</p>
                                             </div>
                                         </div>
                                     )}
@@ -663,15 +661,15 @@ export default function BotDetailPage() {
                                             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(chatInput)}
                                             placeholder="მესიჯი..."
                                             disabled={isChatLoading || chatMessages.length >= 10}
-                                            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-violet-400 disabled:opacity-50 transition-colors"
+                                            className="flex-1 bg-secondary/30 border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-violet-400 disabled:opacity-50 transition-colors"
                                         />
                                         <Button
                                             onClick={() => handleSendMessage(chatInput)}
                                             disabled={!chatInput.trim() || isChatLoading || chatMessages.length >= 10}
                                             size="icon"
-                                            className={`w-10 h-10 rounded-xl transition-all ${chatInput.trim() ? `bg-gradient-to-r ${bot.color}` : 'bg-slate-200'}`}
+                                            className={`w-10 h-10 rounded-xl transition-all ${chatInput.trim() ? `bg-gradient-to-r ${bot.color}` : 'bg-muted'}`}
                                         >
-                                            <TbSend className="w-4 h-4 text-white" />
+                                            <TbSend className={`w-4 h-4 ${chatInput.trim() ? 'text-white' : 'text-muted-foreground'}`} />
                                         </Button>
                                     </div>
                                 </div>
@@ -716,7 +714,7 @@ export default function BotDetailPage() {
                                         პირადი
                                     </Button>
                                 ) : (
-                                    <Button className="w-full h-12 bg-white text-slate-900 hover:bg-slate-50 font-bold rounded-xl shadow-lg transition-transform hover:scale-[1.02]">
+                                    <Button className="w-full h-12 bg-card text-foreground hover:bg-muted font-bold rounded-xl shadow-lg transition-transform hover:scale-[1.02]">
                                         {bot.tier === 'premium' ? (
                                             <>
                                                 <TbShoppingCart className="w-5 h-5 mr-2" />
@@ -749,25 +747,25 @@ export default function BotDetailPage() {
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                className="bg-white/80 backdrop-blur-xl border border-white/50 shadow-lg shadow-slate-200/30 rounded-2xl p-5"
+                                className="bg-card border border-border shadow-lg rounded-2xl p-5"
                             >
                                 <div className="flex items-center gap-2 mb-4">
                                     <TbShield className="w-5 h-5 text-emerald-500" />
-                                    <h3 className="font-bold text-slate-900">გარანტიები</h3>
+                                    <h3 className="font-bold text-foreground">გარანტიები</h3>
                                 </div>
                                 <div className="space-y-2">
-                                    <div className="flex items-center gap-3 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-sm text-emerald-700">
+                                    <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-sm text-emerald-600">
                                         <TbCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                                         <span>{bot.guarantees.moneyBack} დღიანი თანხის დაბრუნება</span>
                                     </div>
                                     {bot.guarantees.freeUpdates && (
-                                        <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-100 rounded-xl text-sm text-blue-700">
+                                        <div className="flex items-center gap-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-sm text-blue-600">
                                             <TbCheck className="w-4 h-4 text-blue-500 flex-shrink-0" />
                                             <span>უფასო განახლებები</span>
                                         </div>
                                     )}
-                                    <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm text-slate-600">
-                                        <TbClock className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                                    <div className="flex items-center gap-3 p-3 bg-secondary/50 border border-border rounded-xl text-sm text-muted-foreground">
+                                        <TbClock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                                         <span>{bot.guarantees.support.type}</span>
                                     </div>
                                 </div>
@@ -780,19 +778,19 @@ export default function BotDetailPage() {
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                className="bg-white/80 backdrop-blur-xl border border-white/50 shadow-lg shadow-slate-200/30 rounded-2xl p-5"
+                                className="bg-card border border-border shadow-lg rounded-2xl p-5"
                             >
                                 <div className="flex items-center gap-3 mb-4">
-                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 border border-slate-100 flex items-center justify-center overflow-hidden">
+                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 border border-border flex items-center justify-center overflow-hidden">
                                         {bot.creator.avatar ? (
                                             <img src={bot.creator.avatar} alt={bot.creator.name} className="w-full h-full object-cover" />
                                         ) : (
-                                            <TbUser className="w-6 h-6 text-slate-400" />
+                                            <TbUser className="w-6 h-6 text-muted-foreground" />
                                         )}
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <span className="font-bold text-slate-900">{bot.creator.name}</span>
+                                            <span className="font-bold text-foreground">{bot.creator.name}</span>
                                             {bot.creator.verified && (
                                                 <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center">
                                                     <TbCheck className="w-2.5 h-2.5 text-white" />
@@ -800,17 +798,17 @@ export default function BotDetailPage() {
                                             )}
                                         </div>
                                         {bot.creator.bio && (
-                                            <p className="text-xs text-slate-400 line-clamp-1">{bot.creator.bio}</p>
+                                            <p className="text-xs text-muted-foreground line-clamp-1">{bot.creator.bio}</p>
                                         )}
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div className="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
-                                        <div className="text-xs text-slate-400 mb-1">გაყიდვები</div>
-                                        <div className="font-bold text-slate-900">{bot.creator.totalSales}</div>
+                                    <div className="bg-secondary/30 rounded-xl p-3 text-center border border-border">
+                                        <div className="text-xs text-muted-foreground mb-1">გაყიდვები</div>
+                                        <div className="font-bold text-foreground">{bot.creator.totalSales}</div>
                                     </div>
-                                    <div className="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
-                                        <div className="text-xs text-slate-400 mb-1">რეიტინგი</div>
+                                    <div className="bg-secondary/30 rounded-xl p-3 text-center border border-border">
+                                        <div className="text-xs text-muted-foreground mb-1">რეიტინგი</div>
                                         <div className="font-bold text-amber-500 flex items-center justify-center gap-1">
                                             {bot.creator.rating} <TbStar className="w-3 h-3 fill-current" />
                                         </div>
