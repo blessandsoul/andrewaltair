@@ -106,7 +106,8 @@ interface BlogPostClientProps {
 
 export default function BlogPostClient({ post, prevPost, nextPost, relatedPosts }: BlogPostClientProps) {
     const categoryStr = post.categories && post.categories.length > 0 ? post.categories[0] : ((post as any).category || 'ai')
-    const categoryInfo = brand.categories.find(c => c.id === categoryStr)
+    const categoryInfo = brand.categories.find(c => c.id === categoryStr) ||
+        brand.categories.flatMap(c => c.subcategories || []).find(c => c.id === categoryStr)
     const { isOpen, images, currentIndex, openLightbox, closeLightbox } = useImageLightbox()
     const [articleImages, setArticleImages] = useState<{ src: string; alt: string }[]>([])
 
@@ -240,7 +241,11 @@ console.log(data.result);
                                     </Badge>
                                     <span className="text-sm text-muted-foreground flex items-center gap-1">
                                         <TbCalendar className="w-4 h-4" />
-                                        {post.publishedAt}
+                                        {new Date(post.publishedAt).toLocaleDateString('ka-GE', {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric'
+                                        })}
                                     </span>
                                     <span className="text-sm text-muted-foreground flex items-center gap-1">
                                         <TbClock className="w-4 h-4" />

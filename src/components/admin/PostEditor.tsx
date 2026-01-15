@@ -603,6 +603,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                 readingTime: result.readingTime || 5,
                 slug: prev.slug || generateSlug(result.title || prev.title),
                 telegramContent: result.telegramContent || prev.telegramContent || '',  // Save Telegram content
+                postToTelegram: !!(result.telegramContent || prev.telegramContent) || prev.postToTelegram, // Auto-enable if content exists
                 seo: {
                     ...prev.seo,
                     focusKeyword: seoData.focusKeyword || prev.seo.focusKeyword,
