@@ -4,6 +4,7 @@ import Bot from "@/models/Bot";
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 
 // GET - List all bots with filtering
+// GET - List all bots with advanced filtering (Smart Search)
 export async function GET(request: NextRequest) {
     try {
         await dbConnect();
@@ -16,74 +17,130 @@ export async function GET(request: NextRequest) {
         const search = searchParams.get("search");
         const featured = searchParams.get("featured");
 
-        // Build query
-        const query: Record<string, unknown> = { isActive: true };
+        // New Filters
+        const sort = searchParams.get("sort") || "popular"; // popular, newest, lowest_price, highest_price, rating
+        const minPrice = searchParams.get("min_price") ? parseFloat(searchParams.get("min_price")!) : 0;
+        const maxPrice = searchParams.get("max_price") ? parseFloat(searchParams.get("max_price")!) : 1000;
+        const minRating = searchParams.get("rating") ? parseFloat(searchParams.get("rating")!) : 0;
 
+        const pipeline: any[] = [
+            { $match: { isActive: true } }
+        ];
+
+        // 1. Text Search or Regex Fallback
+        if (search) {
+            // Prioritize Full Text Search if index exists, else use regex
+            pipeline.push({
+                $match: {
+                    $or: [
+                        { name: { $regex: search, $options: 'i' } },
+                        { description: { $regex: search, $options: 'i' } },
+                        { codename: { $regex: search, $options: 'i' } },
+                        { 'features': { $regex: search, $options: 'i' } } // Also search features
+                    ]
+                }
+            });
+        }
+
+        // 2. Filters
         if (category && category !== 'all') {
-            query.category = category;
+            pipeline.push({ $match: { category } });
         }
         if (tier && tier !== 'all') {
-            query.tier = tier;
+            pipeline.push({ $match: { tier } });
         }
         if (featured === "true") {
-            query.isFeatured = true;
-        }
-        if (search) {
-            query.$or = [
-                { name: { $regex: search, $options: 'i' } },
-                { description: { $regex: search, $options: 'i' } },
-                { codename: { $regex: search, $options: 'i' } },
-            ];
+            pipeline.push({ $match: { isFeatured: true } });
         }
 
-        // Get total count
-        const total = await Bot.countDocuments(query);
+        // Price Range
+        if (minPrice > 0 || maxPrice < 1000) {
+            pipeline.push({
+                $match: {
+                    $or: [
+                        { price: { $gte: minPrice, $lte: maxPrice } },
+                        // If salePrice is active, check against salePrice instead
+                        {
+                            salePrice: { $exists: true, $gte: minPrice, $lte: maxPrice }
+                        }
+                    ]
+                }
+            });
+        }
 
-        // Get paginated results (exclude masterPrompt from list)
-        const bots = await Bot.find(query)
-            .select('-masterPrompt')
-            .sort({ isFeatured: -1, isNew: -1, rating: -1, name: 1 })
-            .skip((page - 1) * limit)
-            .limit(limit)
-            .lean();
+        // Min Rating
+        if (minRating > 0) {
+            pipeline.push({ $match: { rating: { $gte: minRating } } });
+        }
+
+        // 3. Sorting
+        // Determine sort object
+        let sortStage: any = { isFeatured: -1, isRecentlyAdded: -1 };
+
+        switch (sort) {
+            case 'newest':
+                sortStage = { createdAt: -1 };
+                break;
+            case 'lowest_price':
+                sortStage = { price: 1 }; // Simplification: doesn't account for salePrice mix perfectly in sort
+                break;
+            case 'highest_price':
+                sortStage = { price: -1 };
+                break;
+            case 'rating':
+                sortStage = { rating: -1, totalReviews: -1 };
+                break;
+            case 'popular':
+            default:
+                sortStage = { 'stats.totalSales': -1, downloads: -1, rating: -1 };
+                break;
+        }
+
+        pipeline.push({ $sort: sortStage });
+
+        // 4. Pagination (Facet for count and docs)
+        const skip = (page - 1) * limit;
+
+        pipeline.push({
+            $facet: {
+                metadata: [{ $count: "total" }],
+                bots: [
+                    { $skip: skip },
+                    { $limit: limit },
+                    { $project: { masterPrompt: 0 } } // Exclude masterPrompt
+                ]
+            }
+        });
+
+        const results = await Bot.aggregate(pipeline);
+
+        const metadata = results[0].metadata[0] || { total: 0 };
+        const bots = results[0].bots || [];
 
         // Transform _id to id
-        const transformedBots = bots.map(bot => ({
+        const transformedBots = bots.map((bot: any) => ({
+            ...bot,
             id: bot._id.toString(),
-            name: bot.name,
-            codename: bot.codename,
-            version: bot.version,
-            description: bot.description,
-            shortDescription: bot.shortDescription,
-            category: bot.category,
-            tier: bot.tier,
-            price: bot.price,
-            icon: bot.icon,
-            color: bot.color,
-            features: bot.features,
-            rating: bot.rating,
-            downloads: bot.downloads,
-            likes: bot.likes,
-            isRecentlyAdded: bot.isRecentlyAdded,
-            isFeatured: bot.isFeatured,
+            _id: undefined
         }));
 
-        // Get distinct categories
+        // Get distinct categories (separate query for sidebar)
         const categories = await Bot.distinct("category");
 
         return NextResponse.json({
             bots: transformedBots,
             categories,
             pagination: {
-                total,
+                total: metadata.total,
                 page,
                 limit,
-                totalPages: Math.ceil(total / limit)
+                totalPages: Math.ceil(metadata.total / limit)
             }
         });
+
     } catch (error) {
-        console.error("Get bots error:", error);
-        return NextResponse.json({ error: "Failed to fetch bots" }, { status: 500 });
+        console.error("Smart Search error:", error);
+        return NextResponse.json({ error: "Search failed" }, { status: 500 });
     }
 }
 

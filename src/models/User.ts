@@ -39,6 +39,22 @@ export interface IUser extends Document {
     };
     newsletterSubscribed?: boolean;
     newsletterSubscribedAt?: Date;
+    // Subscription
+    subscription?: {
+        planId: mongoose.Types.ObjectId;
+        status: 'active' | 'canceled' | 'expired';
+        expiresAt: Date;
+        autoRenew: boolean;
+    };
+    // Marketplace Features
+    isVerifiedSeller?: boolean;
+    sellerInfo?: {
+        payoutEnabled: boolean;
+        totalEarnings: number;
+        rating: number;
+    };
+    wishlist?: mongoose.Types.ObjectId[];
+    viewedBots?: mongoose.Types.ObjectId[];
     comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -158,6 +174,32 @@ const UserSchema = new Schema<IUser>(
             type: Date,
             default: undefined,
         },
+        // Subscription
+        subscription: {
+            planId: { type: Schema.Types.ObjectId, ref: 'SubscriptionPlan' },
+            status: { type: String, enum: ['active', 'canceled', 'expired'], default: 'expired' },
+            expiresAt: { type: Date },
+            autoRenew: { type: Boolean, default: false }
+        },
+        // Marketplace Features
+        isVerifiedSeller: {
+            type: Boolean,
+            default: false,
+            index: true
+        },
+        sellerInfo: {
+            payoutEnabled: { type: Boolean, default: false },
+            totalEarnings: { type: Number, default: 0 },
+            rating: { type: Number, default: 0 }
+        },
+        wishlist: [{
+            type: Schema.Types.ObjectId,
+            ref: 'Bot'
+        }],
+        viewedBots: [{
+            type: Schema.Types.ObjectId,
+            ref: 'Bot'
+        }],
     },
     {
         timestamps: true,

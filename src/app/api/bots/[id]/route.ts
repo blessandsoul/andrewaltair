@@ -49,6 +49,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             likes: bot.likes,
             isRecentlyAdded: bot.isRecentlyAdded,
             isFeatured: bot.isFeatured,
+            // New fields
+            salePrice: bot.salePrice,
+            saleEndsAt: bot.saleEndsAt,
+            updates: bot.updates, // Expose full update structure including roadmap
+            creator: bot.creator, // Ensure creator info (with verification) is passed
+            guarantees: bot.guarantees,
         });
     } catch (error) {
         console.error("Get bot error:", error);
@@ -144,7 +150,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         // 🛡️ AUTHENTICATION REQUIRED
         const { getUserFromRequest } = await import('@/lib/server-auth');
         const user = await getUserFromRequest(request);
-        
+
         if (!user) {
             return NextResponse.json(
                 { error: "ავტორიზაცია აუცილებელია" },

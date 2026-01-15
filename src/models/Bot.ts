@@ -55,6 +55,7 @@ export interface IBot extends Document {
     // Updates
     updates?: {
         lastUpdated: string;
+        currentVersionId?: mongoose.Types.ObjectId; // Link to BotVersion
         changelog: Array<{
             version: string;
             date: string;
@@ -62,6 +63,9 @@ export interface IBot extends Document {
         }>;
         roadmap: string[];
     };
+    // Pricing & Sales
+    salePrice?: number;
+    saleEndsAt?: Date;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -110,6 +114,19 @@ const BotSchema = new Schema<IBot>(
         price: {
             type: Number,
             min: 0,
+        },
+        salePrice: {
+            type: Number,
+            min: 0,
+            validate: {
+                validator: function (this: any, val: number) {
+                    return !val || val < this.price;
+                },
+                message: 'Sale price must be lower than regular price'
+            }
+        },
+        saleEndsAt: {
+            type: Date,
         },
         icon: {
             type: String,
@@ -187,6 +204,7 @@ const BotSchema = new Schema<IBot>(
         // Updates
         updates: {
             lastUpdated: { type: String },
+            currentVersionId: { type: Schema.Types.ObjectId, ref: 'BotVersion' },
             changelog: [{
                 version: { type: String },
                 date: { type: String },

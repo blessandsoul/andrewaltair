@@ -2,30 +2,21 @@ import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
 import { getUserFromRequest } from "@/lib/server-auth"
 
-// 🛡️ Rate limiting (in-memory, will be moved to Redis later)
-const chatRequests = new Map<string, { count: number; resetAt: number }>();
-const MAX_REQUESTS_PER_MINUTE = 10;
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+import { rateLimit } from "@/lib/rate-limit";
 
-function checkRateLimit(userId: string): { allowed: boolean; remaining: number } {
-    const now = Date.now();
-    const userLimit = chatRequests.get(userId);
+// 🛡️ Rate limiting
+const limiter = rateLimit({
+    interval: 60 * 1000, // 1 minute
+    uniqueTokenPerInterval: 500, // Max users per interval
+});
 
-    if (userLimit) {
-        if (now < userLimit.resetAt) {
-            if (userLimit.count >= MAX_REQUESTS_PER_MINUTE) {
-                return { allowed: false, remaining: 0 };
-            }
-            userLimit.count++;
-            return { allowed: true, remaining: MAX_REQUESTS_PER_MINUTE - userLimit.count };
-        }
-        // Reset window
-        chatRequests.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
-        return { allowed: true, remaining: MAX_REQUESTS_PER_MINUTE - 1 };
+async function checkRateLimit(userId: string) {
+    try {
+        await limiter.check(null, 10, userId); // 10 requests per minute
+        return { allowed: true };
+    } catch {
+        return { allowed: false };
     }
-
-    chatRequests.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
-    return { allowed: true, remaining: MAX_REQUESTS_PER_MINUTE - 1 };
 }
 
 // Lazy initialization to avoid build-time errors
@@ -48,8 +39,8 @@ export async function POST(request: NextRequest) {
         }
 
         // 🛡️ RATE LIMITING
-        const rateLimit = checkRateLimit(user._id.toString());
-        if (!rateLimit.allowed) {
+        const { allowed } = await checkRateLimit(user._id.toString());
+        if (!allowed) {
             return NextResponse.json(
                 { error: "ძალიან ბევრი მოთხოვნა. გთხოვთ დაელოდოთ 1 წუთს." },
                 { status: 429 }
@@ -65,7 +56,7 @@ export async function POST(request: NextRequest) {
 
         // 🛡️ Validate and sanitize masterPrompt
         let systemPrompt = "შენ ხარ AI ასისტენტი. პასუხობ ქართულად და ეხმარები მომხმარებელს.";
-        
+
         if (masterPrompt) {
             // Limit prompt length to prevent abuse
             if (masterPrompt.length > 2000) {

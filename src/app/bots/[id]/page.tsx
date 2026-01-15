@@ -75,6 +75,25 @@ interface AIBot {
         };
         warranty?: string;
     };
+    // Marketplace Features
+    salePrice?: number;
+    saleEndsAt?: string;
+    updates?: {
+        lastUpdated: string;
+        changelog: Array<{
+            version: string;
+            date: string;
+            changes: string[];
+        }>;
+    };
+}
+
+interface BotVersion {
+    _id: string;
+    version: string;
+    description: string;
+    changelog: string[];
+    createdAt: string;
 }
 
 interface Comment {
@@ -106,14 +125,47 @@ export default function BotDetailPage() {
     const [chatInput, setChatInput] = useState('');
     const [isChatLoading, setIsChatLoading] = useState(false);
     const [isLiked, setIsLiked] = useState(false);
+    const [isWishlisted, setIsWishlisted] = useState(false);
+    const [versions, setVersions] = useState<BotVersion[]>([]);
+    const [activeTab, setActiveTab] = useState<'description' | 'history' | 'reviews'>('description');
 
     useEffect(() => {
         if (params.id) {
             fetchBot();
+            fetchVersions(); // New
             fetchComments();
             checkPurchaseStatus();
+            checkWishlistStatus(); // New
         }
     }, [params.id]);
+
+    const checkWishlistStatus = async () => {
+        try {
+            // Auth check handled in API or assumes user is logged in for personalized features
+            // For now simple fetch
+            const response = await fetch(`/api/bots/${params.id}/wishlist`);
+            const data = await response.json();
+            setIsWishlisted(data.isWishlisted);
+        } catch (e) { console.error(e); }
+    };
+
+    const toggleWishlist = async () => {
+        try {
+            const response = await fetch(`/api/bots/${params.id}/wishlist`, { method: 'POST' });
+            if (response.ok) {
+                const data = await response.json();
+                setIsWishlisted(data.isWishlisted);
+            }
+        } catch (e) { console.error(e); }
+    };
+
+    const fetchVersions = async () => {
+        try {
+            const response = await fetch(`/api/bots/${params.id}/versions`);
+            const data = await response.json();
+            setVersions(data.versions || []);
+        } catch (e) { console.error(e); }
+    };
 
     const checkPurchaseStatus = async () => {
         try {
@@ -225,6 +277,30 @@ export default function BotDetailPage() {
         );
     }
 
+    // SEO: Structured Data
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": bot.name,
+        "operatingSystem": "Web",
+        "applicationCategory": bot.category,
+        "offers": {
+            "@type": "Offer",
+            "price": bot.salePrice || bot.price || "0",
+            "priceCurrency": "GEL"
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": bot.rating,
+            "ratingCount": bot.stats?.totalReviews || 1
+        },
+        "description": bot.description,
+        "author": {
+            "@type": "Person",
+            "name": bot.creator?.name || "Andrew Altair"
+        }
+    };
+
     const tierConfig = {
         free: { label: 'უფასო', bg: 'bg-gradient-to-r from-emerald-500 to-green-500', icon: TbBolt },
         premium: { label: 'PREMIUM', bg: 'bg-gradient-to-r from-amber-500 to-orange-500', icon: TbCrown },
@@ -235,6 +311,10 @@ export default function BotDetailPage() {
 
     return (
         <div className="min-h-screen bg-background text-foreground">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
 
             {/* ═══════════════════════════════════════════════════════════════════
                 AMBIENT BACKGROUND GLOW
@@ -334,7 +414,14 @@ export default function BotDetailPage() {
                                 {bot.tier === 'premium' ? (
                                     <Button className={`px-6 py-3 h-auto bg-gradient-to-r ${bot.color} text-white font-bold text-base shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]`}>
                                         <TbShoppingCart className="w-5 h-5 mr-2" />
-                                        ყიდვა — ₾{bot.price}
+                                        {bot.salePrice ? (
+                                            <div className="flex flex-col items-start leading-tight">
+                                                <span className="text-[10px] opacity-80 line-through">₾{bot.price}</span>
+                                                <span>ყიდვა — ₾{bot.salePrice}</span>
+                                            </div>
+                                        ) : (
+                                            <span>ყიდვა — ₾{bot.price}</span>
+                                        )}
                                     </Button>
                                 ) : bot.tier === 'free' ? (
                                     <Button className="px-6 py-3 h-auto bg-gradient-to-r from-emerald-500 to-green-500 text-white font-bold text-base shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]">
@@ -354,6 +441,14 @@ export default function BotDetailPage() {
                                     className={`px-4 py-3 h-auto border-2 transition-all ${isLiked ? 'bg-pink-500/10 border-pink-500/30 text-pink-500' : 'border-border text-muted-foreground hover:border-pink-500/30 hover:text-pink-500'}`}
                                 >
                                     <TbHeart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
+                                </Button>
+
+                                <Button
+                                    variant="outline"
+                                    onClick={toggleWishlist}
+                                    className={`px-4 py-3 h-auto border-2 transition-all ${isWishlisted ? 'bg-amber-500/10 border-amber-500/30 text-amber-500' : 'border-border text-muted-foreground hover:border-amber-500/30 hover:text-amber-500'}`}
+                                >
+                                    <TbStar className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
                                 </Button>
 
                                 <Button variant="outline" className="px-4 py-3 h-auto border-2 border-border text-muted-foreground hover:border-blue-500/30 hover:text-blue-500">
@@ -388,6 +483,38 @@ export default function BotDetailPage() {
                             <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
                                 {bot.description}
                             </p>
+
+                            {/* Version History Section */}
+                            {versions.length > 0 && (
+                                <div className="mt-8 pt-6 border-t border-border">
+                                    <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                                        <TbClock className="w-5 h-5 text-muted-foreground" />
+                                        ისტორია
+                                    </h3>
+                                    <div className="space-y-4">
+                                        {versions.map((ver) => (
+                                            <div key={ver._id} className="relative pl-4 border-l-2 border-border">
+                                                <div className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-muted-foreground" />
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className="font-bold text-foreground">v{ver.version}</span>
+                                                    <span className="text-xs text-muted-foreground">{new Date(ver.createdAt).toLocaleDateString()}</span>
+                                                </div>
+                                                <p className="text-sm text-muted-foreground">{ver.description}</p>
+                                                {ver.changelog?.length > 0 && (
+                                                    <ul className="mt-2 space-y-1">
+                                                        {ver.changelog.map((change, i) => (
+                                                            <li key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                                                                <span className="mt-1 w-1 h-1 rounded-full bg-primary/50" />
+                                                                {change}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </motion.div>
 
                         {/* Features */}
@@ -698,7 +825,19 @@ export default function BotDetailPage() {
                                     </>
                                 ) : (
                                     <>
-                                        <div className="text-5xl font-black mb-1">{bot.price} ₾</div>
+                                        {bot.salePrice ? (
+                                            <div className="mb-5">
+                                                <div className="text-xl text-white/60 line-through decoration-white/40 decoration-2">{bot.price} ₾</div>
+                                                <div className="text-6xl font-black mb-1">{bot.salePrice} ₾</div>
+                                                {bot.saleEndsAt && (
+                                                    <div className="text-sm font-bold text-amber-300 animate-pulse">
+                                                        აქცია სრულდება: {new Date(bot.saleEndsAt).toLocaleDateString()}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <div className="text-5xl font-black mb-1">{bot.price} ₾</div>
+                                        )}
                                         <div className="text-sm text-white/80 mb-1">ერთჯერადი გადახდა</div>
                                         {bot.guarantees?.moneyBack && (
                                             <div className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-semibold mb-5">
@@ -817,8 +956,8 @@ export default function BotDetailPage() {
                             </motion.div>
                         )}
                     </div>
-                </div>
-            </div>
-        </div>
+                </div >
+            </div >
+        </div >
     );
 }

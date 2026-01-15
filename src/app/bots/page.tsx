@@ -4,9 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useToast } from '@/components/ui/toast';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { TbRobot, TbCrown, TbLock, TbSparkles, TbSearch, TbEye, TbCopy, TbShoppingCart, TbStar, TbMessage, TbBolt, TbPencil, TbBrain, TbPalette, TbTrendingUp, TbShare, TbHeart, TbCheck, TbX, TbClock, TbShield, TbRocket, TbUsers, TbDownload, TbChevronDown, TbChevronUp, TbQuote, TbArrowRight, TbFlame, TbPlayerPlay, TbTrendingDown, TbCalculator, TbGift, TbBuilding, TbUserPlus, TbCreditCard, TbPercentage, TbTarget, TbChartBar, TbClick, TbMail, TbAward, TbStack2, TbCircleCheck, TbCircleX, TbInfoCircle, TbExternalLink, TbBolt as ZapIcon, TbPlus, TbSend } from "react-icons/tb";
+import { TbRobot, TbCrown, TbLock, TbSparkles, TbSearch, TbEye, TbCopy, TbShoppingCart, TbStar, TbMessage, TbBolt, TbPencil, TbBrain, TbPalette, TbTrendingUp, TbShare, TbHeart, TbCheck, TbX, TbClock, TbShield, TbRocket, TbUsers, TbDownload, TbChevronDown, TbChevronUp, TbQuote, TbArrowRight, TbFlame, TbPlayerPlay, TbTrendingDown, TbCalculator, TbGift, TbBuilding, TbUserPlus, TbCreditCard, TbPercentage, TbTarget, TbChartBar, TbClick, TbMail, TbAward, TbStack2, TbCircleCheck, TbCircleX, TbExternalLink, TbBolt as ZapIcon, TbPlus } from "react-icons/tb";
 import { DemoChatModal } from '@/components/bots/DemoChatModal';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -821,19 +819,6 @@ export default function BotsPage() {
     const [showComparisonModal, setShowComparisonModal] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [sharingBot, setSharingBot] = useState<AIBot | null>(null);
-    const [showSubmitPrompt, setShowSubmitPrompt] = useState(false);
-    const [promptSubmission, setPromptSubmission] = useState({
-        promptName: '',
-        category: 'all' as BotCategory,
-        description: '',
-        masterPrompt: '',
-        price: 0,
-        isForTrading: false,
-        isForBusiness: false,
-        isForMarketing: false,
-        isForCoding: false,
-        isForWriting: false
-    });
     const toast = useToast();
 
     // Stats
@@ -1149,16 +1134,17 @@ export default function BotsPage() {
                                     <TbArrowRight className="w-6 h-6 relative z-10" />
                                 </motion.button>
 
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => setShowSubmitPrompt(true)}
-                                    className="relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl font-bold text-lg shadow-2xl shadow-amber-500/50 overflow-hidden"
-                                >
-                                    <TbPlus className="w-6 h-6 relative z-10" />
-                                    <span className="relative z-10">დაამატე შენი ბოტი</span>
-                                    <TbShoppingCart className="w-6 h-6 relative z-10" />
-                                </motion.button>
+                                <Link href="/bots/add">
+                                    <motion.span
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        className="relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl font-bold text-lg shadow-2xl shadow-amber-500/50 overflow-hidden cursor-pointer"
+                                    >
+                                        <TbPlus className="w-6 h-6 relative z-10" />
+                                        <span className="relative z-10">დაამატე შენი ბოტი</span>
+                                        <TbShoppingCart className="w-6 h-6 relative z-10" />
+                                    </motion.span>
+                                </Link>
                             </div>
 
                             {/* TbSearch */}
@@ -2829,230 +2815,23 @@ export default function BotsPage() {
                 )}
             </AnimatePresence>
 
-            {/* ═══════════════════════════════════════════════════════════════════
-                USER PROMPT SUBMISSION MODAL
-            ═══════════════════════════════════════════════════════════════════ */}
-            <AnimatePresence>
-                {showSubmitPrompt && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-                        onClick={() => setShowSubmitPrompt(false)}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-                        >
-                            <div className="bg-gradient-to-r from-violet-600 to-purple-600 p-6 text-white">
-                                <div className="flex items-center justify-between mb-2">
-                                    <h3 className="text-2xl font-bold">შენი პრომპტის გაზიარება</h3>
-                                    <button
-                                        onClick={() => setShowSubmitPrompt(false)}
-                                        className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                                    >
-                                        <TbX className="w-6 h-6" />
-                                    </button>
-                                </div>
-                                <p className="text-violet-100 text-sm">გააზიარე შენი საუკეთესო AI პრომპტი და დაეხმარე სხვებს!</p>
-                            </div>
 
-                            <div className="p-6 space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-foreground mb-2">პრომპტის სახელი *</label>
-                                        <input
-                                            type="text"
-                                            value={promptSubmission.promptName}
-                                            onChange={(e) => setPromptSubmission({ ...promptSubmission, promptName: e.target.value })}
-                                            className="w-full px-4 py-2.5 bg-secondary border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
-                                            placeholder="მაგ: SEO სტატიის გენერატორი"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-foreground mb-2">ფასი (₾) *</label>
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            step="1"
-                                            value={promptSubmission.price}
-                                            onChange={(e) => setPromptSubmission({ ...promptSubmission, price: Number(e.target.value) })}
-                                            className="w-full px-4 py-2.5 bg-secondary border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
-                                            placeholder="29"
-                                        />
-                                    </div>
-                                </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-foreground mb-2">კატეგორია *</label>
-                                    <Select value={promptSubmission.category} onValueChange={(value) => setPromptSubmission({ ...promptSubmission, category: value as BotCategory })}>
-                                        <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="აირჩიეთ კატეგორია" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">ყველა</SelectItem>
-                                            <SelectItem value="writing">წერა</SelectItem>
-                                            <SelectItem value="coding">კოდირება</SelectItem>
-                                            <SelectItem value="design">დიზაინი</SelectItem>
-                                            <SelectItem value="business">ბიზნესი</SelectItem>
-                                            <SelectItem value="marketing">მარკეტინგი</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+            {/* ADD BOT BUTTON */}
+            <Link href="/bots/add" className="fixed bottom-24 right-6 z-40">
+                <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 1.2 }}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="w-14 h-14 bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-full shadow-2xl shadow-violet-500/30 flex items-center justify-center hover:shadow-violet-500/50 transition-all cursor-pointer"
+                    aria-label="Add Bot"
+                >
+                    <TbPlus className="w-6 h-6" />
+                </motion.span>
+            </Link>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-foreground mb-2">აღწერა *</label>
-                                    <textarea
-                                        value={promptSubmission.description}
-                                        onChange={(e) => setPromptSubmission({ ...promptSubmission, description: e.target.value })}
-                                        rows={3}
-                                        className="w-full px-4 py-2.5 bg-secondary border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
-                                        placeholder="მოკლედ აღწერე რას აკეთებს შენი პრომპტი..."
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-foreground mb-2">პრომპტი *</label>
-                                    <textarea
-                                        value={promptSubmission.masterPrompt}
-                                        onChange={(e) => setPromptSubmission({ ...promptSubmission, masterPrompt: e.target.value })}
-                                        rows={8}
-                                        className="w-full px-4 py-2.5 bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 font-mono text-sm"
-                                        placeholder="შეიყვანე შენი AI პრომპტი აქ..."
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-foreground mb-3">პრომპტის გამოყენება:</label>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <label className="flex items-center gap-2 p-3 bg-secondary rounded-lg cursor-pointer hover:bg-secondary/80 transition-colors">
-                                            <Checkbox
-                                                checked={promptSubmission.isForTrading}
-                                                onCheckedChange={(checked) => setPromptSubmission({ ...promptSubmission, isForTrading: checked as boolean })}
-                                            />
-                                            <span className="text-sm text-foreground">ტრეიდინგი</span>
-                                        </label>
-                                        <label className="flex items-center gap-2 p-3 bg-secondary rounded-lg cursor-pointer hover:bg-secondary/80 transition-colors">
-                                            <Checkbox
-                                                checked={promptSubmission.isForBusiness}
-                                                onCheckedChange={(checked) => setPromptSubmission({ ...promptSubmission, isForBusiness: checked as boolean })}
-                                            />
-                                            <span className="text-sm text-foreground">ბიზნესი</span>
-                                        </label>
-                                        <label className="flex items-center gap-2 p-3 bg-secondary rounded-lg cursor-pointer hover:bg-secondary/80 transition-colors">
-                                            <Checkbox
-                                                checked={promptSubmission.isForMarketing}
-                                                onCheckedChange={(checked) => setPromptSubmission({ ...promptSubmission, isForMarketing: checked as boolean })}
-                                            />
-                                            <span className="text-sm text-foreground">მარკეტინგი</span>
-                                        </label>
-                                        <label className="flex items-center gap-2 p-3 bg-secondary rounded-lg cursor-pointer hover:bg-secondary/80 transition-colors">
-                                            <Checkbox
-                                                checked={promptSubmission.isForCoding}
-                                                onCheckedChange={(checked) => setPromptSubmission({ ...promptSubmission, isForCoding: checked as boolean })}
-                                            />
-                                            <span className="text-sm text-foreground">კოდირება</span>
-                                        </label>
-                                        <label className="flex items-center gap-2 p-3 bg-secondary rounded-lg cursor-pointer hover:bg-secondary/80 transition-colors">
-                                            <Checkbox
-                                                checked={promptSubmission.isForWriting}
-                                                onCheckedChange={(checked) => setPromptSubmission({ ...promptSubmission, isForWriting: checked as boolean })}
-                                            />
-                                            <span className="text-sm text-foreground">წერა</span>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                    <div className="flex gap-3">
-                                        <TbInfoCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                                        <div className="text-sm text-blue-900">
-                                            <p className="font-medium mb-1">შენახვის წესები:</p>
-                                            <ul className="space-y-1 text-blue-800">
-                                                <li>• პრომპტი უნდა იყოს ორიგინალური და გამოსადეგი</li>
-                                                <li>• ადმინისტრაცია გადაამოწმებს და დაამატებს პლატფორმაზე</li>
-                                                <li>• შენ მიიღებ შეტყობინებას დამტკიცების შემთხვევაში</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="p-6 bg-secondary/30 border-t border-border flex gap-3">
-                                <motion.button
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={async () => {
-                                        if (!promptSubmission.promptName || !promptSubmission.description || !promptSubmission.masterPrompt || promptSubmission.price <= 0) {
-                                            toast.error('შეცდომა', 'გთხოვთ შეავსოთ ყველა სავალდებულო ველი და მიუთითოთ ფასი');
-                                            return;
-                                        }
-
-                                        try {
-                                            const response = await fetch('/api/bots/submit', {
-                                                method: 'POST',
-                                                headers: { 'Content-Type': 'application/json' },
-                                                body: JSON.stringify(promptSubmission)
-                                            });
-
-                                            if (response.ok) {
-                                                toast.success('წარმატებით გაიგზავნა!', 'შენი პრომპტი გადამოწმების რეჟიმშია');
-                                                setShowSubmitPrompt(false);
-                                                setPromptSubmission({
-                                                    promptName: '',
-                                                    category: 'all',
-                                                    description: '',
-                                                    masterPrompt: '',
-                                                    price: 0,
-                                                    isForTrading: false,
-                                                    isForBusiness: false,
-                                                    isForMarketing: false,
-                                                    isForCoding: false,
-                                                    isForWriting: false
-                                                });
-                                            } else {
-                                                toast.error('შეცდომა', 'დაფიქსირდა შეცდომა, სცადეთ თავიდან');
-                                            }
-                                        } catch (error) {
-                                            toast.error('შეცდომა', 'დაფიქსირდა შეცდომა, სცადეთ თავიდან');
-                                        }
-                                    }}
-                                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-semibold transition-colors"
-                                >
-                                    <TbSend className="w-5 h-5" />
-                                    გაგზავნა
-                                </motion.button>
-                                <motion.button
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={() => setShowSubmitPrompt(false)}
-                                    className="px-6 py-3 bg-secondary hover:bg-secondary/80 text-foreground rounded-xl font-medium transition-colors"
-                                >
-                                    გაუქმება
-                                </motion.button>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* SUBMIT PROMPT BUTTON */}
-            <motion.button
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 1.2 }}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setShowSubmitPrompt(true)}
-                className="fixed bottom-24 right-6 z-40 w-14 h-14 bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-full shadow-2xl shadow-violet-500/30 flex items-center justify-center hover:shadow-violet-500/50 transition-all"
-                aria-label="Submit Prompt"
-            >
-                <TbPlus className="w-6 h-6" />
-            </motion.button>
 
             {/* LIVE CHAT WIDGET */}
             <motion.button initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1 }} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => toast.info('Live Chat მალე დაემატება!', 'დაგვიკავშირდით: support@andrewaltair.ge')} className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-gradient-to-br from-emerald-500 to-green-600 text-white rounded-full shadow-2xl shadow-emerald-500/30 flex items-center justify-center hover:shadow-emerald-500/50 transition-all" aria-label="Live Chat">
