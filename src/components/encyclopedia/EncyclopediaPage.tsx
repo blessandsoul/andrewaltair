@@ -87,6 +87,33 @@ export default function EncyclopediaPage() {
 
                 {/* Sections Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-16">
+
+                    {/* Section 0: AI Basics */}
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="group">
+                        <Link href="/encyclopedia/ai-basics">
+                            <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100 hover:shadow-2xl transition-all hover:scale-[1.02] cursor-pointer h-full">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                                        <TbBulb size={28} className="text-white" />
+                                    </div>
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 border border-green-200">
+                                        <TbCircleCheck size={14} className="text-green-600" />
+                                        <span className="text-xs font-semibold text-green-700">ხელმისაწვდომი</span>
+                                    </div>
+                                </div>
+                                <h2 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">AI საფუძვლები</h2>
+                                <p className="text-gray-600 text-sm mb-4">რა არის AI? ისტორია, მოდელები და გამოყენება.</p>
+                                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                                    <div className="flex items-center gap-1.5">
+                                        <TbBook size={16} className="text-blue-500" />
+                                        <span className="text-sm font-semibold text-gray-700">1 სტატია</span>
+                                    </div>
+                                    <TbArrowRight size={20} className="text-blue-600 group-hover:translate-x-1 transition-transform" />
+                                </div>
+                            </div>
+                        </Link>
+                    </motion.div>
+
                     {/* Section 1: Vibe Coding */}
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="group">
                         <Link href="/encyclopedia/vibe-coding">

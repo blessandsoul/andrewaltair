@@ -79,7 +79,7 @@ export const metadata: Metadata = {
     url: "https://andrewaltair.ge",
     images: [
       {
-        url: "https://andrewaltair.ge/og-image.png",
+        url: "https://andrewaltair.ge/og.png",
         width: 1200,
         height: 630,
         alt: "Andrew Altair - AI ინოვატორი და კონტენტ კრეატორი",
@@ -92,7 +92,7 @@ export const metadata: Metadata = {
     site: "@andr3waltair",
     title: "Andrew Altair | AI ინოვატორი და კონტენტ კრეატორი",
     description: "ხელოვნური ინტელექტის ექსპერტი. AI-ს შესახებ სტატიები, ტუტორიალები და რჩევები.",
-    images: ["https://andrewaltair.ge/og-image.png"],
+    images: ["https://andrewaltair.ge/og.png"],
   },
   robots: {
     index: true,
