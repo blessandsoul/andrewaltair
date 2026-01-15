@@ -87,6 +87,38 @@ interface AIBot {
 // NEURO-DESIGN — Icon Mapping
 // ═══════════════════════════════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════════════════════════════
+// UI COMPONENTS
+// ═══════════════════════════════════════════════════════════════════════════
+
+function ActionTooltip({ children, content }: { children: React.ReactNode; content: string }) {
+    const [isVisible, setIsVisible] = useState(false);
+
+    return (
+        <div
+            className="relative flex items-center justify-center w-full h-full"
+            onMouseEnter={() => setIsVisible(true)}
+            onMouseLeave={() => setIsVisible(false)}
+        >
+            <AnimatePresence>
+                {isVisible && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 5, scale: 0.95 }}
+                        animate={{ opacity: 1, y: -5, scale: 1 }}
+                        exit={{ opacity: 0, y: 5, scale: 0.95 }}
+                        transition={{ duration: 0.15, ease: "easeOut" }}
+                        className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-3 py-1.5 bg-slate-800 text-white text-[10px] font-semibold rounded-lg whitespace-nowrap z-50 shadow-xl shadow-slate-900/10 pointer-events-none border border-white/10"
+                    >
+                        {content}
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-[1px] border-4 border-transparent border-t-slate-800" />
+                    </motion.div>
+                )}
+            </AnimatePresence>
+            {children}
+        </div>
+    );
+}
+
 const iconMap: Record<string, React.ReactNode> = {
     Bot: <TbRobot className="w-6 h-6" />,
     MessageCircle: <TbMessage className="w-6 h-6" />,
@@ -584,118 +616,134 @@ function BotCard({ bot, onView, onLike, onCopy, onDemo, copiedId, likedIds, onCo
                                 პირადი
                             </button>
                         ) : bot.tier === 'premium' ? (
-                            <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium text-xs shadow-lg shadow-amber-500/20"
-                            >
-                                <TbShoppingCart className="w-3.5 h-3.5" />
-                                ყიდვა ₾{bot.price}
-                            </motion.button>
+                            <ActionTooltip content="შეიძინე სრული წვდომა და გარანტიები">
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium text-xs shadow-lg shadow-amber-500/20"
+                                >
+                                    <TbShoppingCart className="w-3.5 h-3.5" />
+                                    ყიდვა ₾{bot.price}
+                                </motion.button>
+                            </ActionTooltip>
                         ) : (
-                            <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => onCopy(bot.id)}
-                                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-medium text-xs transition-colors shadow-lg shadow-violet-500/20"
-                            >
-                                {copiedId === bot.id ? (
-                                    <>
-                                        <TbCheck className="w-3.5 h-3.5" />
-                                        <span>დაკოპირდა!</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <TbCopy className="w-3.5 h-3.5" />
-                                        კოპირება
-                                    </>
-                                )}
-                            </motion.button>
+                            <ActionTooltip content={copiedId === bot.id ? "წარმატებით დაკოპირდა" : "დააკოპირე ბოტის ID"}>
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => onCopy(bot.id)}
+                                    className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-medium text-xs transition-colors shadow-lg shadow-violet-500/20"
+                                >
+                                    {copiedId === bot.id ? (
+                                        <>
+                                            <TbCheck className="w-3.5 h-3.5" />
+                                            <span>დაკოპირდა!</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <TbCopy className="w-3.5 h-3.5" />
+                                            კოპირება
+                                        </>
+                                    )}
+                                </motion.button>
+                            </ActionTooltip>
                         )}
 
                         {/* Secondary Actions - 2 rows of 3 buttons */}
                         <div className="grid grid-cols-3 gap-1.5">
                             {/* Row 1 */}
-                            <Link href={`/bots/${bot.id}`} className="block">
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="w-full p-2 rounded-lg bg-secondary hover:bg-secondary/80 text-foreground/60 hover:text-foreground transition-colors border border-border flex items-center justify-center"
-                                    title="დეტალები"
-                                >
-                                    <TbEye className="w-3.5 h-3.5" />
-                                </motion.button>
+                            <Link href={`/bots/${bot.id}`} className="block w-full">
+                                <ActionTooltip content="ნახე დეტალური ინფორმაცია">
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        className="w-full p-2 rounded-lg bg-secondary hover:bg-secondary/80 text-foreground/60 hover:text-foreground transition-colors border border-border flex items-center justify-center"
+                                        aria-label="დეტალები"
+                                    >
+                                        <TbEye className="w-3.5 h-3.5" />
+                                    </motion.button>
+                                </ActionTooltip>
                             </Link>
 
                             {bot.tier !== 'private' && (
+                                <ActionTooltip content="სცადე ბოტი უფასოდ">
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => onDemo(bot)}
+                                        className="w-full p-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 transition-colors border border-emerald-500/30 flex items-center justify-center"
+                                        aria-label="დემო"
+                                    >
+                                        <TbPlayerPlay className="w-3.5 h-3.5" />
+                                    </motion.button>
+                                </ActionTooltip>
+                            )}
+
+                            <ActionTooltip content={isLiked ? "ამოშლა რჩეულებიდან" : "დაამატე რჩეულებში"}>
                                 <motion.button
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
-                                    onClick={() => onDemo(bot)}
-                                    className="p-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-600 transition-colors border border-emerald-200 flex items-center justify-center"
-                                    title="დემო"
+                                    onClick={() => onLike(bot.id)}
+                                    className={`w-full p-2 rounded-lg transition-colors flex items-center justify-center ${isLiked
+                                        ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30'
+                                        : 'bg-white/5 hover:bg-white/10 text-white/60 hover:text-pink-400 border border-white/10'
+                                        }`}
+                                    aria-label="მოწონება"
                                 >
-                                    <TbPlayerPlay className="w-3.5 h-3.5" />
+                                    <TbHeart className={`w-3.5 h-3.5 ${isLiked ? 'fill-current' : ''}`} />
                                 </motion.button>
-                            )}
-
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => onLike(bot.id)}
-                                className={`p-2 rounded-lg transition-colors flex items-center justify-center ${isLiked
-                                    ? 'bg-pink-50 text-pink-500 border border-pink-100'
-                                    : 'bg-secondary hover:bg-secondary/80 text-foreground/60 hover:text-pink-400 border border-border'
-                                    }`}
-                                title="მოწონება"
-                            >
-                                <TbHeart className={`w-3.5 h-3.5 ${isLiked ? 'fill-current' : ''}`} />
-                            </motion.button>
+                            </ActionTooltip>
 
                             {/* Row 2 */}
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => {
-                                    window.open(`https://t.me/andr3waltairchannel`, '_blank');
-                                }}
-                                className="p-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors border border-blue-200 flex items-center justify-center"
-                                title="შესთავაზე რედაქტირება"
-                            >
-                                <TbMessage className="w-3.5 h-3.5" />
-                            </motion.button>
-
-                            {onCompare && (
+                            <ActionTooltip content="შესთავაზე ცვლილება">
                                 <motion.button
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onCompare(bot.id);
+                                    onClick={() => {
+                                        window.open(`https://t.me/andr3waltairchannel`, '_blank');
                                     }}
-                                    className={`p-2 rounded-lg transition-colors flex items-center justify-center ${isComparing
-                                        ? 'bg-violet-600 text-white border border-violet-400 shadow-lg shadow-violet-500/50'
-                                        : 'bg-secondary hover:bg-secondary/80 text-foreground/60 hover:text-violet-400 border border-border'
-                                        }`}
-                                    title="შედარება"
+                                    className="w-full p-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 transition-colors border border-blue-500/30 flex items-center justify-center"
+                                    aria-label="შესთავაზე რედაქტირება"
                                 >
-                                    {isComparing ? (
-                                        <TbCircleCheck className="w-3.5 h-3.5" />
-                                    ) : (
-                                        <TbStack2 className="w-3.5 h-3.5" />
-                                    )}
+                                    <TbMessage className="w-3.5 h-3.5" />
                                 </motion.button>
+                            </ActionTooltip>
+
+                            {onCompare && (
+                                <ActionTooltip content={isComparing ? "ამოშლა შედარებიდან" : "შეადარე სხვა ბოტს"}>
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onCompare(bot.id);
+                                        }}
+                                        className={`w-full p-2 rounded-lg transition-colors flex items-center justify-center ${isComparing
+                                            ? 'bg-violet-600 text-white border border-violet-400 shadow-lg shadow-violet-500/50'
+                                            : 'bg-secondary hover:bg-secondary/80 text-foreground/60 hover:text-violet-400 border border-border'
+                                            }`}
+                                        aria-label="შედარება"
+                                    >
+                                        {isComparing ? (
+                                            <TbCircleCheck className="w-3.5 h-3.5" />
+                                        ) : (
+                                            <TbStack2 className="w-3.5 h-3.5" />
+                                        )}
+                                    </motion.button>
+                                </ActionTooltip>
                             )}
 
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => onShare && onShare(bot)}
-                                className="p-2 rounded-lg bg-cyan-50 hover:bg-cyan-100 text-cyan-600 transition-colors border border-cyan-200 flex items-center justify-center"
-                                title="გაზიარება"
-                            >
-                                <TbShare className="w-3.5 h-3.5" />
-                            </motion.button>
+                            <ActionTooltip content="გაუზიარე მეგობრებს">
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => onShare && onShare(bot)}
+                                    className="w-full p-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 transition-colors border border-cyan-500/30 flex items-center justify-center"
+                                    aria-label="გაზიარება"
+                                >
+                                    <TbShare className="w-3.5 h-3.5" />
+                                </motion.button>
+                            </ActionTooltip>
                         </div>
                     </div>
                 </div>
