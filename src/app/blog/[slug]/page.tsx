@@ -101,7 +101,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (imageUrl && !imageUrl.startsWith('http')) {
     imageUrl = `${siteUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`
   } else if (!imageUrl) {
-    imageUrl = `${siteUrl}/default-og.jpg`
+    imageUrl = `${siteUrl}/og.png`
   }
 
   // Use telegramContent as SEO description fallback (shorter, optimized for social)
@@ -140,7 +140,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   const relatedPosts = await getRelatedPosts(slug)
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
-  const imageUrl = post.coverImages?.horizontal || post.coverImage || `${siteUrl}/default-og.jpg`
+  const imageUrl = post.coverImages?.horizontal || post.coverImage || `${siteUrl}/og.png`
 
   const jsonLd = {
     '@context': 'https://schema.org',

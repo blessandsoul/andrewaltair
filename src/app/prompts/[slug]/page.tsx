@@ -91,7 +91,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (coverImage && !coverImage.startsWith('http')) {
         coverImage = `${siteUrl}${coverImage.startsWith('/') ? '' : '/'}${coverImage}`
     } else if (!coverImage) {
-        coverImage = `${siteUrl}/default-og.jpg`
+        coverImage = `${siteUrl}/og.png`
     }
 
     return {
@@ -133,7 +133,7 @@ export default async function PromptDetailPage({ params }: Props) {
     const relatedPrompts = await getRelatedPrompts(primaryCategory, prompt.slug)
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
-    const imageUrl = prompt.coverImage || `${siteUrl}/default-og.jpg`
+    const imageUrl = prompt.coverImage || `${siteUrl}/og.png`
 
     const productJsonLd = {
         '@context': 'https://schema.org',

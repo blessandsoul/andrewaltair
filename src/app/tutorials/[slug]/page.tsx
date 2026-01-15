@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     if (coverImage && !coverImage.startsWith('http')) {
         coverImage = `${siteUrl}${coverImage.startsWith('/') ? '' : '/'}${coverImage}`
     } else if (!coverImage) {
-        coverImage = `${siteUrl}/default-og.jpg`
+        coverImage = `${siteUrl}/og.png`
     }
 
     return {
@@ -59,7 +59,7 @@ export default async function TutorialDetailPage({ params }: { params: { slug: s
         '@type': 'HowTo',
         name: tutorial.title,
         description: tutorial.intro,
-        image: tutorial.coverImage || `${siteUrl}/og-image.jpg`,
+        image: tutorial.coverImage || `${siteUrl}/og.png`,
         tool: tutorial.tools ? [{ '@type': 'HowToTool', name: tutorial.tools }] : undefined,
         step: tutorial.modules?.map((module: any, i: number) => ({
             '@type': 'HowToStep',

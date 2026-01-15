@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     if (imageUrl && !imageUrl.startsWith('http')) {
         imageUrl = `${siteUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`
     } else if (!imageUrl) {
-        imageUrl = `${siteUrl}/default-og.jpg`
+        imageUrl = `${siteUrl}/og.png`
     }
 
     const seoDescription = post.seo?.metaDescription || post.excerpt
