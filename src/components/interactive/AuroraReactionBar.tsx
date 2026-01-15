@@ -2,111 +2,102 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { brand } from "@/lib/brand"
 import { useVisitorTracking } from "@/hooks/useVisitorTracking"
+import {
+    TbFlame,
+    TbHeart,
+    TbMoodCrazyHappy,
+    TbHandStop,
+    TbBulb,
+    TbRocket,
+    TbThumbUp,
+    TbStar,
+    TbMoodSmile,
+    TbCrown
+} from "react-icons/tb"
+
+// Extended reactions with icons
+const REACTIONS = [
+    { key: "fire", label: "ცეცხლი", icon: TbFlame, color: "from-orange-500 to-red-500", glow: "rgba(251,146,60,0.6)" },
+    { key: "love", label: "სიყვარული", icon: TbHeart, color: "from-rose-500 to-pink-500", glow: "rgba(244,63,94,0.6)" },
+    { key: "mindblown", label: "გასაოცარი", icon: TbMoodCrazyHappy, color: "from-purple-500 to-violet-500", glow: "rgba(168,85,247,0.6)" },
+    { key: "applause", label: "ტაში", icon: TbHandStop, color: "from-cyan-500 to-blue-500", glow: "rgba(34,211,238,0.6)" },
+    { key: "insightful", label: "საინტერესო", icon: TbBulb, color: "from-yellow-500 to-amber-500", glow: "rgba(250,204,21,0.6)" },
+    { key: "rocket", label: "რაკეტა", icon: TbRocket, color: "from-indigo-500 to-blue-600", glow: "rgba(99,102,241,0.6)" },
+    { key: "like", label: "მომწონს", icon: TbThumbUp, color: "from-emerald-500 to-green-500", glow: "rgba(16,185,129,0.6)" },
+    { key: "star", label: "ვარსკვლავი", icon: TbStar, color: "from-amber-400 to-orange-400", glow: "rgba(251,191,36,0.6)" },
+    { key: "smile", label: "ღიმილი", icon: TbMoodSmile, color: "from-teal-500 to-cyan-500", glow: "rgba(20,184,166,0.6)" },
+    { key: "crown", label: "გვირგვინი", icon: TbCrown, color: "from-yellow-400 to-amber-500", glow: "rgba(250,204,21,0.6)" },
+]
 
 interface AuroraReactionBarProps {
-    reactions: {
-        fire: number
-        love: number
-        mindblown: number
-        applause: number
-        insightful: number
-    }
+    reactions: Record<string, number>
     postId?: string
     postTitle?: string
     onReact?: (key: string) => void
     className?: string
 }
 
-// Particle component for confetti effect
-function Particle({ emoji, onComplete }: { emoji: string; onComplete: () => void }) {
+// Floating particle for confetti effect
+function FloatingParticle({ Icon, color, onComplete }: { Icon: React.ElementType; color: string; onComplete: () => void }) {
     React.useEffect(() => {
-        const timer = setTimeout(onComplete, 1000)
+        const timer = setTimeout(onComplete, 800)
         return () => clearTimeout(timer)
     }, [onComplete])
 
-    const randomX = Math.random() * 60 - 30
-    const randomRotate = Math.random() * 360
+    const randomX = Math.random() * 80 - 40
+    const randomScale = 0.6 + Math.random() * 0.8
 
     return (
         <span
-            className="absolute pointer-events-none text-2xl animate-particle z-50"
+            className={cn("absolute pointer-events-none z-50", `text-${color.split(' ')[0].replace('from-', '')}`)}
             style={{
+                animation: 'floatUp 0.8s ease-out forwards',
                 '--tx': `${randomX}px`,
-                '--rotate': `${randomRotate}deg`,
+                '--scale': randomScale,
             } as React.CSSProperties}
         >
-            {emoji}
+            <Icon className="w-5 h-5" />
         </span>
     )
 }
 
-// Reaction colors for glow effects
-const reactionColors: Record<string, { glow: string; bg: string; border: string }> = {
-    fire: {
-        glow: "shadow-[0_0_20px_rgba(251,146,60,0.5)]",
-        bg: "bg-gradient-to-br from-orange-500/20 to-red-500/10",
-        border: "border-orange-500/30"
-    },
-    love: {
-        glow: "shadow-[0_0_20px_rgba(244,63,94,0.5)]",
-        bg: "bg-gradient-to-br from-rose-500/20 to-pink-500/10",
-        border: "border-rose-500/30"
-    },
-    mindblown: {
-        glow: "shadow-[0_0_20px_rgba(168,85,247,0.5)]",
-        bg: "bg-gradient-to-br from-purple-500/20 to-violet-500/10",
-        border: "border-purple-500/30"
-    },
-    applause: {
-        glow: "shadow-[0_0_20px_rgba(34,211,238,0.5)]",
-        bg: "bg-gradient-to-br from-cyan-500/20 to-blue-500/10",
-        border: "border-cyan-500/30"
-    },
-    insightful: {
-        glow: "shadow-[0_0_20px_rgba(250,204,21,0.5)]",
-        bg: "bg-gradient-to-br from-yellow-500/20 to-amber-500/10",
-        border: "border-yellow-500/30"
-    },
-}
-
 export function AuroraReactionBar({ reactions, postId, postTitle, onReact, className }: AuroraReactionBarProps) {
     const [userReactions, setUserReactions] = React.useState<Set<string>>(new Set())
-    const [localReactions, setLocalReactions] = React.useState(reactions)
-    const [particles, setParticles] = React.useState<{ id: number; emoji: string; key: string }[]>([])
-    const [animatingKeys, setAnimatingKeys] = React.useState<Set<string>>(new Set())
+    const [localReactions, setLocalReactions] = React.useState<Record<string, number>>(() => {
+        // Initialize with all reaction keys
+        const initial: Record<string, number> = {}
+        REACTIONS.forEach(r => {
+            initial[r.key] = reactions[r.key] || 0
+        })
+        return initial
+    })
+    const [particles, setParticles] = React.useState<{ id: number; key: string }[]>([])
+    const [pulsingKey, setPulsingKey] = React.useState<string | null>(null)
     const { recordActivity } = useVisitorTracking()
     const particleId = React.useRef(0)
 
-    const handleReact = (key: string, emoji: string) => {
+    const handleReact = (key: string) => {
         const newUserReactions = new Set(userReactions)
         const newLocalReactions = { ...localReactions }
 
         if (userReactions.has(key)) {
             newUserReactions.delete(key)
-            newLocalReactions[key as keyof typeof reactions] -= 1
+            newLocalReactions[key] = Math.max(0, (newLocalReactions[key] || 0) - 1)
         } else {
             newUserReactions.add(key)
-            newLocalReactions[key as keyof typeof reactions] += 1
+            newLocalReactions[key] = (newLocalReactions[key] || 0) + 1
 
             // Spawn particles
-            const newParticles = Array.from({ length: 6 }, () => ({
+            const newParticles = Array.from({ length: 5 }, () => ({
                 id: particleId.current++,
-                emoji,
                 key
             }))
             setParticles(prev => [...prev, ...newParticles])
 
-            // Trigger pulse animation
-            setAnimatingKeys(prev => new Set(prev).add(key))
-            setTimeout(() => {
-                setAnimatingKeys(prev => {
-                    const next = new Set(prev)
-                    next.delete(key)
-                    return next
-                })
-            }, 500)
+            // Pulse animation
+            setPulsingKey(key)
+            setTimeout(() => setPulsingKey(null), 400)
 
             // Track activity
             if (postId) {
@@ -114,7 +105,7 @@ export function AuroraReactionBar({ reactions, postId, postTitle, onReact, class
                     targetType: 'post',
                     targetId: postId,
                     targetTitle: postTitle,
-                    metadata: { reactionType: key, emoji },
+                    metadata: { reactionType: key },
                     isPublic: true
                 })
             }
@@ -129,112 +120,120 @@ export function AuroraReactionBar({ reactions, postId, postTitle, onReact, class
         setParticles(prev => prev.filter(p => p.id !== id))
     }, [])
 
+    const totalReactions = Object.values(localReactions).reduce((a, b) => a + b, 0)
+
     return (
         <div className={cn("relative", className)}>
-            {/* Floating label that appears on hover */}
-            <div className="flex items-center gap-3 p-2 rounded-2xl bg-card/50 backdrop-blur-xl border border-border/50 shadow-xl">
-                {brand.reactions.map((reaction) => {
-                    const count = localReactions[reaction.key as keyof typeof reactions]
+            {/* Main reaction grid */}
+            <div className="flex flex-wrap gap-2 p-3 rounded-2xl bg-gradient-to-br from-background/80 to-secondary/30 backdrop-blur-xl border border-border/50 shadow-2xl">
+                {REACTIONS.map((reaction) => {
+                    const count = localReactions[reaction.key] || 0
                     const isActive = userReactions.has(reaction.key)
-                    const isAnimating = animatingKeys.has(reaction.key)
-                    const colors = reactionColors[reaction.key]
+                    const isPulsing = pulsingKey === reaction.key
+                    const Icon = reaction.icon
 
                     return (
                         <div key={reaction.key} className="relative group">
                             {/* Tooltip */}
-                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-foreground text-background text-xs font-medium rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                            <div className="absolute -top-9 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-foreground text-background text-xs font-medium rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none whitespace-nowrap z-50 scale-90 group-hover:scale-100">
                                 {reaction.label}
                                 <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-foreground" />
                             </div>
 
-                            {/* Particles container */}
+                            {/* Particles */}
                             <div className="absolute inset-0 flex items-center justify-center overflow-visible">
                                 {particles.filter(p => p.key === reaction.key).map(p => (
-                                    <Particle key={p.id} emoji={p.emoji} onComplete={() => removeParticle(p.id)} />
+                                    <FloatingParticle
+                                        key={p.id}
+                                        Icon={Icon}
+                                        color={reaction.color}
+                                        onComplete={() => removeParticle(p.id)}
+                                    />
                                 ))}
                             </div>
 
                             <button
-                                onClick={() => handleReact(reaction.key, reaction.emoji)}
+                                onClick={() => handleReact(reaction.key)}
                                 className={cn(
-                                    "relative flex flex-col items-center justify-center gap-0.5 px-4 py-2.5 rounded-xl border-2 transition-all duration-300 overflow-hidden group/btn",
-                                    "hover:scale-110 active:scale-95",
+                                    "relative flex items-center gap-1.5 px-3 py-2 rounded-xl border-2 transition-all duration-300",
+                                    "hover:scale-110 hover:-translate-y-0.5 active:scale-95",
                                     isActive
-                                        ? cn(colors.bg, colors.border, colors.glow)
-                                        : "bg-secondary/30 border-transparent hover:bg-secondary/50",
-                                    isAnimating && "animate-pulse scale-110"
+                                        ? cn(
+                                            `bg-gradient-to-br ${reaction.color}`,
+                                            "border-white/20 text-white",
+                                            "shadow-lg"
+                                        )
+                                        : "bg-secondary/40 border-transparent text-muted-foreground hover:text-foreground hover:bg-secondary/60",
+                                    isPulsing && "animate-pulse scale-110"
                                 )}
+                                style={isActive ? {
+                                    boxShadow: `0 4px 20px ${reaction.glow}, 0 0 40px ${reaction.glow}`
+                                } : undefined}
                             >
-                                {/* Glow ring effect */}
-                                {isActive && (
-                                    <div className={cn(
-                                        "absolute inset-0 rounded-xl opacity-50 animate-ping",
-                                        colors.bg
-                                    )} />
+                                {/* Icon */}
+                                <Icon className={cn(
+                                    "w-5 h-5 transition-transform duration-200",
+                                    isActive && "drop-shadow-lg",
+                                    "group-hover:scale-110"
+                                )} />
+
+                                {/* Count */}
+                                {count > 0 && (
+                                    <span className={cn(
+                                        "text-sm font-bold tabular-nums min-w-[1rem] text-center",
+                                        isActive ? "text-white" : "text-muted-foreground"
+                                    )}>
+                                        {count > 999 ? `${(count / 1000).toFixed(1)}k` : count}
+                                    </span>
                                 )}
-
-                                {/* Emoji with bounce */}
-                                <span className={cn(
-                                    "text-3xl transition-transform duration-300 relative z-10",
-                                    "group-hover/btn:scale-110 group-hover/btn:-translate-y-0.5",
-                                    isActive && "drop-shadow-lg"
-                                )}>
-                                    {reaction.emoji}
-                                </span>
-
-                                {/* Count with slide-up animation */}
-                                <span className={cn(
-                                    "text-xs font-bold tabular-nums transition-all duration-300 relative z-10 min-w-[1.5rem]",
-                                    isActive
-                                        ? "text-foreground"
-                                        : "text-muted-foreground group-hover/btn:text-foreground"
-                                )}>
-                                    {count > 0 ? count.toLocaleString() : ""}
-                                </span>
                             </button>
                         </div>
                     )
                 })}
             </div>
 
-            {/* Total reactions count - LinkedIn style stacked */}
-            <div className="mt-4 flex items-center gap-2">
-                <div className="flex -space-x-1">
+            {/* Total summary - stacked icons */}
+            <div className="mt-4 flex items-center gap-3">
+                <div className="flex -space-x-2">
                     {Object.entries(localReactions)
                         .filter(([, count]) => count > 0)
                         .sort(([, a], [, b]) => b - a)
-                        .slice(0, 3)
+                        .slice(0, 4)
                         .map(([key]) => {
-                            const emoji = brand.reactions.find(r => r.key === key)?.emoji
+                            const reaction = REACTIONS.find(r => r.key === key)
+                            if (!reaction) return null
+                            const Icon = reaction.icon
                             return (
                                 <span
                                     key={key}
-                                    className="text-lg p-1 bg-card rounded-full border-2 border-background shadow-sm"
+                                    className={cn(
+                                        "flex items-center justify-center w-7 h-7 rounded-full border-2 border-background shadow-md",
+                                        `bg-gradient-to-br ${reaction.color} text-white`
+                                    )}
                                 >
-                                    {emoji}
+                                    <Icon className="w-3.5 h-3.5" />
                                 </span>
                             )
                         })}
                 </div>
-                <span className="text-sm text-muted-foreground font-medium">
-                    {Object.values(localReactions).reduce((a, b) => a + b, 0).toLocaleString()} რეაქცია
-                </span>
+                {totalReactions > 0 && (
+                    <span className="text-sm text-muted-foreground font-medium">
+                        {totalReactions.toLocaleString()} რეაქცია
+                    </span>
+                )}
             </div>
 
-            {/* CSS for particle animation */}
+            {/* Animation styles */}
             <style jsx>{`
-                @keyframes particle {
+                @keyframes floatUp {
                     0% {
                         opacity: 1;
-                        transform: translateY(0) translateX(0) rotate(0deg) scale(1);
+                        transform: translateY(0) translateX(0) scale(1);
                     }
                     100% {
                         opacity: 0;
-                        transform: translateY(-60px) translateX(var(--tx)) rotate(var(--rotate)) scale(0.5);
+                        transform: translateY(-50px) translateX(var(--tx)) scale(var(--scale));
                     }
-                }
-                .animate-particle {
-                    animation: particle 1s ease-out forwards;
                 }
             `}</style>
         </div>
