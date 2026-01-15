@@ -276,9 +276,9 @@ console.log(data.result);
                                     {post.title}
                                 </h1>
 
-                                {/* Featured Photo - Responsive Cover (smaller) */}
+                                {/* Featured Photo - Responsive Cover (Full Width) */}
                                 {(post.coverImages?.horizontal || post.coverImages?.vertical || post.coverImage) && (
-                                    <div className="relative mt-4 -mx-4 sm:-mx-6 lg:-mx-0 max-h-[400px] overflow-hidden rounded-xl">
+                                    <div className="relative mt-6 -mx-4 sm:-mx-6 lg:-mx-0 overflow-hidden rounded-2xl shadow-2xl">
                                         <ResponsiveCover
                                             coverImages={post.coverImages}
                                             coverImage={post.coverImage}
@@ -291,10 +291,13 @@ console.log(data.result);
                                     </div>
                                 )}
 
-                                {/* Excerpt - below photo */}
-                                <p className="text-lg text-muted-foreground mt-4">
-                                    {post.excerpt}
-                                </p>
+                                {/* Excerpt - Styled Block */}
+                                <div className="mt-8 p-6 lg:p-8 bg-gradient-to-br from-secondary/40 to-secondary/20 backdrop-blur-sm rounded-2xl border border-secondary/50 relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-primary via-accent to-primary/50" />
+                                    <p className="text-lg md:text-xl text-foreground/80 leading-relaxed pl-4">
+                                        {post.excerpt}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </section>
