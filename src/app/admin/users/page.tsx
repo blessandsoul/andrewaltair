@@ -24,7 +24,6 @@ interface UserType {
     role: "admin" | "editor" | "viewer"
     lastLogin: string
     status: "active" | "inactive" | "blocked"
-    twoFA: boolean
     registeredAt: string
     sessions: number
 }
@@ -49,11 +48,11 @@ interface LoginHistory {
 }
 
 const sampleUsers: UserType[] = [
-    { id: "1", name: "Andrew Altair", email: "andrew@altair.ge", role: "admin", lastLogin: "2024-12-25 14:30", status: "active", twoFA: true, registeredAt: "2024-01-15", sessions: 3 },
-    { id: "2", name: "Editor User", email: "editor@example.com", role: "editor", lastLogin: "2024-12-24 10:15", status: "active", twoFA: false, registeredAt: "2024-03-20", sessions: 1 },
-    { id: "3", name: "Viewer User", email: "viewer@example.com", role: "viewer", lastLogin: "2024-12-20 08:00", status: "inactive", twoFA: false, registeredAt: "2024-06-10", sessions: 0 },
-    { id: "4", name: "Test Admin", email: "test@admin.com", role: "admin", lastLogin: "2024-12-23 12:00", status: "active", twoFA: true, registeredAt: "2024-02-01", sessions: 2 },
-    { id: "5", name: "Blocked User", email: "blocked@example.com", role: "viewer", lastLogin: "2024-12-15 09:00", status: "blocked", twoFA: false, registeredAt: "2024-04-05", sessions: 0 },
+    { id: "1", name: "Andrew Altair", email: "andrew@altair.ge", role: "admin", lastLogin: "2024-12-25 14:30", status: "active", registeredAt: "2024-01-15", sessions: 3 },
+    { id: "2", name: "Editor User", email: "editor@example.com", role: "editor", lastLogin: "2024-12-24 10:15", status: "active", registeredAt: "2024-03-20", sessions: 1 },
+    { id: "3", name: "Viewer User", email: "viewer@example.com", role: "viewer", lastLogin: "2024-12-20 08:00", status: "inactive", registeredAt: "2024-06-10", sessions: 0 },
+    { id: "4", name: "Test Admin", email: "test@admin.com", role: "admin", lastLogin: "2024-12-23 12:00", status: "active", registeredAt: "2024-02-01", sessions: 2 },
+    { id: "5", name: "Blocked User", email: "blocked@example.com", role: "viewer", lastLogin: "2024-12-15 09:00", status: "blocked", registeredAt: "2024-04-05", sessions: 0 },
 ]
 
 const sampleActivity: ActivityLog[] = [
@@ -123,9 +122,8 @@ export default function UsersPage() {
                         email: u.email || '',
                         avatar: u.avatar,
                         role: u.role || 'viewer',
-                        lastLogin: u.lastLogin || 'არასდროს',
+                        lastLogin: u.lastLogin ? new Date(u.lastLogin).toLocaleString('ka-GE') : 'არასდროს',
                         status: u.status || 'active',
-                        twoFA: u.twoFA || false,
                         registeredAt: u.createdAt?.split('T')[0] || '',
                         sessions: u.sessions || 0
                     }))
@@ -323,7 +321,6 @@ export default function UsersPage() {
                     id: data.user.id,
                     lastLogin: "არასდროს",
                     status: "active",
-                    twoFA: false,
                     registeredAt: new Date().toISOString().split('T')[0],
                     sessions: 0
                 }
@@ -406,9 +403,6 @@ export default function UsersPage() {
         }
     }
 
-    const toggle2FA = (userId: string) => {
-        setUsers(users.map(u => u.id === userId ? { ...u, twoFA: !u.twoFA } : u))
-    }
 
     const forceLogout = (userId: string) => {
         if (confirm("დაასრულოთ მომხმარებლის ყველა სესია?")) {
@@ -418,9 +412,9 @@ export default function UsersPage() {
     }
 
     const exportToCSV = () => {
-        const headers = ["სახელი", "ელ.ფოსტა", "როლი", "სტატუსი", "ბოლო შესვლა", "2FA", "რეგისტრაცია"]
+        const headers = ["სახელი", "ელ.ფოსტა", "როლი", "სტატუსი", "ბოლო შესვლა", "რეგისტრაცია"]
         const rows = filteredUsers.map(u => [
-            u.name, u.email, u.role, u.status, u.lastLogin, u.twoFA ? "ჩართული" : "გამორთული", u.registeredAt
+            u.name, u.email, u.role, u.status, u.lastLogin, u.registeredAt
         ])
         const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n")
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
@@ -567,7 +561,6 @@ export default function UsersPage() {
                                         <SortHeader field="role">როლი</SortHeader>
                                         <SortHeader field="lastLogin">ბოლო შესვლა</SortHeader>
                                         <SortHeader field="status">სტატუსი</SortHeader>
-                                        <th className="text-left px-6 py-4 font-medium">2FA</th>
                                         <th className="text-right px-6 py-4 font-medium">მოქმედება</th>
                                     </tr>
                                 </thead>
@@ -638,13 +631,6 @@ export default function UsersPage() {
                                                     {user.status === "active" ? "აქტიური" :
                                                         user.status === "blocked" ? "დაბლოკილი" : "არააქტიური"}
                                                 </Badge>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {user.twoFA ? (
-                                                    <TbShieldCheck className="w-5 h-5 text-green-500" />
-                                                ) : (
-                                                    <TbShieldOff className="w-5 h-5 text-muted-foreground" />
-                                                )}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex justify-end gap-1">
@@ -835,7 +821,6 @@ export default function UsersPage() {
                 <ProfileModal
                     user={selectedUser}
                     onClose={() => { setShowProfileModal(false); setSelectedUser(null) }}
-                    onToggle2FA={() => toggle2FA(selectedUser.id)}
                     onForceLogout={() => forceLogout(selectedUser.id)}
                 />
             )}
@@ -846,7 +831,7 @@ export default function UsersPage() {
 // Add User Modal
 function AddUserModal({ onClose, onAdd }: {
     onClose: () => void
-    onAdd: (user: Omit<UserType, "id" | "lastLogin" | "status" | "twoFA" | "registeredAt" | "sessions">) => void
+    onAdd: (user: Omit<UserType, "id" | "lastLogin" | "status" | "registeredAt" | "sessions">) => void
 }) {
     const [formData, setFormData] = React.useState({ name: "", email: "", password: "", confirmPassword: "", role: "viewer" as UserType["role"] })
     const [showPassword, setShowPassword] = React.useState(false)
@@ -977,7 +962,7 @@ function EditUserModal({ user, onClose, onSave }: { user: UserType; onClose: () 
 }
 
 // Profile Modal
-function ProfileModal({ user, onClose, onToggle2FA, onForceLogout }: { user: UserType; onClose: () => void; onToggle2FA: () => void; onForceLogout: () => void }) {
+function ProfileModal({ user, onClose, onForceLogout }: { user: UserType; onClose: () => void; onForceLogout: () => void }) {
     return (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
             <Card className="w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
@@ -1019,19 +1004,6 @@ function ProfileModal({ user, onClose, onToggle2FA, onForceLogout }: { user: Use
                     </div>
 
                     <div className="space-y-3">
-                        <div className="flex items-center justify-between p-4 rounded-lg border">
-                            <div className="flex items-center gap-3">
-                                {user.twoFA ? <TbShieldCheck className="w-5 h-5 text-green-500" /> : <TbShieldOff className="w-5 h-5 text-muted-foreground" />}
-                                <div>
-                                    <p className="font-medium">ორფაქტორიანი ავთენტიფიკაცია</p>
-                                    <p className="text-sm text-muted-foreground">{user.twoFA ? "ჩართულია" : "გამორთულია"}</p>
-                                </div>
-                            </div>
-                            <Button variant="outline" size="sm" onClick={onToggle2FA}>
-                                {user.twoFA ? "გამორთვა" : "ჩართვა"}
-                            </Button>
-                        </div>
-
                         <Button variant="outline" className="w-full gap-2" onClick={onForceLogout} disabled={user.sessions === 0}>
                             <TbPower className="w-4 h-4" />
                             ყველა სესიის დასრულება ({user.sessions})

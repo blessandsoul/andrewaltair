@@ -87,7 +87,7 @@ export async function GET(request: Request) {
 
         console.time('UsersAPI:Find');
         const users = await User.find(query)
-            .select('-password')
+            .select('username email role status lastLogin createdAt avatar sessions fullName')
             .sort({ createdAt: -1 })
             .skip((page - 1) * limit)
             .limit(limit)
