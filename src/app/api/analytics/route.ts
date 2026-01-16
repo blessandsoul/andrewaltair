@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Post from '@/models/Post';
@@ -130,3 +131,4 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'Failed to fetch analytics' }, { status: 500 });
     }
 }
+

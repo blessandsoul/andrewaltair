@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/db';
@@ -180,3 +181,4 @@ export async function POST(request: Request) {
         );
     }
 }
+

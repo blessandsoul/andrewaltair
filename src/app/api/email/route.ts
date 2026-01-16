@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { sendEmail, sendWelcomeEmail, sendNotificationEmail } from '@/lib/email'
 
@@ -53,3 +54,4 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Failed to send email' }, { status: 500 })
     }
 }
+

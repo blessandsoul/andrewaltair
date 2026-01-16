@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Seo from '@/models/Seo';
@@ -49,3 +50,4 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Failed to save SEO setting' }, { status: 500 });
     }
 }
+

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import EncyclopediaArticle from '@/models/EncyclopediaArticle';
@@ -60,3 +61,4 @@ export async function GET(request: NextRequest) {
         }
     }
 }
+

@@ -148,7 +148,7 @@ export default function MarketplacePromptCard({ prompt }: PromptCardProps) {
 
     // Get category color
     const getCategoryColor = () => {
-        const cat = categories[0]?.toLowerCase() || ''
+        const cat = String(categories[0] || '').toLowerCase()
         if (cat.includes('art') || cat.includes('ხელოვნება')) return '#8b5cf6'
         if (cat.includes('photo') || cat.includes('ფოტო')) return '#06b6d4'
         if (cat.includes('3d')) return '#f97316'

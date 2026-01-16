@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
 import Alert from '@/models/Alert'
@@ -132,3 +133,4 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Failed to update alert' }, { status: 500 })
     }
 }
+

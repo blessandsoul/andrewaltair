@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
 import ScheduledJob from '@/models/ScheduledJob'
@@ -153,3 +154,4 @@ export async function DELETE(request: NextRequest) {
         return NextResponse.json({ error: 'Failed to delete job' }, { status: 500 })
     }
 }
+

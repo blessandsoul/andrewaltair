@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Bot from '@/models/Bot';
@@ -239,4 +240,5 @@ export async function POST(request: NextRequest) {
         );
     }
 }
+
 

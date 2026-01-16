@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import crypto from 'crypto';
@@ -222,3 +223,4 @@ export async function POST(request: NextRequest) {
         );
     }
 }
+

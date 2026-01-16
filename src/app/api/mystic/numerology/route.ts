@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
 import { AI_CONFIG, NUMEROLOGY_RULES, parseAIResponse } from "@/lib/mystic-rules"
@@ -112,3 +113,4 @@ export async function POST(request: NextRequest) {
         )
     }
 }
+

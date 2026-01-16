@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
 import Tool from '@/models/Tool'
@@ -104,3 +105,4 @@ export async function GET() {
         return NextResponse.json({ error: 'Failed to export tools' }, { status: 500 })
     }
 }
+

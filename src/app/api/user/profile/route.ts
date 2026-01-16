@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/server-auth';
 import { z } from 'zod';
@@ -78,3 +79,4 @@ export async function PUT(req: NextRequest) {
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
+

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import dbConnect from '@/lib/db';
@@ -183,4 +184,5 @@ export async function POST(request: Request) {
         );
     }
 }
+
 

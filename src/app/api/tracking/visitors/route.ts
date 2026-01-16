@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
 import Visitor from '@/models/Visitor'
@@ -369,3 +370,4 @@ export async function GET() {
         return NextResponse.json({ online: 0, error: 'Failed to get count' }, { status: 500 })
     }
 }
+

@@ -21,8 +21,8 @@ import { brand } from "@/lib/brand"
 // Helper to get category info
 function getCategoryInfo(categoryId?: string) {
     if (!categoryId) return { name: 'ბლოგი', color: '#6366f1' }
-    const normalizedId = categoryId.trim().toLowerCase()
-    return brand.categories.find(c => c.id.toLowerCase() === normalizedId) || {
+    const normalizedId = String(categoryId).trim().toLowerCase()
+    return brand.categories.find(c => String(c.id).toLowerCase() === normalizedId) || {
         id: categoryId,
         name: categoryId,
         color: "#6366f1"

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 import { generateCSRFToken, setCSRFCookie } from '@/lib/csrf';
@@ -33,3 +34,4 @@ export async function GET(request: NextRequest) {
         );
     }
 }
+

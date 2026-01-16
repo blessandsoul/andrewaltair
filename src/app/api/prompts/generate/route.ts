@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
 import { verifyAdmin } from "@/lib/admin-auth"
@@ -80,3 +81,4 @@ Prompt Template: ${promptTemplate || "N/A"}
         )
     }
 }
+

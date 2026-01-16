@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
 import Setting from '@/models/Setting'
@@ -60,3 +61,4 @@ If you received this message, alerts are properly configured!`
         return NextResponse.json({ error: 'Failed to send test message' }, { status: 500 })
     }
 }
+

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
 import Activity from '@/models/Activity'
@@ -120,3 +121,4 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Failed to fetch content performance' }, { status: 500 })
     }
 }
+

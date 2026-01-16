@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import BotComment from '@/models/BotComment';
@@ -124,4 +125,5 @@ export async function POST(request: NextRequest) {
         );
     }
 }
+
 

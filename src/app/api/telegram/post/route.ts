@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 
 const TELEGRAM_API_URL = 'https://api.telegram.org/bot'
@@ -93,3 +94,4 @@ export async function POST(request: NextRequest) {
 
 // Note: telegramContent is already properly formatted by the parser
 // No need to escape markdown characters
+

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Testimonial from '@/models/Testimonial';
@@ -17,3 +18,4 @@ export async function GET() {
         return NextResponse.json({ error: 'Failed to get testimonials' }, { status: 500 });
     }
 }
+

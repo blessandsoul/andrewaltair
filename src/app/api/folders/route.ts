@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Folder from '@/models/Folder';
@@ -35,3 +36,4 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Failed to create folder' }, { status: 500 });
     }
 }
+

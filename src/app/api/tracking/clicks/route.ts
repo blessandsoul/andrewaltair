@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
 import Click from '@/models/Click'
@@ -118,3 +119,4 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Failed to fetch heatmap' }, { status: 500 })
     }
 }
+

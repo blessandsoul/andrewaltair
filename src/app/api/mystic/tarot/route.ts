@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
 import { AI_CONFIG, TAROT_RULES, parseAIResponse } from "@/lib/mystic-rules"
@@ -99,3 +100,4 @@ ${spreadPrompt}
         )
     }
 }
+

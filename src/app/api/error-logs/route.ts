@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import ErrorLog from '@/models/ErrorLog';
@@ -54,3 +55,4 @@ export async function DELETE() {
         return NextResponse.json({ error: 'Failed to clear logs' }, { status: 500 });
     }
 }
+

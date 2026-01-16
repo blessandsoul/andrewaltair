@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server';
 
 // In-memory storage для share codes
@@ -128,4 +129,5 @@ function cleanupExpiredCodes() {
 
 // Запускаем очистку каждые 5 минут
 setInterval(cleanupExpiredCodes, 5 * 60 * 1000);
+
 

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 
 const INDEXNOW_KEY = process.env.INDEXNOW_KEY || 'indexnow-key-andrewaltair'
@@ -84,3 +85,4 @@ export async function POST(request: NextRequest) {
         )
     }
 }
+

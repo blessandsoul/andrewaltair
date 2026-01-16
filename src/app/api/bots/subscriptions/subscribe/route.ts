@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
@@ -50,3 +51,4 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Subscription failed" }, { status: 500 });
     }
 }
+

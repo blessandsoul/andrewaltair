@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 
 interface ContactFormData {
@@ -148,3 +149,4 @@ function escapeMarkdown(text: string): string {
     return text
         .replace(/[_*[\]()~`>#+=|{}.!-]/g, '\\$&')
 }
+

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import CronJob from '@/models/CronJob';
@@ -35,3 +36,4 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Failed to create cron job' }, { status: 500 });
     }
 }
+

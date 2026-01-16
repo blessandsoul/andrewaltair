@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
 import { getUserFromRequest } from "@/lib/server-auth"
@@ -113,3 +114,4 @@ export async function POST(request: NextRequest) {
         )
     }
 }
+

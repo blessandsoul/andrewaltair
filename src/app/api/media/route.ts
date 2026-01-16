@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Media from '@/models/Media';
@@ -72,3 +73,4 @@ export async function POST(request: Request) {
         );
     }
 }
+

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server';
 
 // In-memory storage (в production использовать базу данных)
@@ -151,4 +152,5 @@ export async function PATCH() {
         codes: stats
     });
 }
+
 

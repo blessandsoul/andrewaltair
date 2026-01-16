@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
@@ -31,3 +32,4 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Failed to get stats' }, { status: 500 });
     }
 }
+

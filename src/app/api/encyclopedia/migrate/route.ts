@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import EncyclopediaSection from '@/models/EncyclopediaSection';
@@ -230,3 +231,4 @@ export async function GET() {
         return NextResponse.json({ error: 'Database check failed' }, { status: 500 });
     }
 }
+

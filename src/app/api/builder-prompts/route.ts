@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
 import Prompt from '@/models/Prompt'
@@ -180,4 +181,5 @@ export async function POST(request: NextRequest) {
         )
     }
 }
+
 

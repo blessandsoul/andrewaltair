@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import OpenAI from "openai"
 import { NextRequest, NextResponse } from "next/server"
 import { AI_CONFIG, CHAT_RULES } from "@/lib/mystic-rules"
@@ -128,3 +129,4 @@ ${zodiacContext}`
         )
     }
 }
+

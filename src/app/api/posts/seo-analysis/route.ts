@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 
 interface SEOAnalysisResult {
@@ -199,3 +200,4 @@ export async function POST(request: NextRequest) {
         )
     }
 }
+

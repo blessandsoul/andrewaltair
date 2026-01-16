@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
 import Activity, { ActivityType } from '@/models/Activity'
@@ -144,3 +145,4 @@ function getTimeAgo(date: Date): string {
     if (diffHours < 24) return `${diffHours} საათის წინ`
     return '1 დღის წინ'
 }
+

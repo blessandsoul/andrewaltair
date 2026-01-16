@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
 import PromptAnalytics from '@/models/PromptAnalytics'
@@ -108,4 +109,5 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Failed to fetch analytics' }, { status: 500 })
     }
 }
+
 

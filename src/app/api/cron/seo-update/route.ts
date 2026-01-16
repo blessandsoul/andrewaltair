@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
 import Post from '@/models/Post'
@@ -181,3 +182,4 @@ export async function GET() {
         required_header: 'Authorization: Bearer {CRON_SECRET}'
     })
 }
+

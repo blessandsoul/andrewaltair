@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Backup from '@/models/Backup';
@@ -61,3 +62,4 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Failed to create backup' }, { status: 500 });
     }
 }
+

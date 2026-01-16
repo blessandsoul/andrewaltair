@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Tutorial from "@/models/Tutorial";
@@ -46,3 +47,4 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Failed to create tutorial" }, { status: 500 });
     }
 }
+

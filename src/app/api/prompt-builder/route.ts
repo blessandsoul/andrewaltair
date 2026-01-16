@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
@@ -204,3 +205,4 @@ Separate each variation with a blank line.`,
         )
     }
 }
+

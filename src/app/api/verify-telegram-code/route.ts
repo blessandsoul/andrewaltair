@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server';
 
 // In-memory store for verification codes (in production, use Redis or database)
@@ -114,4 +115,5 @@ export async function PUT(request: NextRequest) {
         );
     }
 }
+
 
