@@ -122,7 +122,7 @@ export function PostGallery({ images, title = "გალერეა", className
                         </AnimatePresence>
 
                         {/* Main Image with slide animation */}
-                        <AnimatePresence initial={false} custom={direction} mode="wait">
+                        <AnimatePresence initial={false} custom={direction}>
                             <motion.div
                                 key={currentIndex}
                                 custom={direction}
@@ -135,13 +135,13 @@ export function PostGallery({ images, title = "გალერეა", className
                                     opacity: { duration: 0.2 },
                                     scale: { duration: 0.2 }
                                 }}
-                                className="absolute inset-0 flex items-center justify-center"
+                                className="absolute inset-0 flex items-center justify-center p-2"
                             >
                                 <Image
                                     src={images[currentIndex].src}
                                     alt={images[currentIndex].alt || `Gallery image ${currentIndex + 1}`}
                                     fill
-                                    className="object-contain relative z-10 transition-transform duration-500 group-hover:scale-[1.02]"
+                                    className="object-contain relative z-10 drop-shadow-2xl"
                                     sizes="(max-width: 768px) 100vw, 800px"
                                     priority
                                 />
