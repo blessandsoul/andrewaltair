@@ -114,7 +114,7 @@ export function PostGallery({ images, title = "გალერეა", className
                             >
                                 <Image
                                     src={images[currentIndex].src}
-                                    alt="Background blur"
+                                    alt=""
                                     fill
                                     className="object-cover blur-3xl scale-125"
                                 />

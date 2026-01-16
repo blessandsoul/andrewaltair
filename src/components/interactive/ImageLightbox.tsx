@@ -321,21 +321,10 @@ export function ImageLightbox({
 
                                     <img
                                         src={currentPhoto.src}
-                                        alt={currentPhoto.alt}
+                                        alt=""
                                         className="max-w-full max-h-[85vh] object-contain select-none rounded-lg ring-1 ring-white/10"
                                         draggable={false}
                                     />
-
-                                    {/* Caption Overlay */}
-                                    {currentPhoto.alt && showControls && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/60 backdrop-blur-md rounded-full text-white/90 text-sm whitespace-nowrap border border-white/10 pointer-events-none"
-                                        >
-                                            {currentPhoto.alt}
-                                        </motion.div>
-                                    )}
                                 </motion.div>
                             </motion.div>
                         </AnimatePresence>
