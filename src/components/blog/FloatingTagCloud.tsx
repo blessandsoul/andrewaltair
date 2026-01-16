@@ -28,7 +28,6 @@ function getTagStyle(index: number, total: number) {
 }
 
 export function FloatingTagCloud({ tags, className, baseUrl = "/blog" }: FloatingTagCloudProps) {
-    const [isHovered, setIsHovered] = React.useState(false)
     const [hoveredTag, setHoveredTag] = React.useState<string | null>(null)
 
     if (!tags || tags.length === 0) return null
@@ -44,8 +43,6 @@ export function FloatingTagCloud({ tags, className, baseUrl = "/blog" }: Floatin
                 "border border-border/30",
                 className
             )}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => { setIsHovered(false); setHoveredTag(null) }}
         >
             {/* Background glow effects */}
             <div className="absolute inset-0 overflow-hidden">
@@ -59,7 +56,7 @@ export function FloatingTagCloud({ tags, className, baseUrl = "/blog" }: Floatin
                     "flex items-center gap-2 px-4 py-2 rounded-full",
                     "bg-background/80 backdrop-blur-sm border border-border/50 shadow-lg",
                     "transition-all duration-500",
-                    isHovered ? "scale-90 opacity-50" : "scale-100 opacity-100"
+                    "scale-100 opacity-100"
                 )}>
                     <TbHash className="w-5 h-5 text-primary" />
                     <span className="text-sm font-semibold text-muted-foreground">თეგები</span>
@@ -97,9 +94,8 @@ export function FloatingTagCloud({ tags, className, baseUrl = "/blog" }: Floatin
                                 top: `${startY}%`,
                                 transform: 'translate(-50%, -50%)',
                                 opacity: style.opacity,
-                                animation: isHovered
-                                    ? 'none'
-                                    : `float${style.animationType} ${style.duration}s ease-in-out infinite`,
+                                animation: `float${style.animationType} ${style.duration}s ease-in-out infinite`,
+                                animationPlayState: isTagHovered ? 'paused' : 'running',
                                 animationDelay: `${style.delay}s`,
                             }}
                             onMouseEnter={() => setHoveredTag(tag)}

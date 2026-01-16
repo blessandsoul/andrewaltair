@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence, useMotionValue, useTransform, useAnimation, PanInfo } from "framer-motion"
 import {
@@ -42,8 +42,8 @@ export function ImageLightbox({
     const scale = useMotionValue(1)
     const controlsOpacity = useMotionValue(1)
 
-    // Reset state when opening
-    useEffect(() => {
+    // Reset state when opening (useLayoutEffect prevents flash of old state)
+    useLayoutEffect(() => {
         if (isOpen) {
             setCurrentIndex(initialIndex)
             setZoom(1)
@@ -271,7 +271,7 @@ export function ImageLightbox({
                         className="relative w-full h-full flex items-center justify-center p-4 md:p-8"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <AnimatePresence initial={false} custom={direction} mode="wait">
+                        <AnimatePresence initial={false} custom={direction}>
                             <motion.div
                                 key={currentIndex}
                                 custom={direction}
@@ -285,7 +285,7 @@ export function ImageLightbox({
                                         zIndex: 1,
                                         x: 0,
                                         opacity: 1,
-                                        scale: 1 // We'll handle zoom via active transform
+                                        scale: 1
                                     },
                                     exit: (direction: number) => ({
                                         zIndex: 0,
@@ -302,8 +302,8 @@ export function ImageLightbox({
                                     opacity: { duration: 0.2 },
                                     scale: { duration: 0.2 }
                                 }}
-                                className="relative w-full h-full flex items-center justify-center px-4 md:px-16" // Added horizontal padding for arrows
-                                drag={zoom > 1 ? true : "x"} // Only free drag if zoomed
+                                className="relative w-full h-full flex items-center justify-center px-4 md:px-16"
+                                drag={zoom > 1 ? true : "x"}
                                 dragConstraints={zoom > 1 ? containerRef : { left: 0, right: 0 }}
                                 dragElastic={0.2}
                                 onDragEnd={onDragEnd}
@@ -319,11 +319,15 @@ export function ImageLightbox({
                                         <div className="w-10 h-10 border-2 border-white/20 border-t-primary rounded-full animate-spin" />
                                     </div>
 
-                                    <img
+                                    <Image
                                         src={currentPhoto.src}
                                         alt=""
+                                        width={1920}
+                                        height={1080}
                                         className="max-w-full max-h-[85vh] object-contain select-none rounded-lg ring-1 ring-white/10"
                                         draggable={false}
+                                        priority
+                                        sizes="100vw"
                                     />
                                 </motion.div>
                             </motion.div>

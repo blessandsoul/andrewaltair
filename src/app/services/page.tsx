@@ -272,14 +272,14 @@ export default async function ServicesPage() {
                                                         style={{ color: service.color }}
                                                     />
                                                 </div>
-                                                <div className="flex flex-col items-end text-right ml-4 flex-1">
+                                                <div className="flex flex-col items-start text-left ml-4 flex-1">
                                                     {service.popular && (
-                                                        <Badge className="bg-gradient-to-r from-primary to-accent text-white border-0 shadow-lg animate-pulse mb-2">
-                                                            <TbStar className="w-3 h-3 mr-1 fill-white" />
+                                                        <Badge className="bg-gradient-to-r from-primary to-accent text-white border-0 shadow-lg animate-pulse mb-1 text-[10px] px-2 py-0.5 h-auto">
+                                                            <TbStar className="w-2.5 h-2.5 mr-1 fill-white" />
                                                             პოპულარული
                                                         </Badge>
                                                     )}
-                                                    <h3 className="text-2xl font-bold group-hover:text-primary transition-colors leading-tight">
+                                                    <h3 className="text-2xl font-bold group-hover:text-primary transition-colors leading-tight w-full">
                                                         {service.title}
                                                     </h3>
                                                 </div>
