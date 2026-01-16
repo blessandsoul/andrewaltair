@@ -213,7 +213,7 @@ export function PostGallery({ images, title = "გალერეა", className
 
                 {/* Thumbnails - Premium Floating Style */}
                 {images.length > 1 && (
-                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide px-1">
+                    <div className="relative z-30 flex gap-3 overflow-x-auto overflow-y-visible pt-4 pb-4 scrollbar-hide px-1 -mt-2">
                         {images.map((image, index) => (
                             <motion.button
                                 key={index}
@@ -234,8 +234,9 @@ export function PostGallery({ images, title = "გალერეა", className
                                     src={image.src}
                                     alt={image.alt || `Thumbnail ${index + 1}`}
                                     fill
-                                    className="object-cover transition-transform duration-500 hover:scale-110"
-                                    sizes="100px"
+                                    className="object-cover"
+                                    sizes="(max-width: 768px) 120px, 200px"
+                                    quality={85}
                                 />
                                 {/* Active indicator dot */}
                                 {index === currentIndex && (
