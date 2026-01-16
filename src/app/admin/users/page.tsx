@@ -109,7 +109,7 @@ export default function UsersPage() {
             }
 
             try {
-                const res = await fetch('/api/users?limit=100', {
+                const res = await fetch(`/api/users?limit=20`, {
                     headers,
                     credentials: 'include' // 🍪 Ensure cookies are sent!
                 })
@@ -154,7 +154,7 @@ export default function UsersPage() {
 
     // Pagination
     const [currentPage, setCurrentPage] = React.useState(1)
-    const [itemsPerPage, setItemsPerPage] = React.useState(10)
+    const [itemsPerPage, setItemsPerPage] = React.useState(20)
 
     // Filter users
     const filteredUsers = users.filter(user => {
@@ -680,9 +680,9 @@ export default function UsersPage() {
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="10">10</SelectItem>
-                                    <SelectItem value="25">25</SelectItem>
+                                    <SelectItem value="20">20</SelectItem>
                                     <SelectItem value="50">50</SelectItem>
+                                    <SelectItem value="100">100</SelectItem>
                                 </SelectContent>
                             </Select>
                             <span className="text-sm text-muted-foreground">

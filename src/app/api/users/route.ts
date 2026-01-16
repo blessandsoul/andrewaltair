@@ -81,18 +81,20 @@ export async function GET(request: Request) {
             ];
         }
 
-        console.time('UsersAPI:Count');
-        const total = await User.countDocuments(query);
-        console.timeEnd('UsersAPI:Count');
+        console.time('UsersAPI:Exec');
+        const countPromise = (Object.keys(query).length === 0)
+            ? User.estimatedDocumentCount()
+            : User.countDocuments(query);
 
-        console.time('UsersAPI:Find');
-        const users = await User.find(query)
+        const usersPromise = User.find(query)
             .select('username email role status lastLogin createdAt avatar sessions fullName')
             .sort({ createdAt: -1 })
             .skip((page - 1) * limit)
             .limit(limit)
             .lean();
-        console.timeEnd('UsersAPI:Find');
+
+        const [total, users] = await Promise.all([countPromise, usersPromise]);
+        console.timeEnd('UsersAPI:Exec');
 
         const transformedUsers = users.map(user => ({
             ...user,
