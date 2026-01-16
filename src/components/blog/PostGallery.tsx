@@ -217,7 +217,9 @@ export function PostGallery({ images, title = "გალერეა", className
                         {images.map((image, index) => (
                             <motion.button
                                 key={index}
-                                onClick={() => {
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
                                     setDirection(index > currentIndex ? 1 : -1);
                                     setCurrentIndex(index);
                                 }}
