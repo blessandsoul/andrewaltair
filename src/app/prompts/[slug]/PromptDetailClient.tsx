@@ -14,6 +14,7 @@ import {
     TbArrowLeft, TbBrandTelegram, TbCheck, TbUser, TbCalendar,
     TbHome, TbChevronRight, TbX, TbChevronLeft, TbZoomIn, TbCode
 } from 'react-icons/tb'
+import { incrementPromptView } from '@/app/actions/prompt-actions'
 import PromptUnlocker from '@/components/prompts/PromptUnlocker'
 import SocialFooterBanner from '@/components/prompts/SocialFooterBanner'
 import { formatId } from '@/lib/id-format'
@@ -71,6 +72,16 @@ const categoryTranslations: Record<string, string> = {
     "Character": "პერსონაჟი",
 }
 
+// Generation Type translations
+const generationTypeTranslations: Record<string, string> = {
+    "text-to-image": "სურათი",
+    "text-to-text": "ტექსტი",
+    "image-to-image": "სურათი-სურათი",
+    "text-to-video": "ვიდეო"
+}
+
+const translateGenerationType = (type: string) => generationTypeTranslations[type] || type
+
 const translateCategory = (cat: string) => categoryTranslations[cat] || cat
 
 // Animation variants
@@ -96,7 +107,12 @@ export default function PromptDetailClient({ prompt, relatedPrompts }: PromptDet
             })
             setVariableValues(initial)
         }
-    }, [prompt.variables])
+
+        // Increment view count
+        if (prompt.id) {
+            incrementPromptView(prompt.id)
+        }
+    }, [prompt.variables, prompt.id])
 
     // All images for gallery
     const allImages = [
@@ -332,8 +348,8 @@ export default function PromptDetailClient({ prompt, relatedPrompts }: PromptDet
                                                                         key={j}
                                                                         onClick={() => setVariableValues(prev => ({ ...prev, [variable.name]: opt }))}
                                                                         className={`px-3 py-1.5 text-xs rounded-full border transition-all ${variableValues[variable.name] === opt
-                                                                                ? 'bg-primary text-primary-foreground border-primary'
-                                                                                : 'bg-background hover:bg-muted border-border'
+                                                                            ? 'bg-primary text-primary-foreground border-primary'
+                                                                            : 'bg-background hover:bg-muted border-border'
                                                                             }`}
                                                                     >
                                                                         {opt}
@@ -439,7 +455,7 @@ export default function PromptDetailClient({ prompt, relatedPrompts }: PromptDet
                                 )}
                                 {prompt.generationType && (
                                     <Badge variant="outline">
-                                        {prompt.generationType}
+                                        {translateGenerationType(prompt.generationType)}
                                     </Badge>
                                 )}
                             </div>

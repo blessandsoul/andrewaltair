@@ -17,6 +17,14 @@ import { cn } from '@/lib/utils'
 
 import { translateCategory } from '@/lib/prompt-translations'
 
+// Generation Type translations
+const generationTypeTranslations: Record<string, string> = {
+    "text-to-image": "სურათი",
+    "text-to-text": "ტექსტი",
+    "image-to-image": "სურათი-სურათი",
+    "text-to-video": "ვიდეო"
+}
+
 // Format numbers (15420 -> 15.4K)
 function formatNumber(num: number): string {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + "M"
@@ -115,11 +123,11 @@ export default function MarketplacePromptCard({ prompt }: PromptCardProps) {
             case 'video-to-video':
             case 'text-to-video':
             case 'image-to-video':
-                return 'Video'
+                return generationTypeTranslations['text-to-video'] || 'ვიდეო'
             case 'text-generation':
-                return 'Text'
+                return generationTypeTranslations['text-to-text'] || 'ტექსტი'
             default:
-                return 'Image'
+                return generationTypeTranslations['text-to-image'] || 'სურათი'
         }
     }
 

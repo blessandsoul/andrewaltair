@@ -139,7 +139,7 @@ export function PromptHoverCard({ prompt, isVisible }: PromptHoverCardProps) {
                             </div>
 
                             <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed mb-3">
-                                {prompt.excerpt || prompt.description || "Unlock the potential of this premium AI prompt. Professionally crafted for high-quality results."}
+                                {prompt.excerpt || prompt.description || "აღმოაჩინეთ AI-ის პოტენციალი ამ პროფესიონალური პრომპტით. შექმნილია მაღალი ხარისხის შედეგებისთვის."}
                             </p>
 
                             <div className="mt-auto space-y-3">
@@ -159,7 +159,7 @@ export function PromptHoverCard({ prompt, isVisible }: PromptHoverCardProps) {
                                         {prompt.isFree ? (
                                             <>
                                                 <TbDownload className="w-3.5 h-3.5" />
-                                                Free
+                                                უფასო
                                             </>
                                         ) : (
                                             <>
@@ -168,7 +168,7 @@ export function PromptHoverCard({ prompt, isVisible }: PromptHoverCardProps) {
                                             </>
                                         )}
                                     </Button>
-                                    <Button size="icon" variant="outline" className="shrink-0 h-8 w-8 bg-background/50" title="Details">
+                                    <Button size="icon" variant="outline" className="shrink-0 h-8 w-8 bg-background/50" title="დეტალები">
                                         <TbInfoCircle className="w-4 h-4" />
                                     </Button>
                                 </div>

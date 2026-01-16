@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
                     // Helper to decode HTML entities
                     const decodeHtml = (txt: string) => txt.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>')
 
-                    // Try parsing ytInitialPlayerResponse for more accurate data
+                    // 1. Try ytInitialPlayerResponse (Standard Video Player Data)
                     const playerResponseMatch = html.match(/var\s+ytInitialPlayerResponse\s*=\s*({.+?});/)
                     if (playerResponseMatch) {
                         try {
@@ -147,30 +147,75 @@ export async function GET(request: NextRequest) {
                                     isShort = totalSeconds <= 60
                                 }
                                 tags = videoDetails.keywords || []
-                                if (videoDetails.viewCount) {
-                                    // Could store view count if needed
-                                }
-                                // If we successfully got data from JSON, we can skip legacy regex parsing for these fields
                             }
                         } catch (e) {
                             console.error('Error parsing ytInitialPlayerResponse:', e)
                         }
                     }
 
-                    // Fallback to Regex parsing if JSON failed or missed some fields
+                    // 2. Try ytInitialData (Common for Shorts / New UI)
+                    if (!description || tags.length === 0) {
+                        const initialDataMatch = html.match(/var\s+ytInitialData\s*=\s*({.+?});/)
+                        if (initialDataMatch) {
+                            try {
+                                const initialData = JSON.parse(initialDataMatch[1])
+
+                                // Navigate deep JSON structure for Description
+                                // Structure varies, try multiple paths
+                                const panels = initialData?.engagementPanels || []
+                                for (const panel of panels) {
+                                    const desc = panel?.engagementPanelSectionListRenderer?.content?.structuredDescriptionContentRenderer?.items?.[0]?.expandableVideoDescriptionBodyRenderer?.attributedDescriptionBodyText?.content
+                                    if (desc) {
+                                        description = desc
+                                        break
+                                    }
+                                }
+
+                                // Alternative path for Shorts overlay
+                                if (!description) {
+                                    const overlay = initialData?.overlay?.reelPlayerOverlayRenderer?.reelPlayerHeaderSupportedRenderers?.reelPlayerHeaderRenderer?.accessibility?.accessibilityData?.label
+                                    // This is usually just the title + author, not full description.
+                                    // Shorts description is often hidden in "engagementPanels"
+                                }
+
+                                // Try to find Keywords/Tags in Microformat
+                                const microformat = initialData?.microformat?.playerMicroformatRenderer
+                                if (microformat) {
+                                    if (!description) description = microformat.description?.simpleText || ''
+                                    if (!title) title = microformat.title?.simpleText || ''
+                                    if (!duration && microformat.lengthSeconds) {
+                                        const totalSeconds = parseInt(microformat.lengthSeconds)
+                                        const mins = Math.floor(totalSeconds / 60)
+                                        const secs = totalSeconds % 60
+                                        duration = `${mins}:${secs.toString().padStart(2, '0')}`
+                                        isShort = totalSeconds <= 60
+                                    }
+                                }
+                            } catch (e) {
+                                console.error('Error parsing ytInitialData:', e)
+                            }
+                        }
+                    }
+
+                    // 3. Fallback to Regex Parsing
                     if (!title) {
-                        // Extract Title
                         const titleMatch = html.match(/<meta name="title" content="([^"]+)">/)
                         if (titleMatch) title = decodeHtml(titleMatch[1])
                     }
 
                     if (!description) {
-                        // Extract Description
                         const descMatch = html.match(/<meta name="description" content="([^"]+)">/)
-                        // Filter out generic YouTube description
-                        const genericDesc = "ისიამოვნეთ თქვენი საყვარელი ვიდეოებითა და მუსიკით"
-                        if (descMatch && !descMatch[1].includes(genericDesc)) {
-                            description = decodeHtml(descMatch[1])
+                        if (descMatch) {
+                            const candidate = decodeHtml(descMatch[1])
+                            // Filter out generic YouTube descriptions (both EN and Ka)
+                            const isGeneric =
+                                candidate.includes("ისიამოვნეთ თქვენი საყვარელი ვიდეოებითა და მუსიკით") ||
+                                candidate.includes("Enjoy the videos and music you love") ||
+                                candidate.startsWith("YouTube") // often just "YouTube"
+
+                            if (!isGeneric) {
+                                description = candidate
+                            }
                         }
                     }
 
@@ -178,14 +223,13 @@ export async function GET(request: NextRequest) {
                     const dateMatch = html.match(/itemprop="datePublished" content="([^"]+)"/)
                     if (dateMatch) publishedAt = dateMatch[1]
 
-                    // Extract Duration if not found in JSON
+                    // Extract Duration if still missing
                     if (!duration) {
                         const durMatch = html.match(/itemprop="duration" content="([^"]+)"/)
                         const durRaw = durMatch ? durMatch[1] : (html.match(/"duration":"(PT[^"]+)"/)?.[1])
 
                         if (durRaw) {
                             duration = parseISO8601Duration(durRaw)
-                            // Check for short (<= 60s)
                             const durationMatch = durRaw.match(/PT(?:(\d+)M)?(?:(\d+)S)?/)
                             if (durationMatch) {
                                 const mins = parseInt(durationMatch[1] || '0')
@@ -199,6 +243,14 @@ export async function GET(request: NextRequest) {
                     if (!authorName) {
                         const authorMatch = html.match(/"author":"([^"]+)"/) || html.match(/<link itemprop="name" content="([^"]+)">/)
                         if (authorMatch) authorName = decodeHtml(authorMatch[1])
+                    }
+
+                    // Extract Keywords from meta tag if JSON failed
+                    if (tags.length === 0) {
+                        const keywordsMatch = html.match(/<meta name="keywords" content="([^"]+)">/)
+                        if (keywordsMatch) {
+                            tags = decodeHtml(keywordsMatch[1]).split(',').map(t => t.trim()).filter(t => t)
+                        }
                     }
                 }
             } catch (e) {

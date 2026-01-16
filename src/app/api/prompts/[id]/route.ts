@@ -38,8 +38,7 @@ export async function GET(request: NextRequest, { params }: Params) {
             );
         }
 
-        // Increment views
-        await MarketplacePrompt.updateOne(query, { $inc: { views: 1 } });
+        // View increment is now handled by client-side server action to avoid caching issues
 
         // For non-admin and paid prompts, hide the full template
         const result = { ...prompt, id: prompt._id.toString(), _id: undefined };

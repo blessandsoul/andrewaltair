@@ -7,6 +7,16 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { translateCategory } from "@/lib/prompt-translations"
 
+// Generation Type translations
+const generationTypeTranslations: Record<string, string> = {
+    "text-to-image": "სურათი",
+    "text-to-text": "ტექსტი",
+    "image-to-image": "სურათი-სურათი",
+    "text-to-video": "ვიდეო"
+}
+
+const translateGenerationType = (type: string) => generationTypeTranslations[type] || type
+
 interface PromptQuickViewProps {
     prompt: any
     isOpen: boolean
@@ -63,7 +73,7 @@ export function PromptQuickView({ prompt, isOpen, onClose }: PromptQuickViewProp
                                 </div>
                                 <div className="p-3 rounded-lg bg-muted/50 border">
                                     <span className="text-xs text-muted-foreground block mb-1">ტიპი</span>
-                                    <span className="font-medium">{prompt.generationType === 'text-generation' ? 'ტექსტი' : prompt.generationType?.includes('video') ? 'ვიდეო' : 'სურათი'}</span>
+                                    <span className="font-medium">{translateGenerationType(prompt.generationType)}</span>
                                 </div>
                             </div>
                         </div>
