@@ -5,6 +5,7 @@ import Post from '@/models/Post'
 
 import MarketplacePrompt from '@/models/MarketplacePrompt'
 import Bot from '@/models/Bot'
+import Video from '@/models/Video'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = 'https://andrewaltair.ge'
@@ -136,5 +137,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         console.error('Sitemap: Error fetching bots:', error)
     }
 
-    return [...staticPages, ...libraryUrls, ...blogUrls, ...promptUrls, ...botEntries]
+    // Videos
+    let videoUrls: MetadataRoute.Sitemap = []
+    try {
+        await dbConnect()
+        const videos = await Video.find({})
+            .select('_id updatedAt createdAt')
+            .lean()
+
+        videoUrls = videos.map((video) => ({
+            url: `${baseUrl}/videos/${video._id}`,
+            lastModified: video.updatedAt || video.createdAt || new Date(),
+            changeFrequency: 'weekly' as const,
+            priority: 0.8,
+        }))
+    } catch (error) {
+        console.error('Sitemap: Error fetching videos:', error)
+    }
+
+    return [...staticPages, ...libraryUrls, ...blogUrls, ...promptUrls, ...botEntries, ...videoUrls]
 }

@@ -87,9 +87,9 @@ export const metadata: Metadata = {
   creator: "Andrew Altair",
   publisher: "Andrew Altair",
   alternates: {
-    canonical: "https://andrewaltair.ge",
+    canonical: "./",
     types: {
-      'application/rss+xml': 'https://andrewaltair.ge/feed.xml',
+      'application/rss+xml': '/feed.xml',
     },
   },
   openGraph: {

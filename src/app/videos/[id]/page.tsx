@@ -6,7 +6,8 @@ import { TbArrowLeft, TbEye, TbCalendar, TbClock, TbThumbUp, TbShare, TbSparkles
 import { Comments } from "@/components/interactive/Comments"
 import { ShareButtons } from "@/components/interactive/ShareButtons"
 import { ReactionBar } from "@/components/interactive/ReactionBar"
-import { brand } from "@/lib/brand"
+import { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 
 // TbVideo interface
 interface TbVideo {
@@ -20,11 +21,11 @@ interface TbVideo {
     publishedAt: string
 }
 
-// Fetch video from MongoDB API
-async function getVideo(id: string): Promise<TbVideo | null> {
+// Fetch video from MongoDB API (helper)
+async function getVideoData(id: string): Promise<TbVideo | null> {
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/videos?limit=50`, {
-            cache: 'no-store'
+            cache: 'no-store' // Ensure fresh data
         })
         if (res.ok) {
             const data = await res.json()
@@ -34,6 +35,40 @@ async function getVideo(id: string): Promise<TbVideo | null> {
         console.error('Error fetching video:', error)
     }
     return null
+}
+
+// Generate Metadata for SEO
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+    const { id } = await params
+    const video = await getVideoData(id)
+
+    if (!video) {
+        return {
+            title: 'ვიდეო არ მოიძებნა | Andrew Altair',
+        }
+    }
+
+    const title = `${video.title} | Andrew Altair Videos`
+    const description = video.description.substring(0, 160)
+    const imageUrl = `https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`
+
+    return {
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            images: [{ url: imageUrl, width: 1280, height: 720 }],
+            type: 'video.other',
+            siteName: 'Andrew Altair',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
+            images: [imageUrl],
+        }
+    }
 }
 
 // Get related videos from MongoDB
@@ -52,32 +87,16 @@ async function getRelatedVideos(currentId: string): Promise<TbVideo[]> {
     return []
 }
 
-
-
 export default async function VideoPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
-    const video = await getVideo(id)
+    const video = await getVideoData(id)
 
     if (!video) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center space-y-4">
-                    <h1 className="text-4xl font-bold">ვიდეო ვერ მოიძებნა</h1>
-                    <p className="text-muted-foreground">
-                        სამწუხაროდ, მოთხოვნილი ვიდეო არ არსებობს.
-                    </p>
-                    <Button asChild>
-                        <Link href="/videos">
-                            <TbArrowLeft className="w-4 h-4 mr-2" />
-                            ვიდეოებზე დაბრუნება
-                        </Link>
-                    </Button>
-                </div>
-            </div>
-        )
+        return notFound()
     }
 
     const relatedVideos = await getRelatedVideos(id)
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
 
     // Sample reactions
     const reactions = {
@@ -88,8 +107,70 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
         insightful: 123
     }
 
+    // VideoObject Schema
+    const videoSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'VideoObject',
+        name: video.title,
+        description: video.description,
+        thumbnailUrl: [
+            `https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`,
+            `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg`
+        ],
+        uploadDate: new Date(video.publishedAt).toISOString(), // Ensure ISO format if possible
+        duration: video.duration, // Should be ISO 8601 duration generally, but sticking to provided format for now
+        contentUrl: `https://www.youtube.com/watch?v=${video.youtubeId}`,
+        embedUrl: `https://www.youtube.com/embed/${video.youtubeId}`,
+        interactionStatistic: {
+            '@type': 'InteractionCounter',
+            interactionType: { '@type': 'WatchAction' },
+            userInteractionCount: video.views
+        },
+        author: {
+            '@type': 'Person',
+            name: 'Andrew Altair',
+            url: siteUrl
+        }
+    }
+
+    // Breadcrumb Schema
+    const breadcrumbSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: siteUrl
+            },
+            {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Videos',
+                item: `${siteUrl}/videos`
+            },
+            {
+                '@type': 'ListItem',
+                position: 3,
+                name: video.title,
+                item: `${siteUrl}/videos/${video.id}`
+            }
+        ]
+    }
+
     return (
         <div className="min-h-screen">
+            {/* Inject Schemas */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+            />
+
             {/* TbVideo Player Section */}
             <section className="pt-4 pb-8">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
@@ -176,7 +257,7 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
 
                             {/* Share */}
                             <ShareButtons
-                                url={`https://andrewaltair.ge/videos/${video.id}`}
+                                url={`${siteUrl}/videos/${video.id}`}
                                 title={video.title}
                                 description={video.description}
                             />

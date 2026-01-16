@@ -64,16 +64,37 @@ async function getPost(slug: string) {
 }
 
 // Get related posts from MongoDB
-async function getRelatedPosts(currentSlug: string) {
+// Get related posts from MongoDB (improved)
+async function getRelatedPosts(currentSlug: string, categories: string[] = []) {
   try {
     await dbConnect()
-    const posts = await Post.find({
-      status: 'published',
-      slug: { $ne: currentSlug }
-    })
-      .sort({ createdAt: -1 })
-      .limit(2)
-      .lean()
+
+    // First try to find posts in same categories
+    let posts: any[] = []
+
+    if (categories.length > 0) {
+      posts = await Post.find({
+        status: 'published',
+        slug: { $ne: currentSlug },
+        categories: { $in: categories }
+      })
+        .sort({ createdAt: -1 })
+        .limit(2)
+        .lean()
+    }
+
+    // If not enough related posts, fill with recent posts
+    if (posts.length < 2) {
+      const recentPosts = await Post.find({
+        status: 'published',
+        slug: { $ne: currentSlug, $nin: posts.map((p: any) => p.slug) }
+      })
+        .sort({ createdAt: -1 })
+        .limit(2 - posts.length)
+        .lean()
+
+      posts = [...posts, ...recentPosts]
+    }
 
     return posts.map((post) => ({
       ...post,
@@ -109,7 +130,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       imageUrl = `${siteUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`
     }
   } else {
-    imageUrl = `${siteUrl}/og.png`
+    // Dynamic OG Image Fallback
+    const date = post.publishedAt ? new Date(post.publishedAt).toISOString().split('T')[0] : '';
+    imageUrl = `${siteUrl}/api/og?title=${encodeURIComponent(post.title)}&type=post&date=${date}`;
+    if (post.categories?.length) {
+      imageUrl += `&tags=${encodeURIComponent(post.categories.join(','))}`;
+    }
   }
 
   // Use telegramContent as SEO description fallback (shorter, optimized for social)
@@ -146,13 +172,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     return notFound()
   }
 
-  const relatedPosts = await getRelatedPosts(slug)
+  const relatedPosts = await getRelatedPosts(slug, post.categories) // Pass categories for better recommendations
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
   let imageUrl = post.coverImages?.horizontal || post.coverImage
   if (imageUrl && imageUrl.includes('/api/files/')) {
     imageUrl = imageUrl.replace('/api/files/', '/uploads/')
   }
-  imageUrl = imageUrl || `${siteUrl}/og.png`
+  imageUrl = imageUrl || `${siteUrl}/api/og?title=${encodeURIComponent(post.title)}&type=post`
   if (imageUrl && !imageUrl.startsWith('http')) {
     imageUrl = `${siteUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`
   }
