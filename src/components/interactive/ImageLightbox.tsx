@@ -65,6 +65,8 @@ export function ImageLightbox({
         if (!isOpen) return
 
         const handleKeyDown = (e: KeyboardEvent) => {
+            // Stop this event from triggering other listeners (like PostNavigation)
+            e.stopImmediatePropagation();
             resetControlsTimer()
             switch (e.key) {
                 case "Escape":
@@ -194,8 +196,6 @@ export function ImageLightbox({
         }
     }, [currentIndex])
 
-    if (!isOpen) return null
-
     return (
         <AnimatePresence>
             {isOpen && (
@@ -210,22 +210,29 @@ export function ImageLightbox({
                     onMouseMove={handleMouseMove}
                 >
                     {/* Immersive Background Gradient */}
-                    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+                    {/* Immersive Background Gradient - Moved INSIDE to ensure it exits with parent */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 0.3 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 overflow-hidden pointer-events-none"
+                    >
                         <motion.div
                             key={currentPhoto.src}
-                            initial={{ opacity: 0, scale: 1.2 }}
+                            initial={{ opacity: 0, scale: 1.1 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 1 }}
-                            className="absolute inset-0 bg-cover bg-center blur-3xl"
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.8 }}
+                            className="absolute inset-0 bg-cover bg-center blur-3xl transform"
                             style={{ backgroundImage: `url(${currentPhoto.src})` }}
                         />
-                    </div>
+                    </motion.div>
 
                     {/* Top Controls Bar */}
                     <motion.div
                         initial={{ y: -50, opacity: 0 }}
                         animate={{ y: showControls ? 0 : -50, opacity: showControls ? 1 : 0 }}
-                        className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between p-4 bg-gradient-to-b from-black/80 to-transparent"
+                        className="absolute top-0 left-0 right-0 z-[130] flex items-center justify-between p-4 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-auto"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex items-center gap-4 text-white/80">
@@ -350,15 +357,15 @@ export function ImageLightbox({
                         )}
                     </div>
 
-                    {/* Bottom Thumbnail Strip */}
+                    {/* Bottom Thumbnail Strip - High Z-Index & Premium Style */}
                     {hasMultiple && (
                         <motion.div
-                            initial={{ y: 100 }}
-                            animate={{ y: showControls ? 0 : 100 }}
-                            className="absolute bottom-4 left-0 right-0 z-50 flex justify-center px-4"
+                            initial={{ y: 100, opacity: 0 }}
+                            animate={{ y: showControls ? 0 : 100, opacity: showControls ? 1 : 0 }}
+                            className="absolute bottom-6 left-0 right-0 z-[150] flex justify-center px-4 pointer-events-none"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-2 flex gap-2 overflow-x-auto max-w-3xl scrollbar-hide shadow-2xl"
+                            <div className="bg-black/60 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-3 flex gap-4 overflow-x-auto max-w-full md:max-w-4xl scrollbar-hide shadow-2xl pointer-events-auto ring-1 ring-white/5"
                                 ref={thumbnailContainerRef}
                             >
                                 {images.map((img, idx) => (
@@ -370,19 +377,25 @@ export function ImageLightbox({
                                             setZoom(1)
                                         }}
                                         className={cn(
-                                            "relative w-12 h-12 md:w-16 md:h-16 flex-shrink-0 rounded-lg overflow-hidden transition-all duration-300",
+                                            "relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0 rounded-2xl overflow-hidden transition-all duration-500 transform border-2",
                                             idx === currentIndex
-                                                ? "ring-2 ring-primary scale-110 z-10 opacity-100"
-                                                : "opacity-40 hover:opacity-80 hover:scale-105 grayscale hover:grayscale-0"
+                                                ? "border-primary scale-110 shadow-lg shadow-primary/40 z-10 opacity-100 ring-2 ring-primary/20"
+                                                : "border-white/5 opacity-40 hover:opacity-100 hover:scale-105 hover:border-white/20 grayscale hover:grayscale-0"
                                         )}
                                     >
                                         <Image
                                             src={img.src}
                                             alt={img.alt || ""}
                                             fill
-                                            className="object-cover"
-                                            sizes="80px"
+                                            className="object-cover transition-transform duration-700 hover:scale-110"
+                                            sizes="120px"
                                         />
+                                        {idx === currentIndex && (
+                                            <motion.div
+                                                layoutId="active-thumb"
+                                                className="absolute inset-0 border-2 border-primary rounded-2xl z-20 pointer-events-none"
+                                            />
+                                        )}
                                     </button>
                                 ))}
                             </div>
@@ -395,14 +408,21 @@ export function ImageLightbox({
 }
 
 // Subcomponents
-function ControlButton({ children, onClick, className, tooltip }: any) {
+interface ControlButtonProps {
+    children: React.ReactNode
+    onClick: (e: React.MouseEvent) => void
+    className?: string
+    tooltip?: string
+}
+
+function ControlButton({ children, onClick, className, tooltip }: ControlButtonProps) {
     return (
         <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={(e) => {
                 e.stopPropagation()
-                onClick(e)
+                onClick(e as any)
             }}
             className={cn(
                 "p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors backdrop-blur-md border border-white/5 shadow-lg",
@@ -415,7 +435,13 @@ function ControlButton({ children, onClick, className, tooltip }: any) {
     )
 }
 
-function NavigationButton({ direction, onClick, visible }: any) {
+interface NavigationButtonProps {
+    direction: 'left' | 'right'
+    onClick: (e: React.MouseEvent) => void
+    visible: boolean
+}
+
+function NavigationButton({ direction, onClick, visible }: NavigationButtonProps) {
     return (
         <motion.button
             initial={{ opacity: 0, x: direction === 'left' ? -20 : 20 }}
@@ -424,7 +450,7 @@ function NavigationButton({ direction, onClick, visible }: any) {
             whileTap={{ scale: 0.9 }}
             onClick={onClick}
             className={cn(
-                "absolute top-1/2 -translate-y-1/2 z-50 p-4 rounded-full text-white backdrop-blur-sm transition-colors",
+                "absolute top-1/2 -translate-y-1/2 z-50 p-4 rounded-full text-white backdrop-blur-sm transition-colors cursor-pointer hover:bg-black/20",
                 direction === 'left' ? "left-4 md:left-8" : "right-4 md:right-8"
             )}
         >
