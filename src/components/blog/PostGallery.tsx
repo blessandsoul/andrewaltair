@@ -2,7 +2,8 @@
 
 import { useState, useCallback } from "react"
 import Image from "next/image"
-import { TbChevronLeft, TbChevronRight, TbZoomIn } from "react-icons/tb"
+import { motion, AnimatePresence } from "framer-motion"
+import { TbChevronLeft, TbChevronRight, TbMaximize, TbPhoto } from "react-icons/tb"
 import { cn } from "@/lib/utils"
 import { ImageLightbox } from "@/components/interactive/ImageLightbox"
 
@@ -18,19 +19,22 @@ interface PostGalleryProps {
     className?: string;
 }
 
-export function PostGallery({ images, title = "შედეგების გალერეა", className }: PostGalleryProps) {
+export function PostGallery({ images, title = "გალერეა", className }: PostGalleryProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+    const [direction, setDirection] = useState(0);
 
     if (!images || images.length === 0) {
         return null;
     }
 
     const goToNext = useCallback(() => {
+        setDirection(1);
         setCurrentIndex((prev) => (prev + 1) % images.length);
     }, [images.length]);
 
     const goToPrev = useCallback(() => {
+        setDirection(-1);
         setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
     }, [images.length]);
 
@@ -51,64 +55,136 @@ export function PostGallery({ images, title = "შედეგების გ�
         }
     };
 
+    const slideVariants = {
+        enter: (direction: number) => ({
+            x: direction > 0 ? 300 : -300,
+            opacity: 0,
+            scale: 0.95
+        }),
+        center: {
+            zIndex: 1,
+            x: 0,
+            opacity: 1,
+            scale: 1
+        },
+        exit: (direction: number) => ({
+            zIndex: 0,
+            x: direction < 0 ? 300 : -300,
+            opacity: 0,
+            scale: 0.95
+        })
+    };
+
     return (
         <>
             <div
-                className={cn("post-gallery space-y-4 outline-none", className)}
+                className={cn("post-gallery space-y-5 outline-none", className)}
                 tabIndex={0}
                 onKeyDown={handleKeyDown}
             >
-                {/* Title */}
+                {/* Title with icon */}
                 {title && (
-                    <h3 className="text-xl font-bold flex items-center gap-2">
-                        <TbZoomIn className="w-5 h-5 text-primary" />
-                        {title === "შედეგების გალერეა" ? "გალერეა" : title}
-                    </h3>
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-primary/10 rounded-xl">
+                            <TbPhoto className="w-5 h-5 text-primary" />
+                        </div>
+                        <h3 className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                            {title}
+                        </h3>
+                        <div className="flex-1 h-px bg-gradient-to-r from-border to-transparent" />
+                    </div>
                 )}
 
                 {/* Main Image Container */}
-                <div className="relative group rounded-xl overflow-hidden bg-black/5 border border-white/10 shadow-2xl">
+                <div className="relative group rounded-2xl overflow-hidden bg-gradient-to-br from-card via-card to-muted/30 border border-white/10 shadow-2xl">
                     {/* Main image with fixed aspect ratio container but contain mode */}
                     <div
-                        className="relative aspect-video w-full cursor-zoom-in"
+                        className="relative aspect-[16/10] w-full cursor-zoom-in overflow-hidden"
                         onClick={() => openLightbox(currentIndex)}
                     >
-                        {/* Blurred background for fill */}
-                        <div className="absolute inset-0 overflow-hidden">
-                            <Image
-                                src={images[currentIndex].src}
-                                alt="Background blur"
-                                fill
-                                className="object-cover opacity-30 blur-2xl scale-110"
-                            />
+                        {/* Animated Blurred background for ambient effect */}
+                        <AnimatePresence initial={false}>
+                            <motion.div
+                                key={currentIndex + "-bg"}
+                                initial={{ opacity: 0, scale: 1.1 }}
+                                animate={{ opacity: 0.4, scale: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.6 }}
+                                className="absolute inset-0 overflow-hidden"
+                            >
+                                <Image
+                                    src={images[currentIndex].src}
+                                    alt="Background blur"
+                                    fill
+                                    className="object-cover blur-3xl scale-125"
+                                />
+                            </motion.div>
+                        </AnimatePresence>
+
+                        {/* Main Image with slide animation */}
+                        <AnimatePresence initial={false} custom={direction} mode="wait">
+                            <motion.div
+                                key={currentIndex}
+                                custom={direction}
+                                variants={slideVariants}
+                                initial="enter"
+                                animate="center"
+                                exit="exit"
+                                transition={{
+                                    x: { type: "spring", stiffness: 300, damping: 30 },
+                                    opacity: { duration: 0.2 },
+                                    scale: { duration: 0.2 }
+                                }}
+                                className="absolute inset-0 flex items-center justify-center"
+                            >
+                                <Image
+                                    src={images[currentIndex].src}
+                                    alt={images[currentIndex].alt || `Gallery image ${currentIndex + 1}`}
+                                    fill
+                                    className="object-contain relative z-10 transition-transform duration-500 group-hover:scale-[1.02]"
+                                    sizes="(max-width: 768px) 100vw, 800px"
+                                    priority
+                                />
+                            </motion.div>
+                        </AnimatePresence>
+
+                        {/* Counter Badge - Premium Style */}
+                        <div className="absolute top-4 right-4 z-20 bg-black/60 backdrop-blur-xl px-4 py-1.5 rounded-full text-white text-xs font-semibold border border-white/10 shadow-lg flex items-center gap-2">
+                            <span className="text-primary">{currentIndex + 1}</span>
+                            <span className="text-white/40">/</span>
+                            <span>{images.length}</span>
                         </div>
 
-                        {/* Main Image */}
-                        <Image
-                            src={images[currentIndex].src}
-                            alt={images[currentIndex].alt || `Gallery image ${currentIndex + 1}`}
-                            fill
-                            className="object-contain relative z-10 transition-transform duration-300 group-hover:scale-[1.02]"
-                            sizes="(max-width: 768px) 100vw, 800px"
-                            priority
-                        />
+                        {/* Zoom Indicator */}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            whileHover={{ opacity: 1, scale: 1 }}
+                            className="absolute top-4 left-4 z-20 bg-black/60 backdrop-blur-xl p-2.5 rounded-full text-white border border-white/10 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        >
+                            <TbMaximize className="w-4 h-4" />
+                        </motion.div>
 
-                        {/* Counter */}
-                        <div className="absolute top-4 right-4 z-20 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-medium border border-white/10">
-                            {currentIndex + 1} / {images.length}
-                        </div>
-
-                        {/* Caption */}
+                        {/* Caption with gradient overlay */}
                         {images[currentIndex].caption && (
-                            <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6 pt-12">
-                                <p className="text-white font-medium text-sm md:text-base max-w-2xl">
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-6 pt-16"
+                            >
+                                <p className="text-white font-medium text-sm md:text-base max-w-2xl drop-shadow-lg">
                                     {images[currentIndex].caption}
                                 </p>
-                            </div>
+                            </motion.div>
                         )}
+
+                        {/* Decorative corner gradients */}
+                        <div className="absolute inset-0 pointer-events-none">
+                            <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent" />
+                            <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-primary/10 to-transparent" />
+                        </div>
                     </div>
 
-                    {/* Navigation buttons */}
+                    {/* Navigation buttons - Premium Style */}
                     {images.length > 1 && (
                         <>
                             <button
@@ -116,7 +192,7 @@ export function PostGallery({ images, title = "შედეგების გ�
                                     e.stopPropagation();
                                     goToPrev();
                                 }}
-                                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-black/70 hover:scale-110 border border-white/10"
+                                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-black/40 backdrop-blur-xl rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/60 hover:scale-110 border border-white/10 shadow-xl"
                                 aria-label="Previous image"
                             >
                                 <TbChevronLeft className="w-6 h-6" />
@@ -126,7 +202,7 @@ export function PostGallery({ images, title = "შედეგების გ�
                                     e.stopPropagation();
                                     goToNext();
                                 }}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-black/70 hover:scale-110 border border-white/10"
+                                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-black/40 backdrop-blur-xl rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/60 hover:scale-110 border border-white/10 shadow-xl"
                                 aria-label="Next image"
                             >
                                 <TbChevronRight className="w-6 h-6" />
@@ -135,28 +211,40 @@ export function PostGallery({ images, title = "შედეგების გ�
                     )}
                 </div>
 
-                {/* Thumbnails */}
+                {/* Thumbnails - Premium Floating Style */}
                 {images.length > 1 && (
-                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide py-1">
+                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide px-1">
                         {images.map((image, index) => (
-                            <button
+                            <motion.button
                                 key={index}
-                                onClick={() => setCurrentIndex(index)}
+                                onClick={() => {
+                                    setDirection(index > currentIndex ? 1 : -1);
+                                    setCurrentIndex(index);
+                                }}
+                                whileHover={{ scale: 1.08, y: -4 }}
+                                whileTap={{ scale: 0.95 }}
                                 className={cn(
-                                    "relative w-20 h-20 flex-shrink-0 rounded-md overflow-hidden transition-all duration-200 border border-transparent",
+                                    "relative w-20 h-20 md:w-24 md:h-24 flex-shrink-0 rounded-xl overflow-hidden transition-all duration-300 border-2 shadow-lg",
                                     index === currentIndex
-                                        ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-105 opacity-100 z-10"
-                                        : "opacity-50 hover:opacity-100 grayscale hover:grayscale-0"
+                                        ? "border-primary ring-2 ring-primary/30 scale-105 opacity-100 z-10 shadow-primary/20"
+                                        : "border-white/10 opacity-60 hover:opacity-100 grayscale hover:grayscale-0 hover:border-white/20"
                                 )}
                             >
                                 <Image
                                     src={image.src}
                                     alt={image.alt || `Thumbnail ${index + 1}`}
                                     fill
-                                    className="object-cover"
-                                    sizes="80px"
+                                    className="object-cover transition-transform duration-500 hover:scale-110"
+                                    sizes="100px"
                                 />
-                            </button>
+                                {/* Active indicator dot */}
+                                {index === currentIndex && (
+                                    <motion.div
+                                        layoutId="active-gallery-thumb"
+                                        className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-primary rounded-full shadow-lg shadow-primary/50"
+                                    />
+                                )}
+                            </motion.button>
                         ))}
                     </div>
                 )}
