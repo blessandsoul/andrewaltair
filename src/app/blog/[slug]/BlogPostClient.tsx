@@ -119,25 +119,41 @@ export default function BlogPostClient({ post, prevPost, nextPost, relatedPosts 
     const { isOpen, images, currentIndex, openLightbox, closeLightbox } = useImageLightbox()
     const [articleImages, setArticleImages] = useState<{ src: string; alt: string }[]>([])
 
-    // Extract images from content for lightbox
+    // Extract images from content for lightbox (EXCLUDING gallery/thumbnails/background)
     useEffect(() => {
         const timer = setTimeout(() => {
-            const article = document.querySelector("article")
+            const article = document.getElementById(`post-article-${post.slug}`) || document.querySelector("article")
             if (!article) return
 
             const imgs = article.querySelectorAll("img")
             const imageData: { src: string; alt: string }[] = []
 
             imgs.forEach((img, index) => {
+                // Skip images that are part of gallery, thumbnails, or backgrounds
+                const parent = img.closest('.post-gallery, .blur-3xl, .blur-2xl, [class*="blur-"], [class*="thumbnail"], [class*="thumb"]')
+                if (parent) return
+
+                // Skip images with blur classes
+                if (img.classList.contains('blur-3xl') || img.classList.contains('blur-2xl') || img.classList.contains('scale-125')) return
+
+                // Skip very small images (likely thumbnails or icons)
+                const width = img.getBoundingClientRect().width
+                if (width < 100) return
+
                 const src = img.getAttribute("src") || ""
-                const alt = img.getAttribute("alt") || `TbPhoto ${index + 1}`
+                const alt = img.getAttribute("alt") || ""
+
+                // Skip empty src or "Background blur" type images
+                if (!src || alt.toLowerCase().includes('blur') || alt.toLowerCase().includes('background')) return
+
                 imageData.push({ src, alt })
 
-                // Add click handler to each image
+                // Add click handler to each valid image
                 img.style.cursor = "zoom-in"
                 img.onclick = (e) => {
                     e.preventDefault()
-                    openLightbox(src, alt, imageData, index)
+                    e.stopPropagation()
+                    openLightbox(src, alt, imageData, imageData.findIndex(i => i.src === src))
                 }
             })
 
@@ -145,7 +161,7 @@ export default function BlogPostClient({ post, prevPost, nextPost, relatedPosts 
         }, 200)
 
         return () => clearTimeout(timer)
-    }, [openLightbox])
+    }, [openLightbox, post.slug])
 
     // Use actual content or generate sample
     const postContent = post.content || `
