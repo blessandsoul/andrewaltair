@@ -809,7 +809,8 @@ function AddVideoModal({
                     description: data.description || prev.description || "",
                     type: data.type || "long",
                     duration: data.duration || prev.duration,
-                    thumbnail: data.thumbnail || prev.thumbnail
+                    thumbnail: data.thumbnail || prev.thumbnail,
+                    tags: data.tags || prev.tags || []
                 }))
             } else {
                 const error = await res.json()

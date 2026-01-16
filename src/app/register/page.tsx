@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/lib/auth"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,6 +11,7 @@ import { TbUserPlus, TbMail, TbLock, TbEye, TbEyeOff, TbSparkles, TbArrowRight, 
 import { toast } from "sonner" // Assuming sonner is used, if not we'll fallback to basic alerts or errors state
 
 export default function RegisterPage() {
+    const { register } = useAuth()
     const router = useRouter()
     const [formData, setFormData] = React.useState({
         name: "",
@@ -67,23 +69,15 @@ export default function RegisterPage() {
             setErrors({}) // Clear previous errors
 
             try {
-                const response = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        fullName: formData.name,
-                        username: formData.username,
-                        email: formData.email,
-                        password: formData.password,
-                    }),
+                const result = await register({
+                    fullName: formData.name,
+                    username: formData.username,
+                    email: formData.email,
+                    password: formData.password,
                 });
 
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || 'რეგისტრაცია ვერ მოხერხდა');
+                if (!result.success) {
+                    throw new Error(result.error || 'რეგისტრაცია ვერ მოხერხდა');
                 }
 
                 // Success
@@ -92,9 +86,10 @@ export default function RegisterPage() {
                 });
 
                 // Auto-login success set by server cookie, redirect to home
+                // Auth state is already updated by register() from useAuth
                 setTimeout(() => {
                     router.push("/");
-                    router.refresh(); // Refresh to update auth state
+                    router.refresh();
                 }, 1500);
 
             } catch (error: any) {

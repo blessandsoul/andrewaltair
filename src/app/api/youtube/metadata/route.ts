@@ -15,6 +15,7 @@ interface YouTubeMetadata {
     html: string
     width: number
     height: number
+    tags?: string[]
 }
 
 // Extract video ID from various YouTube URL formats
@@ -78,6 +79,7 @@ export async function GET(request: NextRequest) {
         let authorUrl = ''
         let publishedAt = new Date().toISOString()
         let isShort = false
+        let tags: string[] = []
 
         // Try YouTube Data API v3 first (if API key is configured)
         const apiKey = process.env.YOUTUBE_API_KEY
@@ -94,6 +96,7 @@ export async function GET(request: NextRequest) {
                         authorName = item.snippet?.channelTitle || ''
                         publishedAt = item.snippet?.publishedAt || new Date().toISOString()
                         duration = parseISO8601Duration(item.contentDetails?.duration || '')
+                        tags = item.snippet?.tags || []
 
                         // Check if it's a Short (duration <= 60 seconds)
                         const durationMatch = item.contentDetails?.duration?.match(/PT(?:(\d+)M)?(?:(\d+)S)?/)
@@ -115,7 +118,7 @@ export async function GET(request: NextRequest) {
                 const scrapeRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
                     headers: {
                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                        'Accept-Language': 'ka-GE,ka;q=0.9,en-US;q=0.8,en;q=0.7'
+                        'Accept-Language': 'en-US,en;q=0.9', // Default to English to avoid localized generic descriptions
                     }
                 })
 
@@ -125,36 +128,78 @@ export async function GET(request: NextRequest) {
                     // Helper to decode HTML entities
                     const decodeHtml = (txt: string) => txt.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>')
 
-                    // Extract Title
-                    const titleMatch = html.match(/<meta name="title" content="([^"]+)">/)
-                    if (titleMatch) title = decodeHtml(titleMatch[1])
+                    // Try parsing ytInitialPlayerResponse for more accurate data
+                    const playerResponseMatch = html.match(/var\s+ytInitialPlayerResponse\s*=\s*({.+?});/)
+                    if (playerResponseMatch) {
+                        try {
+                            const playerResponse = JSON.parse(playerResponseMatch[1])
+                            const videoDetails = playerResponse.videoDetails
 
-                    // Extract Description
-                    const descMatch = html.match(/<meta name="description" content="([^"]+)">/)
-                    if (descMatch) description = decodeHtml(descMatch[1])
+                            if (videoDetails) {
+                                title = videoDetails.title || title
+                                description = videoDetails.shortDescription || description
+                                authorName = videoDetails.author || authorName
+                                if (videoDetails.lengthSeconds) {
+                                    const totalSeconds = parseInt(videoDetails.lengthSeconds)
+                                    const mins = Math.floor(totalSeconds / 60)
+                                    const secs = totalSeconds % 60
+                                    duration = `${mins}:${secs.toString().padStart(2, '0')}`
+                                    isShort = totalSeconds <= 60
+                                }
+                                tags = videoDetails.keywords || []
+                                if (videoDetails.viewCount) {
+                                    // Could store view count if needed
+                                }
+                                // If we successfully got data from JSON, we can skip legacy regex parsing for these fields
+                            }
+                        } catch (e) {
+                            console.error('Error parsing ytInitialPlayerResponse:', e)
+                        }
+                    }
+
+                    // Fallback to Regex parsing if JSON failed or missed some fields
+                    if (!title) {
+                        // Extract Title
+                        const titleMatch = html.match(/<meta name="title" content="([^"]+)">/)
+                        if (titleMatch) title = decodeHtml(titleMatch[1])
+                    }
+
+                    if (!description) {
+                        // Extract Description
+                        const descMatch = html.match(/<meta name="description" content="([^"]+)">/)
+                        // Filter out generic YouTube description
+                        const genericDesc = "ისიამოვნეთ თქვენი საყვარელი ვიდეოებითა და მუსიკით"
+                        if (descMatch && !descMatch[1].includes(genericDesc)) {
+                            description = decodeHtml(descMatch[1])
+                        }
+                    }
 
                     // Extract Date
                     const dateMatch = html.match(/itemprop="datePublished" content="([^"]+)"/)
                     if (dateMatch) publishedAt = dateMatch[1]
 
-                    // Extract Duration
-                    const durMatch = html.match(/itemprop="duration" content="([^"]+)"/)
-                    const durRaw = durMatch ? durMatch[1] : (html.match(/"duration":"(PT[^"]+)"/)?.[1])
+                    // Extract Duration if not found in JSON
+                    if (!duration) {
+                        const durMatch = html.match(/itemprop="duration" content="([^"]+)"/)
+                        const durRaw = durMatch ? durMatch[1] : (html.match(/"duration":"(PT[^"]+)"/)?.[1])
 
-                    if (durRaw) {
-                        duration = parseISO8601Duration(durRaw)
-                        // Check for short (<= 60s)
-                        const durationMatch = durRaw.match(/PT(?:(\d+)M)?(?:(\d+)S)?/)
-                        if (durationMatch) {
-                            const mins = parseInt(durationMatch[1] || '0')
-                            const secs = parseInt(durationMatch[2] || '0')
-                            isShort = (mins === 0 && secs <= 60) || (mins === 1 && secs === 0)
+                        if (durRaw) {
+                            duration = parseISO8601Duration(durRaw)
+                            // Check for short (<= 60s)
+                            const durationMatch = durRaw.match(/PT(?:(\d+)M)?(?:(\d+)S)?/)
+                            if (durationMatch) {
+                                const mins = parseInt(durationMatch[1] || '0')
+                                const secs = parseInt(durationMatch[2] || '0')
+                                isShort = (mins === 0 && secs <= 60) || (mins === 1 && secs === 0)
+                            }
                         }
                     }
 
                     // Extract Author
-                    const authorMatch = html.match(/"author":"([^"]+)"/) || html.match(/<link itemprop="name" content="([^"]+)">/)
-                    if (authorMatch) authorName = decodeHtml(authorMatch[1])
+                    if (!authorName) {
+                        const authorMatch = html.match(/"author":"([^"]+)"/) || html.match(/<link itemprop="name" content="([^"]+)">/)
+                        if (authorMatch) authorName = decodeHtml(authorMatch[1])
+                    }
                 }
             } catch (e) {
                 console.error('Scraping error:', e)
@@ -177,6 +222,8 @@ export async function GET(request: NextRequest) {
             title = oembedData.title || ''
             authorName = oembedData.author_name || ''
             authorUrl = oembedData.author_url || ''
+
+            // oEmbed doesn't reliably provide description or tags
 
             // Determine video type from oEmbed dimensions or title
             isShort = oembedData.title?.toLowerCase().includes('#short') ||
@@ -206,6 +253,7 @@ export async function GET(request: NextRequest) {
                 viewCount: 0,
                 publishedAt,
                 type: isShort ? 'short' : 'long',
+                tags
             }
         })
 
