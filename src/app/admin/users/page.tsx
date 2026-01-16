@@ -13,12 +13,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { TbUsers, TbShield, TbUserPlus, TbTrash, TbEdit, TbCheck, TbX, TbSearch, TbClock, TbActivity, TbLogin, TbLogout, TbKey, TbDeviceDesktop, TbDeviceMobile, TbMail, TbLock, TbUser, TbEye, TbEyeOff, TbChevronUp, TbChevronDown, TbChevronLeft, TbChevronRight, TbDownload, TbBan, TbLockOpen, TbShieldCheck, TbShieldOff, TbDots, TbPower } from "react-icons/tb"
 
 interface UserType {
     id: string
     name: string
     email: string
+    avatar?: string
     role: "admin" | "editor" | "viewer"
     lastLogin: string
     status: "active" | "inactive" | "blocked"
@@ -115,10 +117,11 @@ export default function UsersPage() {
 
                 if (res.ok) {
                     const data = await res.json()
-                    const formattedUsers = (data.users || []).map((u: { id?: string; username?: string; email?: string; role?: string; lastLogin?: string; status?: string; twoFA?: boolean; createdAt?: string; sessions?: number; fullName?: string }) => ({
+                    const formattedUsers = (data.users || []).map((u: { id?: string; username?: string; email?: string; role?: string; lastLogin?: string; status?: string; twoFA?: boolean; createdAt?: string; sessions?: number; fullName?: string; avatar?: string }) => ({
                         id: u.id,
                         name: u.fullName || u.username || 'Unknown',
                         email: u.email || '',
+                        avatar: u.avatar,
                         role: u.role || 'viewer',
                         lastLogin: u.lastLogin || 'არასდროს',
                         status: u.status || 'active',
@@ -582,9 +585,12 @@ export default function UsersPage() {
                                                     className="flex items-center gap-3 cursor-pointer"
                                                     onClick={() => { setSelectedUser(user); setShowProfileModal(true) }}
                                                 >
-                                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold">
-                                                        {user.name[0]}
-                                                    </div>
+                                                    <Avatar>
+                                                        <AvatarImage src={user.avatar} alt={user.name} />
+                                                        <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-bold">
+                                                            {user.name[0]}
+                                                        </AvatarFallback>
+                                                    </Avatar>
                                                     <div>
                                                         <p className="font-medium hover:text-indigo-500">{user.name}</p>
                                                         <p className="text-sm text-muted-foreground">{user.email}</p>
