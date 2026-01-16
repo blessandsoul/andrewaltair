@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     ],
   },
   title: {
-    default: "Andrew Altair | AI ექსპერტი - ბიზნესის ავტომატიზაცია და Vibe Coding",
+    default: "Andrew Altair | AI ექსპერტი საქართველოში",
     template: "%s | Andrew Altair"
   },
   description: "AI ექსპერტი საქართველოში. ვეხმარები ბიზნესს AI-ს დანერგვაში. ChatGPT 5.2, Claude 4.5, Grok 3, Gemini 3, Qwen, DeepSeek. ვიდეო: Kling, Veo, Higgsfield. გრაფიკა: Midjourney, Nano Banana. Vibe Coding: Cursor, VSCode, Windsurf. N8N ავტომატიზაცია.",
@@ -93,8 +93,8 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Andrew Altair | AI ექსპერტი - ბიზნესის ავტომატიზაცია",
-    description: "AI ექსპერტი საქართველოში. ბიზნესის ავტომატიზაცია ChatGPT, Claude, Grok, Gemini-ით. Vibe Coding, N8N და AI აგენტები.",
+    title: "Andrew Altair | AI ექსპერტი საქართველოში",
+    description: "AI ბიზნესისთვის. ChatGPT, Claude, Grok, Gemini, Midjourney, Kling, N8N. Vibe Coding და AI აგენტები.",
     type: "website",
     locale: "ka_GE",
     siteName: "Andrew Altair",
@@ -102,7 +102,9 @@ export const metadata: Metadata = {
     images: [
       {
         url: "https://andrewaltair.ge/og.png",
-        alt: "Andrew Altair - AI ექსპერტი და ბიზნეს კონსულტანტი",
+        width: 1200,
+        height: 630,
+        alt: "Andrew Altair - AI ექსპერტი საქართველოში",
       },
     ],
   },
@@ -110,8 +112,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     creator: "@andr3waltair",
     site: "@andr3waltair",
-    title: "Andrew Altair | AI ექსპერტი - ბიზნესის ავტომატიზაცია",
-    description: "AI ექსპერტი საქართველოში. ბიზნესის ავტომატიზაცია ChatGPT, Claude, Grok, Gemini-ით. Vibe Coding, N8N და AI აგენტები.",
+    title: "Andrew Altair | AI ექსპერტი საქართველოში",
+    description: "AI ბიზნესისთვის. ChatGPT, Claude, Grok, Gemini, Midjourney, Kling, N8N. Vibe Coding და AI აგენტები.",
     images: ["https://andrewaltair.ge/og.png"],
   },
   robots: {
