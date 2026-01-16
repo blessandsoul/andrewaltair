@@ -207,7 +207,6 @@ const UserSchema = new Schema<IUser>(
 );
 
 // Indexes for performance
-UserSchema.index({ createdAt: -1 });
 UserSchema.index({ role: 1 });
 
 

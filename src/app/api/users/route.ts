@@ -88,7 +88,7 @@ export async function GET(request: Request) {
 
         const usersPromise = User.find(query)
             .select('username email role status lastLogin createdAt avatar sessions fullName')
-            .sort({ createdAt: -1 })
+            .sort({ _id: -1 })
             .skip((page - 1) * limit)
             .limit(limit)
             .lean();
