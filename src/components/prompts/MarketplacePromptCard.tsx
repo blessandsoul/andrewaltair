@@ -15,42 +15,7 @@ import { formatId } from '@/lib/id-format'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from '@/lib/utils'
 
-const categoryTranslations: Record<string, string> = {
-    "Art": "ხელოვნება",
-    "Photography": "ფოტოგრაფია",
-    "Digital Art": "ციფრული ხელოვნება",
-    "3D": "3D",
-    "3D Model": "3D მოდელი",
-    "Anime": "ანიმე",
-    "Logo": "ლოგო",
-    "Texture": "ტექსტურა",
-    "Web Design": "ვებ დიზაინი",
-    "Fashion": "მოდა",
-    "Portrait": "პორტრეტი",
-    "Landscape": "პეიზაჟი",
-    "Architecture": "არქიტექტურა",
-    "Cyberpunk": "კიბერპანკი",
-    "Fantasy": "ფენტეზი",
-    "Sci-Fi": "სამეცნიერო ფანტასტიკა",
-    "Realistic": "რეალისტური",
-    "Abstract": "აბსტრაქტული",
-    "Nature": "ბუნება",
-    "Animals": "ცხოველები",
-    "Character": "პერსონაჟი",
-    "Vehicle": "ტრანსპორტი",
-    "Food": "საკვები",
-    "Concept Art": "კონცეპტ არტი",
-    "Illustration": "ილუსტრაცია",
-    "Background": "ფონი",
-    "Pattern": "პატერნი",
-    "Icon": "იკონი",
-    "Vector": "ვექტორი",
-    "Typography": "ტიპოგრაფია",
-    "Game Asset": "თამაშის ასეტი",
-    "Pixel Art": "პიქსელ არტი"
-}
-
-const translateCategory = (cat: string) => categoryTranslations[cat] || cat
+import { translateCategory } from '@/lib/prompt-translations'
 
 // Format numbers (15420 -> 15.4K)
 function formatNumber(num: number): string {
@@ -232,7 +197,7 @@ export default function MarketplacePromptCard({ prompt }: PromptCardProps) {
                                         ) : (
                                             <div className="absolute inset-0 flex flex-col items-center justify-center bg-secondary/30 text-muted-foreground">
                                                 <TbSparkles className="w-10 h-10 mb-2 opacity-50" />
-                                                <span className="text-xs font-medium">No Image</span>
+                                                <span className="text-xs font-medium">სურათის გარეშე</span>
                                             </div>
                                         )}
                                     </div>
@@ -290,19 +255,19 @@ export default function MarketplacePromptCard({ prompt }: PromptCardProps) {
                             {isTrending && (
                                 <Badge className="bg-red-500/90 backdrop-blur-sm text-white border-0 text-[10px] px-2 py-0.5 animate-pulse w-fit">
                                     <TbFlame className="w-3 h-3 mr-1" />
-                                    HOT
+                                    პოპულარული
                                 </Badge>
                             )}
                             {isNew && (
                                 <Badge className="bg-emerald-500 text-white border-none gap-1 pl-1.5 w-fit">
                                     <TbSparkles className="w-3 h-3 fill-white" />
-                                    NEW
+                                    ახალი
                                 </Badge>
                             )}
                             {isBestSeller && !isTrending && (
                                 <Badge className="bg-blue-500 text-white border-none gap-1 pl-1.5 w-fit">
                                     <TbCertificate className="w-3 h-3 fill-white" />
-                                    BEST
+                                    საუკეთესო
                                 </Badge>
                             )}
                         </div>

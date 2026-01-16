@@ -5,6 +5,7 @@ import Image from "next/image"
 import { TbDownload, TbShoppingCart, TbStar, TbEye, TbCheck } from "react-icons/tb"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { translateCategory } from "@/lib/prompt-translations"
 
 interface PromptQuickViewProps {
     prompt: any
@@ -37,43 +38,43 @@ export function PromptQuickView({ prompt, isOpen, onClose }: PromptQuickViewProp
                         <div className="mb-6 hidden md:block">
                             <DialogTitle className="text-2xl font-bold mb-2">{prompt.title}</DialogTitle>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Badge variant="outline">{prompt.category}</Badge>
+                                <Badge variant="outline">{translateCategory(prompt.category)}</Badge>
                                 <span className="flex items-center gap-1">
                                     <TbStar className="w-4 h-4 text-amber-500 fill-current" />
                                     {prompt.rating || 5.0}
                                 </span>
                                 <span>•</span>
-                                <span>{prompt.views} views</span>
+                                <span>{prompt.views} ნახვა</span>
                             </div>
                         </div>
 
                         <div className="space-y-6 flex-grow">
                             <div>
-                                <h3 className="font-semibold mb-2 text-sm uppercase tracking-wider text-muted-foreground">Description</h3>
+                                <h3 className="font-semibold mb-2 text-sm uppercase tracking-wider text-muted-foreground">აღწერა</h3>
                                 <p className="text-sm leading-relaxed text-foreground/90">
-                                    {prompt.excerpt || "Unlock the potential of AI with this professionally crafted prompt. Designed for consistency and high-quality results."}
+                                    {prompt.excerpt || "აღმოაჩინეთ AI-ის პოტენციალი ამ პროფესიონალური პრომპტით. შექმნილია მაღალი ხარისხის შედეგებისთვის."}
                                 </p>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="p-3 rounded-lg bg-muted/50 border">
-                                    <span className="text-xs text-muted-foreground block mb-1">AI Model</span>
+                                    <span className="text-xs text-muted-foreground block mb-1">AI მოდელი</span>
                                     <span className="font-medium">{prompt.aiModel}</span>
                                 </div>
                                 <div className="p-3 rounded-lg bg-muted/50 border">
-                                    <span className="text-xs text-muted-foreground block mb-1">Type</span>
-                                    <span className="font-medium capitalize">{prompt.generationType?.replace(/-/g, ' ') || 'Image'}</span>
+                                    <span className="text-xs text-muted-foreground block mb-1">ტიპი</span>
+                                    <span className="font-medium">{prompt.generationType === 'text-generation' ? 'ტექსტი' : prompt.generationType?.includes('video') ? 'ვიდეო' : 'სურათი'}</span>
                                 </div>
                             </div>
                         </div>
 
                         <div className="mt-8 pt-6 border-t flex items-center justify-between gap-4">
                             <div className="text-2xl font-bold text-primary">
-                                {prompt.isFree ? 'FREE' : `${prompt.price} ${prompt.currency}`}
+                                {prompt.isFree ? 'უფასო' : `${prompt.price} ${prompt.currency}`}
                             </div>
                             <Button size="lg" className="flex-1 gap-2 shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all" onClick={() => window.location.href = `/prompts/${prompt.slug}`}>
                                 {prompt.isFree ? <TbDownload className="w-5 h-5" /> : <TbShoppingCart className="w-5 h-5" />}
-                                {prompt.isFree ? 'Download Prompt' : 'Buy Now'}
+                                {prompt.isFree ? 'გადმოწერა' : 'ყიდვა'}
                             </Button>
                         </div>
                     </div>

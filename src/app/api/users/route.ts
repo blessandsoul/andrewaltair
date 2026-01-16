@@ -87,7 +87,7 @@ export async function GET(request: Request) {
             : User.countDocuments(query);
 
         const usersPromise = User.find(query)
-            .select('username email role status lastLogin createdAt avatar sessions fullName')
+            .select('username email role status lastLogin createdAt sessions fullName')
             .sort({ _id: -1 })
             .skip((page - 1) * limit)
             .limit(limit)
