@@ -4,6 +4,7 @@ import dbConnect from '@/lib/db';
 import MarketplacePrompt from '@/models/MarketplacePrompt';
 import { generateUniqueId } from '@/lib/id-system';
 import { verifyAdmin } from '@/lib/admin-auth';
+import { indexPrompt } from '@/lib/indexnow';
 
 // GET - List prompts with filters and pagination
 export async function GET(request: NextRequest) {
@@ -236,6 +237,11 @@ export async function POST(request: NextRequest) {
             abTests: abTests || [],
             numericId,
         });
+
+        // 🔍 Auto-submit to IndexNow for instant indexing
+        if (prompt.status === 'published') {
+            indexPrompt(prompt.slug).catch(err => console.error('[IndexNow] Failed:', err));
+        }
 
         return NextResponse.json({
             success: true,

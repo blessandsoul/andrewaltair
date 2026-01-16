@@ -82,18 +82,44 @@ export async function POST(request: NextRequest) {
         const agentsJsonContent = {
             version: '1.0',
             name: 'Andrew Altair AI',
-            description: 'AI Expert & Tech Consultant platform',
+            description: 'AI Expert & Business Consultant platform - საქართველოს #1 AI ექსპერტი',
             url: baseUrl,
             owner: {
                 name: 'Andrew Altair',
-                role: 'AI Expert & Tech Consultant',
-                location: 'Tbilisi, Georgia'
+                role: 'AI Expert & Business Consultant',
+                location: 'Tbilisi, Georgia',
+                expertise: [
+                    'AI Business Integration',
+                    'Vibe Coding',
+                    'N8N Automation',
+                    'AI Agents Development',
+                    'Video & Image Generation'
+                ]
             },
             languages: ['ka', 'en'],
-            categories: ['AI', 'Technology', 'Education', 'Mystic Tools'],
+            categories: [
+                'Artificial Intelligence',
+                'Business Automation',
+                'Technology Education',
+                'AI Consulting',
+                'Prompt Engineering',
+                'Vibe Coding'
+            ],
             capabilities: {
-                content_types: ['articles', 'tutorials', 'videos', 'tools'],
-                ai_tools: ['fortune-telling', 'tarot', 'numerology', 'horoscope', 'dream-interpretation'],
+                services: [
+                    'AI Business Consulting',
+                    'N8N Workflow Automation',
+                    'Custom AI Agent Development',
+                    'Vibe Coding Training',
+                    'AI Strategy Consulting'
+                ],
+                content_types: ['articles', 'tutorials', 'videos', 'prompts', 'courses'],
+                ai_models: ['ChatGPT 5.2', 'Claude 4.5', 'Grok 3', 'Gemini 3', 'Qwen', 'DeepSeek', 'Llama 3.3'],
+                video_generators: ['Kling AI', 'Veo 2', 'Higgsfield', 'Runway ML'],
+                image_generators: ['Midjourney', 'Nano Banana', 'DALL-E 3'],
+                coding_tools: ['Cursor', 'VSCode', 'Windsurf', 'Antigravity', 'Claude Code'],
+                automation: ['N8N', 'Make', 'Zapier', 'Custom AI Agents'],
+                mystic_tools: ['fortune-telling', 'tarot', 'numerology', 'horoscope', 'dream-interpretation', 'coffee-cup-reading'],
                 api_access: false
             },
             statistics: {
@@ -104,26 +130,34 @@ export async function POST(request: NextRequest) {
             sections: {
                 blog: {
                     path: '/blog',
-                    description: 'AI news, tutorials, and insights',
+                    description: 'AI news, tutorials, and insights in Georgian',
                     update_frequency: 'daily',
                     post_count: totalPosts
                 },
                 encyclopedia: {
                     path: '/encyclopedia/vibe-coding',
-                    description: 'Vibe Coding educational library',
+                    description: 'Vibe Coding educational course with 50+ lessons',
                     article_count: libraryArticles.length
                 },
-                tools: {
-                    path: '/tools',
-                    description: 'AI tools catalog'
+                prompts: {
+                    path: '/prompts',
+                    description: 'Premium AI prompts marketplace for ChatGPT, Claude, Midjourney'
+                },
+                services: {
+                    path: '/services',
+                    description: 'Professional AI consulting and automation services'
+                },
+                bots: {
+                    path: '/bots',
+                    description: 'AI chatbot marketplace and resources'
                 },
                 mystic: {
                     path: '/mystic',
-                    description: 'Interactive AI-powered mystic tools'
+                    description: 'Interactive AI-powered mystic tools in Georgian'
                 },
                 videos: {
                     path: '/videos',
-                    description: 'Video content and tutorials'
+                    description: 'YouTube tutorials and shorts about AI'
                 }
             },
             social_links: {
@@ -133,15 +167,20 @@ export async function POST(request: NextRequest) {
                 telegram: 'https://t.me/andr3waltairchannel',
                 facebook: 'https://www.facebook.com/andr3waltair',
                 twitter: 'https://x.com/andr3waltair',
-                linkedin: 'https://www.linkedin.com/in/andrewaltair'
+                linkedin: 'https://www.linkedin.com/in/andrewaltair',
+                threads: 'https://www.threads.net/@andr3waltair'
             },
             crawling: {
                 robots_txt: `${baseUrl}/robots.txt`,
                 sitemap: `${baseUrl}/sitemap.xml`,
                 llms_txt: `${baseUrl}/llms.txt`,
-                llms_full_txt: `${baseUrl}/llms-full.txt`,
                 rss_feed: `${baseUrl}/feed.xml`,
-                rate_limit: '1 request per second'
+                rate_limit: '1 request per second',
+                preferred_crawl_time: '02:00-06:00 UTC'
+            },
+            contact: {
+                email: 'contact@andrewaltair.ge',
+                telegram: '@andr3waltair'
             },
             last_updated: new Date().toISOString()
         }

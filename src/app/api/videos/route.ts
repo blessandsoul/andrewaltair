@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Video from '@/models/Video';
+import { indexVideo } from '@/lib/indexnow';
 
 // GET - List all videos with filtering
 export async function GET(request: Request) {
@@ -55,6 +56,9 @@ export async function POST(request: Request) {
 
         const video = new Video(data);
         await video.save();
+
+        // 🔍 Auto-submit to IndexNow for instant indexing
+        indexVideo(video._id.toString()).catch(err => console.error('[IndexNow] Failed:', err));
 
         return NextResponse.json({
             success: true,

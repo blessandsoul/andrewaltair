@@ -3,6 +3,7 @@ import dbConnect from '@/lib/db';
 import MarketplacePrompt from '@/models/MarketplacePrompt';
 import { generateUniqueId } from '@/lib/id-system';
 import { verifyAdmin } from '@/lib/admin-auth';
+import { indexPrompt } from '@/lib/indexnow';
 
 interface Params {
     params: Promise<{ id: string }>;
@@ -126,6 +127,11 @@ export async function PUT(request: NextRequest, { params }: Params) {
         prompt.isFree = prompt.price === 0;
 
         await prompt.save();
+
+        // 🔍 Auto-submit to IndexNow for re-indexing
+        if (prompt.status === 'published') {
+            indexPrompt(prompt.slug).catch(err => console.error('[IndexNow] Failed:', err));
+        }
 
         return NextResponse.json({
             success: true,

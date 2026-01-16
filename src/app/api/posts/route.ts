@@ -5,6 +5,7 @@ import dbConnect from '@/lib/db';
 import Post from '@/models/Post';
 import { generateUniqueId } from '@/lib/id-system';
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
+import { indexBlogPost } from '@/lib/indexnow';
 
 // GET - List all posts with filtering and pagination
 export async function GET(request: Request) {
@@ -152,6 +153,11 @@ export async function POST(request: Request) {
         revalidatePath('/blog');
         revalidatePath('/');
         revalidatePath('/sitemap.xml');
+
+        // 🔍 Auto-submit to IndexNow for instant search engine indexing
+        if (post.status === 'published') {
+            indexBlogPost(post.slug).catch(err => console.error('[IndexNow] Failed:', err));
+        }
 
         return NextResponse.json({
             success: true,

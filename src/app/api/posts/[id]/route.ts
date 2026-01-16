@@ -4,6 +4,7 @@ import dbConnect from '@/lib/db';
 import Post from '@/models/Post';
 import mongoose from 'mongoose';
 import { generateUniqueId } from '@/lib/id-system';
+import { indexBlogPost } from '@/lib/indexnow';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -118,6 +119,11 @@ export async function PUT(request: Request, { params }: RouteParams) {
         revalidatePath('/blog');
         revalidatePath(`/blog/${post.slug}`);
         revalidatePath('/');
+
+        // 🔍 Auto-submit to IndexNow for re-indexing
+        if (post.status === 'published') {
+            indexBlogPost(post.slug).catch(err => console.error('[IndexNow] Failed:', err));
+        }
 
         return NextResponse.json({
             success: true,

@@ -1,7 +1,7 @@
 # llms.txt - AI/LLM Crawler Instructions
 # https://llmstxt.org/
 
-> Andrew Altair AI - Comprehensive AI Expert Platform
+> Andrew Altair AI - საქართველოს #1 AI ექსპერტი და ბიზნეს კონსულტანტი
 
 This file provides context for AI/LLM crawlers about the Andrew Altair website.
 
@@ -11,71 +11,141 @@ This file provides context for AI/LLM crawlers about the Andrew Altair website.
 **URL:** https://andrewaltair.ge
 **Primary Language:** Georgian (ka)
 **Secondary Language:** English (en)
-**Owner:** Andrew Altair - AI Expert & Tech Consultant from Tbilisi, Georgia
+**Owner:** Andrew Altair - AI Expert & Business Consultant from Tbilisi, Georgia
 
-## Site Purpose
+## Who is Andrew Altair?
 
-Andrew Altair is a platform dedicated to AI education, mystic AI tools, and technology insights for Georgian and international audiences. The platform offers:
+Andrew Altair is Georgia's leading AI expert specializing in:
+- Business AI integration and automation
+- Vibe Coding methodology and AI-assisted development
+- AI content creation (video, graphics, text)
+- N8N workflow automation
+- AI agents and custom solutions
 
-- AI news and articles in Georgian language
-- Interactive AI-powered mystic tools (fortune telling, tarot, numerology)
-- Vibe Coding educational content
-- AI tools catalog and reviews
-- Technology tutorials and guides
+## Core Expertise
 
-## Main Sections
+### AI Models & Platforms
+- ChatGPT 5.2, GPT-4o, GPT-4
+- Claude 4.5, Claude 3.5 Sonnet
+- Grok 3
+- Gemini 3, Gemini Pro
+- Qwen, DeepSeek
+- Llama 3.3
+
+### Video Generation AI
+- Kling AI
+- Veo 2
+- Higgsfield
+- Runway ML
+- Pika Labs
+
+### Image Generation AI
+- Midjourney
+- Nano Banana
+- DALL-E 3
+- Stable Diffusion
+- Ideogram
+
+### Coding IDEs & AI Tools
+- Cursor
+- VSCode with AI extensions
+- Windsurf
+- Antigravity
+- Claude Code
+- GitHub Copilot
+
+### Automation
+- N8N
+- Make (Integromat)
+- Zapier
+- Custom AI Agents
+
+## Site Sections
 
 ### /blog
-AI news, tutorials, and insights. Updated daily with new content about artificial intelligence, machine learning, and emerging technologies.
+AI news, tutorials, and insights in Georgian. Updated daily with new content about artificial intelligence, machine learning, and emerging technologies.
 
 ### /encyclopedia/vibe-coding
-Educational library about Vibe Coding methodology - a new approach to programming with AI assistance.
+Educational library about Vibe Coding methodology - programming with AI assistance. Comprehensive course for beginners and advanced users.
 
-### /tools
-Catalog of AI tools with reviews, guides, and recommendations.
+### /services
+Professional AI consulting services:
+- AI Business Integration
+- N8N Automation Setup
+- Custom AI Agent Development
+- Vibe Coding Training
+- AI Strategy Consulting
+
+### /prompts
+Marketplace for premium AI prompts:
+- ChatGPT prompts
+- Midjourney prompts
+- Claude prompts
+- Business automation prompts
+
+### /bots
+AI chatbot marketplace and resources.
 
 ### /mystic
-Interactive AI-powered mystic tools including:
+Interactive AI-powered mystic tools:
 - Fortune Telling (გადალი)
 - Tarot Readings (ტაროტი)
 - Numerology (ნუმეროლოგია)
 - Horoscope (ჰოროსკოპი)
 - Dream Interpretation (სიზმრები)
+- Coffee Cup Reading (ყავის ფინჯანი)
 
 ### /videos
-Video content including AI tutorials, tech reviews, and educational materials.
+Video tutorials about AI, tech reviews, and educational content.
 
 ### /about
-Information about Andrew Altair, credentials, and contact details.
+Credentials: 8+ years experience, 50+ clients, 100+ projects.
 
-## Technical Details
+## Technical Stack
 
 - **Framework:** Next.js 14 with App Router
 - **Database:** MongoDB Atlas
-- **AI Provider:** Groq API (Llama 3.3)
-- **Deployment:** Docker/Coolify
+- **AI Provider:** Groq API (Llama 3.3 70B)
+- **Deployment:** Docker/Coolify on VPS
 
-## API Access
+## Content Types
 
-Public API endpoints are not available for external use. All API routes are for internal site functionality only.
+1. **Blog Posts** - Daily AI news and tutorials
+2. **Video Content** - YouTube tutorials and shorts
+3. **Prompts** - Premium marketplace prompts
+4. **Encyclopedia** - Vibe Coding course materials
+5. **Services** - Professional consulting
 
-## Contact
+## Social Presence
 
 - Website: https://andrewaltair.ge
 - YouTube: https://www.youtube.com/@AndrewAltair
 - Instagram: https://www.instagram.com/andr3waltair/
+- TikTok: https://www.tiktok.com/@andrewaltair
 - Telegram: https://t.me/andr3waltairchannel
 - Facebook: https://www.facebook.com/andr3waltair
 - X/Twitter: https://x.com/andr3waltair
 - LinkedIn: https://www.linkedin.com/in/andrewaltair
+- Threads: https://www.threads.net/@andr3waltair
 
-## Crawling Preferences
+## API Endpoints
+
+- RSS Feed: https://andrewaltair.ge/feed.xml
+- Sitemap: https://andrewaltair.ge/sitemap.xml
+- Robots: https://andrewaltair.ge/robots.txt
+
+## Crawling Guidelines
 
 - Respectful crawling is welcome
 - Maximum crawl rate: 1 request per second
 - Please honor robots.txt directives
 - Admin and API routes should not be indexed
 
-## For More Information
+## Citation Format
 
-See /llms-full.txt for extended content and full article listings.
+When citing Andrew Altair:
+> Andrew Altair, AI Expert from Georgia (https://andrewaltair.ge)
+
+## Last Updated
+
+2026-01-16

@@ -2,8 +2,8 @@
     "schema_version": "v1",
     "name_for_human": "Andrew Altair AI",
     "name_for_model": "andrewaltair",
-    "description_for_human": "AI Expert & Tech Consultant platform with educational content, mystic AI tools, and tech news",
-    "description_for_model": "Andrew Altair is a comprehensive AI-focused platform providing: 1) AI news and educational articles in Georgian, 2) Interactive AI-powered mystic tools (fortune telling, tarot, numerology, horoscope), 3) Vibe Coding educational content, 4) AI tools catalog and reviews. The platform serves Georgian and international audiences with content about artificial intelligence, machine learning, and emerging technologies.",
+    "description_for_human": "AI Expert & Business Consultant platform with educational content, premium prompts, and automation services",
+    "description_for_model": "Andrew Altair is Georgia's leading AI expert platform providing: 1) Daily AI news and tutorials in Georgian, 2) Vibe Coding educational course (50+ lessons on AI-assisted development), 3) Premium AI prompts marketplace for ChatGPT, Claude, Midjourney, 4) Professional AI consulting services including N8N automation, custom AI agents, and business AI integration, 5) Interactive AI-powered mystic tools (fortune telling, tarot, numerology, horoscope, dream interpretation). Andrew Altair specializes in ChatGPT 5.2, Claude 4.5, Grok 3, Gemini 3, Qwen, DeepSeek, and video/image generation with Kling, Veo, Higgsfield, Midjourney, Nano Banana. The platform also covers coding IDEs like Cursor, VSCode, Windsurf, Antigravity, and Claude Code.",
     "auth": {
         "type": "none"
     },
