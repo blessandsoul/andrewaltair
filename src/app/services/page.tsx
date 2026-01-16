@@ -256,32 +256,35 @@ export default async function ServicesPage() {
                                             style={{ backgroundColor: service.color }}
                                         />
 
-                                        {service.popular && (
-                                            <div className="absolute top-4 right-4 z-10">
-                                                <Badge className="bg-gradient-to-r from-primary to-accent text-white border-0 shadow-lg animate-pulse">
-                                                    <TbStar className="w-3 h-3 mr-1 fill-white" />
-                                                    პოპულარული
-                                                </Badge>
-                                            </div>
-                                        )}
+
 
                                         <CardHeader className="pb-4 relative z-10">
-                                            <div
-                                                className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-lg"
-                                                style={{
-                                                    backgroundColor: `${service.color}20`,
-                                                    boxShadow: `0 8px 32px ${service.color}30`
-                                                }}
-                                            >
-                                                <Icon
-                                                    className="w-8 h-8"
-                                                    style={{ color: service.color }}
-                                                />
+                                            <div className="flex justify-between items-start w-full">
+                                                <div
+                                                    className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-lg shrink-0"
+                                                    style={{
+                                                        backgroundColor: `${service.color}20`,
+                                                        boxShadow: `0 8px 32px ${service.color}30`
+                                                    }}
+                                                >
+                                                    <Icon
+                                                        className="w-8 h-8"
+                                                        style={{ color: service.color }}
+                                                    />
+                                                </div>
+                                                <div className="flex flex-col items-end text-right ml-4 flex-1">
+                                                    {service.popular && (
+                                                        <Badge className="bg-gradient-to-r from-primary to-accent text-white border-0 shadow-lg animate-pulse mb-2">
+                                                            <TbStar className="w-3 h-3 mr-1 fill-white" />
+                                                            პოპულარული
+                                                        </Badge>
+                                                    )}
+                                                    <h3 className="text-2xl font-bold group-hover:text-primary transition-colors leading-tight">
+                                                        {service.title}
+                                                    </h3>
+                                                </div>
                                             </div>
-                                            <h3 className="text-2xl font-bold group-hover:text-primary transition-colors">
-                                                {service.title}
-                                            </h3>
-                                            <p className="text-muted-foreground leading-relaxed">
+                                            <p className="text-muted-foreground leading-relaxed mt-2">
                                                 {service.description}
                                             </p>
                                         </CardHeader>
