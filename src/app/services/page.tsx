@@ -77,20 +77,11 @@ interface Service {
     popular?: boolean
 }
 
-// Fetch services from API
+import servicesData from "@/data/services.json"
+
+// Fetch services directly from JSON
 async function getServices(): Promise<Service[]> {
-    try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/services`, {
-            cache: 'no-store'
-        })
-        if (res.ok) {
-            const data = await res.json()
-            return data.services || []
-        }
-    } catch (error) {
-        console.error('Error fetching services:', error)
-    }
-    return []
+    return servicesData as unknown as Service[]
 }
 
 const iconMap: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {

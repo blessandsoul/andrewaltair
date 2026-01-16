@@ -35,13 +35,14 @@ export const categoryTranslations: Record<string, string> = {
 
 export const translateCategory = (cat: string) => {
     if (!cat) return ''
+    const catStr = String(cat)
     // Direct lookup
-    if (categoryTranslations[cat]) return categoryTranslations[cat]
+    if (categoryTranslations[catStr]) return categoryTranslations[catStr]
 
     // Case insensitive lookup
-    const lowerCat = cat.toLowerCase()
+    const lowerCat = catStr.toLowerCase()
     const key = Object.keys(categoryTranslations).find(k => k.toLowerCase() === lowerCat)
     if (key) return categoryTranslations[key]
 
-    return cat
+    return catStr
 }

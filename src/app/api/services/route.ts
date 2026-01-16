@@ -1,5 +1,5 @@
 export const dynamic = 'force-dynamic'
-"use server"
+
 
 import { NextResponse } from "next/server"
 import servicesData from "@/data/services.json"
