@@ -39,14 +39,30 @@ export function PostGallery({ images, title = "შედეგების გ�
         setIsLightboxOpen(true);
     };
 
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            e.stopPropagation();
+            goToPrev();
+        } else if (e.key === "ArrowRight") {
+            e.preventDefault();
+            e.stopPropagation();
+            goToNext();
+        }
+    };
+
     return (
         <>
-            <div className={cn("post-gallery space-y-4", className)}>
+            <div
+                className={cn("post-gallery space-y-4 outline-none", className)}
+                tabIndex={0}
+                onKeyDown={handleKeyDown}
+            >
                 {/* Title */}
                 {title && (
                     <h3 className="text-xl font-bold flex items-center gap-2">
                         <TbZoomIn className="w-5 h-5 text-primary" />
-                        {title}
+                        {title === "შედეგების გალერეა" ? "გალერეა" : title}
                     </h3>
                 )}
 

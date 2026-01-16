@@ -22,13 +22,14 @@ interface VideoEmbedProps {
 function parseVideoUrl(url: string): { platform: 'youtube' | 'vimeo'; videoId: string } | null {
     // YouTube patterns
     const youtubePatterns = [
-        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s?]+)/,
-        /youtube\.com\/shorts\/([^&\s?]+)/
+        /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i,
+        /youtube\.com\/live\/([^&\s?]+)/i,
+        /youtube\.com\/shorts\/([^&\s?]+)/i
     ]
 
     for (const pattern of youtubePatterns) {
         const match = url.match(pattern)
-        if (match) {
+        if (match && match[1]) {
             return { platform: 'youtube', videoId: match[1] }
         }
     }

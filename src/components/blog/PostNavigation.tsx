@@ -30,7 +30,8 @@ export function PostNavigation({
         if (
             document.activeElement?.tagName === "INPUT" ||
             document.activeElement?.tagName === "TEXTAREA" ||
-            document.activeElement?.getAttribute("contenteditable") === "true"
+            document.activeElement?.getAttribute("contenteditable") === "true" ||
+            document.body.style.overflow === "hidden"
         ) {
             return
         }
