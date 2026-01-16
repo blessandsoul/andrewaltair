@@ -15,7 +15,7 @@ interface FloatingTagCloudProps {
 function getTagStyle(index: number, total: number) {
     // Create a circular/orbital distribution
     const angle = (index / total) * 360
-    const radius = 30 + (index % 3) * 15
+    const radius = 15 + (index % 3) * 10 // Reduced from 30/45/60 to 15/25/35 to prevent clipping
     const duration = 15 + (index % 5) * 3
     const delay = index * 0.3
     const size = ['text-xs', 'text-sm', 'text-base', 'text-sm', 'text-xs'][index % 5]

@@ -272,7 +272,7 @@ export default async function ServicesPage() {
                                                         style={{ color: service.color }}
                                                     />
                                                 </div>
-                                                <div className="flex flex-col items-start text-left ml-4 flex-1">
+                                                <div className="flex flex-col items-start text-left ml-auto pl-4 max-w-[70%]">
                                                     {service.popular && (
                                                         <Badge className="bg-gradient-to-r from-primary to-accent text-white border-0 shadow-lg animate-pulse mb-1 text-[10px] px-2 py-0.5 h-auto">
                                                             <TbStar className="w-2.5 h-2.5 mr-1 fill-white" />
