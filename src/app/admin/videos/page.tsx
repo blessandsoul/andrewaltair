@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { TbVideo, TbSearch, TbEdit, TbTrash, TbEye, TbClock, TbPlayerPlay, TbX, TbDeviceFloppy, TbBrandYoutube, TbPlus, TbDownload, TbUpload, TbChartBar, TbRefresh, TbCalendar, TbTag, TbGripVertical, TbCheck, TbJson, TbFileSpreadsheet, TbTrendingUp, TbUsers, TbExternalLink, TbSquareCheck, TbSquare, TbStack2 } from "react-icons/tb"
 // Videos fetched from MongoDB API
 
@@ -482,21 +483,7 @@ export default function VideosPage() {
                     ))}
                 </select>
 
-                {/* Type Filter */}
-                <div className="flex rounded-lg border overflow-hidden">
-                    {(["all", "long", "short"] as const).map((type) => (
-                        <button
-                            key={type}
-                            onClick={() => setTypeFilter(type)}
-                            className={`px-3 py-2 text-sm font-medium transition-colors ${typeFilter === type
-                                ? "bg-primary text-primary-foreground"
-                                : "hover:bg-muted"
-                                }`}
-                        >
-                            {type === "all" ? "ყველა" : type === "long" ? "Long" : "Short"}
-                        </button>
-                    ))}
-                </div>
+
 
                 {/* TbSearch */}
                 <div className="relative w-full sm:w-60">
@@ -564,12 +551,7 @@ export default function VideosPage() {
                             </button>
 
                             {/* Badges */}
-                            <Badge
-                                className="absolute top-2 right-2"
-                                variant={video.type === "short" ? "default" : "secondary"}
-                            >
-                                {video.type === "short" ? "Short" : "Long"}
-                            </Badge>
+
 
                             {/* Status Badge */}
                             {video.status && video.status !== "published" && (
@@ -932,15 +914,19 @@ function AddVideoModal({
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">კატეგორია</label>
-                                <select
+                                <Select
                                     value={formData.category}
-                                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                    className="w-full px-3 py-2 rounded-md border border-input bg-background"
+                                    onValueChange={(value) => setFormData({ ...formData, category: value })}
                                 >
-                                    {CATEGORIES.map(cat => (
-                                        <option key={cat} value={cat}>{cat}</option>
-                                    ))}
-                                </select>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="აირჩიეთ კატეგორია" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {CATEGORIES.map(cat => (
+                                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">ხანგრძლივობა</label>
@@ -948,24 +934,6 @@ function AddVideoModal({
                                     value={formData.duration}
                                     onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
                                 />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">ტიპი</label>
-                                <div className="flex gap-2">
-                                    {(["long", "short"] as const).map((type) => (
-                                        <button
-                                            key={type}
-                                            type="button"
-                                            onClick={() => setFormData({ ...formData, type })}
-                                            className={`flex-1 px-3 py-2 rounded-md border text-sm font-medium transition-colors ${formData.type === type
-                                                ? "bg-primary text-primary-foreground border-primary"
-                                                : "border-input hover:bg-muted"
-                                                }`}
-                                        >
-                                            {type === "long" ? "Long" : "Short"}
-                                        </button>
-                                    ))}
-                                </div>
                             </div>
                         </div>
 
@@ -1012,15 +980,19 @@ function AddVideoModal({
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">სტატუსი</label>
-                                <select
+                                <Select
                                     value={formData.status}
-                                    onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                                    className="w-full px-3 py-2 rounded-md border border-input bg-background"
+                                    onValueChange={(value) => setFormData({ ...formData, status: value as any })}
                                 >
-                                    <option value="published">გამოქვეყნებული</option>
-                                    <option value="draft">დრაფტი</option>
-                                    <option value="scheduled">დაგეგმილი</option>
-                                </select>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="აირჩიეთ სტატუსი" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="published">გამოქვეყნებული</SelectItem>
+                                        <SelectItem value="draft">დრაფტი</SelectItem>
+                                        <SelectItem value="scheduled">დაგეგმილი</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                             {formData.status === "scheduled" && (
                                 <div className="space-y-2">
@@ -1137,15 +1109,19 @@ function EditVideoModal({
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">კატეგორია</label>
-                                <select
+                                <Select
                                     value={formData.category}
-                                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                    className="w-full px-3 py-2 rounded-md border border-input bg-background"
+                                    onValueChange={(value) => setFormData({ ...formData, category: value })}
                                 >
-                                    {CATEGORIES.map(cat => (
-                                        <option key={cat} value={cat}>{cat}</option>
-                                    ))}
-                                </select>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="აირჩიეთ კატეგორია" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {CATEGORIES.map(cat => (
+                                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
@@ -1156,25 +1132,8 @@ function EditVideoModal({
                                     onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">ტიპი</label>
-                                <div className="flex gap-2">
-                                    {(["long", "short"] as const).map((type) => (
-                                        <button
-                                            key={type}
-                                            type="button"
-                                            onClick={() => setFormData({ ...formData, type })}
-                                            className={`flex-1 px-3 py-2 rounded-md border text-sm font-medium transition-colors ${formData.type === type
-                                                ? "bg-primary text-primary-foreground border-primary"
-                                                : "border-input hover:bg-muted"
-                                                }`}
-                                        >
-                                            {type === "long" ? "Long" : "Short"}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
                         </div>
+
 
                         {/* Tags */}
                         <div className="space-y-2">
@@ -1219,15 +1178,19 @@ function EditVideoModal({
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">სტატუსი</label>
-                                <select
+                                <Select
                                     value={formData.status}
-                                    onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                                    className="w-full px-3 py-2 rounded-md border border-input bg-background"
+                                    onValueChange={(value) => setFormData({ ...formData, status: value as any })}
                                 >
-                                    <option value="published">გამოქვეყნებული</option>
-                                    <option value="draft">დრაფტი</option>
-                                    <option value="scheduled">დაგეგმილი</option>
-                                </select>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="აირჩიეთ სტატუსი" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="published">გამოქვეყნებული</SelectItem>
+                                        <SelectItem value="draft">დრაფტი</SelectItem>
+                                        <SelectItem value="scheduled">დაგეგმილი</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                             {formData.status === "scheduled" && (
                                 <div className="space-y-2">
@@ -1253,6 +1216,6 @@ function EditVideoModal({
                     </form>
                 </CardContent>
             </Card>
-        </div>
+        </div >
     )
 }

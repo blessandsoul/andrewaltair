@@ -51,6 +51,24 @@ function parseISO8601Duration(duration: string): string {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
 }
 
+// Extract hashtags from video description (these are the real content tags)
+function extractHashtagsFromDescription(description: string): string[] {
+    // Match hashtags - both Latin and Georgian characters
+    const hashtagRegex = /#([\wა-ჰ]+)/gu
+    const matches = description.match(hashtagRegex) || []
+
+    // Generic/spam tags to filter out
+    const genericTags = new Set([
+        'shorts', 'short', 'fyp', 'foryou', 'foryoupage', 'viral', 'video', 'videos',
+        'meme', 'memes', 'funny', 'tiktok', 'reels', 'trending', 'subscribe',
+        'ვიდეო', 'ვიდეოები', 'მიმი', 'მიმები', 'ხახაცილო', 'სასაცილო'
+    ])
+
+    return matches
+        .map(tag => tag.substring(1)) // Remove # prefix
+        .filter(tag => tag.length > 1 && !genericTags.has(tag.toLowerCase()))
+}
+
 export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url)
@@ -107,9 +125,13 @@ export async function GET(request: NextRequest) {
                         }
                     }
                 }
-            } catch (e) {
+            } catch (e: any) {
                 console.error('YouTube Data API error:', e)
+                // Append error to description for debugging if we fallback to scraping
+                if (!description) description = `DEBUG: API Error: ${e.message}`
             }
+        } else {
+            if (!description) description = "DEBUG: No API Key found in env"
         }
 
         // 2. Try Scraping (Good fallback for no key)
@@ -348,6 +370,12 @@ export async function GET(request: NextRequest) {
         // Get high-quality thumbnail
         const thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
 
+        // Extract hashtags from description as primary tags (these are the real content tags)
+        const descriptionTags = extractHashtagsFromDescription(description)
+
+        // Use description hashtags as primary, fall back to API tags if none found
+        const finalTags = descriptionTags.length > 0 ? descriptionTags : tags
+
         return NextResponse.json({
             success: true,
             videoId,
@@ -367,14 +395,21 @@ export async function GET(request: NextRequest) {
                 viewCount: 0,
                 publishedAt,
                 type: isShort ? 'short' : 'long',
-                tags
+                tags: finalTags
             }
         })
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('YouTube metadata fetch error:', error)
         return NextResponse.json(
-            { error: 'Failed to fetch YouTube metadata' },
+            {
+                error: 'Failed to fetch YouTube metadata',
+                details: error.message,
+                debug: {
+                    apiKeyPresent: !!process.env.YOUTUBE_API_KEY,
+                    phase: 'Global Catch'
+                }
+            },
             { status: 500 }
         )
     }
