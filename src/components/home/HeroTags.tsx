@@ -71,7 +71,7 @@ const categories: { id: Category; label: string; icon: any }[] = [
 ];
 
 export function HeroTags() {
-    const [activeCategory, setActiveCategory] = useState<Category>('All');
+    const [activeCategory, setActiveCategory] = useState<Category>('LLMs');
 
     const filteredTools = activeCategory === 'All'
         ? tools
@@ -82,28 +82,39 @@ export function HeroTags() {
             {/* Category Tabs */}
             <div className="flex flex-wrap items-center gap-2 p-1 bg-secondary/30 backdrop-blur-sm rounded-xl border border-primary/10 w-fit">
                 {categories.map((cat) => (
-                    <button
-                        key={cat.id}
-                        onClick={() => setActiveCategory(cat.id)}
-                        className={cn(
-                            "relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200",
-                            activeCategory === cat.id
-                                ? "text-primary-foreground"
-                                : "text-muted-foreground hover:text-foreground"
-                        )}
-                    >
-                        {activeCategory === cat.id && (
-                            <motion.div
-                                layoutId="activeTab"
-                                className="absolute inset-0 bg-primary rounded-lg shadow-md"
-                                transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
-                            />
-                        )}
-                        <span className="relative z-10 flex items-center gap-1.5">
+                    cat.id === 'All' ? (
+                        <Link
+                            key={cat.id}
+                            href="/tools"
+                            className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
+                        >
                             <cat.icon className="w-3.5 h-3.5" />
                             {cat.label}
-                        </span>
-                    </button>
+                        </Link>
+                    ) : (
+                        <button
+                            key={cat.id}
+                            onClick={() => setActiveCategory(cat.id)}
+                            className={cn(
+                                "relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200",
+                                activeCategory === cat.id
+                                    ? "text-primary-foreground"
+                                    : "text-muted-foreground hover:text-foreground"
+                            )}
+                        >
+                            {activeCategory === cat.id && (
+                                <motion.div
+                                    layoutId="activeTab"
+                                    className="absolute inset-0 bg-primary rounded-lg shadow-md"
+                                    transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
+                                />
+                            )}
+                            <span className="relative z-10 flex items-center gap-1.5">
+                                <cat.icon className="w-3.5 h-3.5" />
+                                {cat.label}
+                            </span>
+                        </button>
+                    )
                 ))}
             </div>
 

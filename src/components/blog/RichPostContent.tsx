@@ -278,7 +278,7 @@ function PromptBlockSection({ section }: { section: Section }) {
 }
 
 function SectionRenderer({ section, index }: { section: Section; index: number }) {
-    const style = SECTION_STYLES[section.type];
+    const style = SECTION_STYLES[section.type] || SECTION_STYLES['section'];
     const customBorder = getSectionAccentColor(section.icon);
 
     // Get icon component - prefer section.icon, fallback to style.defaultIcon
