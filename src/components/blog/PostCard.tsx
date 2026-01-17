@@ -295,6 +295,25 @@ export function PostCard({
                             )}
                         </div>
 
+                        {/* Author Indicator - Top Right */}
+                        {showAuthor && post.author && (
+                            <div className="absolute top-3 right-3 z-10">
+                                <div className="flex items-center gap-1.5 pl-1 pr-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 shadow-lg transition-transform duration-300 group-hover:scale-105">
+                                    <div className="relative w-5 h-5 rounded-full overflow-hidden border border-white/20">
+                                        <Image
+                                            src={post.author.avatar || '/images/avatar.jpg'}
+                                            alt={post.author.name}
+                                            fill
+                                            className="object-cover"
+                                        />
+                                    </div>
+                                    <span className="text-[10px] font-medium text-white/90">
+                                        {post.author.name}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Bottom Stats Overlay (on image) - NEW */}
                         <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between z-10">
                             <div className="flex items-center gap-1.5 mx-auto">
