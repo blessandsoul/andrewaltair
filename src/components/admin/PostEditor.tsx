@@ -332,7 +332,14 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                             }
 
                             if (parsed.meta.tags && Array.isArray(parsed.meta.tags)) newData.tags = parsed.meta.tags
-                            if (parsed.meta.author) newData.author = { ...prev.author, ...parsed.meta.author }
+                            if (parsed.meta.author) {
+                                newData.author = { ...prev.author, ...parsed.meta.author }
+                                // Auto-assign avatar for known AI authors
+                                if (parsed.meta.author.name === 'ალფა' && !parsed.meta.author.avatar) {
+                                    newData.author.avatar = '/images/authors/alpha.png'
+                                    newData.author.role = newData.author.role || 'AI ანალიტიკოსი'
+                                }
+                            }
                         }
 
                         // 2. SEO
