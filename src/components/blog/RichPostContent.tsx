@@ -16,7 +16,7 @@ interface Section {
     icon?: string;  // lucide icon name
     title?: string;
     content: string;
-    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'quote' | 'cta' | 'hashtags' | 'prompt' | 'author-comment' | 'image';
+    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'quote' | 'cta' | 'hashtags' | 'prompt' | 'author-comment' | 'image' | 'graph';
 }
 
 interface RichPostContentProps {
@@ -194,6 +194,12 @@ const SECTION_STYLES: Record<Section['type'], {
         bgClass: '',
         borderClass: '',
         iconClass: '',
+    },
+    graph: {
+        bgClass: 'bg-cyan-500/10',
+        borderClass: 'border-l-4 border-cyan-500/60',
+        iconClass: 'text-cyan-500',
+        defaultIcon: TbChartBar,
     },
 };
 

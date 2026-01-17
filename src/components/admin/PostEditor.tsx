@@ -33,7 +33,7 @@ interface Section {
     icon?: string;
     title?: string;
     content: string;
-    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'cta' | 'hashtags' | 'author-comment' | 'image' | 'prompt' | 'quote';
+    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'cta' | 'hashtags' | 'author-comment' | 'image' | 'prompt' | 'quote' | 'graph';
 }
 
 interface GalleryImage {

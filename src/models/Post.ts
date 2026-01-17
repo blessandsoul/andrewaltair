@@ -19,7 +19,7 @@ export interface ISection {
     icon?: string;  // lucide icon name (e.g., 'Brain', 'Factory', 'Globe')
     title?: string;
     content: string;
-    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'cta' | 'hashtags' | 'prompt' | 'author-comment';
+    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'cta' | 'hashtags' | 'prompt' | 'author-comment' | 'graph';
 }
 
 // Cover images for responsive display
@@ -143,7 +143,7 @@ const SectionSchema = new Schema<ISection>(
         content: { type: String, required: true },
         type: {
             type: String,
-            enum: ['intro', 'section', 'sarcasm', 'warning', 'tip', 'fact', 'opinion', 'cta', 'hashtags', 'prompt', 'author-comment', 'quote', 'image'],
+            enum: ['intro', 'section', 'sarcasm', 'warning', 'tip', 'fact', 'opinion', 'cta', 'hashtags', 'prompt', 'author-comment', 'quote', 'image', 'graph'],
             default: 'section'
         },
     },
