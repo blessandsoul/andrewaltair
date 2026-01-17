@@ -1,5 +1,26 @@
 [
     {
+        "id": "ai-mentorship",
+        "title": "AI მენტორშიფი",
+        "titleEn": "AI Mentorship",
+        "description": "თქვენი პერსონალური გზამკვლევი AI სამყაროში. 1-ზე-1 მუშაობა, ჰიბრიდული ფორმატი (Offline Kickoff + Online) და გარანტირებული შედეგი.",
+        "icon": "Rocket",
+        "color": "#8b5cf6",
+        "features": [
+            "4 სესია (1 Offline + 3 Online)",
+            "პერსონალური სასწავლო გეგმა",
+            "Hardware & Software გამართვა",
+            "24/7 მხარდაჭერა ჩატში"
+        ],
+        "pricing": {
+            "type": "monthly",
+            "price": 500,
+            "currency": "GEL",
+            "unit": "თვე"
+        },
+        "popular": true
+    },
+    {
         "id": "ai-consulting",
         "title": "AI კონსულტაცია",
         "titleEn": "AI Consulting",
@@ -18,7 +39,7 @@
             "currency": "GEL",
             "unit": "საათი"
         },
-        "popular": true
+        "popular": false
     },
     {
         "id": "ai-training",
