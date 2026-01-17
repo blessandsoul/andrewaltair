@@ -25,7 +25,7 @@ export function HeroSearch() {
                     <div
                         className="w-full pl-12 pr-12 py-3 sm:py-4 text-base sm:text-lg rounded-xl border border-primary/20 bg-background/50 backdrop-blur-sm hover:bg-background hover:border-primary/50 shadow-sm transition-all text-muted-foreground"
                     >
-                        რისი სწავლა გსურს დღეს? (მაგ: ChatGPT, Midjourney...)
+                        ძიება...
                     </div>
 
                     <div className="absolute right-3 flex items-center gap-2">

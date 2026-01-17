@@ -202,13 +202,12 @@ export default async function Home() {
                       პრაქტიკული ტუტორიალები, უფასო კურსები და რეალური მაგალითები.
                     </p>
                     <p className="text-base text-muted-foreground/80 leading-relaxed">
-                      ისწავლე როგორ გამოიყენო <span className="text-foreground font-medium">GEMINI 3</span>, <span className="text-foreground font-medium">CHATGPT 5.2</span>, <span className="text-foreground font-medium">GROK 3</span> და <span className="text-foreground font-medium">CLAUDE 4.5</span> პროფესიულად.
+                      ისწავლე როგორ გამოიყენო <span className="text-foreground font-medium">GEMINI 3</span>, <span className="text-foreground font-medium">CHATGPT 5.2</span>, <span className="text-foreground font-medium">GROK 3</span> და <span className="text-foreground font-medium">CLAUDE 4.5</span> ეფექტურად.
                     </p>
                   </div>
 
-                  {/* Search and Tags */}
-                  <div className="pt-1 space-y-3">
-                    <HeroSearch />
+                  {/* Tags */}
+                  <div className="pt-1">
                     <HeroTags />
                   </div>
                 </div>

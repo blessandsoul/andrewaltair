@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     TbBrain,
     TbPhoto,
@@ -85,44 +86,69 @@ export function HeroTags() {
                         key={cat.id}
                         onClick={() => setActiveCategory(cat.id)}
                         className={cn(
-                            "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300",
+                            "relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200",
                             activeCategory === cat.id
-                                ? "bg-primary text-primary-foreground shadow-md scale-105"
-                                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                                ? "text-primary-foreground"
+                                : "text-muted-foreground hover:text-foreground"
                         )}
                     >
-                        <cat.icon className="w-3.5 h-3.5" />
-                        {cat.label}
+                        {activeCategory === cat.id && (
+                            <motion.div
+                                layoutId="activeTab"
+                                className="absolute inset-0 bg-primary rounded-lg shadow-md"
+                                transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
+                            />
+                        )}
+                        <span className="relative z-10 flex items-center gap-1.5">
+                            <cat.icon className="w-3.5 h-3.5" />
+                            {cat.label}
+                        </span>
                     </button>
                 ))}
             </div>
 
-            {/* Tags Grid */}
-            <div className="flex flex-wrap items-center gap-2 min-h-[80px] content-start">
-                {filteredTools.map((tool) => (
-                    <Link
-                        key={tool.label}
-                        href={tool.href}
-                        className="group"
-                    >
-                        <Badge
-                            variant="secondary"
-                            className={cn(
-                                "px-3 py-1.5 text-sm transition-all duration-300 cursor-pointer border hover:border-primary/30",
-                                "hover:scale-105 hover:shadow-lg hover:-translate-y-0.5",
-                                "bg-background/50 backdrop-blur-sm",
-                                tool.isNew && "border-accent/40 bg-accent/5 pr-2.5"
-                            )}
+            {/* Tags Grid with Animation */}
+            <motion.div
+                className="flex flex-wrap items-center gap-2 min-h-[80px] content-start"
+                layout
+            >
+                <AnimatePresence mode="popLayout">
+                    {filteredTools.map((tool, index) => (
+                        <motion.div
+                            key={tool.label}
+                            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.8, y: -10 }}
+                            transition={{
+                                duration: 0.2,
+                                delay: index * 0.02,
+                                ease: "easeOut"
+                            }}
                         >
-                            <span className="opacity-70 group-hover:opacity-100 transition-opacity">#</span>
-                            {tool.label}
-                            {tool.isNew && (
-                                <span className="ml-2 inline-flex h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
-                            )}
-                        </Badge>
-                    </Link>
-                ))}
-            </div>
+                            <Link
+                                href={tool.href}
+                                className="group"
+                            >
+                                <Badge
+                                    variant="secondary"
+                                    className={cn(
+                                        "px-3 py-1.5 text-sm transition-all duration-300 cursor-pointer border hover:border-primary/30",
+                                        "hover:scale-105 hover:shadow-lg hover:-translate-y-0.5",
+                                        "bg-background/50 backdrop-blur-sm",
+                                        tool.isNew && "border-accent/40 bg-accent/5 pr-2.5"
+                                    )}
+                                >
+                                    <span className="opacity-70 group-hover:opacity-100 transition-opacity">#</span>
+                                    {tool.label}
+                                    {tool.isNew && (
+                                        <span className="ml-2 inline-flex h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+                                    )}
+                                </Badge>
+                            </Link>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+            </motion.div>
         </div>
     );
 }
