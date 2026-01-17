@@ -654,7 +654,7 @@ export function parsePostContent(rawContent: string): ParsedSection[] {
                 const content = line.replace(/^>\s*/, '').replace(/TL;DR:?/i, '').trim();
                 currentSection = {
                     icon: 'Zap',
-                    title: 'TL;DR',
+                    title: 'მოკლედ',
                     content: cleanContent(content),
                     type: 'section',
                 };
@@ -676,29 +676,38 @@ export function parsePostContent(rawContent: string): ParsedSection[] {
         }
 
         // Check for emoji-prefixed section
-        const emojiMatch = line.match(/^([\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}])/u);
+        // We use a specific regex for DETECTION (must be a real emoji)
+        const detectionRegex = /^([\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}])/u;
+        const emojiMatch = line.match(detectionRegex);
 
         if (emojiMatch) {
-            const emoji = emojiMatch[0];
+            const firstEmoji = emojiMatch[0];
 
             // Save current section
             if (currentSection) {
                 sections.push(currentSection);
             }
 
-            // Determine section type
+            // Determine section type based on the FIRST emoji
             let type: ParsedSection['type'] = 'section';
-            if (EMOJI_TYPE_MAP[emoji]) {
-                type = EMOJI_TYPE_MAP[emoji];
-            } else if (SECTION_EMOJIS.includes(emoji)) {
+            if (EMOJI_TYPE_MAP[firstEmoji]) {
+                type = EMOJI_TYPE_MAP[firstEmoji];
+            } else if (SECTION_EMOJIS.includes(firstEmoji)) {
                 type = 'section';
             }
 
-            // Get icon from emoji
-            const icon = EMOJI_TO_ICON[emoji] || 'ChevronRight';
+            // Get icon from the FIRST emoji
+            // Handle VS16 in lookup if necessary
+            const icon = EMOJI_TO_ICON[firstEmoji] || EMOJI_TO_ICON[firstEmoji.replace(/\uFE0F/g, '')] || 'ChevronRight';
 
-            // Clean content by removing the emoji
-            let cleanLine = line.slice(emoji.length).trim();
+            // Clean content: aggressively strip ALL leading emojis, VS16s, and spaces
+            // Regex for CLEANING includes emojis, VS16, and spaces
+            const cleaningRegex = /^([\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|\u{FE0F}| )/u;
+
+            let cleanLine = line;
+            while (cleaningRegex.test(cleanLine)) {
+                cleanLine = cleanLine.replace(cleaningRegex, '').trim();
+            }
 
             // Extract title if present (bold text after emoji)
             const titleMatch = cleanLine.match(/^\s*\*\*([^*]+)\*\*:?\s*(.*)/);

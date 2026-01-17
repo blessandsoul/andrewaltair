@@ -215,6 +215,7 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
         let titleFound = false
         let descFound = false
         let catsFound = false
+        let inCategorySection = false
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i]
@@ -237,14 +238,18 @@ export default function MarketplacePromptEditor({ initialData, isEditing = false
                         }
                     })
                 } else {
-                    // It's a header for a list, enable flag
-                    // (We don't really need a flag if we just look for bullets in general, but let's be safe or just parse bullets generally)
+                    inCategorySection = true
                 }
                 continue
             }
 
+            // Stop category section
+            if (inCategorySection && (line.includes('🛒') || line.includes('🔍') || line.startsWith('#'))) {
+                inCategorySection = false
+            }
+
             // A.1) CATEGORY BULLET ITEMS (e.g. * 🎨 Illustration (ილუსტრაცია))
-            if (line.trim().startsWith('*') || line.trim().startsWith('-')) {
+            if (line.trim().startsWith('*') || line.trim().startsWith('-') || inCategorySection) {
                 const lowerLine = line.toLowerCase()
                 CATEGORIES.forEach(cat => {
                     const valClean = cat.value.replace(/-/g, ' ')
