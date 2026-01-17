@@ -187,22 +187,21 @@ export default async function Home() {
                 {/* Badge */}
                 <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
                   <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
-                  <span className="text-sm font-medium text-primary">AI ინოვატორი და კონტენტ კრეატორი</span>
+                  <span className="text-sm font-medium text-primary">Andrew Altair • AI ინოვატორი</span>
                 </div>
 
                 {/* Title */}
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight leading-tight animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-                  <span className="text-gradient">Andrew Altair</span>
+                  <span className="text-gradient">გახდი AI პროფესიონალი ნულიდან</span>
                 </h1>
 
                 {/* Description */}
                 <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
                   <p className="text-xl sm:text-2xl text-muted-foreground leading-relaxed">
-                    ხელოვნური ინტელექტის სამყარო <span className="text-foreground font-medium">მარტივად</span> და <span className="text-foreground font-medium">პრაქტიკულად</span>
+                    პრაქტიკული ტუტორიალები, უფასო კურსები და რეალური მაგალითები.
                   </p>
                   <p className="text-lg text-muted-foreground/80 leading-relaxed">
-                    ვიზიარებ AI-ს საიდუმლოებებს, ხრიკებს და ტუტორიალებს ქართულად.
-                    შეუერთდი 50K+ მკითხველს!
+                    ისწავლე როგორ გამოიყენო <span className="text-foreground font-medium">GEMINI 3</span>, <span className="text-foreground font-medium">CHATGPT 5.2</span>, <span className="text-foreground font-medium">GROK 3</span> და <span className="text-foreground font-medium">CLAUDE 4.5</span> პროფესიულად.
                   </p>
                 </div>
 
