@@ -61,7 +61,7 @@ async function getVideos(): Promise<TbVideo[]> {
             createdAt: video.createdAt ? new Date(video.createdAt).toISOString() : new Date().toISOString(),
             updatedAt: video.updatedAt ? new Date(video.updatedAt).toISOString() : new Date().toISOString(),
             authorName: video.authorName || 'Andrew Altair',
-            authorAvatar: video.authorAvatar || '/images/avatar.jpg',
+            authorAvatar: video.authorAvatar || '/andrewaltair.png',
         }))
     } catch (error) {
         console.error('Error fetching videos:', error)

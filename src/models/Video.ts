@@ -64,7 +64,7 @@ const VideoSchema = new Schema<IVideo>(
         },
         authorAvatar: {
             type: String,
-            default: '/images/avatar.jpg',
+            default: '/andrewaltair.png',
         },
     },
     {

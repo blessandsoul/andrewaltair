@@ -98,6 +98,7 @@ export async function GET(request: NextRequest) {
         let publishedAt = new Date().toISOString()
         let isShort = false
         let tags: string[] = []
+        let authorAvatar = ''
 
         // Try YouTube Data API v3 first (if API key is configured)
         const apiKey = process.env.YOUTUBE_API_KEY
@@ -115,6 +116,23 @@ export async function GET(request: NextRequest) {
                         publishedAt = item.snippet?.publishedAt || new Date().toISOString()
                         duration = parseISO8601Duration(item.contentDetails?.duration || '')
                         tags = item.snippet?.tags || []
+
+                        // Fetch channel avatar
+                        const channelId = item.snippet?.channelId
+                        if (channelId) {
+                            try {
+                                const channelUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`
+                                const channelRes = await fetch(channelUrl)
+                                if (channelRes.ok) {
+                                    const channelData = await channelRes.json()
+                                    if (channelData.items && channelData.items.length > 0) {
+                                        authorAvatar = channelData.items[0].snippet?.thumbnails?.default?.url || ''
+                                    }
+                                }
+                            } catch (e) {
+                                console.error('Channel fetch error:', e)
+                            }
+                        }
 
                         // Check if it's a Short (duration <= 60 seconds)
                         const durationMatch = item.contentDetails?.duration?.match(/PT(?:(\d+)M)?(?:(\d+)S)?/)
@@ -383,6 +401,7 @@ export async function GET(request: NextRequest) {
                 title,
                 description,
                 author: authorName,
+                authorAvatar,
                 authorUrl,
                 thumbnail,
                 thumbnails: {

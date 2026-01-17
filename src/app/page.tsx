@@ -65,7 +65,7 @@ async function getVideos() {
 
     const videos = await Video.find({})
       .sort({ publishedAt: -1 })
-      .limit(4)
+      .limit(8)
       .lean()
 
     return videos.map(video => ({
