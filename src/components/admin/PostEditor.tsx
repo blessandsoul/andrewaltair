@@ -312,6 +312,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                             // Category Normalization
                             if (parsed.meta.category) {
                                 const catMap: Record<string, string> = {
+                                    // English
                                     'technology': 'technology',
                                     'tehnologia': 'technology',
                                     'tech': 'technology',
@@ -322,6 +323,16 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                     'society': 'society',
                                     'education': 'education',
                                     'world': 'world',
+                                    // Georgian (ქართული)
+                                    'ტექნოლოგიები': 'technology',
+                                    'ტექნოლოგია': 'technology',
+                                    'ეკონომიკა': 'economy',
+                                    'პოლიტიკა': 'politics',
+                                    'ბიზნესი': 'business',
+                                    'მეცნიერება': 'science',
+                                    'საზოგადოება': 'society',
+                                    'განათლება': 'education',
+                                    'მსოფლიო': 'world',
                                     // Legacy mappings
                                     'ai': 'technology',
                                     'news': 'world',
