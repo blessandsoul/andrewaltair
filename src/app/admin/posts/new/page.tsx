@@ -8,6 +8,7 @@ export default function NewPostPage() {
     const router = useRouter()
 
     const handleSave = async (post: PostData) => {
+        console.log('🔥 handleSave called! Post:', post)
         try {
             // Get admin token for authentication
             const token = localStorage.getItem('admin_token')
@@ -30,7 +31,7 @@ export default function NewPostPage() {
                 sections: post.sections,
                 categories: post.categories,
                 tags: post.tags,
-                author: { name: 'Andrew Altair', avatar: '/avatar.jpg', role: 'AI ინოვატორი' },
+                author: post.author || { name: 'Andrew Altair', avatar: '/images/avatar.jpg', role: 'AI ინოვატორი' },
                 status: post.status || 'published',
                 scheduledFor: post.scheduledFor,
                 featured: post.featured || false,
