@@ -254,11 +254,11 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
         try {
             if (jsonInput) {
                 const parsed = JSON.parse(jsonInput)
-                if (Array.isArray(parsed)) {
-                    const extractedTags: string[] = []
 
-                    // Sanitization Pass
-                    const cleaned = parsed.map((s: Section) => {
+                // Helper to sanitize sections
+                const sanitizeSections = (sections: Section[]) => {
+                    const extractedTags: string[] = []
+                    const cleaned = sections.map((s: Section) => {
                         let newTitle = s.title
                         let newContent = s.content
 
@@ -276,7 +276,6 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                         // 3. Extract Hashtags (and don't render them)
                         if (s.type === 'hashtags' || (newContent && newContent.includes('#') && newContent.split(' ').every(w => w.startsWith('#')))) {
                             const tags = newContent.match(/#[\w\u10A0-\u10FF]+/g) || []
-                            // Remove # from tags
                             tags.forEach(t => extractedTags.push(t.replace('#', '')))
                             return null // Filter out this section
                         }
@@ -284,13 +283,54 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                         return { ...s, title: newTitle, content: newContent }
                     }).filter(Boolean) as Section[]
 
+                    return { cleaned, extractedTags }
+                }
+
+                if (Array.isArray(parsed)) {
+                    // LEGACY: Just sections
+                    const { cleaned, extractedTags } = sanitizeSections(parsed)
                     setParsedSections(cleaned)
                     setPost(prev => ({
                         ...prev,
                         sections: cleaned,
-                        // Only update tags if we found new ones
                         tags: extractedTags.length > 0 ? Array.from(new Set([...(prev.tags || []), ...extractedTags])) : prev.tags
                     }))
+                } else if (typeof parsed === 'object' && parsed !== null) {
+                    // NEW: Full Article Object ({ meta, seo, content })
+                    setPost(prev => {
+                        const newData = { ...prev }
+
+                        // 1. Meta
+                        if (parsed.meta) {
+                            if (parsed.meta.title) newData.title = parsed.meta.title
+                            if (parsed.meta.slug) newData.slug = parsed.meta.slug
+                            if (parsed.meta.category) newData.categories = [parsed.meta.category]
+                            if (parsed.meta.tags && Array.isArray(parsed.meta.tags)) newData.tags = parsed.meta.tags
+                            if (parsed.meta.author) newData.author = { ...prev.author, ...parsed.meta.author }
+                        }
+
+                        // 2. SEO
+                        if (parsed.seo) {
+                            if (parsed.seo.excerpt) newData.excerpt = parsed.seo.excerpt
+                            if (parsed.seo.key_points) newData.keyPoints = parsed.seo.key_points
+                            if (parsed.seo.faq) newData.faq = parsed.seo.faq
+                            if (parsed.seo.entities) newData.entities = parsed.seo.entities
+                        }
+
+                        // 3. Content
+                        if (parsed.content && Array.isArray(parsed.content)) {
+                            const { cleaned, extractedTags } = sanitizeSections(parsed.content)
+                            newData.sections = cleaned
+                            setParsedSections(cleaned)
+
+                            // Merge extracted tags if content had hashtags section
+                            if (extractedTags.length > 0) {
+                                newData.tags = Array.from(new Set([...(newData.tags || []), ...extractedTags]))
+                            }
+                        }
+
+                        return newData
+                    })
                 }
             }
         } catch (e) {
