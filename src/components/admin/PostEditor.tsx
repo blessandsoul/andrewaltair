@@ -501,9 +501,9 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                 </div>
             )}
 
-            <div className="flex justify-end gap-2 fixed bottom-0 right-0 p-4 bg-background border-t w-full z-10">
-                <Button variant="outline" onClick={onCancel}>Cancel</Button>
-                <Button onClick={() => { console.log('🔥 SAVE BUTTON CLICKED!', post); onSave(post); }}>Save</Button>
+            <div className="flex justify-end gap-2 fixed bottom-0 right-0 p-4 bg-background border-t w-full z-50">
+                <Button type="button" variant="outline" onClick={() => { console.log('Cancel clicked'); onCancel(); }}>Cancel</Button>
+                <Button type="button" onClick={() => { console.log('🔥 SAVE BUTTON CLICKED!', post); onSave(post); }}>Save</Button>
             </div>
         </div>
     )
