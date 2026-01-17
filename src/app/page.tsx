@@ -184,17 +184,11 @@ export default async function Home() {
             <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
           </div>
 
-          <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl pt-8 pb-16 lg:pt-16">
+          <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl pt-0 pb-12 lg:pt-4">
             <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 items-center">
-              <div className="space-y-5 max-w-2xl">
+              <div className="space-y-4 max-w-2xl">
                 {/* Greeting - Typing Effect */}
                 <HeroGreeting />
-
-                {/* Badge */}
-                <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                  <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
-                  <span className="text-sm font-medium text-primary">Andrew Altair • AI ინოვატორი</span>
-                </div>
 
                 {/* Title */}
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight leading-tight animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">

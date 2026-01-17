@@ -3,9 +3,10 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
-import { TbArrowLeft, TbClock, TbEye, TbCalendar, TbSparkles, TbSend, TbUser, TbMessage, TbShare, TbHeart, TbHash, TbCopy } from "react-icons/tb"
+import { TbArrowLeft, TbClock, TbEye, TbCalendar, TbSparkles, TbSend, TbUser, TbMessage, TbShare, TbHeart, TbHash, TbCopy, TbBrain, TbCheck, TbHelp } from "react-icons/tb"
 import { useEffect, useState, useCallback } from "react"
 import {
     ReactionBar,
@@ -76,7 +77,12 @@ interface Post {
     sections?: Section[]
     videos?: VideoEmbed[]
     relatedPosts?: string[]
+    relatedPosts?: string[]
     tags: string[]
+    // AI & SEO Fields
+    keyPoints?: string[]
+    faq?: { question: string; answer: string }[]
+    entities?: string[]
     author: {
         name: string
         avatar?: string
@@ -337,6 +343,30 @@ console.log(data.result);
                                     </p>
                                 </div>
 
+                                {/* Key Takeaways (AI Summary) */}
+                                {post.keyPoints && post.keyPoints.length > 0 && (
+                                    <Card className="mt-8 border-l-4 border-l-primary bg-primary/5 border-y-0 border-r-0 rounded-r-xl">
+                                        <CardHeader className="pb-3">
+                                            <CardTitle className="text-lg flex items-center gap-2">
+                                                <TbBrain className="w-5 h-5 text-primary" />
+                                                მთავარი იდეები
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <ul className="grid gap-3">
+                                                {post.keyPoints.map((point, index) => (
+                                                    <li key={index} className="flex items-start gap-3 text-muted-foreground">
+                                                        <div className="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                                                            <TbCheck className="w-3 h-3 text-primary" />
+                                                        </div>
+                                                        <span className="leading-relaxed">{point}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </CardContent>
+                                    </Card>
+                                )}
+
 
                             </div>
                         </div>
@@ -373,6 +403,28 @@ console.log(data.result);
 
                                     {/* Inline Related Posts */}
                                     <InlineRelatedPosts posts={relatedPosts} />
+
+                                    {/* FAQ Section */}
+                                    {post.faq && post.faq.length > 0 && (
+                                        <div className="mt-12 pt-8 border-t border-border">
+                                            <h4 className="text-xl font-bold mb-6 flex items-center gap-2">
+                                                <TbHelp className="w-6 h-6 text-primary" />
+                                                ხშირად დასმული კითხვები
+                                            </h4>
+                                            <Accordion type="single" collapsible className="w-full">
+                                                {post.faq.map((item, index) => (
+                                                    <AccordionItem key={index} value={`item-${index}`}>
+                                                        <AccordionTrigger className="text-left font-medium">
+                                                            {item.question}
+                                                        </AccordionTrigger>
+                                                        <AccordionContent className="text-muted-foreground leading-relaxed">
+                                                            {item.answer}
+                                                        </AccordionContent>
+                                                    </AccordionItem>
+                                                ))}
+                                            </Accordion>
+                                        </div>
+                                    )}
 
                                     {/* Gallery */}
                                     {post.gallery && post.gallery.length > 0 && (

@@ -16,7 +16,7 @@ interface Section {
     icon?: string;  // lucide icon name
     title?: string;
     content: string;
-    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'cta' | 'hashtags' | 'prompt' | 'author-comment' | 'image';
+    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'quote' | 'cta' | 'hashtags' | 'prompt' | 'author-comment' | 'image';
 }
 
 interface RichPostContentProps {
@@ -336,8 +336,8 @@ function SectionRenderer({ section, index }: { section: Section; index: number }
         );
     }
 
-    // Render opinion as quote block
-    if (section.type === 'opinion') {
+    // Render opinion or quote as quote block
+    if (section.type === 'opinion' || section.type === 'quote') {
         return (
             <blockquote className={cn(
                 "my-8 p-6 rounded-r-lg italic",

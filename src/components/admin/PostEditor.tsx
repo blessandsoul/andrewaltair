@@ -203,6 +203,34 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
     const [newGalleryUrl, setNewGalleryUrl] = React.useState("")
     const [isParsing, setIsParsing] = React.useState(false)
 
+    // JSON Editor Mode
+    const [editorMode, setEditorMode] = React.useState<'visual' | 'json'>('json')
+    const [jsonInput, setJsonInput] = React.useState("")
+    const [parsedSections, setParsedSections] = React.useState<Section[]>([])
+
+    // Update parsed sections when JSON changes
+    React.useEffect(() => {
+        try {
+            if (jsonInput) {
+                const parsed = JSON.parse(jsonInput)
+                if (Array.isArray(parsed)) {
+                    setParsedSections(parsed)
+                    setPost(prev => ({ ...prev, sections: parsed }))
+                }
+            }
+        } catch (e) {
+            // Invalid JSON, ignore
+        }
+    }, [jsonInput])
+
+    // Initialize JSON input on mount if editing
+    React.useEffect(() => {
+        if (isEditing && post.sections.length > 0 && !jsonInput) {
+            setJsonInput(JSON.stringify(post.sections, null, 2))
+            setParsedSections(post.sections)
+        }
+    }, [isEditing, post.sections])
+
     // Universal ID Logic
     React.useEffect(() => {
         if (!post.id && !isEditing) {
@@ -991,6 +1019,28 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                     </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
+                    {/* Mode Toggle */}
+                    <div className="flex items-center bg-muted/50 p-1 rounded-lg border mr-2">
+                        <button
+                            onClick={() => setEditorMode('visual')}
+                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${editorMode === 'visual' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                        >
+                            Visual
+                        </button>
+                        <button
+                            onClick={() => {
+                                setEditorMode('json')
+                                // Initialize JSON input from current sections if empty
+                                if (!jsonInput && post.sections.length > 0) {
+                                    setJsonInput(JSON.stringify(post.sections, null, 2))
+                                }
+                            }}
+                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${editorMode === 'json' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                        >
+                            JSON Source
+                        </button>
+                    </div>
+
                     {/* Template button */}
                     <Button variant="outline" size="sm" onClick={() => setShowTemplateSelector(true)}>
                         <TbLayout className="w-4 h-4 mr-1" />
@@ -1016,78 +1066,200 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                 </div>
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-6">
-                {/* Main Content */}
-                <div className="lg:col-span-2 space-y-6">
-                    {/* Title & Slug */}
-                    <Card>
-                        <CardContent className="pt-6 space-y-4">
-                            <div className="space-y-2">
+            {/* JSON EDITOR MODE */}
+            {editorMode === 'json' ? (
+                <div className="grid lg:grid-cols-2 gap-6 h-[calc(100vh-200px)]">
+                    {/* Left Column: Visual Assets & JSON Input */}
+                    <div className="space-y-4 overflow-y-auto pr-2">
+                        {/* Cover Images */}
+                        <div className="grid grid-cols-2 gap-4">
+                            {/* Horizontal 16:9 */}
+                            <Card className="border-dashed">
+                                <CardContent className="p-4 flex flex-col items-center justify-center text-center space-y-2">
+                                    <span className="text-xs font-medium text-muted-foreground">Horizontal (16:9)</span>
+                                    {post.coverImages?.horizontal || post.coverImage ? (
+                                        <div className="relative group w-full aspect-video rounded-md overflow-hidden bg-muted">
+                                            <img src={post.coverImages?.horizontal || post.coverImage} className="w-full h-full object-cover" />
+                                            <button
+                                                onClick={() => setPost(prev => ({ ...prev, coverImage: '', coverImages: { ...prev.coverImages, horizontal: '' } }))}
+                                                className="absolute top-1 right-1 p-1 bg-black/50 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <TbTrash className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <label className="cursor-pointer flex flex-col items-center justify-center w-full aspect-video rounded-md border-2 border-dashed hover:bg-muted/50 transition-colors">
+                                            <TbPhoto className="w-8 h-8 text-muted-foreground mb-2" />
+                                            <span className="text-xs text-muted-foreground">ატვირთვა</span>
+                                            <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'horizontal')} />
+                                        </label>
+                                    )}
+                                </CardContent>
+                            </Card>
+
+                            {/* Vertical 9:16 */}
+                            <Card className="border-dashed">
+                                <CardContent className="p-4 flex flex-col items-center justify-center text-center space-y-2">
+                                    <span className="text-xs font-medium text-muted-foreground">Vertical (9:16)</span>
+                                    {post.coverImages?.vertical ? (
+                                        <div className="relative group w-full aspect-[9/16] rounded-md overflow-hidden bg-muted">
+                                            <img src={post.coverImages.vertical} className="w-full h-full object-cover" />
+                                            <button
+                                                onClick={() => setPost(prev => ({ ...prev, coverImages: { ...prev.coverImages, vertical: '' } }))}
+                                                className="absolute top-1 right-1 p-1 bg-black/50 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <TbTrash className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <label className="cursor-pointer flex flex-col items-center justify-center w-full aspect-[9/16] rounded-md border-2 border-dashed hover:bg-muted/50 transition-colors">
+                                            <TbDeviceMobile className="w-8 h-8 text-muted-foreground mb-2" />
+                                            <span className="text-xs text-muted-foreground">ატვირთვა</span>
+                                            <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'vertical')} />
+                                        </label>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        {/* Title Input (Essential) */}
+                        <div className="space-y-2">
+                            <Input
+                                placeholder="სათაური (Title)..."
+                                value={post.title}
+                                onChange={(e) => handleTitleChange(e.target.value)}
+                                className="font-bold text-lg"
+                            />
+                        </div>
+
+                        {/* JSON Input */}
+                        <div className="flex-1 flex flex-col">
+                            <div className="flex items-center justify-between mb-2">
                                 <label className="text-sm font-medium flex items-center gap-2">
-                                    <TbFileText className="w-4 h-4" />
-                                    სათაური
+                                    <TbCode className="w-4 h-4 text-primary" />
+                                    JSON Post Content
                                 </label>
-                                <Input
-                                    placeholder="შეიყვანეთ სათაური..."
-                                    value={post.title}
-                                    onChange={(e) => handleTitleChange(e.target.value)}
-                                    className="text-lg font-medium"
-                                />
+                                <Badge variant={parsedSections.length > 0 ? "outline" : "destructive"}>
+                                    {parsedSections.length > 0 ? "Valid JSON" : "Invalid / Empty"}
+                                </Badge>
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium flex items-center gap-2">
-                                    <TbWorld className="w-4 h-4" />
-                                    Slug (URL)
-                                </label>
-                                <div className="flex gap-2">
-                                    <span className="text-muted-foreground text-sm flex items-center">/blog/</span>
+                            <textarea
+                                value={jsonInput}
+                                onChange={(e) => setJsonInput(e.target.value)}
+                                className="w-full flex-1 min-h-[400px] p-4 font-mono text-sm bg-zinc-950 text-zinc-100 rounded-lg border focus:ring-2 focus:ring-primary resize-y"
+                                placeholder={`[
+  {
+    "type": "intro",
+    "content": "Your intro text here..."
+  },
+  {
+    "type": "section",
+    "title": "Section Title",
+    "content": "Section content..."
+  }
+]`}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Right Column: Live Preview */}
+                    <div className="bg-background rounded-lg border shadow-lg overflow-hidden flex flex-col">
+                        <div className="p-3 border-b bg-muted/30 flex items-center gap-2">
+                            <TbEye className="w-4 h-4" />
+                            <span className="font-medium text-sm">Live Preview ({parsedSections.length} sections)</span>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-6">
+                            <div className="max-w-2xl mx-auto space-y-8">
+                                {/* Mock Hero Wrapper */}
+                                <div className="space-y-4 text-center border-b pb-8">
+                                    <h1 className="text-3xl font-bold">{post.title || "Untitled Post"}</h1>
+                                    <div className="relative aspect-video rounded-xl overflow-hidden bg-muted">
+                                        {post.coverImages?.horizontal || post.coverImage ? (
+                                            <img src={post.coverImages?.horizontal || post.coverImage} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="flex items-center justify-center h-full text-muted-foreground">No Cover Image</div>
+                                        )}
+                                    </div>
+                                </div>
+                                {/* Content */}
+                                <RichPostContent sections={parsedSections} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ) : (
+                <div className="grid lg:grid-cols-3 gap-6">
+                    {/* Main Content */}
+                    <div className="lg:col-span-2 space-y-6">
+                        {/* Title & Slug */}
+                        <Card>
+                            <CardContent className="pt-6 space-y-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium flex items-center gap-2">
+                                        <TbFileText className="w-4 h-4" />
+                                        სათაური
+                                    </label>
                                     <Input
-                                        placeholder="url-slug"
-                                        value={post.slug}
-                                        onChange={(e) => setPost(prev => ({ ...prev, slug: e.target.value }))}
+                                        placeholder="შეიყვანეთ სათაური..."
+                                        value={post.title}
+                                        onChange={(e) => handleTitleChange(e.target.value)}
+                                        className="text-lg font-medium"
                                     />
                                 </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium flex items-center gap-2">
+                                        <TbWorld className="w-4 h-4" />
+                                        Slug (URL)
+                                    </label>
+                                    <div className="flex gap-2">
+                                        <span className="text-muted-foreground text-sm flex items-center">/blog/</span>
+                                        <Input
+                                            placeholder="url-slug"
+                                            value={post.slug}
+                                            onChange={(e) => setPost(prev => ({ ...prev, slug: e.target.value }))}
+                                        />
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
 
-                    {/* Excerpt */}
-                    <Card>
-                        <CardContent className="pt-6">
-                            <label className="text-sm font-medium mb-2 block">მოკლე აღწერა</label>
-                            <textarea
-                                placeholder="სტატიის მოკლე აღწერა..."
-                                value={post.excerpt}
-                                onChange={(e) => setPost(prev => ({ ...prev, excerpt: e.target.value }))}
-                                className="w-full min-h-[80px] px-3 py-2 rounded-md border border-input bg-background resize-none"
-                            />
-                        </CardContent>
-                    </Card>
+                        {/* Excerpt */}
+                        <Card>
+                            <CardContent className="pt-6">
+                                <label className="text-sm font-medium mb-2 block">მოკლე აღწერა</label>
+                                <textarea
+                                    placeholder="სტატიის მოკლე აღწერა..."
+                                    value={post.excerpt}
+                                    onChange={(e) => setPost(prev => ({ ...prev, excerpt: e.target.value }))}
+                                    className="w-full min-h-[80px] px-3 py-2 rounded-md border border-input bg-background resize-none"
+                                />
+                            </CardContent>
+                        </Card>
 
-                    {/* Raw Content Paste Area */}
-                    <Card className="border-2 border-dashed border-primary/30">
-                        <CardHeader className="pb-2">
-                            <div className="flex items-center justify-between">
-                                <CardTitle className="text-lg flex items-center gap-2">
-                                    <TbWand className="w-5 h-5 text-primary" />
-                                    AI კონტენტი (Raw Paste)
-                                </CardTitle>
-                                <Button
-                                    onClick={handleAutoparse}
-                                    disabled={isParsing || !post.rawContent.trim()}
-                                    className="gap-2"
-                                >
-                                    <TbSparkles className="w-4 h-4" />
-                                    {isParsing ? "მუშავდება..." : "ავტო-პარსინგი"}
-                                </Button>
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                                ჩასვით AI-ით გენერირებული კონტენტი და დააჭირეთ ავტო-პარსინგს
-                            </p>
-                        </CardHeader>
-                        <CardContent>
-                            <textarea
-                                placeholder="ჩასვით თქვენი AI output აქ...
+                        {/* Raw Content Paste Area */}
+                        <Card className="border-2 border-dashed border-primary/30">
+                            <CardHeader className="pb-2">
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="text-lg flex items-center gap-2">
+                                        <TbWand className="w-5 h-5 text-primary" />
+                                        AI კონტენტი (Raw Paste)
+                                    </CardTitle>
+                                    <Button
+                                        onClick={handleAutoparse}
+                                        disabled={isParsing || !post.rawContent.trim()}
+                                        className="gap-2"
+                                    >
+                                        <TbSparkles className="w-4 h-4" />
+                                        {isParsing ? "მუშავდება..." : "ავტო-პარსინგი"}
+                                    </Button>
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                    ჩასვით AI-ით გენერირებული კონტენტი და დააჭირეთ ავტო-პარსინგს
+                                </p>
+                            </CardHeader>
+                            <CardContent>
+                                <textarea
+                                    placeholder="ჩასვით თქვენი AI output აქ...
 
 მაგალითი:
 იდენტობის კრიზისი დასრულდა 🧬
@@ -1103,723 +1275,764 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
 👇 გინდათ ეს პრომპტი?
 
 #ხელოვნურიინტელექტი #AndrewAltair"
-                                value={post.rawContent}
-                                onChange={(e) => setPost(prev => ({ ...prev, rawContent: e.target.value }))}
-                                className="w-full min-h-[300px] px-3 py-2 rounded-md border border-input bg-background font-mono text-sm resize-y"
-                            />
-
-                            <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                                <span className="flex items-center gap-1">
-                                    <TbClock className="w-3 h-3" />
-                                    ~{post.readingTime} წთ კითხვა
-                                </span>
-                                <span>{post.rawContent.length} სიმბოლო</span>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Telegram Version */}
-                    {post.telegramContent && (
-                        <Card className="border-2 border-blue-500/30 bg-blue-500/5">
-                            <CardHeader className="pb-2">
-                                <div className="flex items-center justify-between">
-                                    <CardTitle className="text-lg flex items-center gap-2">
-                                        <TbBrandTelegram className="w-5 h-5 text-blue-500" />
-                                        Telegram ვერსია
-                                    </CardTitle>
-                                    <div className="flex items-center gap-2">
-                                        <label className="flex items-center gap-2 text-sm cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                checked={post.postToTelegram}
-                                                onChange={(e) => setPost(prev => ({ ...prev, postToTelegram: e.target.checked }))}
-                                                className="w-4 h-4 rounded border-gray-300 text-blue-500 focus:ring-blue-500"
-                                            />
-                                            არხზე გამოქვეყნება
-                                        </label>
-                                    </div>
-                                </div>
-                                <p className="text-xs text-muted-foreground">
-                                    @andr3waltairchannel - მოკლე ვერსია Telegram-ისთვის
-                                </p>
-                            </CardHeader>
-                            <CardContent>
-                                <textarea
-                                    placeholder="Telegram ვერსია..."
-                                    value={post.telegramContent}
-                                    onChange={(e) => setPost(prev => ({ ...prev, telegramContent: e.target.value }))}
-                                    className="w-full min-h-[200px] px-3 py-2 rounded-md border border-input bg-background font-mono text-sm resize-y"
+                                    value={post.rawContent}
+                                    onChange={(e) => setPost(prev => ({ ...prev, rawContent: e.target.value }))}
+                                    className="w-full min-h-[300px] px-3 py-2 rounded-md border border-input bg-background font-mono text-sm resize-y"
                                 />
+
                                 <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                                     <span className="flex items-center gap-1">
-                                        <TbBrandTelegram className="w-3 h-3" />
-                                        {post.telegramContent?.length || 0} სიმბოლო
+                                        <TbClock className="w-3 h-3" />
+                                        ~{post.readingTime} წთ კითხვა
                                     </span>
-                                    {post.postToTelegram && (
-                                        <span className="text-blue-500 flex items-center gap-1">
-                                            <TbCheck className="w-3 h-3" />
-                                            გამოქვეყნდება არხზე
-                                        </span>
-                                    )}
+                                    <span>{post.rawContent.length} სიმბოლო</span>
                                 </div>
                             </CardContent>
                         </Card>
-                    )}
 
-                    {/* Manage Sections (Manual Edit) */}
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <div className="flex items-center justify-between">
-                                <CardTitle className="text-lg flex items-center gap-2">
-                                    <TbLayout className="w-5 h-5 text-primary" />
-                                    სექციების მართვა ({post.sections.length})
-                                </CardTitle>
-                                <div className="flex gap-2">
-                                    <label className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3">
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            className="hidden"
-                                            onChange={(e) => {
-                                                const file = e.target.files?.[0]
-                                                if (file) handleSectionImageUpload(file)
-                                            }}
-                                            disabled={isUploadingSectionImage}
-                                        />
-                                        {isUploadingSectionImage ? <TbLoader2 className="w-4 h-4 animate-spin mr-2" /> : <TbPhoto className="w-4 h-4 mr-2" />}
-                                        სურათის დამატება
-                                    </label>
-                                </div>
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                                დაამატეთ სურათები ან შეცვალეთ სექციების თანმიმდევრობა
-                            </p>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            {post.sections.length === 0 ? (
-                                <div className="text-center py-8 text-muted-foreground text-sm border-2 border-dashed rounded-lg">
-                                    ჯერ არ არის სექციები. გამოიყენეთ "ავტო-პარსინგი" ან დაამატეთ ხელით.
-                                </div>
-                            ) : (
-                                <div className="space-y-3">
-                                    {post.sections.map((section, idx) => (
-                                        <div key={idx} className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg border group">
-                                            {/* Section Type Icon */}
-                                            <div className="mt-1">
-                                                {section.type === 'image' ? (
-                                                    <img src={section.content} alt="section" className="w-10 h-10 object-cover rounded" />
-                                                ) : (
-                                                    <Badge variant="outline">{section.type.slice(0, 3)}</Badge>
-                                                )}
-                                            </div>
-
-                                            {/* Content Preview */}
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium truncate">{section.title || section.type}</p>
-                                                <p className="text-xs text-muted-foreground truncate">{section.type === 'image' ? section.content : section.content.slice(0, 50)}</p>
-                                            </div>
-
-                                            {/* Actions */}
-                                            <div className="flex flex-col gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                                                <div className="flex gap-1">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-6 w-6"
-                                                        disabled={idx === 0}
-                                                        onClick={() => {
-                                                            const newSections = [...post.sections]
-                                                                ;[newSections[idx - 1], newSections[idx]] = [newSections[idx], newSections[idx - 1]]
-                                                            setPost(prev => ({ ...prev, sections: newSections }))
-                                                        }}
-                                                    >
-                                                        <TbArrowUp className="w-3 h-3" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-6 w-6"
-                                                        disabled={idx === post.sections.length - 1}
-                                                        onClick={() => {
-                                                            const newSections = [...post.sections]
-                                                                ;[newSections[idx + 1], newSections[idx]] = [newSections[idx], newSections[idx + 1]]
-                                                            setPost(prev => ({ ...prev, sections: newSections }))
-                                                        }}
-                                                    >
-                                                        <TbArrowDown className="w-3 h-3" />
-                                                    </Button>
-                                                </div>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-6 w-6 text-destructive hover:text-destructive/90"
-                                                    onClick={() => {
-                                                        const newSections = [...post.sections]
-                                                        newSections.splice(idx, 1)
-                                                        setPost(prev => ({ ...prev, sections: newSections }))
-                                                    }}
-                                                >
-                                                    <TbTrash className="w-3 h-3" />
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-
-                    {/* Prompts Section */}
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-lg flex items-center gap-2">
-                                <TbSparkles className="w-5 h-5 text-primary" />
-                                პრომპტები (ფოტო & ვიდეო)
-                            </CardTitle>
-                            <p className="text-xs text-muted-foreground">
-                                დაამატეთ AI გენერაციის პრომპტები და ატვირთეთ შედეგები
-                            </p>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            {/* Photo Prompt */}
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-2">
-                                    <TbPhoto className="w-4 h-4 text-blue-500" />
-                                    <span className="font-medium text-sm">ფოტო პრომპტი</span>
-                                </div>
-                                <textarea
-                                    className="w-full min-h-[120px] p-3 text-sm border rounded-lg bg-muted/30 font-mono resize-y"
-                                    placeholder="Prompt:&#10;Format: Vertical 9:16&#10;Primary Branding: &quot;AndrewAltair.GE&quot;..."
-                                    value={post.prompts?.photoPrompt || ''}
-                                    onChange={(e) => setPost(prev => ({
-                                        ...prev,
-                                        prompts: { ...prev.prompts!, photoPrompt: e.target.value }
-                                    }))}
-                                />
-                                <div className="flex items-center gap-3">
-                                    <label className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4">
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            className="hidden"
-                                            onChange={(e) => {
-                                                const file = e.target.files?.[0]
-                                                if (file) handlePromptPhotoUpload(file)
-                                            }}
-                                            disabled={isUploadingPromptPhoto}
-                                        />
-                                        {isUploadingPromptPhoto ? <TbLoader2 className="w-4 h-4 animate-spin mr-2" /> : <TbUpload className="w-4 h-4 mr-2" />}
-                                        შედეგის ატვირთვა
-                                    </label>
-                                    {post.prompts?.photoResult && (
+                        {/* Telegram Version */}
+                        {post.telegramContent && (
+                            <Card className="border-2 border-blue-500/30 bg-blue-500/5">
+                                <CardHeader className="pb-2">
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="text-lg flex items-center gap-2">
+                                            <TbBrandTelegram className="w-5 h-5 text-blue-500" />
+                                            Telegram ვერსია
+                                        </CardTitle>
                                         <div className="flex items-center gap-2">
-                                            <img src={post.prompts.photoResult} alt="Photo result" className="w-12 h-12 object-cover rounded border" />
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-8 w-8 text-destructive"
-                                                onClick={() => setPost(prev => ({
-                                                    ...prev,
-                                                    prompts: { ...prev.prompts!, photoResult: '' }
-                                                }))}
-                                            >
-                                                <TbTrash className="w-4 h-4" />
-                                            </Button>
+                                            <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={post.postToTelegram}
+                                                    onChange={(e) => setPost(prev => ({ ...prev, postToTelegram: e.target.checked }))}
+                                                    className="w-4 h-4 rounded border-gray-300 text-blue-500 focus:ring-blue-500"
+                                                />
+                                                არხზე გამოქვეყნება
+                                            </label>
                                         </div>
-                                    )}
-                                </div>
-                            </div>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">
+                                        @andr3waltairchannel - მოკლე ვერსია Telegram-ისთვის
+                                    </p>
+                                </CardHeader>
+                                <CardContent>
+                                    <textarea
+                                        placeholder="Telegram ვერსია..."
+                                        value={post.telegramContent}
+                                        onChange={(e) => setPost(prev => ({ ...prev, telegramContent: e.target.value }))}
+                                        className="w-full min-h-[200px] px-3 py-2 rounded-md border border-input bg-background font-mono text-sm resize-y"
+                                    />
+                                    <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                                        <span className="flex items-center gap-1">
+                                            <TbBrandTelegram className="w-3 h-3" />
+                                            {post.telegramContent?.length || 0} სიმბოლო
+                                        </span>
+                                        {post.postToTelegram && (
+                                            <span className="text-blue-500 flex items-center gap-1">
+                                                <TbCheck className="w-3 h-3" />
+                                                გამოქვეყნდება არხზე
+                                            </span>
+                                        )}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
 
-                            {/* Divider */}
-                            <div className="border-t" />
-
-                            {/* Video Prompt */}
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-2">
-                                    <TbFlame className="w-4 h-4 text-orange-500" />
-                                    <span className="font-medium text-sm">ვიდეო პრომპტი</span>
-                                </div>
-                                <textarea
-                                    className="w-full min-h-[120px] p-3 text-sm border rounded-lg bg-muted/30 font-mono resize-y"
-                                    placeholder="Prompt:&#10;Format: Horizontal 16:9&#10;Primary Branding: &quot;AndrewAltair.GE&quot;..."
-                                    value={post.prompts?.videoPrompt || ''}
-                                    onChange={(e) => setPost(prev => ({
-                                        ...prev,
-                                        prompts: { ...prev.prompts!, videoPrompt: e.target.value }
-                                    }))}
-                                />
-                                <div className="flex items-center gap-3">
-                                    <label className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4">
-                                        <input
-                                            type="file"
-                                            accept="video/*"
-                                            className="hidden"
-                                            onChange={(e) => {
-                                                const file = e.target.files?.[0]
-                                                if (file) handlePromptVideoUpload(file)
-                                            }}
-                                            disabled={isUploadingPromptVideo}
-                                        />
-                                        {isUploadingPromptVideo ? <TbLoader2 className="w-4 h-4 animate-spin mr-2" /> : <TbUpload className="w-4 h-4 mr-2" />}
-                                        შედეგის ატვირთვა
-                                    </label>
-                                    {post.prompts?.videoResult && (
-                                        <div className="flex items-center gap-2">
-                                            <video src={post.prompts.videoResult} className="w-20 h-12 object-cover rounded border" muted />
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-8 w-8 text-destructive"
-                                                onClick={() => setPost(prev => ({
-                                                    ...prev,
-                                                    prompts: { ...prev.prompts!, videoResult: '' }
-                                                }))}
-                                            >
-                                                <TbTrash className="w-4 h-4" />
-                                            </Button>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Divider */}
-                            <div className="border-t" />
-
-                            {/* Music */}
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-lg">🎶</span>
-                                    <span className="font-medium text-sm">მუსიკა</span>
-                                </div>
-                                <Input
-                                    placeholder="Industrial, Glitch, Heavy Bass, Dark Electronic..."
-                                    value={post.prompts?.music || ''}
-                                    onChange={(e) => setPost(prev => ({
-                                        ...prev,
-                                        prompts: { ...prev.prompts!, music: e.target.value }
-                                    }))}
-                                    className="font-mono text-sm"
-                                />
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Preview */}
-                    {post.sections.length > 0 && (
+                        {/* Manage Sections (Manual Edit) */}
                         <Card>
                             <CardHeader className="pb-2">
                                 <div className="flex items-center justify-between">
                                     <CardTitle className="text-lg flex items-center gap-2">
-                                        <TbEye className="w-5 h-5" />
-                                        პრევიუ ({post.sections.length} სექცია)
+                                        <TbLayout className="w-5 h-5 text-primary" />
+                                        სექციების მართვა ({post.sections.length})
                                     </CardTitle>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => setPreviewMode(!previewMode)}
-                                    >
-                                        {previewMode ? <TbChevronUp className="w-4 h-4" /> : <TbChevronDown className="w-4 h-4" />}
-                                    </Button>
+                                    <div className="flex gap-2">
+                                        <label className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0]
+                                                    if (file) handleSectionImageUpload(file)
+                                                }}
+                                                disabled={isUploadingSectionImage}
+                                            />
+                                            {isUploadingSectionImage ? <TbLoader2 className="w-4 h-4 animate-spin mr-2" /> : <TbPhoto className="w-4 h-4 mr-2" />}
+                                            სურათის დამატება
+                                        </label>
+                                    </div>
                                 </div>
+                                <p className="text-xs text-muted-foreground">
+                                    დაამატეთ სურათები ან შეცვალეთ სექციების თანმიმდევრობა
+                                </p>
                             </CardHeader>
-                            {previewMode && (
-                                <CardContent className="border-t">
-                                    <div className="p-4 bg-muted/20 rounded-lg max-h-[500px] overflow-y-auto">
-                                        <RichPostContent sections={post.sections} />
+                            <CardContent className="space-y-4">
+                                {post.sections.length === 0 ? (
+                                    <div className="text-center py-8 text-muted-foreground text-sm border-2 border-dashed rounded-lg">
+                                        ჯერ არ არის სექციები. გამოიყენეთ "ავტო-პარსინგი" ან დაამატეთ ხელით.
                                     </div>
-                                </CardContent>
-                            )}
-                        </Card>
-                    )}
-                </div>
-
-                {/* Sidebar */}
-                <div className="space-y-6">
-                    {/* Content Identity (ID & Type) */}
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm flex items-center gap-2">
-                                <TbFileCheck className="w-4 h-4" />
-                                იდენტიფიკატორი & ტიპი
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            {/* Universal ID */}
-                            <div className="space-y-2">
-                                <label className="text-xs text-muted-foreground flex items-center justify-between">
-                                    Universal ID (6-Digit)
-                                    <Badge variant="outline" className="text-[10px] h-5">Read-Only</Badge>
-                                </label>
-                                <div className="flex gap-2">
-                                    <Input
-                                        value={post.id || "Generating..."}
-                                        readOnly
-                                        className="font-mono text-center tracking-widest bg-muted/50 font-bold"
-                                    />
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        onClick={() => {
-                                            if (post.id) {
-                                                navigator.clipboard.writeText(post.id)
-                                                // alert("ID დაკოპირდა!") // Optional: remove alert to avoid blocking
-                                            }
-                                        }}
-                                        title="Copy ID"
-                                    >
-                                        <TbFileText className="w-4 h-4" />
-                                    </Button>
-                                </div>
-                            </div>
-
-                            {/* Repository Details (Sidebar) */}
-                            <Card className={`border-2 ${post.repository?.url ? 'border-purple-500/50 bg-purple-500/5' : ''}`}>
-                                <CardHeader className="pb-2">
-                                    <CardTitle className="text-sm flex items-center gap-2">
-                                        <TbBrandGithub className="w-4 h-4 text-purple-500" />
-                                        Repository Data
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="space-y-2">
-                                        <label className="text-xs text-muted-foreground">GitHub/GitLab URL</label>
-                                        <Input
-                                            placeholder="https://github.com/username/repo"
-                                            value={post.repository?.url || ''}
-                                            onChange={(e) => {
-                                                const url = e.target.value;
-                                                setPost(prev => ({
-                                                    ...prev,
-                                                    repository: {
-                                                        type: url.includes('gitlab') ? 'gitlab' : 'other',
-                                                        url,
-                                                        name: url.split('/').pop() || '',
-                                                        description: prev.repository?.description || '',
-                                                        stars: prev.repository?.stars || 0,
-                                                        forks: prev.repository?.forks || 0,
-                                                        language: prev.repository?.language || '',
-                                                        topics: prev.repository?.topics || [],
-                                                        license: prev.repository?.license || ''
-                                                    }
-                                                }))
-                                            }}
-                                            className="text-xs font-mono"
-                                        />
-                                    </div>
-
-                                    {post.repository?.url && (
-                                        <>
-                                            <div className="grid grid-cols-2 gap-2">
-                                                <div className="space-y-1">
-                                                    <label className="text-xs text-muted-foreground flex items-center gap-1">
-                                                        <TbStar className="w-3 h-3" /> Stars
-                                                    </label>
-                                                    <Input
-                                                        type="number"
-                                                        value={post.repository.stars}
-                                                        onChange={(e) => setPost(prev => ({
-                                                            ...prev,
-                                                            repository: { ...prev.repository!, stars: parseInt(e.target.value) || 0 }
-                                                        }))}
-                                                        className="text-xs"
-                                                    />
+                                ) : (
+                                    <div className="space-y-3">
+                                        {post.sections.map((section, idx) => (
+                                            <div key={idx} className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg border group">
+                                                {/* Section Type Icon */}
+                                                <div className="mt-1">
+                                                    {section.type === 'image' ? (
+                                                        <img src={section.content} alt="section" className="w-10 h-10 object-cover rounded" />
+                                                    ) : (
+                                                        <Badge variant="outline">{section.type.slice(0, 3)}</Badge>
+                                                    )}
                                                 </div>
-                                                <div className="space-y-1">
-                                                    <label className="text-xs text-muted-foreground flex items-center gap-1">
-                                                        <TbGitFork className="w-3 h-3" /> Forks
-                                                    </label>
-                                                    <Input
-                                                        type="number"
-                                                        value={post.repository.forks}
-                                                        onChange={(e) => setPost(prev => ({
-                                                            ...prev,
-                                                            repository: { ...prev.repository!, forks: parseInt(e.target.value) || 0 }
-                                                        }))}
-                                                        className="text-xs"
-                                                    />
+
+                                                {/* Content Preview */}
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium truncate">{section.title || section.type}</p>
+                                                    <p className="text-xs text-muted-foreground truncate">{section.type === 'image' ? section.content : section.content.slice(0, 50)}</p>
+                                                </div>
+
+                                                {/* Actions */}
+                                                <div className="flex flex-col gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                                    <div className="flex gap-1">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-6 w-6"
+                                                            disabled={idx === 0}
+                                                            onClick={() => {
+                                                                const newSections = [...post.sections]
+                                                                    ;[newSections[idx - 1], newSections[idx]] = [newSections[idx], newSections[idx - 1]]
+                                                                setPost(prev => ({ ...prev, sections: newSections }))
+                                                            }}
+                                                        >
+                                                            <TbArrowUp className="w-3 h-3" />
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-6 w-6"
+                                                            disabled={idx === post.sections.length - 1}
+                                                            onClick={() => {
+                                                                const newSections = [...post.sections]
+                                                                    ;[newSections[idx + 1], newSections[idx]] = [newSections[idx], newSections[idx + 1]]
+                                                                setPost(prev => ({ ...prev, sections: newSections }))
+                                                            }}
+                                                        >
+                                                            <TbArrowDown className="w-3 h-3" />
+                                                        </Button>
+                                                    </div>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-6 w-6 text-destructive hover:text-destructive/90"
+                                                        onClick={() => {
+                                                            const newSections = [...post.sections]
+                                                            newSections.splice(idx, 1)
+                                                            setPost(prev => ({ ...prev, sections: newSections }))
+                                                        }}
+                                                    >
+                                                        <TbTrash className="w-3 h-3" />
+                                                    </Button>
                                                 </div>
                                             </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        {/* Prompts Section */}
+                        <Card>
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-lg flex items-center gap-2">
+                                    <TbSparkles className="w-5 h-5 text-primary" />
+                                    პრომპტები (ფოტო & ვიდეო)
+                                </CardTitle>
+                                <p className="text-xs text-muted-foreground">
+                                    დაამატეთ AI გენერაციის პრომპტები და ატვირთეთ შედეგები
+                                </p>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                {/* Photo Prompt */}
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <TbPhoto className="w-4 h-4 text-blue-500" />
+                                        <span className="font-medium text-sm">ფოტო პრომპტი</span>
+                                    </div>
+                                    <textarea
+                                        className="w-full min-h-[120px] p-3 text-sm border rounded-lg bg-muted/30 font-mono resize-y"
+                                        placeholder="Prompt:&#10;Format: Vertical 9:16&#10;Primary Branding: &quot;AndrewAltair.GE&quot;..."
+                                        value={post.prompts?.photoPrompt || ''}
+                                        onChange={(e) => setPost(prev => ({
+                                            ...prev,
+                                            prompts: { ...prev.prompts!, photoPrompt: e.target.value }
+                                        }))}
+                                    />
+                                    <div className="flex items-center gap-3">
+                                        <label className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0]
+                                                    if (file) handlePromptPhotoUpload(file)
+                                                }}
+                                                disabled={isUploadingPromptPhoto}
+                                            />
+                                            {isUploadingPromptPhoto ? <TbLoader2 className="w-4 h-4 animate-spin mr-2" /> : <TbUpload className="w-4 h-4 mr-2" />}
+                                            შედეგის ატვირთვა
+                                        </label>
+                                        {post.prompts?.photoResult && (
+                                            <div className="flex items-center gap-2">
+                                                <img src={post.prompts.photoResult} alt="Photo result" className="w-12 h-12 object-cover rounded border" />
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 text-destructive"
+                                                    onClick={() => setPost(prev => ({
+                                                        ...prev,
+                                                        prompts: { ...prev.prompts!, photoResult: '' }
+                                                    }))}
+                                                >
+                                                    <TbTrash className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Divider */}
+                                <div className="border-t" />
+
+                                {/* Video Prompt */}
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <TbFlame className="w-4 h-4 text-orange-500" />
+                                        <span className="font-medium text-sm">ვიდეო პრომპტი</span>
+                                    </div>
+                                    <textarea
+                                        className="w-full min-h-[120px] p-3 text-sm border rounded-lg bg-muted/30 font-mono resize-y"
+                                        placeholder="Prompt:&#10;Format: Horizontal 16:9&#10;Primary Branding: &quot;AndrewAltair.GE&quot;..."
+                                        value={post.prompts?.videoPrompt || ''}
+                                        onChange={(e) => setPost(prev => ({
+                                            ...prev,
+                                            prompts: { ...prev.prompts!, videoPrompt: e.target.value }
+                                        }))}
+                                    />
+                                    <div className="flex items-center gap-3">
+                                        <label className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4">
+                                            <input
+                                                type="file"
+                                                accept="video/*"
+                                                className="hidden"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0]
+                                                    if (file) handlePromptVideoUpload(file)
+                                                }}
+                                                disabled={isUploadingPromptVideo}
+                                            />
+                                            {isUploadingPromptVideo ? <TbLoader2 className="w-4 h-4 animate-spin mr-2" /> : <TbUpload className="w-4 h-4 mr-2" />}
+                                            შედეგის ატვირთვა
+                                        </label>
+                                        {post.prompts?.videoResult && (
+                                            <div className="flex items-center gap-2">
+                                                <video src={post.prompts.videoResult} className="w-20 h-12 object-cover rounded border" muted />
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 text-destructive"
+                                                    onClick={() => setPost(prev => ({
+                                                        ...prev,
+                                                        prompts: { ...prev.prompts!, videoResult: '' }
+                                                    }))}
+                                                >
+                                                    <TbTrash className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Divider */}
+                                <div className="border-t" />
+
+                                {/* Music */}
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-lg">🎶</span>
+                                        <span className="font-medium text-sm">მუსიკა</span>
+                                    </div>
+                                    <Input
+                                        placeholder="Industrial, Glitch, Heavy Bass, Dark Electronic..."
+                                        value={post.prompts?.music || ''}
+                                        onChange={(e) => setPost(prev => ({
+                                            ...prev,
+                                            prompts: { ...prev.prompts!, music: e.target.value }
+                                        }))}
+                                        className="font-mono text-sm"
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Preview */}
+                        {post.sections.length > 0 && (
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="text-lg flex items-center gap-2">
+                                            <TbEye className="w-5 h-5" />
+                                            პრევიუ ({post.sections.length} სექცია)
+                                        </CardTitle>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setPreviewMode(!previewMode)}
+                                        >
+                                            {previewMode ? <TbChevronUp className="w-4 h-4" /> : <TbChevronDown className="w-4 h-4" />}
+                                        </Button>
+                                    </div>
+                                </CardHeader>
+                                {previewMode && (
+                                    <CardContent className="border-t">
+                                        <div className="p-4 bg-muted/20 rounded-lg max-h-[500px] overflow-y-auto">
+                                            <RichPostContent sections={post.sections} />
+                                        </div>
+                                    </CardContent>
+                                )}
+                            </Card>
+                        )}
+                    </div>
+
+                    {/* Sidebar */}
+                    <div className="space-y-6">
+                        {/* Content Identity (ID & Type) */}
+                        <Card>
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-sm flex items-center gap-2">
+                                    <TbFileCheck className="w-4 h-4" />
+                                    იდენტიფიკატორი & ტიპი
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {/* Universal ID */}
+                                <div className="space-y-2">
+                                    <label className="text-xs text-muted-foreground flex items-center justify-between">
+                                        Universal ID (6-Digit)
+                                        <Badge variant="outline" className="text-[10px] h-5">Read-Only</Badge>
+                                    </label>
+                                    <div className="flex gap-2">
+                                        <Input
+                                            value={post.id || "Generating..."}
+                                            readOnly
+                                            className="font-mono text-center tracking-widest bg-muted/50 font-bold"
+                                        />
+                                        <Button
+                                            variant="outline"
+                                            size="icon"
+                                            onClick={() => {
+                                                if (post.id) {
+                                                    navigator.clipboard.writeText(post.id)
+                                                    // alert("ID დაკოპირდა!") // Optional: remove alert to avoid blocking
+                                                }
+                                            }}
+                                            title="Copy ID"
+                                        >
+                                            <TbFileText className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                {/* Repository Details (Sidebar) */}
+                                <Card className={`border-2 ${post.repository?.url ? 'border-purple-500/50 bg-purple-500/5' : ''}`}>
+                                    <CardHeader className="pb-2">
+                                        <CardTitle className="text-sm flex items-center gap-2">
+                                            <TbBrandGithub className="w-4 h-4 text-purple-500" />
+                                            Repository Data
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        <div className="space-y-2">
+                                            <label className="text-xs text-muted-foreground">GitHub/GitLab URL</label>
+                                            <Input
+                                                placeholder="https://github.com/username/repo"
+                                                value={post.repository?.url || ''}
+                                                onChange={(e) => {
+                                                    const url = e.target.value;
+                                                    setPost(prev => ({
+                                                        ...prev,
+                                                        repository: {
+                                                            type: url.includes('gitlab') ? 'gitlab' : 'other',
+                                                            url,
+                                                            name: url.split('/').pop() || '',
+                                                            description: prev.repository?.description || '',
+                                                            stars: prev.repository?.stars || 0,
+                                                            forks: prev.repository?.forks || 0,
+                                                            language: prev.repository?.language || '',
+                                                            topics: prev.repository?.topics || [],
+                                                            license: prev.repository?.license || ''
+                                                        }
+                                                    }))
+                                                }}
+                                                className="text-xs font-mono"
+                                            />
+                                        </div>
+
+                                        {post.repository?.url && (
+                                            <>
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <div className="space-y-1">
+                                                        <label className="text-xs text-muted-foreground flex items-center gap-1">
+                                                            <TbStar className="w-3 h-3" /> Stars
+                                                        </label>
+                                                        <Input
+                                                            type="number"
+                                                            value={post.repository.stars}
+                                                            onChange={(e) => setPost(prev => ({
+                                                                ...prev,
+                                                                repository: { ...prev.repository!, stars: parseInt(e.target.value) || 0 }
+                                                            }))}
+                                                            className="text-xs"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <label className="text-xs text-muted-foreground flex items-center gap-1">
+                                                            <TbGitFork className="w-3 h-3" /> Forks
+                                                        </label>
+                                                        <Input
+                                                            type="number"
+                                                            value={post.repository.forks}
+                                                            onChange={(e) => setPost(prev => ({
+                                                                ...prev,
+                                                                repository: { ...prev.repository!, forks: parseInt(e.target.value) || 0 }
+                                                            }))}
+                                                            className="text-xs"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-xs text-muted-foreground flex items-center gap-1">
+                                                        <TbCode className="w-3 h-3" /> Language
+                                                    </label>
+                                                    <Input
+                                                        placeholder="TypeScript"
+                                                        value={post.repository.language}
+                                                        onChange={(e) => setPost(prev => ({
+                                                            ...prev,
+                                                            repository: { ...prev.repository!, language: e.target.value }
+                                                        }))}
+                                                        className="text-xs"
+                                                    />
+                                                </div>
+                                            </>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                                <div className="space-y-2">
+                                    <label className="text-xs text-muted-foreground">კატეგორიები</label>
+                                    <div className="flex flex-col gap-1">
+                                        {CATEGORIES.map(cat => {
+                                            const IconComponent = cat.icon;
+                                            const isSelected = post.categories.includes(cat.value);
+                                            const isParent = cat.isParent;
+
+                                            return (
+                                                <button
+                                                    key={cat.value}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setPost(prev => {
+                                                            const currentCats = prev.categories || [];
+                                                            let newCats = [...currentCats];
+
+                                                            if (isSelected) {
+                                                                // Deselect
+                                                                newCats = newCats.filter(c => c !== cat.value);
+                                                                // If unchecking a parent, uncheck all children? No, usually uncheck parent is allowed.
+                                                                // But if unchecking a child, parent remains.
+                                                            } else {
+                                                                // Select
+                                                                newCats.push(cat.value);
+                                                                // If selecting a subcategory, auto-select parent
+                                                                if (!isParent) {
+                                                                    // Find parent (assuming 'articles' is the only parent for now, or check brand config)
+                                                                    // Hardcoded for now based on CATEGORIES structure where 'articles' is parent
+                                                                    if (!newCats.includes('articles')) {
+                                                                        newCats.push('articles');
+                                                                    }
+                                                                }
+                                                            }
+                                                            return { ...prev, categories: newCats };
+                                                        });
+                                                    }}
+                                                    className={`flex items-center gap-2 px-3 py-2 rounded-md border text-left text-sm transition-colors ${isSelected
+                                                        ? 'border-primary bg-primary/10 text-primary'
+                                                        : 'border-input bg-background hover:bg-accent/50'
+                                                        } ${!isParent ? 'ml-4' : ''}`} // Indent children
+                                                >
+                                                    <IconComponent className="w-4 h-4" />
+                                                    {cat.label}
+                                                    {isSelected && <TbCheck className="w-4 h-4 ml-auto" />}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* Video Embeds */}
+                                <div className="space-y-2 pt-4 border-t">
+                                    <label className="text-xs text-muted-foreground flex items-center justify-between">
+                                        <span>Video Embeds (YouTube/Vimeo)</span>
+                                        <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded">{post.videos?.length || 0}</span>
+                                    </label>
+                                    <div className="space-y-2">
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                placeholder="https://youtube.com/watch?v=..."
+                                                className="flex-1 h-8 text-sm px-2 rounded-md border bg-background"
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        const url = e.currentTarget.value;
+                                                        if (!url) return;
+
+                                                        // Simple platform detection
+                                                        let platform: 'youtube' | 'vimeo' = 'youtube';
+                                                        if (url.includes('vimeo')) platform = 'vimeo';
+
+                                                        setPost(prev => ({
+                                                            ...prev,
+                                                            videos: [...(prev.videos || []), { url, platform }]
+                                                        }));
+                                                        e.currentTarget.value = '';
+                                                    }
+                                                }}
+                                            />
+                                            <Button
+                                                size="sm"
+                                                variant="secondary"
+                                                onClick={(e) => {
+                                                    // Need to access input value... workaround: just use Enter key above or State
+                                                    // For simplicity, let's just use Enter key instruction placeholder
+                                                }}
+                                                title="Press Enter in input to add"
+                                            >
+                                                <TbPlus className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+
+                                        {/* Video List */}
+                                        <div className="space-y-2">
+                                            {post.videos?.map((video, idx) => (
+                                                <div key={idx} className="flex items-center gap-2 p-2 rounded border bg-muted/20 text-xs group">
+                                                    <span className="uppercase font-bold text-[10px] w-12">{video.platform}</span>
+                                                    <span className="truncate flex-1" title={video.url}>{video.url}</span>
+                                                    <button
+                                                        onClick={() => setPost(prev => ({
+                                                            ...prev,
+                                                            videos: prev.videos?.filter((_, i) => i !== idx)
+                                                        }))}
+                                                        className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition-opacity"
+                                                    >
+                                                        <TbTrash className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Repository Details (Sidebar) */}
+                        <Card className={post.repository?.url ? "border-purple-500/50 bg-purple-500/5" : ""}>
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-sm flex items-center gap-2">
+                                    <TbBrandGithub className="w-4 h-4 text-purple-500" />
+                                    Repository Data
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-2">
+                                    <label className="text-xs text-muted-foreground">GitHub/GitLab URL</label>
+                                    <Input
+                                        placeholder="https://github.com/username/repo"
+                                        value={post.repository?.url || ''}
+                                        onChange={(e) => {
+                                            const url = e.target.value;
+                                            setPost(prev => ({
+                                                ...prev,
+                                                repository: {
+                                                    type: url.includes('gitlab') ? 'gitlab' : 'github',
+                                                    url,
+                                                    name: url.split('/').pop() || '',
+                                                    description: prev.repository?.description || '',
+                                                    stars: prev.repository?.stars || 0,
+                                                    forks: prev.repository?.forks || 0,
+                                                    language: prev.repository?.language || '',
+                                                    topics: prev.repository?.topics || [],
+                                                    license: prev.repository?.license || ''
+                                                }
+                                            }))
+                                        }}
+                                        className="text-xs font-mono"
+                                    />
+                                </div>
+
+                                {post.repository?.url && (
+                                    <>
+                                        <div className="grid grid-cols-2 gap-2">
                                             <div className="space-y-1">
                                                 <label className="text-xs text-muted-foreground flex items-center gap-1">
-                                                    <TbCode className="w-3 h-3" /> Language
+                                                    <TbStar className="w-3 h-3" /> Stars
                                                 </label>
                                                 <Input
-                                                    placeholder="TypeScript"
-                                                    value={post.repository.language}
+                                                    type="number"
+                                                    value={post.repository.stars}
                                                     onChange={(e) => setPost(prev => ({
                                                         ...prev,
-                                                        repository: { ...prev.repository!, language: e.target.value }
+                                                        repository: { ...prev.repository!, stars: parseInt(e.target.value) || 0 }
                                                     }))}
                                                     className="text-xs"
                                                 />
                                             </div>
-                                        </>
-                                    )}
-                                </CardContent>
-                            </Card>
-                            <div className="space-y-2">
-                                <label className="text-xs text-muted-foreground">კატეგორიები</label>
-                                <div className="flex flex-col gap-1">
-                                    {CATEGORIES.map(cat => {
-                                        const IconComponent = cat.icon;
-                                        const isSelected = post.categories.includes(cat.value);
-                                        const isParent = cat.isParent;
+                                            <div className="space-y-1">
+                                                <label className="text-xs text-muted-foreground flex items-center gap-1">
+                                                    <TbGitFork className="w-3 h-3" /> Forks
+                                                </label>
+                                                <Input
+                                                    type="number"
+                                                    value={post.repository.forks}
+                                                    onChange={(e) => setPost(prev => ({
+                                                        ...prev,
+                                                        repository: { ...prev.repository!, forks: parseInt(e.target.value) || 0 }
+                                                    }))}
+                                                    className="text-xs"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs text-muted-foreground flex items-center gap-1">
+                                                <TbCode className="w-3 h-3" /> Language
+                                            </label>
+                                            <Input
+                                                placeholder="TypeScript"
+                                                value={post.repository.language}
+                                                onChange={(e) => setPost(prev => ({
+                                                    ...prev,
+                                                    repository: { ...prev.repository!, language: e.target.value }
+                                                }))}
+                                                className="text-xs"
+                                            />
+                                        </div>
+                                    </>
+                                )}
+                            </CardContent>
+                        </Card>
 
-                                        return (
-                                            <button
-                                                key={cat.value}
-                                                type="button"
-                                                onClick={() => {
-                                                    setPost(prev => {
-                                                        const currentCats = prev.categories || [];
-                                                        let newCats = [...currentCats];
-
-                                                        if (isSelected) {
-                                                            // Deselect
-                                                            newCats = newCats.filter(c => c !== cat.value);
-                                                            // If unchecking a parent, uncheck all children? No, usually uncheck parent is allowed.
-                                                            // But if unchecking a child, parent remains.
-                                                        } else {
-                                                            // Select
-                                                            newCats.push(cat.value);
-                                                            // If selecting a subcategory, auto-select parent
-                                                            if (!isParent) {
-                                                                // Find parent (assuming 'articles' is the only parent for now, or check brand config)
-                                                                // Hardcoded for now based on CATEGORIES structure where 'articles' is parent
-                                                                if (!newCats.includes('articles')) {
-                                                                    newCats.push('articles');
-                                                                }
+                        {/* Responsive Cover TbPhoto */}
+                        <Card>
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-sm flex items-center gap-2">
+                                    <TbPhoto className="w-4 h-4" />
+                                    Cover სურათები
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {/* Horizontal (Desktop) */}
+                                <div className="space-y-2">
+                                    <label className="text-xs text-muted-foreground flex items-center gap-1">
+                                        <TbDeviceDesktop className="w-3 h-3" />
+                                        Desktop (16:9)
+                                    </label>
+                                    {post.coverImages.horizontal ? (
+                                        <div className="space-y-2">
+                                            <div className="relative">
+                                                <img
+                                                    src={post.coverImages.horizontal}
+                                                    alt="Horizontal Cover"
+                                                    className="w-full aspect-video object-cover rounded-md"
+                                                />
+                                                <div className="absolute top-2 right-2 flex gap-1">
+                                                    {/* Replace Button */}
+                                                    <label className="h-6 w-6 rounded-md bg-primary hover:bg-primary/90 flex items-center justify-center cursor-pointer">
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            className="hidden"
+                                                            onChange={(e) => {
+                                                                const file = e.target.files?.[0]
+                                                                if (file) handleFileUpload(file, 'horizontal')
+                                                            }}
+                                                            disabled={isUploadingH}
+                                                        />
+                                                        {isUploadingH ? (
+                                                            <TbLoader2 className="w-3 h-3 animate-spin text-primary-foreground" />
+                                                        ) : (
+                                                            <TbUpload className="w-3 h-3 text-primary-foreground" />
+                                                        )}
+                                                    </label>
+                                                    {/* Delete Button */}
+                                                    <Button
+                                                        variant="destructive"
+                                                        size="icon"
+                                                        className="h-6 w-6"
+                                                        onClick={() => setPost(prev => ({
+                                                            ...prev,
+                                                            coverImages: { ...prev.coverImages, horizontal: undefined }
+                                                        }))}
+                                                    >
+                                                        <TbTrash className="w-3 h-3" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                            {/* URL Input for replacing via URL */}
+                                            <div className="flex gap-2">
+                                                <Input
+                                                    placeholder="ან ჩასვით URL..."
+                                                    className="text-xs h-7"
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            const url = (e.target as HTMLInputElement).value.trim()
+                                                            if (url) {
+                                                                setPost(prev => ({
+                                                                    ...prev,
+                                                                    coverImages: { ...prev.coverImages, horizontal: url }
+                                                                }))
+                                                                    ; (e.target as HTMLInputElement).value = ''
                                                             }
                                                         }
-                                                        return { ...prev, categories: newCats };
-                                                    });
-                                                }}
-                                                className={`flex items-center gap-2 px-3 py-2 rounded-md border text-left text-sm transition-colors ${isSelected
-                                                    ? 'border-primary bg-primary/10 text-primary'
-                                                    : 'border-input bg-background hover:bg-accent/50'
-                                                    } ${!isParent ? 'ml-4' : ''}`} // Indent children
-                                            >
-                                                <IconComponent className="w-4 h-4" />
-                                                {cat.label}
-                                                {isSelected && <TbCheck className="w-4 h-4 ml-auto" />}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            {/* Video Embeds */}
-                            <div className="space-y-2 pt-4 border-t">
-                                <label className="text-xs text-muted-foreground flex items-center justify-between">
-                                    <span>Video Embeds (YouTube/Vimeo)</span>
-                                    <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded">{post.videos?.length || 0}</span>
-                                </label>
-                                <div className="space-y-2">
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="text"
-                                            placeholder="https://youtube.com/watch?v=..."
-                                            className="flex-1 h-8 text-sm px-2 rounded-md border bg-background"
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter') {
-                                                    e.preventDefault();
-                                                    const url = e.currentTarget.value;
-                                                    if (!url) return;
-
-                                                    // Simple platform detection
-                                                    let platform: 'youtube' | 'vimeo' = 'youtube';
-                                                    if (url.includes('vimeo')) platform = 'vimeo';
-
-                                                    setPost(prev => ({
-                                                        ...prev,
-                                                        videos: [...(prev.videos || []), { url, platform }]
-                                                    }));
-                                                    e.currentTarget.value = '';
-                                                }
-                                            }}
-                                        />
-                                        <Button
-                                            size="sm"
-                                            variant="secondary"
-                                            onClick={(e) => {
-                                                // Need to access input value... workaround: just use Enter key above or State
-                                                // For simplicity, let's just use Enter key instruction placeholder
-                                            }}
-                                            title="Press Enter in input to add"
-                                        >
-                                            <TbPlus className="w-4 h-4" />
-                                        </Button>
-                                    </div>
-
-                                    {/* Video List */}
-                                    <div className="space-y-2">
-                                        {post.videos?.map((video, idx) => (
-                                            <div key={idx} className="flex items-center gap-2 p-2 rounded border bg-muted/20 text-xs group">
-                                                <span className="uppercase font-bold text-[10px] w-12">{video.platform}</span>
-                                                <span className="truncate flex-1" title={video.url}>{video.url}</span>
-                                                <button
-                                                    onClick={() => setPost(prev => ({
-                                                        ...prev,
-                                                        videos: prev.videos?.filter((_, i) => i !== idx)
-                                                    }))}
-                                                    className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-500 transition-opacity"
-                                                >
-                                                    <TbTrash className="w-3 h-3" />
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Repository Details (Sidebar) */}
-                    <Card className={post.repository?.url ? "border-purple-500/50 bg-purple-500/5" : ""}>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm flex items-center gap-2">
-                                <TbBrandGithub className="w-4 h-4 text-purple-500" />
-                                Repository Data
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-xs text-muted-foreground">GitHub/GitLab URL</label>
-                                <Input
-                                    placeholder="https://github.com/username/repo"
-                                    value={post.repository?.url || ''}
-                                    onChange={(e) => {
-                                        const url = e.target.value;
-                                        setPost(prev => ({
-                                            ...prev,
-                                            repository: {
-                                                type: url.includes('gitlab') ? 'gitlab' : 'github',
-                                                url,
-                                                name: url.split('/').pop() || '',
-                                                description: prev.repository?.description || '',
-                                                stars: prev.repository?.stars || 0,
-                                                forks: prev.repository?.forks || 0,
-                                                language: prev.repository?.language || '',
-                                                topics: prev.repository?.topics || [],
-                                                license: prev.repository?.license || ''
-                                            }
-                                        }))
-                                    }}
-                                    className="text-xs font-mono"
-                                />
-                            </div>
-
-                            {post.repository?.url && (
-                                <>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <div className="space-y-1">
-                                            <label className="text-xs text-muted-foreground flex items-center gap-1">
-                                                <TbStar className="w-3 h-3" /> Stars
-                                            </label>
-                                            <Input
-                                                type="number"
-                                                value={post.repository.stars}
-                                                onChange={(e) => setPost(prev => ({
-                                                    ...prev,
-                                                    repository: { ...prev.repository!, stars: parseInt(e.target.value) || 0 }
-                                                }))}
-                                                className="text-xs"
-                                            />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <label className="text-xs text-muted-foreground flex items-center gap-1">
-                                                <TbGitFork className="w-3 h-3" /> Forks
-                                            </label>
-                                            <Input
-                                                type="number"
-                                                value={post.repository.forks}
-                                                onChange={(e) => setPost(prev => ({
-                                                    ...prev,
-                                                    repository: { ...prev.repository!, forks: parseInt(e.target.value) || 0 }
-                                                }))}
-                                                className="text-xs"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-xs text-muted-foreground flex items-center gap-1">
-                                            <TbCode className="w-3 h-3" /> Language
-                                        </label>
-                                        <Input
-                                            placeholder="TypeScript"
-                                            value={post.repository.language}
-                                            onChange={(e) => setPost(prev => ({
-                                                ...prev,
-                                                repository: { ...prev.repository!, language: e.target.value }
-                                            }))}
-                                            className="text-xs"
-                                        />
-                                    </div>
-                                </>
-                            )}
-                        </CardContent>
-                    </Card>
-
-                    {/* Responsive Cover TbPhoto */}
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm flex items-center gap-2">
-                                <TbPhoto className="w-4 h-4" />
-                                Cover სურათები
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            {/* Horizontal (Desktop) */}
-                            <div className="space-y-2">
-                                <label className="text-xs text-muted-foreground flex items-center gap-1">
-                                    <TbDeviceDesktop className="w-3 h-3" />
-                                    Desktop (16:9)
-                                </label>
-                                {post.coverImages.horizontal ? (
-                                    <div className="space-y-2">
-                                        <div className="relative">
-                                            <img
-                                                src={post.coverImages.horizontal}
-                                                alt="Horizontal Cover"
-                                                className="w-full aspect-video object-cover rounded-md"
-                                            />
-                                            <div className="absolute top-2 right-2 flex gap-1">
-                                                {/* Replace Button */}
-                                                <label className="h-6 w-6 rounded-md bg-primary hover:bg-primary/90 flex items-center justify-center cursor-pointer">
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        className="hidden"
-                                                        onChange={(e) => {
-                                                            const file = e.target.files?.[0]
-                                                            if (file) handleFileUpload(file, 'horizontal')
-                                                        }}
-                                                        disabled={isUploadingH}
-                                                    />
-                                                    {isUploadingH ? (
-                                                        <TbLoader2 className="w-3 h-3 animate-spin text-primary-foreground" />
-                                                    ) : (
-                                                        <TbUpload className="w-3 h-3 text-primary-foreground" />
-                                                    )}
-                                                </label>
-                                                {/* Delete Button */}
-                                                <Button
-                                                    variant="destructive"
-                                                    size="icon"
-                                                    className="h-6 w-6"
-                                                    onClick={() => setPost(prev => ({
-                                                        ...prev,
-                                                        coverImages: { ...prev.coverImages, horizontal: undefined }
-                                                    }))}
-                                                >
-                                                    <TbTrash className="w-3 h-3" />
-                                                </Button>
+                                                    }}
+                                                />
                                             </div>
                                         </div>
-                                        {/* URL Input for replacing via URL */}
-                                        <div className="flex gap-2">
+                                    ) : (
+                                        <div className="space-y-2">
+                                            <label className="border-2 border-dashed rounded-md p-4 text-center aspect-video flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files?.[0]
+                                                        if (file) handleFileUpload(file, 'horizontal')
+                                                    }}
+                                                    disabled={isUploadingH}
+                                                />
+                                                {isUploadingH ? (
+                                                    <TbLoader2 className="w-6 h-6 animate-spin text-primary" />
+                                                ) : (
+                                                    <div>
+                                                        <TbUpload className="w-6 h-6 mx-auto text-muted-foreground mb-1" />
+                                                        <p className="text-xs text-muted-foreground">16:9 ატვირთვა</p>
+                                                    </div>
+                                                )}
+                                            </label>
+                                            {/* URL Input for adding via URL */}
                                             <Input
-                                                placeholder="ან ჩასვით URL..."
+                                                placeholder="ან ჩასვით სურათის URL..."
                                                 className="text-xs h-7"
                                                 onKeyDown={(e) => {
                                                     if (e.key === 'Enter') {
@@ -1835,520 +2048,481 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                                 }}
                                             />
                                         </div>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-2">
-                                        <label className="border-2 border-dashed rounded-md p-4 text-center aspect-video flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                className="hidden"
-                                                onChange={(e) => {
-                                                    const file = e.target.files?.[0]
-                                                    if (file) handleFileUpload(file, 'horizontal')
-                                                }}
-                                                disabled={isUploadingH}
-                                            />
-                                            {isUploadingH ? (
-                                                <TbLoader2 className="w-6 h-6 animate-spin text-primary" />
-                                            ) : (
-                                                <div>
-                                                    <TbUpload className="w-6 h-6 mx-auto text-muted-foreground mb-1" />
-                                                    <p className="text-xs text-muted-foreground">16:9 ატვირთვა</p>
-                                                </div>
-                                            )}
-                                        </label>
-                                        {/* URL Input for adding via URL */}
-                                        <Input
-                                            placeholder="ან ჩასვით სურათის URL..."
-                                            className="text-xs h-7"
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter') {
-                                                    const url = (e.target as HTMLInputElement).value.trim()
-                                                    if (url) {
-                                                        setPost(prev => ({
-                                                            ...prev,
-                                                            coverImages: { ...prev.coverImages, horizontal: url }
-                                                        }))
-                                                            ; (e.target as HTMLInputElement).value = ''
-                                                    }
-                                                }
-                                            }}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Vertical (Mobile) */}
-                            <div className="space-y-2">
-                                <label className="text-xs text-muted-foreground flex items-center gap-1">
-                                    <TbDeviceMobile className="w-3 h-3" />
-                                    Mobile (9:16)
-                                </label>
-                                {post.coverImages.vertical ? (
-                                    <div className="space-y-2">
-                                        <div className="relative max-w-[120px]">
-                                            <img
-                                                src={post.coverImages.vertical}
-                                                alt="Vertical Cover"
-                                                className="w-full aspect-[9/16] object-cover rounded-md"
-                                            />
-                                            <div className="absolute top-1 right-1 flex gap-1">
-                                                {/* Replace Button */}
-                                                <label className="h-5 w-5 rounded-md bg-primary hover:bg-primary/90 flex items-center justify-center cursor-pointer">
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        className="hidden"
-                                                        onChange={(e) => {
-                                                            const file = e.target.files?.[0]
-                                                            if (file) handleFileUpload(file, 'vertical')
-                                                        }}
-                                                        disabled={isUploadingV}
-                                                    />
-                                                    {isUploadingV ? (
-                                                        <TbLoader2 className="w-2.5 h-2.5 animate-spin text-primary-foreground" />
-                                                    ) : (
-                                                        <TbUpload className="w-2.5 h-2.5 text-primary-foreground" />
-                                                    )}
-                                                </label>
-                                                {/* Delete Button */}
-                                                <Button
-                                                    variant="destructive"
-                                                    size="icon"
-                                                    className="h-5 w-5"
-                                                    onClick={() => setPost(prev => ({
-                                                        ...prev,
-                                                        coverImages: { ...prev.coverImages, vertical: undefined }
-                                                    }))}
-                                                >
-                                                    <TbTrash className="w-2.5 h-2.5" />
-                                                </Button>
-                                            </div>
-                                        </div>
-                                        {/* URL Input for replacing via URL */}
-                                        <Input
-                                            placeholder="ან ჩასვით URL..."
-                                            className="text-xs h-7 max-w-[200px]"
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter') {
-                                                    const url = (e.target as HTMLInputElement).value.trim()
-                                                    if (url) {
-                                                        setPost(prev => ({
-                                                            ...prev,
-                                                            coverImages: { ...prev.coverImages, vertical: url }
-                                                        }))
-                                                            ; (e.target as HTMLInputElement).value = ''
-                                                    }
-                                                }
-                                            }}
-                                        />
-                                    </div>
-                                ) : (
-                                    <div className="space-y-2">
-                                        <label className="border-2 border-dashed rounded-md p-4 text-center max-w-[120px] aspect-[9/16] flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                className="hidden"
-                                                onChange={(e) => {
-                                                    const file = e.target.files?.[0]
-                                                    if (file) handleFileUpload(file, 'vertical')
-                                                }}
-                                                disabled={isUploadingV}
-                                            />
-                                            {isUploadingV ? (
-                                                <TbLoader2 className="w-5 h-5 animate-spin text-primary" />
-                                            ) : (
-                                                <div>
-                                                    <TbUpload className="w-5 h-5 mx-auto text-muted-foreground mb-1" />
-                                                    <p className="text-xs text-muted-foreground">9:16</p>
-                                                </div>
-                                            )}
-                                        </label>
-                                        {/* URL Input for adding via URL */}
-                                        <Input
-                                            placeholder="ან ჩასვით URL..."
-                                            className="text-xs h-7 max-w-[200px]"
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter') {
-                                                    const url = (e.target as HTMLInputElement).value.trim()
-                                                    if (url) {
-                                                        setPost(prev => ({
-                                                            ...prev,
-                                                            coverImages: { ...prev.coverImages, vertical: url }
-                                                        }))
-                                                            ; (e.target as HTMLInputElement).value = ''
-                                                    }
-                                                }
-                                            }}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Gallery */}
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <div className="flex items-center justify-between">
-                                <CardTitle className="text-sm flex items-center gap-2">
-                                    <TbPhoto className="w-4 h-4" />
-                                    გალერეა ({post.gallery.length})
-                                </CardTitle>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setShowGallery(!showGallery)}
-                                >
-                                    {showGallery ? <TbChevronUp className="w-4 h-4" /> : <TbChevronDown className="w-4 h-4" />}
-                                </Button>
-                            </div>
-                        </CardHeader>
-                        {showGallery && (
-                            <CardContent className="space-y-3">
-                                {/* Multi-file upload for gallery */}
-                                <label className="flex items-center justify-center gap-2 p-4 border-2 border-dashed rounded-md cursor-pointer hover:border-primary/50 transition-colors">
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        multiple
-                                        className="hidden"
-                                        onChange={async (e) => {
-                                            const files = Array.from(e.target.files || [])
-                                            for (const file of files) {
-                                                await handleGalleryUpload(file)
-                                            }
-                                        }}
-                                        disabled={isUploadingGallery}
-                                    />
-                                    {isUploadingGallery ? (
-                                        <TbLoader2 className="w-4 h-4 animate-spin text-primary" />
-                                    ) : (
-                                        <>
-                                            <TbUpload className="w-4 h-4 text-muted-foreground" />
-                                            <span className="text-xs text-muted-foreground">სურათების ატვირთვა (რამდენიმე)</span>
-                                        </>
                                     )}
-                                </label>
-                                <div className="grid grid-cols-3 gap-2">
-                                    {post.gallery.map((img, idx) => (
-                                        <div
-                                            key={idx}
-                                            className="relative group cursor-move"
-                                            draggable
-                                            onDragStart={(e) => e.dataTransfer.setData('text/plain', idx.toString())}
-                                            onDragOver={(e) => e.preventDefault()}
-                                            onDrop={(e) => {
-                                                e.preventDefault()
-                                                const fromIdx = parseInt(e.dataTransfer.getData('text/plain'))
-                                                if (fromIdx !== idx) {
-                                                    setPost(prev => {
-                                                        const newGallery = [...prev.gallery]
-                                                        const [item] = newGallery.splice(fromIdx, 1)
-                                                        newGallery.splice(idx, 0, item)
-                                                        return { ...prev, gallery: newGallery }
-                                                    })
-                                                }
-                                            }}
-                                        >
-                                            <img
-                                                src={img.src}
-                                                alt={img.alt || `Gallery ${idx + 1}`}
-                                                className="w-full aspect-square object-cover rounded-md"
-                                            />
-                                            <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                {idx > 0 && (
+                                </div>
+
+                                {/* Vertical (Mobile) */}
+                                <div className="space-y-2">
+                                    <label className="text-xs text-muted-foreground flex items-center gap-1">
+                                        <TbDeviceMobile className="w-3 h-3" />
+                                        Mobile (9:16)
+                                    </label>
+                                    {post.coverImages.vertical ? (
+                                        <div className="space-y-2">
+                                            <div className="relative max-w-[120px]">
+                                                <img
+                                                    src={post.coverImages.vertical}
+                                                    alt="Vertical Cover"
+                                                    className="w-full aspect-[9/16] object-cover rounded-md"
+                                                />
+                                                <div className="absolute top-1 right-1 flex gap-1">
+                                                    {/* Replace Button */}
+                                                    <label className="h-5 w-5 rounded-md bg-primary hover:bg-primary/90 flex items-center justify-center cursor-pointer">
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            className="hidden"
+                                                            onChange={(e) => {
+                                                                const file = e.target.files?.[0]
+                                                                if (file) handleFileUpload(file, 'vertical')
+                                                            }}
+                                                            disabled={isUploadingV}
+                                                        />
+                                                        {isUploadingV ? (
+                                                            <TbLoader2 className="w-2.5 h-2.5 animate-spin text-primary-foreground" />
+                                                        ) : (
+                                                            <TbUpload className="w-2.5 h-2.5 text-primary-foreground" />
+                                                        )}
+                                                    </label>
+                                                    {/* Delete Button */}
                                                     <Button
-                                                        variant="secondary"
+                                                        variant="destructive"
                                                         size="icon"
                                                         className="h-5 w-5"
-                                                        onClick={() => setPost(prev => {
-                                                            const g = [...prev.gallery]
-                                                                ;[g[idx - 1], g[idx]] = [g[idx], g[idx - 1]]
-                                                            return { ...prev, gallery: g }
-                                                        })}
+                                                        onClick={() => setPost(prev => ({
+                                                            ...prev,
+                                                            coverImages: { ...prev.coverImages, vertical: undefined }
+                                                        }))}
                                                     >
-                                                        <TbChevronUp className="w-3 h-3" />
+                                                        <TbTrash className="w-2.5 h-2.5" />
                                                     </Button>
-                                                )}
-                                                <Button
-                                                    variant="destructive"
-                                                    size="icon"
-                                                    className="h-5 w-5"
-                                                    onClick={() => removeGalleryTbPhoto(idx)}
-                                                >
-                                                    <TbTrash className="w-3 h-3" />
-                                                </Button>
+                                                </div>
                                             </div>
-                                            <span className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] px-1 rounded">{idx + 1}</span>
+                                            {/* URL Input for replacing via URL */}
+                                            <Input
+                                                placeholder="ან ჩასვით URL..."
+                                                className="text-xs h-7 max-w-[200px]"
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        const url = (e.target as HTMLInputElement).value.trim()
+                                                        if (url) {
+                                                            setPost(prev => ({
+                                                                ...prev,
+                                                                coverImages: { ...prev.coverImages, vertical: url }
+                                                            }))
+                                                                ; (e.target as HTMLInputElement).value = ''
+                                                        }
+                                                    }
+                                                }}
+                                            />
                                         </div>
-                                    ))}
-                                </div>
-                            </CardContent>
-                        )}
-                    </Card>
-
-
-
-                    {/* TbVideo Embed */}
-                    <VideoEmbed
-                        videos={post.videos || []}
-                        onChange={(videos) => setPost(prev => ({ ...prev, videos }))}
-                    />
-
-                    {/* Related Posts Suggestions */}
-                    <RelatedPostsSuggestions
-                        title={post.title}
-                        tags={post.tags}
-                        category={post.categories[0] || ''}
-                        currentSlug={post.slug}
-                        selectedPosts={post.relatedPosts || []}
-                        onAddPost={(slug) => setPost(prev => ({
-                            ...prev,
-                            relatedPosts: [...(prev.relatedPosts || []), slug]
-                        }))}
-                        onRemovePost={(slug) => setPost(prev => ({
-                            ...prev,
-                            relatedPosts: (prev.relatedPosts || []).filter(s => s !== slug)
-                        }))}
-                    />
-
-                    {/* Tags */}
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm flex items-center gap-2">
-                                <TbTag className="w-4 h-4" />
-                                თეგები ({post.tags.length})
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                            <div className="flex flex-wrap gap-1 max-h-48 overflow-y-auto">
-                                {post.tags.map(tag => (
-                                    <Badge key={tag} variant="secondary" className="gap-1">
-                                        #{tag}
-                                        <button onClick={() => removeTag(tag)} className="ml-1 hover:text-destructive">
-                                            <TbX className="w-3 h-3" />
-                                        </button>
-                                    </Badge>
-                                ))}
-                            </div>
-                            <div className="flex gap-2">
-                                <Input
-                                    placeholder="ახალი თეგი..."
-                                    value={newTag}
-                                    onChange={(e) => setNewTag(e.target.value)}
-                                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag(newTag))}
-                                    className="text-xs"
-                                />
-                                <Button size="sm" variant="outline" onClick={() => addTag(newTag)}>
-                                    <TbPlus className="w-4 h-4" />
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Status */}
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm">სტატუსი</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                            <div className="flex flex-wrap gap-3">
-                                <label className="flex items-center gap-2 text-sm">
-                                    <input
-                                        type="radio"
-                                        checked={post.status === "draft"}
-                                        onChange={() => setPost(prev => ({ ...prev, status: "draft", scheduledFor: undefined }))}
-                                        className="accent-primary"
-                                    />
-                                    📝 Draft
-                                </label>
-                                <label className="flex items-center gap-2 text-sm">
-                                    <input
-                                        type="radio"
-                                        checked={post.status === "published"}
-                                        onChange={() => setPost(prev => ({ ...prev, status: "published", scheduledFor: undefined }))}
-                                        className="accent-primary"
-                                    />
-                                    ✅ Published
-                                </label>
-                                <label className="flex items-center gap-2 text-sm">
-                                    <input
-                                        type="radio"
-                                        checked={post.status === "scheduled"}
-                                        onChange={() => setPost(prev => ({
-                                            ...prev,
-                                            status: "scheduled",
-                                            scheduledFor: prev.scheduledFor || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16)
-                                        }))}
-                                        className="accent-blue-500"
-                                    />
-                                    ⏰ Scheduled
-                                </label>
-                            </div>
-                            {post.status === "scheduled" && (
-                                <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/30">
-                                    <label className="text-xs text-muted-foreground block mb-2">📅 გამოქვეყნების დრო</label>
-                                    <Input
-                                        type="datetime-local"
-                                        value={post.scheduledFor || ''}
-                                        onChange={(e) => setPost(prev => ({ ...prev, scheduledFor: e.target.value }))}
-                                        className="text-sm"
-                                        min={new Date().toISOString().slice(0, 16)}
-                                    />
-                                    {post.scheduledFor && (
-                                        <p className="text-xs text-blue-400 mt-2">
-                                            გამოქვეყნდება: {new Date(post.scheduledFor).toLocaleString('ka-GE')}
-                                        </p>
+                                    ) : (
+                                        <div className="space-y-2">
+                                            <label className="border-2 border-dashed rounded-md p-4 text-center max-w-[120px] aspect-[9/16] flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files?.[0]
+                                                        if (file) handleFileUpload(file, 'vertical')
+                                                    }}
+                                                    disabled={isUploadingV}
+                                                />
+                                                {isUploadingV ? (
+                                                    <TbLoader2 className="w-5 h-5 animate-spin text-primary" />
+                                                ) : (
+                                                    <div>
+                                                        <TbUpload className="w-5 h-5 mx-auto text-muted-foreground mb-1" />
+                                                        <p className="text-xs text-muted-foreground">9:16</p>
+                                                    </div>
+                                                )}
+                                            </label>
+                                            {/* URL Input for adding via URL */}
+                                            <Input
+                                                placeholder="ან ჩასვით URL..."
+                                                className="text-xs h-7 max-w-[200px]"
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        const url = (e.target as HTMLInputElement).value.trim()
+                                                        if (url) {
+                                                            setPost(prev => ({
+                                                                ...prev,
+                                                                coverImages: { ...prev.coverImages, vertical: url }
+                                                            }))
+                                                                ; (e.target as HTMLInputElement).value = ''
+                                                        }
+                                                    }
+                                                }}
+                                            />
+                                        </div>
                                     )}
                                 </div>
-                            )}
-                            <div className="flex gap-4">
-                                <label className="flex items-center gap-2 text-sm">
-                                    <input
-                                        type="checkbox"
-                                        checked={post.featured}
-                                        onChange={(e) => setPost(prev => ({ ...prev, featured: e.target.checked }))}
-                                        className="accent-yellow-500"
-                                    />
-                                    <TbStar className="w-4 h-4 text-yellow-500" />
-                                    Featured
-                                </label>
-                                <label className="flex items-center gap-2 text-sm">
-                                    <input
-                                        type="checkbox"
-                                        checked={post.trending}
-                                        onChange={(e) => setPost(prev => ({ ...prev, trending: e.target.checked }))}
-                                        className="accent-orange-500"
-                                    />
-                                    <TbFlame className="w-4 h-4 text-orange-500" />
-                                    Trending
-                                </label>
-                            </div>
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
 
-                    {/* SEO */}
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm flex items-center gap-2">
-                                <TbWorld className="w-4 h-4" />
-                                SEO
-                                <span className="text-[10px] text-muted-foreground font-normal">(ავტო-გენერაცია)</span>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                            {/* SEO Score */}
-                            {post.seo.seoScore > 0 && (
-                                <div className="p-3 rounded-lg border" style={{
-                                    borderColor: post.seo.seoScore >= 70 ? 'rgb(34 197 94)' : post.seo.seoScore >= 50 ? 'rgb(234 179 8)' : 'rgb(239 68 68)'
-                                }}>
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="text-xs font-medium">SEO Score</span>
-                                        <span className="text-lg font-bold" style={{
-                                            color: post.seo.seoScore >= 70 ? 'rgb(34 197 94)' : post.seo.seoScore >= 50 ? 'rgb(234 179 8)' : 'rgb(239 68 68)'
-                                        }}>{post.seo.seoScore}/100</span>
-                                    </div>
-                                    <div className="w-full bg-muted rounded-full h-2">
-                                        <div
-                                            className="h-2 rounded-full transition-all"
-                                            style={{
-                                                width: `${post.seo.seoScore}%`,
-                                                backgroundColor: post.seo.seoScore >= 70 ? 'rgb(34 197 94)' : post.seo.seoScore >= 50 ? 'rgb(234 179 8)' : 'rgb(239 68 68)'
+                        {/* Gallery */}
+                        <Card>
+                            <CardHeader className="pb-2">
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="text-sm flex items-center gap-2">
+                                        <TbPhoto className="w-4 h-4" />
+                                        გალერეა ({post.gallery.length})
+                                    </CardTitle>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => setShowGallery(!showGallery)}
+                                    >
+                                        {showGallery ? <TbChevronUp className="w-4 h-4" /> : <TbChevronDown className="w-4 h-4" />}
+                                    </Button>
+                                </div>
+                            </CardHeader>
+                            {showGallery && (
+                                <CardContent className="space-y-3">
+                                    {/* Multi-file upload for gallery */}
+                                    <label className="flex items-center justify-center gap-2 p-4 border-2 border-dashed rounded-md cursor-pointer hover:border-primary/50 transition-colors">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            multiple
+                                            className="hidden"
+                                            onChange={async (e) => {
+                                                const files = Array.from(e.target.files || [])
+                                                for (const file of files) {
+                                                    await handleGalleryUpload(file)
+                                                }
                                             }}
+                                            disabled={isUploadingGallery}
                                         />
+                                        {isUploadingGallery ? (
+                                            <TbLoader2 className="w-4 h-4 animate-spin text-primary" />
+                                        ) : (
+                                            <>
+                                                <TbUpload className="w-4 h-4 text-muted-foreground" />
+                                                <span className="text-xs text-muted-foreground">სურათების ატვირთვა (რამდენიმე)</span>
+                                            </>
+                                        )}
+                                    </label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {post.gallery.map((img, idx) => (
+                                            <div
+                                                key={idx}
+                                                className="relative group cursor-move"
+                                                draggable
+                                                onDragStart={(e) => e.dataTransfer.setData('text/plain', idx.toString())}
+                                                onDragOver={(e) => e.preventDefault()}
+                                                onDrop={(e) => {
+                                                    e.preventDefault()
+                                                    const fromIdx = parseInt(e.dataTransfer.getData('text/plain'))
+                                                    if (fromIdx !== idx) {
+                                                        setPost(prev => {
+                                                            const newGallery = [...prev.gallery]
+                                                            const [item] = newGallery.splice(fromIdx, 1)
+                                                            newGallery.splice(idx, 0, item)
+                                                            return { ...prev, gallery: newGallery }
+                                                        })
+                                                    }
+                                                }}
+                                            >
+                                                <img
+                                                    src={img.src}
+                                                    alt={img.alt || `Gallery ${idx + 1}`}
+                                                    className="w-full aspect-square object-cover rounded-md"
+                                                />
+                                                <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    {idx > 0 && (
+                                                        <Button
+                                                            variant="secondary"
+                                                            size="icon"
+                                                            className="h-5 w-5"
+                                                            onClick={() => setPost(prev => {
+                                                                const g = [...prev.gallery]
+                                                                    ;[g[idx - 1], g[idx]] = [g[idx], g[idx - 1]]
+                                                                return { ...prev, gallery: g }
+                                                            })}
+                                                        >
+                                                            <TbChevronUp className="w-3 h-3" />
+                                                        </Button>
+                                                    )}
+                                                    <Button
+                                                        variant="destructive"
+                                                        size="icon"
+                                                        className="h-5 w-5"
+                                                        onClick={() => removeGalleryTbPhoto(idx)}
+                                                    >
+                                                        <TbTrash className="w-3 h-3" />
+                                                    </Button>
+                                                </div>
+                                                <span className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] px-1 rounded">{idx + 1}</span>
+                                            </div>
+                                        ))}
                                     </div>
-                                </div>
+                                </CardContent>
                             )}
+                        </Card>
 
-                            {/* Focus Keyword */}
-                            <div className="space-y-1">
-                                <label className="text-xs text-muted-foreground flex items-center gap-1">
-                                    🎯 Focus Keyword
-                                </label>
-                                <Input
-                                    placeholder="მთავარი საკვანძო სიტყვა..."
-                                    value={post.seo.focusKeyword}
-                                    onChange={(e) => setPost(prev => ({
-                                        ...prev,
-                                        seo: { ...prev.seo, focusKeyword: e.target.value }
-                                    }))}
-                                    className="text-xs"
-                                />
-                            </div>
 
-                            {/* Meta Title with character counter */}
-                            <div className="space-y-1">
-                                <div className="flex justify-between items-center">
-                                    <label className="text-xs text-muted-foreground">SEO სათაური</label>
-                                    <span className={`text-xs ${post.seo.metaTitle.length > 60 ? 'text-red-500' : post.seo.metaTitle.length > 50 ? 'text-yellow-500' : 'text-muted-foreground'}`}>
-                                        {post.seo.metaTitle.length}/60
-                                    </span>
+
+                        {/* TbVideo Embed */}
+                        <VideoEmbed
+                            videos={post.videos || []}
+                            onChange={(videos) => setPost(prev => ({ ...prev, videos }))}
+                        />
+
+                        {/* Related Posts Suggestions */}
+                        <RelatedPostsSuggestions
+                            title={post.title}
+                            tags={post.tags}
+                            category={post.categories[0] || ''}
+                            currentSlug={post.slug}
+                            selectedPosts={post.relatedPosts || []}
+                            onAddPost={(slug) => setPost(prev => ({
+                                ...prev,
+                                relatedPosts: [...(prev.relatedPosts || []), slug]
+                            }))}
+                            onRemovePost={(slug) => setPost(prev => ({
+                                ...prev,
+                                relatedPosts: (prev.relatedPosts || []).filter(s => s !== slug)
+                            }))}
+                        />
+
+                        {/* Tags */}
+                        <Card>
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-sm flex items-center gap-2">
+                                    <TbTag className="w-4 h-4" />
+                                    თეგები ({post.tags.length})
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                <div className="flex flex-wrap gap-1 max-h-48 overflow-y-auto">
+                                    {post.tags.map(tag => (
+                                        <Badge key={tag} variant="secondary" className="gap-1">
+                                            #{tag}
+                                            <button onClick={() => removeTag(tag)} className="ml-1 hover:text-destructive">
+                                                <TbX className="w-3 h-3" />
+                                            </button>
+                                        </Badge>
+                                    ))}
                                 </div>
-                                <Input
-                                    placeholder={post.title || "SEO სათაური (60 სიმბოლო max)..."}
-                                    value={post.seo.metaTitle}
-                                    onChange={(e) => setPost(prev => ({
-                                        ...prev,
-                                        seo: { ...prev.seo, metaTitle: e.target.value.slice(0, 70) }
-                                    }))}
-                                    className="text-xs"
-                                />
-                            </div>
-
-                            {/* Meta Description with counter */}
-                            <div className="space-y-1">
-                                <div className="flex justify-between items-center">
-                                    <label className="text-xs text-muted-foreground">Meta Description</label>
-                                    <span className={`text-xs ${post.seo.metaDescription.length > 160 ? 'text-red-500' : post.seo.metaDescription.length > 140 ? 'text-yellow-500' : 'text-muted-foreground'}`}>
-                                        {post.seo.metaDescription.length}/160
-                                    </span>
+                                <div className="flex gap-2">
+                                    <Input
+                                        placeholder="ახალი თეგი..."
+                                        value={newTag}
+                                        onChange={(e) => setNewTag(e.target.value)}
+                                        onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag(newTag))}
+                                        className="text-xs"
+                                    />
+                                    <Button size="sm" variant="outline" onClick={() => addTag(newTag)}>
+                                        <TbPlus className="w-4 h-4" />
+                                    </Button>
                                 </div>
-                                <textarea
-                                    placeholder={post.excerpt || "SEO აღწერა (160 სიმბოლო max)..."}
-                                    value={post.seo.metaDescription}
-                                    onChange={(e) => setPost(prev => ({
-                                        ...prev,
-                                        seo: { ...prev.seo, metaDescription: e.target.value }
-                                    }))}
-                                    className="w-full min-h-[60px] px-2 py-1 rounded-md border border-input bg-background text-xs resize-none"
-                                />
-                            </div>
+                            </CardContent>
+                        </Card>
 
-                            {/* Keywords */}
-                            <div className="space-y-1">
-                                <label className="text-xs text-muted-foreground">Keywords</label>
-                                <Input
-                                    placeholder={post.tags.join(", ") || "keyword1, keyword2..."}
-                                    value={post.seo.keywords}
-                                    onChange={(e) => setPost(prev => ({
-                                        ...prev,
-                                        seo: { ...prev.seo, keywords: e.target.value }
-                                    }))}
-                                    className="text-xs"
-                                />
-                            </div>
+                        {/* Status */}
+                        <Card>
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-sm">სტატუსი</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                <div className="flex flex-wrap gap-3">
+                                    <label className="flex items-center gap-2 text-sm">
+                                        <input
+                                            type="radio"
+                                            checked={post.status === "draft"}
+                                            onChange={() => setPost(prev => ({ ...prev, status: "draft", scheduledFor: undefined }))}
+                                            className="accent-primary"
+                                        />
+                                        📝 Draft
+                                    </label>
+                                    <label className="flex items-center gap-2 text-sm">
+                                        <input
+                                            type="radio"
+                                            checked={post.status === "published"}
+                                            onChange={() => setPost(prev => ({ ...prev, status: "published", scheduledFor: undefined }))}
+                                            className="accent-primary"
+                                        />
+                                        ✅ Published
+                                    </label>
+                                    <label className="flex items-center gap-2 text-sm">
+                                        <input
+                                            type="radio"
+                                            checked={post.status === "scheduled"}
+                                            onChange={() => setPost(prev => ({
+                                                ...prev,
+                                                status: "scheduled",
+                                                scheduledFor: prev.scheduledFor || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16)
+                                            }))}
+                                            className="accent-blue-500"
+                                        />
+                                        ⏰ Scheduled
+                                    </label>
+                                </div>
+                                {post.status === "scheduled" && (
+                                    <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/30">
+                                        <label className="text-xs text-muted-foreground block mb-2">📅 გამოქვეყნების დრო</label>
+                                        <Input
+                                            type="datetime-local"
+                                            value={post.scheduledFor || ''}
+                                            onChange={(e) => setPost(prev => ({ ...prev, scheduledFor: e.target.value }))}
+                                            className="text-sm"
+                                            min={new Date().toISOString().slice(0, 16)}
+                                        />
+                                        {post.scheduledFor && (
+                                            <p className="text-xs text-blue-400 mt-2">
+                                                გამოქვეყნდება: {new Date(post.scheduledFor).toLocaleString('ka-GE')}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
+                                <div className="flex gap-4">
+                                    <label className="flex items-center gap-2 text-sm">
+                                        <input
+                                            type="checkbox"
+                                            checked={post.featured}
+                                            onChange={(e) => setPost(prev => ({ ...prev, featured: e.target.checked }))}
+                                            className="accent-yellow-500"
+                                        />
+                                        <TbStar className="w-4 h-4 text-yellow-500" />
+                                        Featured
+                                    </label>
+                                    <label className="flex items-center gap-2 text-sm">
+                                        <input
+                                            type="checkbox"
+                                            checked={post.trending}
+                                            onChange={(e) => setPost(prev => ({ ...prev, trending: e.target.checked }))}
+                                            className="accent-orange-500"
+                                        />
+                                        <TbFlame className="w-4 h-4 text-orange-500" />
+                                        Trending
+                                    </label>
+                                </div>
+                            </CardContent>
+                        </Card>
 
-                            {/* Canonical URL */}
-                            <div className="space-y-1">
-                                <label className="text-xs text-muted-foreground">Canonical URL</label>
-                                <Input
-                                    placeholder={`https://andrewaltair.ge/blog/${post.slug || 'post-slug'}`}
-                                    value={post.seo.canonicalUrl}
-                                    onChange={(e) => setPost(prev => ({
-                                        ...prev,
-                                        seo: { ...prev.seo, canonicalUrl: e.target.value }
-                                    }))}
-                                    className="text-xs"
-                                />
-                            </div>
-                        </CardContent>
-                    </Card>
+                        {/* SEO */}
+                        <Card>
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-sm flex items-center gap-2">
+                                    <TbWorld className="w-4 h-4" />
+                                    SEO
+                                    <span className="text-[10px] text-muted-foreground font-normal">(ავტო-გენერაცია)</span>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                {/* SEO Score */}
+                                {post.seo.seoScore > 0 && (
+                                    <div className="p-3 rounded-lg border" style={{
+                                        borderColor: post.seo.seoScore >= 70 ? 'rgb(34 197 94)' : post.seo.seoScore >= 50 ? 'rgb(234 179 8)' : 'rgb(239 68 68)'
+                                    }}>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-xs font-medium">SEO Score</span>
+                                            <span className="text-lg font-bold" style={{
+                                                color: post.seo.seoScore >= 70 ? 'rgb(34 197 94)' : post.seo.seoScore >= 50 ? 'rgb(234 179 8)' : 'rgb(239 68 68)'
+                                            }}>{post.seo.seoScore}/100</span>
+                                        </div>
+                                        <div className="w-full bg-muted rounded-full h-2">
+                                            <div
+                                                className="h-2 rounded-full transition-all"
+                                                style={{
+                                                    width: `${post.seo.seoScore}%`,
+                                                    backgroundColor: post.seo.seoScore >= 70 ? 'rgb(34 197 94)' : post.seo.seoScore >= 50 ? 'rgb(234 179 8)' : 'rgb(239 68 68)'
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Focus Keyword */}
+                                <div className="space-y-1">
+                                    <label className="text-xs text-muted-foreground flex items-center gap-1">
+                                        🎯 Focus Keyword
+                                    </label>
+                                    <Input
+                                        placeholder="მთავარი საკვანძო სიტყვა..."
+                                        value={post.seo.focusKeyword}
+                                        onChange={(e) => setPost(prev => ({
+                                            ...prev,
+                                            seo: { ...prev.seo, focusKeyword: e.target.value }
+                                        }))}
+                                        className="text-xs"
+                                    />
+                                </div>
+
+                                {/* Meta Title with character counter */}
+                                <div className="space-y-1">
+                                    <div className="flex justify-between items-center">
+                                        <label className="text-xs text-muted-foreground">SEO სათაური</label>
+                                        <span className={`text-xs ${post.seo.metaTitle.length > 60 ? 'text-red-500' : post.seo.metaTitle.length > 50 ? 'text-yellow-500' : 'text-muted-foreground'}`}>
+                                            {post.seo.metaTitle.length}/60
+                                        </span>
+                                    </div>
+                                    <Input
+                                        placeholder={post.title || "SEO სათაური (60 სიმბოლო max)..."}
+                                        value={post.seo.metaTitle}
+                                        onChange={(e) => setPost(prev => ({
+                                            ...prev,
+                                            seo: { ...prev.seo, metaTitle: e.target.value.slice(0, 70) }
+                                        }))}
+                                        className="text-xs"
+                                    />
+                                </div>
+
+                                {/* Meta Description with counter */}
+                                <div className="space-y-1">
+                                    <div className="flex justify-between items-center">
+                                        <label className="text-xs text-muted-foreground">Meta Description</label>
+                                        <span className={`text-xs ${post.seo.metaDescription.length > 160 ? 'text-red-500' : post.seo.metaDescription.length > 140 ? 'text-yellow-500' : 'text-muted-foreground'}`}>
+                                            {post.seo.metaDescription.length}/160
+                                        </span>
+                                    </div>
+                                    <textarea
+                                        placeholder={post.excerpt || "SEO აღწერა (160 სიმბოლო max)..."}
+                                        value={post.seo.metaDescription}
+                                        onChange={(e) => setPost(prev => ({
+                                            ...prev,
+                                            seo: { ...prev.seo, metaDescription: e.target.value }
+                                        }))}
+                                        className="w-full min-h-[60px] px-2 py-1 rounded-md border border-input bg-background text-xs resize-none"
+                                    />
+                                </div>
+
+                                {/* Keywords */}
+                                <div className="space-y-1">
+                                    <label className="text-xs text-muted-foreground">Keywords</label>
+                                    <Input
+                                        placeholder={post.tags.join(", ") || "keyword1, keyword2..."}
+                                        value={post.seo.keywords}
+                                        onChange={(e) => setPost(prev => ({
+                                            ...prev,
+                                            seo: { ...prev.seo, keywords: e.target.value }
+                                        }))}
+                                        className="text-xs"
+                                    />
+                                </div>
+
+                                {/* Canonical URL */}
+                                <div className="space-y-1">
+                                    <label className="text-xs text-muted-foreground">Canonical URL</label>
+                                    <Input
+                                        placeholder={`https://andrewaltair.ge/blog/${post.slug || 'post-slug'}`}
+                                        value={post.seo.canonicalUrl}
+                                        onChange={(e) => setPost(prev => ({
+                                            ...prev,
+                                            seo: { ...prev.seo, canonicalUrl: e.target.value }
+                                        }))}
+                                        className="text-xs"
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
             </div>
-        </div>
+    )
+}
     )
 }
 

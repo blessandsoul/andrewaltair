@@ -235,17 +235,59 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     ]
   }
 
+  // FAQ Schema
+  const faqLd = post.faq && post.faq.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: post.faq.map(item => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer
+      }
+    }))
+  } : null
+
+  // Enhanced NewsArticle Schema
+  const newsArticleLd = {
+    ...jsonLd,
+    // AI Knowledge Graph optimization
+    keywords: post.seo?.keywords || post.tags?.join(', '),
+    ...(post.entities && post.entities.length > 0 ? {
+      about: post.entities.slice(0, 3).map(entity => ({
+        '@type': 'Thing',
+        name: entity
+      })),
+      mentions: post.entities.map(entity => ({
+        '@type': 'Thing',
+        name: entity
+      }))
+    } : {}),
+    // Speakable for future voice search
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      cssSelector: ['h1', '.post-excerpt', '.key-takeaways']
+    }
+  }
+
   return (
     <article>
       {/* Inject Schema */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(newsArticleLd) }}
       />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
+      {faqLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+        />
+      )}
 
       <BlogPostClient
         post={post}

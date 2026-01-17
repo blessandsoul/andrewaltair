@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 const phrases = [
     "გამარჯობა, AI ენთუზიასტო 👋",
     "მზად ხარ ციფრული რევოლუციისთვის? 🚀",
-    "შექმენი შენი პირველი აგენტი 🤖",
     "აღმოაჩინე ტექნოლოგიების მაგია ✨",
     "Andrew Altair გელოდება... 👁️"
 ];
