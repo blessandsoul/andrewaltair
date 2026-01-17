@@ -19,6 +19,19 @@ interface TbVideo {
     duration: string
     views: number
     publishedAt: string
+    authorName?: string
+    authorAvatar?: string
+}
+
+function formatDate(dateString: string): string {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('ka-GE', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    })
 }
 
 // Fetch video from MongoDB API (helper)
@@ -203,11 +216,11 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
                             </Badge>
                             <span className="text-sm text-muted-foreground flex items-center gap-1">
                                 <TbCalendar className="w-4 h-4" />
-                                {String(video.publishedAt)}
+                                {formatDate(video.publishedAt)}
                             </span>
                             <span className="text-sm text-muted-foreground flex items-center gap-1">
                                 <TbClock className="w-4 h-4" />
-                                {String(video.duration)}
+                                {video.duration}
                             </span>
                             <span className="text-sm text-muted-foreground flex items-center gap-1">
                                 <TbEye className="w-4 h-4" />
@@ -221,22 +234,28 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
                         </h1>
 
                         {/* Description */}
-                        <p className="text-lg text-muted-foreground">
+                        <div className="text-lg text-muted-foreground whitespace-pre-wrap leading-relaxed">
                             {video.description}
-                        </p>
+                        </div>
 
                         {/* Author */}
-                        <div className="flex items-center gap-4 pt-4 border-t border-border">
-                            <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center">
-                                <TbSparkles className="w-6 h-6 text-white" />
+                        <div className="flex items-center gap-4 py-6 border-y border-border mt-8">
+                            <div className="relative w-14 h-14 rounded-full overflow-hidden ring-2 ring-primary/10">
+                                <img
+                                    src={(video.authorAvatar && video.authorAvatar !== '/images/avatar.jpg') ? video.authorAvatar : '/andrewaltair.png'}
+                                    alt={video.authorName || 'Andrew Altair'}
+                                    className="object-cover w-full h-full"
+                                />
                             </div>
                             <div className="flex-1">
-                                <div className="font-semibold">Andrew Altair</div>
+                                <div className="font-bold text-lg">{video.authorName || 'Andrew Altair'}</div>
                                 <div className="text-sm text-muted-foreground">AI ინოვატორი და კონტენტ კრეატორი</div>
                             </div>
-                            <Button variant="default" className="gap-2">
-                                <TbThumbUp className="w-4 h-4" />
-                                გამოწერა
+                            <Button variant="default" className="gap-2" asChild>
+                                <a href="https://www.youtube.com/@AndrewAltair" target="_blank" rel="noopener noreferrer">
+                                    <TbPlayerPlay className="w-4 h-4" />
+                                    YouTube
+                                </a>
                             </Button>
                         </div>
                     </div>
