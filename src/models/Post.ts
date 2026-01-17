@@ -97,6 +97,10 @@ export interface IPost extends Document {
     numericId?: string;
     telegramContent?: string;  // Short Telegram version for channel posting
     repository?: IRepository;  // Optional repository data
+    // AI & SEO Optimization Fields
+    keyPoints?: string[];      // Array of key takeaways (3-5 items)
+    faq?: { question: string; answer: string }[]; // Structured FAQ
+    entities?: string[];       // Knowledge graph entities (people, tech, companies)
 }
 
 const ReactionsSchema = new Schema<IReactions>(
@@ -353,6 +357,22 @@ const PostSchema = new Schema<IPost>(
         telegramContent: {
             type: String,
             default: ''
+        },
+        // AI & SEO Fields
+        keyPoints: {
+            type: [String],
+            default: []
+        },
+        faq: {
+            type: [{
+                question: { type: String, required: true },
+                answer: { type: String, required: true }
+            }],
+            default: []
+        },
+        entities: {
+            type: [String],
+            default: []
         }
     },
     {

@@ -176,7 +176,7 @@ export default async function Home() {
       />
       <div className="min-h-screen">
         {/* Hero Section with Carousel */}
-        <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
+        <section className="relative min-h-[auto] lg:min-h-[70vh] flex items-center justify-center overflow-hidden">
           {/* Animated Background */}
           <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5">
             <div className="absolute inset-0 noise-overlay"></div>
@@ -184,9 +184,9 @@ export default async function Home() {
             <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
           </div>
 
-          <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl pt-12 pb-20">
-            <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
-              <div className="space-y-8 max-w-2xl">
+          <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl pt-8 pb-16 lg:pt-16">
+            <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 items-center">
+              <div className="space-y-5 max-w-2xl">
                 {/* Greeting - Typing Effect */}
                 <HeroGreeting />
 
@@ -197,30 +197,30 @@ export default async function Home() {
                 </div>
 
                 {/* Title */}
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight leading-tight animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight leading-tight animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
                   <span className="text-gradient">გახდი AI პროფესიონალი ნულიდან</span>
                 </h1>
 
                 {/* Description */}
-                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-                  <div className="space-y-4">
-                    <p className="text-xl sm:text-2xl text-muted-foreground leading-relaxed">
+                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+                  <div className="space-y-2">
+                    <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
                       პრაქტიკული ტუტორიალები, უფასო კურსები და რეალური მაგალითები.
                     </p>
-                    <p className="text-lg text-muted-foreground/80 leading-relaxed">
+                    <p className="text-base text-muted-foreground/80 leading-relaxed">
                       ისწავლე როგორ გამოიყენო <span className="text-foreground font-medium">GEMINI 3</span>, <span className="text-foreground font-medium">CHATGPT 5.2</span>, <span className="text-foreground font-medium">GROK 3</span> და <span className="text-foreground font-medium">CLAUDE 4.5</span> პროფესიულად.
                     </p>
                   </div>
 
                   {/* Search and Tags */}
-                  <div className="pt-2 space-y-4">
+                  <div className="pt-1 space-y-3">
                     <HeroSearch />
                     <HeroTags />
                   </div>
                 </div>
 
                 {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 pt-2">
+                <div className="flex flex-col sm:flex-row gap-3 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 pt-1">
                   <Button
                     size="lg"
                     className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white px-8 py-6 text-lg glow-sm group"

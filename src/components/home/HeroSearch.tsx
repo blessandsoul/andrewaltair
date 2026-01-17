@@ -28,7 +28,7 @@ export function HeroSearch() {
                 <Input
                     type="text"
                     placeholder="რისი სწავლა გსურს დღეს? (მაგ: ChatGPT, Midjourney...)"
-                    className="pl-12 pr-12 py-6 text-lg rounded-xl border-primary/20 bg-background/50 backdrop-blur-sm focus:bg-background focus:border-primary/50 shadow-sm transition-all"
+                    className="pl-12 pr-12 py-3 sm:py-4 text-base sm:text-lg rounded-xl border-primary/20 bg-background/50 backdrop-blur-sm focus:bg-background focus:border-primary/50 shadow-sm transition-all h-auto"
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                 />
