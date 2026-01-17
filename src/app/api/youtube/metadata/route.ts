@@ -129,11 +129,73 @@ export async function GET(request: NextRequest) {
                     const decodeHtml = (txt: string) => txt.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>')
 
                     // 1. Try ytInitialPlayerResponse (Standard Video Player Data)
-                    const playerResponseMatch = html.match(/var\s+ytInitialPlayerResponse\s*=\s*({.+?});/)
-                    if (playerResponseMatch) {
+                    // YouTube uses multiple patterns - try all of them
+                    const playerPatterns = [
+                        /ytInitialPlayerResponse\s*=\s*(\{.+?\});(?:\s*<\/script>|var\s)/s,
+                        /var\s+ytInitialPlayerResponse\s*=\s*(\{.+?\});/s,
+                        /ytInitialPlayerResponse"\s*:\s*(\{.+?\})\s*,\s*"ytInitialData/s,
+                        /"videoDetails"\s*:\s*(\{[^}]+?"title"\s*:[^}]+?\})/s
+                    ]
+
+                    let playerResponseData: Record<string, unknown> | null = null
+
+                    for (const pattern of playerPatterns) {
+                        const match = html.match(pattern)
+                        if (match) {
+                            try {
+                                // Sometimes we match partial JSON, try to find the complete object
+                                let jsonStr = match[1]
+
+                                // If it's the videoDetails pattern, wrap it
+                                if (pattern.source.includes('"videoDetails"')) {
+                                    jsonStr = `{"videoDetails":${jsonStr}}`
+                                }
+
+                                playerResponseData = JSON.parse(jsonStr)
+                                break
+                            } catch {
+                                // Try to extract just the videoDetails part
+                                const videoDetailsMatch = match[1].match(/"videoDetails"\s*:\s*(\{[^}]+\})/s)
+                                if (videoDetailsMatch) {
+                                    try {
+                                        playerResponseData = { videoDetails: JSON.parse(videoDetailsMatch[1]) }
+                                        break
+                                    } catch { /* continue to next pattern */ }
+                                }
+                            }
+                        }
+                    }
+
+                    // Also try direct extraction as fallback
+                    if (!playerResponseData) {
+                        // Extract individual fields directly from HTML
+                        const titleMatch = html.match(/"title"\s*:\s*"([^"]+)"/)?.[1]
+                        const descMatch = html.match(/"shortDescription"\s*:\s*"((?:[^"\\]|\\.)*)"/)?.[1]
+                        const keywordsMatch = html.match(/"keywords"\s*:\s*\[((?:[^\]])*)\]/)
+
+                        if (titleMatch || descMatch) {
+                            const extractedKeywords: string[] = []
+                            if (keywordsMatch) {
+                                const kwStr = keywordsMatch[1]
+                                const kwMatches = kwStr.match(/"([^"]+)"/g)
+                                if (kwMatches) {
+                                    extractedKeywords.push(...kwMatches.map(k => k.replace(/"/g, '')))
+                                }
+                            }
+
+                            playerResponseData = {
+                                videoDetails: {
+                                    title: titleMatch ? decodeHtml(titleMatch.replace(/\\"/g, '"')) : '',
+                                    shortDescription: descMatch ? decodeHtml(descMatch.replace(/\\n/g, '\n').replace(/\\"/g, '"')) : '',
+                                    keywords: extractedKeywords
+                                }
+                            }
+                        }
+                    }
+
+                    if (playerResponseData) {
                         try {
-                            const playerResponse = JSON.parse(playerResponseMatch[1])
-                            const videoDetails = playerResponse.videoDetails
+                            const videoDetails = (playerResponseData as { videoDetails?: { title?: string; shortDescription?: string; author?: string; lengthSeconds?: string; keywords?: string[] } }).videoDetails
 
                             if (videoDetails) {
                                 title = videoDetails.title || title
@@ -149,7 +211,7 @@ export async function GET(request: NextRequest) {
                                 tags = videoDetails.keywords || []
                             }
                         } catch (e) {
-                            console.error('Error parsing ytInitialPlayerResponse:', e)
+                            console.error('Error extracting videoDetails:', e)
                         }
                     }
 
