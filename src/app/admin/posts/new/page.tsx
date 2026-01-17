@@ -3,12 +3,13 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 import { PostEditor, PostData } from "@/components/admin/PostEditor"
+import { TbCheck, TbExternalLink } from "react-icons/tb"
 
 export default function NewPostPage() {
     const router = useRouter()
+    const [successData, setSuccessData] = React.useState<{ slug: string; title: string } | null>(null)
 
     const handleSave = async (post: PostData) => {
-        console.log('🔥 handleSave called! Post:', post)
         try {
             // Get admin token for authentication
             const token = localStorage.getItem('admin_token')
@@ -41,9 +42,11 @@ export default function NewPostPage() {
                 relatedPosts: post.relatedPosts || [],
                 seo: post.seo,
                 telegramContent: post.telegramContent || '',
-                repository: post.repository
+                repository: post.repository,
+                keyPoints: post.keyPoints,
+                faq: post.faq,
+                entities: post.entities
             };
-            console.log('Sending Post Payload:', payload);
 
             // Create post via MongoDB API
             const res = await fetch('/api/posts', {
@@ -63,8 +66,11 @@ export default function NewPostPage() {
 
             const savedPost = await res.json()
 
-            // 🎉 SUCCESS FEEDBACK
-            alert(`✅ პოსტი წარმატებით შეინახა! Slug: ${savedPost.post?.slug || post.slug}`)
+            // 🎉 Show Success Modal
+            setSuccessData({
+                slug: savedPost.post?.slug || post.slug,
+                title: post.title
+            })
 
             // Post to Telegram if enabled
             if (post.postToTelegram && post.telegramContent) {
@@ -88,16 +94,13 @@ export default function NewPostPage() {
                     }
                 } catch (telegramError) {
                     console.warn('Telegram post error:', telegramError)
-                    // Don't throw - post was saved successfully, Telegram is optional
                 }
             }
 
-            // 🔄 REDIRECT to posts list
-            router.push('/admin/posts')
         } catch (error: any) {
             console.error('Save post error:', error)
             alert(`შეცდომა: ${error.message}`)
-            throw error // Re-throw to prevent success modal
+            throw error
         }
     }
 
@@ -106,10 +109,61 @@ export default function NewPostPage() {
     }
 
     return (
-        <PostEditor
-            onSave={handleSave}
-            onCancel={handleCancel}
-        />
+        <>
+            <PostEditor
+                onSave={handleSave}
+                onCancel={handleCancel}
+            />
+
+            {/* Success Modal */}
+            {successData && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-background border rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl animate-in zoom-in-95 duration-300">
+                        {/* Success Icon */}
+                        <div className="flex justify-center mb-6">
+                            <div className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                                <div className="w-14 h-14 rounded-full bg-emerald-500 flex items-center justify-center animate-pulse">
+                                    <TbCheck className="w-8 h-8 text-white" />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Title */}
+                        <h2 className="text-2xl font-bold text-center mb-2">
+                            პოსტი გამოქვეყნდა! 🎉
+                        </h2>
+
+                        {/* Post Title */}
+                        <p className="text-muted-foreground text-center mb-6 line-clamp-2">
+                            {successData.title}
+                        </p>
+
+                        {/* Actions */}
+                        <div className="flex flex-col gap-3">
+                            <a
+                                href={`/blog/${successData.slug}`}
+                                target="_blank"
+                                className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                            >
+                                <TbExternalLink className="w-5 h-5" />
+                                პოსტის ნახვა
+                            </a>
+                            <button
+                                onClick={() => router.push('/admin/posts')}
+                                className="w-full py-3 px-4 bg-muted rounded-lg font-medium hover:bg-muted/80 transition-colors"
+                            >
+                                პოსტების სიაში დაბრუნება
+                            </button>
+                            <button
+                                onClick={() => setSuccessData(null)}
+                                className="w-full py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                                კიდევ ერთი პოსტის დამატება
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     )
 }
-
