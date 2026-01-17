@@ -3,6 +3,8 @@
 import * as React from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TbDeviceFloppy, TbEye, TbX, TbPlus, TbPhoto, TbFileText, TbTag, TbFolder, TbClock, TbStar, TbFlame, TbWorld, TbArrowLeft, TbWand, TbDeviceDesktop, TbDeviceMobile, TbTrash, TbChevronDown, TbChevronUp, TbSparkles, TbUpload, TbLoader2, TbFileCheck, TbLayout, TbCheck, TbArrowUp, TbArrowDown, TbRobot, TbAtom, TbBrandTelegram, TbBrandGithub, TbBrandGitlab, TbGitFork, TbCode } from "react-icons/tb"
@@ -253,8 +255,42 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
             if (jsonInput) {
                 const parsed = JSON.parse(jsonInput)
                 if (Array.isArray(parsed)) {
-                    setParsedSections(parsed)
-                    setPost(prev => ({ ...prev, sections: parsed }))
+                    const extractedTags: string[] = []
+
+                    // Sanitization Pass
+                    const cleaned = parsed.map((s: Section) => {
+                        let newTitle = s.title
+                        let newContent = s.content
+
+                        // 1. Rename TL;DR
+                        if (newTitle === 'TL;DR' || newTitle === 'tl;dr') {
+                            newTitle = 'მოკლედ'
+                        }
+
+                        // 2. Strip leading emojis/VS16 from content
+                        const cleaningRegex = /^([\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|\u{FE0F}| )/u
+                        while (newContent && cleaningRegex.test(newContent)) {
+                            newContent = newContent.replace(cleaningRegex, '').trim()
+                        }
+
+                        // 3. Extract Hashtags (and don't render them)
+                        if (s.type === 'hashtags' || (newContent && newContent.includes('#') && newContent.split(' ').every(w => w.startsWith('#')))) {
+                            const tags = newContent.match(/#[\w\u10A0-\u10FF]+/g) || []
+                            // Remove # from tags
+                            tags.forEach(t => extractedTags.push(t.replace('#', '')))
+                            return null // Filter out this section
+                        }
+
+                        return { ...s, title: newTitle, content: newContent }
+                    }).filter(Boolean) as Section[]
+
+                    setParsedSections(cleaned)
+                    setPost(prev => ({
+                        ...prev,
+                        sections: cleaned,
+                        // Only update tags if we found new ones
+                        tags: extractedTags.length > 0 ? Array.from(new Set([...(prev.tags || []), ...extractedTags])) : prev.tags
+                    }))
                 }
             }
         } catch (e) {
@@ -328,6 +364,38 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                         {isUploadingV && <div className="absolute inset-0 flex items-center justify-center bg-black/50"><TbLoader2 className="w-4 h-4 animate-spin text-white" /></div>}
                                     </div>
                                     <Input value={post.coverImages?.vertical || ''} onChange={(e) => setPost(prev => ({ ...prev, coverImages: { ...prev.coverImages, vertical: e.target.value } }))} placeholder="URL..." className="text-[10px] w-16 h-6 font-mono" />
+                                </div>
+                            </div>
+
+                            {/* Metadata Inputs */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-medium">Title</label>
+                                    <Input value={post.title} onChange={(e) => setPost(prev => ({ ...prev, title: e.target.value, slug: generateSlug(e.target.value) }))} placeholder="Post Title" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-medium">Slug</label>
+                                    <Input value={post.slug} onChange={(e) => setPost(prev => ({ ...prev, slug: e.target.value }))} placeholder="post-slug" className="font-mono text-xs" />
+                                </div>
+                                <div className="col-span-2 space-y-2">
+                                    <label className="text-xs font-medium">Excerpt (SEO Description)</label>
+                                    <Textarea value={post.excerpt} onChange={(e) => setPost(prev => ({ ...prev, excerpt: e.target.value }))} rows={2} className="text-xs" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-medium">Tags (Comma or space separated)</label>
+                                    <Input value={post.tags?.join(', ')} onChange={(e) => setPost(prev => ({ ...prev, tags: e.target.value.split(/[, ]+/).filter(Boolean) }))} placeholder="ai, tech, news" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-medium">Category</label>
+                                    <Select value={post.categories[0]} onValueChange={(v: string) => setPost(prev => ({ ...prev, categories: [v] }))}>
+                                        <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="news">News</SelectItem>
+                                            <SelectItem value="tech">Tech</SelectItem>
+                                            <SelectItem value="analysis">Analysis</SelectItem>
+                                            <SelectItem value="guide">Guide</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
 
