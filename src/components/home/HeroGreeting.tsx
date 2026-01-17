@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { TbSparkles } from 'react-icons/tb';
 
 const phrases = [
     "გამარჯობა, AI ენთუზიასტო 👋",
@@ -22,7 +23,8 @@ export function HeroGreeting() {
     }, []);
 
     return (
-        <div className="h-8 mb-2 flex items-center">
+        <div className="h-8 mb-2 flex items-center gap-2">
+            <TbSparkles className="w-5 h-5 text-accent animate-pulse" />
             <AnimatePresence mode="wait">
                 <motion.p
                     key={index}
@@ -30,7 +32,7 @@ export function HeroGreeting() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.5 }}
-                    className="text-lg font-medium text-accent font-mono tracking-wide"
+                    className="text-lg font-medium text-accent font-georgian tracking-wide"
                 >
                     {phrases[index]}
                 </motion.p>

@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { TbDeviceFloppy, TbEye, TbX, TbPlus, TbPhoto, TbFileText, TbTag, TbFolder, TbClock, TbStar, TbFlame, TbWorld, TbArrowLeft, TbWand, TbDeviceDesktop, TbDeviceMobile, TbTrash, TbChevronDown, TbChevronUp, TbSparkles, TbUpload, TbLoader2, TbFileCheck, TbLayout, TbCheck, TbArrowUp, TbArrowDown, TbRobot, TbAtom, TbBrandTelegram, TbBrandGithub, TbBrandGitlab, TbGitFork, TbCode } from "react-icons/tb"
+import { TbDeviceFloppy, TbEye, TbX, TbPlus, TbPhoto, TbFileText, TbTag, TbFolder, TbClock, TbStar, TbFlame, TbWorld, TbArrowLeft, TbWand, TbDeviceDesktop, TbDeviceMobile, TbTrash, TbChevronDown, TbChevronUp, TbSparkles, TbUpload, TbLoader2, TbFileCheck, TbLayout, TbCheck, TbArrowUp, TbArrowDown, TbRobot, TbAtom, TbBrandTelegram, TbBrandGithub, TbBrandGitlab, TbGitFork, TbCode, TbUsers, TbBook, TbGlobe } from "react-icons/tb"
 
 import { parsePostContent, extractTitle, extractExcerpt, calculateReadingTime, parseMultiChannelContent } from "@/lib/PostContentParser"
 import { RichPostContent } from "@/components/blog/RichPostContent"
@@ -17,12 +17,16 @@ import { VideoEmbed, type VideoData } from "@/components/admin/VideoEmbed"
 import { RelatedPostsSuggestions } from "@/components/admin/RelatedPostsSuggestions"
 
 // Categories available
+// Categories available
 const CATEGORIES = [
-    { value: "articles", label: "📁 სტატიები", icon: TbFileText, isParent: true },
-    { value: "ai", label: "  └ ხელოვნური ინტელექტი", icon: TbRobot },
-    { value: "science", label: "  └ მეცნიერება და ტექნიკა", icon: TbAtom },
-    { value: "tutorials", label: "  └ ტუტორიალები", icon: TbFileText },
-    { value: "news", label: "  └ სიახლეები", icon: TbFileText },
+    { value: "technology", label: "ტექნოლოგიები", icon: TbDeviceDesktop },
+    { value: "economy", label: "ეკონომიკა", icon: TbClock },
+    { value: "politics", label: "პოლიტიკა", icon: TbWorld },
+    { value: "business", label: "ბიზნესი", icon: TbFolder },
+    { value: "science", label: "მეცნიერება", icon: TbAtom },
+    { value: "society", label: "საზოგადოება", icon: TbUsers },
+    { value: "education", label: "განათლება", icon: TbBook },
+    { value: "world", label: "მსოფლიო", icon: TbGlobe },
 ]
 
 interface Section {
@@ -118,7 +122,7 @@ const DEFAULT_POST: PostData = {
     excerpt: "",
     content: "",
     rawContent: "",
-    categories: ["ai", "articles"],
+    categories: ["technology"],
     tags: [],
     coverImage: "",
     coverImages: {},
@@ -304,7 +308,29 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                         if (parsed.meta) {
                             if (parsed.meta.title) newData.title = parsed.meta.title
                             if (parsed.meta.slug) newData.slug = parsed.meta.slug
-                            if (parsed.meta.category) newData.categories = [parsed.meta.category]
+
+                            // Category Normalization
+                            if (parsed.meta.category) {
+                                const catMap: Record<string, string> = {
+                                    'technology': 'technology',
+                                    'tehnologia': 'technology',
+                                    'tech': 'technology',
+                                    'economy': 'economy',
+                                    'politics': 'politics',
+                                    'business': 'business',
+                                    'science': 'science',
+                                    'society': 'society',
+                                    'education': 'education',
+                                    'world': 'world',
+                                    // Legacy mappings
+                                    'ai': 'technology',
+                                    'news': 'world',
+                                    'articles': 'technology'
+                                }
+                                const normalized = catMap[parsed.meta.category.toLowerCase()] || 'technology'
+                                newData.categories = [normalized]
+                            }
+
                             if (parsed.meta.tags && Array.isArray(parsed.meta.tags)) newData.tags = parsed.meta.tags
                             if (parsed.meta.author) newData.author = { ...prev.author, ...parsed.meta.author }
                         }
@@ -430,10 +456,14 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                     <Select value={post.categories[0]} onValueChange={(v: string) => setPost(prev => ({ ...prev, categories: [v] }))}>
                                         <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="news">News</SelectItem>
-                                            <SelectItem value="tech">Tech</SelectItem>
-                                            <SelectItem value="analysis">Analysis</SelectItem>
-                                            <SelectItem value="guide">Guide</SelectItem>
+                                            {CATEGORIES.map(cat => (
+                                                <SelectItem key={cat.value} value={cat.value}>
+                                                    <span className="flex items-center gap-2">
+                                                        <cat.icon className="w-3 h-3" />
+                                                        {cat.label}
+                                                    </span>
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </div>

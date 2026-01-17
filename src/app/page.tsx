@@ -238,19 +238,7 @@ export default async function Home() {
                   </Button>
                 </div>
 
-                {/* Stats */}
-                <div className="flex items-center gap-8 pt-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
 
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-foreground">{brand.stats.subscribers}</div>
-                    <div className="text-sm text-muted-foreground">გამომწერი</div>
-                  </div>
-                  <div className="w-px h-10 bg-border"></div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-foreground">{brand.stats.articles}</div>
-                    <div className="text-sm text-muted-foreground">სტატია</div>
-                  </div>
-                </div>
               </div>
 
               {/* Hero Posts Carousel */}
