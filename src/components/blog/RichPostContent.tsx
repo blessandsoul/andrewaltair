@@ -161,6 +161,12 @@ const SECTION_STYLES: Record<Section['type'], {
         iconClass: 'text-primary',
         defaultIcon: TbQuote,
     },
+    quote: {
+        bgClass: 'bg-gradient-to-r from-primary/5 to-accent/5',
+        borderClass: 'border-l-4 border-primary',
+        iconClass: 'text-primary',
+        defaultIcon: TbQuote,
+    },
     cta: {
         bgClass: 'bg-gradient-to-r from-primary/20 to-accent/20',
         borderClass: 'border border-primary/30 rounded-xl',
