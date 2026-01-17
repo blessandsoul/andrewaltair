@@ -296,38 +296,38 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                         <CardHeader><CardTitle>JSON Input & Assets</CardTitle></CardHeader>
                         <CardContent className="space-y-6">
                             {/* Cover Images */}
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="flex gap-4">
                                 <div className="space-y-2">
                                     <label className="text-xs font-medium">Cover (16:9)</label>
-                                    <div className="relative aspect-video bg-muted rounded overflow-hidden border">
+                                    <div className="relative w-32 aspect-video bg-muted rounded overflow-hidden border group">
                                         {post.coverImages?.horizontal ? (
                                             <img src={post.coverImages.horizontal} className="w-full h-full object-cover" />
                                         ) : (
-                                            <div className="flex items-center justify-center h-full text-muted-foreground text-xs">No Image</div>
+                                            <div className="flex items-center justify-center h-full text-muted-foreground text-[10px]">No Image</div>
                                         )}
-                                        <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity cursor-pointer">
+                                        <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                                             <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'horizontal')} />
-                                            <TbUpload className="w-6 h-6 text-white" />
+                                            <TbUpload className="w-5 h-5 text-white" />
                                         </label>
-                                        {isUploadingH && <div className="absolute inset-0 flex items-center justify-center bg-black/50"><TbLoader2 className="w-6 h-6 animate-spin text-white" /></div>}
+                                        {isUploadingH && <div className="absolute inset-0 flex items-center justify-center bg-black/50"><TbLoader2 className="w-5 h-5 animate-spin text-white" /></div>}
                                     </div>
-                                    <Input value={post.coverImages?.horizontal || ''} onChange={(e) => setPost(prev => ({ ...prev, coverImages: { ...prev.coverImages, horizontal: e.target.value } }))} placeholder="URL..." className="text-xs font-mono" />
+                                    <Input value={post.coverImages?.horizontal || ''} onChange={(e) => setPost(prev => ({ ...prev, coverImages: { ...prev.coverImages, horizontal: e.target.value } }))} placeholder="URL..." className="text-[10px] w-32 h-6 font-mono" />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs font-medium">Vertical (9:16)</label>
-                                    <div className="relative aspect-[9/16] bg-muted rounded overflow-hidden border">
+                                    <div className="relative w-16 aspect-[9/16] bg-muted rounded overflow-hidden border group">
                                         {post.coverImages?.vertical ? (
                                             <img src={post.coverImages.vertical} className="w-full h-full object-cover" />
                                         ) : (
-                                            <div className="flex items-center justify-center h-full text-muted-foreground text-xs">No Image</div>
+                                            <div className="flex items-center justify-center h-full text-muted-foreground text-[10px]">No Image</div>
                                         )}
-                                        <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity cursor-pointer">
+                                        <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                                             <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'vertical')} />
-                                            <TbUpload className="w-6 h-6 text-white" />
+                                            <TbUpload className="w-4 h-4 text-white" />
                                         </label>
-                                        {isUploadingV && <div className="absolute inset-0 flex items-center justify-center bg-black/50"><TbLoader2 className="w-6 h-6 animate-spin text-white" /></div>}
+                                        {isUploadingV && <div className="absolute inset-0 flex items-center justify-center bg-black/50"><TbLoader2 className="w-4 h-4 animate-spin text-white" /></div>}
                                     </div>
-                                    <Input value={post.coverImages?.vertical || ''} onChange={(e) => setPost(prev => ({ ...prev, coverImages: { ...prev.coverImages, vertical: e.target.value } }))} placeholder="URL..." className="text-xs font-mono" />
+                                    <Input value={post.coverImages?.vertical || ''} onChange={(e) => setPost(prev => ({ ...prev, coverImages: { ...prev.coverImages, vertical: e.target.value } }))} placeholder="URL..." className="text-[10px] w-16 h-6 font-mono" />
                                 </div>
                             </div>
 

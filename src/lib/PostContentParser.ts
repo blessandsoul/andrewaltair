@@ -644,6 +644,37 @@ export function parsePostContent(rawContent: string): ParsedSection[] {
             continue;
         }
 
+        // Check for > Quote/Opinion/TL;DR block
+        if (line.startsWith('>')) {
+            // Check for TL;DR specifically
+            if (line.includes('TL;DR') || line.includes('tl;dr')) {
+                if (currentSection) {
+                    sections.push(currentSection);
+                }
+                const content = line.replace(/^>\s*/, '').replace(/TL;DR:?/i, '').trim();
+                currentSection = {
+                    icon: 'Zap',
+                    title: 'TL;DR',
+                    content: cleanContent(content),
+                    type: 'section',
+                };
+                introComplete = true;
+                continue;
+            }
+
+            // Regular quote or opinion
+            if (currentSection) {
+                sections.push(currentSection);
+            }
+            currentSection = {
+                icon: 'Quote',
+                content: cleanContent(line.replace(/^>\s*/, '')),
+                type: 'opinion',
+            };
+            introComplete = true;
+            continue;
+        }
+
         // Check for emoji-prefixed section
         const emojiMatch = line.match(/^([\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}])/u);
 
@@ -666,13 +697,14 @@ export function parsePostContent(rawContent: string): ParsedSection[] {
             // Get icon from emoji
             const icon = EMOJI_TO_ICON[emoji] || 'ChevronRight';
 
-            // Extract title if present (bold text after emoji) and clean it
-            // Handle format: 🧬 **Title** - Content text here
-            const titleWithDashMatch = line.match(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]+\s*\*\*([^*]+)\*\*\s*[-–—]\s*(.*)/u);
-            const titleMatch = line.match(/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]+\s*\*\*([^*]+)\*\*:?\s*(.*)/u);
+            // Clean content by removing the emoji
+            let cleanLine = line.slice(emoji.length).trim();
+
+            // Extract title if present (bold text after emoji)
+            const titleMatch = cleanLine.match(/^\s*\*\*([^*]+)\*\*:?\s*(.*)/);
+            const titleWithDashMatch = cleanLine.match(/^\s*\*\*([^*]+)\*\*\s*[-–—]\s*(.*)/);
 
             if (titleWithDashMatch) {
-                // Format: Emoji **Title** - Content
                 currentSection = {
                     icon,
                     title: cleanContent(titleWithDashMatch[1]),
@@ -688,10 +720,9 @@ export function parsePostContent(rawContent: string): ParsedSection[] {
                 };
             } else {
                 // No title, just content
-                const contentAfterEmoji = line.slice(emoji.length).trim();
                 currentSection = {
                     icon,
-                    content: cleanContent(contentAfterEmoji),
+                    content: cleanContent(cleanLine),
                     type,
                 };
             }
@@ -700,7 +731,7 @@ export function parsePostContent(rawContent: string): ParsedSection[] {
             continue;
         }
 
-        // Check for opinion block
+        // Check for opinion block (legacy pattern check)
         if (OPINION_PATTERNS.some(pattern => pattern.test(line))) {
             if (currentSection) {
                 sections.push(currentSection);
