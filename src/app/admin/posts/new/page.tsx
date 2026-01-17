@@ -63,6 +63,9 @@ export default function NewPostPage() {
 
             const savedPost = await res.json()
 
+            // 🎉 SUCCESS FEEDBACK
+            alert(`✅ პოსტი წარმატებით შეინახა! Slug: ${savedPost.post?.slug || post.slug}`)
+
             // Post to Telegram if enabled
             if (post.postToTelegram && post.telegramContent) {
                 try {
@@ -89,7 +92,8 @@ export default function NewPostPage() {
                 }
             }
 
-            // Success handled by PostEditor modal
+            // 🔄 REDIRECT to posts list
+            router.push('/admin/posts')
         } catch (error: any) {
             console.error('Save post error:', error)
             alert(`შეცდომა: ${error.message}`)
