@@ -469,6 +469,35 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                 </div>
                             </div>
 
+                            {/* Author Fields */}
+                            <div className="grid grid-cols-3 gap-4 p-3 bg-muted/30 rounded-lg border">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-medium">Author Name</label>
+                                    <Input
+                                        value={post.author?.name || ''}
+                                        onChange={(e) => setPost(prev => ({ ...prev, author: { ...prev.author, name: e.target.value } }))}
+                                        placeholder="Andrew Altair"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-medium">Author Role</label>
+                                    <Input
+                                        value={post.author?.role || ''}
+                                        onChange={(e) => setPost(prev => ({ ...prev, author: { ...prev.author, role: e.target.value } }))}
+                                        placeholder="AI ინოვატორი"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-medium">Author Avatar URL</label>
+                                    <Input
+                                        value={post.author?.avatar || ''}
+                                        onChange={(e) => setPost(prev => ({ ...prev, author: { ...prev.author, avatar: e.target.value } }))}
+                                        placeholder="/images/avatar.jpg"
+                                        className="font-mono text-xs"
+                                    />
+                                </div>
+                            </div>
+
                             {/* JSON Editor */}
                             <div className="space-y-2">
                                 <label className="text-xs font-medium">Content JSON</label>
