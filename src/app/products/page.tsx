@@ -4,6 +4,9 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { TbShoppingCart, TbStar, TbDownload, TbPlayerPlay, TbBook, TbStack2, TbSparkles, TbArrowRight, TbGift, TbCheck, TbBolt } from "react-icons/tb"
 
+// Force dynamic rendering to fix build
+export const dynamic = 'force-dynamic'
+
 // Product interface
 interface Product {
     id: string
@@ -23,15 +26,32 @@ interface Product {
 }
 
 // Fetch products from API
+import dbConnect from "@/lib/db"
+import MarketplacePrompt from "@/models/MarketplacePrompt"
+
+// Fetch products directly from DB (Fixes build time fetch loop)
 async function getProducts(): Promise<Product[]> {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products`, {
-            cache: 'no-store'
-        })
-        if (res.ok) {
-            const data = await res.json()
-            return data.products || []
-        }
+        await dbConnect()
+        // Map MarketplacePrompt to Product interface manually since types differ slightly
+        const prompts = await MarketplacePrompt.find({ status: 'approved' }).lean()
+
+        return prompts.map((p: any) => ({
+            id: p._id.toString(),
+            title: p.title,
+            description: p.description,
+            category: p.category,
+            pricing: {
+                price: p.price,
+                originalPrice: p.price * 1.5, // Mock original price for now
+                currency: p.currency
+            },
+            features: p.features || [],
+            rating: 4.8, // Mock data
+            reviews: 12, // Mock data
+            bestSeller: p.isBestSeller,
+            downloadable: true
+        })) || []
     } catch (error) {
         console.error('Error fetching products:', error)
     }

@@ -1,3 +1,6 @@
+// Force dynamic rendering to fix build OOM/Timeout issues
+export const dynamic = 'force-dynamic'
+
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
