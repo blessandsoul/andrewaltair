@@ -245,7 +245,7 @@ export function HubLayout({ posts, videos }: HubLayoutProps) {
                             post={post}
                             showExcerpt={true}
                             showTags={false}
-                            showAuthor={false}
+                            showAuthor={true}
                             className="h-full shadow-md hover:shadow-xl"
                         />
                     ))}

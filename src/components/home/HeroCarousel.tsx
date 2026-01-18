@@ -201,8 +201,8 @@ export function HeroCarousel({ posts, autoPlayInterval = 5000 }: HeroCarouselPro
                                         >
                                             <TbChevronRight className="w-7 h-7" />
                                         </button>
-                                        {/* Slide counter badge */}
-                                        <div className="absolute top-4 right-4 z-20 bg-black/60 backdrop-blur-sm text-white text-sm font-medium px-3 py-1 rounded-full">
+                                        {/* Slide counter badge - moved down to avoid author avatar */}
+                                        <div className="absolute top-14 right-4 z-20 bg-black/60 backdrop-blur-sm text-white text-sm font-medium px-3 py-1 rounded-full pointer-events-none">
                                             {currentIndex + 1} / {posts.length}
                                         </div>
                                     </>

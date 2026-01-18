@@ -274,11 +274,11 @@ function FullArticle({ post, index }: { post: Post; index: number }) {
 
                                 {/* Author Indicator Overlay */}
                                 {post.author && (
-                                    <div className="absolute top-4 right-4 z-20 pointer-events-none">
+                                    <div className="absolute top-4 right-4 z-30 pointer-events-none">
                                         <div className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 shadow-lg">
                                             <div className="relative w-6 h-6 rounded-full overflow-hidden border border-white/20">
                                                 <Image
-                                                    src={post.author.avatar || (post.author.name.includes('Andrew') ? '/andrewaltair.png' : '/images/avatar.jpg')}
+                                                    src={post.author.avatar || (post.author.name.includes('Andrew') || post.author.role === 'god' ? '/andrewaltair.png' : '/images/avatar.jpg')}
                                                     alt={post.author.name}
                                                     fill
                                                     className="object-cover"
