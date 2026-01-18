@@ -58,14 +58,21 @@ interface PostCardProps {
 
 // Format numbers (15420 -> 15.4K)
 // Helper to determine author avatar
+// Helper to determine author avatar
 function getAuthorAvatar(author: { name: string, avatar?: string, role?: string }) {
     if (!author) return '/logo.png'
     const name = author.name.toLowerCase()
+
+    // Force override for Deep Science to use local new avatar
+    // Includes check for 'science' to catch variations like "Deep Science" or just "Science"
+    if (name.includes('deep') || name.includes('დიპ') || name.includes('science')) {
+        return '/images/avatars/deep.png'
+    }
+
     const role = author.role
 
     // Specific mapping for known authors
     if (name.includes('andrew') || role === 'god') return '/andrewaltair.png'
-    if (name.includes('deep') || name.includes('დიპ')) return '/images/avatars/deep.png'
     if (name.includes('alpha') || name.includes('ალფა')) return '/images/avatars/alpha.jpg'
 
     // Block invalid/broken paths
