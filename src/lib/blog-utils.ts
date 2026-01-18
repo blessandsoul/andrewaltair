@@ -12,7 +12,7 @@ export function getAuthorAvatar(author: { name: string, avatar?: string, role?: 
 
     // Force override for Deep Science
     // Includes check for 'science' to catch variations like "Deep Science" or just "Science"
-    if (name.includes('deep') || name.includes('დიპ') || name.includes('science')) {
+    if (name.includes('deep') || name.includes('დიპ') || name.includes('დიფ') || name.includes('science')) {
         return '/images/avatars/deep.png?v=6'
     }
 
