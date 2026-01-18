@@ -36,41 +36,7 @@ interface FeaturedCardProps {
     post: Post
 }
 
-// Format numbers
-function formatNumber(num: number): string {
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + "M"
-    if (num >= 1000) return (num / 1000).toFixed(1) + "K"
-    return num.toString()
-}
-
-// Get total reactions
-function getTotalReactions(reactions: Record<string, number>): number {
-    return Object.values(reactions).reduce((a, b) => a + b, 0)
-}
-
-// Get category info
-function getCategoryInfo(categoryId: string) {
-    const normalizedId = categoryId?.trim().toLowerCase()
-    return brand.categories.find(c => c.id.toLowerCase() === normalizedId) || {
-        id: categoryId,
-        name: categoryId,
-        color: "#6366f1"
-    }
-}
-
-// Format relative date
-function formatRelativeDate(dateString: string): string {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffTime = Math.abs(now.getTime() - date.getTime())
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
-
-    if (diffDays === 0) return "დღეს"
-    if (diffDays === 1) return "გუშინ"
-    if (diffDays < 7) return `${diffDays} დღის წინ`
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} კვირის წინ`
-    return `${Math.floor(diffDays / 30)} თვის წინ`
-}
+import { getAuthorAvatar, getCategoryInfo, formatNumber, getTotalReactions, formatRelativeDate } from "@/lib/blog-utils"
 
 export function FeaturedCard({ post }: FeaturedCardProps) {
     const [imageError, setImageError] = useState(false)
@@ -173,21 +139,16 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
                             {/* Author & Actions */}
                             <div className="pt-6 flex items-center justify-between border-t border-white/10">
                                 <div className="flex items-center gap-3">
-                                    {post.author.avatar && !avatarError ? (
-                                        <div className="w-10 h-10 rounded-full ring-2 ring-white/20 overflow-hidden relative">
-                                            <Image
-                                                src={post.author.avatar}
-                                                alt={post.author.name}
-                                                fill
-                                                className="object-cover"
-                                                onError={() => setAvatarError(true)}
-                                            />
-                                        </div>
-                                    ) : (
-                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-sm font-bold text-white ring-2 ring-white/20">
-                                            {post.author.name.charAt(0)}
-                                        </div>
-                                    )}
+                                    {/* Author Avatar via Helper */}
+                                    <div className="w-10 h-10 rounded-full ring-2 ring-white/20 overflow-hidden relative">
+                                        <Image
+                                            src={getAuthorAvatar(post.author)}
+                                            alt={post.author.name}
+                                            fill
+                                            className="object-cover"
+                                            onError={() => setAvatarError(true)}
+                                        />
+                                    </div>
 
                                     <div>
                                         <div className="text-white font-medium text-sm">{post.author.name}</div>

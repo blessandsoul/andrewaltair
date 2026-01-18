@@ -96,6 +96,7 @@ export default function PromptDetailClient({ prompt, relatedPrompts }: PromptDet
     const [copied, setCopied] = useState(false)
     const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null)
     const [variableValues, setVariableValues] = useState<Record<string, string>>({})
+    const [isUnlocked, setIsUnlocked] = useState(false)
 
     useEffect(() => {
         setMounted(true)
@@ -300,26 +301,30 @@ export default function PromptDetailClient({ prompt, relatedPrompts }: PromptDet
                                         template={prompt.promptTemplate || ''}
                                         isFree={prompt.isFree}
                                         price={prompt.price}
+                                        isUnlocked={isUnlocked}
+                                        onUnlock={() => setIsUnlocked(true)}
                                     />
 
                                     {/* Copy Button */}
-                                    <Button
-                                        onClick={handleCopy}
-                                        size="lg"
-                                        className={`w-full gap-2 transition-all ${copied ? 'bg-green-500 hover:bg-green-600' : ''}`}
-                                    >
-                                        {copied ? (
-                                            <>
-                                                <TbCheck className="w-5 h-5" />
-                                                დაკოპირებულია!
-                                            </>
-                                        ) : (
-                                            <>
-                                                <TbCopy className="w-5 h-5" />
-                                                დააკოპირე პრომპტი
-                                            </>
-                                        )}
-                                    </Button>
+                                    {isUnlocked && (
+                                        <Button
+                                            onClick={handleCopy}
+                                            size="lg"
+                                            className={`w-full gap-2 transition-all ${copied ? 'bg-green-500 hover:bg-green-600' : ''}`}
+                                        >
+                                            {copied ? (
+                                                <>
+                                                    <TbCheck className="w-5 h-5" />
+                                                    დაკოპირებულია!
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <TbCopy className="w-5 h-5" />
+                                                    დააკოპირე პრომპტი
+                                                </>
+                                            )}
+                                        </Button>
+                                    )}
                                 </TabsContent>
 
                                 {/* Variables Tab */}

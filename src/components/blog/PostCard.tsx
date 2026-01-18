@@ -14,6 +14,7 @@ import {
 import { brand } from "@/lib/brand"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
+import { getAuthorAvatar, getCategoryInfo, formatNumber, getTotalReactions, formatRelativeDate } from "@/lib/blog-utils"
 
 interface Post {
     id: string
@@ -54,72 +55,6 @@ interface PostCardProps {
     showTags?: boolean
     showAuthor?: boolean
     className?: string
-}
-
-// Format numbers (15420 -> 15.4K)
-// Helper to determine author avatar
-// Helper to determine author avatar
-function getAuthorAvatar(author: { name: string, avatar?: string, role?: string }) {
-    if (!author) return '/logo.png'
-    const name = author.name.toLowerCase()
-
-    // Force override for Deep Science to use local new avatar
-    // Includes check for 'science' to catch variations like "Deep Science" or just "Science"
-    if (name.includes('deep') || name.includes('დიპ') || name.includes('science')) {
-        return '/images/avatars/deep.png'
-    }
-
-    const role = author.role
-
-    // Specific mapping for known authors
-    if (name.includes('andrew') || role === 'god') return '/andrewaltair.png'
-    if (name.includes('alpha') || name.includes('ალფა')) return '/images/avatars/alpha.jpg'
-
-    // Block invalid/broken paths
-    if (author.avatar === '/images/avatar.jpg') return '/logo.png'
-
-    // Database value or generic fallback
-    return author.avatar || '/logo.png'
-}
-
-function formatNumber(num: number): string {
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + "M"
-    if (num >= 1000) return (num / 1000).toFixed(1) + "K"
-    return num.toString()
-}
-
-// Get total reactions
-function getTotalReactions(reactions: Record<string, number>): number {
-    return Object.values(reactions).reduce((a, b) => a + b, 0)
-}
-
-// Format date to relative time (5 დღის წინ)
-function formatRelativeDate(dateString: string): string {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffTime = Math.abs(now.getTime() - date.getTime())
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
-
-    if (diffDays === 0) return "დღეს"
-    if (diffDays === 1) return "გუშინ"
-    if (diffDays < 7) return `${diffDays} დღის წინ`
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} კვირის წინ`
-    if (diffDays < 365) return `${Math.floor(diffDays / 30)} თვის წინ`
-    return `${Math.floor(diffDays / 365)} წლის წინ`
-}
-
-// Get category info with color
-function getCategoryInfo(categoryId: string) {
-    const normalizedId = categoryId?.trim().toLowerCase()
-
-    // Flat search including subcategories
-    const allCategories = brand.categories.flatMap(c => [c, ...(c.subcategories || [])])
-
-    return allCategories.find(c => c.id.toLowerCase() === normalizedId) || {
-        id: categoryId,
-        name: categoryId,
-        color: "#6366f1"
-    }
 }
 
 // Strip HTML and get preview
@@ -180,31 +115,7 @@ export function PostCard({
     const [copied, setCopied] = useState(false)
     const [isZoomed, setIsZoomed] = useState(false)
 
-    // FORCE OVERRIDE for Deep Science avatar (Inline check)
-    // FORCE OVERRIDE for Deep Science avatar (Inline check with fallbacks)
-    const authorName = post.author?.name?.toLowerCase() || '';
-    const isAndrew = authorName.includes('andrew') || post.author?.role === 'god';
-
-    let isDeepAuthor = false;
-
-    if (!isAndrew) {
-        // 1. Primary check: Author Name
-        if (authorName.includes('deep') || authorName.includes('დიპ') || authorName.includes('science')) {
-            isDeepAuthor = true;
-        }
-        // 2. Fallback: If name doesn't match but it's likely Deep content (based on tags/slug)
-        // And the user has no avatar or the default logo
-        else if (!post.author?.avatar || post.author.avatar === '/logo.png' || post.author.avatar === '/images/avatar.jpg') {
-            if (
-                (post.tags && post.tags.some(tag => tag.toLowerCase().includes('deep') || tag.toLowerCase().includes('დიპ'))) ||
-                (post.slug && post.slug.toLowerCase().includes('deep'))
-            ) {
-                isDeepAuthor = true;
-            }
-        }
-    }
-    // Use the force path or fall back to helper. Added timestamp to bust cache.
-    const authorAvatarSrc = isDeepAuthor ? '/images/avatars/deep.png' : getAuthorAvatar(post.author);
+    const authorAvatarSrc = getAuthorAvatar(post.author);
 
     const categoryStr = post.categories && post.categories.length > 0 ? post.categories[0] : ((post as any).category || 'ai')
     const categoryInfo = getCategoryInfo(categoryStr)
@@ -356,7 +267,7 @@ export function PostCard({
                                 <div className="flex items-center gap-1.5 pl-1 pr-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 shadow-lg transition-transform duration-300 group-hover:scale-105">
                                     <div className="relative w-5 h-5 rounded-full overflow-hidden border border-white/20">
                                         <Image
-                                            src={isDeepAuthor ? '/images/avatars/deep.png?v=3' : authorAvatarSrc}
+                                            src={authorAvatarSrc}
                                             alt={post.author.name}
                                             fill
                                             className="object-cover"

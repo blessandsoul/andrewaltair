@@ -8,6 +8,8 @@ interface PromptUnlockerProps {
     template: string
     isFree: boolean
     price: number
+    isUnlocked: boolean
+    onUnlock: () => void
 }
 
 const SOCIAL_LINKS = [
@@ -58,8 +60,8 @@ const SOCIAL_LINKS = [
     }
 ]
 
-export default function PromptUnlocker({ template, isFree, price }: PromptUnlockerProps) {
-    const [isUnlocked, setIsUnlocked] = useState(false)
+export default function PromptUnlocker({ template, isFree, price, isUnlocked, onUnlock }: PromptUnlockerProps) {
+
     const [copied, setCopied] = useState(false)
     const [checkingState, setCheckingState] = useState<'idle' | 'checking' | 'verified'>('idle')
     const [showModal, setShowModal] = useState(false)
@@ -75,7 +77,7 @@ export default function PromptUnlocker({ template, isFree, price }: PromptUnlock
         setTimeout(() => {
             setCheckingState('verified')
             setTimeout(() => {
-                setIsUnlocked(true)
+                onUnlock()
                 setShowModal(true) // Show success modal
             }, 800)
         }, 1500)

@@ -8,6 +8,7 @@ import { TbEye, TbFlame, TbHeart, TbSparkles, TbTrendingUp, TbChartLine } from "
 import { brand } from "@/lib/brand"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
+import { getCategoryInfo, formatNumber, getTotalReactions } from "@/lib/blog-utils"
 
 interface Post {
     id: string
@@ -41,27 +42,7 @@ interface TrendingCardProps {
     rank: number
 }
 
-// Format numbers
-function formatNumber(num: number): string {
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + "M"
-    if (num >= 1000) return (num / 1000).toFixed(1) + "K"
-    return num.toString()
-}
 
-// Get total reactions
-function getTotalReactions(reactions: Record<string, number>): number {
-    return Object.values(reactions).reduce((a, b) => a + b, 0)
-}
-
-// Get category info
-function getCategoryInfo(categoryId: string) {
-    const normalizedId = categoryId?.trim().toLowerCase()
-    return brand.categories.find(c => c.id.toLowerCase() === normalizedId) || {
-        id: categoryId,
-        name: categoryId,
-        color: "#6366f1"
-    }
-}
 
 export function TrendingCard({ post, rank }: TrendingCardProps) {
     const [isHovered, setIsHovered] = useState(false)
