@@ -60,6 +60,21 @@ interface HeroCarouselProps {
     autoPlayInterval?: number
 }
 
+// Helper to determine author avatar
+function getAuthorAvatar(author: { name: string, avatar?: string, role?: string }) {
+    if (!author) return '/logo.png'
+    const name = author.name.toLowerCase()
+    const role = author.role
+
+    // Specific mapping for known authors
+    if (name.includes('andrew') || role === 'god') return '/andrewaltair.png'
+    if (name.includes('deep') || name.includes('დიპ')) return '/images/avatars/deep.jpg'
+    if (name.includes('alpha') || name.includes('ალფა')) return '/images/avatars/alpha.jpg'
+
+    // Database value or generic fallback
+    return author.avatar || '/logo.png'
+}
+
 // Helper to format numbers
 function formatNumber(num: number): string {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M'
@@ -154,7 +169,7 @@ export function HeroCarousel({ posts, autoPlayInterval = 5000 }: HeroCarouselPro
                                         <div className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 shadow-lg">
                                             <div className="relative w-6 h-6 rounded-full overflow-hidden border border-white/20">
                                                 <Image
-                                                    src={(currentPost.author.name.includes('Andrew') || currentPost.author.role === 'god') ? '/andrewaltair.png' : (currentPost.author.avatar || '/logo.png')}
+                                                    src={getAuthorAvatar(currentPost.author)}
                                                     alt={currentPost.author.name}
                                                     fill
                                                     className="object-cover"

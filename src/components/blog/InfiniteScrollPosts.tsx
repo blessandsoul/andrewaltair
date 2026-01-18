@@ -89,6 +89,21 @@ interface InfiniteScrollPostsProps {
     className?: string
 }
 
+// Helper to determine author avatar
+function getAuthorAvatar(author: { name: string, avatar?: string, role?: string }) {
+    if (!author) return '/logo.png'
+    const name = author.name.toLowerCase()
+    const role = author.role
+
+    // Specific mapping for known authors
+    if (name.includes('andrew') || role === 'god') return '/andrewaltair.png'
+    if (name.includes('deep') || name.includes('დიპ')) return '/images/avatars/deep.jpg'
+    if (name.includes('alpha') || name.includes('ალფა')) return '/images/avatars/alpha.jpg'
+
+    // Database value or generic fallback
+    return author.avatar || '/logo.png'
+}
+
 // Full article component matching BlogPostClient layout
 function FullArticle({ post, index }: { post: Post; index: number }) {
     const categoryStr = post.categories && post.categories.length > 0 ? post.categories[0] : ((post as any).category || 'ai')
@@ -278,7 +293,7 @@ function FullArticle({ post, index }: { post: Post; index: number }) {
                                         <div className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 shadow-lg">
                                             <div className="relative w-6 h-6 rounded-full overflow-hidden border border-white/20">
                                                 <Image
-                                                    src={(post.author.name.includes('Andrew') || post.author.role === 'god') ? '/andrewaltair.png' : (post.author.avatar || '/logo.png')}
+                                                    src={getAuthorAvatar(post.author)}
                                                     alt={post.author.name}
                                                     fill
                                                     className="object-cover"

@@ -57,6 +57,21 @@ interface PostCardProps {
 }
 
 // Format numbers (15420 -> 15.4K)
+// Helper to determine author avatar
+function getAuthorAvatar(author: { name: string, avatar?: string, role?: string }) {
+    if (!author) return '/logo.png'
+    const name = author.name.toLowerCase()
+    const role = author.role
+
+    // Specific mapping for known authors
+    if (name.includes('andrew') || role === 'god') return '/andrewaltair.png'
+    if (name.includes('deep') || name.includes('დიპ')) return '/images/avatars/deep.jpg'
+    if (name.includes('alpha') || name.includes('ალფა')) return '/images/avatars/alpha.jpg'
+
+    // Database value or generic fallback
+    return author.avatar || '/logo.png'
+}
+
 function formatNumber(num: number): string {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + "M"
     if (num >= 1000) return (num / 1000).toFixed(1) + "K"
@@ -305,7 +320,7 @@ export function PostCard({
                                 <div className="flex items-center gap-1.5 pl-1 pr-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 shadow-lg transition-transform duration-300 group-hover:scale-105">
                                     <div className="relative w-5 h-5 rounded-full overflow-hidden border border-white/20">
                                         <Image
-                                            src={(post.author.name.includes('Andrew') || post.author.role === 'god') ? '/andrewaltair.png' : (post.author.avatar || '/logo.png')}
+                                            src={getAuthorAvatar(post.author)}
                                             alt={post.author.name}
                                             fill
                                             className="object-cover"
