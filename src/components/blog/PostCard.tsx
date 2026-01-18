@@ -181,11 +181,28 @@ export function PostCard({
     const [isZoomed, setIsZoomed] = useState(false)
 
     // FORCE OVERRIDE for Deep Science avatar (Inline check)
-    const isDeepAuthor = post.author?.name && (
-        post.author.name.toLowerCase().includes('deep') ||
-        post.author.name.includes('დიპ') ||
-        post.author.name.toLowerCase().includes('science')
-    );
+    // FORCE OVERRIDE for Deep Science avatar (Inline check with fallbacks)
+    const authorName = post.author?.name?.toLowerCase() || '';
+    const isAndrew = authorName.includes('andrew') || post.author?.role === 'god';
+
+    let isDeepAuthor = false;
+
+    if (!isAndrew) {
+        // 1. Primary check: Author Name
+        if (authorName.includes('deep') || authorName.includes('დიპ') || authorName.includes('science')) {
+            isDeepAuthor = true;
+        }
+        // 2. Fallback: If name doesn't match but it's likely Deep content (based on tags/slug)
+        // And the user has no avatar or the default logo
+        else if (!post.author?.avatar || post.author.avatar === '/logo.png' || post.author.avatar === '/images/avatar.jpg') {
+            if (
+                (post.tags && post.tags.some(tag => tag.toLowerCase().includes('deep') || tag.toLowerCase().includes('დიპ'))) ||
+                (post.slug && post.slug.toLowerCase().includes('deep'))
+            ) {
+                isDeepAuthor = true;
+            }
+        }
+    }
     // Use the force path or fall back to helper. Added timestamp to bust cache.
     const authorAvatarSrc = isDeepAuthor ? '/images/avatars/deep.png' : getAuthorAvatar(post.author);
 
