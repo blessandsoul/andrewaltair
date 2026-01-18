@@ -18,19 +18,7 @@ import {
 } from "react-icons/tb"
 import { brand } from "@/lib/brand"
 
-// Helper to get category info
-function getCategoryInfo(categoryId?: string) {
-    if (!categoryId) return { name: 'ბლოგი', color: '#6366f1' }
-    const normalizedId = String(categoryId).trim().toLowerCase()
-
-    // Flat search including subcategories
-    const allCategories = brand.categories.flatMap(c => [c, ...(c.subcategories || [])])
-    return allCategories.find(c => String(c.id).toLowerCase() === normalizedId) || {
-        id: categoryId,
-        name: categoryId, // Fallback
-        color: "#6366f1"
-    }
-}
+import { getAuthorAvatar, getCategoryInfo, formatNumber, getTotalReactions } from "@/lib/blog-utils"
 
 interface Post {
     id: string
@@ -58,42 +46,6 @@ interface Post {
 interface HeroCarouselProps {
     posts: Post[]
     autoPlayInterval?: number
-}
-
-// Helper to determine author avatar
-// Helper to determine author avatar
-function getAuthorAvatar(author: { name: string, avatar?: string, role?: string }) {
-    if (!author) return '/logo.png'
-    const name = author.name.toLowerCase()
-
-    // Force override for Deep Science
-    if (name.includes('deep') || name.includes('დიპ') || name.includes('science')) {
-        return '/images/avatars/deep.png'
-    }
-
-    const role = author.role
-
-    // Specific mapping for known authors
-    if (name.includes('andrew') || role === 'god') return '/andrewaltair.png'
-    if (name.includes('alpha') || name.includes('ალფა')) return '/images/avatars/alpha.jpg'
-
-    // Block invalid/broken paths
-    if (author.avatar === '/images/avatar.jpg') return '/logo.png'
-
-    // Database value or generic fallback
-    return author.avatar || '/logo.png'
-}
-
-// Helper to format numbers
-function formatNumber(num: number): string {
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M'
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'K'
-    return num.toString()
-}
-
-// Helper to get total reactions
-function getTotalReactions(reactions: Record<string, number>): number {
-    return Object.values(reactions || {}).reduce((a, b) => a + b, 0)
 }
 
 export function HeroCarousel({ posts, autoPlayInterval = 5000 }: HeroCarouselProps) {
@@ -164,11 +116,11 @@ export function HeroCarousel({ posts, autoPlayInterval = 5000 }: HeroCarouselPro
                                         variant="outline"
                                         className="border-0 backdrop-blur-md w-fit"
                                         style={{
-                                            backgroundColor: `${getCategoryInfo(currentPost.category).color}40`,
+                                            backgroundColor: `${getCategoryInfo(currentPost.category || 'ai').color}40`,
                                             color: "white"
                                         }}
                                     >
-                                        {getCategoryInfo(currentPost.category).name}
+                                        {getCategoryInfo(currentPost.category || 'ai').name}
                                     </Badge>
                                 </div>
 
