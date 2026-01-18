@@ -27,7 +27,13 @@ export function getAuthorAvatar(author: { name: string, avatar?: string, role?: 
 
 // Get category info with color
 export function getCategoryInfo(categoryId: string) {
-    const normalizedId = categoryId?.trim().toLowerCase()
+    let normalizedId = categoryId?.trim().toLowerCase()
+
+    // Map legacy/English IDs to Georgian categories
+    if (['technology', 'tech', 'science', 'deep-science'].includes(normalizedId)) normalizedId = 'science';
+    if (['artificial intelligence', 'ai', 'ai-tips', 'ai-tools', 'chatgpt', 'midjourney'].includes(normalizedId)) normalizedId = 'ai';
+    if (['tutorials', 'guide', 'howto', 'tools'].includes(normalizedId)) normalizedId = 'tutorials';
+    if (['news', 'updates', 'reviews', 'opinion', 'analysis'].includes(normalizedId)) normalizedId = 'news';
 
     // Flat search including subcategories
     const allCategories = brand.categories.flatMap(c => [c, ...(c.subcategories || [])])
