@@ -104,6 +104,24 @@ function getCategoryColor(category: string): string {
     return colors[category] || '#6366f1'
 }
 
+// Helper to determine author avatar
+function getAuthorAvatar(author: { name?: string, avatar?: string, role?: string } | undefined) {
+    if (!author) return '/logo.png'
+    const name = (author.name || '').toLowerCase()
+    const role = author.role
+
+    // Specific mapping for known authors
+    if (name.includes('andrew') || role === 'god') return '/andrewaltair.png'
+    if (name.includes('deep') || name.includes('დიპ')) return '/images/avatars/deep.jpg'
+    if (name.includes('alpha') || name.includes('ალფა')) return '/images/avatars/alpha.jpg'
+
+    // Block invalid/broken paths
+    if (author.avatar === '/images/avatar.jpg') return '/logo.png'
+
+    // Database value or generic fallback
+    return author.avatar || '/logo.png'
+}
+
 export default async function VideosPage() {
     const videosData = await getVideos()
     const longVideos = videosData.filter(v => v.type === 'long')
@@ -353,7 +371,7 @@ export default async function VideosPage() {
                                                     <div className="flex items-center gap-2.5">
                                                         <div className="relative w-8 h-8 rounded-full overflow-hidden ring-2 ring-border/50">
                                                             <Image
-                                                                src={video.authorAvatar || '/images/avatar.jpg'}
+                                                                src={getAuthorAvatar({ name: video.authorName, avatar: video.authorAvatar })}
                                                                 alt={video.authorName || 'Andrew Altair'}
                                                                 fill
                                                                 className="object-cover"

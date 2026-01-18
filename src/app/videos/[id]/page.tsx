@@ -34,6 +34,24 @@ function formatDate(dateString: string): string {
     })
 }
 
+// Helper to determine author avatar
+function getAuthorAvatar(author: { name?: string, avatar?: string, role?: string } | undefined) {
+    if (!author) return '/logo.png'
+    const name = (author.name || '').toLowerCase()
+    const role = author.role
+
+    // Specific mapping for known authors
+    if (name.includes('andrew') || role === 'god') return '/andrewaltair.png'
+    if (name.includes('deep') || name.includes('დიპ')) return '/images/avatars/deep.jpg'
+    if (name.includes('alpha') || name.includes('ალფა')) return '/images/avatars/alpha.jpg'
+
+    // Block invalid/broken paths
+    if (author.avatar === '/images/avatar.jpg') return '/logo.png'
+
+    // Database value or generic fallback
+    return author.avatar || '/logo.png'
+}
+
 // Fetch video from MongoDB API (helper)
 async function getVideoData(id: string): Promise<TbVideo | null> {
     try {
@@ -242,7 +260,7 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
                         <div className="flex items-center gap-4 py-6 border-y border-border mt-8">
                             <div className="relative w-14 h-14 rounded-full overflow-hidden ring-2 ring-primary/10">
                                 <img
-                                    src={(video.authorAvatar && video.authorAvatar !== '/images/avatar.jpg') ? video.authorAvatar : '/andrewaltair.png'}
+                                    src={getAuthorAvatar({ name: video.authorName, avatar: video.authorAvatar })}
                                     alt={video.authorName || 'Andrew Altair'}
                                     className="object-cover w-full h-full"
                                 />

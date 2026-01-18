@@ -100,6 +100,9 @@ function getAuthorAvatar(author: { name: string, avatar?: string, role?: string 
     if (name.includes('deep') || name.includes('დიპ')) return '/images/avatars/deep.jpg'
     if (name.includes('alpha') || name.includes('ალფა')) return '/images/avatars/alpha.jpg'
 
+    // Block invalid/broken paths
+    if (author.avatar === '/images/avatar.jpg') return '/logo.png'
+
     // Database value or generic fallback
     return author.avatar || '/logo.png'
 }
