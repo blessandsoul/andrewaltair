@@ -51,6 +51,7 @@ interface Post {
     author?: {
         name: string
         avatar?: string
+        role?: string
     }
 }
 
@@ -153,7 +154,7 @@ export function HeroCarousel({ posts, autoPlayInterval = 5000 }: HeroCarouselPro
                                         <div className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 shadow-lg">
                                             <div className="relative w-6 h-6 rounded-full overflow-hidden border border-white/20">
                                                 <Image
-                                                    src={currentPost.author.avatar || (currentPost.author.name.includes('Andrew') ? '/andrewaltair.png' : '/images/avatar.jpg')}
+                                                    src={(currentPost.author.name.includes('Andrew') || currentPost.author.role === 'god') ? '/andrewaltair.png' : (currentPost.author.avatar || '/logo.png')}
                                                     alt={currentPost.author.name}
                                                     fill
                                                     className="object-cover"
