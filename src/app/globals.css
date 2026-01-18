@@ -105,7 +105,7 @@
   /* Custom brand colors */
   --glow-primary: rgba(99, 102, 241, 0.5);
   --glow-accent: rgba(34, 211, 238, 0.5);
-  --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+  --gradient-primary: linear-gradient(135deg, #0066ff 0%, #6366f1 40%, #ff3366 100%);
   --gradient-accent: linear-gradient(135deg, #22d3ee 0%, #6366f1 100%);
 
   /* RGB values for drop-shadow */
@@ -171,7 +171,7 @@
   /* Custom brand colors */
   --glow-primary: rgba(129, 140, 248, 0.4);
   --glow-accent: rgba(34, 211, 238, 0.4);
-  --gradient-primary: linear-gradient(135deg, #818cf8 0%, #a78bfa 50%, #e879f9 100%);
+  --gradient-primary: linear-gradient(135deg, #00aaff 0%, #818cf8 40%, #ff4477 100%);
   --gradient-accent: linear-gradient(135deg, #22d3ee 0%, #818cf8 100%);
 
   /* RGB values for drop-shadow */
