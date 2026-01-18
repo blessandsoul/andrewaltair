@@ -190,9 +190,28 @@ export default async function Home() {
                 {/* Greeting - Typing Effect */}
                 <HeroGreeting />
 
-                {/* Title */}
+                {/* Title with WOW Effect */}
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight leading-tight animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-                  <span className="text-gradient">გახდი AI პროფესიონალი ნულიდან</span>
+                  <span className="relative inline-block">
+                    {/* Glow effect behind text */}
+                    <span className="absolute inset-0 blur-2xl opacity-50 bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_100%] animate-[gradient-x_3s_ease-in-out_infinite]" aria-hidden="true" />
+                    {/* Main animated gradient text */}
+                    <span
+                      className="relative bg-gradient-to-r from-primary via-accent via-50% to-primary bg-[length:200%_100%] bg-clip-text text-transparent animate-[gradient-x_3s_ease-in-out_infinite] drop-shadow-[0_0_25px_rgba(var(--primary-rgb),0.4)]"
+                    >
+                      გახდი AI პროფესიონალი
+                    </span>
+                    {/* Shimmer overlay */}
+                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent bg-[length:50%_100%] animate-[shimmer_2s_ease-in-out_infinite] opacity-60 pointer-events-none" aria-hidden="true" />
+                  </span>
+                  <br />
+                  <span className="relative inline-block mt-2">
+                    <span
+                      className="bg-gradient-to-r from-accent via-primary via-50% to-accent bg-[length:200%_100%] bg-clip-text text-transparent animate-[gradient-x_3s_ease-in-out_infinite_0.5s] drop-shadow-[0_0_25px_rgba(var(--accent-rgb),0.4)]"
+                    >
+                      ნულიდან 🚀
+                    </span>
+                  </span>
                 </h1>
 
                 {/* Description */}

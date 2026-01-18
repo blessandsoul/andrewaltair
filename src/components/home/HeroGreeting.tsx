@@ -7,8 +7,7 @@ import { TbSparkles } from 'react-icons/tb';
 const phrases = [
     "გამარჯობა, AI ენთუზიასტო 👋",
     "მზად ხარ ციფრული რევოლუციისთვის? 🚀",
-    "აღმოაჩინე ტექნოლოგიების მაგია ✨",
-    "Andrew Altair გელოდება... 👁️"
+    "აღმოაჩინე ტექნოლოგიების მაგია ✨"
 ];
 
 export function HeroGreeting() {
