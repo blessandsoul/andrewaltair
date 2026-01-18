@@ -356,14 +356,14 @@ export function PostCard({
                                 <div className="flex items-center gap-1.5 pl-1 pr-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 shadow-lg transition-transform duration-300 group-hover:scale-105">
                                     <div className="relative w-5 h-5 rounded-full overflow-hidden border border-white/20">
                                         <Image
-                                            src={authorAvatarSrc}
+                                            src={isDeepAuthor ? '/images/avatars/deep.png?v=999' : authorAvatarSrc}
                                             alt={post.author.name}
                                             fill
                                             className="object-cover"
                                         />
                                     </div>
                                     <span className="text-[10px] font-medium text-white/90">
-                                        {post.author.name}
+                                        {post.author.name}*
                                     </span>
                                 </div>
                             </div>
