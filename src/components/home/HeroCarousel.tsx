@@ -68,7 +68,7 @@ function getAuthorAvatar(author: { name: string, avatar?: string, role?: string 
 
     // Specific mapping for known authors
     if (name.includes('andrew') || role === 'god') return '/andrewaltair.png'
-    if (name.includes('deep') || name.includes('დიპ')) return '/images/avatars/deep.jpg'
+    if (name.includes('deep') || name.includes('დიპ')) return '/images/avatars/deep.png'
     if (name.includes('alpha') || name.includes('ალფა')) return '/images/avatars/alpha.jpg'
 
     // Block invalid/broken paths
