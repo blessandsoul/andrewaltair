@@ -93,7 +93,15 @@ interface InfiniteScrollPostsProps {
 function FullArticle({ post, index }: { post: Post; index: number }) {
     const categoryStr = post.categories && post.categories.length > 0 ? post.categories[0] : ((post as any).category || 'ai')
     const normalizedCat = categoryStr?.trim().toLowerCase()
-    const categoryInfo = brand.categories.find(c => c.id.toLowerCase() === normalizedCat)
+    // Helper to flatten categories for lookup
+    const allCategories = brand.categories.flatMap(c => [c, ...(c.subcategories || [])])
+    const categoryInfo = allCategories.find(c => c.id.toLowerCase() === normalizedCat) || {
+        id: normalizedCat || 'ai',
+        name: normalizedCat || 'AI',
+        color: '#6366f1',
+        icon: 'Bot'
+    }
+
     const { isOpen, images, currentIndex, openLightbox, closeLightbox } = useImageLightbox()
     const [articleImages, setArticleImages] = useState<{ src: string; alt: string }[]>([])
 
@@ -180,12 +188,7 @@ function FullArticle({ post, index }: { post: Post; index: number }) {
                 </div>
 
                 <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-                    {/* Back Button - Hidden in infinite scroll as it's a continuous flow, but good to have if accessed directly? 
-                        Actually for infinite scroll flow we might not need back button for each article, 
-                        but let's keep it consistent or maybe hide it? 
-                        The user wants "Same style", having a back button in the middle of page is weird.
-                        But the original FullArticle had it. Let's keep it.
-                    */}
+                    {/* Back Button */}
                     <div className="flex items-center justify-between mb-4">
                         <Link
                             href="/blog"
@@ -215,12 +218,12 @@ function FullArticle({ post, index }: { post: Post; index: number }) {
                         <div className="flex items-center gap-3 flex-wrap">
                             <Badge
                                 style={{
-                                    backgroundColor: `${categoryInfo?.color}20`,
-                                    color: categoryInfo?.color,
-                                    borderColor: `${categoryInfo?.color}40`
+                                    backgroundColor: `${categoryInfo.color}20`,
+                                    color: categoryInfo.color,
+                                    borderColor: `${categoryInfo.color}40`
                                 }}
                             >
-                                {categoryInfo?.name || categoryStr}
+                                {categoryInfo.name}
                             </Badge>
                             <span className="text-sm text-muted-foreground flex items-center gap-1">
                                 <TbCalendar className="w-4 h-4" />
@@ -256,11 +259,9 @@ function FullArticle({ post, index }: { post: Post; index: number }) {
                             {post.excerpt}
                         </p>
 
-                        {/* Tags removed from header to avoid duplication with bottom tags */}
-
                         {/* Featured TbPhoto - Responsive Cover */}
                         {(post.coverImages?.horizontal || post.coverImages?.vertical || post.coverImage) && (
-                            <div className="relative mt-4 -mx-4 sm:-mx-6 lg:-mx-0">
+                            <div className="relative mt-4 -mx-4 sm:-mx-6 lg:-mx-0 group">
                                 <ResponsiveCover
                                     coverImages={post.coverImages}
                                     coverImage={post.coverImage}
@@ -270,6 +271,25 @@ function FullArticle({ post, index }: { post: Post; index: number }) {
                                         if (src) openLightbox(src, post.title, [{ src, alt: post.title }], 0);
                                     }}
                                 />
+
+                                {/* Author Indicator Overlay */}
+                                {post.author && (
+                                    <div className="absolute top-4 right-4 z-20 pointer-events-none">
+                                        <div className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 shadow-lg">
+                                            <div className="relative w-6 h-6 rounded-full overflow-hidden border border-white/20">
+                                                <Image
+                                                    src={post.author.avatar || (post.author.name.includes('Andrew') ? '/andrewaltair.png' : '/images/avatar.jpg')}
+                                                    alt={post.author.name}
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            </div>
+                                            <span className="text-xs font-medium text-white/90">
+                                                {post.author.name}
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

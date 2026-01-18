@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import {
   NavigationMenu,
@@ -81,8 +82,17 @@ function UserProfileDropdown() {
         className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-secondary transition-colors"
       >
         {/* Avatar */}
-        <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${roleConfig.color} flex items-center justify-center text-white font-bold text-sm`}>
-          {user.fullName[0]}
+        <div className={`relative w-8 h-8 rounded-full bg-gradient-to-br ${roleConfig.color} flex items-center justify-center text-white font-bold text-sm overflow-hidden`}>
+          {user.avatar ? (
+            <Image
+              src={user.avatar}
+              alt={user.fullName}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            user.fullName[0]
+          )}
         </div>
         <div className="hidden sm:block text-left">
           <div className="text-sm font-medium flex items-center gap-1">
@@ -102,8 +112,17 @@ function UserProfileDropdown() {
             {/* User Info */}
             <div className="p-4 border-b border-border bg-muted/30">
               <div className="flex items-center gap-3">
-                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${roleConfig.color} flex items-center justify-center text-white font-bold`}>
-                  {user.fullName[0]}
+                <div className={`relative w-12 h-12 rounded-full bg-gradient-to-br ${roleConfig.color} flex items-center justify-center text-white font-bold overflow-hidden`}>
+                  {user.avatar ? (
+                    <Image
+                      src={user.avatar}
+                      alt={user.fullName}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    user.fullName[0]
+                  )}
                 </div>
                 <div>
                   <div className="font-medium flex items-center gap-1">
@@ -371,8 +390,17 @@ export function Header() {
               </Button>
               <ThemeToggle />
               {user && (
-                <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${ROLE_CONFIG[user.role].color} flex items-center justify-center text-white font-bold text-xs`}>
-                  {user.fullName[0]}
+                <div className={`relative w-8 h-8 rounded-full bg-gradient-to-br ${ROLE_CONFIG[user.role].color} flex items-center justify-center text-white font-bold text-xs overflow-hidden`}>
+                  {user.avatar ? (
+                    <Image
+                      src={user.avatar}
+                      alt={user.fullName}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    user.fullName[0]
+                  )}
                 </div>
               )}
               <Button
@@ -393,8 +421,17 @@ export function Header() {
                 {user && (
                   <div className="px-4 py-3 mb-4 bg-muted/30 rounded-lg mx-2">
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${ROLE_CONFIG[user.role].color} flex items-center justify-center text-white font-bold`}>
-                        {user.fullName[0]}
+                      <div className={`relative w-10 h-10 rounded-full bg-gradient-to-br ${ROLE_CONFIG[user.role].color} flex items-center justify-center text-white font-bold overflow-hidden`}>
+                        {user.avatar ? (
+                          <Image
+                            src={user.avatar}
+                            alt={user.fullName}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          user.fullName[0]
+                        )}
                       </div>
                       <div>
                         <div className="font-medium flex items-center gap-1">

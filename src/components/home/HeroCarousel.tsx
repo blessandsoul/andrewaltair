@@ -22,9 +22,12 @@ import { brand } from "@/lib/brand"
 function getCategoryInfo(categoryId?: string) {
     if (!categoryId) return { name: 'ბლოგი', color: '#6366f1' }
     const normalizedId = String(categoryId).trim().toLowerCase()
-    return brand.categories.find(c => String(c.id).toLowerCase() === normalizedId) || {
+
+    // Flat search including subcategories
+    const allCategories = brand.categories.flatMap(c => [c, ...(c.subcategories || [])])
+    return allCategories.find(c => String(c.id).toLowerCase() === normalizedId) || {
         id: categoryId,
-        name: categoryId,
+        name: categoryId, // Fallback
         color: "#6366f1"
     }
 }
@@ -45,6 +48,10 @@ interface Post {
     views: number
     readingTime: number
     reactions: Record<string, number>
+    author?: {
+        name: string
+        avatar?: string
+    }
 }
 
 interface HeroCarouselProps {
@@ -139,6 +146,25 @@ export function HeroCarousel({ posts, autoPlayInterval = 5000 }: HeroCarouselPro
                                         {getCategoryInfo(currentPost.category).name}
                                     </Badge>
                                 </div>
+
+                                {/* Author Indicator - Top Right */}
+                                {currentPost.author && (
+                                    <div className="absolute top-4 right-4 z-10 hidden sm:block">
+                                        <div className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 shadow-lg">
+                                            <div className="relative w-6 h-6 rounded-full overflow-hidden border border-white/20">
+                                                <Image
+                                                    src={currentPost.author.avatar || (currentPost.author.name.includes('Andrew') ? '/andrewaltair.png' : '/images/avatar.jpg')}
+                                                    alt={currentPost.author.name}
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            </div>
+                                            <span className="text-xs font-medium text-white/90">
+                                                {currentPost.author.name}
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Stats */}
                                 <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between z-10 text-white/90 text-sm">
