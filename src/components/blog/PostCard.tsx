@@ -180,6 +180,15 @@ export function PostCard({
     const [copied, setCopied] = useState(false)
     const [isZoomed, setIsZoomed] = useState(false)
 
+    // FORCE OVERRIDE for Deep Science avatar (Inline check)
+    const isDeepAuthor = post.author?.name && (
+        post.author.name.toLowerCase().includes('deep') ||
+        post.author.name.includes('დიპ') ||
+        post.author.name.toLowerCase().includes('science')
+    );
+    // Use the force path or fall back to helper. Added timestamp to bust cache.
+    const authorAvatarSrc = isDeepAuthor ? '/images/avatars/deep.png' : getAuthorAvatar(post.author);
+
     const categoryStr = post.categories && post.categories.length > 0 ? post.categories[0] : ((post as any).category || 'ai')
     const categoryInfo = getCategoryInfo(categoryStr)
     const postUrl = typeof window !== 'undefined' ? `${window.location.origin}/blog/${post.slug}` : `https://andrewaltair.ge/blog/${post.slug}`
@@ -330,7 +339,7 @@ export function PostCard({
                                 <div className="flex items-center gap-1.5 pl-1 pr-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 shadow-lg transition-transform duration-300 group-hover:scale-105">
                                     <div className="relative w-5 h-5 rounded-full overflow-hidden border border-white/20">
                                         <Image
-                                            src={getAuthorAvatar(post.author)}
+                                            src={authorAvatarSrc}
                                             alt={post.author.name}
                                             fill
                                             className="object-cover"
