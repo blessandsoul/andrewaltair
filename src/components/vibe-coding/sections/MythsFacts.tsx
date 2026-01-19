@@ -10,7 +10,7 @@ interface MythsFactsProps {
 
 export default function MythsFacts({ section }: MythsFactsProps) {
     return (
-        <section className="py-20 px-6">
+        <section className="py-8 md:py-12 px-6">
             <div className="max-w-4xl mx-auto">
                 {/* Section Heading */}
                 <motion.h2

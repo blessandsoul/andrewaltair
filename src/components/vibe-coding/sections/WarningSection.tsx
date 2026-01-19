@@ -10,7 +10,7 @@ interface WarningSectionProps {
 
 export default function WarningSection({ section }: WarningSectionProps) {
     return (
-        <section className="py-20 px-4 md:px-6">
+        <section className="py-8 md:py-12 px-4 md:px-6">
             <div className="max-w-4xl mx-auto">
                 {/* Warning Container with Pulsing Border */}
                 <motion.div

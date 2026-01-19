@@ -9,7 +9,7 @@ interface HeroIntroProps {
 
 export default function HeroIntro({ section }: HeroIntroProps) {
     return (
-        <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden py-20 bg-white">
+        <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden py-10 md:py-16 bg-white">
             {/* Background Effects */}
             <div className="absolute inset-0 bg-gradient-to-b from-white via-white to-purple-50/30" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-500/5 via-transparent to-transparent opacity-50" />

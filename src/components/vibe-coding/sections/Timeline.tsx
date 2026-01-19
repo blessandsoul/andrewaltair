@@ -12,7 +12,7 @@ export default function Timeline({ section }: TimelineProps) {
     const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
     return (
-        <section className="py-20 px-6 relative">
+        <section className="py-10 md:py-16 px-6 relative">
             <div className="max-w-4xl mx-auto">
                 {/* Section Heading */}
                 <motion.h2

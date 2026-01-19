@@ -11,7 +11,7 @@ interface OutroSectionProps {
 
 export default function OutroSection({ section }: OutroSectionProps) {
     return (
-        <section className="py-20 px-6 relative overflow-hidden">
+        <section className="py-10 md:py-16 px-6 relative overflow-hidden">
             {/* Background gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#00f3ff]/5 via-transparent to-transparent" />
 
