@@ -24,19 +24,13 @@ interface VibeReaderSidebarProps {
 }
 
 export default function VibeReaderSidebar({ isParamsPremium }: VibeReaderSidebarProps) {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile default closed
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); // Desktop toggle
-    const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
     const router = useRouter();
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
 
-    // In a real app, you might fetch this from a context or prop
-    // For now we'll assume passed via props or client-side check if needed
-    // But since this is a layout component, we might need a Client Component wrapper
-    // that checks auth status.
-    // For now, let's keep it simple and just render links.
-
-    // Filter articles based on search
+    // Filter articles based on search - only filter by title
     const filteredCategories = VIBE_CODING_DATA.categories
         .map((category) => {
             return {
@@ -53,7 +47,7 @@ export default function VibeReaderSidebar({ isParamsPremium }: VibeReaderSidebar
             {/* Mobile Toggle Button */}
             <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="fixed top-20 left-4 z-50 lg:hidden p-3 rounded-xl bg-[#0a0a1a]/90 backdrop-blur-sm border border-white/10 shadow-lg text-white"
+                className="fixed top-20 left-4 z-40 lg:hidden p-3 rounded-xl bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg"
             >
                 {isSidebarOpen ? <TbX size={24} /> : <TbList size={24} />}
             </button>
@@ -61,7 +55,7 @@ export default function VibeReaderSidebar({ isParamsPremium }: VibeReaderSidebar
             {/* Desktop Collapse/Expand Button */}
             <button
                 onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                className="hidden lg:block fixed left-4 top-20 z-50 p-2 rounded-lg bg-[#0a0a1a]/90 backdrop-blur-sm border border-white/10 shadow-md hover:bg-[#1a1a2e] transition-all text-white"
+                className="hidden lg:block fixed left-4 top-20 z-40 p-2 rounded-lg bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md hover:bg-gray-50 transition-all"
                 style={{
                     left: isSidebarCollapsed ? '4px' : '304px',
                     transition: 'left 0.3s ease-in-out'
@@ -78,17 +72,17 @@ export default function VibeReaderSidebar({ isParamsPremium }: VibeReaderSidebar
             {/* Sidebar */}
             <aside
                 className={`
-                    fixed lg:fixed top-16 left-0 z-40 h-[calc(100vh-4rem)]
-                    border-r flex flex-col bg-[#0a0a1a] text-white
+                    fixed lg:fixed top-16 left-0 z-30 h-[calc(100vh-4rem)]
+                    border-r flex flex-col bg-background/95 backdrop-blur-sm
                     transform transition-all duration-300 ease-in-out
                     ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
                     ${isSidebarCollapsed ? 'lg:w-0 lg:-translate-x-full' : 'lg:w-80 lg:translate-x-0'}
                     w-80
                 `}
-                style={{ borderColor: 'rgba(255,255,255,0.1)' }}
+                style={{ borderColor: 'rgba(0,0,0,0.1)' }}
             >
                 {/* Brand */}
-                <div className="p-6" style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                <div className="p-6" style={{ borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
                     <div className="flex items-center gap-3 mb-4">
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
                             <TbBook size={24} className="text-white" />
@@ -97,7 +91,7 @@ export default function VibeReaderSidebar({ isParamsPremium }: VibeReaderSidebar
                             <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
                                 Vibe Coding
                             </h1>
-                            <p className="text-xs text-gray-400">
+                            <p className="text-xs text-muted-foreground">
                                 ბიბლიოთეკა
                             </p>
                         </div>
@@ -119,7 +113,7 @@ export default function VibeReaderSidebar({ isParamsPremium }: VibeReaderSidebar
                                     }
                                 }
                             }}
-                            className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 bg-[#1a1a2e] border border-white/10 text-white placeholder-gray-500"
+                            className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 bg-secondary/50 border border-border"
                         />
                     </div>
                 </div>
@@ -128,7 +122,7 @@ export default function VibeReaderSidebar({ isParamsPremium }: VibeReaderSidebar
                 <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
                     {filteredCategories.map((category) => (
                         <div key={category.id} className="mb-6">
-                            <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-2">
+                            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
                                 <span className="text-purple-500">
                                     {category.id === 'intro' && <TbTarget className="w-4 h-4" />}
                                     {category.id === 'basic-guide' && <TbBook className="w-4 h-4" />}
@@ -146,7 +140,7 @@ export default function VibeReaderSidebar({ isParamsPremium }: VibeReaderSidebar
                                             w-full text-left px-3 py-2.5 rounded-lg text-sm
                                             flex items-center justify-between gap-2
                                             transition-all duration-200
-                                            hover:bg-[#1a1a2e] text-gray-300 hover:text-white
+                                            hover:bg-secondary text-foreground/80 hover:text-foreground
                                         `}
                                     >
                                         <span className="truncate">{article.title}</span>
@@ -163,7 +157,7 @@ export default function VibeReaderSidebar({ isParamsPremium }: VibeReaderSidebar
                 </div>
 
                 {/* Footer Stats */}
-                <div className="p-4 space-y-3" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                <div className="p-4 space-y-3" style={{ borderTop: '1px solid rgba(0,0,0,0.1)' }}>
                     <button
                         onClick={() => setIsPurchaseModalOpen(true)}
                         className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-medium hover:from-blue-600 hover:to-blue-700 transition-all"
@@ -177,7 +171,7 @@ export default function VibeReaderSidebar({ isParamsPremium }: VibeReaderSidebar
             {/* Overlay for mobile */}
             {isSidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+                    className="fixed inset-0 bg-black/50 z-20 lg:hidden"
                     onClick={() => setIsSidebarOpen(false)}
                 />
             )}
