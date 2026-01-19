@@ -47,7 +47,7 @@ export default function VibeReaderSidebar({ isParamsPremium }: VibeReaderSidebar
             {/* Mobile Toggle Button */}
             <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="fixed top-20 left-4 z-40 lg:hidden p-3 rounded-xl bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg"
+                className="fixed top-32 left-4 z-40 lg:hidden p-3 rounded-xl bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg text-gray-900"
             >
                 {isSidebarOpen ? <TbX size={24} /> : <TbList size={24} />}
             </button>
@@ -55,7 +55,7 @@ export default function VibeReaderSidebar({ isParamsPremium }: VibeReaderSidebar
             {/* Desktop Collapse/Expand Button */}
             <button
                 onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                className="hidden lg:block fixed left-4 top-20 z-40 p-2 rounded-lg bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md hover:bg-gray-50 transition-all"
+                className="hidden lg:block fixed left-4 top-32 z-40 p-2 rounded-lg bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md hover:bg-gray-50 transition-all text-gray-900"
                 style={{
                     left: isSidebarCollapsed ? '4px' : '304px',
                     transition: 'left 0.3s ease-in-out'
@@ -72,8 +72,8 @@ export default function VibeReaderSidebar({ isParamsPremium }: VibeReaderSidebar
             {/* Sidebar */}
             <aside
                 className={`
-                    fixed lg:fixed top-16 left-0 z-30 h-[calc(100vh-4rem)]
-                    border-r flex flex-col bg-background/95 backdrop-blur-sm
+                    fixed lg:fixed top-28 left-0 z-30 h-[calc(100vh-7rem)]
+                    border-r flex flex-col bg-white text-gray-900
                     transform transition-all duration-300 ease-in-out
                     ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
                     ${isSidebarCollapsed ? 'lg:w-0 lg:-translate-x-full' : 'lg:w-80 lg:translate-x-0'}
@@ -113,7 +113,7 @@ export default function VibeReaderSidebar({ isParamsPremium }: VibeReaderSidebar
                                     }
                                 }
                             }}
-                            className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 bg-secondary/50 border border-border"
+                            className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-500"
                         />
                     </div>
                 </div>
@@ -140,7 +140,7 @@ export default function VibeReaderSidebar({ isParamsPremium }: VibeReaderSidebar
                                             w-full text-left px-3 py-2.5 rounded-lg text-sm
                                             flex items-center justify-between gap-2
                                             transition-all duration-200
-                                            hover:bg-secondary text-foreground/80 hover:text-foreground
+                                            hover:bg-gray-100 text-gray-700 hover:text-gray-900
                                         `}
                                     >
                                         <span className="truncate">{article.title}</span>

@@ -6,7 +6,7 @@ export default function ReaderLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="min-h-screen bg-background text-foreground flex flex-col lg:flex-row">
+        <div className="min-h-screen bg-white text-gray-900 flex flex-col lg:flex-row">
             {/* Sidebar - Persistent Navigation */}
             <VibeReaderSidebar />
 
