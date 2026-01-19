@@ -29,11 +29,11 @@ export default function VibeReaderSidebar() {
 
     return (
         <>
-            {/* Mobile Menu Button - Floating Action Button (Bottom Left) */}
+            {/* Mobile Menu Button - Floating Action Button (Bottom Right Stacked) */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="lg:hidden fixed z-[90] p-4 bg-white rounded-full shadow-xl border border-purple-200 text-purple-600 hover:bg-purple-50 transition-all active:scale-95"
-                style={{ bottom: '24px', left: '24px' }}
+                className="lg:hidden fixed z-[90] p-3.5 bg-white rounded-full shadow-xl border border-purple-200 text-purple-600 hover:bg-purple-50 transition-all active:scale-95"
+                style={{ bottom: '96px', right: '16px' }}
                 aria-label="Toggle menu"
             >
                 {isOpen ? <TbX size={22} className="text-gray-900" /> : <TbMenu2 size={22} className="text-gray-900" />}

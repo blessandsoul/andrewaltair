@@ -10,7 +10,7 @@ interface WarningSectionProps {
 
 export default function WarningSection({ section }: WarningSectionProps) {
     return (
-        <section className="py-20 px-6">
+        <section className="py-20 px-4 md:px-6">
             <div className="max-w-4xl mx-auto">
                 {/* Warning Container with Pulsing Border */}
                 <motion.div
@@ -36,23 +36,23 @@ export default function WarningSection({ section }: WarningSectionProps) {
                     <div className="absolute inset-0 bg-gradient-to-br from-red-50 via-white to-red-50" />
 
                     {/* Content */}
-                    <div className="relative z-10 p-8">
+                    <div className="relative z-10 p-5 md:p-8">
                         {/* Header */}
-                        <div className="flex items-center gap-4 mb-6">
+                        <div className="flex flex-col md:flex-row items-center md:items-start gap-4 mb-6 text-center md:text-left">
                             <motion.div
                                 animate={{ rotate: [0, 5, -5, 0] }}
                                 transition={{ duration: 2, repeat: Infinity }}
-                                className="p-3 rounded-xl bg-red-500/20 text-red-400"
+                                className="p-3 rounded-xl bg-red-100 text-red-600 flex-shrink-0"
                             >
                                 <TbAlertTriangle className="w-8 h-8" />
                             </motion.div>
-                            <h2 className="text-3xl md:text-4xl font-bold text-red-600">
+                            <h2 className="text-2xl md:text-4xl font-bold text-red-700 break-words hyphens-auto">
                                 {section.heading}
                             </h2>
                         </div>
 
                         {/* Intro Body */}
-                        <p className="text-gray-700 mb-8 leading-relaxed">
+                        <p className="text-gray-800 mb-8 leading-relaxed break-words text-base md:text-lg">
                             {section.body}
                         </p>
 
@@ -65,15 +65,15 @@ export default function WarningSection({ section }: WarningSectionProps) {
                                     whileInView={{ opacity: 1, x: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ delay: idx * 0.1 }}
-                                    className="p-5 rounded-xl bg-red-50 border border-red-200 hover:border-red-400 transition-colors"
+                                    className="p-4 md:p-5 rounded-xl bg-white border border-red-200 hover:border-red-400 transition-colors shadow-sm"
                                 >
                                     <div className="flex items-start gap-4">
-                                        <TbAlertTriangle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
+                                        <TbAlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
                                         <div>
-                                            <h3 className="font-bold text-red-300 mb-2">
+                                            <h3 className="font-bold text-red-800 mb-2 break-words">
                                                 {warning.title}
                                             </h3>
-                                            <p className="text-gray-400 text-sm leading-relaxed">
+                                            <p className="text-gray-700 text-sm leading-relaxed break-words">
                                                 {warning.desc}
                                             </p>
                                         </div>

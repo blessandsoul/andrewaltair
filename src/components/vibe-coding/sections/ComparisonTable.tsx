@@ -8,6 +8,7 @@ interface ComparisonTableProps {
     section: ComparisonTableSection;
 }
 
+// Light Theme Version
 export default function ComparisonTable({ section }: ComparisonTableProps) {
     const [hoveredRow, setHoveredRow] = useState<number | null>(null);
 
@@ -19,7 +20,7 @@ export default function ComparisonTable({ section }: ComparisonTableProps) {
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className="text-3xl md:text-4xl font-bold mb-6 text-white"
+                    className="text-3xl md:text-4xl font-bold mb-6 text-gray-900 break-words hyphens-auto"
                 >
                     {section.heading}
                 </motion.h2>
@@ -29,7 +30,7 @@ export default function ComparisonTable({ section }: ComparisonTableProps) {
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
-                    className="text-gray-400 mb-10 leading-relaxed"
+                    className="text-gray-600 mb-10 leading-relaxed break-words"
                 >
                     {section.intro}
                 </motion.p>
@@ -39,15 +40,15 @@ export default function ComparisonTable({ section }: ComparisonTableProps) {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="hidden md:block overflow-hidden rounded-xl border border-[#00f3ff]/20 backdrop-blur-sm bg-[#0a0a1a]/50"
+                    className="hidden md:block overflow-hidden rounded-xl border border-purple-200 bg-white shadow-sm"
                 >
                     <table className="w-full">
                         <thead>
-                            <tr className="border-b border-[#00f3ff]/20 bg-[#00f3ff]/5">
+                            <tr className="border-b border-purple-100 bg-purple-50">
                                 {section.table_headers.map((header, idx) => (
                                     <th
                                         key={idx}
-                                        className="px-6 py-4 text-left text-sm font-bold text-[#00f3ff] uppercase tracking-wider"
+                                        className="px-6 py-4 text-left text-sm font-bold text-purple-700 uppercase tracking-wider"
                                     >
                                         {header}
                                     </th>
@@ -62,15 +63,15 @@ export default function ComparisonTable({ section }: ComparisonTableProps) {
                                     onMouseLeave={() => setHoveredRow(null)}
                                     animate={{
                                         backgroundColor: hoveredRow === rowIdx
-                                            ? 'rgba(0, 243, 255, 0.08)'
+                                            ? 'rgba(168, 85, 247, 0.05)'
                                             : 'transparent'
                                     }}
-                                    className="border-b border-white/5 transition-colors cursor-default"
+                                    className="border-b border-gray-100 transition-colors cursor-default"
                                 >
                                     {row.map((cell, cellIdx) => (
                                         <td
                                             key={cellIdx}
-                                            className={`px-6 py-4 ${cellIdx === 0 ? 'font-semibold text-white' : 'text-gray-400'
+                                            className={`px-6 py-4 ${cellIdx === 0 ? 'font-semibold text-gray-900' : 'text-gray-600'
                                                 } ${cellIdx === row.length - 1 ? 'text-lg' : ''}`}
                                         >
                                             {cell}
@@ -91,16 +92,16 @@ export default function ComparisonTable({ section }: ComparisonTableProps) {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: rowIdx * 0.1 }}
-                            className="p-4 rounded-xl border border-[#00f3ff]/20 bg-[#0a0a1a]/50 backdrop-blur-sm"
+                            className="p-5 rounded-xl border border-purple-100 bg-white shadow-sm hover:border-purple-300 transition-colors"
                         >
-                            <h3 className="text-lg font-bold text-white mb-3">{row[0]}</h3>
-                            <div className="space-y-2 text-sm">
+                            <h3 className="text-lg font-bold text-gray-900 mb-3 break-words">{row[0]}</h3>
+                            <div className="space-y-3 text-sm">
                                 {row.slice(1).map((cell, cellIdx) => (
-                                    <div key={cellIdx} className="flex justify-between">
-                                        <span className="text-gray-500">
+                                    <div key={cellIdx} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                                        <span className="text-purple-600 font-medium whitespace-nowrap">
                                             {section.table_headers[cellIdx + 1]}:
                                         </span>
-                                        <span className="text-gray-300">{cell}</span>
+                                        <span className="text-gray-700 font-medium text-right break-words">{cell}</span>
                                     </div>
                                 ))}
                             </div>
@@ -113,7 +114,7 @@ export default function ComparisonTable({ section }: ComparisonTableProps) {
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
-                    className="mt-12 text-gray-300 leading-relaxed space-y-6"
+                    className="mt-12 text-gray-700 leading-relaxed space-y-6 break-words"
                 >
                     {section.body.split('###').filter(Boolean).map((subsection, idx) => {
                         const lines = subsection.trim().split('\n');
@@ -123,15 +124,15 @@ export default function ComparisonTable({ section }: ComparisonTableProps) {
                         return (
                             <div key={idx} className="space-y-3">
                                 {title && (
-                                    <h3 className="text-xl font-bold text-[#00f3ff]">
+                                    <h3 className="text-xl font-bold text-purple-700 break-words hyphens-auto">
                                         {title.replace(/^\d+\.\s*/, '')}
                                     </h3>
                                 )}
                                 <div
-                                    className="text-gray-300"
+                                    className="text-gray-700"
                                     dangerouslySetInnerHTML={{
                                         __html: content
-                                            .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white">$1</strong>')
+                                            .replace(/\*\*(.+?)\*\*/g, '<strong class="text-purple-700 font-bold">$1</strong>')
                                             .replace(/\n/g, '<br />')
                                     }}
                                 />
