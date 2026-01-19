@@ -1,4 +1,5 @@
 import { getArticleById, getAdjacentArticles } from "@/data/vibeCodingContent";
+import { getCurrentUser } from "@/lib/server-auth";
 import { notFound } from "next/navigation";
 import VibeArticleViewer from "@/components/vibe-coding/VibeArticleViewer";
 import VibeCodingArticleRenderer from "@/components/vibe-coding/VibeCodingArticleRenderer";
@@ -87,6 +88,7 @@ export default async function ArticlePage({ params }: Props) {
     const { slug } = await params
     const article = getArticleById(slug);
     const jsonData = await getJsonData(slug);
+    const user = await getCurrentUser();
 
     if (!article && !jsonData) {
         notFound();
@@ -178,7 +180,7 @@ export default async function ArticlePage({ params }: Props) {
                     article={article}
                     prevArticle={adjacent.prev}
                     nextArticle={adjacent.next}
-                    isLocked={!article.isFree}
+                    isLocked={!article.isFree && user?.email !== 'andrewaltair@icloud.com'}
                 />
             </div>
         );

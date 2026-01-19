@@ -4,12 +4,14 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { TbMenu2, TbX, TbBook, TbLock, TbSearch } from 'react-icons/tb';
+import { useAuth } from '@/lib/auth';
 import { VIBE_CODING_DATA } from '@/data/vibeCodingContent';
 
 export default function VibeReaderSidebar() {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
     const pathname = usePathname();
+    const { user } = useAuth();
 
     // Flatten all articles from categories
     const allArticles = useMemo(() => {
@@ -90,7 +92,7 @@ export default function VibeReaderSidebar() {
                     <ul className="space-y-1">
                         {filteredArticles.map((article) => {
                             const isActive = currentSlug === article.id;
-                            const isLocked = !article.isFree;
+                            const isLocked = !article.isFree && user?.email !== 'andrewaltair@icloud.com';
 
                             return (
                                 <li key={article.id}>

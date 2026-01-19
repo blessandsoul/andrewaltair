@@ -40,6 +40,7 @@ export const metadata: Metadata = {
       { rel: 'icon', url: '/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
   },
+  manifest: '/manifest.json',
   title: {
     default: "Andrew Altair | AI ექსპერტი საქართველოში",
     template: "%s | Andrew Altair"

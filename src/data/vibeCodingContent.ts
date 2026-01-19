@@ -6,6 +6,7 @@ export interface Article {
     title: string;
     content: string;
     isFree: boolean;
+    tags?: string[];
 }
 
 export interface Category {
