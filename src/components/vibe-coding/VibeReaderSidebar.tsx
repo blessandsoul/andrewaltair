@@ -29,40 +29,39 @@ export default function VibeReaderSidebar() {
 
     return (
         <>
-            {/* Mobile Menu Button - z-index ABOVE header (which is z-60) */}
+            {/* Mobile Menu Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="lg:hidden fixed z-[70] p-3 bg-white rounded-xl shadow-lg border border-gray-200"
-                style={{ top: '130px', left: '16px' }}
+                style={{ top: '8px', left: '8px' }}
                 aria-label="Toggle menu"
             >
-                {isOpen ? <TbX size={24} className="text-gray-900" /> : <TbMenu2 size={24} className="text-gray-900" />}
+                {isOpen ? <TbX size={22} className="text-gray-900" /> : <TbMenu2 size={22} className="text-gray-900" />}
             </button>
 
             {/* Mobile Overlay */}
             {isOpen && (
                 <div
-                    className="lg:hidden fixed inset-0 bg-black/50 z-[65]"
+                    className="lg:hidden fixed inset-0 bg-black/50 z-[68]"
                     onClick={() => setIsOpen(false)}
                 />
             )}
 
-            {/* Sidebar - z-index ABOVE header */}
+            {/* Sidebar */}
             <aside
                 className={`
-                    fixed left-0 z-[70] w-80 h-[calc(100vh-130px)]
-                    bg-white border-r border-gray-200
+                    fixed inset-y-0 left-0 z-[69] w-[85vw] max-w-80
+                    bg-white border-r border-gray-200 flex flex-col
                     transform transition-transform duration-300 ease-in-out
-                    lg:translate-x-0 lg:static lg:h-auto lg:min-h-screen lg:z-auto
+                    lg:translate-x-0 lg:static lg:w-80 lg:max-w-none lg:z-auto
                     ${isOpen ? 'translate-x-0' : '-translate-x-full'}
                 `}
-                style={{ top: '130px' }}
             >
                 {/* Header */}
-                <div className="p-6 border-b border-gray-100">
+                <div className="p-5 border-b border-gray-100 flex-shrink-0">
                     <div className="flex items-center gap-3 mb-4">
                         <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl">
-                            <TbBook size={24} className="text-white" />
+                            <TbBook size={22} className="text-white" />
                         </div>
                         <div>
                             <h2 className="text-lg font-bold text-gray-900">Vibe Coding</h2>
@@ -83,8 +82,8 @@ export default function VibeReaderSidebar() {
                     </div>
                 </div>
 
-                {/* Navigation */}
-                <nav className="p-4 overflow-y-auto flex-1">
+                {/* Navigation - scrollable */}
+                <nav className="flex-1 overflow-y-auto p-4">
                     <p className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
                         სტატიები
                     </p>

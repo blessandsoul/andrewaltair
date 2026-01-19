@@ -111,7 +111,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
 
             {/* Floating Elements */}
             <SocialProofToast enabled={true} />
-            <LiveVisitorCounter variant="floating" className="!bottom-auto !top-32 !right-4" />
+            <LiveVisitorCounter variant="floating" className="hidden md:flex !bottom-auto !top-32 !right-4" />
             <AIChatAssistant />
             <Suspense fallback={null}>
                 <HeatmapOverlay />
