@@ -17,7 +17,7 @@ export default function MythsFacts({ section }: MythsFactsProps) {
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className="text-3xl md:text-4xl font-bold mb-12 text-white"
+                    className="text-3xl md:text-4xl font-bold mb-12 text-gray-900"
                 >
                     {section.heading}
                 </motion.h2>
@@ -34,31 +34,31 @@ export default function MythsFacts({ section }: MythsFactsProps) {
                             className="grid md:grid-cols-2 gap-4"
                         >
                             {/* Myth */}
-                            <div className="p-5 rounded-xl bg-red-950/20 border border-red-500/30 group hover:border-red-500/50 transition-colors">
+                            <div className="p-5 rounded-xl bg-red-50 border border-red-200 group hover:border-red-400 transition-colors">
                                 <div className="flex items-start gap-3">
-                                    <div className="p-2 rounded-lg bg-red-500/20 text-red-400 flex-shrink-0">
+                                    <div className="p-2 rounded-lg bg-red-100 text-red-500 flex-shrink-0">
                                         <TbX className="w-5 h-5" strokeWidth={3} />
                                     </div>
                                     <div>
-                                        <span className="text-xs uppercase tracking-wider text-red-400 font-bold mb-2 block">
+                                        <span className="text-xs uppercase tracking-wider text-red-600 font-bold mb-2 block">
                                             მითი
                                         </span>
-                                        <p className="text-gray-300">{pair.myth}</p>
+                                        <p className="text-gray-700">{pair.myth}</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Fact */}
-                            <div className="p-5 rounded-xl bg-[#00ff41]/5 border border-[#00ff41]/30 group hover:border-[#00ff41]/50 transition-colors">
+                            <div className="p-5 rounded-xl bg-green-50 border border-green-200 group hover:border-green-400 transition-colors">
                                 <div className="flex items-start gap-3">
-                                    <div className="p-2 rounded-lg bg-[#00ff41]/20 text-[#00ff41] flex-shrink-0">
+                                    <div className="p-2 rounded-lg bg-green-100 text-green-600 flex-shrink-0">
                                         <TbCheck className="w-5 h-5" strokeWidth={3} />
                                     </div>
                                     <div>
-                                        <span className="text-xs uppercase tracking-wider text-[#00ff41] font-bold mb-2 block">
+                                        <span className="text-xs uppercase tracking-wider text-green-600 font-bold mb-2 block">
                                             რეალობა
                                         </span>
-                                        <p className="text-gray-300">{pair.fact}</p>
+                                        <p className="text-gray-700">{pair.fact}</p>
                                     </div>
                                 </div>
                             </div>
@@ -72,14 +72,14 @@ export default function MythsFacts({ section }: MythsFactsProps) {
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
-                        className="mt-12 text-gray-300 leading-relaxed space-y-4"
+                        className="mt-12 text-gray-700 leading-relaxed space-y-4"
                     >
                         {section.body.split('\n\n').map((paragraph, idx) => (
                             <p
                                 key={idx}
                                 dangerouslySetInnerHTML={{
                                     __html: paragraph
-                                        .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white">$1</strong>')
+                                        .replace(/\*\*(.+?)\*\*/g, '<strong class="text-gray-900">$1</strong>')
                                 }}
                             />
                         ))}

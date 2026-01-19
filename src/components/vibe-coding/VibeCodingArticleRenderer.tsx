@@ -48,31 +48,30 @@ export default function VibeCodingArticleRenderer({ data }: VibeCodingArticleRen
         }
     };
 
-    // Difficulty color
     const getDifficultyColor = (difficulty: string) => {
         switch (difficulty.toLowerCase()) {
             case 'beginner':
-                return 'text-green-400 bg-green-400/10 border-green-400/30';
+                return 'text-green-700 bg-green-50 border-green-200';
             case 'intermediate':
-                return 'text-orange-400 bg-orange-400/10 border-orange-400/30';
+                return 'text-orange-700 bg-orange-50 border-orange-200';
             case 'advanced':
-                return 'text-red-400 bg-red-400/10 border-red-400/30';
+                return 'text-red-700 bg-red-50 border-red-200';
             default:
-                return 'text-gray-400 bg-gray-400/10 border-gray-400/30';
+                return 'text-gray-600 bg-gray-50 border-gray-200';
         }
     };
 
     return (
-        <article className="min-h-screen bg-[#050510] text-white">
+        <article className="min-h-screen bg-white text-gray-900">
             {/* Metadata Bar */}
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="sticky top-0 z-40 backdrop-blur-md bg-[#050510]/80 border-b border-white/5"
+                className="sticky top-0 z-40 backdrop-blur-md bg-white/80 border-b border-gray-200"
             >
                 <div className="max-w-5xl mx-auto px-6 py-3 flex flex-wrap items-center justify-between gap-4">
                     {/* Reading Time */}
-                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
                         <TbClock className="w-4 h-4" />
                         <span>{meta.reading_time_minutes} წუთი</span>
                     </div>
@@ -84,7 +83,7 @@ export default function VibeCodingArticleRenderer({ data }: VibeCodingArticleRen
                     </div>
 
                     {/* Last Updated */}
-                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
                         <TbCalendar className="w-4 h-4" />
                         <span>განახლებულია: {meta.last_updated}</span>
                     </div>

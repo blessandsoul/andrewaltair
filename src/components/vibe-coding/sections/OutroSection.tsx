@@ -21,7 +21,7 @@ export default function OutroSection({ section }: OutroSectionProps) {
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className="text-3xl md:text-4xl font-bold mb-8 text-white"
+                    className="text-3xl md:text-4xl font-bold mb-8 text-gray-900"
                 >
                     {section.heading}
                 </motion.h2>
@@ -31,15 +31,15 @@ export default function OutroSection({ section }: OutroSectionProps) {
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
-                    className="text-gray-300 leading-relaxed space-y-4 mb-12"
+                    className="text-gray-700 leading-relaxed space-y-4 mb-12"
                 >
                     {section.body.split('\n\n').map((paragraph, idx) => (
                         <p
                             key={idx}
                             dangerouslySetInnerHTML={{
                                 __html: paragraph
-                                    .replace(/\*\*(.+?)\*\*/g, '<strong class="text-[#00f3ff]">$1</strong>')
-                                    .replace(/\\\"(.+?)\\\"/g, '<em class="text-[#ff00ff]">"$1"</em>')
+                                    .replace(/\*\*(.+?)\*\*/g, '<strong class="text-purple-600">$1</strong>')
+                                    .replace(/\\\"(.+?)\\\"/g, '<em class="text-pink-600">"$1"</em>')
                             }}
                         />
                     ))}

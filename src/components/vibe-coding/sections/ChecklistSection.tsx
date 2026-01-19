@@ -30,7 +30,7 @@ export default function ChecklistSection({ section }: ChecklistSectionProps) {
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className="text-3xl md:text-4xl font-bold mb-10 text-white"
+                    className="text-3xl md:text-4xl font-bold mb-10 text-gray-900"
                 >
                     {section.heading}
                 </motion.h2>
@@ -46,15 +46,15 @@ export default function ChecklistSection({ section }: ChecklistSectionProps) {
                             transition={{ delay: index * 0.05 }}
                             onClick={() => toggleItem(index)}
                             className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 text-left group ${checkedItems.has(index)
-                                    ? 'border-[#00ff41] bg-[#00ff41]/10'
-                                    : 'border-white/10 bg-white/5 hover:border-[#00f3ff]/50 hover:bg-[#00f3ff]/5'
+                                ? 'border-green-500 bg-green-50'
+                                : 'border-gray-200 bg-white hover:border-purple-300 hover:bg-purple-50 shadow-sm'
                                 }`}
                         >
                             {/* Checkbox */}
                             <div
                                 className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${checkedItems.has(index)
-                                        ? 'border-[#00ff41] bg-[#00ff41]'
-                                        : 'border-gray-500 group-hover:border-[#00f3ff]'
+                                    ? 'border-green-500 bg-green-500'
+                                    : 'border-gray-300 group-hover:border-purple-400'
                                     }`}
                             >
                                 {checkedItems.has(index) && (
@@ -71,8 +71,8 @@ export default function ChecklistSection({ section }: ChecklistSectionProps) {
                             {/* Text */}
                             <span
                                 className={`flex-1 transition-colors ${checkedItems.has(index)
-                                        ? 'text-[#00ff41]'
-                                        : 'text-gray-300 group-hover:text-white'
+                                    ? 'text-green-700 font-medium'
+                                    : 'text-gray-700 group-hover:text-gray-900'
                                     }`}
                             >
                                 {item}
@@ -103,17 +103,17 @@ export default function ChecklistSection({ section }: ChecklistSectionProps) {
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
-                    className="text-gray-300 leading-relaxed space-y-4"
+                    className="text-gray-700 leading-relaxed space-y-4"
                 >
                     {section.body.split('\n\n').map((paragraph, idx) => {
                         // Handle step headers like **ნაბიჯი 1:**
                         if (paragraph.includes('**ნაბიჯი')) {
                             return (
-                                <div key={idx} className="p-4 rounded-lg bg-[#0a0a1a]/50 border border-white/5">
+                                <div key={idx} className="p-4 rounded-lg bg-gray-50 border border-gray-200 shadow-sm">
                                     <div
                                         dangerouslySetInnerHTML={{
                                             __html: paragraph
-                                                .replace(/\*\*(.+?)\*\*/g, '<strong class="text-[#00f3ff]">$1</strong>')
+                                                .replace(/\*\*(.+?)\*\*/g, '<strong class="text-purple-600">$1</strong>')
                                                 .replace(/\n/g, '<br />')
                                         }}
                                     />
@@ -125,7 +125,7 @@ export default function ChecklistSection({ section }: ChecklistSectionProps) {
                                 key={idx}
                                 dangerouslySetInnerHTML={{
                                     __html: paragraph
-                                        .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white">$1</strong>')
+                                        .replace(/\*\*(.+?)\*\*/g, '<strong class="text-gray-900">$1</strong>')
                                 }}
                             />
                         );

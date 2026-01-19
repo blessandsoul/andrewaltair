@@ -32,8 +32,8 @@ export default function WarningSection({ section }: WarningSectionProps) {
                         className="absolute inset-0 rounded-2xl border-2 border-red-500/50"
                     />
 
-                    {/* Dark Red Gradient Background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-red-950/40 via-[#0a0a1a] to-red-950/20" />
+                    {/* Dark Red Gradient Background -> Light Red */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-red-50 via-white to-red-50" />
 
                     {/* Content */}
                     <div className="relative z-10 p-8">
@@ -46,13 +46,13 @@ export default function WarningSection({ section }: WarningSectionProps) {
                             >
                                 <TbAlertTriangle className="w-8 h-8" />
                             </motion.div>
-                            <h2 className="text-3xl md:text-4xl font-bold text-red-400">
+                            <h2 className="text-3xl md:text-4xl font-bold text-red-600">
                                 {section.heading}
                             </h2>
                         </div>
 
                         {/* Intro Body */}
-                        <p className="text-gray-300 mb-8 leading-relaxed">
+                        <p className="text-gray-700 mb-8 leading-relaxed">
                             {section.body}
                         </p>
 
@@ -65,7 +65,7 @@ export default function WarningSection({ section }: WarningSectionProps) {
                                     whileInView={{ opacity: 1, x: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ delay: idx * 0.1 }}
-                                    className="p-5 rounded-xl bg-red-950/30 border border-red-500/20 hover:border-red-500/40 transition-colors"
+                                    className="p-5 rounded-xl bg-red-50 border border-red-200 hover:border-red-400 transition-colors"
                                 >
                                     <div className="flex items-start gap-4">
                                         <TbAlertTriangle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />

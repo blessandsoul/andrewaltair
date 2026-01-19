@@ -17,7 +17,7 @@ export default function StandardSection({ section, renderWithGlossary }: Standar
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className="text-3xl md:text-4xl font-bold mb-8 text-white"
+                    className="text-3xl md:text-4xl font-bold mb-8 text-gray-900"
                 >
                     {section.heading}
                 </motion.h2>
@@ -31,14 +31,14 @@ export default function StandardSection({ section, renderWithGlossary }: Standar
                         className="relative my-12 p-8 text-center"
                     >
                         {/* Glowing border effect */}
-                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#00f3ff]/20 via-[#a855f7]/20 to-[#ff00ff]/20 blur-sm" />
-                        <div className="absolute inset-0 rounded-xl border border-[#00f3ff]/50 bg-[#0a0a1a]/80 backdrop-blur-sm" />
+                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#00f3ff]/10 via-[#a855f7]/10 to-[#ff00ff]/10 blur-sm" />
+                        <div className="absolute inset-0 rounded-xl border border-[#00f3ff]/50 bg-white shadow-lg" />
 
                         <div className="relative z-10">
-                            <p className="text-2xl md:text-3xl font-bold text-white italic mb-4">
+                            <p className="text-2xl md:text-3xl font-bold text-gray-900 italic mb-4">
                                 &ldquo;{section.highlight_quote.text}&rdquo;
                             </p>
-                            <footer className="text-[#00f3ff]">
+                            <footer className="text-[#a855f7] font-semibold">
                                 — {section.highlight_quote.author}, {section.highlight_quote.year}
                             </footer>
                         </div>
@@ -50,7 +50,7 @@ export default function StandardSection({ section, renderWithGlossary }: Standar
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
-                    className="text-gray-300 leading-relaxed space-y-4"
+                    className="text-gray-700 leading-relaxed space-y-4"
                 >
                     {section.body.split('\n\n').map((paragraph, idx) => {
                         // Handle markdown-style lists
@@ -60,7 +60,7 @@ export default function StandardSection({ section, renderWithGlossary }: Standar
                                 <ul key={idx} className="list-none space-y-2 ml-4">
                                     {items.map((item, itemIdx) => (
                                         <li key={itemIdx} className="flex items-start gap-2">
-                                            <span className="text-[#00f3ff] mt-1">▸</span>
+                                            <span className="text-[#00f3ff] mt-1 font-bold">▸</span>
                                             <span>{renderWithGlossary(item.replace(/^[\d\.\-\*]\s*/, '').trim())}</span>
                                         </li>
                                     ))}
@@ -71,7 +71,7 @@ export default function StandardSection({ section, renderWithGlossary }: Standar
                         // Handle bold text **text**
                         const formattedText = paragraph.replace(
                             /\*\*(.+?)\*\*/g,
-                            '<strong class="text-[#00f3ff] font-semibold">$1</strong>'
+                            '<strong class="text-[#a855f7] font-semibold">$1</strong>'
                         );
 
                         return (
