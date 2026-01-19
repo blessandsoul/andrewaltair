@@ -164,7 +164,14 @@ export default async function Home() {
           item: {
             '@type': 'Product',
             name: prompt.title,
-            url: `${siteUrl}/prompts/${prompt.slug}`
+            url: `${siteUrl}/prompts/${prompt.slug}`,
+            offers: {
+              '@type': 'Offer',
+              url: `${siteUrl}/prompts/${prompt.slug}`,
+              priceCurrency: prompt.currency || 'USD',
+              price: prompt.isFree ? '0' : (prompt.price || '0'),
+              availability: 'https://schema.org/OnlineOnly'
+            }
           }
         }))
       ]
