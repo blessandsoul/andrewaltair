@@ -59,7 +59,7 @@ export default function VibeCodingArticleRenderer({ data }: VibeCodingArticleRen
     };
 
     return (
-        <article className="min-h-screen bg-white text-gray-900">
+        <article className="min-h-screen bg-white text-gray-900 overflow-x-hidden w-full max-w-[100vw]">
             {/* Compact Metadata Indicators - Full Width */}
             <div className="bg-gray-50 border-b border-gray-200 px-3 py-2 flex items-center justify-center gap-3 md:gap-6 flex-wrap text-xs md:text-sm">
                 <span className="flex items-center gap-1.5 text-gray-600">

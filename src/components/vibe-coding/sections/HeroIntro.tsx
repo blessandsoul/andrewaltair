@@ -28,7 +28,7 @@ export default function HeroIntro({ section }: HeroIntroProps) {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: 'easeOut' }}
-                    className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight text-gray-900"
+                    className="text-3xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight text-gray-900 break-words hyphens-auto"
                 >
                     <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 bg-clip-text text-transparent">
                         {section.heading.replace(/👋\s*/, '')}
@@ -40,7 +40,7 @@ export default function HeroIntro({ section }: HeroIntroProps) {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
-                    className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-4xl mx-auto"
+                    className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-4xl mx-auto break-words"
                 >
                     {section.body.split('\n\n').slice(0, 2).map((paragraph, idx) => (
                         <p key={idx} className="mb-6">

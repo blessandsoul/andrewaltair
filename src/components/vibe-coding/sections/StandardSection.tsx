@@ -17,7 +17,7 @@ export default function StandardSection({ section, renderWithGlossary }: Standar
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className="text-3xl md:text-4xl font-bold mb-8 text-gray-900"
+                    className="text-3xl md:text-4xl font-bold mb-8 text-gray-900 break-words hyphens-auto"
                 >
                     {section.heading}
                 </motion.h2>
@@ -50,7 +50,7 @@ export default function StandardSection({ section, renderWithGlossary }: Standar
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
-                    className="text-gray-700 leading-relaxed space-y-4"
+                    className="text-gray-700 leading-relaxed space-y-4 break-words"
                 >
                     {section.body.split('\n\n').map((paragraph, idx) => {
                         // Handle markdown-style lists
