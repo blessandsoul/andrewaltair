@@ -29,11 +29,11 @@ export default function VibeReaderSidebar() {
 
     return (
         <>
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Button - positioned BELOW the site header */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="lg:hidden fixed z-[70] p-3 bg-white rounded-xl shadow-lg border border-gray-200"
-                style={{ top: '8px', left: '8px' }}
+                style={{ top: '75px', left: '12px' }}
                 aria-label="Toggle menu"
             >
                 {isOpen ? <TbX size={22} className="text-gray-900" /> : <TbMenu2 size={22} className="text-gray-900" />}

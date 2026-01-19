@@ -19,10 +19,8 @@ interface VibeCodingArticleRendererProps {
 export default function VibeCodingArticleRenderer({ data }: VibeCodingArticleRendererProps) {
     const { meta, glossary, content } = data;
 
-    // Function to render text with glossary tooltips
     const renderWithGlossary = (text: string) => wrapGlossaryTerms(text, glossary);
 
-    // Render a section based on its type
     const renderSection = (section: ContentSection, index: number) => {
         switch (section.type) {
             case 'section_intro':
@@ -63,26 +61,19 @@ export default function VibeCodingArticleRenderer({ data }: VibeCodingArticleRen
     return (
         <article className="min-h-screen bg-white text-gray-900">
             {/* Compact Metadata Indicators - Full Width */}
-            <div className="w-full bg-gray-50 border-b border-gray-200">
-                <div className="px-4 py-2 flex items-center justify-center gap-3 md:gap-6 flex-wrap text-xs md:text-sm">
-                    {/* Reading Time */}
-                    <span className="flex items-center gap-1.5 text-gray-600">
-                        <TbClock className="w-3.5 h-3.5" />
-                        {meta.reading_time_minutes} წთ
-                    </span>
-
-                    {/* Difficulty Badge */}
-                    <span className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border ${getDifficultyColor(meta.difficulty)}`}>
-                        <TbChartBar className="w-3.5 h-3.5" />
-                        {meta.difficulty}
-                    </span>
-
-                    {/* Last Updated */}
-                    <span className="flex items-center gap-1.5 text-gray-600">
-                        <TbCalendar className="w-3.5 h-3.5" />
-                        {meta.last_updated}
-                    </span>
-                </div>
+            <div className="bg-gray-50 border-b border-gray-200 px-3 py-2 flex items-center justify-center gap-3 md:gap-6 flex-wrap text-xs md:text-sm">
+                <span className="flex items-center gap-1.5 text-gray-600">
+                    <TbClock className="w-3.5 h-3.5" />
+                    {meta.reading_time_minutes} წთ
+                </span>
+                <span className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border ${getDifficultyColor(meta.difficulty)}`}>
+                    <TbChartBar className="w-3.5 h-3.5" />
+                    {meta.difficulty}
+                </span>
+                <span className="flex items-center gap-1.5 text-gray-600">
+                    <TbCalendar className="w-3.5 h-3.5" />
+                    {meta.last_updated}
+                </span>
             </div>
 
             {/* Content Sections */}
