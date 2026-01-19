@@ -1,99 +1,70 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import {
-    TbBook,
-    TbSearch,
-    TbBrandTelegram,
-    TbLock,
-    TbLockOpen,
-    TbX,
-    TbList,
-    TbChevronRight,
-    TbChevronLeft,
-    TbTarget,
-    TbTrophy
-} from 'react-icons/tb';
-import { VIBE_CODING_DATA, Article } from '@/data/vibeCodingContent';
-import PurchaseModal from './PurchaseModal';
+import { usePathname } from 'next/navigation';
+import { TbMenu2, TbX, TbBook, TbLock, TbSearch } from 'react-icons/tb';
+import { VIBE_CODING_DATA } from '@/data/vibeCodingContent';
 
-interface VibeReaderSidebarProps {
-    isParamsPremium?: boolean;
-}
+export default function VibeReaderSidebar() {
+    const [isOpen, setIsOpen] = useState(false);
+    const [search, setSearch] = useState('');
+    const pathname = usePathname();
 
-export default function VibeReaderSidebar({ isParamsPremium }: VibeReaderSidebarProps) {
-    const router = useRouter();
-    const [searchQuery, setSearchQuery] = useState('');
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-    const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
+    // Flatten all articles from categories
+    const allArticles = useMemo(() => {
+        return VIBE_CODING_DATA.categories.flatMap(cat => cat.articles);
+    }, []);
 
-    // Filter articles based on search - only filter by title
-    const filteredCategories = VIBE_CODING_DATA.categories
-        .map((category) => {
-            return {
-                ...category,
-                articles: category.articles.filter((article) => {
-                    return article.title.toLowerCase().includes(searchQuery.toLowerCase());
-                })
-            };
-        })
-        .filter((category) => category.articles.length > 0);
+    // Filter articles by search
+    const filteredArticles = useMemo(() => {
+        if (!search.trim()) return allArticles;
+        return allArticles.filter(article =>
+            article.title.toLowerCase().includes(search.toLowerCase())
+        );
+    }, [allArticles, search]);
+
+    // Get current article slug
+    const currentSlug = pathname.split('/').pop();
 
     return (
         <>
-            {/* Mobile Toggle Button */}
+            {/* Mobile Menu Button */}
             <button
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="fixed top-32 left-4 z-40 lg:hidden p-3 rounded-xl bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg text-gray-900"
+                onClick={() => setIsOpen(!isOpen)}
+                className="lg:hidden fixed top-20 left-4 z-50 p-3 bg-white rounded-xl shadow-lg border border-gray-200"
+                aria-label="Toggle menu"
             >
-                {isSidebarOpen ? <TbX size={24} /> : <TbList size={24} />}
+                {isOpen ? <TbX size={24} className="text-gray-900" /> : <TbMenu2 size={24} className="text-gray-900" />}
             </button>
 
-            {/* Desktop Collapse/Expand Button */}
-            <button
-                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                className="hidden lg:block fixed left-4 top-32 z-40 p-2 rounded-lg bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md hover:bg-gray-50 transition-all text-gray-900"
-                style={{
-                    left: isSidebarCollapsed ? '4px' : '304px',
-                    transition: 'left 0.3s ease-in-out'
-                }}
-            >
-                {isSidebarCollapsed ? (
-                    <TbChevronRight size={20} />
-                ) : (
-                    <TbChevronLeft size={20} />
-                )}
-            </button>
-
+            {/* Mobile Overlay */}
+            {isOpen && (
+                <div
+                    className="lg:hidden fixed inset-0 bg-black/50 z-40"
+                    onClick={() => setIsOpen(false)}
+                />
+            )}
 
             {/* Sidebar */}
             <aside
                 className={`
-                    fixed lg:fixed top-28 left-0 z-30 h-[calc(100vh-7rem)]
-                    border-r flex flex-col bg-white text-gray-900
-                    transform transition-all duration-300 ease-in-out
-                    ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-                    ${isSidebarCollapsed ? 'lg:w-0 lg:-translate-x-full' : 'lg:w-80 lg:translate-x-0'}
-                    w-80
+                    fixed top-0 left-0 z-40 h-screen w-80
+                    bg-white border-r border-gray-200
+                    transform transition-transform duration-300 ease-in-out
+                    lg:translate-x-0 lg:static lg:h-auto lg:min-h-screen
+                    ${isOpen ? 'translate-x-0' : '-translate-x-full'}
                 `}
-                style={{ borderColor: 'rgba(0,0,0,0.1)' }}
             >
-                {/* Brand */}
-                <div className="p-6" style={{ borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
+                {/* Header */}
+                <div className="p-6 border-b border-gray-100">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                        <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl">
                             <TbBook size={24} className="text-white" />
                         </div>
                         <div>
-                            <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
-                                Vibe Coding
-                            </h1>
-                            <p className="text-xs text-muted-foreground">
-                                ბიბლიოთეკა
-                            </p>
+                            <h2 className="text-lg font-bold text-gray-900">Vibe Coding</h2>
+                            <p className="text-xs text-gray-500">ბიბლიოთეკა</p>
                         </div>
                     </div>
 
@@ -103,83 +74,54 @@ export default function VibeReaderSidebar({ isParamsPremium }: VibeReaderSidebar
                         <input
                             type="text"
                             placeholder="ძიება..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    if (searchQuery.startsWith('#')) {
-                                        const id = searchQuery.substring(1);
-                                        router.push(`/encyclopedia/vibe-coding/${id}`);
-                                    }
-                                }
-                            }}
-                            className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-500"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500"
                         />
                     </div>
                 </div>
 
                 {/* Navigation */}
-                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                    {filteredCategories.map((category) => (
-                        <div key={category.id} className="mb-6">
-                            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
-                                <span className="text-purple-500">
-                                    {category.id === 'intro' && <TbTarget className="w-4 h-4" />}
-                                    {category.id === 'basic-guide' && <TbBook className="w-4 h-4" />}
-                                    {category.id === 'tools-ranking' && <TbTrophy className="w-4 h-4" />}
-                                </span>
-                                {category.title}
-                            </h2>
+                <nav className="p-4 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 180px)' }}>
+                    <p className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                        სტატიები
+                    </p>
+                    <ul className="space-y-1">
+                        {filteredArticles.map((article) => {
+                            const isActive = currentSlug === article.id;
+                            const isLocked = !article.isFree;
 
-                            <div className="space-y-1">
-                                {category.articles.map((article) => (
+                            return (
+                                <li key={article.id}>
                                     <Link
-                                        key={article.id}
                                         href={`/encyclopedia/vibe-coding/${article.id}`}
+                                        onClick={() => setIsOpen(false)}
                                         className={`
-                                            w-full text-left px-3 py-2.5 rounded-lg text-sm
-                                            flex items-center justify-between gap-2
+                                            flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg text-sm
                                             transition-all duration-200
-                                            hover:bg-gray-100 text-gray-700 hover:text-gray-900
+                                            ${isActive
+                                                ? 'bg-purple-100 text-purple-700 font-medium'
+                                                : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                                            }
                                         `}
                                     >
                                         <span className="truncate">{article.title}</span>
-                                        {article.isFree ? (
-                                            <TbLockOpen size={16} className="text-green-500 shrink-0" />
-                                        ) : (
-                                            <TbLock size={16} className="text-orange-500 shrink-0" />
+                                        {isLocked && (
+                                            <TbLock size={14} className="text-gray-400 flex-shrink-0" />
                                         )}
                                     </Link>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                                </li>
+                            );
+                        })}
+                    </ul>
 
-                {/* Footer Stats */}
-                <div className="p-4 space-y-3" style={{ borderTop: '1px solid rgba(0,0,0,0.1)' }}>
-                    <button
-                        onClick={() => setIsPurchaseModalOpen(true)}
-                        className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-medium hover:from-blue-600 hover:to-blue-700 transition-all"
-                    >
-                        <TbBrandTelegram size={18} />
-                        შეიძინე პრემიუმი
-                    </button>
-                </div>
+                    {filteredArticles.length === 0 && (
+                        <p className="px-3 py-4 text-sm text-gray-500 text-center">
+                            სტატია ვერ მოიძებნა
+                        </p>
+                    )}
+                </nav>
             </aside>
-
-            {/* Overlay for mobile */}
-            {isSidebarOpen && (
-                <div
-                    className="fixed inset-0 bg-black/50 z-20 lg:hidden"
-                    onClick={() => setIsSidebarOpen(false)}
-                />
-            )}
-
-            <PurchaseModal
-                isOpen={isPurchaseModalOpen}
-                onClose={() => setIsPurchaseModalOpen(false)}
-            />
         </>
     );
 }

@@ -1,18 +1,17 @@
-import VibeReaderSidebar from "@/components/vibe-coding/VibeReaderSidebar";
+import VibeReaderSidebar from '@/components/vibe-coding/VibeReaderSidebar';
 
-export default function ReaderLayout({
+export default function VibeCodingReaderLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
     return (
-        <div className="min-h-screen bg-white text-gray-900 flex flex-col lg:flex-row">
-            {/* Sidebar - Persistent Navigation */}
+        <div className="min-h-screen bg-white flex">
+            {/* Sidebar */}
             <VibeReaderSidebar />
 
-            {/* Main Content Area */}
-            {/* lg:ml-80 creates space for the fixed sidebar on desktop */}
-            <main className="flex-1 lg:ml-80 min-h-screen w-full transition-all duration-300">
+            {/* Main Content */}
+            <main className="flex-1 lg:ml-0">
                 {children}
             </main>
         </div>
