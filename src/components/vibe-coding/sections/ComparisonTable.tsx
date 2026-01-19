@@ -97,11 +97,13 @@ export default function ComparisonTable({ section }: ComparisonTableProps) {
                             <h3 className="text-lg font-bold text-gray-900 mb-3 break-words">{row[0]}</h3>
                             <div className="space-y-3 text-sm">
                                 {row.slice(1).map((cell, cellIdx) => (
-                                    <div key={cellIdx} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
-                                        <span className="text-purple-600 font-medium whitespace-nowrap">
+                                    <div key={cellIdx} className="flex flex-row justify-between items-start gap-4 border-b border-dashed border-gray-100 last:border-0 pb-2 last:pb-0">
+                                        <span className="text-purple-600 font-medium whitespace-nowrap text-sm mt-0.5">
                                             {section.table_headers[cellIdx + 1]}:
                                         </span>
-                                        <span className="text-gray-700 font-medium text-right break-words">{cell}</span>
+                                        <span className="text-gray-700 font-medium text-right break-words text-sm flex-1">
+                                            {cell}
+                                        </span>
                                     </div>
                                 ))}
                             </div>

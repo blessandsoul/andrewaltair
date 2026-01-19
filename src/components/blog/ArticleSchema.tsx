@@ -118,3 +118,28 @@ export function WebsiteSchema() {
         />
     )
 }
+
+// FAQ Schema for Rich Results
+export function FAQSchema({ items }: { items: { question: string; answer: string }[] }) {
+    if (!items || items.length === 0) return null;
+
+    const schema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": items.map(item => ({
+            "@type": "Question",
+            "name": item.question,
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": item.answer
+            }
+        }))
+    }
+
+    return (
+        <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema, null, 2) }}
+        />
+    )
+}

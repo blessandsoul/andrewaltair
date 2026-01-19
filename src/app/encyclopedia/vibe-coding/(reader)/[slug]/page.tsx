@@ -2,7 +2,7 @@ import { getArticleById, getAdjacentArticles } from "@/data/vibeCodingContent";
 import { notFound } from "next/navigation";
 import VibeArticleViewer from "@/components/vibe-coding/VibeArticleViewer";
 import VibeCodingArticleRenderer from "@/components/vibe-coding/VibeCodingArticleRenderer";
-import ArticleSchema, { BreadcrumbSchema } from "@/components/blog/ArticleSchema";
+import ArticleSchema, { BreadcrumbSchema, FAQSchema } from "@/components/blog/ArticleSchema";
 import { Metadata } from "next";
 import fs from 'fs';
 import path from 'path';
@@ -47,12 +47,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         ? jsonData.meta.description
         : article?.content.substring(0, 160).replace(/[#*]/g, "") + "...";
 
+    const tags = jsonData?.meta.tags || article?.tags || [];
+    const keywords = tags.join(", ");
+
     const url = `${siteUrl}/encyclopedia/vibe-coding/${slug}`;
     const imageUrl = `${siteUrl}/encyclopedia/vibe-coding/${slug}/opengraph-image`;
 
     return {
         title,
         description,
+        keywords,
         openGraph: {
             title,
             description,
@@ -68,6 +72,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
                     alt: title,
                 },
             ],
+            tags: tags,
         },
         twitter: {
             card: "summary_large_image",
@@ -106,6 +111,7 @@ export default async function ArticlePage({ params }: Props) {
                     articleBody={jsonData.meta.description} // Full body is complex in JSON, using description/summary
                     headline={jsonData.meta.title}
                     image={`https://andrewaltair.ge/encyclopedia/vibe-coding/${slug}/opengraph-image`}
+                    tags={jsonData.meta.tags}
                 />
 
                 <BreadcrumbSchema
@@ -115,6 +121,9 @@ export default async function ArticlePage({ params }: Props) {
                         { name: jsonData.meta.title, url: `https://andrewaltair.ge/encyclopedia/vibe-coding/${slug}` }
                     ]}
                 />
+
+                {/* FAQ Schema Injection if available */}
+                {jsonData.faq_schema && <FAQSchema items={jsonData.faq_schema} />}
 
                 {/* 
                     Wrapper div to match layout if needed, 
