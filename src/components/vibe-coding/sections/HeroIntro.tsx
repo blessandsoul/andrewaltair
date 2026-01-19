@@ -11,8 +11,8 @@ export default function HeroIntro({ section }: HeroIntroProps) {
     return (
         <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden py-20 bg-white">
             {/* Background Effects */}
-            <div className="absolute inset-0 bg-gradient-to-b from-purple-50 via-white to-purple-50" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-500/5 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-b from-white via-white to-purple-50/30" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-500/5 via-transparent to-transparent opacity-50" />
 
             {/* Grain overlay */}
             <div className="absolute inset-0 opacity-40 mix-blend-multiply"
