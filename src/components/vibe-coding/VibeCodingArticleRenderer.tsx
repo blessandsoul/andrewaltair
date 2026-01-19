@@ -67,7 +67,7 @@ export default function VibeCodingArticleRenderer({ data }: VibeCodingArticleRen
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="sticky top-0 z-40 backdrop-blur-md bg-white/80 border-b border-gray-200"
+                className="bg-white border-b border-gray-200"
             >
                 <div className="max-w-5xl mx-auto px-6 py-3 flex flex-wrap items-center justify-between gap-4">
                     {/* Reading Time */}
