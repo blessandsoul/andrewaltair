@@ -32,7 +32,7 @@ export const AI_2026_DATA: AI2026Data = {
             icon: "🚀",
             articles: [
                 {
-                    id: "ai-future-2026-guide",
+                    id: "ai-momavali-2026",
                     title: "AI 2026: კაცობრიობის დიდი ფილტრი",
                     isFree: true,
                     content: "This content is loaded dynamically from JSON.",

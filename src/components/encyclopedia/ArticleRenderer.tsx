@@ -9,6 +9,8 @@ import ChecklistSection from '@/components/vibe-coding/sections/ChecklistSection
 import WarningSection from '@/components/vibe-coding/sections/WarningSection';
 import MythsFacts from '@/components/vibe-coding/sections/MythsFacts';
 import OutroSection from '@/components/vibe-coding/sections/OutroSection';
+import QuizSection from '@/components/vibe-coding/sections/QuizSection';
+import ResourcesSection from '@/components/vibe-coding/sections/ResourcesSection';
 import { wrapGlossaryTerms } from '@/components/vibe-coding/GlossaryTooltip';
 import { TbClock, TbChartBar, TbCalendar } from 'react-icons/tb';
 
@@ -19,7 +21,7 @@ interface ArticleRendererProps {
 export default function ArticleRenderer({ data }: ArticleRendererProps) {
     const { meta, glossary, content } = data;
 
-    const renderWithGlossary = (text: string) => wrapGlossaryTerms(text, glossary);
+    const renderWithGlossary = (text: string) => wrapGlossaryTerms(text, glossary || {});
 
     const renderSection = (section: ContentSection, index: number) => {
         switch (section.type) {
