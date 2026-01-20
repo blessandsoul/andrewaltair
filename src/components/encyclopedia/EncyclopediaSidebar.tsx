@@ -1,137 +1,86 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import {
-    TbBook,
-    TbSearch,
-    TbBrandTelegram,
-    TbLock,
-    TbLockOpen,
-    TbX,
-    TbList,
-    TbChevronRight,
-    TbChevronLeft,
-    TbTarget,
-    TbTrophy,
-    TbSparkles,
-    TbRocket,
-    TbBulb,
-    TbTools,
-    TbBriefcase,
-    TbScale
-} from 'react-icons/tb';
-import PurchaseModal from '@/components/vibe-coding/PurchaseModal';
-
-interface Article {
-    id: string;
-    title: string;
-    isFree: boolean;
-}
-
-interface Category {
-    id: string;
-    title: string;
-    icon: string;
-    articles: Article[];
-}
+import { usePathname } from 'next/navigation';
+import { TbMenu2, TbX, TbBook, TbLock, TbSearch } from 'react-icons/tb';
+import { useAuth } from '@/lib/auth';
+import { AI_BASICS_DATA } from '@/data/aiBasicsContent';
 
 interface EncyclopediaSidebarProps {
-    sectionTitle: string;
-    sectionSlug: string;
-    categories: Category[];
+    sectionTitle?: string;
+    sectionSlug?: string;
+    categories?: any;
     gradientFrom?: string;
     gradientTo?: string;
 }
 
-const categoryIcons: Record<string, React.ReactNode> = {
-    'intro': <TbTarget className="w-4 h-4" />,
-    'basics': <TbTarget className="w-4 h-4" />,
-    'techniques': <TbSparkles className="w-4 h-4" />,
-    'advanced': <TbRocket className="w-4 h-4" />,
-    'products': <TbBulb className="w-4 h-4" />,
-    'workflows': <TbTools className="w-4 h-4" />,
-    'overview': <TbBook className="w-4 h-4" />,
-    'image': <TbSparkles className="w-4 h-4" />,
-    'video': <TbBulb className="w-4 h-4" />,
-    'audio': <TbRocket className="w-4 h-4" />,
-    'future': <TbRocket className="w-4 h-4" />,
-    'skills': <TbTrophy className="w-4 h-4" />,
-    'professions': <TbBriefcase className="w-4 h-4" />,
-    'legal': <TbScale className="w-4 h-4" />,
-    'safety': <TbLock className="w-4 h-4" />,
-};
-
 export default function EncyclopediaSidebar({
-    sectionTitle,
-    sectionSlug,
-    categories,
-    gradientFrom = 'purple-500',
-    gradientTo = 'pink-500'
+    sectionTitle = "AI საფუძვლები",
+    sectionSlug = "ai-basics",
+    gradientFrom = "blue-600",
+    gradientTo = "purple-600"
 }: EncyclopediaSidebarProps) {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-    const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
-    const router = useRouter();
+    const [isOpen, setIsOpen] = useState(false);
+    const [search, setSearch] = useState('');
+    const pathname = usePathname();
+    const { user } = useAuth();
 
-    const filteredCategories = categories
-        .map((category) => ({
-            ...category,
-            articles: category.articles.filter((article) =>
-                article.title.toLowerCase().includes(searchQuery.toLowerCase())
-            )
-        }))
-        .filter((category) => category.articles.length > 0);
+    // Flatten all articles from categories
+    const allArticles = useMemo(() => {
+        return AI_BASICS_DATA.categories.flatMap(cat => cat.articles);
+    }, []);
+
+    // Filter articles by search
+    const filteredArticles = useMemo(() => {
+        if (!search.trim()) return allArticles;
+        return allArticles.filter(article =>
+            article.title.toLowerCase().includes(search.toLowerCase())
+        );
+    }, [allArticles, search]);
+
+    // Get current article slug
+    const currentSlug = pathname.split('/').pop();
 
     return (
         <>
-            {/* Mobile Toggle Button */}
+            {/* Mobile Menu Button - Floating Action Button (Bottom Right Stacked) */}
             <button
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="fixed top-20 left-4 z-50 lg:hidden p-3 rounded-xl bg-white/90 backdrop-blur-sm border border-gray-200 shadow-lg"
+                onClick={() => setIsOpen(!isOpen)}
+                className="lg:hidden fixed z-[90] p-3.5 bg-white rounded-full shadow-xl border border-blue-200 text-blue-600 hover:bg-blue-50 transition-all active:scale-95"
+                style={{ bottom: '96px', right: '16px' }}
+                aria-label="Toggle menu"
             >
-                {isSidebarOpen ? <TbX size={24} /> : <TbList size={24} />}
+                {isOpen ? <TbX size={22} className="text-gray-900" /> : <TbMenu2 size={22} className="text-gray-900" />}
             </button>
 
-            {/* Desktop Collapse/Expand Button */}
-            <button
-                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                className="hidden lg:block fixed left-4 top-20 z-50 p-2 rounded-lg bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md hover:bg-gray-50 transition-all"
-                style={{
-                    left: isSidebarCollapsed ? '4px' : '304px',
-                    transition: 'left 0.3s ease-in-out'
-                }}
-            >
-                {isSidebarCollapsed ? <TbChevronRight size={20} /> : <TbChevronLeft size={20} />}
-            </button>
+            {/* Mobile Overlay */}
+            {isOpen && (
+                <div
+                    className="lg:hidden fixed inset-0 bg-black/50 z-[68]"
+                    onClick={() => setIsOpen(false)}
+                />
+            )}
 
             {/* Sidebar */}
             <aside
                 className={`
-                    fixed lg:fixed top-16 left-0 z-40 h-[calc(100vh-4rem)]
-                    border-r flex flex-col bg-background/95 backdrop-blur-sm
-                    transform transition-all duration-300 ease-in-out
-                    ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-                    ${isSidebarCollapsed ? 'lg:w-0 lg:-translate-x-full' : 'lg:w-80 lg:translate-x-0'}
-                    w-80
+                    fixed inset-y-0 left-0 z-[69] w-[85vw] max-w-80
+                    bg-white border-r border-gray-200 flex flex-col
+                    transform transition-transform duration-300 ease-in-out
+                    lg:translate-x-0 lg:static lg:w-80 lg:max-w-none lg:z-auto
+                    ${isOpen ? 'translate-x-0' : '-translate-x-full'}
                 `}
-                style={{ borderColor: 'rgba(0,0,0,0.1)' }}
             >
-                {/* Brand */}
-                <div className="p-6" style={{ borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
+                {/* Header */}
+                <div className="p-5 border-b border-gray-100 flex-shrink-0">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br from-${gradientFrom} to-${gradientTo} flex items-center justify-center`}>
-                            <TbBook size={24} className="text-white" />
+                        <div className={`p-2 bg-gradient-to-br from-${gradientFrom} to-${gradientTo} rounded-xl`}>
+                            <TbBook size={22} className="text-white" />
                         </div>
                         <div>
-                            <h1 className={`text-xl font-bold bg-gradient-to-r from-${gradientFrom} to-${gradientTo} bg-clip-text text-transparent`}>
-                                {sectionTitle}
-                            </h1>
-                            <p className="text-xs text-muted-foreground">
-                                ბიბლიოთეკა
-                            </p>
+                            <h2 className="text-lg font-bold text-gray-900">{sectionTitle}</h2>
+                            <p className="text-xs text-gray-500">ბიბლიოთეკა</p>
                         </div>
                     </div>
 
@@ -141,74 +90,54 @@ export default function EncyclopediaSidebar({
                         <input
                             type="text"
                             placeholder="ძიება..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && searchQuery.startsWith('#')) {
-                                    const id = searchQuery.substring(1);
-                                    router.push(`/encyclopedia/${sectionSlug}/${id}`);
-                                }
-                            }}
-                            className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 bg-secondary/50 border border-border"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
                         />
                     </div>
                 </div>
 
-                {/* Navigation */}
-                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                    {filteredCategories.map((category) => (
-                        <div key={category.id} className="mb-6">
-                            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
-                                <span className={`text-${gradientFrom.replace('-500', '-600')}`}>
-                                    {categoryIcons[category.id] || <TbBook className="w-4 h-4" />}
-                                </span>
-                                {category.title}
-                            </h2>
+                {/* Navigation - scrollable */}
+                <nav className="flex-1 overflow-y-auto p-4">
+                    <p className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                        სტატიები
+                    </p>
+                    <ul className="space-y-1">
+                        {filteredArticles.map((article) => {
+                            const isActive = currentSlug === article.id;
+                            const isLocked = !article.isFree && user?.email !== 'andrewaltair@icloud.com';
 
-                            <div className="space-y-1">
-                                {category.articles.map((article) => (
+                            return (
+                                <li key={article.id}>
                                     <Link
-                                        key={article.id}
                                         href={`/encyclopedia/${sectionSlug}/${article.id}`}
-                                        className="w-full text-left px-3 py-2.5 rounded-lg text-sm flex items-center justify-between gap-2 transition-all duration-200 hover:bg-secondary text-foreground/80 hover:text-foreground"
+                                        onClick={() => setIsOpen(false)}
+                                        className={`
+                                            flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg text-sm
+                                            transition-all duration-200
+                                            ${isActive
+                                                ? 'bg-blue-50 text-blue-700 font-medium'
+                                                : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                                            }
+                                        `}
                                     >
                                         <span className="truncate">{article.title}</span>
-                                        {article.isFree ? (
-                                            <TbLockOpen size={16} className="text-green-500 shrink-0" />
-                                        ) : (
-                                            <TbLock size={16} className="text-orange-500 shrink-0" />
+                                        {isLocked && (
+                                            <TbLock size={14} className="text-gray-400 flex-shrink-0" />
                                         )}
                                     </Link>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                                </li>
+                            );
+                        })}
+                    </ul>
 
-                {/* Footer */}
-                <div className="p-4 space-y-3" style={{ borderTop: '1px solid rgba(0,0,0,0.1)' }}>
-                    <button
-                        onClick={() => setIsPurchaseModalOpen(true)}
-                        className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-medium hover:from-blue-600 hover:to-blue-700 transition-all"
-                    >
-                        <TbBrandTelegram size={18} />
-                        შეიძინე პრემიუმი
-                    </button>
-                </div>
+                    {filteredArticles.length === 0 && (
+                        <p className="px-3 py-4 text-sm text-gray-500 text-center">
+                            სტატია ვერ მოიძებნა
+                        </p>
+                    )}
+                </nav>
             </aside>
-
-            {/* Overlay for mobile */}
-            {isSidebarOpen && (
-                <div
-                    className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-                    onClick={() => setIsSidebarOpen(false)}
-                />
-            )}
-
-            <PurchaseModal
-                isOpen={isPurchaseModalOpen}
-                onClose={() => setIsPurchaseModalOpen(false)}
-            />
         </>
     );
 }

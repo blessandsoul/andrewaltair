@@ -48,44 +48,8 @@ export const AI_BASICS_DATA: AIBasicsData = {
 Andrew Altair-ის ხედვაა, რომ საქართველო გახდეს აქტიური მოთამაშე გლობალურ AI რუკაზე და არა მხოლოდ ტექნოლოგიების მომხმარებელი.`
                 },
                 {
-                    id: "ai-future-intro",
-                    title: "AI 2026: შესავალი",
-                    isFree: true,
-                    content: "CUSTOM_RENDERER"
-                },
-                {
-                    id: "interface-death",
-                    title: "1. ინტერფეისის სიკვდილი",
-                    isFree: true,
-                    content: "CUSTOM_RENDERER"
-                },
-                {
-                    id: "agent-economy",
-                    title: "2. აგენტების ეკონომიკა",
-                    isFree: true,
-                    content: "CUSTOM_RENDERER"
-                },
-                {
                     id: "job-market-apocalypse",
-                    title: "3. სამუშაო ბაზრის აპოკალიფსი",
-                    isFree: true,
-                    content: "CUSTOM_RENDERER"
-                },
-                {
-                    id: "digital-immortality",
-                    title: "4. ციფრული უკვდავება",
-                    isFree: true,
-                    content: "CUSTOM_RENDERER"
-                },
-                {
-                    id: "human-2-0",
-                    title: "5. Human 2.0 & ბიო-ჰაკინგი",
-                    isFree: true,
-                    content: "CUSTOM_RENDERER"
-                },
-                {
-                    id: "ai-2026-conclusion",
-                    title: "დასკვნა & ტესტი",
+                    title: "სამუშაო ბაზრის აპოკალიფსი (2026)",
                     isFree: true,
                     content: "CUSTOM_RENDERER"
                 }
