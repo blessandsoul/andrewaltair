@@ -12,6 +12,8 @@ export const metadata: Metadata = {
 }
 
 // Function to get data
+export const dynamic = 'force-dynamic';
+
 async function getTutorials() {
     await dbConnect()
     // Fetch only published tutorials

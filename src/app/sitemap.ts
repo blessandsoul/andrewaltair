@@ -7,6 +7,8 @@ import MarketplacePrompt from '@/models/MarketplacePrompt'
 import Bot from '@/models/Bot'
 import Video from '@/models/Video'
 
+export const dynamic = 'force-dynamic';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = 'https://andrewaltair.ge'
 

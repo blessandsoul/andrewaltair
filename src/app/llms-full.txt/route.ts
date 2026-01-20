@@ -3,6 +3,8 @@ import dbConnect from '@/lib/db'
 import Post from '@/models/Post'
 import { getAllArticles } from '@/data/vibeCodingContent'
 
+export const dynamic = 'force-dynamic';
+
 // Define extended article type with optional description
 interface ExtendedArticle {
     id: string
