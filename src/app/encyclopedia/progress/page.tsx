@@ -14,18 +14,10 @@ const mockProgress = {
     totalMinutes: 245,
     streak: 5,
     sections: [
-        { name: "Prompt Engineering", slug: "prompt-engineering", total: 6, read: 4, color: "from-blue-500 to-cyan-500" },
-        { name: "AI Monetization", slug: "ai-monetization", total: 5, read: 2, color: "from-emerald-500 to-green-500" },
-        { name: "AI Automation", slug: "ai-automation", total: 5, read: 1, color: "from-orange-500 to-amber-500" },
-        { name: "AI Tools", slug: "ai-tools", total: 5, read: 3, color: "from-purple-500 to-pink-500" },
-        { name: "AI Career", slug: "ai-career", total: 7, read: 2, color: "from-indigo-500 to-blue-500" },
-        { name: "AI Ethics", slug: "ai-ethics", total: 4, read: 0, color: "from-red-500 to-rose-500" },
         { name: "Vibe Coding", slug: "vibe-coding", total: 3, read: 0, color: "from-violet-500 to-purple-500" },
     ],
     recentArticles: [
-        { title: "რა არის Prompt Engineering?", slug: "what-is-prompt-engineering", section: "prompt-engineering", readAt: "დღეს 14:30" },
-        { title: "Chain-of-Thought ტექნიკა", slug: "chain-of-thought", section: "prompt-engineering", readAt: "გუშინ 18:15" },
-        { title: "Few-Shot Prompting", slug: "few-shot-prompting", section: "prompt-engineering", readAt: "2 დღის წინ" },
+        // { title: "რა არის Prompt Engineering?", slug: "what-is-prompt-engineering", section: "prompt-engineering", readAt: "დღეს 14:30" },
     ],
     achievements: [
         { name: "პირველი ნაბიჯი", description: "პირველი სტატია წაიკითხე", icon: TbStar, unlocked: true },

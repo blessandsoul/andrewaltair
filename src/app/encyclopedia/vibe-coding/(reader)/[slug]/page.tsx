@@ -2,23 +2,23 @@ import { getArticleById, getAdjacentArticles } from "@/data/vibeCodingContent";
 import { getCurrentUser } from "@/lib/server-auth";
 import { notFound } from "next/navigation";
 import VibeArticleViewer from "@/components/vibe-coding/VibeArticleViewer";
-import VibeCodingArticleRenderer from "@/components/vibe-coding/VibeCodingArticleRenderer";
+import ArticleRenderer from "@/components/encyclopedia/ArticleRenderer";
 import ArticleSchema, { BreadcrumbSchema, FAQSchema } from "@/components/blog/ArticleSchema";
 import { Metadata } from "next";
 import fs from 'fs';
 import path from 'path';
-import { VibeCodingArticleData } from "@/types/vibeCodingArticle";
+import { ArticleData } from "@/types/article";
 
 interface Props {
     params: Promise<{ slug: string }>
 }
 
-async function getJsonData(slug: string): Promise<VibeCodingArticleData | null> {
+async function getJsonData(slug: string): Promise<ArticleData | null> {
     const filePath = path.join(process.cwd(), 'src/data/encyclopedia/vibe-coding', `${slug}.json`);
     try {
         if (fs.existsSync(filePath)) {
             const fileContent = fs.readFileSync(filePath, 'utf-8');
-            return JSON.parse(fileContent) as VibeCodingArticleData;
+            return JSON.parse(fileContent) as ArticleData;
         }
     } catch (error) {
         console.error(`Error reading/parsing JSON for slug ${slug}:`, error);
@@ -143,7 +143,7 @@ export default async function ArticlePage({ params }: Props) {
                     if Rich Render expects full width.
                  */}
 
-                <VibeCodingArticleRenderer data={jsonData} />
+                <ArticleRenderer data={jsonData} />
 
                 {/* 
                     TODO: Add Navigation Footer specifically for Rich Articles if VibeCodingArticleRenderer doesn't have it.
