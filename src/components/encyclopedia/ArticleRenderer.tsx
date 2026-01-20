@@ -47,6 +47,27 @@ export default function ArticleRenderer({ data }: ArticleRendererProps) {
             case 'section_outro':
                 // @ts-ignore
                 return <OutroSection key={index} section={section} />;
+            // New types
+            // New types
+            case 'intro':
+                // @ts-ignore
+                return <HeroIntro key={index} section={{ type: 'section_intro', heading: 'შესავალი', body: section.content }} />;
+            case 'section':
+                // @ts-ignore
+                return <StandardSection key={index} section={{ type: 'section_standard', heading: '', body: section.content }} renderWithGlossary={renderWithGlossary} />;
+            case 'callout':
+                // @ts-ignore
+                return <WarningSection key={index} section={{ type: 'warning_section', heading: 'ყურადღება', warnings: [{ title: section.variant || 'Info', desc: section.content }] }} />;
+            case 'fact':
+                // @ts-ignore
+                return <WarningSection key={index} section={{ type: 'warning_section', heading: 'ფაქტი', warnings: [{ title: 'ფაქტი', desc: section.content }] }} />;
+            case 'quiz':
+                // @ts-ignore
+                return <QuizSection key={index} section={section} />;
+            case 'resources':
+                // @ts-ignore
+                return <ResourcesSection key={index} section={section} />;
+
             default:
                 console.warn('Unknown section type:', (section as ContentSection).type);
                 return null;

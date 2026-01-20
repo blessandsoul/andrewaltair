@@ -226,6 +226,20 @@ Simon Willison:
 - რეალური მაგალითები და პროექტები`
                 }
             ]
+        },
+        {
+            id: "futurism",
+            title: "ფუტურიზმი",
+            icon: "🚀",
+            articles: [
+                {
+                    id: "ai-future-2026-guide",
+                    title: "AI 2026: კაცობრიობის დიდი ფილტრი",
+                    isFree: true,
+                    content: "This content is loaded dynamically from JSON.", // Placeholder as actual content is in JSON
+                    tags: ["AI 2026", "Human 2.0", "The Great Filter"]
+                }
+            ]
         }
     ]
 };

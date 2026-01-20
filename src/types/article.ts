@@ -2,12 +2,20 @@
 
 export interface ArticleMeta {
     title: string;
-    description: string;
-    reading_time_minutes: string;
+    description?: string; // made optional
+    slug?: string;
+    category?: string;
+    id?: string;
+    reading_time_minutes?: string; // mapped from reading_time
+    reading_time?: string; // support direct
     difficulty: string;
-    last_updated: string;
+    last_updated?: string;
     tags: string[];
-    validation_hash: string;
+    validation_hash?: string;
+    author?: {
+        name: string;
+        role: string;
+    };
 }
 
 export interface SchemaOrg {
@@ -97,6 +105,63 @@ export interface ChecklistSection {
     image_prompt: string;
 }
 
+// New Types for AI 2026 Article
+export interface SectionSimpleIntro {
+    type: 'intro';
+    content: string;
+}
+
+export interface SectionSimple {
+    type: 'section';
+    content: string;
+}
+
+export interface CalloutSection {
+    type: 'callout';
+    variant: 'warning' | 'info' | 'tip';
+    content: string;
+}
+
+export interface FactSection {
+    type: 'fact';
+    content: string;
+}
+
+export interface QuizQuestion {
+    q: string;
+    options: string[];
+    scores: number[];
+}
+
+export interface QuizResult {
+    title: string;
+    desc: string;
+    color: string;
+}
+
+export interface QuizSection {
+    type: 'quiz';
+    title: string;
+    questions: QuizQuestion[];
+    results: Record<string, QuizResult>;
+}
+
+export interface ResourceItem {
+    title: string;
+    link?: string;
+    desc?: string;
+}
+
+export interface ResourceCategory {
+    name: string;
+    items: ResourceItem[];
+}
+
+export interface ResourcesSection {
+    type: 'resources';
+    categories: ResourceCategory[];
+}
+
 export interface WarningSection {
     type: 'warning_section';
     heading: string;
@@ -128,7 +193,14 @@ export type ContentSection =
     | ChecklistSection
     | WarningSection
     | MythsFactsSection
-    | SectionOutro;
+    | SectionOutro
+    // New types
+    | SectionSimpleIntro
+    | SectionSimple
+    | CalloutSection
+    | FactSection
+    | QuizSection
+    | ResourcesSection;
 
 export interface ArticleData {
     meta: ArticleMeta;
