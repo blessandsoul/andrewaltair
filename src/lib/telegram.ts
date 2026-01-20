@@ -33,17 +33,6 @@ export async function sendTelegramPost(data: TelegramPostData) {
         }
 
         // Format message for Telegram
-        // We append the link logic. If buttonText is provided in the JSON from user, it might be part of the text,
-        // but typically Telegram buttons are inline keyboards.
-        // However, the existing implementation used a text link: [სრულად წაკითხვა](postUrl)
-        // The user request shows: "button_text": "📖 სრული ანალიზი", "button_url": "..."
-        // So we should try to use Inline Keyboard if possible, or fallback to the previous markdown link style if we want to keep it simple.
-        // Let's stick to the previous style for now but strictly use the parsed data.
-
-        // Actually, the user JSON has "button_text" and "button_url". 
-        // Let's support Inline Keyboard for a cleaner look if possible, but the original code used markdown link.
-        // Let's use the markdown link method as it was in the original code, but upgraded with the custom text.
-
         const linkText = buttonText || 'სრულად წაკითხვა';
         const message = `${telegramContent}\n\n🔗 [${linkText}](${postUrl})`;
 
@@ -55,6 +44,15 @@ export async function sendTelegramPost(data: TelegramPostData) {
             imageUrl = `${baseUrl}${imageUrl}`;
         }
 
+        // 🛡️ TELEGRAM LOCALHOST PROTECTION
+        // Telegram cannot fetch images from localhost. If we are on localhost, ignore the image and send text only.
+        if (imageUrl && (imageUrl.includes('localhost') || imageUrl.includes('127.0.0.1'))) {
+            console.warn('[Telegram Lib] Skipping image because URL is localhost (Telegram cannot reach it):', imageUrl);
+            imageUrl = undefined;
+        }
+
+        console.log('[Telegram Lib] Sending payload to:', TELEGRAM_CHANNEL_ID);
+
         let endpoint = 'sendMessage';
         const body: any = {
             chat_id: TELEGRAM_CHANNEL_ID,
@@ -65,10 +63,14 @@ export async function sendTelegramPost(data: TelegramPostData) {
         if (imageUrl && imageUrl.startsWith('http')) {
             endpoint = 'sendPhoto';
             body.photo = imageUrl;
-            body.caption = message;
+            body.caption = message; // Logic change: sendPhoto uses caption
+            console.log('[Telegram Lib] Type: Photo');
         } else {
-            body.text = message;
+            body.text = message; // sendMessage uses text
+            console.log('[Telegram Lib] Type: Text');
         }
+
+        console.log('[Telegram Lib] Body:', JSON.stringify(body, null, 2));
 
         const response = await fetch(`${TELEGRAM_API_URL}${TELEGRAM_BOT_TOKEN}/${endpoint}`, {
             method: 'POST',
