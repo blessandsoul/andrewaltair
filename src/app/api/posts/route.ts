@@ -215,16 +215,19 @@ export async function POST(request: Request) {
             indexBlogPost(post.slug).catch(err => console.error('[IndexNow] Failed:', err));
 
             // 📢 Auto-post to Telegram if data is provided
-            if (data.telegram && data.telegram.text) {
+            // Support both nested 'telegram.text' (legacy/direct) and flat 'telegramContent' (frontend)
+            const telegramText = data.telegram?.text || data.telegramContent;
+
+            if (telegramText) {
                 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://andrewaltair.ge';
                 const postUrl = `${appUrl}/blog/${post.slug}`;
 
                 const telegramPayload: TelegramPostData = {
                     title: post.title,
-                    telegramContent: data.telegram.text,
+                    telegramContent: telegramText,
                     postUrl: postUrl,
-                    buttonText: data.telegram.button_text,
-                    parse_mode: data.telegram.parse_mode, // Pass the requested parse mode
+                    buttonText: data.telegram?.button_text || data.telegramButtonText,
+                    parse_mode: data.telegram?.parse_mode || 'Markdown', // Pass the requested parse mode
                     coverImage: post.coverImage || undefined
                 };
 

@@ -30,6 +30,27 @@ import {
 } from 'react-icons/tb';
 import { useState } from 'react';
 import Link from 'next/link';
+import { FAQSchema } from '@/components/blog/ArticleSchema';
+
+// FAQ data for SEO
+const vibeCodingFAQs = [
+    {
+        question: "რა არის Vibe Coding?",
+        answer: "Vibe Coding არის AI-ასისტირებული პროგრამირების მეთოდი, სადაც დეველოპერი აღწერს რა სურს ბუნებრივ ენაზე და AI გენერირებს კოდს. ტერმინი Andrej Karpathy-მ შემოიღო 2025 წელს."
+    },
+    {
+        question: "რომელი ინსტრუმენტები გამოიყენება Vibe Coding-ში?",
+        answer: "ძირითადი ინსტრუმენტებია: Cursor IDE, Windsurf, Claude Code, ChatGPT, და Claude. ეს AI-კოდის ასისტენტები გეხმარებიან კოდის გენერაციაში, debugging-ში და refactoring-ში."
+    },
+    {
+        question: "შემიძლია Vibe Coding უფასოდ?",
+        answer: "დიახ! ChatGPT-ს აქვს უფასო ვერსია, Cursor IDE-ს აქვს უფასო trial, ხოლო Claude აქვს ლიმიტირებული უფასო წვდომა. Andrew Altair-ზე ასევე გაქვთ უფასო სასწავლო მასალები."
+    },
+    {
+        question: "რამდენ ხანშია შესაძლებელი Vibe Coding-ის სწავლა?",
+        answer: "საფუძვლები შეგიძლიათ ისწავლოთ რამდენიმე საათში. სრული proficiency-სთვის საჭიროა 2-4 კვირა პრაქტიკა. Andrew Altair-ის კურსი გეხმარებათ სწავლის დაჩქარებაში."
+    }
+];
 
 export default function VibeCodingLanding() {
     const [shareModalOpen, setShareModalOpen] = useState(false);
@@ -37,6 +58,8 @@ export default function VibeCodingLanding() {
 
     return (
         <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: '#fafafa' }}>
+            {/* FAQ Schema for SEO */}
+            <FAQSchema items={vibeCodingFAQs} />
             {/* Animated Background */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-br from-purple-200/40 via-pink-200/30 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />

@@ -72,29 +72,13 @@ export default function NewPostPage() {
                 title: post.title
             })
 
-            // Post to Telegram if enabled
-            if (post.postToTelegram && post.telegramContent) {
-                try {
-                    const telegramRes = await fetch('/api/telegram/post', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            title: post.title,
-                            telegramContent: post.telegramContent,
-                            postUrl: `https://andrewaltair.ge/blog/${savedPost.post?.slug || post.slug}`,
-                            buttonText: post.telegramButtonText,
-                            coverImage: post.coverImages?.horizontal || post.coverImage,
-                            coverImages: post.coverImages
-                        })
-                    })
-                    const telegramResult = await telegramRes.json()
-                    if (telegramResult.success) {
-                        console.log('Posted to Telegram successfully:', telegramResult.messageId)
-                    } else {
-                        console.warn('Telegram post failed:', telegramResult.error)
-                    }
-                } catch (telegramError) {
-                    console.warn('Telegram post error:', telegramError)
+            // Check for Telegram results from the main API response
+            if (savedPost.telegram) {
+                if (savedPost.telegram.success) {
+                    console.log('Posted to Telegram successfully:', savedPost.telegram.messageId)
+                } else {
+                    console.warn('Telegram post warning:', savedPost.telegram.error)
+                    // Optional: You could show a toast here "Post saved, but Telegram failed"
                 }
             }
 

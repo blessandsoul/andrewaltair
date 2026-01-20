@@ -50,7 +50,7 @@
         {
             "id": "site-1",
             "url": "/",
-            "lastmod": "2024-12-28",
+            "lastmod": "2026-01-20",
             "changefreq": "daily",
             "priority": 1.0,
             "enabled": true
@@ -58,57 +58,41 @@
         {
             "id": "site-2",
             "url": "/blog",
-            "lastmod": "2024-12-28",
+            "lastmod": "2026-01-20",
             "changefreq": "daily",
             "priority": 0.9,
             "enabled": true
         },
         {
             "id": "site-3",
-            "url": "/tools",
-            "lastmod": "2024-12-27",
+            "url": "/encyclopedia/vibe-coding",
+            "lastmod": "2026-01-20",
+            "changefreq": "daily",
+            "priority": 0.9,
+            "enabled": true
+        },
+        {
+            "id": "site-4",
+            "url": "/mystic",
+            "lastmod": "2026-01-20",
             "changefreq": "weekly",
             "priority": 0.8,
             "enabled": true
         },
         {
-            "id": "site-4",
-            "url": "/features",
-            "lastmod": "2024-12-26",
-            "changefreq": "weekly",
-            "priority": 0.7,
-            "enabled": true
-        },
-        {
             "id": "site-5",
-            "url": "/blog/chatgpt-god-mode-32-codes",
-            "lastmod": "2024-12-25",
-            "changefreq": "monthly",
+            "url": "/bots",
+            "lastmod": "2026-01-20",
+            "changefreq": "weekly",
             "priority": 0.8,
             "enabled": true
         },
         {
             "id": "site-6",
-            "url": "/blog/dalle-3-secrets",
-            "lastmod": "2024-12-24",
-            "changefreq": "monthly",
-            "priority": 0.8,
-            "enabled": true
-        },
-        {
-            "id": "site-7",
             "url": "/about",
-            "lastmod": "2024-12-20",
+            "lastmod": "2026-01-15",
             "changefreq": "monthly",
-            "priority": 0.5,
-            "enabled": true
-        },
-        {
-            "id": "site-8",
-            "url": "/contact",
-            "lastmod": "2024-12-20",
-            "changefreq": "yearly",
-            "priority": 0.4,
+            "priority": 0.6,
             "enabled": true
         }
     ],
@@ -151,188 +135,258 @@
         {
             "id": "robots-6",
             "userAgent": "GPTBot",
-            "type": "disallow",
+            "type": "allow",
             "path": "/",
-            "enabled": false
+            "enabled": true,
+            "comment": "Allow GPTBot for AI visibility"
+        },
+        {
+            "id": "robots-7",
+            "userAgent": "ChatGPT-User",
+            "type": "allow",
+            "path": "/",
+            "enabled": true
+        },
+        {
+            "id": "robots-8",
+            "userAgent": "Claude-Web",
+            "type": "allow",
+            "path": "/",
+            "enabled": true
         }
     ],
     "keywords": [
         {
             "id": "kw-1",
-            "keyword": "ChatGPT ხრიკები",
-            "currentPosition": 3,
-            "previousPosition": 5,
-            "searchVolume": 2400,
+            "keyword": "AI ბიზნესისთვის თბილისში",
+            "category": "business",
+            "intent": "high",
+            "searchVolume": 1200,
             "difficulty": "medium",
-            "trend": "up",
-            "lastChecked": "2024-12-28T08:00:00",
-            "history": [
-                {
-                    "date": "2024-12-21",
-                    "position": 8
-                },
-                {
-                    "date": "2024-12-24",
-                    "position": 5
-                },
-                {
-                    "date": "2024-12-28",
-                    "position": 3
-                }
-            ]
+            "status": "tracking"
         },
         {
             "id": "kw-2",
-            "keyword": "AI ინსტრუმენტები",
-            "currentPosition": 7,
-            "previousPosition": 7,
-            "searchVolume": 5600,
-            "difficulty": "hard",
-            "trend": "stable",
-            "lastChecked": "2024-12-28T08:00:00",
-            "history": [
-                {
-                    "date": "2024-12-21",
-                    "position": 7
-                },
-                {
-                    "date": "2024-12-24",
-                    "position": 7
-                },
-                {
-                    "date": "2024-12-28",
-                    "position": 7
-                }
-            ]
+            "keyword": "ChatGPT სწავლება ქართულად",
+            "category": "education",
+            "intent": "high",
+            "searchVolume": 2400,
+            "difficulty": "low",
+            "status": "tracking"
         },
         {
             "id": "kw-3",
-            "keyword": "DALL-E 3 tutorial",
-            "currentPosition": 2,
-            "previousPosition": 4,
-            "searchVolume": 1800,
-            "difficulty": "easy",
-            "trend": "up",
-            "lastChecked": "2024-12-28T08:00:00",
-            "history": [
-                {
-                    "date": "2024-12-21",
-                    "position": 6
-                },
-                {
-                    "date": "2024-12-24",
-                    "position": 4
-                },
-                {
-                    "date": "2024-12-28",
-                    "position": 2
-                }
-            ]
+            "keyword": "AI კონსულტანტი საქართველოში",
+            "category": "business",
+            "intent": "high",
+            "searchVolume": 890,
+            "difficulty": "low",
+            "status": "tracking"
         },
         {
             "id": "kw-4",
-            "keyword": "Prompt Engineering",
-            "currentPosition": 12,
-            "previousPosition": 10,
-            "searchVolume": 8900,
-            "difficulty": "hard",
-            "trend": "down",
-            "lastChecked": "2024-12-28T08:00:00",
-            "history": [
-                {
-                    "date": "2024-12-21",
-                    "position": 9
-                },
-                {
-                    "date": "2024-12-24",
-                    "position": 10
-                },
-                {
-                    "date": "2024-12-28",
-                    "position": 12
-                }
-            ]
+            "keyword": "Vibe Coding კურსი",
+            "category": "education",
+            "intent": "high",
+            "searchVolume": 450,
+            "difficulty": "low",
+            "status": "tracking"
         },
         {
             "id": "kw-5",
-            "keyword": "Gemini vs ChatGPT",
-            "currentPosition": 5,
-            "previousPosition": 8,
-            "searchVolume": 3200,
+            "keyword": "AI chatbot შექმნა ქართულად",
+            "category": "business",
+            "intent": "high",
+            "searchVolume": 780,
             "difficulty": "medium",
-            "trend": "up",
-            "lastChecked": "2024-12-28T08:00:00",
-            "history": [
-                {
-                    "date": "2024-12-21",
-                    "position": 11
-                },
-                {
-                    "date": "2024-12-24",
-                    "position": 8
-                },
-                {
-                    "date": "2024-12-28",
-                    "position": 5
-                }
-            ]
+            "status": "tracking"
         },
         {
             "id": "kw-6",
-            "keyword": "უფასო AI",
-            "currentPosition": 1,
-            "previousPosition": 2,
-            "searchVolume": 4100,
-            "difficulty": "easy",
-            "trend": "up",
-            "lastChecked": "2024-12-28T08:00:00",
-            "history": [
-                {
-                    "date": "2024-12-21",
-                    "position": 3
-                },
-                {
-                    "date": "2024-12-24",
-                    "position": 2
-                },
-                {
-                    "date": "2024-12-28",
-                    "position": 1
-                }
-            ]
+            "keyword": "prompt engineering კურსი",
+            "category": "education",
+            "intent": "high",
+            "searchVolume": 1500,
+            "difficulty": "medium",
+            "status": "tracking"
+        },
+        {
+            "id": "kw-7",
+            "keyword": "AI ტაროს კითხვა",
+            "category": "mystic",
+            "intent": "medium",
+            "searchVolume": 3200,
+            "difficulty": "low",
+            "status": "tracking"
+        },
+        {
+            "id": "kw-8",
+            "keyword": "AI მისნობა ქართულად",
+            "category": "mystic",
+            "intent": "medium",
+            "searchVolume": 2100,
+            "difficulty": "low",
+            "status": "tracking"
+        },
+        {
+            "id": "kw-9",
+            "keyword": "AI-თ ხარჯების შემცირება",
+            "category": "business",
+            "intent": "high",
+            "searchVolume": 560,
+            "difficulty": "medium",
+            "status": "tracking"
+        },
+        {
+            "id": "kw-10",
+            "keyword": "N8N ავტომატიზაცია საქართველოში",
+            "category": "business",
+            "intent": "high",
+            "searchVolume": 320,
+            "difficulty": "low",
+            "status": "tracking"
+        },
+        {
+            "id": "kw-11",
+            "keyword": "AI კურსები დამწყებთათვის",
+            "category": "education",
+            "intent": "high",
+            "searchVolume": 1800,
+            "difficulty": "medium",
+            "status": "tracking"
+        },
+        {
+            "id": "kw-12",
+            "keyword": "Cursor IDE სწავლება",
+            "category": "education",
+            "intent": "high",
+            "searchVolume": 670,
+            "difficulty": "low",
+            "status": "tracking"
+        },
+        {
+            "id": "kw-13",
+            "keyword": "AI ინტეგრაცია ბიზნესში",
+            "category": "business",
+            "intent": "high",
+            "searchVolume": 980,
+            "difficulty": "medium",
+            "status": "tracking"
+        },
+        {
+            "id": "kw-14",
+            "keyword": "ხელოვნური ინტელექტი საქართველოში",
+            "category": "general",
+            "intent": "medium",
+            "searchVolume": 4500,
+            "difficulty": "high",
+            "status": "tracking"
+        },
+        {
+            "id": "kw-15",
+            "keyword": "AI ჰოროსკოპი",
+            "category": "mystic",
+            "intent": "medium",
+            "searchVolume": 2800,
+            "difficulty": "low",
+            "status": "tracking"
+        },
+        {
+            "id": "kw-16",
+            "keyword": "AI სიზმრების ახსნა",
+            "category": "mystic",
+            "intent": "medium",
+            "searchVolume": 1900,
+            "difficulty": "low",
+            "status": "tracking"
+        },
+        {
+            "id": "kw-17",
+            "keyword": "AI მარკეტინგის ავტომატიზაცია",
+            "category": "business",
+            "intent": "high",
+            "searchVolume": 720,
+            "difficulty": "medium",
+            "status": "tracking"
+        },
+        {
+            "id": "kw-18",
+            "keyword": "AI ბოტი ბიზნესისთვის",
+            "category": "business",
+            "intent": "high",
+            "searchVolume": 1100,
+            "difficulty": "medium",
+            "status": "tracking"
+        },
+        {
+            "id": "kw-19",
+            "keyword": "AI სწავლების პლატფორმა ქართულად",
+            "category": "education",
+            "intent": "high",
+            "searchVolume": 480,
+            "difficulty": "low",
+            "status": "tracking"
+        },
+        {
+            "id": "kw-20",
+            "keyword": "AI ექსპერტი თბილისში",
+            "category": "business",
+            "intent": "high",
+            "searchVolume": 340,
+            "difficulty": "low",
+            "status": "tracking"
         }
     ],
-    "canonicalUrls": [
+    "faqSchemas": [
         {
-            "id": "can-1",
-            "pageUrl": "/blog/chatgpt-god-mode-32-codes",
-            "canonicalUrl": "/blog/chatgpt-god-mode-32-codes",
-            "hasDuplicate": false,
-            "status": "ok"
+            "id": "faq-vibe-coding",
+            "page": "/encyclopedia/vibe-coding",
+            "items": [
+                {
+                    "question": "რა არის Vibe Coding?",
+                    "answer": "Vibe Coding არის AI-ასისტირებული პროგრამირების მეთოდი, სადაც დეველოპერი აღწერს რა სურს ბუნებრივ ენაზე და AI გენერირებს კოდს. ტერმინი Andrej Karpathy-მ შემოიღო 2025 წელს."
+                },
+                {
+                    "question": "რომელი ინსტრუმენტები გამოიყენება Vibe Coding-ში?",
+                    "answer": "ძირითადი ინსტრუმენტებია: Cursor IDE, Windsurf, Claude Code, ChatGPT, და Claude. ეს AI-კოდის ასისტენტები გეხმარებიან კოდის გენერაციაში, debugging-ში და refactoring-ში."
+                },
+                {
+                    "question": "შემიძლია Vibe Coding უფასოდ?",
+                    "answer": "დიახ! ChatGPT-ს აქვს უფასო ვერსია, Cursor IDE-ს აქვს უფასო trial, ხოლო Claude აქვს ლიმიტირებული უფასო წვდომა. Andrew Altair-ზე ასევე გაქვთ უფასო სასწავლო მასალები."
+                }
+            ]
         },
         {
-            "id": "can-2",
-            "pageUrl": "/blog/dalle-3-secrets",
-            "canonicalUrl": "/blog/dalle-3-secrets",
-            "hasDuplicate": false,
-            "status": "ok"
+            "id": "faq-mystic",
+            "page": "/mystic",
+            "items": [
+                {
+                    "question": "როგორ მუშაობს AI ტაროს კითხვა?",
+                    "answer": "AI ტაროს კითხვა იყენებს ხელოვნურ ინტელექტს კარტების ინტერპრეტაციისთვის. AI აანალიზებს თქვენს კითხვას და გამოტანილ კარტებს, შემდეგ აგენერირებს პერსონალიზებულ პასუხს."
+                },
+                {
+                    "question": "ზუსტია AI მისნობა?",
+                    "answer": "AI მისნობა გართობის მიზნით შეიქმნა და არ უნდა ჩაითვალოს რეალურ წინასწარმეტყველებად. ეს არის AI-ს კრეატიული ინტერპრეტაცია და არა ფაქტობრივი პროგნოზი."
+                },
+                {
+                    "question": "უფასოა AI მისტიკური ინსტრუმენტები?",
+                    "answer": "დიახ! Andrew Altair-ის ყველა მისტიკური ინსტრუმენტი - ტაროტი, ჰოროსკოპი, სიზმრების ახსნა, ნუმეროლოგია - სრულიად უფასოა."
+                }
+            ]
         },
         {
-            "id": "can-3",
-            "pageUrl": "/posts/chatgpt-tips",
-            "canonicalUrl": "/blog/chatgpt-god-mode-32-codes",
-            "hasDuplicate": true,
-            "duplicateUrls": [
-                "/blog/chatgpt-god-mode-32-codes"
-            ],
-            "status": "warning"
-        },
-        {
-            "id": "can-4",
-            "pageUrl": "/blog/gemini-vs-chatgpt-2024",
-            "canonicalUrl": "/blog/gemini-vs-chatgpt-2024",
-            "hasDuplicate": false,
-            "status": "ok"
+            "id": "faq-business",
+            "page": "/services",
+            "items": [
+                {
+                    "question": "როგორ დავნერგო AI ჩემს ბიზნესში?",
+                    "answer": "AI დანერგვა იწყება საჭიროებების ანალიზით. Andrew Altair გთავაზობთ უფასო კონსულტაციას, სადაც შევაფასებთ თქვენი ბიზნესის AI პოტენციალს და შევქმნით დანერგვის გეგმას."
+                },
+                {
+                    "question": "რა ღირს AI კონსულტაცია?",
+                    "answer": "პირველი კონსულტაცია უფასოა. შემდგომი მომსახურების ფასი დამოკიდებულია პროექტის მასშტაბზე და შეიძლება მოიცავდეს chatbot-ების შექმნას, ავტომატიზაციას ან AI ტრენინგებს."
+                }
+            ]
         }
     ],
     "schemaTemplates": [
@@ -366,18 +420,9 @@
             "schema": {
                 "@context": "https://schema.org",
                 "@type": "FAQPage",
-                "mainEntity": [
-                    {
-                        "@type": "Question",
-                        "name": "{{question1}}",
-                        "acceptedAnswer": {
-                            "@type": "Answer",
-                            "text": "{{answer1}}"
-                        }
-                    }
-                ]
+                "mainEntity": []
             },
-            "enabled": false
+            "enabled": true
         },
         {
             "id": "schema-3",
@@ -391,163 +436,29 @@
                 "logo": "https://andrewaltair.ge/logo.png",
                 "sameAs": [
                     "https://x.com/andr3waltair",
-                    "https://www.youtube.com/@AndrewAltair"
+                    "https://www.youtube.com/@AndrewAltair",
+                    "https://www.instagram.com/andr3waltair/",
+                    "https://t.me/andr3waltairchannel"
                 ]
             },
             "enabled": true
-        }
-    ],
-    "brokenLinks": [
-        {
-            "id": "link-1",
-            "sourceUrl": "/blog/chatgpt-god-mode-32-codes",
-            "targetUrl": "/old-page-removed",
-            "anchorText": "დეტალები",
-            "statusCode": 404,
-            "lastChecked": "2024-12-28T06:00:00",
-            "status": "broken"
         },
         {
-            "id": "link-2",
-            "sourceUrl": "/blog/dalle-3-secrets",
-            "targetUrl": "https://external-site.com/broken",
-            "anchorText": "გარე ლინკი",
-            "statusCode": 404,
-            "lastChecked": "2024-12-28T06:00:00",
-            "status": "broken"
-        },
-        {
-            "id": "link-3",
-            "sourceUrl": "/tools",
-            "targetUrl": "/tool/deprecated-ai-tool",
-            "anchorText": "AI Tool",
-            "statusCode": 410,
-            "lastChecked": "2024-12-28T06:00:00",
-            "status": "ignored"
-        },
-        {
-            "id": "link-4",
-            "sourceUrl": "/about",
-            "targetUrl": "https://slow-server.com",
-            "anchorText": "პარტნიორი",
-            "statusCode": 504,
-            "lastChecked": "2024-12-28T06:00:00",
-            "status": "warning"
-        }
-    ],
-    "imageAltIssues": [
-        {
-            "id": "img-1",
-            "imageUrl": "/images/posts/chatgpt_god_mode_1766696042704.png",
-            "imageName": "chatgpt_god_mode.png",
-            "pageUrl": "/blog/chatgpt-god-mode-32-codes",
-            "currentAlt": "",
-            "suggestedAlt": "ChatGPT God Mode - 32 secret prompt codes illustration",
-            "status": "missing"
-        },
-        {
-            "id": "img-2",
-            "imageUrl": "/images/hero-bg.jpg",
-            "imageName": "hero-bg.jpg",
-            "pageUrl": "/",
-            "currentAlt": "bg",
-            "suggestedAlt": "AI Technology futuristic background with neural network visualization",
-            "status": "poor"
-        },
-        {
-            "id": "img-3",
-            "imageUrl": "/images/posts/dalle_secrets_1766696056966.png",
-            "imageName": "dalle_secrets.png",
-            "pageUrl": "/blog/dalle-3-secrets",
-            "currentAlt": "DALL-E 3 AI Art Generation Tutorial Cover Image",
-            "suggestedAlt": "",
-            "status": "good"
-        },
-        {
-            "id": "img-4",
-            "imageUrl": "/images/avatar.jpg",
-            "imageName": "avatar.jpg",
-            "pageUrl": "/about",
-            "currentAlt": "",
-            "suggestedAlt": "Andrew Altair - AI Innovator and Content Creator",
-            "status": "missing"
-        }
-    ],
-    "seoHistory": [
-        {
-            "id": "hist-1",
-            "type": "meta",
-            "action": "update",
-            "target": "ChatGPT God Mode post",
-            "changes": [
-                {
-                    "field": "title",
-                    "oldValue": "ChatGPT Tips",
-                    "newValue": "ChatGPT God Mode: 32 Secret Codes"
-                }
-            ],
-            "user": "admin",
-            "timestamp": "2024-12-28T10:30:00"
-        },
-        {
-            "id": "hist-2",
-            "type": "robots",
-            "action": "create",
-            "target": "GPTBot rule",
-            "changes": [
-                {
-                    "field": "path",
-                    "oldValue": "",
-                    "newValue": "/"
-                }
-            ],
-            "user": "admin",
-            "timestamp": "2024-12-27T15:20:00"
-        },
-        {
-            "id": "hist-3",
-            "type": "keyword",
-            "action": "create",
-            "target": "უფასო AI",
-            "changes": [
-                {
-                    "field": "keyword",
-                    "oldValue": "",
-                    "newValue": "უფასო AI"
-                }
-            ],
-            "user": "admin",
-            "timestamp": "2024-12-26T09:00:00"
-        },
-        {
-            "id": "hist-4",
-            "type": "sitemap",
-            "action": "update",
-            "target": "/blog priority",
-            "changes": [
-                {
-                    "field": "priority",
-                    "oldValue": "0.8",
-                    "newValue": "0.9"
-                }
-            ],
-            "user": "admin",
-            "timestamp": "2024-12-25T14:45:00"
-        },
-        {
-            "id": "hist-5",
-            "type": "schema",
-            "action": "update",
-            "target": "Article Schema",
-            "changes": [
-                {
-                    "field": "publisher.name",
-                    "oldValue": "AI Blog",
-                    "newValue": "AndrewAltair.ge"
-                }
-            ],
-            "user": "admin",
-            "timestamp": "2024-12-24T11:00:00"
+            "id": "schema-4",
+            "name": "Course",
+            "type": "Course",
+            "schema": {
+                "@context": "https://schema.org",
+                "@type": "Course",
+                "name": "{{courseName}}",
+                "description": "{{description}}",
+                "provider": {
+                    "@type": "Organization",
+                    "name": "Andrew Altair"
+                },
+                "inLanguage": "ka"
+            },
+            "enabled": true
         }
     ]
 }
