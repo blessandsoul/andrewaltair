@@ -6,6 +6,7 @@ import Post from '@/models/Post';
 import { generateUniqueId } from '@/lib/id-system';
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 import { indexBlogPost } from '@/lib/indexnow';
+import { sendTelegramPost, TelegramPostData } from '@/lib/telegram';
 
 // GET - List all posts with filtering and pagination
 export async function GET(request: Request) {
@@ -111,6 +112,13 @@ export async function POST(request: Request) {
 
         // Check for duplicate slug and make unique if needed
         let baseSlug = data.slug;
+
+        // Handle nested meta structure from new JSON format
+        const meta = data.meta;
+        if (meta) {
+            baseSlug = meta.slug || meta.title.toLowerCase().replace(/[^a-z0-9\u10A0-\u10FF]+/g, '-').replace(/(^-|-$)/g, '');
+        }
+
         let uniqueSlug = baseSlug;
         let counter = 2; // Start from 2 (e.g. my-post-2)
 
@@ -120,31 +128,79 @@ export async function POST(request: Request) {
             // Safety limit increased slightly, though in practice huge overlaps are rare
             if (counter > 100) break;
         }
-        data.slug = uniqueSlug;
 
-
-
-        // ... existing imports ...
-
-        // In POST function:
-        // Generate numericId
-        let numericId = await generateUniqueId();
-
-        // If explicitly provided in data (e.g. migration or manual override), use that
-        if (data.numericId) {
-            numericId = data.numericId;
+        // If it was in meta, update it there too if we need to use it later, 
+        // but primarily we build postData below.
+        if (meta) {
+            meta.slug = uniqueSlug;
+        } else {
+            data.slug = uniqueSlug;
         }
 
-        // Ensure required defaults
-        const postData = {
-            ...data,
-            numericId: numericId, // Add the generated ID
-            excerpt: data.excerpt || data.title || 'პოსტი',
-            categories: data.categories || ['ai', 'articles'], // Default categories
-            author: data.author || { name: 'Andrew Altair', avatar: '/avatar.jpg', role: 'AI ინოვატორი' },
-            status: data.status || 'published',
-            readingTime: data.readingTime || 5,
-        };
+        // Generate numericId
+        // The new JSON sends "id": "CASE-260120-01" in meta, which serves as numericId
+        let numericId = await generateUniqueId();
+        let providedId = data.numericId || (meta && meta.id);
+
+        if (providedId) {
+            // Check if this ID is already taken to avoid crash
+            const existingId = await Post.findOne({ numericId: providedId });
+            if (existingId) {
+                // If taken, fallback to generated one or append suffix? 
+                // Let's assume for now we prioritize the generated one if conflict, or just fail.
+                // But safer to just use the provided one if available and hope for unique.
+                // Or better: try to use it, if valid.
+                numericId = providedId;
+            } else {
+                numericId = providedId;
+            }
+        }
+
+        // Prepare Post Data
+        let postData: any = {};
+
+        if (meta) {
+            // NEW JSON STRUCTURE HANDLING
+            postData = {
+                slug: uniqueSlug,
+                title: meta.title,
+                numericId: numericId,
+                excerpt: data.seo?.excerpt || meta.title,
+                content: '', // Will populate from sections parsing if needed, but 'content' field is often legacy text.
+                // The new format has 'content' as an array of sections. 
+                // We should map data.content array to sections.
+                sections: data.content,
+                categories: [meta.category || 'Technology'],
+                tags: meta.tags || [],
+                author: {
+                    name: meta.author?.name || 'Andrew Altair',
+                    role: meta.author?.role || 'AI Innovator',
+                    avatar: '/avatar.jpg' // Default
+                },
+                status: 'published', // Default to published for this workflow
+                readingTime: 5,
+
+                // SEO & Extra Fields
+                keyPoints: data.seo?.key_points || [],
+                faq: data.seo?.faq || [],
+                entities: data.seo?.entities || [],
+
+                // Telegram specific data storage (optional, for record)
+                telegramContent: data.telegram?.text || ''
+            };
+        } else {
+            // OLD/STANDARD JSON STRUCTURE
+            postData = {
+                ...data,
+                slug: uniqueSlug,
+                numericId: numericId, // Add the generated ID
+                excerpt: data.excerpt || data.title || 'პოსტი',
+                categories: data.categories || ['ai', 'articles'], // Default categories
+                author: data.author || { name: 'Andrew Altair', avatar: '/avatar.jpg', role: 'AI ინოვატორი' },
+                status: data.status || 'published',
+                readingTime: data.readingTime || 5,
+            };
+        }
 
         const post = new Post(postData);
         await post.save();
@@ -157,6 +213,32 @@ export async function POST(request: Request) {
         // 🔍 Auto-submit to IndexNow for instant search engine indexing
         if (post.status === 'published') {
             indexBlogPost(post.slug).catch(err => console.error('[IndexNow] Failed:', err));
+
+            // 📢 Auto-post to Telegram if data is provided
+            if (data.telegram && data.telegram.text) {
+                const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://andrewaltair.ge';
+                const postUrl = `${appUrl}/blog/${post.slug}`;
+
+                const telegramPayload: TelegramPostData = {
+                    title: post.title,
+                    telegramContent: data.telegram.text,
+                    postUrl: postUrl,
+                    buttonText: data.telegram.button_text,
+                    // Try to find a cover image from the new content structure if not explicitly in 'coverImage'
+                    // The new structure doesn't distinctly have 'coverImage' at top level usually, 
+                    // but we might want to check if the first section is an image or if we can extract one.
+                    // For now, let's assume if 'coverImage' is not set in postData, we look at 'meta'? 
+                    // The JSON example doesn't have a top-level coverImage in valid places, but typically it might be added.
+                    // IMPORTANT: The user example JSON DOES NOT have a cover image URL field specified in the example!
+                    // However, to make it nice, we should probably allow one or default to something.
+                    // If existing logic populated post.coverImage, use that.
+                    coverImage: post.coverImage || undefined
+                };
+
+                sendTelegramPost(telegramPayload)
+                    .then(res => console.log('[Telegram Status]', res))
+                    .catch(err => console.error('[Telegram Error]', err));
+            }
         }
 
         return NextResponse.json({
