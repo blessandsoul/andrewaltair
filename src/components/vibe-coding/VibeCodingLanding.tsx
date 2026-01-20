@@ -57,7 +57,7 @@ export default function VibeCodingLanding() {
                     </div>
 
                     <h1 className="text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 bg-clip-text text-transparent leading-tight pb-2">
-                        Vibe Coding ბიბლიოთეკა
+                        ვაიბ კოდინგის ბიბლიოთეკა
                     </h1>
 
                     <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
@@ -104,10 +104,10 @@ export default function VibeCodingLanding() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                         {[
                             { title: '10 პრემიუმ სტატია', value: '50₾' },
-                            { title: 'Andrej Karpathy ექსკლუზიური ანალიზი', value: '30₾' },
+                            { title: 'ანდრეი კარპატის ექსკლუზიური ანალიზი', value: '30₾' },
                             { title: '2025 ინსტრუმენტების სრული რეიტინგი', value: '25₾' },
-                            { title: 'პროფესიონალური Prompting სტრატეგიები', value: '40₾' },
-                            { title: 'რეალური პროექტების case studies', value: '35₾' }
+                            { title: 'პროფესიონალური პრომპტინგის სტრატეგიები', value: '40₾' },
+                            { title: 'რეალური პროექტების ქეისები', value: '35₾' }
                         ].map((item, idx) => (
                             <div key={idx} className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100">
                                 <TbCircleCheck size={24} className="text-green-500 shrink-0 mt-0.5" />

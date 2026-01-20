@@ -50,3 +50,10 @@ export function getAllArticles(): Article[] {
     });
     return allArticles;
 }
+
+export function getTotalArticleCount(): number {
+    return AI_2026_DATA.categories.reduce(
+        (acc, cat) => acc + cat.articles.length,
+        0
+    );
+}

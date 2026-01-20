@@ -66,7 +66,7 @@ export default function VibeReaderSidebar() {
                             <TbBook size={22} className="text-white" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900">Vibe Coding</h2>
+                            <h2 className="text-lg font-bold text-gray-900">ვაიბ კოდინგი</h2>
                             <p className="text-xs text-gray-500">ბიბლიოთეკა</p>
                         </div>
                     </div>
