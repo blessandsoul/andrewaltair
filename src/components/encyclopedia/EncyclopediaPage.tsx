@@ -21,11 +21,15 @@ import {
     TbChartBar,
     TbClock,
     TbSearch,
-    TbChartPie
+    TbChartPie,
+    TbCode,
+    TbFlame
 } from 'react-icons/tb';
 import { useState } from 'react';
 import Link from 'next/link';
 import { EncyclopediaSearch, useEncyclopediaSearch } from './EncyclopediaSearch';
+import { getTotalArticleCount as getTotalArticleCountVibe } from '@/data/vibeCodingContent';
+import { getTotalArticleCount } from '@/data/ai2026Content';
 
 export default function EncyclopediaPage() {
     const [shareModalOpen, setShareModalOpen] = useState(false);
