@@ -373,6 +373,12 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                             }
                         }
 
+                        // 4. Telegram
+                        if (parsed.telegram) {
+                            newData.telegramContent = parsed.telegram.text || ''
+                            newData.postToTelegram = true // Automatically enable if telegram data is present
+                        }
+
                         return newData
                     })
                 }
