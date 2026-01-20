@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { TbRocket, TbBook, TbArrowRight } from 'react-icons/tb';
+import { TbRocket, TbBook, TbArrowRight, TbGift, TbCircleCheck } from 'react-icons/tb';
 import Link from 'next/link';
 
 export default function AI2026Landing() {
@@ -42,6 +42,51 @@ export default function AI2026Landing() {
                             წაიკითხე სტატიები
                             <TbArrowRight size={20} />
                         </Link>
+                    </div>
+                </motion.div>
+
+                {/* Value Proposition */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="bg-white rounded-2xl shadow-xl p-8 mb-12 border border-blue-100"
+                >
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                            <TbGift size={24} className="text-white" />
+                        </div>
+                        <h2 className="text-3xl font-bold text-gray-900">რას იღებთ წვდომით</h2>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                        {[
+                            { title: '12 ექსკლუზიური სტატია', value: '60₾' },
+                            { title: 'გადარჩენის სტრატეგიები 2026', value: '45₾' },
+                            { title: 'მომავლის პროფესიების რეიტინგი', value: '35₾' },
+                            { title: 'AI ინსტრუმენტების ნაკრები', value: '30₾' },
+                            { title: 'კარიერული ტრანსფორმაციის გეგმა', value: '40₾' }
+                        ].map((item, idx) => (
+                            <div key={idx} className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-100">
+                                <TbCircleCheck size={24} className="text-green-500 shrink-0 mt-0.5" />
+                                <div className="flex-1">
+                                    <p className="font-medium text-gray-900">{item.title}</p>
+                                    <p className="text-sm text-blue-600 font-semibold">{item.value}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="flex items-center justify-between p-6 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 text-white">
+                        <div>
+                            <p className="text-sm opacity-90 mb-1 flex items-center gap-1"><TbGift className="w-4 h-4" /> სულ ღირებულება:</p>
+                            <p className="text-3xl font-bold">210₾</p>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-sm opacity-90 mb-1 flex items-center justify-end gap-1">💰 თქვენი ფასი:</p>
+                            <p className="text-3xl font-bold">0₾</p>
+                            <p className="text-xs opacity-75">(კოდით - დროებითი წვდომა)</p>
+                        </div>
                     </div>
                 </motion.div>
 
