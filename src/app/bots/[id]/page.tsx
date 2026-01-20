@@ -282,17 +282,36 @@ export default function BotDetailPage() {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": bot.name,
+        "image": "https://andrewaltair.ge/og.png",
         "operatingSystem": "Web",
         "applicationCategory": bot.category,
         "offers": {
             "@type": "Offer",
             "price": bot.salePrice || bot.price || "0",
-            "priceCurrency": "GEL"
+            "priceCurrency": "GEL",
+            "availability": "https://schema.org/OnlineOnly",
+            "hasMerchantReturnPolicy": {
+                "@type": "MerchantReturnPolicy",
+                "applicableCountry": "GE",
+                "returnPolicyCategory": "https://schema.org/MerchantReturnNotPermitted"
+            },
+            "shippingDetails": {
+                "@type": "OfferShippingDetails",
+                "shippingRate": {
+                    "@type": "MonetaryAmount",
+                    "value": 0,
+                    "currency": "GEL"
+                },
+                "shippingDestination": {
+                    "@type": "DefinedRegion",
+                    "addressCountry": "GE"
+                }
+            }
         },
         "aggregateRating": {
             "@type": "AggregateRating",
             "ratingValue": bot.rating,
-            "ratingCount": bot.stats?.totalReviews || 1
+            "ratingCount": 1
         },
         "description": bot.description,
         "author": {

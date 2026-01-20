@@ -150,7 +150,24 @@ export default async function PromptDetailPage({ params }: Props) {
             url: `${siteUrl}/prompts/${prompt.slug}`,
             priceCurrency: safeRender(prompt.currency || 'USD'),
             price: prompt.isFree ? '0' : safeRender(prompt.price),
-            availability: 'https://schema.org/OnlineOnly'
+            availability: 'https://schema.org/OnlineOnly',
+            'hasMerchantReturnPolicy': {
+                '@type': 'MerchantReturnPolicy',
+                'applicableCountry': 'GE',
+                'returnPolicyCategory': 'https://schema.org/MerchantReturnNotPermitted'
+            },
+            'shippingDetails': {
+                '@type': 'OfferShippingDetails',
+                'shippingRate': {
+                    '@type': 'MonetaryAmount',
+                    'value': 0,
+                    'currency': 'USD'
+                },
+                'shippingDestination': {
+                    '@type': 'DefinedRegion',
+                    'addressCountry': 'GE'
+                }
+            }
         },
         aggregateRating: (prompt.rating || 0) > 0 ? {
             '@type': 'AggregateRating',
