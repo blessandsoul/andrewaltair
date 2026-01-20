@@ -99,6 +99,7 @@ export interface PostData {
         music: string
     }
     telegramContent?: string
+    telegramButtonText?: string
     postToTelegram?: boolean
     repository?: {
         type: 'github' | 'gitlab' | 'other'
@@ -161,6 +162,7 @@ const DEFAULT_POST: PostData = {
         music: ""
     },
     telegramContent: "",
+    telegramButtonText: "",
     postToTelegram: true,
     keyPoints: [],
     faq: [],
@@ -209,6 +211,18 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
     // Upload States
     const [isUploadingH, setIsUploadingH] = React.useState(false)
     const [isUploadingV, setIsUploadingV] = React.useState(false)
+    const [isSaving, setIsSaving] = React.useState(false)
+
+    // Safe save handler to prevent double submission
+    const handleSaveClick = async () => {
+        if (isSaving) return // Prevent double click
+        setIsSaving(true)
+        try {
+            await onSave(post)
+        } finally {
+            setIsSaving(false)
+        }
+    }
 
     // File Upload Handler
     const handleFileUpload = async (file: File, type: 'horizontal' | 'vertical') => {
@@ -376,6 +390,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                         // 4. Telegram
                         if (parsed.telegram) {
                             newData.telegramContent = parsed.telegram.text || ''
+                            newData.telegramButtonText = parsed.telegram.button_text || ''
                             newData.postToTelegram = true // Automatically enable if telegram data is present
                         }
 
@@ -519,8 +534,10 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
             )}
 
             <div className="flex justify-end gap-2 fixed bottom-0 right-0 p-4 bg-background border-t w-full z-50">
-                <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
-                <Button type="button" onClick={() => onSave(post)}>Save</Button>
+                <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving}>Cancel</Button>
+                <Button type="button" onClick={handleSaveClick} disabled={isSaving}>
+                    {isSaving ? 'იტვირთება...' : 'Save'}
+                </Button>
             </div>
         </div>
     )

@@ -77,7 +77,6 @@ interface Post {
     sections?: Section[]
     videos?: VideoEmbed[]
     relatedPosts?: string[]
-    relatedPosts?: string[]
     tags: string[]
     // AI & SEO Fields
     keyPoints?: string[]
@@ -213,11 +212,11 @@ console.log(data.result);
 
             {/* TbPhoto Lightbox */}
             <ImageLightbox
-                src={articleImages[0]?.src || ""}
-                alt={articleImages[0]?.alt || ""}
+                src={images[currentIndex]?.src || ""}
+                alt={images[currentIndex]?.alt || ""}
                 isOpen={isOpen}
                 onClose={closeLightbox}
-                images={articleImages}
+                images={images}
                 initialIndex={currentIndex}
             />
 
