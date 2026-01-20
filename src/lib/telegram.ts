@@ -58,7 +58,7 @@ export async function sendTelegramPost(data: TelegramPostData) {
         let endpoint = 'sendMessage';
         const body: any = {
             chat_id: TELEGRAM_CHANNEL_ID,
-            parse_mode: 'Markdown',
+            parse_mode: data.parse_mode || 'Markdown',
             disable_web_page_preview: false
         };
 

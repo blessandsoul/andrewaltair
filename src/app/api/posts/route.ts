@@ -224,20 +224,35 @@ export async function POST(request: Request) {
                     telegramContent: data.telegram.text,
                     postUrl: postUrl,
                     buttonText: data.telegram.button_text,
-                    // Try to find a cover image from the new content structure if not explicitly in 'coverImage'
-                    // The new structure doesn't distinctly have 'coverImage' at top level usually, 
-                    // but we might want to check if the first section is an image or if we can extract one.
-                    // For now, let's assume if 'coverImage' is not set in postData, we look at 'meta'? 
-                    // The JSON example doesn't have a top-level coverImage in valid places, but typically it might be added.
-                    // IMPORTANT: The user example JSON DOES NOT have a cover image URL field specified in the example!
-                    // However, to make it nice, we should probably allow one or default to something.
-                    // If existing logic populated post.coverImage, use that.
+                    parse_mode: data.telegram.parse_mode, // Pass the requested parse mode
                     coverImage: post.coverImage || undefined
                 };
 
-                sendTelegramPost(telegramPayload)
-                    .then(res => console.log('[Telegram Status]', res))
-                    .catch(err => console.error('[Telegram Error]', err));
+                // Await the result to ensure it runs and to report status
+                try {
+                    const telegramResult = await sendTelegramPost(telegramPayload);
+                    console.log('[Telegram Status]', telegramResult);
+
+                    return NextResponse.json({
+                        success: true,
+                        post: {
+                            ...post.toObject(),
+                            id: post._id.toString(),
+                        },
+                        telegram: telegramResult
+                    });
+                } catch (err) {
+                    console.error('[Telegram Error]', err);
+                    // Don't fail the whole request, but report error
+                    return NextResponse.json({
+                        success: true,
+                        post: {
+                            ...post.toObject(),
+                            id: post._id.toString(),
+                        },
+                        telegram: { success: false, error: 'Internal Error', details: err }
+                    });
+                }
             }
         }
 
