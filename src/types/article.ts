@@ -204,8 +204,13 @@ export type ContentSection =
 
 export interface ArticleData {
     meta: ArticleMeta;
-    schema_org: SchemaOrg;
-    faq_schema: FAQItem[];
-    glossary: Record<string, string>;
+    seo?: {
+        excerpt?: string;
+        key_points?: string[];
+        toc?: string[];
+        faq?: { question: string; answer: string; }[];
+        entities?: string[];
+    };
+    glossary?: Record<string, string>;
     content: ContentSection[];
 }

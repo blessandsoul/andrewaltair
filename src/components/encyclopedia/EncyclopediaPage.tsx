@@ -91,24 +91,66 @@ export default function EncyclopediaPage() {
                     {/* Section 1: Vibe Coding */}
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="group">
                         <Link href="/encyclopedia/vibe-coding">
-                            <div className="bg-white rounded-2xl shadow-xl p-6 border border-purple-100 hover:shadow-2xl transition-all hover:scale-[1.02] cursor-pointer h-full">
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                                        <TbBook size={28} className="text-white" />
+                            <div className="bg-white rounded-2xl shadow-xl p-6 border border-purple-100 hover:shadow-2xl transition-all hover:scale-[1.02] cursor-pointer h-full group relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-purple-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-purple-100 transition-colors" />
+
+                                <div className="relative z-10">
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                            <TbCode size={28} className="text-white" />
+                                        </div>
+                                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-100 border border-purple-200">
+                                            <TbFlame size={14} className="text-purple-600 animate-pulse" />
+                                            <span className="text-xs font-semibold text-purple-700">პოპულარული</span>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 border border-green-200">
-                                        <TbCircleCheck size={14} className="text-green-600" />
-                                        <span className="text-xs font-semibold text-green-700">ხელმისაწვდომი</span>
+
+                                    <h2 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">Vibe Coding</h2>
+                                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">AI-ასისტირებული პროგრამირების სრული გზამკვლევი. ისწავლე როგორ წერო კოდი გონებით.</p>
+
+                                    <div className="flex items-center justify-between pt-4 border-t border-purple-50">
+                                        <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                                            <TbBook size={16} className="text-purple-500" />
+                                            <span>~{getTotalArticleCountVibe()} სტატია</span>
+                                        </div>
+                                        <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-all duration-300">
+                                            <TbArrowRight size={18} />
+                                        </div>
                                     </div>
                                 </div>
-                                <h2 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">Vibe Coding</h2>
-                                <p className="text-gray-600 text-sm mb-4">AI-ასისტირებული პროგრამირება. 12+ სტატია.</p>
-                                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                                    <div className="flex items-center gap-1.5">
-                                        <TbStar size={16} className="text-yellow-400 fill-yellow-400" />
-                                        <span className="text-sm font-semibold text-gray-900">4.9/5</span>
+                            </div>
+                        </Link>
+                    </motion.div>
+
+                    {/* AI 2026 Section */}
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="group">
+                        <Link href="/encyclopedia/ai-2026">
+                            <div className="bg-white rounded-2xl shadow-xl p-6 border border-blue-100 hover:shadow-2xl transition-all hover:scale-[1.02] cursor-pointer h-full group relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-blue-100 transition-colors" />
+
+                                <div className="relative z-10">
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                            <TbRocket size={28} className="text-white" />
+                                        </div>
+                                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-100 border border-blue-200">
+                                            <TbSparkles size={14} className="text-blue-600" />
+                                            <span className="text-xs font-semibold text-blue-700">ახალი</span>
+                                        </div>
                                     </div>
-                                    <TbArrowRight size={20} className="text-purple-600 group-hover:translate-x-1 transition-transform" />
+
+                                    <h2 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">AI 2026</h2>
+                                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">კაცობრიობის დიდი ფილტრი. მომავლის პროფესიები და გადარჩენის გზამკვლევი.</p>
+
+                                    <div className="flex items-center justify-between pt-4 border-t border-blue-50">
+                                        <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                                            <TbBook size={16} className="text-blue-500" />
+                                            <span>1 სტატია</span>
+                                        </div>
+                                        <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                                            <TbArrowRight size={18} />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </Link>
