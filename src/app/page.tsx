@@ -199,17 +199,17 @@ export default async function Home() {
               <div className="space-y-4 max-w-2xl">
                 {/* Title */}
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight leading-tight animate-in fade-in slide-in-from-bottom-4 duration-700">
-                  <span className="text-gradient">გახდი AI პროფესიონალი ნულიდან</span>
+                  <span className="text-gradient">AI ინოვატორი საქართველოში 🇬🇪</span>
                 </h1>
 
                 {/* Description */}
                 <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
                   <div className="space-y-2">
                     <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
-                      პრაქტიკული ტუტორიალები, უფასო კურსები და რეალური მაგალითები.
+                      {brand.bio.short}
                     </p>
-                    <p className="text-base text-muted-foreground/80 leading-relaxed">
-                      ისწავლე როგორ გამოიყენო <span className="text-foreground font-medium">GEMINI 3</span>, <span className="text-foreground font-medium">CHATGPT 5.2</span>, <span className="text-foreground font-medium">GROK 3</span> და <span className="text-foreground font-medium">CLAUDE 4.5</span> ეფექტურად.
+                    <p className="text-base text-muted-foreground/80 leading-relaxed font-medium text-gradient">
+                      {brand.bio.philosophy}
                     </p>
                   </div>
 

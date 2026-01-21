@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import { Separator } from "@/components/ui/separator"
 import { TbBrain, TbStack2 } from "react-icons/tb"
+import { brand } from "@/lib/brand"
 
 export function AboutBioDetail() {
     return (
@@ -23,7 +24,7 @@ export function AboutBioDetail() {
                                 <div className="h-1.5 w-20 bg-primary/20 rounded-full mt-6 mb-6" />
                             </div>
                             <p className="text-lg text-muted-foreground leading-relaxed">
-                                მოგესალმებით, მე ვარ <span className="text-foreground font-medium">Andrew Altair</span> — AI ინოვატორი და ციფრული არქიტექტორი.
+                                მოგესალმებით, მე ვარ <span className="text-foreground font-medium">Andrew Altair</span> — {brand.bio.title}.
                             </p>
                         </motion.div>
                     </div>
@@ -39,13 +40,16 @@ export function AboutBioDetail() {
                             className="prose prose-lg prose-invert text-muted-foreground/90 leading-loose max-w-none"
                         >
                             <p>
-                                ჩემი მოგზაურობა ტექნოლოგიებში დაიწყო 8 წლის წინ, როდესაც პირველად აღმოვაჩინე კოდის ძალა.
-                                დღეს, მე ვიკვლევ საზღვრებს <span className="text-foreground font-medium">ბიოლოგიურ ინტელექტსა</span> და <span className="text-foreground font-medium">სინთეზურ გონებას</span> (Artificial Intelligence) შორის.
+                                {brand.bio.long}
                             </p>
-                            <p>
-                                ჩემი მისიაა — გავხადო <strong>General Purpose AI</strong> და <strong>Reasoning Models</strong> (GPT-5.2, Gemini 3, Grok 3, Claude 4.5) ხელმისაწვდომი და გასაგები.
-                                ვქმნი კონტენტს <strong>სუპერ-ინტელექტის</strong>, <strong>ავტონომიური აგენტებისა</strong> და <strong>ციფრული სინთეზის</strong> შესახებ.
+                            <p className="font-medium text-foreground text-xl">
+                                {brand.bio.philosophy}
                             </p>
+                            <ul className="list-disc pl-5 space-y-2 mt-4">
+                                {brand.bio.bullets.map((bullet, i) => (
+                                    <li key={i}>{bullet}</li>
+                                ))}
+                            </ul>
                         </motion.div>
 
                         <Separator className="bg-white/5" />

@@ -30,7 +30,7 @@ export function Footer() {
                 <span className="font-bold text-xl text-gradient">Andrew Altair</span>
               </Link>
               <p className="text-sm text-muted-foreground">
-                ხელოვნური ინტელექტის ექსპერტი. AI-ს შესახებ ვიზიარებ ცოდნას, ტუტორიალებს და პრაქტიკულ რჩევებს.
+                {brand.bio.short}
               </p>
               <div className="flex gap-2">
                 <Link href={brand.social.youtube} className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
@@ -152,8 +152,8 @@ export function Footer() {
       </div>
 
       {/* TOP.GE Counter Script */}
-      <Script 
-        src="//counter.top.ge/counter.js" 
+      <Script
+        src="//counter.top.ge/counter.js"
         strategy="lazyOnload"
         onLoad={() => console.log('TOP.GE counter loaded')}
         onError={() => console.error('TOP.GE counter failed')}

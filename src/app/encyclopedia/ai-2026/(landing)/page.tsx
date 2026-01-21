@@ -1,12 +1,87 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { TbRocket, TbBook, TbArrowRight, TbGift, TbCircleCheck } from 'react-icons/tb';
+import { useState, useMemo } from 'react';
+import { TbRocket, TbBook, TbArrowRight, TbGift, TbCircleCheck, TbSearch, TbLock } from 'react-icons/tb';
 import Link from 'next/link';
+import { useAuth } from '@/lib/auth';
+import { AI_2026_DATA } from '@/data/ai2026Content';
 
 export default function AI2026Landing() {
+    const [search, setSearch] = useState('');
+    const { user } = useAuth();
+
+    // Flatten all articles from categories for mobile list
+    const allArticles = useMemo(() => {
+        return AI_2026_DATA.categories.flatMap(cat => cat.articles);
+    }, []);
+
+    // Filter articles by search
+    const filteredArticles = useMemo(() => {
+        if (!search.trim()) return allArticles;
+        return allArticles.filter(article =>
+            article.title.toLowerCase().includes(search.toLowerCase())
+        );
+    }, [allArticles, search]);
+
     return (
         <div className="min-h-screen relative overflow-hidden bg-gray-50">
+            {/* === MOBILE ARTICLE LIST (მობილურზე პირველი რასაც ხედავს) === */}
+            <div className="lg:hidden pt-20 pb-6 px-4 bg-white border-b border-gray-100">
+                <div className="mb-4">
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">🚀 აირჩიეთ სტატია</h1>
+                    <p className="text-gray-500 text-sm">აირჩიეთ სასურველი თემა კითხვის დასაწყებად</p>
+                </div>
+
+                {/* Search */}
+                <div className="relative mb-4">
+                    <TbSearch size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input
+                        type="text"
+                        placeholder="ძიება..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                    />
+                </div>
+
+                {/* Article List */}
+                <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+                    {filteredArticles.map((article) => {
+                        const isLocked = !article.isFree && user?.email !== 'andrewaltair@icloud.com';
+
+                        return (
+                            <Link
+                                key={article.id}
+                                href={`/encyclopedia/ai-2026/${article.id}`}
+                                className="block bg-gray-50 hover:bg-blue-50 p-4 rounded-xl border border-gray-100 transition-all active:scale-[0.98]"
+                            >
+                                <div className="flex items-center justify-between gap-3">
+                                    <h3 className="font-medium text-gray-900 line-clamp-2 leading-snug text-sm">
+                                        {article.title}
+                                    </h3>
+                                    {isLocked ? (
+                                        <TbLock size={16} className="text-gray-400 flex-shrink-0" />
+                                    ) : (
+                                        <TbBook size={16} className="text-blue-500 flex-shrink-0" />
+                                    )}
+                                </div>
+                            </Link>
+                        );
+                    })}
+                </div>
+
+                {filteredArticles.length === 0 && (
+                    <div className="text-center py-8">
+                        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <TbSearch size={20} className="text-gray-400" />
+                        </div>
+                        <p className="text-gray-500 text-sm">სტატია ვერ მოიძებნა</p>
+                    </div>
+                )}
+            </div>
+            {/* === END MOBILE ARTICLE LIST === */}
+
             {/* Animated Background - distinct form Vibe Coding */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-0 left-0 w-[800px] h-[800px] bg-gradient-to-br from-blue-200/40 via-cyan-200/30 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
