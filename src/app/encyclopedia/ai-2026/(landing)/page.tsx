@@ -26,8 +26,8 @@ export default function AI2026Landing() {
 
     return (
         <div className="min-h-screen relative overflow-hidden bg-gray-50">
-            {/* === MOBILE ARTICLE LIST (მობილურზე პირველი რასაც ხედავს) === */}
-            <div className="lg:hidden pt-20 pb-6 px-4 bg-white border-b border-gray-100">
+            {/* === ARTICLE LIST (ყველა ეკრანზე პირველი რასაც ხედავს) === */}
+            <div className="pt-20 pb-6 px-4 bg-white border-b border-gray-100">
                 <div className="mb-4">
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">🚀 აირჩიეთ სტატია</h1>
                     <p className="text-gray-500 text-sm">აირჩიეთ სასურველი თემა კითხვის დასაწყებად</p>
