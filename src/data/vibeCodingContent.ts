@@ -34,11 +34,88 @@ export const VIBE_CODING_DATA: VibeCodingData = {
             icon: "🎯",
             articles: [
                 {
-                    id: "ra-aris-vibe-coding",
-                    title: "რა არის Vibe Coding?",
+                    id: "01-shesavali",
+                    title: "შესავალი: კოდინგი მოკვდა!",
                     isFree: true,
                     content: "This content is loaded dynamically from JSON.",
-                    tags: ["Vibe Coding", "AI", "Future"]
+                    tags: ["Vibe Coding", "შესავალი", "კარპატი", "2026"]
+                }
+            ]
+        },
+        {
+            id: "fundamentals",
+            title: "საფუძვლები",
+            icon: "📚",
+            articles: [
+                {
+                    id: "02-istoria-timeline",
+                    title: "ისტორია: კარპატის ტვიტიდან Vibe ეპოქამდე",
+                    isFree: false,
+                    content: "This content is loaded dynamically from JSON.",
+                    tags: ["Timeline", "ისტორია", "კარპატი", "Cursor", "MCP"]
+                },
+                {
+                    id: "03-filosofia",
+                    title: "ფილოსოფია: ვაიბი > სინტაქსი",
+                    isFree: false,
+                    content: "This content is loaded dynamically from JSON.",
+                    tags: ["ფილოსოფია", "აბსტრაქცია", "მებაღეობა", "არქიტექტურა"]
+                }
+            ]
+        },
+        {
+            id: "tools",
+            title: "ინსტრუმენტები",
+            icon: "🛠️",
+            articles: [
+                {
+                    id: "04-instrumentebi",
+                    title: "ტექნოლოგიური არსენალი 2026",
+                    isFree: false,
+                    content: "This content is loaded dynamically from JSON.",
+                    tags: ["Cursor", "Windsurf", "Warp", "ინსტრუმენტები", "რედაქტორი"]
+                }
+            ]
+        },
+        {
+            id: "practice",
+            title: "პრაქტიკა",
+            icon: "🚀",
+            articles: [
+                {
+                    id: "05-praqtikuli-gzamkvlevi",
+                    title: "პრაქტიკული გზამკვლევი: 6 ნაბიჯი",
+                    isFree: false,
+                    content: "This content is loaded dynamically from JSON.",
+                    tags: ["პრაქტიკა", "გზამკვლევი", "ჩეკლისტი", "წესები"]
+                },
+                {
+                    id: "06-axali-unarebi",
+                    title: "ახალი უნარები 2026 წელს",
+                    isFree: false,
+                    content: "This content is loaded dynamically from JSON.",
+                    tags: ["უნარები", "2026", "კონტექსტი", "აზროვნება"]
+                }
+            ]
+        },
+        {
+            id: "advanced",
+            title: "მოწინავე",
+            icon: "💎",
+            articles: [
+                {
+                    id: "07-ekonomikuri-revolucia",
+                    title: "ეკონომიკური რევოლუცია: 1-კაციანი Unicorn-ები",
+                    isFree: false,
+                    content: "This content is loaded dynamically from JSON.",
+                    tags: ["ეკონომიკა", "Unicorn", "SaaS", "სტარტაპი"]
+                },
+                {
+                    id: "08-riskebi-mitebi-daskvna",
+                    title: "რისკები, მითები და დასკვნა",
+                    isFree: false,
+                    content: "This content is loaded dynamically from JSON.",
+                    tags: ["რისკები", "უსაფრთხოება", "მითები", "დასკვნა"]
                 }
             ]
         }

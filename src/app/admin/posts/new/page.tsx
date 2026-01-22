@@ -21,6 +21,7 @@ export default function NewPostPage() {
 
             // Log payload for debugging
             const payload = {
+                numericId: post.numericId || undefined,
                 title: post.title,
                 slug: post.slug || post.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, ''),
                 excerpt: post.excerpt,

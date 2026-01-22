@@ -2,37 +2,22 @@
 
 import { motion } from 'framer-motion';
 import {
-    TbLock,
-    TbLockOpen,
-    TbSearch,
-    TbList,
-    TbX,
-    TbChevronLeft,
-    TbChevronRight,
     TbBrandTelegram,
     TbBook,
     TbArrowRight,
     TbCircleCheck,
     TbStar,
     TbGift,
-    TbShare,
     TbUsers,
-    TbCalendar,
-    TbTrophy,
-    TbDownload,
     TbSparkles,
     TbChartBar,
-    TbBulb,
-    TbRocket,
-    TbDeviceLaptop,
     TbCheck,
-    TbClock
+    TbX
 } from 'react-icons/tb';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { FAQSchema } from '@/components/blog/ArticleSchema';
-import { useAuth } from '@/lib/auth';
-import { VIBE_CODING_DATA } from '@/data/vibeCodingContent';
+import PremiumRequestModal from '@/components/premium/PremiumRequestModal';
 
 // FAQ data for SEO
 const vibeCodingFAQs = [
@@ -57,82 +42,13 @@ const vibeCodingFAQs = [
 export default function VibeCodingLanding() {
     const [shareModalOpen, setShareModalOpen] = useState(false);
     const [referralCode] = useState('USER123');
-    const [search, setSearch] = useState('');
-    const { user } = useAuth();
-
-    // Flatten all articles from categories for mobile list
-    const allArticles = useMemo(() => {
-        return VIBE_CODING_DATA.categories.flatMap(cat => cat.articles);
-    }, []);
-
-    // Filter articles by search
-    const filteredArticles = useMemo(() => {
-        if (!search.trim()) return allArticles;
-        return allArticles.filter(article =>
-            article.title.toLowerCase().includes(search.toLowerCase())
-        );
-    }, [allArticles, search]);
+    const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
 
     return (
         <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: '#fafafa' }}>
             {/* FAQ Schema for SEO */}
             <FAQSchema items={vibeCodingFAQs} />
 
-            {/* === ARTICLE LIST (ყველა ეკრანზე პირველი რასაც ხედავს) === */}
-            <div className="pt-20 pb-6 px-4 bg-white border-b border-gray-100">
-                <div className="mb-4">
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">📚 აირჩიეთ სტატია</h1>
-                    <p className="text-gray-500 text-sm">აირჩიეთ სასურველი თემა კითხვის დასაწყებად</p>
-                </div>
-
-                {/* Search */}
-                <div className="relative mb-4">
-                    <TbSearch size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input
-                        type="text"
-                        placeholder="ძიება..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500"
-                    />
-                </div>
-
-                {/* Article List */}
-                <div className="space-y-2 max-h-[50vh] overflow-y-auto">
-                    {filteredArticles.map((article) => {
-                        const isLocked = !article.isFree && user?.email !== 'andrewaltair@icloud.com';
-
-                        return (
-                            <Link
-                                key={article.id}
-                                href={`/encyclopedia/vibe-coding/${article.id}`}
-                                className="block bg-gray-50 hover:bg-purple-50 p-4 rounded-xl border border-gray-100 transition-all active:scale-[0.98]"
-                            >
-                                <div className="flex items-center justify-between gap-3">
-                                    <h3 className="font-medium text-gray-900 line-clamp-2 leading-snug text-sm">
-                                        {article.title}
-                                    </h3>
-                                    {isLocked ? (
-                                        <TbLock size={16} className="text-gray-400 flex-shrink-0" />
-                                    ) : (
-                                        <TbBook size={16} className="text-purple-500 flex-shrink-0" />
-                                    )}
-                                </div>
-                            </Link>
-                        );
-                    })}
-                </div>
-
-                {filteredArticles.length === 0 && (
-                    <div className="text-center py-8">
-                        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <TbSearch size={20} className="text-gray-400" />
-                        </div>
-                        <p className="text-gray-500 text-sm">სტატია ვერ მოიძებნა</p>
-                    </div>
-                )}
-            </div>
-            {/* === END MOBILE ARTICLE LIST === */}
             {/* Animated Background */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-br from-purple-200/40 via-pink-200/30 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
@@ -171,15 +87,13 @@ export default function VibeCodingLanding() {
                             <TbArrowRight size={20} />
                         </Link>
 
-                        <a
-                            href="https://t.me/andr3waltairchannel"
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        <button
+                            onClick={() => setIsPremiumModalOpen(true)}
                             className="px-8 py-4 rounded-xl bg-white border-2 border-purple-200 text-purple-600 font-semibold hover:bg-purple-50 transition-colors flex items-center gap-2"
                         >
-                            <TbBrandTelegram size={20} />
+                            <TbSparkles size={20} />
                             პრემიუმის მიღება
-                        </a>
+                        </button>
                     </div>
                 </motion.div>
 
@@ -347,19 +261,24 @@ export default function VibeCodingLanding() {
                                 <TbBook size={20} />
                                 დაიწყე უფასოდ
                             </Link>
-                            <a
-                                href="https://t.me/andr3waltairchannel"
-                                target="_blank"
-                                rel="noopener noreferrer"
+                            <button
+                                onClick={() => setIsPremiumModalOpen(true)}
                                 className="px-8 py-4 rounded-xl bg-transparent border-2 border-white text-white font-semibold hover:bg-white/10 transition-colors flex items-center gap-2"
                             >
-                                <TbBrandTelegram size={20} />
+                                <TbSparkles size={20} />
                                 პრემიუმის მიღება
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </motion.div>
             </div>
+
+            {/* Premium Request Modal */}
+            <PremiumRequestModal
+                isOpen={isPremiumModalOpen}
+                onClose={() => setIsPremiumModalOpen(false)}
+                source="vibe-coding"
+            />
         </div>
     );
 }

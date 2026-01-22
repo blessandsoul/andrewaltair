@@ -13,7 +13,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { TbFileText, TbSearch, TbEdit, TbTrash, TbEye, TbStar, TbFlame, TbX, TbDeviceFloppy, TbSquareCheck, TbSquare, TbPlus, TbMessage, TbShare, TbHeart, TbCalendar, TbChevronUp, TbChevronDown, TbChevronLeft, TbChevronRight, TbCopy, TbDownload, TbUpload, TbGripVertical, TbClock, TbFileCheck, TbFilePencil, TbArrowsSort, TbRobot, TbAtom, TbBook, TbNews, TbCheck } from "react-icons/tb"
+import { TbFileText, TbSearch, TbEdit, TbTrash, TbEye, TbStar, TbFlame, TbX, TbDeviceFloppy, TbSquareCheck, TbSquare, TbPlus, TbMessage, TbShare, TbHeart, TbCalendar, TbChevronUp, TbChevronDown, TbChevronLeft, TbChevronRight, TbCopy, TbDownload, TbUpload, TbGripVertical, TbClock, TbFileCheck, TbFilePencil, TbArrowsSort, TbRobot, TbAtom, TbBook, TbNews, TbCheck, TbBrandTelegram } from "react-icons/tb"
 import { brand } from "@/lib/brand"
 import VideoEmbed, { VideoData } from "@/components/admin/VideoEmbed"
 // Posts fetched from MongoDB API
@@ -57,6 +57,11 @@ interface Post {
     scheduledFor: string | null
     order: number
     videos?: VideoData[]
+    telegramContent?: string
+    coverImages?: {
+        horizontal?: string
+        vertical?: string
+    }
 }
 
 function formatNumber(num: number): string {
@@ -426,6 +431,43 @@ export default function PostsPage() {
         } catch (error) {
             console.error('Duplicate error:', error)
             alert('შეცდომა დუბლირებისას')
+        } finally {
+            setIsSaving(false)
+        }
+    }
+
+    // Post to Telegram
+    const handleTelegramPost = async (post: Post) => {
+        if (!post.telegramContent) {
+            alert('ამ პოსტს არ აქვს Telegram კონტენტი. გთხოვთ რედაქტირებისას დაამატოთ.')
+            return
+        }
+
+        setIsSaving(true)
+        try {
+            const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://andrewaltair.ge'
+            const postUrl = `${baseUrl}/blog/${post.slug}`
+
+            const res = await fetch('/api/telegram/post', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: post.title,
+                    telegramContent: post.telegramContent,
+                    postUrl,
+                    coverImages: post.coverImages
+                })
+            })
+
+            const data = await res.json()
+            if (res.ok && data.success) {
+                alert('✅ წარმატებით გამოქვეყნდა ტელეგრამზე!')
+            } else {
+                alert(`❌ შეცდომა: ${data.error || 'Unknown error'}`)
+            }
+        } catch (error) {
+            console.error('Telegram post error:', error)
+            alert('შეცდომა ტელეგრამზე გაგზავნისას')
         } finally {
             setIsSaving(false)
         }
@@ -858,6 +900,15 @@ export default function PostsPage() {
                                         </td>
                                         <td className="px-4 py-4">
                                             <div className="flex justify-end gap-1">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleTelegramPost(post)}
+                                                    title="ტელეგრამზე გამოქვეყნება"
+                                                    className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                                                >
+                                                    <TbBrandTelegram className="w-4 h-4" />
+                                                </Button>
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"

@@ -218,6 +218,9 @@ export async function POST(request: Request) {
             // Support both nested 'telegram.text' (legacy/direct) and flat 'telegramContent' (frontend)
             const telegramText = data.telegram?.text || data.telegramContent;
 
+            /* 
+            // 🚫 AUTO-POST DISABLED BY HAND (2026-01-22)
+            // User requested manual control via Admin Panel button instead.
             if (telegramText) {
                 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://andrewaltair.ge';
                 const postUrl = `${appUrl}/blog/${post.slug}`;
@@ -257,6 +260,7 @@ export async function POST(request: Request) {
                     });
                 }
             }
+            */
         }
 
         return NextResponse.json({

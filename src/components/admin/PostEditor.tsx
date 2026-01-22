@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { TbDeviceFloppy, TbEye, TbX, TbPlus, TbPhoto, TbFileText, TbTag, TbFolder, TbClock, TbStar, TbFlame, TbWorld, TbArrowLeft, TbWand, TbDeviceDesktop, TbDeviceMobile, TbTrash, TbChevronDown, TbChevronUp, TbSparkles, TbUpload, TbLoader2, TbFileCheck, TbLayout, TbCheck, TbArrowUp, TbArrowDown, TbRobot, TbAtom, TbBrandTelegram, TbBrandGithub, TbBrandGitlab, TbGitFork, TbCode, TbUsers, TbBook, TbGlobe } from "react-icons/tb"
+import { TbDeviceFloppy, TbEye, TbX, TbPlus, TbPhoto, TbFileText, TbTag, TbFolder, TbClock, TbStar, TbFlame, TbWorld, TbArrowLeft, TbWand, TbDeviceDesktop, TbDeviceMobile, TbTrash, TbChevronDown, TbChevronUp, TbSparkles, TbUpload, TbLoader2, TbFileCheck, TbLayout, TbCheck, TbArrowUp, TbArrowDown, TbRobot, TbAtom, TbBrandTelegram, TbBrandGithub, TbBrandGitlab, TbGitFork, TbCode, TbUsers, TbBook, TbGlobe, TbRefresh, TbHash } from "react-icons/tb"
 
 import { parsePostContent, extractTitle, extractExcerpt, calculateReadingTime, parseMultiChannelContent } from "@/lib/PostContentParser"
 import { RichPostContent } from "@/components/blog/RichPostContent"
@@ -49,6 +49,7 @@ interface CoverImages {
 
 export interface PostData {
     id?: string
+    numericId?: string
     slug: string
     title: string
     type: "library" | "news" | "tutorial"
@@ -118,6 +119,7 @@ export interface PostData {
 }
 
 const DEFAULT_POST: PostData = {
+    numericId: "",
     slug: "",
     title: "",
     excerpt: "",
@@ -211,6 +213,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
     // Upload States
     const [isUploadingH, setIsUploadingH] = React.useState(false)
     const [isUploadingV, setIsUploadingV] = React.useState(false)
+    const [isGeneratingCode, setIsGeneratingCode] = React.useState(false)
     const [isSaving, setIsSaving] = React.useState(false)
 
     // Safe save handler to prevent double submission
@@ -257,6 +260,27 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
         } finally {
             if (type === 'horizontal') setIsUploadingH(false)
             else setIsUploadingV(false)
+        }
+    }
+
+    // Generate unique numericId code
+    const handleGenerateCode = async () => {
+        if (isGeneratingCode) return
+        setIsGeneratingCode(true)
+        try {
+            const token = localStorage.getItem('admin_token')
+            const res = await fetch('/api/posts/generate-code', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            if (!res.ok) throw new Error('კოდის გენერაცია ვერ მოხერხდა')
+            const data = await res.json()
+            if (data.code) {
+                setPost(prev => ({ ...prev, numericId: data.code }))
+            }
+        } catch (error: any) {
+            alert(error.message)
+        } finally {
+            setIsGeneratingCode(false)
         }
     }
 
@@ -481,6 +505,36 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                 <div className="space-y-2">
                                     <label className="text-xs font-medium">Slug</label>
                                     <Input value={post.slug} onChange={(e) => setPost(prev => ({ ...prev, slug: e.target.value }))} placeholder="post-slug" className="font-mono text-xs" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-medium flex items-center gap-1">
+                                        <TbHash className="w-3 h-3" />
+                                        კოდი (6 ციფრი)
+                                    </label>
+                                    <div className="flex gap-2">
+                                        <Input
+                                            value={post.numericId || ''}
+                                            onChange={(e) => setPost(prev => ({ ...prev, numericId: e.target.value.replace(/\D/g, '').slice(0, 6) }))}
+                                            placeholder="123456"
+                                            className="font-mono text-sm tracking-widest w-28"
+                                            maxLength={6}
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={handleGenerateCode}
+                                            disabled={isGeneratingCode}
+                                            className="flex items-center gap-1"
+                                        >
+                                            {isGeneratingCode ? (
+                                                <TbLoader2 className="w-4 h-4 animate-spin" />
+                                            ) : (
+                                                <TbRefresh className="w-4 h-4" />
+                                            )}
+                                            <span className="hidden sm:inline">{isGeneratingCode ? '...' : 'დააგენერირე'}</span>
+                                        </Button>
+                                    </div>
                                 </div>
                                 <div className="col-span-2 space-y-2">
                                     <label className="text-xs font-medium">Excerpt (SEO Description)</label>

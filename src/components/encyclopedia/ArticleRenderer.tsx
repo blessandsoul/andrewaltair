@@ -52,11 +52,11 @@ export default function ArticleRenderer({ data }: ArticleRendererProps) {
             // New types
             // New types
             case 'intro':
-                // @ts-ignore
-                return <HeroIntro key={index} section={{ type: 'section_intro', heading: 'შესავალი', body: section.content }} />;
+                // @ts-ignore - support both body and content fields
+                return <HeroIntro key={index} section={{ type: 'section_intro', heading: section.heading || 'შესავალი', body: section.body || section.content || '' }} />;
             case 'section':
-                // @ts-ignore
-                return <StandardSection key={index} section={{ type: 'section_standard', heading: '', body: section.content }} renderWithGlossary={renderWithGlossary} />;
+                // @ts-ignore - support both body and content fields
+                return <StandardSection key={index} section={{ type: 'section_standard', heading: section.heading || '', body: section.body || section.content || '' }} renderWithGlossary={renderWithGlossary} />;
             case 'callout':
                 // @ts-ignore
                 return <WarningSection key={index} section={{ type: 'warning_section', heading: 'ყურადღება', warnings: [{ title: section.variant || 'Info', desc: section.content }] }} />;
