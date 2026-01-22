@@ -17,6 +17,34 @@ export interface TelegramPostData {
  * Sends a post notification to the configured Telegram channel
  * With fallback: if Markdown parsing fails, retry without parse_mode
  */
+/**
+ * Convert Markdown to Telegram HTML format
+ * Supports: *bold*, _italic_, [link](url), and preserves line breaks
+ */
+function markdownToTelegramHTML(text: string): string {
+    let html = text;
+
+    // Escape HTML special characters first (except for ones we'll use)
+    html = html.replace(/&/g, '&amp;');
+    html = html.replace(/</g, '&lt;');
+    html = html.replace(/>/g, '&gt;');
+
+    // Convert Markdown links [text](url) to HTML <a> tags
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+
+    // Convert **bold** or *bold* to <b>
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+    html = html.replace(/\*([^*]+)\*/g, '<b>$1</b>');
+
+    // Convert _italic_ to <i>
+    html = html.replace(/_([^_]+)_/g, '<i>$1</i>');
+
+    // Convert `code` to <code>
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+    return html;
+}
+
 export async function sendTelegramPost(data: TelegramPostData) {
     try {
         const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -27,16 +55,18 @@ export async function sendTelegramPost(data: TelegramPostData) {
             return { success: false, error: 'TELEGRAM_BOT_TOKEN not configured' };
         }
 
-        const { telegramContent, postUrl, coverImage, coverImages, buttonText } = data;
+        const { telegramContent, postUrl, coverImage, coverImages, buttonText, parse_mode } = data;
 
         if (!telegramContent) {
             return { success: false, error: 'telegramContent is required' };
         }
 
-        // Format message for Telegram - plain text link for safety
-        const linkText = buttonText || 'სრულად წაკითხვა';
-        // Use plain text URL instead of Markdown link to avoid parsing issues
-        const message = `${telegramContent}\n\n🔗 ${linkText}: ${postUrl}`;
+        // Format link with button text
+        const linkText = buttonText || '📖 სრულად წაკითხვა';
+
+        // Build message and convert to HTML for proper formatting
+        const rawMessage = `${telegramContent}\n\n🔗 <a href="${postUrl}">${linkText}</a>`;
+        const message = markdownToTelegramHTML(telegramContent) + `\n\n🔗 <a href="${postUrl}">${linkText}</a>`;
 
         let imageUrl = coverImages?.horizontal || coverImage;
 
@@ -57,18 +87,18 @@ export async function sendTelegramPost(data: TelegramPostData) {
         let endpoint = 'sendMessage';
         const body: any = {
             chat_id: TELEGRAM_CHANNEL_ID,
-            disable_web_page_preview: false
-            // NOTE: No parse_mode - send as plain text to avoid Markdown parsing issues
+            disable_web_page_preview: false,
+            parse_mode: 'HTML' // Use HTML for reliable formatting
         };
 
         if (imageUrl && imageUrl.startsWith('http')) {
             endpoint = 'sendPhoto';
             body.photo = imageUrl;
             body.caption = message;
-            console.log('[Telegram Lib] Type: Photo');
+            console.log('[Telegram Lib] Type: Photo with HTML formatting');
         } else {
             body.text = message;
-            console.log('[Telegram Lib] Type: Text');
+            console.log('[Telegram Lib] Type: Text with HTML formatting');
         }
 
         console.log('[Telegram Lib] Body preview:', message.substring(0, 200) + '...');
