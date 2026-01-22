@@ -161,32 +161,33 @@ export async function POST(request: Request) {
 
         if (meta) {
             // NEW JSON STRUCTURE HANDLING
+            // Support both raw JSON (seo.key_points) and PostEditor format (keyPoints at root)
             postData = {
                 slug: uniqueSlug,
                 title: meta.title,
                 numericId: numericId,
-                excerpt: data.seo?.excerpt || meta.title,
-                content: '', // Will populate from sections parsing if needed, but 'content' field is often legacy text.
-                // The new format has 'content' as an array of sections. 
-                // We should map data.content array to sections.
+                // Excerpt priority: top-level > seo object > meta object > title fallback
+                excerpt: data.excerpt || data.seo?.excerpt || meta.excerpt || meta.title,
+                content: '',
                 sections: data.content,
                 categories: [meta.category || 'Technology'],
                 tags: meta.tags || [],
                 author: {
                     name: meta.author?.name || 'Andrew Altair',
                     role: meta.author?.role || 'AI Innovator',
-                    avatar: '/avatar.jpg' // Default
+                    avatar: meta.author?.name === 'ალფა' ? '/images/authors/alpha.png' : '/avatar.jpg'
                 },
-                status: 'published', // Default to published for this workflow
-                readingTime: 5,
+                status: 'published',
+                readingTime: Math.max(5, Math.ceil((JSON.stringify(data.content || []).length) / 1000)),
 
-                // SEO & Extra Fields
-                keyPoints: data.seo?.key_points || [],
-                faq: data.seo?.faq || [],
-                entities: data.seo?.entities || [],
+                // SEO & Extra Fields - check both top-level (from PostEditor) and nested seo object (from raw JSON)
+                keyPoints: data.keyPoints || data.seo?.key_points || meta.key_points || [],
+                faq: data.faq || data.seo?.faq || meta.faq || [],
+                entities: data.entities || data.seo?.entities || meta.entities || [],
 
-                // Telegram specific data storage (optional, for record)
-                telegramContent: data.telegram?.text || ''
+                // Telegram data
+                telegramContent: data.telegramContent || data.telegram?.text || '',
+                telegramButtonText: data.telegramButtonText || data.telegram?.button_text || ''
             };
         } else {
             // OLD/STANDARD JSON STRUCTURE
