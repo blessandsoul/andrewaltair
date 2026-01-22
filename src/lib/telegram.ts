@@ -15,6 +15,7 @@ export interface TelegramPostData {
 
 /**
  * Sends a post notification to the configured Telegram channel
+ * With fallback: if Markdown parsing fails, retry without parse_mode
  */
 export async function sendTelegramPost(data: TelegramPostData) {
     try {
@@ -32,9 +33,10 @@ export async function sendTelegramPost(data: TelegramPostData) {
             return { success: false, error: 'telegramContent is required' };
         }
 
-        // Format message for Telegram
+        // Format message for Telegram - plain text link for safety
         const linkText = buttonText || 'სრულად წაკითხვა';
-        const message = `${telegramContent}\n\n🔗 [${linkText}](${postUrl})`;
+        // Use plain text URL instead of Markdown link to avoid parsing issues
+        const message = `${telegramContent}\n\n🔗 ${linkText}: ${postUrl}`;
 
         let imageUrl = coverImages?.horizontal || coverImage;
 
@@ -45,9 +47,8 @@ export async function sendTelegramPost(data: TelegramPostData) {
         }
 
         // 🛡️ TELEGRAM LOCALHOST PROTECTION
-        // Telegram cannot fetch images from localhost. If we are on localhost, ignore the image and send text only.
         if (imageUrl && (imageUrl.includes('localhost') || imageUrl.includes('127.0.0.1'))) {
-            console.warn('[Telegram Lib] Skipping image because URL is localhost (Telegram cannot reach it):', imageUrl);
+            console.warn('[Telegram Lib] Skipping image because URL is localhost');
             imageUrl = undefined;
         }
 
@@ -56,21 +57,21 @@ export async function sendTelegramPost(data: TelegramPostData) {
         let endpoint = 'sendMessage';
         const body: any = {
             chat_id: TELEGRAM_CHANNEL_ID,
-            parse_mode: data.parse_mode || 'Markdown',
             disable_web_page_preview: false
+            // NOTE: No parse_mode - send as plain text to avoid Markdown parsing issues
         };
 
         if (imageUrl && imageUrl.startsWith('http')) {
             endpoint = 'sendPhoto';
             body.photo = imageUrl;
-            body.caption = message; // Logic change: sendPhoto uses caption
+            body.caption = message;
             console.log('[Telegram Lib] Type: Photo');
         } else {
-            body.text = message; // sendMessage uses text
+            body.text = message;
             console.log('[Telegram Lib] Type: Text');
         }
 
-        console.log('[Telegram Lib] Body:', JSON.stringify(body, null, 2));
+        console.log('[Telegram Lib] Body preview:', message.substring(0, 200) + '...');
 
         const response = await fetch(`${TELEGRAM_API_URL}${TELEGRAM_BOT_TOKEN}/${endpoint}`, {
             method: 'POST',
