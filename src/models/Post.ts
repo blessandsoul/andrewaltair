@@ -143,7 +143,7 @@ const SectionSchema = new Schema<ISection>(
         content: { type: String, required: true },
         type: {
             type: String,
-            enum: ['intro', 'section', 'sarcasm', 'warning', 'tip', 'fact', 'opinion', 'cta', 'hashtags', 'prompt', 'author-comment', 'quote', 'image', 'graph'],
+            enum: ['intro', 'section', 'heading', 'sarcasm', 'warning', 'tip', 'fact', 'opinion', 'cta', 'hashtags', 'prompt', 'author-comment', 'quote', 'image', 'graph'],
             default: 'section'
         },
     },
