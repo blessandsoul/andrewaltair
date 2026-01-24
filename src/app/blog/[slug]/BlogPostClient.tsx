@@ -536,38 +536,77 @@ console.log(data.result);
                                             </CardContent>
                                         </Card>
 
-                                        {/* Related Posts - Miniature */}
+                                        {/* Related Posts - Enhanced with Images */}
                                         {relatedPosts.length > 0 && (
                                             <Card className="border-0 shadow-lg">
                                                 <CardContent className="p-4">
                                                     <div className="flex items-center gap-2 mb-3">
                                                         <TbSparkles className="w-4 h-4 text-primary" />
-                                                        <span className="text-sm font-semibold">მსგავსი სტატიები</span>
+                                                        <span className="text-sm font-semibold">შეიძლება დაგაინტერესოთ</span>
                                                     </div>
                                                     <div className="space-y-3">
-                                                        {relatedPosts.slice(0, 3).map((relatedPost) => (
-                                                            <Link
-                                                                key={relatedPost.id}
-                                                                href={`/blog/${relatedPost.slug}`}
-                                                                className="block group"
-                                                            >
-                                                                <div className="p-2 rounded-lg hover:bg-muted/50 transition-colors">
-                                                                    <p className="text-sm font-medium line-clamp-2 group-hover:text-primary transition-colors">
-                                                                        {relatedPost.title}
-                                                                    </p>
-                                                                    <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground">
-                                                                        <span className="flex items-center gap-0.5">
-                                                                            <TbEye className="w-3 h-3" />
-                                                                            {relatedPost.views.toLocaleString()}
-                                                                        </span>
-                                                                        <span className="flex items-center gap-0.5 text-red-500">
-                                                                            <TbHeart className="w-3 h-3" />
-                                                                            {(Object.values(relatedPost.reactions) as number[]).reduce((a, b) => a + b, 0)}
-                                                                        </span>
+                                                        {relatedPosts.slice(0, 3).map((relatedPost) => {
+                                                            const coverImage = (relatedPost as any).coverImages?.horizontal || (relatedPost as any).coverImage;
+                                                            const totalReactions = (Object.values(relatedPost.reactions) as number[]).reduce((a, b) => a + b, 0);
+
+                                                            return (
+                                                                <Link
+                                                                    key={relatedPost.id}
+                                                                    href={`/blog/${relatedPost.slug}`}
+                                                                    className="block group"
+                                                                >
+                                                                    <div className="rounded-lg overflow-hidden hover:shadow-md transition-all duration-300">
+                                                                        {/* Image with Stats Overlay */}
+                                                                        <div className="relative aspect-[16/9] overflow-hidden">
+                                                                            {coverImage ? (
+                                                                                <Image
+                                                                                    src={coverImage}
+                                                                                    alt={relatedPost.title}
+                                                                                    fill
+                                                                                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                                                                                />
+                                                                            ) : (
+                                                                                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
+                                                                                    <TbSparkles className="w-8 h-8 text-muted-foreground/30" />
+                                                                                </div>
+                                                                            )}
+
+                                                                            {/* Gradient Overlay */}
+                                                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                                                                            {/* Stats Badge Overlay */}
+                                                                            <div className="absolute bottom-2 left-2 right-2 flex items-center justify-center z-10">
+                                                                                <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white/90 text-[9px] font-medium shadow-lg">
+                                                                                    <div className="flex items-center gap-0.5" title="ნახვები">
+                                                                                        <TbEye className="w-3 h-3 text-blue-400" />
+                                                                                        <span>{relatedPost.views >= 1000 ? `${(relatedPost.views / 1000).toFixed(1)}K` : relatedPost.views}</span>
+                                                                                    </div>
+                                                                                    <div className="flex items-center gap-0.5" title="მოწონებები">
+                                                                                        <TbHeart className="w-3 h-3 text-red-400" />
+                                                                                        <span>{totalReactions >= 1000 ? `${(totalReactions / 1000).toFixed(1)}K` : totalReactions}</span>
+                                                                                    </div>
+                                                                                    <div className="flex items-center gap-0.5" title="კომენტარები">
+                                                                                        <TbMessage className="w-3 h-3 text-green-400" />
+                                                                                        <span>{relatedPost.comments >= 1000 ? `${(relatedPost.comments / 1000).toFixed(1)}K` : relatedPost.comments}</span>
+                                                                                    </div>
+                                                                                    <div className="flex items-center gap-0.5" title="გაზიარება">
+                                                                                        <TbShare className="w-3 h-3 text-orange-400" />
+                                                                                        <span>{relatedPost.shares >= 1000 ? `${(relatedPost.shares / 1000).toFixed(1)}K` : relatedPost.shares}</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/* Title */}
+                                                                        <div className="p-2 bg-card">
+                                                                            <p className="text-xs font-medium line-clamp-2 group-hover:text-primary transition-colors leading-snug">
+                                                                                {relatedPost.title}
+                                                                            </p>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                            </Link>
-                                                        ))}
+                                                                </Link>
+                                                            );
+                                                        })}
                                                     </div>
                                                 </CardContent>
                                             </Card>
