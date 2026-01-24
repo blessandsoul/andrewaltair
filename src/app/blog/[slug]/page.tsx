@@ -122,9 +122,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // Ensure absolute URL and bypass API route for images
   if (imageUrl) {
     // If it's an API route image, convert to direct upload path for better performance/SEO
-    // if (imageUrl.includes('/api/files/')) {
-    //   imageUrl = imageUrl.replace('/api/files/', '/uploads/')
-    // }
+    if (imageUrl.includes('/api/files/')) {
+      imageUrl = imageUrl.replace('/api/files/', '/uploads/')
+    }
 
     if (!imageUrl.startsWith('http')) {
       imageUrl = `${siteUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`
@@ -175,9 +175,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const relatedPosts = await getRelatedPosts(slug, post.categories) // Pass categories for better recommendations
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
   let imageUrl = post.coverImages?.horizontal || post.coverImage
-  // if (imageUrl && imageUrl.includes('/api/files/')) {
-  //   imageUrl = imageUrl.replace('/api/files/', '/uploads/')
-  // }
+  if (imageUrl && imageUrl.includes('/api/files/')) {
+    imageUrl = imageUrl.replace('/api/files/', '/uploads/')
+  }
   imageUrl = imageUrl || `${siteUrl}/api/og?title=${encodeURIComponent(post.title)}&type=post`
   if (imageUrl && !imageUrl.startsWith('http')) {
     imageUrl = `${siteUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`

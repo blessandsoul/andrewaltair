@@ -81,6 +81,11 @@ const nextConfig = {
         source: '/feed.xml',
         destination: '/api/rss',
       },
+      // Serve uploaded files statically for OG images (Facebook crawler compatibility)
+      {
+        source: '/uploads/:path*',
+        destination: '/api/files/:path*',
+      },
     ];
   },
 };
