@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { TbArrowLeft, TbClock, TbEye, TbCalendar, TbSparkles, TbSend, TbUser, TbMessage, TbShare, TbHeart, TbHash, TbCopy, TbBrain, TbCheck, TbHelp } from "react-icons/tb"
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useMemo } from "react"
 import {
     ReactionBar,
     ShareButtons,
@@ -123,6 +123,17 @@ export default function BlogPostClient({ post, prevPost, nextPost, relatedPosts 
         brand.categories.flatMap(c => c.subcategories || []).find(c => c.id === categoryStr)
     const { isOpen, images, currentIndex, openLightbox, closeLightbox } = useImageLightbox()
     const [articleImages, setArticleImages] = useState<{ src: string; alt: string }[]>([])
+    const [formattedDate, setFormattedDate] = useState<string>('')
+
+    // Format date on client only to prevent hydration mismatch
+    useEffect(() => {
+        const date = new Date(post.publishedAt)
+        const months = [
+            'იანვარი', 'თებერვალი', 'მარტი', 'აპრილი', 'მაისი', 'ივნისი',
+            'ივლისი', 'აგვისტო', 'სექტემბერი', 'ოქტომბერი', 'ნოემბერი', 'დეკემბერი'
+        ]
+        setFormattedDate(`${date.getDate()} ${months[date.getMonth()]}, ${date.getFullYear()}`)
+    }, [post.publishedAt])
 
     // Extract images from content for lightbox (EXCLUDING gallery/thumbnails/background)
     useEffect(() => {
@@ -284,14 +295,7 @@ console.log(data.result);
                                     </Badge>
                                     <span className="text-sm text-muted-foreground flex items-center gap-1">
                                         <TbCalendar className="w-4 h-4" />
-                                        {(() => {
-                                            const date = new Date(post.publishedAt);
-                                            const months = [
-                                                'იანვარი', 'თებერვალი', 'მარტი', 'აპრილი', 'მაისი', 'ივნისი',
-                                                'ივლისი', 'აგვისტო', 'სექტემბერი', 'ოქტომბერი', 'ნოემბერი', 'დეკემბერი'
-                                            ];
-                                            return `${date.getDate()} ${months[date.getMonth()]}, ${date.getFullYear()}`;
-                                        })()}
+                                        {formattedDate || post.publishedAt}
                                     </span>
                                     <span className="text-sm text-muted-foreground flex items-center gap-1">
                                         <TbClock className="w-4 h-4" />
@@ -638,9 +642,9 @@ console.log(data.result);
                         </div>
                     </section>
                 </div >
-            </InfiniteScrollPosts >
+            </InfiniteScrollPosts>
             {/* Typo Reporter */}
-            < TypoReporter />
+            <TypoReporter />
             <TypoHint />
         </>
     )

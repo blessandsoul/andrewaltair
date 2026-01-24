@@ -59,7 +59,16 @@ export async function GET(request: Request) {
             query.repository = { $exists: false };
         }
 
-        const skip = (page - 1) * limit;
+        // Handle afterSlug for infinite scroll - cursor-based pagination
+        if (afterSlug) {
+            const referencePost = await Post.findOne({ slug: afterSlug }).select('publishedAt').lean();
+            if (referencePost) {
+                query.publishedAt = { $lt: referencePost.publishedAt };
+                query.slug = { $ne: afterSlug }; // Exclude the reference post itself
+            }
+        }
+
+        const skip = afterSlug ? 0 : (page - 1) * limit; // Skip is 0 for cursor pagination
 
         const posts = await Post.find(query)
             .sort({ publishedAt: -1 })
