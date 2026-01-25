@@ -12,6 +12,12 @@ import OutroSection from './sections/OutroSection';
 import { wrapGlossaryTerms } from './GlossaryTooltip';
 import { TbClock, TbChartBar, TbCalendar } from 'react-icons/tb';
 
+// Universal Sections Imports
+import { HeroModernComponent, TextColumnsComponent, HighlightBoxComponent, QuoteMinimalComponent, AuthorBioInlineComponent } from '../universal/UniversalText';
+import { StatGridComponent, ComparisonTableProComponent, ProsConsCardsComponent, TimelineVerticalComponent, ProcessStepsComponent } from '../universal/UniversalData';
+import { GalleryMasonryComponent, ImageSliderComponent, VideoEmbedCustomComponent, AudioPodcastComponent, CodeTerminalComponent } from '../universal/UniversalMedia';
+import { FAQAccordionComponent, CTABannerWideComponent, ProductCardMiniComponent, QuizWidgetComponent, DownloadBoxComponent } from '../universal/UniversalInteraction';
+
 interface VibeCodingArticleRendererProps {
     data: VibeCodingArticleData;
 }
@@ -39,8 +45,34 @@ export default function VibeCodingArticleRenderer({ data }: VibeCodingArticleRen
                 return <MythsFacts key={index} section={section} />;
             case 'section_outro':
                 return <OutroSection key={index} section={section} />;
+
+            // Universal Sections (2026 Design System)
+            case 'hero_modern': return <HeroModernComponent key={index} data={section} />;
+            case 'text_columns': return <TextColumnsComponent key={index} data={section} />;
+            case 'highlight_box': return <HighlightBoxComponent key={index} data={section} />;
+            case 'quote_minimal': return <QuoteMinimalComponent key={index} data={section} />;
+            case 'author_bio_inline': return <AuthorBioInlineComponent key={index} data={section} />;
+
+            case 'stat_grid': return <StatGridComponent key={index} data={section} />;
+            case 'comparison_table_pro': return <ComparisonTableProComponent key={index} data={section} />;
+            case 'pros_cons_cards': return <ProsConsCardsComponent key={index} data={section} />;
+            case 'timeline_vertical': return <TimelineVerticalComponent key={index} data={section} />;
+            case 'process_steps': return <ProcessStepsComponent key={index} data={section} />;
+
+            case 'gallery_masonry': return <GalleryMasonryComponent key={index} data={section} />;
+            case 'image_slider': return <ImageSliderComponent key={index} data={section} />;
+            case 'video_embed_custom': return <VideoEmbedCustomComponent key={index} data={section} />;
+            case 'audio_podcast': return <AudioPodcastComponent key={index} data={section} />;
+            case 'code_terminal': return <CodeTerminalComponent key={index} data={section} />;
+
+            case 'faq_accordion': return <FAQAccordionComponent key={index} data={section} />;
+            case 'cta_banner_wide': return <CTABannerWideComponent key={index} data={section} />;
+            case 'product_card_mini': return <ProductCardMiniComponent key={index} data={section} />;
+            case 'quiz_widget': return <QuizWidgetComponent key={index} data={section} />;
+            case 'download_box': return <DownloadBoxComponent key={index} data={section} />;
+
             default:
-                console.warn('Unknown section type:', (section as ContentSection).type);
+                console.warn('Unknown section type:', (section as any).type);
                 return null;
         }
     };

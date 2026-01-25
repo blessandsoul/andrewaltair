@@ -17,6 +17,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // Use the new coverImages structure if available, fallback to coverImage, then default
   let imageUrl = post.coverImages?.horizontal || post.coverImage
 
+
+
   // Ensure absolute URL
   // Ensure absolute URL and bypass API route for images
   if (imageUrl) {
@@ -96,6 +98,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const relatedPosts = await PostService.getRelatedPosts(slug, post.categories) // Pass categories for better recommendations
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
   let imageUrl = post.coverImages?.horizontal || post.coverImage
+
+
+
   if (imageUrl && imageUrl.includes('/api/files/')) {
     imageUrl = imageUrl.replace('/api/files/', '/uploads/')
   }

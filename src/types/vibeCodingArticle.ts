@@ -120,6 +120,8 @@ export interface SectionOutro {
     image_prompt: string;
 }
 
+import { UniversalSectionType } from './universalSections';
+
 export type ContentSection =
     | SectionIntro
     | TimelineSection
@@ -128,7 +130,8 @@ export type ContentSection =
     | ChecklistSection
     | WarningSection
     | MythsFactsSection
-    | SectionOutro;
+    | SectionOutro
+    | UniversalSectionType;  // Added new types
 
 export interface VibeCodingArticleData {
     meta: ArticleMeta;
