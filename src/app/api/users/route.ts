@@ -1,53 +1,37 @@
 export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
-import dbConnect from '@/lib/db';
-import User from '@/models/User';
+import { UserService } from '@/services/user.service';
+import { verifyToken } from '@/lib/jwt-config';
+import { verifyAdmin as verifyAdminSession } from '@/lib/admin-auth';
 
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-    throw new Error('JWT_SECRET environment variable is required');
-}
-
-// Helper to verify admin role
-async function verifyAdmin(request: Request) {
+// Helper to verify admin role (User Token or Admin Cookie)
+async function verifyAdminAuth(request: Request) {
+    // 1. Check User Token
     const authHeader = request.headers.get('authorization');
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return null;
-    }
-
-    try {
+    if (authHeader && authHeader.startsWith('Bearer ')) {
         const token = authHeader.substring(7);
-        const decoded = jwt.verify(token, JWT_SECRET!) as { userId: string; role: string };
-
-        if (!['god', 'admin'].includes(decoded.role)) {
-            return null;
+        try {
+            const decoded = verifyToken(token) as { userId: string; role: string };
+            if (['god', 'admin'].includes(decoded.role)) {
+                return decoded;
+            }
+        } catch {
+            // Invalid user token
         }
-
-        return decoded;
-    } catch {
-        return null;
     }
+
+    // 2. Check Admin Cookie (legacy / admin panel)
+    if (verifyAdminSession(request)) {
+        return { userId: 'admin-panel', role: 'admin' };
+    }
+
+    return null;
 }
 
 // GET - List all users (admin only)
 export async function GET(request: Request) {
     try {
-        console.time('UsersAPI:Total');
-
-        console.time('UsersAPI:Auth');
-        let admin = await verifyAdmin(request);
-
-        // If not authenticated as User (JWT), try Admin Panel Session (Cookie)
-        if (!admin) {
-            const { verifyAdmin: verifyAdminSession } = await import('@/lib/admin-auth');
-            if (verifyAdminSession(request)) {
-                // Create a mock admin object to satisfy the check
-                admin = { userId: 'admin-panel', role: 'admin' };
-            }
-        }
-        console.timeEnd('UsersAPI:Auth');
+        const admin = await verifyAdminAuth(request);
 
         if (!admin) {
             return NextResponse.json(
@@ -56,64 +40,15 @@ export async function GET(request: Request) {
             );
         }
 
-        console.time('UsersAPI:DBConnect');
-        await dbConnect();
-        console.timeEnd('UsersAPI:DBConnect');
-
         const { searchParams } = new URL(request.url);
         const role = searchParams.get('role');
         const search = searchParams.get('search');
         const page = parseInt(searchParams.get('page') || '1');
         const limit = parseInt(searchParams.get('limit') || '20');
 
-        // Build query
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const query: any = {};
+        const result = await UserService.getAllUsers({ role, search, page, limit });
 
-        if (role) {
-            query.role = role;
-        }
-
-        if (search) {
-            query.$or = [
-                { username: { $regex: search, $options: 'i' } },
-                { email: { $regex: search, $options: 'i' } },
-                { fullName: { $regex: search, $options: 'i' } },
-            ];
-        }
-
-        console.time('UsersAPI:Exec');
-        const countPromise = (Object.keys(query).length === 0)
-            ? User.estimatedDocumentCount()
-            : User.countDocuments(query);
-
-        const usersPromise = User.find(query)
-            .select('username email role status lastLogin createdAt sessions fullName')
-            .sort({ _id: -1 })
-            .skip((page - 1) * limit)
-            .limit(limit)
-            .lean();
-
-        const [total, users] = await Promise.all([countPromise, usersPromise]);
-        console.timeEnd('UsersAPI:Exec');
-
-        const transformedUsers = users.map(user => ({
-            ...user,
-            id: user._id.toString(),
-            _id: undefined,
-        }));
-
-        console.timeEnd('UsersAPI:Total');
-
-        return NextResponse.json({
-            users: transformedUsers,
-            pagination: {
-                page,
-                limit,
-                total,
-                totalPages: Math.ceil(total / limit),
-            },
-        });
+        return NextResponse.json(result);
     } catch (error) {
         console.error('Get users error:', error);
         return NextResponse.json(
@@ -126,15 +61,7 @@ export async function GET(request: Request) {
 // POST - Create a new user (admin only)
 export async function POST(request: Request) {
     try {
-        let admin = await verifyAdmin(request);
-
-        // If not authenticated as User (JWT), try Admin Panel Session (Cookie)
-        if (!admin) {
-            const { verifyAdmin: verifyAdminSession } = await import('@/lib/admin-auth');
-            if (verifyAdminSession(request)) {
-                admin = { userId: 'admin-panel', role: 'admin' };
-            }
-        }
+        const admin = await verifyAdminAuth(request);
 
         if (!admin) {
             return NextResponse.json(
@@ -143,42 +70,19 @@ export async function POST(request: Request) {
             );
         }
 
-        await dbConnect();
-
         const data = await request.json();
 
-        // Check if user exists
-        const existingUser = await User.findOne({
-            $or: [{ email: data.email }, { username: data.username }]
-        });
-
-        if (existingUser) {
-            return NextResponse.json(
-                { error: 'მომხმარებელი უკვე არსებობს' },
-                { status: 400 }
-            );
-        }
-
-        const user = new User(data);
-        await user.save();
+        const user = await UserService.createUser(data);
 
         return NextResponse.json({
             success: true,
-            user: {
-                id: user._id.toString(),
-                username: user.username,
-                email: user.email,
-                fullName: user.fullName,
-                role: user.role,
-                createdAt: user.createdAt.toISOString(),
-            },
+            user,
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Create user error:', error);
         return NextResponse.json(
-            { error: 'Failed to create user' },
-            { status: 500 }
+            { error: error.message || 'Failed to create user' },
+            { status: error.message === 'მომხმარებელი უკვე არსებობს' ? 400 : 500 }
         );
     }
 }
-
