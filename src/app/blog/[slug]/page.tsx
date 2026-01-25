@@ -96,7 +96,7 @@ async function getRelatedPosts(currentSlug: string, categories: string[] = []) {
       posts = [...posts, ...recentPosts]
     }
 
-    return posts.map((post) => ({
+    return posts.map((post: any) => ({
       ...post,
       id: post._id.toString(),
       _id: post._id.toString(),
@@ -239,7 +239,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const faqLd = post.faq && post.faq.length > 0 ? {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: post.faq.map(item => ({
+    mainEntity: post.faq.map((item: any) => ({
       '@type': 'Question',
       name: item.question,
       acceptedAnswer: {
@@ -255,11 +255,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     // AI Knowledge Graph optimization
     keywords: post.seo?.keywords || post.tags?.join(', '),
     ...(post.entities && post.entities.length > 0 ? {
-      about: post.entities.slice(0, 3).map(entity => ({
+      about: post.entities.slice(0, 3).map((entity: string) => ({
         '@type': 'Thing',
         name: entity
       })),
-      mentions: post.entities.map(entity => ({
+      mentions: post.entities.map((entity: string) => ({
         '@type': 'Thing',
         name: entity
       }))

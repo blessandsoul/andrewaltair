@@ -120,7 +120,7 @@ const BotSchema = new Schema<IBot>(
             min: 0,
             validate: {
                 validator: function (this: any, val: number) {
-                    return !val || val < this.price;
+                    return !val || !this.price || val < this.price;
                 },
                 message: 'Sale price must be lower than regular price'
             }

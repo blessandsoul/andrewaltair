@@ -1,18 +1,25 @@
 
+interface PostSection {
+    type: string;
+    content: string;
+    title?: string;
+    icon?: string;
+}
+
 // MOCKING THE PARSER FUNCTION HERE FOR TESTING
-function parsePostContent(rawContent: string): any[] {
+function parsePostContent(rawContent: string): PostSection[] {
     // ... (simplified structure for test) ...
     // Copying the loop logic with IMPROVED regex
-    const sections: any[] = [];
+    const sections: PostSection[] = [];
     // ...
     const lines = rawContent.split('\n');
-    let currentSection: any = null;
+    let currentSection: PostSection | null = null;
     let introComplete = false;
 
     // Mapping mocks
-    const EMOJI_TYPE_MAP: any = { '🎭': 'sarcasm' };
+    const EMOJI_TYPE_MAP: Record<string, string> = { '🎭': 'sarcasm' };
     const SECTION_EMOJIS = ['⚡'];
-    const EMOJI_TO_ICON: any = { '👁': 'Eye', '👁️': 'Eye', '⚡': 'Zap', '🎭': 'Theater', '📊': 'BarChart' };
+    const EMOJI_TO_ICON: Record<string, string> = { '👁': 'Eye', '👁️': 'Eye', '⚡': 'Zap', '🎭': 'Theater', '📊': 'BarChart' };
 
     for (const line of lines) {
         // ... (skip TLDR checks for brevity as they passed) ...

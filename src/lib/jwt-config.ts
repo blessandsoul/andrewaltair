@@ -50,7 +50,7 @@ export function signToken(payload: object): string {
 /**
  * Verify a JWT token with secure defaults
  */
-export function verifyToken(token: string): any {
+export function verifyToken(token: string): jwt.JwtPayload | string {
     try {
         return jwt.verify(token, JWT_CONFIG.secret, {
             algorithms: [JWT_CONFIG.algorithm],

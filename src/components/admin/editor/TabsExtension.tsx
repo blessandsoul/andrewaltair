@@ -9,10 +9,8 @@ interface TabItem {
 }
 
 // Tabs Container Component
-function TabsContainerComponent({ node, updateAttributes }: {
-    node: { attrs: { tabs: TabItem[]; activeTab: string } }
-    updateAttributes: (attrs: { tabs?: TabItem[]; activeTab?: string }) => void
-}) {
+function TabsContainerComponent(props: any) {
+    const { node, updateAttributes } = props
     const { tabs, activeTab } = node.attrs
 
     const addTab = () => {
@@ -22,7 +20,7 @@ function TabsContainerComponent({ node, updateAttributes }: {
 
     const removeTab = (id: string) => {
         if (tabs.length <= 1) return
-        const newTabs = tabs.filter(t => t.id !== id)
+        const newTabs = tabs.filter((t: TabItem) => t.id !== id)
         updateAttributes({
             tabs: newTabs,
             activeTab: activeTab === id ? newTabs[0].id : activeTab
@@ -31,7 +29,7 @@ function TabsContainerComponent({ node, updateAttributes }: {
 
     const updateTabTitle = (id: string, title: string) => {
         updateAttributes({
-            tabs: tabs.map(t => t.id === id ? { ...t, title } : t)
+            tabs: tabs.map((t: TabItem) => t.id === id ? { ...t, title } : t)
         })
     }
 
@@ -40,12 +38,12 @@ function TabsContainerComponent({ node, updateAttributes }: {
             <div className="border rounded-lg overflow-hidden">
                 {/* Tab Headers */}
                 <div className="flex items-center border-b bg-muted/30 overflow-x-auto" contentEditable={false}>
-                    {tabs.map((tab) => (
+                    {tabs.map((tab: TabItem) => (
                         <div
                             key={tab.id}
                             className={`flex items-center gap-1 px-4 py-2 border-r cursor-pointer transition-colors ${activeTab === tab.id
-                                    ? 'bg-background border-b-2 border-b-indigo-500'
-                                    : 'hover:bg-muted/50'
+                                ? 'bg-background border-b-2 border-b-indigo-500'
+                                : 'hover:bg-muted/50'
                                 }`}
                             onClick={() => updateAttributes({ activeTab: tab.id })}
                         >
@@ -127,7 +125,7 @@ export const TabsContainer = Node.create({
 
     addCommands() {
         return {
-            insertTabs: () => ({ commands }) => {
+            insertTabs: () => ({ commands }: { commands: any }) => {
                 return commands.insertContent({
                     type: this.name,
                     attrs: {

@@ -7,11 +7,11 @@ export async function POST(request: NextRequest) {
     try {
         await dbConnect();
 
-        console.log('🔍 Starting deduplication process...');
+        // console.log('🔍 Starting deduplication process...');
 
         // Get all tools
         const allTools = await Tool.find({}).lean();
-        console.log(`📊 Total tools in database: ${allTools.length}`);
+        // console.log(`📊 Total tools in database: ${allTools.length}`);
 
         // Find duplicates by name (case-insensitive)
         const seen = new Map();
@@ -23,18 +23,18 @@ export async function POST(request: NextRequest) {
             if (seen.has(key)) {
                 // This is a duplicate - mark for deletion
                 duplicateIds.push(tool._id.toString());
-                console.log(`🔄 Duplicate found: ${tool.name}`);
+                // console.log(`🔄 Duplicate found: ${tool.name}`);
             } else {
                 seen.set(key, tool);
             }
         }
 
-        console.log(`🗑️ Found ${duplicateIds.length} duplicates to remove`);
+        // console.log(`🗑️ Found ${duplicateIds.length} duplicates to remove`);
 
         // Delete all duplicates
         if (duplicateIds.length > 0) {
             const result = await Tool.deleteMany({ _id: { $in: duplicateIds } });
-            console.log(`✅ Deleted ${result.deletedCount} duplicate tools`);
+            // console.log(`✅ Deleted ${result.deletedCount} duplicate tools`);
         }
 
         const finalCount = await Tool.countDocuments();

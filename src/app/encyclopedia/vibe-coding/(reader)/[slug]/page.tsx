@@ -106,9 +106,9 @@ export default async function ArticlePage({ params }: Props) {
             <>
                 <ArticleSchema
                     title={jsonData.meta.title}
-                    description={jsonData.meta.description}
-                    author={{ name: jsonData.schema_org.author.name || "Andrew Altair" }}
-                    datePublished={jsonData.schema_org.datePublished}
+                    description={jsonData.meta.description || ""}
+                    author={{ name: jsonData.schema_org?.author?.name || "Andrew Altair" }}
+                    datePublished={jsonData.schema_org?.datePublished || new Date().toISOString()}
                     url={`https://andrewaltair.ge/encyclopedia/vibe-coding/${slug}`}
                     articleBody={jsonData.meta.description} // Full body is complex in JSON, using description/summary
                     headline={jsonData.meta.title}

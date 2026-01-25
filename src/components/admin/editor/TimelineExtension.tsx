@@ -11,10 +11,8 @@ interface TimelineEvent {
 }
 
 // Timeline Component
-function TimelineComponent({ node, updateAttributes }: {
-    node: { attrs: { events: TimelineEvent[] } }
-    updateAttributes: (attrs: { events: TimelineEvent[] }) => void
-}) {
+function TimelineComponent(props: any) {
+    const { node, updateAttributes } = props
     const { events } = node.attrs
 
     const addEvent = () => {
@@ -29,13 +27,13 @@ function TimelineComponent({ node, updateAttributes }: {
 
     const updateEvent = (id: string, field: keyof TimelineEvent, value: string) => {
         updateAttributes({
-            events: events.map(e => e.id === id ? { ...e, [field]: value } : e)
+            events: events.map((e: TimelineEvent) => e.id === id ? { ...e, [field]: value } : e)
         })
     }
 
     const removeEvent = (id: string) => {
         if (events.length <= 1) return
-        updateAttributes({ events: events.filter(e => e.id !== id) })
+        updateAttributes({ events: events.filter((e: TimelineEvent) => e.id !== id) })
     }
 
     return (
@@ -44,7 +42,7 @@ function TimelineComponent({ node, updateAttributes }: {
                 {/* Vertical line */}
                 <div className="absolute left-3 top-2 bottom-2 w-0.5 bg-gradient-to-b from-indigo-500 to-purple-500" />
 
-                {events.map((event, index) => (
+                {events.map((event: TimelineEvent, index: number) => (
                     <div key={event.id} className="relative mb-6 last:mb-0">
                         {/* Dot */}
                         <div className="absolute left-[-20px] top-1.5">
@@ -142,7 +140,7 @@ export const Timeline = Node.create({
 
     addCommands() {
         return {
-            insertTimeline: () => ({ commands }) => {
+            insertTimeline: () => ({ commands }: { commands: any }) => {
                 return commands.insertContent({
                     type: this.name,
                     attrs: {

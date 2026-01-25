@@ -62,10 +62,12 @@ function checkRateLimit(
  * Middleware для защиты Mystic AI endpoints
  * Проверяет аутентификацию и rate limiting
  */
+import { IUser } from '@/models/User';
+
 export async function protectMysticEndpoint(
     request: NextRequest,
     toolName: string
-): Promise<{ user: any; error?: NextResponse }> {
+): Promise<{ user: IUser | null; error?: NextResponse }> {
     // 🛡️ AUTHENTICATION REQUIRED
     const user = await getUserFromRequest(request);
     if (!user) {
@@ -84,8 +86,8 @@ export async function protectMysticEndpoint(
 
     if (!rateLimit.allowed) {
         const timeUnit = config.windowMs >= 24 * 60 * 60 * 1000 ? 'დღეში' : 'საათში';
-        const resetTime = rateLimit.resetIn 
-            ? config.windowMs >= 24 * 60 * 60 * 1000 
+        const resetTime = rateLimit.resetIn
+            ? config.windowMs >= 24 * 60 * 60 * 1000
                 ? `${Math.ceil((rateLimit.resetIn || 0) / 3600)} საათში`
                 : `${Math.ceil((rateLimit.resetIn || 0) / 60)} წუთში`
             : '';
@@ -93,7 +95,7 @@ export async function protectMysticEndpoint(
         return {
             user: null,
             error: NextResponse.json(
-                { 
+                {
                     error: `ლიმიტი ამოიწურა. შეგიძლიათ გამოიყენოთ ${config.maxRequests} ჯერ ${timeUnit}. სცადეთ ${resetTime}.`,
                     remaining: 0,
                     resetIn: rateLimit.resetIn

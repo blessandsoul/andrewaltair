@@ -52,11 +52,9 @@ export const calloutTypes = {
 export type CalloutType = keyof typeof calloutTypes
 
 // React component for rendering callout in editor
-export function CalloutComponent({ node, updateAttributes }: {
-    node: { attrs: { type: CalloutType } }
-    updateAttributes: (attrs: { type: CalloutType }) => void
-}) {
-    const type = node.attrs.type || 'info'
+export function CalloutComponent(props: any) {
+    const { node, updateAttributes } = props
+    const type = (node.attrs.type || 'info') as CalloutType
     const config = calloutTypes[type]
     const Icon = config.icon
 
@@ -124,10 +122,10 @@ export const Callout = Node.create({
 
     addCommands() {
         return {
-            setCallout: (type: CalloutType = 'info') => ({ commands }) => {
+            setCallout: (type: CalloutType = 'info') => ({ commands }: { commands: any }) => {
                 return commands.wrapIn(this.name, { type })
             },
-            toggleCallout: (type: CalloutType = 'info') => ({ commands }) => {
+            toggleCallout: (type: CalloutType = 'info') => ({ commands }: { commands: any }) => {
                 return commands.toggleWrap(this.name, { type })
             },
         }

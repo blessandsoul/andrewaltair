@@ -7,10 +7,8 @@ import { ReactCompareSlider, ReactCompareSliderImage } from 'react-compare-slide
 import { TbPhoto } from 'react-icons/tb'
 
 // Image Comparison Component
-function ImageComparisonComponent({ node, updateAttributes }: {
-    node: { attrs: { beforeImage: string; afterImage: string; beforeLabel: string; afterLabel: string } }
-    updateAttributes: (attrs: Partial<typeof node.attrs>) => void
-}) {
+function ImageComparisonComponent(props: any) {
+    const { node, updateAttributes } = props
     const { beforeImage, afterImage, beforeLabel, afterLabel } = node.attrs
 
     return (
@@ -135,7 +133,7 @@ export const ImageComparison = Node.create({
 
     addCommands() {
         return {
-            insertImageComparison: () => ({ commands }) => {
+            insertImageComparison: () => ({ commands }: { commands: any }) => {
                 return commands.insertContent({ type: this.name })
             },
         }

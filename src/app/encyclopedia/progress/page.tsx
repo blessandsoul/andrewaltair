@@ -18,7 +18,7 @@ const mockProgress = {
     ],
     recentArticles: [
         // { title: "რა არის Prompt Engineering?", slug: "what-is-prompt-engineering", section: "prompt-engineering", readAt: "დღეს 14:30" },
-    ],
+    ] as any[],
     achievements: [
         { name: "პირველი ნაბიჯი", description: "პირველი სტატია წაიკითხე", icon: TbStar, unlocked: true },
         { name: "Prompt Master", description: "Prompt Engineering სექცია დაასრულე", icon: TbTrophy, unlocked: false },
@@ -75,7 +75,7 @@ export default function ProgressPage() {
                             სექციები
                         </h2>
                         <div className="space-y-4">
-                            {mockProgress.sections.map((section) => {
+                            {mockProgress.sections.map((section: any) => {
                                 const percent = section.total > 0 ? Math.round((section.read / section.total) * 100) : 0
                                 return (
                                     <Link
@@ -110,7 +110,7 @@ export default function ProgressPage() {
                                 ბოლო აქტივობა
                             </h2>
                             <div className="bg-card rounded-xl border divide-y">
-                                {mockProgress.recentArticles.map((article, i) => (
+                                {mockProgress.recentArticles.map((article: any, i: number) => (
                                     <Link
                                         key={i}
                                         href={`/encyclopedia/${article.section}/${article.slug}`}
@@ -130,7 +130,7 @@ export default function ProgressPage() {
                                 მიღწევები
                             </h2>
                             <div className="space-y-3">
-                                {mockProgress.achievements.map((achievement, i) => (
+                                {mockProgress.achievements.map((achievement: any, i: number) => (
                                     <div
                                         key={i}
                                         className={`bg-card rounded-xl p-4 border flex items-center gap-3 ${!achievement.unlocked ? 'opacity-50' : ''

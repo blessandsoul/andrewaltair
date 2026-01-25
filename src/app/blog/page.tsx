@@ -46,41 +46,58 @@ export const metadata: Metadata = {
 }
 
 // Fetch posts directly from MongoDB (more reliable for SSR)
-async function getPosts() {
-  try {
-    await dbConnect()
-    const posts = await Post.find({ status: 'published' })
-      .sort({ order: 1, createdAt: -1 })
-      .limit(50)
-      .lean()
+// Helpers removed as they are now handled inside the component logic or unused
 
-    // Transform MongoDB documents to plain objects with string IDs
-    return posts.map((post) => ({
-      ...post,
-      id: post._id.toString(),
-      _id: post._id.toString(),
-    }))
-  } catch (error) {
-    console.error('Error fetching posts:', error)
-    return []
+export default async function BlogPage(props: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const searchParams = await props.searchParams
+  const tag = typeof searchParams.tag === 'string' ? searchParams.tag : undefined
+  const search = typeof searchParams.search === 'string' ? searchParams.search : undefined
+  const category = typeof searchParams.category === 'string' ? searchParams.category : undefined
+
+  // Build query
+  const query: any = { status: 'published' }
+
+  if (tag) {
+    query.tags = tag
   }
-}
 
-// Helper to format numbers
-function formatNumber(num: number): string {
-  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M'
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'K'
-  return num.toString()
-}
+  if (category) {
+    query.categories = category
+  }
 
-// Helper to get total reactions
-function getTotalReactions(reactions: Record<string, number>): number {
-  return Object.values(reactions).reduce((a, b) => a + b, 0)
-}
+  if (search) {
+    query.$or = [
+      { title: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } },
+      { "sections.content": { $regex: search, $options: 'i' } }
+    ]
+  }
 
-export default async function BlogPage() {
-  const allPosts = await getPosts()
-  const featuredPosts = allPosts.filter((p: { featured: boolean }) => p.featured)
+  // Fetch data
+  await dbConnect()
+
+  // 1. Get total count
+  const totalPostsCount = await Post.countDocuments(query)
+
+  // 2. Get posts (with simple pagination or increased limit)
+  // For now increasing limit, but ideally should match infinite scroll logic if used
+  const displayLimit = 50 // Keep fetching limit reasonable but disconnect it from "Total"
+
+  const postsData = await Post.find(query)
+    .sort({ createdAt: -1 }) // Sort by new
+    .limit(displayLimit)
+    .lean()
+
+  // Transform to serializable objects
+  const allPosts = postsData.map((post) => ({
+    ...post,
+    id: post._id.toString(),
+    _id: post._id.toString(),
+  }))
+
+  const featuredPosts = allPosts.filter((p: any) => p.featured)
 
   // CollectionPage Schema for Blog
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
@@ -92,7 +109,7 @@ export default async function BlogPage() {
     url: `${siteUrl}/blog`,
     mainEntity: {
       '@type': 'ItemList',
-      numberOfItems: allPosts.length,
+      numberOfItems: totalPostsCount,
       itemListElement: allPosts.slice(0, 10).map((post: any, index: number) => ({
         '@type': 'ListItem',
         position: index + 1,
@@ -145,6 +162,7 @@ export default async function BlogPage() {
                   <Input
                     placeholder="მოძებნე სტატია..."
                     className="pl-10 h-12 bg-card"
+                    defaultValue={search}
                   />
                 </div>
                 <Button size="lg" variant="outline" className="h-12">
@@ -160,29 +178,45 @@ export default async function BlogPage() {
         <section className="py-8 border-y border-border bg-card/50">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
             <div className="flex flex-wrap gap-3 justify-center">
-              <Button variant="default" size="sm" className="rounded-full">
-                ყველა
-              </Button>
-              {brand.categories.map((cat) => (
-                <Button
-                  key={cat.id}
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full"
-                >
-                  <span
-                    className="w-2 h-2 rounded-full mr-2"
-                    style={{ backgroundColor: cat.color }}
-                  />
-                  {cat.name}
+              <Link href="/blog">
+                <Button variant={!tag && !search && !category ? "default" : "outline"} size="sm" className="rounded-full">
+                  ყველა
                 </Button>
+              </Link>
+              {brand.categories.map((cat) => (
+                <Link key={cat.id} href={`/blog?category=${cat.name}`}>
+                  <Button
+                    variant={category === cat.name ? "default" : "outline"}
+                    size="sm"
+                    className="rounded-full"
+                  >
+                    <span
+                      className="w-2 h-2 rounded-full mr-2"
+                      style={{ backgroundColor: cat.color }}
+                    />
+                    {cat.name}
+                  </Button>
+                </Link>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Featured Posts */}
-        {featuredPosts.length > 0 && (
+        {/* Filter Status */}
+        {(tag || search || category) && (
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl mt-8">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <span className="font-medium">ფილტრი:</span>
+              {tag && <Badge variant="outline">Tag: {tag}</Badge>}
+              {search && <Badge variant="outline">Search: {search}</Badge>}
+              {category && <Badge variant="outline">Category: {category}</Badge>}
+              <Link href="/blog" className="text-primary hover:underline text-sm ml-2">გასუფთავება</Link>
+            </div>
+          </div>
+        )}
+
+        {/* Featured Posts (Only show on home/no filters) */}
+        {!tag && !search && !category && featuredPosts.length > 0 && (
           <section className="py-16 lg:py-20">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
               <div className="flex items-center justify-between mb-10">
@@ -215,12 +249,17 @@ export default async function BlogPage() {
                   <TbSparkles className="w-5 h-5 text-accent" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">ყველა სტატია</h2>
-                  <p className="text-muted-foreground">სრული არქივი</p>
+                  <h2 className="text-2xl font-bold">
+                    {tag || search || category ? 'ნაპოვნი სტატიები' : 'ყველა სტატია'}
+                  </h2>
+                  <p className="text-muted-foreground">
+                    {tag ? `თეგი: ${tag}` : 'სრული არქივი'}
+                  </p>
                 </div>
               </div>
               <div className="text-sm text-muted-foreground">
-                სულ: {allPosts.length} სტატია
+                სულ: {totalPostsCount} სტატია
+                {totalPostsCount > displayLimit && ` (ნაჩვენებია ${displayLimit})`}
               </div>
             </div>
 
@@ -242,27 +281,28 @@ export default async function BlogPage() {
                   <TbSparkles className="w-12 h-12 text-primary" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-2xl font-bold">სტატიები მალე!</h3>
+                  <h3 className="text-2xl font-bold">სტატიები არ მოიძებნა</h3>
                   <p className="text-muted-foreground max-w-md mx-auto">
-                    ახალი სტატიები და ტუტორიალები მალე დაემატება. გამოიწერე რომ პირველმა გაიგო!
+                    სცადეთ სხვა საძიებო სიტყვა ან კატეგორია.
                   </p>
                 </div>
                 <Button size="lg" asChild>
-                  <Link href="/">
+                  <Link href="/blog">
                     <TbArrowRight className="w-4 h-4 mr-2" />
-                    მთავარ გვერდზე დაბრუნება
+                    ყველა სტატიის ნახვა
                   </Link>
                 </Button>
               </div>
             )}
 
-            {/* Load More */}
-            <div className="text-center mt-12">
-              <Button size="lg" variant="outline">
-                მეტის ჩვენება
-                <TbArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </div>
+            {/* Load More Link */}
+            {totalPostsCount > displayLimit && (
+              <div className="text-center mt-12">
+                <Button size="lg" variant="outline" disabled>
+                  მეტი სტატია ჩაიტვირთება სქროლისას...
+                </Button>
+              </div>
+            )}
           </div>
         </section>
 
@@ -284,7 +324,7 @@ export default async function BlogPage() {
                   <TbMail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                   <Input
                     placeholder="შენი ელ-ფოსტა"
-                    className="pl-10 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                    className="pl-10 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/50" // tailwindcss v3 input color fix
                   />
                 </div>
                 <Button size="lg" className="h-12 bg-white text-primary hover:bg-white/90">

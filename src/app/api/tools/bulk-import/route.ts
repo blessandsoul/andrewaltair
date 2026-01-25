@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
             try {
                 // Check if tool already exists by name
                 const existing = await Tool.findOne({ name: tool.name });
-                
+
                 if (existing) {
                     console.log(`⏭️  Skipping ${tool.name} - already exists`);
                     skipped++;
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
                     bookmarks: 0,
                 });
 
-                console.log(`✅ Imported ${tool.name}`);
+                // console.log(`✅ Imported ${tool.name}`);
                 imported++;
             } catch (error) {
                 console.error(`❌ Error importing ${tool.name}:`, error);

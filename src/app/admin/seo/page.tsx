@@ -156,25 +156,25 @@ export default function SeoPage() {
     const [newRobotRule, setNewRobotRule] = React.useState<{ userAgent: string; type: "allow" | "disallow"; path: string }>({ userAgent: "*", type: "disallow", path: "" })
 
     // Keywords State
-    const [keywords, setKeywords] = React.useState<KeywordTracking[]>(seoData.keywords as KeywordTracking[])
+    const [keywords, setKeywords] = React.useState<KeywordTracking[]>((seoData as any).keywords as KeywordTracking[])
     const [newKeyword, setNewKeyword] = React.useState("")
 
     // Canonical URLs State
-    const [canonicalUrls] = React.useState<CanonicalUrl[]>(seoData.canonicalUrls as CanonicalUrl[])
+    const [canonicalUrls] = React.useState<CanonicalUrl[]>((seoData as any).canonicalUrls as CanonicalUrl[])
 
     // Schema State
-    const [schemaTemplates, setSchemaTemplates] = React.useState<SchemaTemplate[]>(seoData.schemaTemplates as unknown as SchemaTemplate[])
+    const [schemaTemplates, setSchemaTemplates] = React.useState<SchemaTemplate[]>((seoData as any).schemaTemplates as SchemaTemplate[])
     const [selectedSchema, setSelectedSchema] = React.useState<string | null>(null)
 
     // Broken Links State
-    const [brokenLinks, setBrokenLinks] = React.useState<BrokenLink[]>(seoData.brokenLinks as BrokenLink[])
+    const [brokenLinks, setBrokenLinks] = React.useState<BrokenLink[]>((seoData as any).brokenLinks as BrokenLink[])
     const [isScanning, setIsScanning] = React.useState(false)
 
     // TbPhoto Alt State
-    const [imageAltIssues, setImageAltIssues] = React.useState<ImageAltIssue[]>(seoData.imageAltIssues as ImageAltIssue[])
+    const [imageAltIssues, setImageAltIssues] = React.useState<ImageAltIssue[]>((seoData as any).imageAltIssues as ImageAltIssue[])
 
     // TbHistory State
-    const [seoHistory] = React.useState<SeoHistoryEntry[]>(seoData.seoHistory as SeoHistoryEntry[])
+    const [seoHistory] = React.useState<SeoHistoryEntry[]>((seoData as any).seoHistory as SeoHistoryEntry[])
 
     // Social Preview State
     const [socialPlatform, setSocialPlatform] = React.useState<"facebook" | "twitter" | "linkedin">("facebook")
@@ -307,25 +307,25 @@ export default function SeoPage() {
 
     const fixImageAlt = (id: string) => {
         setImageAltIssues(issues =>
-            issues.map(img => img.id === id ? { ...img, status: "fixed" as const, currentAlt: img.suggestedAlt } : img)
+            issues.map((img: ImageAltIssue) => img.id === id ? { ...img, status: "fixed" as const, currentAlt: img.suggestedAlt } : img)
         )
     }
 
     const ignoreBrokenLink = (id: string) => {
         setBrokenLinks(links =>
-            links.map(link => link.id === id ? { ...link, status: "ignored" as const } : link)
+            links.map((link: BrokenLink) => link.id === id ? { ...link, status: "ignored" as const } : link)
         )
     }
 
     const toggleSitemapEntry = (id: string) => {
         setSitemapEntries(entries =>
-            entries.map(e => e.id === id ? { ...e, enabled: !e.enabled } : e)
+            entries.map((e: SitemapEntry) => e.id === id ? { ...e, enabled: !e.enabled } : e)
         )
     }
 
     const toggleSchemaTemplate = (id: string) => {
         setSchemaTemplates(templates =>
-            templates.map(t => t.id === id ? { ...t, enabled: !t.enabled } : t)
+            templates.map((t: SchemaTemplate) => t.id === id ? { ...t, enabled: !t.enabled } : t)
         )
     }
 

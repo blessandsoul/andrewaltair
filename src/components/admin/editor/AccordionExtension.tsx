@@ -4,10 +4,8 @@ import * as React from 'react'
 import { TbChevronDown, TbChevronRight } from 'react-icons/tb'
 
 // Accordion Item Component
-function AccordionItemComponent({ node, updateAttributes }: {
-    node: { attrs: { title: string; isOpen: boolean } }
-    updateAttributes: (attrs: { title?: string; isOpen?: boolean }) => void
-}) {
+function AccordionItemComponent(props: any) {
+    const { node, updateAttributes } = props
     const { title, isOpen } = node.attrs
 
     return (
@@ -78,7 +76,7 @@ export const AccordionItem = Node.create({
 
     addCommands() {
         return {
-            insertAccordion: () => ({ commands }) => {
+            insertAccordion: () => ({ commands }: { commands: any }) => {
                 return commands.insertContent({
                     type: this.name,
                     attrs: { title: 'აკორდეონის სათაური', isOpen: true },

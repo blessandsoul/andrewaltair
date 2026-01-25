@@ -376,7 +376,7 @@ function fallbackParse(rawContent: string): ParseResult {
                 // Save current intro section before starting new emoji section
                 if (currentSection) {
                     sections.push(currentSection)
-                    console.log('📝 Intro completed - final length:', currentSection.content.length, 'chars')
+                    // console.log('📝 Intro completed - final length:', currentSection.content.length, 'chars')
                 }
 
                 const emoji = emojiMatch[0]
@@ -439,9 +439,7 @@ function fallbackParse(rawContent: string): ParseResult {
     // Debug: Log intro content length
     const introSection = cleanSections.find(s => s.type === 'intro')
     if (introSection) {
-        console.log('📝 Intro parsed - length:', introSection.content.length, 'chars')
-        console.log('📝 Intro first 100 chars:', introSection.content.slice(0, 100))
-        console.log('📝 Intro last 100 chars:', introSection.content.slice(-100))
+        // console.log('📝 Intro parsed - length:', introSection.content.length, 'chars')
     }
 
     return {

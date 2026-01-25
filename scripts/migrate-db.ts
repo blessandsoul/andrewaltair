@@ -26,16 +26,16 @@ async function migrate() {
     try {
         // 1. Connect to Old Database
         console.log('📡 Connecting to OLD database...');
-        const oldConn = await mongoose.createConnection(OLD_URI).asPromise();
+        const oldConn = await mongoose.createConnection(OLD_URI as string).asPromise();
         console.log('✅ Connected to OLD database.');
 
         // 2. Connect to New Database
         console.log('📡 Connecting to NEW (Coolify) database...');
-        const newConn = await mongoose.createConnection(NEW_URI).asPromise();
+        const newConn = await mongoose.createConnection(NEW_URI as string).asPromise();
         console.log('✅ Connected to NEW database.');
 
         // 3. Get list of collections from Old DB
-        const collections = await oldConn.db.listCollections().toArray();
+        const collections = await oldConn.db!.listCollections().toArray();
         console.log(`\n📦 Found ${collections.length} collections to migrate.`);
 
         for (const collectionInfo of collections) {
@@ -61,14 +61,9 @@ async function migrate() {
 
             console.log(`   📥 Reading ${count} documents...`);
 
-            // Clear new collection before inserting (optional, but safer for re-runs)
-            // await NewModel.deleteMany({}); 
-            // safer to just try insert, or use bulkWrite with upsert if needed. 
-            // For simple migration, let's just insert. If it exists, it might error on duplicate key.
-
             try {
                 // We use bulkWrite for better error handling on duplicates
-                const bulkOps = documents.map(doc => ({
+                const bulkOps = documents.map((doc: any) => ({
                     replaceOne: {
                         filter: { _id: doc._id },
                         replacement: doc,

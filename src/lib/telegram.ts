@@ -82,10 +82,19 @@ export async function sendTelegramPost(data: TelegramPostData) {
             imageUrl = undefined;
         }
 
-        console.log('[Telegram Lib] Sending payload to:', TELEGRAM_CHANNEL_ID);
+        // console.log('[Telegram Lib] Sending payload to:', TELEGRAM_CHANNEL_ID);
+
+        interface TelegramPayload {
+            chat_id: string;
+            disable_web_page_preview: boolean;
+            parse_mode: 'HTML';
+            photo?: string;
+            caption?: string;
+            text?: string;
+        }
 
         let endpoint = 'sendMessage';
-        const body: any = {
+        const body: TelegramPayload = {
             chat_id: TELEGRAM_CHANNEL_ID,
             disable_web_page_preview: false,
             parse_mode: 'HTML' // Use HTML for reliable formatting
@@ -98,10 +107,10 @@ export async function sendTelegramPost(data: TelegramPostData) {
             console.log('[Telegram Lib] Type: Photo with HTML formatting');
         } else {
             body.text = message;
-            console.log('[Telegram Lib] Type: Text with HTML formatting');
+            // console.log('[Telegram Lib] Type: Text with HTML formatting');
         }
 
-        console.log('[Telegram Lib] Body preview:', message.substring(0, 200) + '...');
+        // console.log('[Telegram Lib] Body preview:', message.substring(0, 200) + '...');
 
         const response = await fetch(`${TELEGRAM_API_URL}${TELEGRAM_BOT_TOKEN}/${endpoint}`, {
             method: 'POST',

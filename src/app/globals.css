@@ -196,7 +196,6 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-georgian), 'Noto Sans Georgian', system-ui, -apple-system, sans-serif;
-    font-feature-settings: "case" 1;
   }
 
   /* Georgian text optimization */

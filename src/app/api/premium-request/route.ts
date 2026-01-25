@@ -88,12 +88,12 @@ ${sectionInfo.emoji} *სექცია:* ${sectionInfo.name}
             );
         }
 
-        console.log('[Premium Request] Sent to Telegram:', {
-            name,
-            email: email.replace(/(.{2}).*(@.*)/, '$1***$2'),
-            source,
-            messageId: telegramResult.result?.message_id
-        });
+        // console.log('[Premium Request] Sent to Telegram:', {
+        //     name,
+        //     email: email.replace(/(.{2}).*(@.*)/, '$1***$2'),
+        //     source,
+        //     messageId: telegramResult.result?.message_id
+        // });
 
         return NextResponse.json({
             success: true,
