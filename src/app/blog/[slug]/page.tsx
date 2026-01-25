@@ -4,113 +4,12 @@ import { TbArrowLeft } from "react-icons/tb"
 import BlogPostClient from "./BlogPostClient"
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import dbConnect from '@/lib/db'
-import Post from '@/models/Post'
-
-// Fetch post directly from MongoDB (more reliable for SSR)
-async function getPost(slug: string) {
-  try {
-    await dbConnect()
-
-    const post = await Post.findOne({ slug }).lean()
-
-    if (!post) return { post: null, prevPost: null, nextPost: null }
-
-    // Increment views
-    await Post.findByIdAndUpdate(post._id, { $inc: { views: 1 } })
-
-    // Get previous and next posts for navigation
-    const [prevPost, nextPost] = await Promise.all([
-      Post.findOne({
-        status: 'published',
-        $or: [
-          { order: { $lt: post.order } },
-          { order: post.order, createdAt: { $gt: post.createdAt } }
-        ]
-      })
-        .sort({ order: -1, createdAt: 1 })
-        .select('slug title')
-        .lean(),
-      Post.findOne({
-        status: 'published',
-        $or: [
-          { order: { $gt: post.order } },
-          { order: post.order, createdAt: { $lt: post.createdAt } }
-        ]
-      })
-        .sort({ order: 1, createdAt: -1 })
-        .select('slug title')
-        .lean()
-    ])
-
-    return {
-      post: {
-        ...post,
-        id: post._id.toString(),
-        _id: post._id.toString(),
-        views: (post.views || 0) + 1,
-        createdAt: post.createdAt?.toISOString(),
-        updatedAt: post.updatedAt?.toISOString(),
-        // publishedAt is usually already a string, but if it's a date in DB, convert it
-        publishedAt: post.publishedAt instanceof Date ? post.publishedAt.toISOString() : post.publishedAt,
-      },
-      prevPost: prevPost ? { slug: prevPost.slug, title: prevPost.title } : null,
-      nextPost: nextPost ? { slug: nextPost.slug, title: nextPost.title } : null
-    }
-  } catch (error) {
-    console.error('Error fetching post:', error)
-    return { post: null, prevPost: null, nextPost: null }
-  }
-}
-
-// Get related posts from MongoDB
-// Get related posts from MongoDB (improved)
-async function getRelatedPosts(currentSlug: string, categories: string[] = []) {
-  try {
-    await dbConnect()
-
-    // First try to find posts in same categories
-    let posts: any[] = []
-
-    if (categories.length > 0) {
-      posts = await Post.find({
-        status: 'published',
-        slug: { $ne: currentSlug },
-        categories: { $in: categories }
-      })
-        .sort({ createdAt: -1 })
-        .limit(2)
-        .lean()
-    }
-
-    // If not enough related posts, fill with recent posts
-    if (posts.length < 2) {
-      const recentPosts = await Post.find({
-        status: 'published',
-        slug: { $ne: currentSlug, $nin: posts.map((p: any) => p.slug) }
-      })
-        .sort({ createdAt: -1 })
-        .limit(2 - posts.length)
-        .lean()
-
-      posts = [...posts, ...recentPosts]
-    }
-
-    return posts.map((post: any) => ({
-      ...post,
-      id: post._id.toString(),
-      _id: post._id.toString(),
-    }))
-  } catch (error) {
-    console.error('Error fetching related posts:', error)
-    return []
-  }
-}
+import { PostService } from "@/services/post.service"
 
 // 1. DYNAMIC METADATA (Crucial for Google & Facebook)
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
-  const { post } = await getPost(slug)
+  const post = await PostService.getPostBySlug(slug)
 
   if (!post) return { title: 'სტატია არ მოიძებნა | Andrew Altair' }
 
@@ -152,8 +51,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       type: 'article',
       siteName: 'Andrew Altair',
       authors: [post.author?.name || 'Andrew Altair'],
-      publishedTime: post.publishedAt,
-      modifiedTime: post.updatedAt,
+      publishedTime: post.publishedAt as string,
+      modifiedTime: post.updatedAt as string,
     },
     twitter: {
       card: 'summary_large_image',
@@ -166,13 +65,35 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const { post, prevPost, nextPost } = await getPost(slug)
 
-  if (!post) {
+  // Fetch post
+  const rawPost = await PostService.getPostBySlug(slug)
+
+  if (!rawPost) {
     return notFound()
   }
 
-  const relatedPosts = await getRelatedPosts(slug, post.categories) // Pass categories for better recommendations
+  // Increment views
+  await PostService.incrementViews(rawPost._id)
+
+  // Get adjacent posts
+  const { prevPost, nextPost } = await PostService.getAdjacentPosts(rawPost)
+
+  // Transform post for display (similar to what was done inside getPost, but less heavy)
+  // Actually PostService.getPostBySlug returns lean object. 
+  // We just need to make sure dates are strings if Client Component needs them.
+  // The service returns lean() object so dates are likely Date objects unless we transform them.
+  // BlogPostClient might expect strings.
+
+  const post = {
+    ...rawPost,
+    views: (rawPost.views || 0) + 1,
+    createdAt: rawPost.createdAt instanceof Date ? rawPost.createdAt.toISOString() : rawPost.createdAt,
+    updatedAt: rawPost.updatedAt instanceof Date ? rawPost.updatedAt.toISOString() : rawPost.updatedAt,
+    publishedAt: rawPost.publishedAt instanceof Date ? rawPost.publishedAt.toISOString() : rawPost.publishedAt,
+  }
+
+  const relatedPosts = await PostService.getRelatedPosts(slug, post.categories) // Pass categories for better recommendations
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
   let imageUrl = post.coverImages?.horizontal || post.coverImage
   if (imageUrl && imageUrl.includes('/api/files/')) {
