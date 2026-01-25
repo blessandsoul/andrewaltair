@@ -1,122 +1,60 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from "next/server"
-import dbConnect from "@/lib/db"
-import Tool from "@/models/Tool"
-import mongoose from "mongoose"
+import { ToolService } from "@/services/tool.service"
 
-// GET - Get a single tool by ID
-export async function GET(
-    request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
-) {
+interface RouteParams {
+    params: Promise<{ id: string }>
+}
+
+// GET - Get single tool
+export async function GET(request: NextRequest, { params }: RouteParams) {
     try {
-        await dbConnect()
         const { id } = await params
-
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return NextResponse.json({ error: "Invalid tool ID" }, { status: 400 })
-        }
-
-        const tool = await Tool.findById(id).lean()
+        const tool = await ToolService.getToolById(id)
 
         if (!tool) {
             return NextResponse.json({ error: "Tool not found" }, { status: 404 })
         }
 
-        // Increment views
-        await Tool.findByIdAndUpdate(id, { $inc: { views: 1 } })
-
-        return NextResponse.json({
-            id: tool._id.toString(),
-            name: tool.name,
-            description: tool.description,
-            url: tool.url,
-            logo: tool.logo,
-            category: tool.category,
-            pricing: tool.pricing,
-            rating: tool.rating,
-            featured: tool.featured,
-            views: tool.views,
-        })
-    } catch (error) {
+        return NextResponse.json(tool)
+    } catch (error: any) {
         console.error("Get tool error:", error)
-        return NextResponse.json({ error: "Failed to fetch tool" }, { status: 500 })
+        return NextResponse.json({ error: error.message || "Failed to fetch tool" }, { status: 500 })
     }
 }
 
-// PUT - Update a tool
-export async function PUT(
-    request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
-) {
+// PUT - Update tool
+export async function PUT(request: NextRequest, { params }: RouteParams) {
     try {
-        await dbConnect()
         const { id } = await params
         const body = await request.json()
 
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return NextResponse.json({ error: "Invalid tool ID" }, { status: 400 })
-        }
-
-        const tool = await Tool.findByIdAndUpdate(
-            id,
-            {
-                $set: {
-                    name: body.name,
-                    description: body.description,
-                    url: body.url,
-                    logo: body.logo,
-                    category: body.category,
-                    pricing: body.pricing,
-                    rating: body.rating,
-                    featured: body.featured,
-                },
-            },
-            { new: true }
-        ).lean()
+        const tool = await ToolService.updateTool(id, body)
 
         if (!tool) {
             return NextResponse.json({ error: "Tool not found" }, { status: 404 })
         }
 
-        return NextResponse.json({
-            id: tool._id.toString(),
-            name: tool.name,
-            description: tool.description,
-            url: tool.url,
-            logo: tool.logo,
-            category: tool.category,
-            pricing: tool.pricing,
-            rating: tool.rating,
-            featured: tool.featured,
-        })
-    } catch (error) {
+        return NextResponse.json(tool)
+    } catch (error: any) {
         console.error("Update tool error:", error)
-        return NextResponse.json({ error: "Failed to update tool" }, { status: 500 })
+        return NextResponse.json({ error: error.message || "Failed to update tool" }, { status: 500 })
     }
 }
 
-// DELETE - Delete a tool
-export async function DELETE(
-    request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
-) {
+// DELETE - Delete tool
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
     try {
-        await dbConnect()
         const { id } = await params
+        const result = await ToolService.deleteTool(id)
 
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return NextResponse.json({ error: "Invalid tool ID" }, { status: 400 })
-        }
-
-        const tool = await Tool.findByIdAndDelete(id)
-
-        if (!tool) {
+        if (!result) {
             return NextResponse.json({ error: "Tool not found" }, { status: 404 })
         }
 
         return NextResponse.json({ message: "Tool deleted successfully" })
-    } catch (error) {
+    } catch (error: any) {
         console.error("Delete tool error:", error)
-        return NextResponse.json({ error: "Failed to delete tool" }, { status: 500 })
+        return NextResponse.json({ error: error.message || "Failed to delete tool" }, { status: 500 })
     }
 }

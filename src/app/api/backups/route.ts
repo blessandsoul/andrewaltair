@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
-import Backup from '@/models/Backup';
+import { SystemService } from '@/services/system.service';
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 
 // GET - List all backups
@@ -11,21 +10,8 @@ export async function GET(request: Request) {
     }
 
     try {
-        await dbConnect();
-
-        const backups = await Backup.find({})
-            .sort({ date: -1 })
-            .limit(20)
-            .lean();
-
-        const transformedBackups = backups.map(b => ({
-            ...b,
-            id: b._id.toString(),
-            date: b.date?.toISOString?.() || b.date,
-            _id: undefined,
-        }));
-
-        return NextResponse.json({ backups: transformedBackups });
+        const backups = await SystemService.getAllBackups();
+        return NextResponse.json({ backups });
     } catch (error) {
         console.error('Get backups error:', error);
         return NextResponse.json({ error: 'Failed to fetch backups' }, { status: 500 });
@@ -39,27 +25,11 @@ export async function POST(request: Request) {
     }
 
     try {
-        await dbConnect();
-
         const data = await request.json();
-
-        const backup = new Backup({
-            ...data,
-            date: new Date(),
-            status: 'success',
-        });
-        await backup.save();
-
-        return NextResponse.json({
-            success: true,
-            backup: {
-                ...backup.toObject(),
-                id: backup._id.toString(),
-            },
-        });
+        const backup = await SystemService.createBackup(data);
+        return NextResponse.json({ success: true, backup });
     } catch (error) {
         console.error('Create backup error:', error);
         return NextResponse.json({ error: 'Failed to create backup' }, { status: 500 });
     }
 }
-

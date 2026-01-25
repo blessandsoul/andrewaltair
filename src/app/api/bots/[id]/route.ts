@@ -1,64 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/db";
-import Bot from "@/models/Bot";
-import mongoose from "mongoose";
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
+import { BotService } from "@/services/bot.service";
 
 interface RouteParams {
     params: Promise<{ id: string }>;
 }
 
-// GET - Get single bot with full details
+// GET - Get single bot
 export async function GET(request: NextRequest, { params }: RouteParams) {
     try {
-        await dbConnect();
         const { id } = await params;
-
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return NextResponse.json({ error: "Invalid bot ID" }, { status: 400 });
-        }
-
-        const bot = await Bot.findById(id).lean();
+        const bot = await BotService.getBotById(id);
 
         if (!bot) {
             return NextResponse.json({ error: "Bot not found" }, { status: 404 });
         }
 
-        // 🛡️ REMOVED: Auto-increment downloads on every GET
-        // Downloads should only increment on actual bot usage/purchase
-
-        // For private bots, hide the prompt
-        const masterPrompt = bot.tier === 'private' ? null : bot.masterPrompt;
-
-        return NextResponse.json({
-            id: bot._id.toString(),
-            name: bot.name,
-            codename: bot.codename,
-            version: bot.version,
-            description: bot.description,
-            shortDescription: bot.shortDescription,
-            category: bot.category,
-            tier: bot.tier,
-            price: bot.price,
-            icon: bot.icon,
-            color: bot.color,
-            features: bot.features,
-            masterPrompt,
-            rating: bot.rating,
-            downloads: bot.downloads,
-            likes: bot.likes,
-            isRecentlyAdded: bot.isRecentlyAdded,
-            isFeatured: bot.isFeatured,
-            // New fields
-            salePrice: bot.salePrice,
-            saleEndsAt: bot.saleEndsAt,
-            updates: bot.updates, // Expose full update structure including roadmap
-            creator: bot.creator, // Ensure creator info (with verification) is passed
-            guarantees: bot.guarantees,
-        });
-    } catch (error) {
+        return NextResponse.json(bot);
+    } catch (error: any) {
         console.error("Get bot error:", error);
-        return NextResponse.json({ error: "Failed to fetch bot" }, { status: 500 });
+        return NextResponse.json({ error: error.message || "Failed to fetch bot" }, { status: 500 });
     }
 }
 
@@ -69,48 +30,22 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     try {
-        await dbConnect();
         const { id } = await params;
         const body = await request.json();
 
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return NextResponse.json({ error: "Invalid bot ID" }, { status: 400 });
-        }
-
-        const bot = await Bot.findByIdAndUpdate(
-            id,
-            {
-                name: body.name,
-                codename: body.codename,
-                version: body.version,
-                description: body.description,
-                shortDescription: body.shortDescription,
-                category: body.category,
-                tier: body.tier,
-                price: body.price,
-                icon: body.icon,
-                color: body.color,
-                features: body.features,
-                masterPrompt: body.masterPrompt,
-                isRecentlyAdded: body.isRecentlyAdded,
-                isFeatured: body.isFeatured,
-                isActive: body.isActive,
-            },
-            { new: true, runValidators: true }
-        );
-
+        const bot = await BotService.updateBot(id, body);
         if (!bot) {
             return NextResponse.json({ error: "Bot not found" }, { status: 404 });
         }
 
         return NextResponse.json({
-            id: bot._id.toString(),
+            id: bot.id,
             name: bot.name,
             message: "Bot updated successfully"
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Update bot error:", error);
-        return NextResponse.json({ error: "Failed to update bot" }, { status: 500 });
+        return NextResponse.json({ error: error.message || "Failed to update bot" }, { status: 500 });
     }
 }
 
@@ -121,68 +56,46 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     try {
-        await dbConnect();
         const { id } = await params;
+        const deleted = await BotService.deleteBot(id);
 
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return NextResponse.json({ error: "Invalid bot ID" }, { status: 400 });
-        }
-
-        const bot = await Bot.findByIdAndDelete(id);
-
-        if (!bot) {
+        if (!deleted) {
             return NextResponse.json({ error: "Bot not found" }, { status: 404 });
         }
 
         return NextResponse.json({
             message: "Bot deleted successfully",
-            id: bot._id.toString()
+            id: deleted._id.toString()
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Delete bot error:", error);
-        return NextResponse.json({ error: "Failed to delete bot" }, { status: 500 });
+        return NextResponse.json({ error: error.message || "Failed to delete bot" }, { status: 500 });
     }
 }
 
-// POST - Like a bot
+// POST - Like a bot (Usually action=like, or just POST on ID as per old API)
 export async function POST(request: NextRequest, { params }: RouteParams) {
     try {
-        // 🛡️ AUTHENTICATION REQUIRED
         const { getUserFromRequest } = await import('@/lib/server-auth');
         const user = await getUserFromRequest(request);
 
         if (!user) {
-            return NextResponse.json(
-                { error: "ავტორიზაცია აუცილებელია" },
-                { status: 401 }
-            );
+            return NextResponse.json({ error: "ავტორიზაცია აუცილებელია" }, { status: 401 });
         }
 
-        await dbConnect();
         const { id } = await params;
-
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return NextResponse.json({ error: "Invalid bot ID" }, { status: 400 });
-        }
-
-        // 🛡️ Check if user already liked this bot (implement BotLike model later)
-        // For now, just increment - proper implementation needs a BotLike collection
-        const bot = await Bot.findByIdAndUpdate(
-            id,
-            { $inc: { likes: 1 } },
-            { new: true }
-        );
+        const bot = await BotService.likeBot(id);
 
         if (!bot) {
             return NextResponse.json({ error: "Bot not found" }, { status: 404 });
         }
 
         return NextResponse.json({
-            id: bot._id.toString(),
+            id: bot.id,
             likes: bot.likes,
             message: 'ლაიქი დაემატა'
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Like bot error:", error);
         return NextResponse.json({ error: "ლაიქის დამატება ვერ მოხერხდა" }, { status: 500 });
     }
