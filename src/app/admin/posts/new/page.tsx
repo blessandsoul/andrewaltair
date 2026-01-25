@@ -19,7 +19,42 @@ export default function NewPostPage() {
                 return
             }
 
-            // Log payload for debugging
+            // Handle Tutorial Type
+            if (post.type === 'tutorial') {
+                const tutorialPayload = {
+                    title: post.title,
+                    slug: post.slug || post.title.toLowerCase().replace(/\s+/g, '-'),
+                    intro: post.intro || post.excerpt, // Fallback
+                    tools: post.tools || '',
+                    modules: post.modules || [],
+                    conclusion: post.conclusion || '',
+                    metaAdvice: post.metaAdvice || '',
+                    tags: post.tags,
+                    themeColor: post.categories[0] === 'technology' ? 'Deep Blue' : 'Slate Grey', // Basic mapping
+                    character: post.author.role, // We mapped character to role in Editor
+                    songTrack: post.songTrack,
+                    coverImage: post.coverImages?.horizontal || post.coverImage,
+                    status: post.status || 'published',
+                    author: post.author
+                }
+
+                const res = await fetch('/api/tutorials', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(tutorialPayload)
+                })
+
+                if (!res.ok) {
+                    const error = await res.json()
+                    throw new Error(error.error || 'Tutorial creation failed')
+                }
+
+                const savedTutorial = await res.json()
+                setSuccessData({ slug: `tutorials/${savedTutorial.slug}`, title: savedTutorial.title }) // Special slug for link
+                return
+            }
+
+            // Normal Post Log payload
             const payload = {
                 numericId: post.numericId || undefined,
                 title: post.title,
@@ -69,7 +104,7 @@ export default function NewPostPage() {
 
             // 🎉 Show Success Modal
             setSuccessData({
-                slug: savedPost.post?.slug || post.slug,
+                slug: `blog/${savedPost.post?.slug || post.slug}`, // Fixed path
                 title: post.title
             })
 
@@ -127,7 +162,7 @@ export default function NewPostPage() {
                         {/* Actions */}
                         <div className="flex flex-col gap-3">
                             <a
-                                href={`/blog/${successData.slug}`}
+                                href={`/${successData.slug.startsWith('blog') || successData.slug.startsWith('tutorials') ? successData.slug : 'blog/' + successData.slug}`}
                                 target="_blank"
                                 className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
                             >

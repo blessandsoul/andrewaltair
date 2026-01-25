@@ -116,6 +116,14 @@ export interface PostData {
     keyPoints?: string[]
     faq?: { question: string, answer: string }[]
     entities?: string[]
+    // Tutorial Specific
+    intro?: string
+    tools?: string
+    modules?: { title: string; quote: string; explanation: string }[]
+    conclusion?: string
+    metaAdvice?: string
+    character?: string
+    songTrack?: string
 }
 
 const DEFAULT_POST: PostData = {
@@ -142,6 +150,7 @@ const DEFAULT_POST: PostData = {
     reactions: { fire: 0, love: 0, mindblown: 0, applause: 0, insightful: 0 },
     featured: false,
     trending: false,
+
     type: "news",
     status: "published",
     scheduledFor: undefined,
@@ -297,6 +306,11 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
             if (jsonInput) {
                 const parsed = JSON.parse(jsonInput)
 
+                // 0. Auto-detect Type
+                if (parsed.type === 'tutorial' || parsed.meta?.type === 'tutorial') {
+                    setPost(prev => ({ ...prev, type: 'tutorial' }))
+                }
+
                 // Helper to sanitize sections
                 const sanitizeSections = (sections: Section[]) => {
                     const extractedTags: string[] = []
@@ -416,6 +430,17 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                             newData.telegramContent = parsed.telegram.text || ''
                             newData.telegramButtonText = parsed.telegram.button_text || ''
                             newData.postToTelegram = true // Automatically enable if telegram data is present
+                        }
+
+                        // 5. Tutorial Specifics (If detected)
+                        if (newData.type === 'tutorial' || parsed.type === 'tutorial') {
+                            if (parsed.intro) newData.intro = parsed.intro
+                            if (parsed.tools) newData.tools = parsed.tools
+                            if (parsed.modules) newData.modules = parsed.modules
+                            if (parsed.conclusion) newData.conclusion = parsed.conclusion
+                            if (parsed.meta_advice) newData.metaAdvice = parsed.meta_advice
+                            if (parsed.meta?.character) newData.author.role = parsed.meta.character // Fun hack: put character in role
+                            if (parsed.song_track) newData.songTrack = parsed.song_track
                         }
 
                         return newData
@@ -557,6 +582,17 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                                     </span>
                                                 </SelectItem>
                                             ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-medium">Type</label>
+                                    <Select value={post.type} onValueChange={(v: any) => setPost(prev => ({ ...prev, type: v }))}>
+                                        <SelectTrigger><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="news">News / Article</SelectItem>
+                                            <SelectItem value="tutorial">Blueprint (Tutorial)</SelectItem>
+                                            <SelectItem value="library">Library Resource</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
