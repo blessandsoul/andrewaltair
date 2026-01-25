@@ -195,7 +195,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Noto Sans Georgian', var(--font-georgian), system-ui, -apple-system, sans-serif;
+    font-family: var(--font-georgian), 'Noto Sans Georgian', system-ui, -apple-system, sans-serif;
   }
 
   /* Georgian text optimization */
@@ -205,7 +205,7 @@
   h4,
   h5,
   h6 {
-    font-family: 'Noto Sans Georgian', 'Inter', system-ui, sans-serif;
+    font-family: var(--font-georgian), 'Noto Sans Georgian', 'Inter', system-ui, sans-serif;
     @apply tracking-tight;
   }
 

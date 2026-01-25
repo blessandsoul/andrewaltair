@@ -6,12 +6,7 @@ const nextConfig = {
   // 🛡️ Security: Remove X-Powered-By header
   poweredByHeader: false,
 
-  // 🧹 Clean up: Remove console.log from production builds
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production' ? {
-      exclude: ['error', 'warn'],
-    } : false,
-  },
+
 
   images: {
     remotePatterns: [
@@ -89,5 +84,15 @@ const nextConfig = {
     ];
   },
 };
+
+// 🧹 Clean up: Remove console.log only in production builds
+// We add this conditionally to avoid Turbopack errors in dev mode
+if (process.env.NODE_ENV === 'production') {
+  nextConfig.compiler = {
+    removeConsole: {
+      exclude: ['error', 'warn'],
+    },
+  };
+}
 
 export default nextConfig;

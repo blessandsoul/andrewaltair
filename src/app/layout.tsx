@@ -7,6 +7,7 @@ import { AuthProvider } from "@/lib/auth";
 import { ToastProvider } from "@/components/ui/toast";
 import { ConfirmDialogProvider } from "@/components/ui/confirm-dialog";
 import { CookieBanner } from "@/components/ui/CookieBanner";
+import { Agentation } from "agentation";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -22,6 +23,7 @@ const notoGeorgian = Noto_Sans_Georgian({
   variable: "--font-georgian",
   subsets: ["georgian", "latin"],
   weight: ["300", "400", "500", "600", "700", "800", "900"],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -948,6 +950,7 @@ export default function RootLayout({
             <ConfirmDialogProvider>
               <LayoutWrapper>{children}</LayoutWrapper>
               <CookieBanner />
+              {process.env.NODE_ENV === "development" && <Agentation />}
             </ConfirmDialogProvider>
           </ToastProvider>
         </AuthProvider>
