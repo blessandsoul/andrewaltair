@@ -191,8 +191,8 @@ export default function AdminDashboard() {
         async function fetchData() {
             try {
                 const [postsRes, videosRes] = await Promise.all([
-                    fetch('/api/posts?limit=50'),
-                    fetch('/api/videos?limit=50')
+                    fetch('/api/posts?limit=1000'),
+                    fetch('/api/videos?limit=1000')
                 ])
 
                 if (postsRes.ok) {
