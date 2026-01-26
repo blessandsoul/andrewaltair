@@ -120,7 +120,7 @@ export default async function TutorialDetailPage({ params }: { params: { slug: s
                         <div className="bg-card/80 backdrop-blur-md border border-border/50 rounded-2xl p-8 mb-12 shadow-xl">
                             <div className="flex items-center gap-3 mb-4 text-purple-500">
                                 <TbTools className="w-6 h-6" />
-                                <h3 className="text-lg font-bold uppercase tracking-wider">Required Tools</h3>
+                                <h3 className="text-lg font-bold uppercase tracking-wider">საჭირო ხელსაწყოები</h3>
                             </div>
                             <p className="text-lg leading-relaxed">{tutorial.tools}</p>
                         </div>
@@ -154,7 +154,7 @@ export default async function TutorialDetailPage({ params }: { params: { slug: s
                                     <div className="flex gap-4 items-start">
                                         <TbBulb className="w-6 h-6 text-yellow-500 shrink-0 mt-1" />
                                         <div className="space-y-2">
-                                            <span className="text-xs font-bold text-yellow-500 uppercase tracking-widest">Simplified Logic</span>
+                                            <span className="text-xs font-bold text-yellow-500 uppercase tracking-widest">გამარტივებული ლოგიკა</span>
                                             <p className="text-lg leading-relaxed text-foreground/90">
                                                 {module.explanation}
                                             </p>
@@ -170,7 +170,7 @@ export default async function TutorialDetailPage({ params }: { params: { slug: s
                         <div className="flex items-start gap-4 p-6 rounded-2xl bg-gradient-to-br from-green-500/10 to-transparent border border-green-500/20">
                             <TbCheck className="w-8 h-8 text-green-500 shrink-0" />
                             <div>
-                                <h3 className="font-bold text-xl mb-2 text-green-500">Ready to Deploy?</h3>
+                                <h3 className="font-bold text-xl mb-2 text-green-500">მზად ხართ გასაშვებად?</h3>
                                 <p className="text-lg">{tutorial.conclusion}</p>
                             </div>
                         </div>
@@ -181,7 +181,7 @@ export default async function TutorialDetailPage({ params }: { params: { slug: s
                                 <div className="relative z-10 space-y-4">
                                     <div className="flex items-center gap-2 text-yellow-500">
                                         <span className="text-2xl">🏴‍☠️</span>
-                                        <span className="font-black text-xs uppercase tracking-[0.2em] opacity-70">Confidential Advice</span>
+                                        <span className="font-black text-xs uppercase tracking-[0.2em] opacity-70">კონფიდენციალური რჩევა</span>
                                     </div>
                                     <p className="text-xl font-serif italic text-white/90 leading-relaxed">
                                         "{tutorial.metaAdvice}"
