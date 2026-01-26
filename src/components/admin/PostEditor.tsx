@@ -441,6 +441,60 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                             if (parsed.meta_advice) newData.metaAdvice = parsed.meta_advice
                             if (parsed.meta?.character) newData.author.role = parsed.meta.character // Fun hack: put character in role
                             if (parsed.song_track) newData.songTrack = parsed.song_track
+
+                            // GENERATE PREVIEW SECTIONS FOR TUTORIAL
+                            const tutorialSections: Section[] = []
+
+                            // 1. Intro
+                            if (parsed.intro) {
+                                tutorialSections.push({ type: 'intro', content: parsed.intro })
+                            }
+
+                            // 2. Tools
+                            if (parsed.tools) {
+                                tutorialSections.push({
+                                    type: 'tip',
+                                    title: '🛠️ საჭირო ინსტრუმენტები',
+                                    content: parsed.tools
+                                })
+                            }
+
+                            // 3. Modules
+                            if (parsed.modules && Array.isArray(parsed.modules)) {
+                                parsed.modules.forEach((mod: any) => {
+                                    if (mod.quote) {
+                                        tutorialSections.push({
+                                            type: 'quote',
+                                            content: `**${mod.quote}**`
+                                        })
+                                    }
+                                    tutorialSections.push({
+                                        type: 'section',
+                                        title: mod.title,
+                                        content: mod.explanation
+                                    })
+                                })
+                            }
+
+                            // 4. Conclusion
+                            if (parsed.conclusion) {
+                                tutorialSections.push({
+                                    type: 'fact',
+                                    title: '🏁 დასკვნა',
+                                    content: parsed.conclusion
+                                })
+                            }
+
+                            // 5. Meta Advice
+                            if (parsed.meta_advice) {
+                                tutorialSections.push({
+                                    type: 'author-comment',
+                                    content: parsed.meta_advice
+                                })
+                            }
+
+                            setParsedSections(tutorialSections)
+                            newData.sections = tutorialSections
                         }
 
                         return newData
