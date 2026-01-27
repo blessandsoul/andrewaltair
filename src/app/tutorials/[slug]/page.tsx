@@ -2,8 +2,12 @@ import dbConnect from "@/lib/db"
 import Tutorial from "@/models/Tutorial"
 import { notFound } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
-import { TbQuote, TbTools, TbBulb, TbCheck } from "react-icons/tb"
+import { TbQuote, TbTools, TbCheck, TbArrowLeft, TbCalendar, TbClock, TbEye, TbBrain, TbHelp } from "react-icons/tb"
 import { Metadata } from "next"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 // Function to fetch data
 async function getTutorial(slug: string) {
@@ -32,7 +36,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
         openGraph: {
             title: tutorial.title,
             description: tutorial.intro,
-            url: `${siteUrl}/tutorials/${params.slug}`, // Added absolute URL for openGraph.url
+            url: `${siteUrl}/tutorials/${params.slug}`,
             images: [{ url: coverImage }],
             type: 'article',
         },
@@ -80,117 +84,135 @@ export default async function TutorialDetailPage({ params }: { params: { slug: s
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
             />
-            <div className="min-h-screen bg-background pb-20">
-                {/* Hero Section */}
-                <div className="relative h-[60vh] min-h-[500px] w-full overflow-hidden">
-                    {/* Background Image with Overlay */}
-                    {tutorial.coverImage && (
-                        <div className="absolute inset-0">
-                            <img
-                                src={tutorial.coverImage}
-                                alt={tutorial.title}
-                                className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/60 to-background" />
-                        </div>
-                    )}
 
-                    <div className="container mx-auto h-full relative z-10 flex flex-col justify-end pb-12 px-4">
-                        <div className="max-w-4xl space-y-6">
+            <div className="min-h-screen bg-background pb-20 pt-24">
+                {/* Hero Section - Matching Blog Style */}
+                <section className="relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5">
+                        <div className="absolute inset-0 noise-overlay"></div>
+                    </div>
+
+                    <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+                        {/* Back Button */}
+                        <div className="flex items-center justify-between mb-8">
+                            <Link
+                                href="/"
+                                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                                <TbArrowLeft className="w-4 h-4" />
+                                მთავარზე დაბრუნება
+                            </Link>
+                        </div>
+
+                        {/* Header Content */}
+                        <div className="space-y-6 max-w-4xl">
                             <div className="flex flex-wrap gap-2">
                                 {tutorial.tags.map((tag: string) => (
-                                    <Badge key={tag} className="bg-purple-600 hover:bg-purple-700 text-white border-0 px-3 py-1 text-sm">
+                                    <Badge key={tag} className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20">
                                         #{tag}
                                     </Badge>
                                 ))}
                             </div>
-                            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-tight">
+
+                            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-tight">
                                 {tutorial.title}
                             </h1>
-                            <p className="text-xl md:text-2xl text-gray-200 max-w-2xl font-light">
-                                {tutorial.intro}
-                            </p>
-                        </div>
-                    </div>
-                </div>
 
-                <div className="container mx-auto px-4 max-w-4xl -mt-10 relative z-20">
-                    {/* Tools Section */}
-                    {tutorial.tools && (
-                        <div className="bg-card/80 backdrop-blur-md border border-border/50 rounded-2xl p-8 mb-12 shadow-xl">
-                            <div className="flex items-center gap-3 mb-4 text-purple-500">
-                                <TbTools className="w-6 h-6" />
-                                <h3 className="text-lg font-bold uppercase tracking-wider">საჭირო ხელსაწყოები</h3>
-                            </div>
-                            <p className="text-lg leading-relaxed">{tutorial.tools}</p>
-                        </div>
-                    )}
-
-                    {/* Modules Timeline */}
-                    <div className="space-y-12 relative before:absolute before:left-4 md:before:left-0 before:top-0 before:bottom-0 before:w-0.5 before:bg-border/50">
-                        {tutorial.modules.map((module: any, index: number) => (
-                            <div key={index} className="relative pl-12 md:pl-16">
-                                {/* Number Marker */}
-                                <div className="absolute left-0 md:-left-4 top-0 w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-lg ring-4 ring-background">
-                                    {index + 1}
-                                </div>
-
-                                <div className="space-y-6">
-                                    <h2 className="text-2xl md:text-3xl font-bold">{module.title}</h2>
-
-                                    {/* Source/Quote Block */}
-                                    {module.quote && (
-                                        <div className="bg-muted/30 border-l-4 border-purple-500 p-6 rounded-r-xl">
-                                            <div className="flex gap-4">
-                                                <TbQuote className="w-6 h-6 text-purple-500 shrink-0 opacity-50" />
-                                                <div className="font-mono text-sm md:text-base opacity-80 whitespace-pre-wrap">
-                                                    {module.quote}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* ELI5 Explanation */}
-                                    <div className="flex gap-4 items-start">
-                                        <TbBulb className="w-6 h-6 text-yellow-500 shrink-0 mt-1" />
-                                        <div className="space-y-2">
-                                            <span className="text-xs font-bold text-yellow-500 uppercase tracking-widest">გამარტივებული ლოგიკა</span>
-                                            <p className="text-lg leading-relaxed text-foreground/90">
-                                                {module.explanation}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Conclusion & Meta Advice */}
-                    <div className="mt-20 space-y-8">
-                        <div className="flex items-start gap-4 p-6 rounded-2xl bg-gradient-to-br from-green-500/10 to-transparent border border-green-500/20">
-                            <TbCheck className="w-8 h-8 text-green-500 shrink-0" />
-                            <div>
-                                <h3 className="font-bold text-xl mb-2 text-green-500">მზად ხართ გასაშვებად?</h3>
-                                <p className="text-lg">{tutorial.conclusion}</p>
+                            {/* Excerpt */}
+                            <div className="p-6 lg:p-8 bg-gradient-to-br from-secondary/40 to-secondary/20 backdrop-blur-sm rounded-2xl border border-secondary/50 relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-primary via-accent to-primary/50" />
+                                <p className="text-lg md:text-xl text-foreground/80 leading-relaxed pl-4">
+                                    {tutorial.intro}
+                                </p>
                             </div>
                         </div>
 
-                        {tutorial.metaAdvice && (
-                            <div className="relative p-8 rounded-2xl bg-black border border-white/10 overflow-hidden group">
-                                <div className="absolute inset-0 bg-grid-white/5 [mask-image:linear-gradient(to_bottom,white,transparent)]" />
-                                <div className="relative z-10 space-y-4">
-                                    <div className="flex items-center gap-2 text-yellow-500">
-                                        <span className="text-2xl">🏴‍☠️</span>
-                                        <span className="font-black text-xs uppercase tracking-[0.2em] opacity-70">კონფიდენციალური რჩევა</span>
-                                    </div>
-                                    <p className="text-xl font-serif italic text-white/90 leading-relaxed">
-                                        "{tutorial.metaAdvice}"
-                                    </p>
-                                </div>
+                        {/* Cover Image */}
+                        {tutorial.coverImage && (
+                            <div className="relative mt-8 -mx-4 sm:-mx-6 lg:-mx-0 overflow-hidden rounded-2xl shadow-2xl aspect-video max-w-5xl">
+                                <img
+                                    src={tutorial.coverImage}
+                                    alt={tutorial.title}
+                                    className="w-full h-full object-cover"
+                                />
                             </div>
                         )}
                     </div>
-                </div>
+                </section>
+
+                <section className="py-12">
+                    <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+                        <div className="flex flex-col lg:flex-row gap-12">
+                            {/* Main Content */}
+                            <div className="flex-1 min-w-0 max-w-4xl">
+
+                                {/* Tools Section - Styled generic */}
+                                {tutorial.tools && (
+                                    <div className="mb-12 p-6 bg-secondary/30 rounded-xl border border-border">
+                                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                                            <TbTools className="w-5 h-5 text-primary" />
+                                            საჭირო ხელსაწყოები
+                                        </h3>
+                                        <p className="text-muted-foreground leading-relaxed">{tutorial.tools}</p>
+                                    </div>
+                                )}
+
+                                {/* Modules as Standard Content */}
+                                <div className="space-y-12">
+                                    {tutorial.modules.map((module: any, index: number) => (
+                                        <div key={index} className="prose prose-lg dark:prose-invert max-w-none">
+                                            <h2 className="text-2xl md:text-3xl font-bold mt-8 mb-4 border-l-4 border-primary pl-4">
+                                                {module.title}
+                                            </h2>
+
+                                            {/* Quote as Blockquote */}
+                                            {module.quote && (
+                                                <blockquote className="border-l-4 border-primary/50 pl-6 italic text-muted-foreground my-6 bg-secondary/10 py-4 pr-4 rounded-r-lg">
+                                                    <div className="flex gap-2">
+                                                        <TbQuote className="w-5 h-5 text-primary/50 shrink-0 mt-1" />
+                                                        <span>{module.quote}</span>
+                                                    </div>
+                                                </blockquote>
+                                            )}
+
+                                            {/* Explanation - Clean Text */}
+                                            <div className="text-foreground/90 leading-relaxed space-y-4">
+                                                {module.explanation.split('\n').map((paragraph: string, i: number) => (
+                                                    <p key={i}>{paragraph}</p>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Conclusion */}
+                                <div className="mt-16 p-8 bg-gradient-to-br from-green-500/5 to-transparent border border-green-500/10 rounded-2xl">
+                                    <h3 className="font-bold text-xl mb-4 text-green-500 flex items-center gap-2">
+                                        <TbCheck className="w-6 h-6" />
+                                        დასკვნა
+                                    </h3>
+                                    <p className="text-lg text-foreground/80 leading-relaxed">{tutorial.conclusion}</p>
+                                </div>
+
+                                {/* Confidential Advice - Correct Font */}
+                                {tutorial.metaAdvice && (
+                                    <div className="mt-12 relative p-8 rounded-2xl bg-black border border-white/10 overflow-hidden group">
+                                        <div className="absolute inset-0 bg-grid-white/5 [mask-image:linear-gradient(to_bottom,white,transparent)]" />
+                                        <div className="relative z-10 space-y-4">
+                                            <div className="flex items-center gap-2 text-yellow-500">
+                                                <span className="text-2xl">🏴‍☠️</span>
+                                                <span className="font-black text-xs uppercase tracking-[0.2em] opacity-70 font-georgian">კონფიდენციალური რჩევა</span>
+                                            </div>
+                                            <p className="text-xl font-georgian italic text-white/90 leading-relaxed">
+                                                "{tutorial.metaAdvice}"
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </>
     )
