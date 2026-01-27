@@ -12,4 +12,6 @@ export { CodeBlock, EnhancedContent } from "./CodeBlock"
 export { EditSuggestion } from "./EditSuggestion"
 export { BookmarkButton } from "./BookmarkSystem"
 export { NewsletterForm } from "./NewsletterForm"
+export { TutorialStickyNav } from "./TutorialStickyNav"
+
 

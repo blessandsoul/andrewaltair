@@ -3,12 +3,13 @@
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import {
     TbAlertTriangle, TbBulb, TbEye, TbEyeOff, TbMessage, TbArrowDown, TbTheater, TbQuote, TbCode, TbCopy, TbCheck,
     TbTrendingDown, TbTrendingUp, TbChartBar, TbBuildingFactory, TbRobot, TbSettings, TbTool, TbHammer, TbWorld, TbMap, TbAlertCircle, TbArrowUp, TbArrowRight, TbArrowLeft, TbMovie, TbVideo, TbBrain, TbPill, TbBuildingHospital, TbHeart, TbCoins, TbCurrencyDollar, TbDiamond, TbPackage, TbSpeakerphone, TbBell, TbChevronRight, TbDroplet, TbBolt, TbFlame, TbTarget, TbPin, TbSparkles, TbDna, TbFileText, TbTrophy, TbStethoscope, TbCpu, TbAtom, TbCircleCheck,
-    TbSkull, TbHourglass, TbAlarm, TbMapPin, TbStar, TbLock, TbLockOpen, TbShield, TbGift, TbKey, TbDeviceGamepad2, TbClipboardList, TbPencil, TbFlask, TbLink, TbPaperclip, TbMedal, TbMouse
+    TbSkull, TbHourglass, TbAlarm, TbMapPin, TbStar, TbLock, TbLockOpen, TbShield, TbGift, TbKey, TbDeviceGamepad2, TbClipboardList, TbPencil, TbFlask, TbLink, TbPaperclip, TbMedal, TbMouse, TbBrandTelegram, TbCircle, TbHelp
 } from "react-icons/tb"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
@@ -16,7 +17,9 @@ interface Section {
     icon?: string;  // lucide icon name
     title?: string;
     content: string;
-    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'quote' | 'cta' | 'hashtags' | 'prompt' | 'author-comment' | 'image' | 'graph';
+    quote?: string; // Added for tutorial steps
+    stepNumber?: number; // Added for tutorial steps
+    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'quote' | 'cta' | 'hashtags' | 'prompt' | 'author-comment' | 'image' | 'graph' | 'tutorial-step' | 'secret';
 }
 
 interface RichPostContentProps {
@@ -201,6 +204,16 @@ const SECTION_STYLES: Record<Section['type'], {
         iconClass: 'text-cyan-500',
         defaultIcon: TbChartBar,
     },
+    'tutorial-step': {
+        bgClass: '',
+        borderClass: '',
+        iconClass: 'text-primary',
+    },
+    'secret': {
+        bgClass: 'bg-black',
+        borderClass: 'border border-white/10',
+        iconClass: 'text-yellow-500',
+    }
 };
 
 // Get section accent color based on icon
@@ -283,7 +296,91 @@ function PromptBlockSection({ section }: { section: Section }) {
     );
 }
 
+// Tutorial Step Renderer
+function TutorialStepRenderer({ section }: { section: Section }) {
+    const [isDone, setIsDone] = useState(false);
+
+    // Initial state from local storage?
+    // Simplified for now, just local state for the session
+
+    return (
+        <div
+            id={`step-${section.stepNumber}`}
+            className="group relative pl-12 md:pl-16 mb-16 tutorial-step selection:bg-purple-500/30"
+            data-step={section.stepNumber}
+        >
+            {/* Vertical Line Connector (Absolute to be continuous looking) */}
+            <div className="absolute left-4 md:left-0 top-0 bottom-[-4rem] w-0.5 bg-border/50 group-last:bottom-0" />
+
+            {/* Number Marker */}
+            <div className={cn(
+                "absolute left-0 md:-left-4 top-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-lg ring-4 ring-background z-10 transition-colors duration-300",
+                isDone ? "bg-green-500 text-white" : "bg-purple-600 text-white"
+            )}>
+                {isDone ? <TbCheck className="w-5 h-5" /> : section.stepNumber}
+            </div>
+
+            <div className="space-y-6">
+                <h2 className="text-2xl md:text-3xl font-bold mt-0">{section.title}</h2>
+
+                {/* Quote */}
+                {section.quote && (
+                    <div className="bg-muted/30 border-l-4 border-purple-500 p-6 rounded-r-xl my-6">
+                        <div className="flex gap-4">
+                            <TbQuote className="w-6 h-6 text-purple-500 shrink-0 opacity-50" />
+                            <div className="font-mono text-sm md:text-base opacity-80 whitespace-pre-wrap">{section.quote}</div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Content */}
+                <div className="flex gap-4 items-start">
+                    <TbBulb className="w-6 h-6 text-yellow-500 shrink-0 mt-1" />
+                    <div className="space-y-4 flex-1">
+                        <div className="prose prose-lg dark:prose-invert max-w-none">
+                            <p className="text-lg leading-relaxed text-foreground/90 m-0 whitespace-pre-wrap">
+                                {section.content}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Interaction Bar */}
+                <div className="flex flex-wrap items-center justify-between gap-4 pt-4 mt-6 border-t border-border/40">
+                    <button
+                        onClick={() => setIsDone(!isDone)}
+                        className={cn(
+                            "flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300",
+                            isDone
+                                ? "bg-green-500/10 border-green-500 text-green-500 hover:bg-green-500/20"
+                                : "bg-background border-border hover:border-primary hover:text-primary"
+                        )}
+                    >
+                        {isDone ? <TbCircleCheck className="w-5 h-5 fill-current" /> : <TbCircle className="w-5 h-5" />}
+                        <span className="font-medium">{isDone ? "შესრულებულია" : "მონიშნე დასრულებულად"}</span>
+                    </button>
+
+                    <a
+                        href="https://t.me/andr3waltairchannel"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 transition-colors text-sm font-medium"
+                    >
+                        <TbBrandTelegram className="w-5 h-5" />
+                        დახმარება მჭირდება
+                    </a>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 function SectionRenderer({ section, index }: { section: Section; index: number }) {
+    // Specialized Renderer for Tutorial Steps
+    if (section.type === 'tutorial-step') {
+        return <TutorialStepRenderer section={section} />
+    }
+
     const style = SECTION_STYLES[section.type] || SECTION_STYLES['section'];
     const customBorder = getSectionAccentColor(section.icon);
 
@@ -395,6 +492,24 @@ function SectionRenderer({ section, index }: { section: Section; index: number }
                 </div>
             </div>
         );
+    }
+
+    // Render 'Secret' / Confidential Advice
+    if (section.type === 'secret') {
+        return (
+            <div className="my-12 relative p-8 rounded-2xl bg-black border border-white/10 overflow-hidden group">
+                <div className="absolute inset-0 bg-grid-white/5 [mask-image:linear-gradient(to_bottom,white,transparent)]"></div>
+                <div className="relative z-10 space-y-4">
+                    <div className="flex items-center gap-2 text-yellow-500">
+                        <span className="text-2xl">🏴‍☠️</span>
+                        <span className="font-black text-xs uppercase tracking-[0.2em] opacity-70 font-georgian">კონფიდენციალური რჩევა</span>
+                    </div>
+                    <p className="text-xl font-georgian italic text-white/90 leading-relaxed m-0">
+                        "{section.content}"
+                    </p>
+                </div>
+            </div>
+        )
     }
 
     // Render Image section

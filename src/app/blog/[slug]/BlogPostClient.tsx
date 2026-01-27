@@ -16,7 +16,8 @@ import {
     TableOfContents,
     BookmarkButton,
     EditSuggestion,
-    EnhancedContent
+    EnhancedContent,
+    TutorialStickyNav
 } from "@/components/interactive"
 import { AuroraReactionBar } from "@/components/interactive/AuroraReactionBar"
 import { ImageLightbox, useImageLightbox } from "@/components/interactive/ImageLightbox"
@@ -214,6 +215,7 @@ console.log(data.result);
         <>
             {/* Reading Progress Bar */}
             <ReadingProgress showPercentage />
+            <TutorialStickyNav />
 
             {/* Floating Share Bar */}
             <FloatingShareBar
