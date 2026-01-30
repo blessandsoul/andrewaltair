@@ -224,6 +224,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
     const [isUploadingV, setIsUploadingV] = React.useState(false)
     const [isGeneratingCode, setIsGeneratingCode] = React.useState(false)
     const [isSaving, setIsSaving] = React.useState(false)
+    const [jsonError, setJsonError] = React.useState<string | null>(null)
 
     // Safe save handler to prevent double submission
     const handleSaveClick = async () => {
@@ -303,6 +304,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
 
     React.useEffect(() => {
         try {
+            setJsonError(null) // Clear previous error
             if (jsonInput) {
                 const parsed = JSON.parse(jsonInput)
 
@@ -501,8 +503,8 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                     })
                 }
             }
-        } catch (e) {
-            // Ignore
+        } catch (e: any) {
+            setJsonError(e.message || 'Invalid JSON')
         }
     }, [jsonInput])
 
@@ -656,11 +658,16 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                             <div className="space-y-2">
                                 <label className="text-xs font-medium">Content JSON</label>
                                 <textarea
-                                    className="w-full min-h-[500px] p-4 font-mono text-sm bg-zinc-950 text-zinc-100 rounded-lg resize-y"
+                                    className={`w-full min-h-[500px] p-4 font-mono text-sm bg-zinc-950 text-zinc-100 rounded-lg resize-y ${jsonError ? 'border-2 border-red-500' : ''}`}
                                     value={jsonInput}
                                     onChange={(e) => setJsonInput(e.target.value)}
                                     placeholder='[{"type":"intro","content":"..."}]'
                                 />
+                                {jsonError && (
+                                    <div className="text-red-500 text-sm p-3 bg-red-500/10 rounded-lg border border-red-500/20">
+                                        <span className="font-semibold">JSON Error:</span> {jsonError}
+                                    </div>
+                                )}
                             </div>
                         </CardContent>
                     </Card>
