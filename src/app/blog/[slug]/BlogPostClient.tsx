@@ -33,6 +33,8 @@ import { InlineRelatedPosts } from "@/components/blog/InlineRelatedPosts"
 import { FloatingTagCloud } from "@/components/blog/FloatingTagCloud"
 import { TypoReporter, TypoHint } from "@/components/blog/TypoReporter"
 import { brand } from "@/lib/brand"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 // Rich content section type
 interface Section {
@@ -364,7 +366,21 @@ console.log(data.result);
                                                         <div className="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
                                                             <TbCheck className="w-3 h-3 text-primary" />
                                                         </div>
-                                                        <span className="leading-relaxed">{point}</span>
+                                                        <span className="leading-relaxed">
+                                                            <ReactMarkdown
+                                                                remarkPlugins={[remarkGfm]}
+                                                                components={{
+                                                                    p: ({ children }) => <>{children}</>,
+                                                                    a: ({ href, children }) => (
+                                                                        <Link href={href || "#"} className="text-primary hover:underline">
+                                                                            {children}
+                                                                        </Link>
+                                                                    ),
+                                                                }}
+                                                            >
+                                                                {point}
+                                                            </ReactMarkdown>
+                                                        </span>
                                                     </li>
                                                 ))}
                                             </ul>
