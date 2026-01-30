@@ -436,10 +436,34 @@ console.log(data.result);
                                                 {post.faq.map((item, index) => (
                                                     <AccordionItem key={index} value={`item-${index}`}>
                                                         <AccordionTrigger className="text-left font-medium">
-                                                            {item.question}
+                                                            <ReactMarkdown
+                                                                remarkPlugins={[remarkGfm]}
+                                                                components={{
+                                                                    p: ({ children }) => <>{children}</>,
+                                                                    a: ({ href, children }) => (
+                                                                        <Link href={href || "#"} className="text-primary hover:underline">
+                                                                            {children}
+                                                                        </Link>
+                                                                    ),
+                                                                }}
+                                                            >
+                                                                {item.question}
+                                                            </ReactMarkdown>
                                                         </AccordionTrigger>
                                                         <AccordionContent className="text-muted-foreground leading-relaxed">
-                                                            {item.answer}
+                                                            <ReactMarkdown
+                                                                remarkPlugins={[remarkGfm]}
+                                                                components={{
+                                                                    p: ({ children }) => <>{children}</>,
+                                                                    a: ({ href, children }) => (
+                                                                        <Link href={href || "#"} className="text-primary hover:underline">
+                                                                            {children}
+                                                                        </Link>
+                                                                    ),
+                                                                }}
+                                                            >
+                                                                {item.answer}
+                                                            </ReactMarkdown>
                                                         </AccordionContent>
                                                     </AccordionItem>
                                                 ))}
