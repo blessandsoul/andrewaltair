@@ -436,19 +436,21 @@ console.log(data.result);
                                                 {post.faq.map((item, index) => (
                                                     <AccordionItem key={index} value={`item-${index}`}>
                                                         <AccordionTrigger className="text-left font-medium">
-                                                            <ReactMarkdown
-                                                                remarkPlugins={[remarkGfm]}
-                                                                components={{
-                                                                    p: ({ children }) => <>{children}</>,
-                                                                    a: ({ href, children }) => (
-                                                                        <Link href={href || "#"} className="text-primary hover:underline">
-                                                                            {children}
-                                                                        </Link>
-                                                                    ),
-                                                                }}
-                                                            >
-                                                                {item.question}
-                                                            </ReactMarkdown>
+                                                            <span>
+                                                                <ReactMarkdown
+                                                                    remarkPlugins={[remarkGfm]}
+                                                                    components={{
+                                                                        p: ({ children }) => <>{children}</>,
+                                                                        a: ({ href, children }) => (
+                                                                            <Link href={href || "#"} className="text-primary hover:underline">
+                                                                                {children}
+                                                                            </Link>
+                                                                        ),
+                                                                    }}
+                                                                >
+                                                                    {item.question}
+                                                                </ReactMarkdown>
+                                                            </span>
                                                         </AccordionTrigger>
                                                         <AccordionContent className="text-muted-foreground leading-relaxed">
                                                             <ReactMarkdown
