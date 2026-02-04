@@ -275,7 +275,10 @@ export class PostService {
 
                 // SEO & Extra Fields - check both top-level (from PostEditor) and nested seo object (from raw JSON)
                 keyPoints: data.keyPoints || data.seo?.key_points || meta.key_points || [],
-                faq: data.faq || data.seo?.faq || meta.faq || [],
+                faq: (data.faq || data.seo?.faq || meta.faq || []).map((item: any) => ({
+                    question: item.question || item.q || '',
+                    answer: item.answer || item.a || '',
+                })),
                 entities: data.entities || data.seo?.entities || meta.entities || [],
 
                 // Telegram data
