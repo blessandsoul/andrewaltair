@@ -296,6 +296,10 @@ export class PostService {
                 author: data.author || { name: 'Andrew Altair', avatar: '/avatar.jpg', role: 'AI ინოვატორი' },
                 status: data.status || 'published',
                 readingTime: data.readingTime || 5,
+                faq: (data.faq || []).map((item: any) => ({
+                    question: item.question || item.q || '',
+                    answer: item.answer || item.a || '',
+                })),
             };
         }
 

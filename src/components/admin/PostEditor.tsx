@@ -411,7 +411,10 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                         if (parsed.seo) {
                             if (parsed.seo.excerpt) newData.excerpt = parsed.seo.excerpt
                             if (parsed.seo.key_points) newData.keyPoints = parsed.seo.key_points
-                            if (parsed.seo.faq) newData.faq = parsed.seo.faq
+                            if (parsed.seo.faq) newData.faq = parsed.seo.faq.map((item: any) => ({
+                                question: item.question || item.q || '',
+                                answer: item.answer || item.a || '',
+                            }))
                             if (parsed.seo.entities) newData.entities = parsed.seo.entities
                         }
 
