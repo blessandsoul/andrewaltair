@@ -52,11 +52,15 @@ async function getPosts() {
       .limit(10)
       .lean()
 
-    // Transform _id to id for consistency
+    // Transform _id to id for consistency and clean nested objects
     return posts.map(post => ({
       ...post,
       id: post._id.toString(),
       _id: undefined,
+      faq: post.faq?.map((item: any) => ({
+        ...item,
+        _id: item._id ? item._id.toString() : undefined
+      }))
     }))
   } catch (error) {
     console.error('Error fetching posts:', error)
