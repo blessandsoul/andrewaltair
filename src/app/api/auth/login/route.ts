@@ -14,12 +14,21 @@ export async function POST(request: NextRequest) {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0] ||
         request.headers.get('x-real-ip') || 'unknown';
 
+    console.log(`[Login Attempt] IP: ${ip}`);
+
     try {
-        const { email, password, username, twoFactorCode } = await request.json();
-        const userAgent = request.headers.get('user-agent') || '';
+        const body = await request.json();
+        const { email, password, username, twoFactorCode } = body;
+
+        // Log non-sensitive inputs
         const loginField = email || username;
+        console.log(`[Login Attempt] User: ${loginField}, HasPassword: ${!!password}, Has2FA: ${!!twoFactorCode}`);
+
+        const userAgent = request.headers.get('user-agent') || '';
 
         const result = await AuthService.login(loginField, password, ip, userAgent, twoFactorCode);
+
+        console.log(`[Login Success] User: ${result.user.username} (${result.user.id})`);
 
         const response = apiSuccess({ user: result.user }, 'წარმატებით შეხვედით სისტემაში');
 
@@ -35,7 +44,9 @@ export async function POST(request: NextRequest) {
         return response;
 
     } catch (error: any) {
-        console.error('Login error:', error);
+        console.error('[Login Failed] Error:', error);
+        console.error('[Login Failed] Stack:', error.stack);
+
         const msg = error.message || 'სერვერის შეცდომა';
 
         if (msg.startsWith('RateLimit:locked:')) {
