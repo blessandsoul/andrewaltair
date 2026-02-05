@@ -85,14 +85,18 @@ const nextConfig = {
   },
 };
 
+// Increase timeout for static page generation (helps with OOM/timeout on low-resource VPS)
+staticPageGenerationTimeout: 180,
+};
+
 // 🧹 Clean up: Remove console.log only in production builds
-// We add this conditionally to avoid Turbopack errors in dev mode
-if (process.env.NODE_ENV === 'production') {
-  nextConfig.compiler = {
-    removeConsole: {
-      exclude: ['error', 'warn'],
-    },
-  };
-}
+// DISABLED FOR DEBUGGING LOGIN
+// if (process.env.NODE_ENV === 'production') {
+//   nextConfig.compiler = {
+//     removeConsole: {
+//       exclude: ['error', 'warn'],
+//     },
+//   };
+// }
 
 export default nextConfig;
