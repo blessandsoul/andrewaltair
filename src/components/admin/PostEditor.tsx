@@ -245,10 +245,9 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
         try {
             const formData = new FormData()
             formData.append('file', file)
-            formData.append('title', post.title || post.slug || 'cover')
-            formData.append('type', type)
-
             const token = localStorage.getItem('admin_token')
+            console.log('[PostEditor] Starting upload. Token present:', !!token);
+
             const response = await fetch('/api/upload', {
                 method: 'POST',
                 headers: {
@@ -257,19 +256,23 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                 body: formData
             })
 
+            console.log('[PostEditor] Response status:', response.status);
+
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}))
-                throw new Error(errorData.error || 'Upload failed')
+                console.error('[PostEditor] Upload failed:', errorData);
+                throw new Error(errorData.error || errorData.message || 'Upload failed')
             }
 
             const result = await response.json()
+            console.log('[PostEditor] Upload success:', result);
 
             setPost(prev => ({
                 ...prev,
-                coverImages: { ...prev.coverImages, [type]: result.url }
+                coverImages: { ...prev.coverImages, [type]: result.data.url } // Fix: access data.url since apiSuccess wraps it
             }))
         } catch (error: any) {
-            console.error('Upload error:', error)
+            console.error('[PostEditor] Upload error:', error)
             alert(error.message || 'ატვირთვა ვერ მოხერხდა')
         } finally {
             if (type === 'horizontal') setIsUploadingH(false)
