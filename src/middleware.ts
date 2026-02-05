@@ -18,9 +18,12 @@ export function middleware(request: NextRequest) {
 
     // If no session and trying to access admin routes, redirect to login
     if (!adminSession?.value) {
-        const loginUrl = new URL('/admin/login', request.url);
-        loginUrl.searchParams.set('from', pathname);
-        return NextResponse.redirect(loginUrl);
+        // Double check regex in matcher - redundant but safe
+        if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
+            const loginUrl = new URL('/admin/login', request.url);
+            loginUrl.searchParams.set('from', pathname);
+            return NextResponse.redirect(loginUrl);
+        }
     }
 
     return NextResponse.next();

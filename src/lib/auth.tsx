@@ -84,9 +84,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 console.log(`[Auth Client] /api/auth/me status: ${response.status}`);
 
                 if (response.ok && mounted) {
-                    const data = await response.json()
-                    console.log(`[Auth Client] User loaded: ${data.user?.username}`);
-                    setUser(data.user)
+                    const resJson = await response.json()
+                    // apiSuccess wraps data in a 'data' property
+                    const userData = resJson.data?.user || resJson.user
+                    console.log(`[Auth Client] User loaded: ${userData?.username}`);
+                    setUser(userData)
                 } else {
                     console.log(`[Auth Client] Failed to load user. Status: ${response.status}`);
                 }
@@ -122,13 +124,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 body: JSON.stringify({ username, password })
             })
 
-            const data = await response.json()
+            const resJson = await response.json()
 
             if (!response.ok) {
-                return { success: false, error: data.error || "შესვლა ვერ მოხერხდა" }
+                return { success: false, error: resJson.error?.message || resJson.error || "შესვლა ვერ მოხერხდა" }
             }
 
-            setUser(data.user)
+            const userData = resJson.data?.user || resJson.user
+            setUser(userData)
             // Token is now in httpOnly cookie, no need to store it
 
             return { success: true }
@@ -151,10 +154,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const result = await response.json()
 
             if (!response.ok) {
-                return { success: false, error: result.error || "რეგისტრაცია ვერ მოხერხდა" }
+                return { success: false, error: result.error?.message || result.error || "რეგისტრაცია ვერ მოხერხდა" }
             }
 
-            setUser(result.user)
+            const userData = result.data?.user || result.user
+            setUser(userData)
             // Token is in cookie now
 
             return { success: true }

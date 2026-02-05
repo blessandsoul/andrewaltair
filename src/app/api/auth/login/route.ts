@@ -14,15 +14,12 @@ export async function POST(request: NextRequest) {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0] ||
         request.headers.get('x-real-ip') || 'unknown';
 
-    console.log(`[Login Attempt] IP: ${ip}`);
-
     try {
         const body = await request.json();
         const { email, password, username, twoFactorCode } = body;
 
         // Log non-sensitive inputs
         const loginField = email || username;
-        console.log(`[Login Attempt] User: ${loginField}, HasPassword: ${!!password}, Has2FA: ${!!twoFactorCode}`);
 
         const userAgent = request.headers.get('user-agent') || '';
 
@@ -32,17 +29,22 @@ export async function POST(request: NextRequest) {
 
         const response = apiSuccess({ user: result.user }, 'წარმატებით შეხვედით სისტემაში');
 
-        // ✅ Set httpOnly cookie
-        // DEBUG: Force secure false to test if it's an SSL issue
+        // ✅ Set httpOnly cookie with robust settings
+        // Determine secure flag based on environment and protocol
+        const isProduction = process.env.NODE_ENV === 'production';
+        // Check X-Forwarded-Proto header for headers behind proxy
+        const protocol = request.headers.get('x-forwarded-proto') || 'http';
+        const isSecure = isProduction && protocol === 'https';
+
+
         response.cookies.set('auth_token', result.token, {
             httpOnly: true,
-            secure: false, // WAS: process.env.NODE_ENV === 'production'
+            secure: isSecure,
             sameSite: 'lax',
             maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
             path: '/'
         });
 
-        console.log(`[Login Cookie Set] Token length: ${result.token.length}`);
 
         return response;
 
