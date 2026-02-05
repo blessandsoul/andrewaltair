@@ -33,13 +33,16 @@ export async function POST(request: NextRequest) {
         const response = apiSuccess({ user: result.user }, 'წარმატებით შეხვედით სისტემაში');
 
         // ✅ Set httpOnly cookie
+        // DEBUG: Force secure false to test if it's an SSL issue
         response.cookies.set('auth_token', result.token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: false, // WAS: process.env.NODE_ENV === 'production'
             sameSite: 'lax',
             maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
             path: '/'
         });
+
+        console.log(`[Login Cookie Set] Token length: ${result.token.length}`);
 
         return response;
 

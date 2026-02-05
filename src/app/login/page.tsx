@@ -32,12 +32,23 @@ export default function LoginPage() {
         setError("")
         setIsLoading(true)
 
-        const result = await login(formData.username, formData.password)
+        console.log("Submitting login form...", formData.username)
 
-        if (result.success) {
-            router.push("/")
-        } else {
-            setError(result.error || "შესვლა ვერ მოხერხდა")
+        try {
+            const result = await login(formData.username, formData.password)
+            console.log("Login result:", result)
+
+            if (result.success) {
+                console.log("Login successful, redirecting...")
+                router.push("/")
+                router.refresh() // Force refresh to update server components
+            } else {
+                console.error("Login failed with error:", result.error)
+                setError(result.error || "შესვლა ვერ მოხერხდა")
+            }
+        } catch (e) {
+            console.error("Login handle submit error:", e)
+            setError("განუსაზღვრელი შეცდომა")
         }
 
         setIsLoading(false)
