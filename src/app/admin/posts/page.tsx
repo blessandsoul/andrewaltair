@@ -89,8 +89,11 @@ export default function PostsPage() {
             try {
                 const res = await fetch('/api/posts?limit=100')
                 if (res.ok) {
-                    const data = await res.json()
-                    const formattedPosts = (data.posts || []).map((p: Post, i: number) => ({
+                    const resJson = await res.json()
+                    // API returns { success: true, data: { posts: [], pagination: {} } }
+                    const postsData = resJson.data?.posts || resJson.posts || []
+
+                    const formattedPosts = postsData.map((p: Post, i: number) => ({
                         ...p,
                         id: p.id || p.slug,
                         order: p.order || i + 1,
