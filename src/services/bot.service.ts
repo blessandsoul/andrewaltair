@@ -158,9 +158,16 @@ export class BotService {
      */
     static async getBotById(id: string, isAdmin = false) {
         await dbConnect();
-        if (!mongoose.Types.ObjectId.isValid(id)) throw new Error("Invalid bot ID");
 
-        const bot = await Bot.findById(id).lean();
+        // Support both MongoDB ObjectId and codename lookups
+        let bot;
+        if (mongoose.Types.ObjectId.isValid(id)) {
+            bot = await Bot.findById(id).lean();
+        } else {
+            // Try lookup by codename
+            bot = await Bot.findOne({ codename: id, isActive: true }).lean();
+        }
+
         if (!bot) return null;
 
         // Hide prompt for private bots if not admin

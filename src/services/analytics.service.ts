@@ -186,7 +186,7 @@ export class AnalyticsService {
                     }
                 }
             ],
-            { upsert: true, new: true }
+            { upsert: true, new: true, updatePipeline: true }
         );
 
         return { success: true, visitor };
