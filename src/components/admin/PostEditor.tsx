@@ -248,8 +248,12 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
             formData.append('title', post.title || post.slug || 'cover')
             formData.append('type', type)
 
+            const token = localStorage.getItem('admin_token')
             const response = await fetch('/api/upload', {
                 method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
                 body: formData
             })
 
