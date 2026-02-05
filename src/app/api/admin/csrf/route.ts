@@ -1,7 +1,9 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
-import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
+import { NextRequest } from 'next/server';
+import { verifyAdmin } from '@/lib/admin-auth';
 import { generateCSRFToken, setCSRFCookie } from '@/lib/csrf';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 /**
  * GET /api/admin/csrf
@@ -9,7 +11,7 @@ import { generateCSRFToken, setCSRFCookie } from '@/lib/csrf';
  */
 export async function GET(request: NextRequest) {
     if (!verifyAdmin(request)) {
-        return unauthorizedResponse('Admin access required');
+        return apiError(ERROR_CODES.ADMIN_UNAUTHORIZED, 'Admin access required', 401);
     }
 
     try {
@@ -17,10 +19,7 @@ export async function GET(request: NextRequest) {
         const csrfToken = generateCSRFToken();
 
         // Create response with token
-        const response = NextResponse.json({
-            success: true,
-            csrfToken
-        });
+        const response = apiSuccess({ csrfToken }, 'CSRF token generated');
 
         // Set token in httpOnly cookie
         setCSRFCookie(response, csrfToken);
@@ -28,10 +27,6 @@ export async function GET(request: NextRequest) {
         return response;
     } catch (error) {
         console.error('CSRF token generation error:', error);
-        return NextResponse.json(
-            { error: 'Failed to generate CSRF token' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.ADMIN_CSRF_FAILED, 'Failed to generate CSRF token', 500);
     }
 }
-

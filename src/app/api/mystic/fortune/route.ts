@@ -1,6 +1,8 @@
 export const dynamic = 'force-dynamic'
 import OpenAI from "openai"
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import { AI_CONFIG, FORTUNE_RULES, pickRandom, parseAIResponse } from "@/lib/mystic-rules"
 import { protectMysticEndpoint } from "@/lib/mystic-auth"
 
@@ -31,10 +33,7 @@ export async function POST(request: NextRequest) {
 
         const nameValidation = validateAIInput(name, 'სახელი', 2, 100);
         if (!nameValidation.valid) {
-            return NextResponse.json(
-                { error: nameValidation.error },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.VALIDATION_FAILED, nameValidation.error, 400);
         }
 
         // Sanitize inputs
@@ -98,7 +97,7 @@ export async function POST(request: NextRequest) {
             const jsonMatch = safeContent.match(/\{[\s\S]*\}/)
             if (jsonMatch) {
                 const parsed = JSON.parse(jsonMatch[0])
-                return NextResponse.json({
+                return apiSuccess({
                     prediction: sanitizeAIResponse(parsed.prediction || ''),
                     luckyColor: sanitizeAIResponse(parsed.luckyColor || ''),
                     luckyNumber: sanitizeAIResponse(parsed.luckyNumber || ''),
@@ -109,7 +108,7 @@ export async function POST(request: NextRequest) {
             // If parsing fails, return structured fallback
         }
 
-        return NextResponse.json({
+        return apiSuccess({
             prediction: "ვარსკვლავთა ქარავანი შენს სახელს ეძებს ცის კამარაზე. დიდი ცვლილებები მოახლოვდა — მზად იყავი მიიღო ბედისწერის საჩუქარი.",
             luckyColor: "ზურმუხტისფერი",
             luckyNumber: "7",
@@ -118,10 +117,7 @@ export async function POST(request: NextRequest) {
 
     } catch (error) {
         console.error("Fortune API error:", error)
-        return NextResponse.json(
-            { error: "Failed to generate fortune" },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.MYSTIC_FETCH_FAILED, 'Fortune prediction failed', 500)
     }
 }
 

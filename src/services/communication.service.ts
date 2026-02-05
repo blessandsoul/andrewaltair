@@ -4,18 +4,45 @@ import { sendEmail, sendWelcomeEmail, sendPasswordResetEmail, sendNotificationEm
 import { sendTelegramPost, TelegramPostData } from '@/lib/telegram';
 import mongoose from 'mongoose';
 
+import type { IComment } from '@/models/Comment';
+
+interface GetCommentsParams {
+    postId?: string;
+    status?: IComment['status'];
+    limit?: number;
+    page?: number;
+}
+
+interface CreateCommentData {
+    postId: string;
+    text: string;
+    parentId?: string;
+}
+
+interface CreateCommentUser {
+    _id: mongoose.Types.ObjectId | string;
+    fullName?: string;
+    username?: string;
+    avatar?: string;
+}
+
+interface SendEmailParams {
+    to: string | string[];
+    subject: string;
+    html: string;
+    text?: string;
+}
+
 export class CommunicationService {
     /**
      * --- COMMENTS ---
      */
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async getComments(params: any) {
+    static async getComments(params: GetCommentsParams) {
         await dbConnect();
         const { postId, status, limit = 50, page = 1 } = params;
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const query: any = {};
+        const query: Record<string, unknown> = {};
         if (postId) query.postId = postId;
         if (status) query.status = status;
 
@@ -27,20 +54,17 @@ export class CommunicationService {
             .lean();
 
         // Populate logic (moved from route)
-        // Note: Dynamic imports in route were to avoid circular deps or lazy load. 
-        // We can keep them or import top level if safe. 
+        // Note: Dynamic imports in route were to avoid circular deps or lazy load.
+        // We can keep them or import top level if safe.
         // Logic below mimics route aggregation for Post Titles.
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const Tool = (await import('@/models/Tool')).default;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const Post = (await import('@/models/Post')).default;
 
         const toolIds: string[] = [];
         const postIds: string[] = [];
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        comments.forEach((comment: any) => {
+        comments.forEach((comment) => {
             if (comment.postId && typeof comment.postId === 'string') {
                 if (comment.postId.startsWith('tool-')) {
                     toolIds.push(comment.postId.replace('tool-', ''));
@@ -55,13 +79,10 @@ export class CommunicationService {
             postIds.length > 0 ? Post.find({ _id: { $in: postIds } }).select('_id title').lean() : Promise.resolve([])
         ]);
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const toolMap = new Map(tools.map((t: any) => [t._id.toString(), t.name]));
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const postMap = new Map(posts.map((p: any) => [p._id.toString(), p.title]));
+        const toolMap = new Map(tools.map((t) => [t._id.toString(), t.name]));
+        const postMap = new Map(posts.map((p) => [p._id.toString(), p.title]));
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const transformedComments = comments.map((comment: any) => {
+        const transformedComments = comments.map((comment) => {
             let postTitle = 'Unknown Post';
             if (comment.postId && typeof comment.postId === 'string') {
                 if (comment.postId.startsWith('tool-')) {
@@ -88,8 +109,7 @@ export class CommunicationService {
         };
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async createComment(data: any, user: any) {
+    static async createComment(data: CreateCommentData, user: CreateCommentUser) {
         await dbConnect();
         const { postId, text, parentId } = data;
 
@@ -138,8 +158,7 @@ export class CommunicationService {
     /**
      * --- EMAIL ---
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async sendEmail(params: any) {
+    static async sendEmail(params: SendEmailParams) {
         return await sendEmail(params);
     }
 

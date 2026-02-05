@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import { CommunicationService } from '@/services/communication.service';
 import { getUserFromRequest } from '@/lib/server-auth';
 
@@ -16,10 +17,10 @@ export async function GET(request: Request) {
         };
 
         const result = await CommunicationService.getComments(params);
-        return NextResponse.json(result);
+        return apiSuccess(result, 'Comments fetched successfully');
     } catch (error: any) {
         console.error('Get comments error:', error);
-        return NextResponse.json({ error: error.message || 'Failed to fetch comments' }, { status: 500 });
+        return apiError(ERROR_CODES.COMMENT_FETCH_FAILED, error.message || 'Failed to fetch comments', 500);
     }
 }
 
@@ -28,15 +29,15 @@ export async function POST(request: Request) {
     try {
         const user = await getUserFromRequest(request);
         if (!user) {
-            return NextResponse.json({ error: 'ავტორიზაცია აუცილებელია' }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'ავტორიზაცია აუცილებელია', 401);
         }
 
         const body = await request.json();
         const comment = await CommunicationService.createComment(body, user);
 
-        return NextResponse.json({ success: true, comment });
+        return apiSuccess(comment, 'Comment created successfully', 201);
     } catch (error: any) {
         console.error('Create comment error:', error);
-        return NextResponse.json({ error: error.message || 'Failed to create comment' }, { status: 400 });
+        return apiError(ERROR_CODES.COMMENT_CREATE_FAILED, error.message || 'Failed to create comment', 400);
     }
 }

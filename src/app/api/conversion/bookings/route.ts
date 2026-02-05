@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import Booking from '@/models/Booking';
 import { getUserFromRequest } from '@/lib/server-auth';
@@ -11,7 +13,7 @@ export async function GET(req: NextRequest) {
 
         const user = await getUserFromRequest(req);
         if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
         const userId = user._id.toString();
 
@@ -19,10 +21,10 @@ export async function GET(req: NextRequest) {
             .sort({ date: -1 })
             .limit(10);
 
-        return NextResponse.json({ bookings });
+        return apiSuccess({ bookings }, 'Bookings fetched successfully');
     } catch (error) {
         console.error('Bookings Error:', error);
-        return NextResponse.json({ error: 'Failed to get bookings' }, { status: 500 });
+        return apiError(ERROR_CODES.CONVERSION_FETCH_FAILED, 'Failed to get bookings', 500);
     }
 }
 
@@ -33,14 +35,14 @@ export async function POST(req: NextRequest) {
 
         const user = await getUserFromRequest(req);
         if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
         const userId = user._id.toString();
 
         const { expertId, expertName, date, time, notes } = await req.json();
 
         if (!expertId || !expertName || !date || !time) {
-            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Missing required fields', 400);
         }
 
         // Check for existing booking at same time
@@ -52,7 +54,7 @@ export async function POST(req: NextRequest) {
         });
 
         if (existing) {
-            return NextResponse.json({ error: 'Time slot already booked' }, { status: 400 });
+            return apiError(ERROR_CODES.BAD_REQUEST, 'Time slot already booked', 400);
         }
 
         const booking = await Booking.create({
@@ -65,14 +67,10 @@ export async function POST(req: NextRequest) {
             status: 'pending',
         });
 
-        return NextResponse.json({
-            success: true,
-            booking,
-            message: 'Booking created successfully'
-        });
+        return apiSuccess({ booking }, 'Booking created successfully', 201);
     } catch (error) {
         console.error('Create Booking Error:', error);
-        return NextResponse.json({ error: 'Failed to create booking' }, { status: 500 });
+        return apiError(ERROR_CODES.CONVERSION_ACTION_FAILED, 'Failed to create booking', 500);
     }
 }
 

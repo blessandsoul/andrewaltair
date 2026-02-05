@@ -1,8 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import jwt from 'jsonwebtoken';
-import connectDB from '@/lib/mongodb';
+import dbConnect from '@/lib/db';
 import Purchase from '@/models/Purchase';
 import User from '@/models/User';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -14,7 +16,7 @@ export async function GET(
     { params }: { params: { id: string } }
 ) {
     try {
-        await connectDB();
+        await dbConnect();
 
         // For free bots, everyone can comment (maintained legacy logic comment, though this function is check-purchase)
         // Original logic: "For free bots, everyone can comment" -> returns hasPurchased: true
@@ -22,14 +24,14 @@ export async function GET(
         const bot = await Bot.findById(params.id);
 
         if (bot?.tier === 'free') {
-            return NextResponse.json({ hasPurchased: true });
+            return apiSuccess({ hasPurchased: true });
         }
 
         // Verify Authentication
         const authHeader = request.headers.get('authorization');
 
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return NextResponse.json({ hasPurchased: false });
+            return apiSuccess({ hasPurchased: false });
         }
 
         const token = authHeader.substring(7);
@@ -43,11 +45,11 @@ export async function GET(
             }
         } catch (error) {
             console.error('Token verification failed:', error);
-            return NextResponse.json({ hasPurchased: false });
+            return apiSuccess({ hasPurchased: false });
         }
 
         if (!userEmail) {
-            return NextResponse.json({ hasPurchased: false });
+            return apiSuccess({ hasPurchased: false });
         }
 
         // Check if user has purchased this bot
@@ -57,12 +59,12 @@ export async function GET(
             status: 'completed'
         });
 
-        return NextResponse.json({
+        return apiSuccess({
             hasPurchased: !!purchase
         });
 
     } catch (error) {
         console.error('Error checking purchase:', error);
-        return NextResponse.json({ hasPurchased: false });
+        return apiSuccess({ hasPurchased: false });
     }
 }

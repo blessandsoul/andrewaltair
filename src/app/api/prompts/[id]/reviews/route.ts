@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import MarketplacePrompt from '@/models/MarketplacePrompt';
 import PromptPurchase from '@/models/PromptPurchase';
@@ -26,10 +28,7 @@ export async function GET(request: NextRequest, { params }: Params) {
         const prompt = await MarketplacePrompt.findOne(query);
 
         if (!prompt) {
-            return NextResponse.json(
-                { error: 'Prompt not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.PROMPT_NOT_FOUND, 'Prompt not found', 404);
         }
 
         const reviews = await MarketplacePromptReview.find({
@@ -57,7 +56,7 @@ export async function GET(request: NextRequest, { params }: Params) {
             ratingDistribution[stat._id] = stat.count;
         });
 
-        return NextResponse.json({
+        return apiSuccess({
             reviews: reviews.map((r) => ({
                 ...r,
                 id: (r as IMarketplacePromptReview & { _id: { toString: () => string } })._id.toString(),
@@ -77,10 +76,7 @@ export async function GET(request: NextRequest, { params }: Params) {
         });
     } catch (error) {
         console.error('Get reviews error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch reviews' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.PROMPT_FETCH_FAILED, 'Failed to fetch reviews', 500);
     }
 }
 
@@ -94,17 +90,11 @@ export async function POST(request: NextRequest, { params }: Params) {
         const { accessToken, rating, content, authorName } = body;
 
         if (!accessToken) {
-            return NextResponse.json(
-                { error: 'Access token required to leave a review' },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Access token required to leave a review', 400);
         }
 
         if (!rating || rating < 1 || rating > 5) {
-            return NextResponse.json(
-                { error: 'Rating must be between 1 and 5' },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Rating must be between 1 and 5', 400);
         }
 
         // Find prompt
@@ -115,10 +105,7 @@ export async function POST(request: NextRequest, { params }: Params) {
         const prompt = await MarketplacePrompt.findOne(query);
 
         if (!prompt) {
-            return NextResponse.json(
-                { error: 'Prompt not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.PROMPT_NOT_FOUND, 'Prompt not found', 404);
         }
 
         // Verify purchase
@@ -129,10 +116,7 @@ export async function POST(request: NextRequest, { params }: Params) {
         });
 
         if (!purchase) {
-            return NextResponse.json(
-                { error: 'You must purchase this prompt to leave a review' },
-                { status: 403 }
-            );
+            return apiError(ERROR_CODES.FORBIDDEN, 'You must purchase this prompt to leave a review', 403);
         }
 
         // Check if user already reviewed
@@ -142,10 +126,7 @@ export async function POST(request: NextRequest, { params }: Params) {
         });
 
         if (existingReview) {
-            return NextResponse.json(
-                { error: 'You have already reviewed this prompt' },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'You have already reviewed this prompt', 400);
         }
 
         // Create review
@@ -176,15 +157,11 @@ export async function POST(request: NextRequest, { params }: Params) {
             }
         );
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             reviewId: review._id.toString(),
-        });
+        }, 'Review added successfully', 201);
     } catch (error) {
         console.error('Add review error:', error);
-        return NextResponse.json(
-            { error: 'Failed to add review' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.PROMPT_REVIEW_FAILED, 'Failed to add review', 500);
     }
 }

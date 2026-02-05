@@ -1,15 +1,16 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Post from '@/models/Post';
 import MarketplacePrompt from '@/models/MarketplacePrompt';
 import { generateUniqueId } from '@/lib/id-system';
-import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
+import { verifyAdmin } from '@/lib/admin-auth';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 export async function POST(request: Request) {
     try {
         if (!verifyAdmin(request)) {
-            return unauthorizedResponse();
+            return apiError(ERROR_CODES.ADMIN_UNAUTHORIZED, 'Admin access required', 401);
         }
         await dbConnect();
 
@@ -31,18 +32,12 @@ export async function POST(request: Request) {
             promptsUpdated++;
         }
 
-        return NextResponse.json({
-            success: true,
-            postsUpdated,
-            promptsUpdated,
-            message: `Backfill complete. Updated ${postsUpdated} posts and ${promptsUpdated} prompts.`
-        });
+        return apiSuccess(
+            { postsUpdated, promptsUpdated },
+            `Backfill complete. Updated ${postsUpdated} posts and ${promptsUpdated} prompts.`
+        );
     } catch (error) {
         console.error('Backfill error:', error);
-        return NextResponse.json(
-            { error: 'Internal server error' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.ADMIN_BACKFILL_FAILED, 'Internal server error', 500);
     }
 }
-

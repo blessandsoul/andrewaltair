@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Task from '@/models/Task';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -14,12 +15,12 @@ export async function PUT(request: Request, { params }: RouteParams) {
         const data = await request.json();
         const task = await Task.findByIdAndUpdate(id, data, { new: true }).lean();
         if (!task) {
-            return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+            return apiError(ERROR_CODES.TASK_NOT_FOUND, 'Task not found', 404);
         }
-        return NextResponse.json({ success: true, task: { ...task, id: task._id.toString() } });
+        return apiSuccess({ task: { ...task, id: task._id.toString() } }, 'Task updated successfully');
     } catch (error) {
         console.error('Update task error:', error);
-        return NextResponse.json({ error: 'Failed to update task' }, { status: 500 });
+        return apiError(ERROR_CODES.TASK_UPDATE_FAILED, 'Failed to update task', 500);
     }
 }
 
@@ -30,11 +31,11 @@ export async function DELETE(request: Request, { params }: RouteParams) {
         const { id } = await params;
         const task = await Task.findByIdAndDelete(id);
         if (!task) {
-            return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+            return apiError(ERROR_CODES.TASK_NOT_FOUND, 'Task not found', 404);
         }
-        return NextResponse.json({ success: true });
+        return apiSuccess(null, 'Task deleted successfully');
     } catch (error) {
         console.error('Delete task error:', error);
-        return NextResponse.json({ error: 'Failed to delete task' }, { status: 500 });
+        return apiError(ERROR_CODES.TASK_DELETE_FAILED, 'Failed to delete task', 500);
     }
 }

@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from "@/lib/db";
 import AffiliateLink from "@/models/AffiliateLink";
 import Bot from "@/models/Bot";
@@ -14,7 +16,7 @@ export async function GET(request: NextRequest) {
     try {
         const user = await getUserFromRequest(request);
         if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
 
         await dbConnect();
@@ -24,10 +26,10 @@ export async function GET(request: NextRequest) {
             .populate('botId', 'name icon color tier price')
             .sort({ createdAt: -1 });
 
-        return NextResponse.json({ links });
+        return apiSuccess({ links }, 'Affiliate links fetched successfully');
     } catch (error) {
         console.error("Affiliate list error:", error);
-        return NextResponse.json({ error: "Failed to fetch links" }, { status: 500 });
+        return apiError(ERROR_CODES.BOT_FETCH_FAILED, 'Failed to fetch links', 500);
     }
 }
 
@@ -36,7 +38,7 @@ export async function POST(request: NextRequest) {
     try {
         const user = await getUserFromRequest(request);
         if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
 
         const body = await request.json();
@@ -48,7 +50,7 @@ export async function POST(request: NextRequest) {
         if (botId) {
             const bot = await Bot.findById(botId);
             if (!bot) {
-                return NextResponse.json({ error: "Bot not found" }, { status: 404 });
+                return apiError(ERROR_CODES.BOT_NOT_FOUND, 'Bot not found', 404);
             }
         }
 
@@ -59,7 +61,7 @@ export async function POST(request: NextRequest) {
         let existing = await AffiliateLink.findOne({ code });
         if (existing) {
             if (body.customCode) {
-                return NextResponse.json({ error: "Code already taken" }, { status: 400 });
+                return apiError(ERROR_CODES.BAD_REQUEST, 'Code already taken', 400);
             }
             // Retry once for auto-generated
             code = nanoid();
@@ -75,11 +77,10 @@ export async function POST(request: NextRequest) {
             totalRevenue: 0
         });
 
-        return NextResponse.json({ link }, { status: 201 });
+        return apiSuccess({ link }, 'Affiliate link created', 201);
 
     } catch (error) {
         console.error("Create affiliate link error:", error);
-        return NextResponse.json({ error: "Failed to create link" }, { status: 500 });
+        return apiError(ERROR_CODES.BOT_CREATE_FAILED, 'Failed to create link', 500);
     }
 }
-

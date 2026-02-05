@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 interface SEOAnalysisResult {
     score: number
@@ -187,17 +189,11 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        return NextResponse.json({
-            success: true,
-            ...result
-        })
+        return apiSuccess(result, 'SEO analysis completed')
 
     } catch (error) {
         console.error('SEO analysis error:', error)
-        return NextResponse.json(
-            { error: 'SEO analysis failed', score: 0, tips: [] },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.SEO_FETCH_FAILED, 'SEO analysis failed', 500)
     }
 }
 

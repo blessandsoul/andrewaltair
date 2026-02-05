@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Media from '@/models/Media';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -19,7 +21,7 @@ export async function GET(request: Request, { params }: RouteParams) {
         }
 
         if (!media) {
-            return NextResponse.json({ error: 'Media not found' }, { status: 404 });
+            return apiError(ERROR_CODES.MEDIA_NOT_FOUND, 'Media not found', 404);
         }
 
         // If media has base64 data, serve as binary image
@@ -36,12 +38,12 @@ export async function GET(request: Request, { params }: RouteParams) {
         }
 
         // Fallback: return JSON metadata (for API clients)
-        return NextResponse.json({
+        return apiSuccess({
             media: { ...media, id: media._id.toString() },
-        });
+        }, 'Media fetched');
     } catch (error) {
         console.error('Get media error:', error);
-        return NextResponse.json({ error: 'Failed to fetch media' }, { status: 500 });
+        return apiError(ERROR_CODES.MEDIA_FETCH_FAILED, 'Failed to fetch media', 500);
     }
 }
 

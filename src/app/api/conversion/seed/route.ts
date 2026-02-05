@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import Lesson from '@/models/Lesson';
 import Quest from '@/models/Quest';
@@ -156,20 +158,16 @@ export async function POST(req: NextRequest) {
         const challenges = await Challenge.insertMany(CHALLENGES);
         const testimonials = await Testimonial.insertMany(TESTIMONIALS);
 
-        return NextResponse.json({
-            success: true,
-            message: 'All conversion data seeded!',
-            data: {
-                lessons: lessons.length,
-                quests: quests.length,
-                deals: deals.length,
-                challenges: challenges.length,
-                testimonials: testimonials.length,
-            }
-        });
+        return apiSuccess({
+            lessons: lessons.length,
+            quests: quests.length,
+            deals: deals.length,
+            challenges: challenges.length,
+            testimonials: testimonials.length,
+        }, 'All conversion data seeded!');
     } catch (error) {
         console.error('Seed Error:', error);
-        return NextResponse.json({ error: 'Failed to seed' }, { status: 500 });
+        return apiError(ERROR_CODES.SEED_FAILED, 'Failed to seed', 500);
     }
 }
 
@@ -187,9 +185,9 @@ export async function GET(req: Request) {
             Challenge.countDocuments(),
             Testimonial.countDocuments(),
         ]);
-        return NextResponse.json({ lessons, quests, deals, challenges, testimonials });
+        return apiSuccess({ lessons, quests, deals, challenges, testimonials }, 'Counts fetched');
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to get counts' }, { status: 500 });
+        return apiError(ERROR_CODES.CONVERSION_FETCH_FAILED, 'Failed to get counts', 500);
     }
 }
 

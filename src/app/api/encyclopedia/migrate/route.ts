@@ -1,9 +1,11 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
+import { NextRequest } from 'next/server';
+import dbConnect from '@/lib/db';
 import EncyclopediaSection from '@/models/EncyclopediaSection';
 import EncyclopediaCategory from '@/models/EncyclopediaCategory';
 import EncyclopediaArticle from '@/models/EncyclopediaArticle';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 // Import static data
 import { PROMPT_ENGINEERING_DATA } from '@/data/promptEngineeringContent';
@@ -108,7 +110,7 @@ export async function POST(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const secret = searchParams.get('secret');
         if (secret !== process.env.CRON_SECRET && secret !== 'migrate-now') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
 
         await dbConnect();
@@ -201,15 +203,11 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        return NextResponse.json({
-            success: true,
-            message: 'Migration completed',
-            results,
-        });
+        return apiSuccess(results, 'Migration completed');
 
     } catch (error) {
         console.error('Migration error:', error);
-        return NextResponse.json({ error: 'Migration failed', details: String(error) }, { status: 500 });
+        return apiError(ERROR_CODES.ENCYCLOPEDIA_MIGRATE_FAILED, 'Migration failed', 500);
     }
 }
 
@@ -222,13 +220,15 @@ export async function GET() {
         const categories = await EncyclopediaCategory.countDocuments();
         const articles = await EncyclopediaArticle.countDocuments();
 
-        return NextResponse.json({
-            status: 'ready',
-            counts: { sections, categories, articles },
-            message: sections > 0 ? 'Data already migrated' : 'No data - run POST to migrate',
-        });
+        return apiSuccess(
+            {
+                status: 'ready',
+                counts: { sections, categories, articles },
+            },
+            sections > 0 ? 'Data already migrated' : 'No data - run POST to migrate'
+        );
     } catch (error) {
-        return NextResponse.json({ error: 'Database check failed' }, { status: 500 });
+        console.error('Database check error:', error);
+        return apiError(ERROR_CODES.ENCYCLOPEDIA_FETCH_FAILED, 'Database check failed', 500);
     }
 }
-

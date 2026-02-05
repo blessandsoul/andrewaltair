@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import Video from '@/models/Video';
 import mongoose from 'mongoose';
@@ -27,28 +28,22 @@ export async function GET(request: Request, { params }: RouteParams) {
         }
 
         if (!video) {
-            return NextResponse.json(
-                { error: 'Video not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.VIDEO_NOT_FOUND, 'Video not found', 404);
         }
 
         // Increment views
         await Video.findByIdAndUpdate(video._id, { $inc: { views: 1 } });
 
-        return NextResponse.json({
+        return apiSuccess({
             video: {
                 ...video,
                 id: video._id.toString(),
                 views: video.views + 1,
             },
-        });
+        }, 'Video fetched successfully');
     } catch (error) {
         console.error('Get video error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch video' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.VIDEO_FETCH_FAILED, 'Failed to fetch video', 500);
     }
 }
 
@@ -71,25 +66,18 @@ export async function PUT(request: Request, { params }: RouteParams) {
         ).lean();
 
         if (!video) {
-            return NextResponse.json(
-                { error: 'Video not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.VIDEO_NOT_FOUND, 'Video not found', 404);
         }
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             video: {
                 ...video,
                 id: video._id.toString(),
             },
-        });
+        }, 'Video updated successfully');
     } catch (error) {
         console.error('Update video error:', error);
-        return NextResponse.json(
-            { error: 'Failed to update video' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.VIDEO_UPDATE_FAILED, 'Failed to update video', 500);
     }
 }
 
@@ -103,21 +91,12 @@ export async function DELETE(request: Request, { params }: RouteParams) {
         const video = await Video.findByIdAndDelete(id);
 
         if (!video) {
-            return NextResponse.json(
-                { error: 'Video not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.VIDEO_NOT_FOUND, 'Video not found', 404);
         }
 
-        return NextResponse.json({
-            success: true,
-            message: 'Video deleted successfully',
-        });
+        return apiSuccess(null, 'Video deleted successfully');
     } catch (error) {
         console.error('Delete video error:', error);
-        return NextResponse.json(
-            { error: 'Failed to delete video' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.VIDEO_DELETE_FAILED, 'Failed to delete video', 500);
     }
 }

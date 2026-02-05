@@ -1,6 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
+import { NextRequest } from 'next/server';
+import dbConnect from '@/lib/db';
 import EncyclopediaVersion from '@/models/EncyclopediaVersion';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 // GET version history for article
 export async function GET(
@@ -14,9 +16,9 @@ export async function GET(
             .sort({ version: -1 })
             .lean();
 
-        return NextResponse.json({ versions });
+        return apiSuccess(versions, 'Versions fetched successfully');
     } catch (error) {
         console.error('Error fetching versions:', error);
-        return NextResponse.json({ error: 'Failed to fetch versions' }, { status: 500 });
+        return apiError(ERROR_CODES.ENCYCLOPEDIA_FETCH_FAILED, 'Failed to fetch versions', 500);
     }
 }

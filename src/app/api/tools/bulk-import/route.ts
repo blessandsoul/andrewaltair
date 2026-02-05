@@ -1,10 +1,12 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/db';
 import Tool from '@/models/Tool';
 import newTools1 from '@/data/new-tools.json';
 import newTools2 from '@/data/new-tools-2.json';
 import newTools3 from '@/data/new-tools-3.json';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 export async function POST(request: NextRequest) {
     try {
@@ -61,9 +63,7 @@ export async function POST(request: NextRequest) {
 
         const total = await Tool.countDocuments();
 
-        return NextResponse.json({
-            success: true,
-            message: `Bulk import completed`,
+        return apiSuccess({
             stats: {
                 attempted: allNewTools.length,
                 imported,
@@ -71,13 +71,10 @@ export async function POST(request: NextRequest) {
                 errors,
                 totalInDatabase: total,
             }
-        });
+        }, 'Bulk import completed');
     } catch (error) {
         console.error('Bulk import error:', error);
-        return NextResponse.json(
-            { error: 'Failed to import tools' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.TOOL_CREATE_FAILED, 'Failed to import tools', 500);
     }
 }
 

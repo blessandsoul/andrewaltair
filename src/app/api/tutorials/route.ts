@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import { TutorialService } from '@/services/tutorial.service';
 
 export async function GET(req: Request) {
@@ -10,10 +11,10 @@ export async function GET(req: Request) {
 
         const tutorials = await TutorialService.getAllTutorials({ status, limit });
 
-        return NextResponse.json(tutorials);
+        return apiSuccess(tutorials, 'Tutorials fetched successfully');
     } catch (error) {
         console.error('Error fetching tutorials:', error);
-        return NextResponse.json({ error: 'Failed to fetch tutorials' }, { status: 500 });
+        return apiError(ERROR_CODES.TUTORIAL_FETCH_FAILED, 'Failed to fetch tutorials', 500);
     }
 }
 
@@ -30,13 +31,13 @@ export async function POST(req: Request) {
         const body = await req.json();
 
         if (!body.title) {
-            return NextResponse.json({ error: "Title is required" }, { status: 400 });
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Title is required', 400);
         }
 
         const tutorial = await TutorialService.createTutorial(body);
-        return NextResponse.json(tutorial, { status: 201 });
+        return apiSuccess(tutorial, 'Tutorial created successfully', 201);
     } catch (error) {
         console.error('Error creating tutorial:', error);
-        return NextResponse.json({ error: 'Failed to create tutorial' }, { status: 500 });
+        return apiError(ERROR_CODES.TUTORIAL_CREATE_FAILED, 'Failed to create tutorial', 500);
     }
 }

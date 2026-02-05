@@ -1,10 +1,11 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import Post from '@/models/Post';
 import Video from '@/models/Video';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 // Import data
 import postsData from '@/data/posts.json';
@@ -15,20 +16,14 @@ export async function POST(request: Request) {
     try {
         // 🛡️ SECURITY: Disable in production
         if (process.env.NODE_ENV === 'production') {
-            return NextResponse.json(
-                { error: 'Seed disabled in production' },
-                { status: 403 }
-            );
+            return apiError(ERROR_CODES.FORBIDDEN, 'Seed disabled in production', 403);
         }
 
         const { secret } = await request.json();
 
         // 🛡️ SECURITY: Use env variable
         if (secret !== process.env.SEED_SECRET) {
-            return NextResponse.json(
-                { error: 'Invalid secret' },
-                { status: 403 }
-            );
+            return apiError(ERROR_CODES.ADMIN_UNAUTHORIZED, 'Invalid seed secret', 403);
         }
 
         await dbConnect();
@@ -117,20 +112,15 @@ export async function POST(request: Request) {
         );
         results.videos.created = videos.length;
 
-        return NextResponse.json({
-            success: true,
-            message: 'Database seeded successfully!',
+        return apiSuccess({
             results,
             credentials: {
                 message: "Check server logs or database for credentials. Not returning them in response for security."
             }
-        });
+        }, 'Database seeded successfully!');
     } catch (error) {
         console.error('Seed error:', error);
-        return NextResponse.json(
-            { error: 'Seed failed', details: String(error) },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.SEED_FAILED, 'Database seed failed', 500);
     }
 }
 

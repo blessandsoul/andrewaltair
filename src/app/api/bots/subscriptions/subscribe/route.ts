@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import SubscriptionPlan from "@/models/SubscriptionPlan";
@@ -9,7 +11,7 @@ export async function POST(request: NextRequest) {
     try {
         const user = await getUserFromRequest(request);
         if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
 
         const { planId } = await request.json();
@@ -18,7 +20,7 @@ export async function POST(request: NextRequest) {
 
         const plan = await SubscriptionPlan.findById(planId);
         if (!plan) {
-            return NextResponse.json({ error: "Plan not found" }, { status: 404 });
+            return apiError(ERROR_CODES.NOT_FOUND, 'Plan not found', 404);
         }
 
         // Mock Payment Logic here (Integration with Stripe/Paddle would go here)
@@ -41,14 +43,11 @@ export async function POST(request: NextRequest) {
 
         await user.save();
 
-        return NextResponse.json({
-            success: true,
-            subscription: user.subscription
-        });
+        return apiSuccess({ subscription: user.subscription }, 'Subscription activated successfully');
 
     } catch (error) {
         console.error("Subscribe error:", error);
-        return NextResponse.json({ error: "Subscription failed" }, { status: 500 });
+        return apiError(ERROR_CODES.SUBSCRIPTION_FAILED, 'Subscription failed', 500);
     }
 }
 

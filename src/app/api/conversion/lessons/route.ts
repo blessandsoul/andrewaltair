@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import Lesson from '@/models/Lesson';
 import User from '@/models/User';
@@ -24,10 +26,10 @@ export async function GET(req: NextRequest) {
             completed: userId ? lesson.completedBy?.some((id: any) => id.toString() === userId) : false,
         }));
 
-        return NextResponse.json({ lessons: lessonsWithProgress });
+        return apiSuccess({ lessons: lessonsWithProgress }, 'Lessons fetched successfully');
     } catch (error) {
         console.error('Lessons GET Error:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        return apiError(ERROR_CODES.CONVERSION_FETCH_FAILED, 'Internal Server Error', 500);
     }
 }
 
@@ -38,28 +40,24 @@ export async function POST(req: NextRequest) {
 
         const user = await getUserFromRequest(req);
         if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
         const userId = user._id.toString();
 
         const { lessonId } = await req.json();
 
         if (!lessonId) {
-            return NextResponse.json({ error: 'lessonId required' }, { status: 400 });
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'lessonId required', 400);
         }
 
         const lesson = await Lesson.findById(lessonId);
         if (!lesson) {
-            return NextResponse.json({ error: 'Lesson not found' }, { status: 404 });
+            return apiError(ERROR_CODES.NOT_FOUND, 'Lesson not found', 404);
         }
 
         // Check if already completed
         if (lesson.completedBy.includes(userId)) {
-            return NextResponse.json({
-                success: true,
-                alreadyCompleted: true,
-                message: 'Already completed'
-            });
+            return apiSuccess({ alreadyCompleted: true }, 'Already completed');
         }
 
         // Mark as completed
@@ -82,15 +80,14 @@ export async function POST(req: NextRequest) {
             });
         }
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             xpEarned: lesson.xpReward,
             newTotalXp: (updatedUser?.gamification?.xp || 0),
-        });
+        }, 'Lesson completed');
 
     } catch (error) {
         console.error('Lessons POST Error:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        return apiError(ERROR_CODES.CONVERSION_ACTION_FAILED, 'Internal Server Error', 500);
     }
 }
 

@@ -1,6 +1,8 @@
 export const dynamic = 'force-dynamic'
 import OpenAI from "openai"
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import { AI_CONFIG, DREAM_RULES, pickRandom, parseAIResponse } from "@/lib/mystic-rules"
 import { getUserFromRequest } from "@/lib/server-auth"
 
@@ -47,19 +49,13 @@ export async function POST(request: NextRequest) {
         // 🛡️ AUTHENTICATION REQUIRED
         const user = await getUserFromRequest(request);
         if (!user) {
-            return NextResponse.json(
-                { error: "ავტორიზაცია აუცილებელია" },
-                { status: 401 }
-            );
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'ავტორიზაცია აუცილებელია', 401);
         }
 
         // 🛡️ RATE LIMITING
         const rateLimit = checkDreamRateLimit(user._id.toString());
         if (!rateLimit.allowed) {
-            return NextResponse.json(
-                { error: "ლიმიტი ამოიწურა. შეგიძლიათ განმარტოთ მაქსიმუმ 10 სიზმარი დღეში." },
-                { status: 429 }
-            );
+            return apiError(ERROR_CODES.RATE_LIMITED, 'Too many requests', 429);
         }
 
         const client = getClient()
@@ -70,7 +66,7 @@ export async function POST(request: NextRequest) {
 
         const dreamValidation = validateAIInput(dream, 'სიზმარი', 10, 2000);
         if (!dreamValidation.valid) {
-            return NextResponse.json({ error: dreamValidation.error }, { status: 400 });
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Dream description is required', 400);
         }
 
         const safeDream = sanitizeAIInput(dream, { maxLength: 2000, allowNewlines: true });
@@ -134,13 +130,13 @@ export async function POST(request: NextRequest) {
                 }
                 parsed.generalMessage = sanitizeAIResponse(parsed.generalMessage || '');
 
-                return NextResponse.json(parsed)
+                return apiSuccess(parsed)
             }
         } catch {
             // Parsing failed
         }
 
-        return NextResponse.json({
+        return apiSuccess({
             symbols: [
                 { word: "სიზმარი", meaning: "შენი ქვეცნობიერი მნიშვნელოვან მესიჯს გიგზავნის. ეს არის შენი შინაგანი სიბრძნის ხმა.", category: "სიმბოლო" }
             ],
@@ -149,10 +145,7 @@ export async function POST(request: NextRequest) {
 
     } catch (error) {
         console.error("Dream API error:", error)
-        return NextResponse.json(
-            { error: "Failed to interpret dream" },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.MYSTIC_FETCH_FAILED, 'Dream interpretation failed', 500)
     }
 }
 

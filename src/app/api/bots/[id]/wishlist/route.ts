@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import { getUserFromRequest } from "@/lib/server-auth";
@@ -13,14 +15,14 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     try {
         const user = await getUserFromRequest(request);
         if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
 
         await dbConnect();
         const { id } = await params;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return NextResponse.json({ error: "Invalid bot ID" }, { status: 400 });
+            return apiError(ERROR_CODES.BAD_REQUEST, 'Invalid bot ID', 400);
         }
 
         const isWishlisted = user.wishlist?.includes(new mongoose.Types.ObjectId(id));
@@ -40,14 +42,14 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
             );
         }
 
-        return NextResponse.json({
-            isWishlisted: !isWishlisted,
-            message: isWishlisted ? "Removed from Wishlist" : "Added to Wishlist"
-        });
+        return apiSuccess(
+            { isWishlisted: !isWishlisted },
+            isWishlisted ? 'Removed from Wishlist' : 'Added to Wishlist'
+        );
 
     } catch (error) {
         console.error("Wishlist toggle error:", error);
-        return NextResponse.json({ error: "Failed to update wishlist" }, { status: 500 });
+        return apiError(ERROR_CODES.BOT_UPDATE_FAILED, 'Failed to update wishlist', 500);
     }
 }
 
@@ -56,7 +58,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     try {
         const user = await getUserFromRequest(request);
         if (!user) {
-            return NextResponse.json({ isWishlisted: false });
+            return apiSuccess({ isWishlisted: false });
         }
 
         await dbConnect();
@@ -66,8 +68,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         const freshUser = await User.findById(user._id).select('wishlist');
         const isWishlisted = freshUser?.wishlist?.includes(new mongoose.Types.ObjectId(id)) || false;
 
-        return NextResponse.json({ isWishlisted });
+        return apiSuccess({ isWishlisted });
     } catch (error) {
-        return NextResponse.json({ isWishlisted: false });
+        return apiSuccess({ isWishlisted: false });
     }
 }

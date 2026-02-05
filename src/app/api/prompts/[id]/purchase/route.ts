@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import MarketplacePrompt from '@/models/MarketplacePrompt';
 import PromptPurchase from '@/models/PromptPurchase';
@@ -83,20 +85,14 @@ export async function POST(request: NextRequest, { params }: Params) {
         const prompt = await MarketplacePrompt.findOne(query);
 
         if (!prompt || prompt.status !== 'published') {
-            return NextResponse.json(
-                { error: 'Prompt not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.PROMPT_NOT_FOUND, 'Prompt not found', 404);
         }
 
         const body = await request.json();
         const { email, name, phone } = body;
 
         if (!email) {
-            return NextResponse.json(
-                { error: 'Email is required' },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Email is required', 400);
         }
 
         // For free prompts, create completed purchase immediately
@@ -146,22 +142,17 @@ export async function POST(request: NextRequest, { params }: Params) {
             }
         }
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             purchaseId: purchase._id.toString(),
             accessToken: isFreePrompt ? accessToken : undefined,
             status: purchase.status,
             isFree: isFreePrompt,
-            message: isFreePrompt
-                ? 'Download ready!'
-                : 'Purchase initiated. You will receive access after payment confirmation.',
-        });
+        }, isFreePrompt
+            ? 'Download ready!'
+            : 'Purchase initiated. You will receive access after payment confirmation.', 201);
     } catch (error) {
         console.error('Purchase prompt error:', error);
-        return NextResponse.json(
-            { error: 'Failed to process purchase' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.PROMPT_FETCH_FAILED, 'Failed to process purchase', 500);
     }
 }
 
@@ -175,10 +166,7 @@ export async function GET(request: NextRequest, { params }: Params) {
         const accessToken = searchParams.get('access');
 
         if (!accessToken) {
-            return NextResponse.json(
-                { error: 'Access token required' },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Access token required', 400);
         }
 
         // Find prompt
@@ -189,10 +177,7 @@ export async function GET(request: NextRequest, { params }: Params) {
         const prompt = await MarketplacePrompt.findOne(query);
 
         if (!prompt) {
-            return NextResponse.json(
-                { error: 'Prompt not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.PROMPT_NOT_FOUND, 'Prompt not found', 404);
         }
 
         // Find purchase
@@ -202,18 +187,14 @@ export async function GET(request: NextRequest, { params }: Params) {
         });
 
         if (!purchase) {
-            return NextResponse.json(
-                { error: 'Invalid access token' },
-                { status: 403 }
-            );
+            return apiError(ERROR_CODES.FORBIDDEN, 'Invalid access token', 403);
         }
 
         if (purchase.status !== 'completed') {
-            return NextResponse.json({
+            return apiSuccess({
                 hasAccess: false,
                 status: purchase.status,
-                message: 'Payment pending confirmation',
-            });
+            }, 'Payment pending confirmation');
         }
 
         // Update access time if first access
@@ -231,7 +212,7 @@ export async function GET(request: NextRequest, { params }: Params) {
         }
 
         // Return full prompt content
-        return NextResponse.json({
+        return apiSuccess({
             hasAccess: true,
             status: 'completed',
             prompt: {
@@ -243,9 +224,6 @@ export async function GET(request: NextRequest, { params }: Params) {
         });
     } catch (error) {
         console.error('Check purchase access error:', error);
-        return NextResponse.json(
-            { error: 'Failed to verify access' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.PROMPT_FETCH_FAILED, 'Failed to verify access', 500);
     }
 }

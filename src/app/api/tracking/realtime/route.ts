@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import dbConnect from '@/lib/db'
 import Visitor from '@/models/Visitor'
 import Activity from '@/models/Activity'
@@ -67,8 +68,7 @@ export async function GET() {
             tablet: onlineByDevice.find(d => d._id === 'tablet')?.count || 0
         }
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             timestamp: now.toISOString(),
             realtime: {
                 online: onlineNow,
@@ -88,7 +88,7 @@ export async function GET() {
         })
     } catch (error) {
         console.error('Realtime metrics error:', error)
-        return NextResponse.json({ error: 'Failed to fetch realtime metrics' }, { status: 500 })
+        return apiError(ERROR_CODES.TRACKING_FETCH_FAILED, 'Failed to fetch realtime metrics', 500)
     }
 }
 

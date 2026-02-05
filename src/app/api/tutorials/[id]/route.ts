@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from "@/lib/db";
 import Tutorial from "@/models/Tutorial";
 
@@ -13,15 +14,15 @@ export async function GET(
         if (!tutorial) {
             // Try slug
             const bySlug = await Tutorial.findOne({ slug: params.id });
-            if (bySlug) return NextResponse.json(bySlug);
+            if (bySlug) return apiSuccess(bySlug, 'Tutorial fetched successfully');
 
-            return NextResponse.json({ error: "Tutorial not found" }, { status: 404 });
+            return apiError(ERROR_CODES.TUTORIAL_NOT_FOUND, 'Tutorial not found', 404);
         }
 
-        return NextResponse.json(tutorial);
+        return apiSuccess(tutorial, 'Tutorial fetched successfully');
     } catch (error) {
         console.error("Error fetching tutorial:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return apiError(ERROR_CODES.TUTORIAL_FETCH_FAILED, 'Failed to fetch tutorial', 500);
     }
 }
 
@@ -40,13 +41,13 @@ export async function PUT(
         );
 
         if (!tutorial) {
-            return NextResponse.json({ error: "Tutorial not found" }, { status: 404 });
+            return apiError(ERROR_CODES.TUTORIAL_NOT_FOUND, 'Tutorial not found', 404);
         }
 
-        return NextResponse.json(tutorial);
+        return apiSuccess(tutorial, 'Tutorial updated successfully');
     } catch (error) {
         console.error("Error updating tutorial:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return apiError(ERROR_CODES.TUTORIAL_UPDATE_FAILED, 'Failed to update tutorial', 500);
     }
 }
 
@@ -59,12 +60,12 @@ export async function DELETE(
         const tutorial = await Tutorial.findByIdAndDelete(params.id);
 
         if (!tutorial) {
-            return NextResponse.json({ error: "Tutorial not found" }, { status: 404 });
+            return apiError(ERROR_CODES.TUTORIAL_NOT_FOUND, 'Tutorial not found', 404);
         }
 
-        return NextResponse.json({ message: "Tutorial deleted successfully" });
+        return apiSuccess(null, 'Tutorial deleted successfully');
     } catch (error) {
         console.error("Error deleting tutorial:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return apiError(ERROR_CODES.TUTORIAL_DELETE_FAILED, 'Failed to delete tutorial', 500);
     }
 }

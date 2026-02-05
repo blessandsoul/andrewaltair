@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import dbConnect from '@/lib/db'
 import Prompt from '@/models/Prompt'
 import { nanoid } from 'nanoid'
@@ -75,7 +77,7 @@ export async function GET(request: NextRequest) {
             _id: undefined,
         }))
 
-        const response = NextResponse.json({
+        const response = apiSuccess({
             prompts: data,
             pagination: {
                 page,
@@ -83,7 +85,7 @@ export async function GET(request: NextRequest) {
                 total,
                 pages: Math.ceil(total / limit)
             }
-        })
+        }, 'Prompts fetched successfully')
 
         // Set session cookie if new
         if (!request.cookies.get('prompt_session_id')) {
@@ -99,10 +101,7 @@ export async function GET(request: NextRequest) {
 
     } catch (error) {
         console.error('Get prompts error:', error)
-        return NextResponse.json(
-            { error: 'Failed to fetch prompts' },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.PROMPT_FETCH_FAILED, 'Failed to fetch prompts', 500)
     }
 }
 
@@ -126,10 +125,7 @@ export async function POST(request: NextRequest) {
         } = body
 
         if (!content || !formData?.role || !formData?.task) {
-            return NextResponse.json(
-                { error: 'Content, role, and task are required' },
-                { status: 400 }
-            )
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Content, role, and task are required', 400)
         }
 
         const tokenCount = estimateTokens(content)
@@ -155,11 +151,11 @@ export async function POST(request: NextRequest) {
             }],
         })
 
-        const response = NextResponse.json({
+        const response = apiSuccess({
             id: prompt._id.toString(),
             shareToken: prompt.shareToken,
             tokenCount,
-        })
+        }, 'Prompt created successfully')
 
         // Set session cookie if new
         if (!request.cookies.get('prompt_session_id')) {
@@ -175,10 +171,7 @@ export async function POST(request: NextRequest) {
 
     } catch (error) {
         console.error('Create prompt error:', error)
-        return NextResponse.json(
-            { error: 'Failed to create prompt' },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.PROMPT_CREATE_FAILED, 'Failed to create prompt', 500)
     }
 }
 

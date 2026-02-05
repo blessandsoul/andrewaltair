@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import dbConnect from '@/lib/db'
 import PromptAnalytics from '@/models/PromptAnalytics'
 import { cookies } from 'next/headers'
@@ -24,10 +26,10 @@ export async function POST(request: NextRequest) {
             success: success !== false
         })
 
-        return NextResponse.json({ success: true, id: analytics._id })
+        return apiSuccess({ id: analytics._id }, 'Analytics tracked successfully')
     } catch (error) {
         console.error('Analytics tracking error:', error)
-        return NextResponse.json({ error: 'Failed to track' }, { status: 500 })
+        return apiError(ERROR_CODES.TRACKING_RECORD_FAILED, 'Failed to track', 500)
     }
 }
 
@@ -103,10 +105,10 @@ export async function GET(request: NextRequest) {
             totalEvents: eventCounts.reduce((sum, e) => sum + e.count, 0)
         }
 
-        return NextResponse.json(stats)
+        return apiSuccess(stats, 'Analytics fetched successfully')
     } catch (error) {
         console.error('Analytics fetch error:', error)
-        return NextResponse.json({ error: 'Failed to fetch analytics' }, { status: 500 })
+        return apiError(ERROR_CODES.ANALYTICS_FETCH_FAILED, 'Failed to fetch analytics', 500)
     }
 }
 

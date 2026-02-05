@@ -1,6 +1,8 @@
 export const dynamic = 'force-dynamic'
 import OpenAI from "openai"
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import { AI_CONFIG, NUMEROLOGY_RULES, parseAIResponse } from "@/lib/mystic-rules"
 
 // Lazy initialization to avoid build-time errors
@@ -32,7 +34,7 @@ export async function POST(request: NextRequest) {
 
         const nameValidation = validateAIInput(fullName, 'სახელი', 2, 100);
         if (!nameValidation.valid) {
-            return NextResponse.json({ error: nameValidation.error }, { status: 400 });
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Input is required', 400);
         }
 
         const safeFullName = sanitizeAIInput(fullName, { maxLength: 100, allowSpecialChars: false });
@@ -91,7 +93,7 @@ export async function POST(request: NextRequest) {
             if (jsonMatch) {
                 const parsed = JSON.parse(jsonMatch[0])
 
-                return NextResponse.json({
+                return apiSuccess({
                     interpretation: sanitizeAIResponse(parsed.interpretation || ''),
                     yearForecast: sanitizeAIResponse(parsed.yearForecast || '')
                 })
@@ -100,17 +102,14 @@ export async function POST(request: NextRequest) {
             // Parsing failed
         }
 
-        return NextResponse.json({
+        return apiSuccess({
             interpretation: `შენი სიცოცხლის გზის რიცხვი ${lifePath} მიგითითებს ${getNumberMeaning(lifePath)} ენერგიაზე. ბედისწერის რიცხვი ${destiny} კი შენს ცხოვრების მისიას განსაზღვრავს.`,
             yearForecast: `${currentYear} წელი პირადი წელი ${personalYear} გთავაზობს ${personalYear <= 5 ? 'აქტიურ მოქმედებას და ახალ შესაძლებლობებს' : 'რეფლექსიას და სიღრმისეულ განვითარებას'}.`
         })
 
     } catch (error) {
         console.error("Numerology API error:", error)
-        return NextResponse.json(
-            { error: "Failed to analyze numerology" },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.MYSTIC_FETCH_FAILED, 'Numerology prediction failed', 500)
     }
 }
 

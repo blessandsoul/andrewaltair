@@ -1,6 +1,8 @@
 export const dynamic = 'force-dynamic'
 import OpenAI from "openai"
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import { verifyAdmin } from "@/lib/admin-auth"
 
 // Initialize OpenAI client for Groq
@@ -14,16 +16,13 @@ export async function POST(request: NextRequest) {
         // Auth check - use admin auth for admin panel
         const isAdmin = verifyAdmin(request);
         if (!isAdmin) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
 
         const { title, description, promptTemplate } = await request.json()
 
         if (!title && !description && !promptTemplate) {
-            return NextResponse.json(
-                { error: "At least one field (title, description, or prompt) is required" },
-                { status: 400 }
-            )
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'At least one field (title, description, or prompt) is required', 400)
         }
 
         const systemPrompt = `You are an expert SEO and Metadata specialist for an AI Image Prompt Marketplace.
@@ -71,14 +70,11 @@ Prompt Template: ${promptTemplate || "N/A"}
 
         const result = JSON.parse(content)
 
-        return NextResponse.json(result)
+        return apiSuccess(result, 'Metadata generated successfully')
 
     } catch (error) {
         console.error("Analysis error:", error)
-        return NextResponse.json(
-            { error: "Failed to generate metadata" },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.PROMPT_GENERATE_FAILED, 'Failed to generate metadata', 500)
     }
 }
 

@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
@@ -51,10 +53,7 @@ export async function POST(request: NextRequest) {
         // Check API key first
         const GROQ_API_KEY = process.env.GROQ_API_KEY
         if (!GROQ_API_KEY) {
-            return NextResponse.json(
-                { error: 'GROQ_API_KEY not configured' },
-                { status: 500 }
-            )
+            return apiError(ERROR_CODES.PROMPT_FETCH_FAILED, 'GROQ_API_KEY not configured', 500)
         }
 
         const { action, prompt, task, role, context, targetLanguage, modelSettings } = await request.json()
@@ -189,20 +188,14 @@ Separate each variation with a blank line.`,
                 break
 
             default:
-                return NextResponse.json(
-                    { error: 'Invalid action' },
-                    { status: 400 }
-                )
+                return apiError(ERROR_CODES.VALIDATION_FAILED, 'Invalid action', 400)
         }
 
-        return NextResponse.json({ result })
+        return apiSuccess({ result })
 
     } catch (error) {
         console.error('Prompt builder AI error:', error)
-        return NextResponse.json(
-            { error: 'AI service unavailable' },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.PROMPT_BUILDER_FAILED, 'AI service unavailable', 500)
     }
 }
 

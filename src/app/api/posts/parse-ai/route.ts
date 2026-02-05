@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
@@ -458,16 +460,13 @@ export async function POST(request: NextRequest) {
     try {
         const GROQ_API_KEY = process.env.GROQ_API_KEY
         if (!GROQ_API_KEY) {
-            return NextResponse.json({ error: 'GROQ_API_KEY not configured' }, { status: 500 })
+            return apiError(ERROR_CODES.AI_SERVICE_ERROR, 'GROQ_API_KEY not configured', 500)
         }
 
         const { rawContent } = await request.json()
 
         if (!rawContent || typeof rawContent !== 'string') {
-            return NextResponse.json(
-                { error: 'rawContent is required' },
-                { status: 400 }
-            )
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'rawContent is required', 400)
         }
 
         let result: ParseResult
@@ -476,17 +475,11 @@ export async function POST(request: NextRequest) {
         result = fallbackParse(rawContent)
         console.log('Parsed with fallback - intro length:', result.sections?.find(s => s.type === 'intro')?.content.length)
 
-        return NextResponse.json({
-            success: true,
-            ...result
-        })
+        return apiSuccess(result, 'Content parsed successfully')
 
     } catch (error) {
         console.error('Parse API error:', error)
-        return NextResponse.json(
-            { error: 'Failed to parse content' },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.AI_GENERATION_FAILED, 'Failed to parse content', 500)
     }
 }
 

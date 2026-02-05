@@ -1,8 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import jwt from 'jsonwebtoken'
 import dbConnect from '@/lib/db'
 import Post from '@/models/Post'
 import PostVersion from '@/models/PostVersion'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret'
 
@@ -34,7 +36,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             .sort({ version: -1 })
             .lean()
 
-        return NextResponse.json({
+        return apiSuccess({
             versions: versions.map(v => ({
                 id: v._id.toString(),
                 version: v.version,
@@ -44,10 +46,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
                 changeReason: v.changeReason,
                 createdAt: v.createdAt,
             })),
-        })
+        }, 'Versions fetched')
     } catch (error) {
         console.error('Get versions error:', error)
-        return NextResponse.json({ error: 'Failed to get versions' }, { status: 500 })
+        return apiError(ERROR_CODES.POST_FETCH_FAILED, 'Failed to get versions', 500)
     }
 }
 
@@ -59,14 +61,14 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
         const user = await getUserFromToken(request)
         if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Authentication required', 401)
         }
 
         const { changeReason } = await request.json()
 
         const post = await Post.findById(id)
         if (!post) {
-            return NextResponse.json({ error: 'Post not found' }, { status: 404 })
+            return apiError(ERROR_CODES.POST_NOT_FOUND, 'Post not found', 404)
         }
 
         // Get latest version number
@@ -95,16 +97,15 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
             changeReason,
         })
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             version: {
                 id: version._id.toString(),
                 version: version.version,
             },
-        })
+        }, 'Version created')
     } catch (error) {
         console.error('Create version error:', error)
-        return NextResponse.json({ error: 'Failed to create version' }, { status: 500 })
+        return apiError(ERROR_CODES.POST_CREATE_FAILED, 'Failed to create version', 500)
     }
 }
 
@@ -116,14 +117,14 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
         const user = await getUserFromToken(request)
         if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Authentication required', 401)
         }
 
         const { versionId } = await request.json()
 
         const version = await PostVersion.findById(versionId)
         if (!version || version.postId.toString() !== id) {
-            return NextResponse.json({ error: 'Version not found' }, { status: 404 })
+            return apiError(ERROR_CODES.NOT_FOUND, 'Version not found', 404)
         }
 
         // First, save current state as a new version
@@ -162,12 +163,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             tags: version.tags,
         })
 
-        return NextResponse.json({
-            success: true,
-            message: `Restored to version ${version.version}`,
-        })
+        return apiSuccess({ restored: true }, `Restored to version ${version.version}`)
     } catch (error) {
         console.error('Restore version error:', error)
-        return NextResponse.json({ error: 'Failed to restore version' }, { status: 500 })
+        return apiError(ERROR_CODES.POST_UPDATE_FAILED, 'Failed to restore version', 500)
     }
 }

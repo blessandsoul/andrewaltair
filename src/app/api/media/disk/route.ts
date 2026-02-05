@@ -1,8 +1,10 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { readdir, stat, mkdir, writeFile } from 'fs/promises'
 import path from 'path'
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 const UPLOADS_DIR = path.join(process.cwd(), 'public', 'uploads')
 
@@ -118,16 +120,16 @@ export async function GET(request: NextRequest) {
         // Get unique top-level folders
         const topLevelFolders = folders.filter(f => !f.path.includes('/'))
 
-        return NextResponse.json({
+        return apiSuccess({
             files,
             folders: topLevelFolders,
             currentFolder: folder,
             totalFiles: files.length,
             totalSize: formatBytes(files.reduce((sum, f) => sum + f.size, 0))
-        })
+        }, 'Disk scan completed')
     } catch (error) {
         console.error('Disk scan error:', error)
-        return NextResponse.json({ error: 'Failed to scan disk' }, { status: 500 })
+        return apiError(ERROR_CODES.MEDIA_FETCH_FAILED, 'Failed to scan disk', 500)
     }
 }
 
@@ -143,13 +145,13 @@ export async function POST(request: NextRequest) {
         const folder = (formData.get('folder') as string) || ''
 
         if (!file) {
-            return NextResponse.json({ error: 'No file provided' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'No file provided', 400)
         }
 
         // Validate file type
         const ext = file.name.split('.').pop()?.toLowerCase() || ''
         if (!IMAGE_EXTENSIONS.includes(ext) && !VIDEO_EXTENSIONS.includes(ext)) {
-            return NextResponse.json({ error: 'Invalid file type' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Invalid file type', 400)
         }
 
         // Create target directory
@@ -168,8 +170,7 @@ export async function POST(request: NextRequest) {
 
         const relativePath = path.relative(UPLOADS_DIR, filePath).replace(/\\/g, '/')
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             file: {
                 name: filename,
                 path: relativePath,
@@ -179,9 +180,9 @@ export async function POST(request: NextRequest) {
                 type: getFileType(ext),
                 extension: ext
             }
-        })
+        }, 'File uploaded')
     } catch (error) {
         console.error('Upload error:', error)
-        return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
+        return apiError(ERROR_CODES.MEDIA_UPLOAD_FAILED, 'Upload failed', 500)
     }
 }

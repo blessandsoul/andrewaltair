@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import Post from '@/models/Post';
 import mongoose from 'mongoose';
@@ -30,10 +31,7 @@ export async function GET(request: Request, { params }: RouteParams) {
         }
 
         if (!post) {
-            return NextResponse.json(
-                { error: 'Post not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.POST_NOT_FOUND, 'Post not found', 404);
         }
 
 
@@ -72,7 +70,7 @@ export async function GET(request: Request, { params }: RouteParams) {
                 .lean()
         ]);
 
-        return NextResponse.json({
+        return apiSuccess({
             post: {
                 ...post,
                 id: post._id.toString(),
@@ -80,13 +78,10 @@ export async function GET(request: Request, { params }: RouteParams) {
             },
             prevPost: prevPost ? { slug: prevPost.slug, title: prevPost.title } : null,
             nextPost: nextPost ? { slug: nextPost.slug, title: nextPost.title } : null,
-        });
+        }, 'Post fetched successfully');
     } catch (error) {
         console.error('Get post error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch post' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.POST_FETCH_FAILED, 'Failed to fetch post', 500);
     }
 }
 
@@ -109,10 +104,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
         ).lean();
 
         if (!post) {
-            return NextResponse.json(
-                { error: 'Post not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.POST_NOT_FOUND, 'Post not found', 404);
         }
 
         // 🔄 Revalidate caches
@@ -125,19 +117,15 @@ export async function PUT(request: Request, { params }: RouteParams) {
             indexBlogPost(post.slug).catch(err => console.error('[IndexNow] Failed:', err));
         }
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             post: {
                 ...post,
                 id: post._id.toString(),
             },
-        });
+        }, 'Post updated successfully');
     } catch (error) {
         console.error('Update post error:', error);
-        return NextResponse.json(
-            { error: 'Failed to update post' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.POST_UPDATE_FAILED, 'Failed to update post', 500);
     }
 }
 
@@ -151,25 +139,16 @@ export async function DELETE(request: Request, { params }: RouteParams) {
         const post = await Post.findByIdAndDelete(id);
 
         if (!post) {
-            return NextResponse.json(
-                { error: 'Post not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.POST_NOT_FOUND, 'Post not found', 404);
         }
 
         // 🔄 Revalidate caches
         revalidatePath('/blog');
         revalidatePath('/');
 
-        return NextResponse.json({
-            success: true,
-            message: 'Post deleted successfully',
-        });
+        return apiSuccess(null, 'Post deleted successfully');
     } catch (error) {
         console.error('Delete post error:', error);
-        return NextResponse.json(
-            { error: 'Failed to delete post' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.POST_DELETE_FAILED, 'Failed to delete post', 500);
     }
 }

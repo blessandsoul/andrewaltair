@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
@@ -38,16 +40,13 @@ export async function POST(request: NextRequest) {
     try {
         const GROQ_API_KEY = process.env.GROQ_API_KEY
         if (!GROQ_API_KEY) {
-            return NextResponse.json({ error: 'GROQ_API_KEY not configured' }, { status: 500 })
+            return apiError(ERROR_CODES.AI_SERVICE_ERROR, 'GROQ_API_KEY not configured', 500)
         }
 
         const { title, excerpt, rawContent } = await request.json()
 
         if (!title && !rawContent) {
-            return NextResponse.json(
-                { error: 'title or rawContent required' },
-                { status: 400 }
-            )
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'title or rawContent required', 400)
         }
 
         // Build context for AI
@@ -95,34 +94,29 @@ export async function POST(request: NextRequest) {
                 result.tags = result.tags.slice(0, 5)
             }
 
-            return NextResponse.json({
-                success: true,
-                ...result
-            })
+            return apiSuccess(result, 'SEO suggestions generated')
         } catch {
             // Fallback with basic suggestions from actual content
             const focusWords = (title || '').split(' ').filter((w: string) => w.length > 3).slice(0, 3)
-            return NextResponse.json({
-                success: true,
+            return apiSuccess({
                 focusKeyword: focusWords.join(' ') || 'AI ტექნოლოგიები',
                 metaTitle: (title || '').slice(0, 60),
                 metaDescription: (excerpt || title || '').slice(0, 160),
                 keywords: focusWords.concat(['ტექნოლოგიები', 'AI', 'ინოვაცია', 'AndrewAltair', 'სიახლეები', 'მომავალი', 'ციფრული']).slice(0, 10).join(', '),
                 tags: ['ტექნოლოგიები', 'AI', 'AndrewAltair', 'სიახლეები', 'ინოვაცია']
-            })
+            }, 'SEO suggestions generated with fallback')
         }
 
     } catch (error) {
         console.error('AI suggest error:', error)
         // Return fallback with placeholder - but this shouldn't happen with proper input
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             focusKeyword: '',
             metaTitle: '',
             metaDescription: '',
             keywords: 'AI, ტექნოლოგიები, ინოვაცია, AndrewAltair, სიახლეები, მომავალი, ციფრული, პროგრესი, მეცნიერება, ბიზნესი',
             tags: ['ტექნოლოგიები', 'AI', 'AndrewAltair', 'სიახლეები', 'ინოვაცია']
-        })
+        }, 'SEO suggestions generated with fallback')
     }
 }
 

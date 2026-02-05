@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import Challenge from '@/models/Challenge';
 import User from '@/models/User';
@@ -15,10 +17,10 @@ export async function GET() {
             endsAt: { $gt: new Date() }
         }).sort({ endsAt: 1 });
 
-        return NextResponse.json({ challenges });
+        return apiSuccess({ challenges }, 'Challenges fetched successfully');
     } catch (error) {
         console.error('Challenges Error:', error);
-        return NextResponse.json({ error: 'Failed to get challenges' }, { status: 500 });
+        return apiError(ERROR_CODES.CONVERSION_FETCH_FAILED, 'Failed to get challenges', 500);
     }
 }
 
@@ -29,18 +31,18 @@ export async function POST(req: NextRequest) {
 
         const user = await getUserFromRequest(req);
         if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
         const userId = user._id.toString();
 
         const { challengeId, action } = await req.json();
         if (!challengeId) {
-            return NextResponse.json({ error: 'Challenge ID required' }, { status: 400 });
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Challenge ID required', 400);
         }
 
         const challenge = await Challenge.findById(challengeId);
         if (!challenge || !challenge.isActive) {
-            return NextResponse.json({ error: 'Challenge not found' }, { status: 404 });
+            return apiError(ERROR_CODES.NOT_FOUND, 'Challenge not found', 404);
         }
 
         const participantIndex = challenge.participants.findIndex(
@@ -49,7 +51,7 @@ export async function POST(req: NextRequest) {
 
         if (action === 'join') {
             if (participantIndex >= 0) {
-                return NextResponse.json({ error: 'Already joined' }, { status: 400 });
+                return apiError(ERROR_CODES.BAD_REQUEST, 'Already joined', 400);
             }
 
             challenge.participants.push({
@@ -58,16 +60,16 @@ export async function POST(req: NextRequest) {
             });
             await challenge.save();
 
-            return NextResponse.json({ success: true, message: 'Joined challenge' });
+            return apiSuccess(null, 'Joined challenge');
         }
 
         if (action === 'complete') {
             if (participantIndex < 0) {
-                return NextResponse.json({ error: 'Not a participant' }, { status: 400 });
+                return apiError(ERROR_CODES.BAD_REQUEST, 'Not a participant', 400);
             }
 
             if (challenge.participants[participantIndex].completedAt) {
-                return NextResponse.json({ error: 'Already completed' }, { status: 400 });
+                return apiError(ERROR_CODES.BAD_REQUEST, 'Already completed', 400);
             }
 
             challenge.participants[participantIndex].completedAt = new Date();
@@ -78,17 +80,15 @@ export async function POST(req: NextRequest) {
                 $inc: { 'gamification.xp': challenge.xpReward }
             });
 
-            return NextResponse.json({
-                success: true,
-                message: 'Challenge completed',
+            return apiSuccess({
                 xpEarned: challenge.xpReward
-            });
+            }, 'Challenge completed');
         }
 
-        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+        return apiError(ERROR_CODES.BAD_REQUEST, 'Invalid action', 400);
     } catch (error) {
         console.error('Challenge Action Error:', error);
-        return NextResponse.json({ error: 'Failed to process' }, { status: 500 });
+        return apiError(ERROR_CODES.CONVERSION_ACTION_FAILED, 'Failed to process', 500);
     }
 }
 

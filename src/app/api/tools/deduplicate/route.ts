@@ -1,7 +1,9 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/db';
 import Tool from '@/models/Tool';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 export async function POST(request: NextRequest) {
     try {
@@ -39,21 +41,16 @@ export async function POST(request: NextRequest) {
 
         const finalCount = await Tool.countDocuments();
 
-        return NextResponse.json({
-            success: true,
-            message: 'Deduplication completed',
+        return apiSuccess({
             stats: {
                 before: allTools.length,
                 duplicatesRemoved: duplicateIds.length,
                 after: finalCount,
             }
-        });
+        }, 'Deduplication completed');
     } catch (error) {
         console.error('Deduplication error:', error);
-        return NextResponse.json(
-            { error: 'Failed to deduplicate tools' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.TOOL_FETCH_FAILED, 'Failed to deduplicate tools', 500);
     }
 }
 
@@ -77,18 +74,15 @@ export async function GET(request: NextRequest) {
             .map(([name, count]) => ({ name, count }))
             .sort((a, b) => b.count - a.count);
 
-        return NextResponse.json({
+        return apiSuccess({
             totalTools: allTools.length,
             uniqueNames: nameCount.size,
             duplicateCount: allTools.length - nameCount.size,
             duplicates: duplicates.slice(0, 50),
-        });
+        }, 'Duplicate check completed');
     } catch (error) {
         console.error('Error checking duplicates:', error);
-        return NextResponse.json(
-            { error: 'Failed to check duplicates' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.TOOL_FETCH_FAILED, 'Failed to check duplicates', 500);
     }
 }
 

@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import { AnalyticsService } from '@/services/analytics.service';
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 
@@ -11,9 +12,9 @@ export async function GET(request: Request) {
 
     try {
         const result = await AnalyticsService.getDashboardStats();
-        return NextResponse.json(result);
+        return apiSuccess(result, 'Analytics fetched successfully');
     } catch (error) {
         console.error('Analytics aggregation error:', error);
-        return NextResponse.json({ error: 'Failed to fetch analytics' }, { status: 500 });
+        return apiError(ERROR_CODES.ANALYTICS_FETCH_FAILED, 'Failed to fetch analytics', 500);
     }
 }

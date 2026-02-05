@@ -1,6 +1,9 @@
 "use client"
 
 import * as React from "react"
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -45,25 +48,40 @@ interface ContactFormProps {
     }
 }
 
-type FormStatus = 'idle' | 'submitting' | 'success' | 'error'
 type Urgency = 'low' | 'medium' | 'high' | 'urgent'
 
+const contactSchema = z.object({
+    name: z.string().min(2, 'სახელი უნდა იყოს მინიმუმ 2 სიმბოლო'),
+    email: z.string().email('გთხოვთ შეიყვანოთ სწორი ელფოსტა'),
+    phone: z.string().optional(),
+    service: z.string().optional(),
+    budget: z.string().optional(),
+    message: z.string().min(10, 'შეტყობინება უნდა იყოს მინიმუმ 10 სიმბოლო'),
+    urgency: z.enum(['low', 'medium', 'high', 'urgent']),
+})
+type ContactFormData = z.infer<typeof contactSchema>
+
 export function ContactForm({ services, defaultValues }: ContactFormProps) {
-    const [formData, setFormData] = React.useState({
-        name: "",
-        email: "",
-        phone: "",
-        service: defaultValues?.service || "",
-        budget: defaultValues?.budget || "",
-        message: defaultValues?.message || "",
-        urgency: "medium" as Urgency
-    })
-    const [status, setStatus] = React.useState<FormStatus>('idle')
+    const [status, setStatus] = React.useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
     const [errorMessage, setErrorMessage] = React.useState("")
     const [focusedField, setFocusedField] = React.useState<string | null>(null)
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
+    const { register, handleSubmit, formState: { errors }, reset, control, setValue, watch } = useForm<ContactFormData>({
+        resolver: zodResolver(contactSchema),
+        defaultValues: {
+            name: "",
+            email: "",
+            phone: "",
+            service: defaultValues?.service || "",
+            budget: defaultValues?.budget || "",
+            message: defaultValues?.message || "",
+            urgency: "medium",
+        },
+    })
+
+    const urgencyValue = watch('urgency')
+
+    const onSubmit = async (formData: ContactFormData) => {
         setStatus('submitting')
         setErrorMessage("")
 
@@ -78,15 +96,7 @@ export function ContactForm({ services, defaultValues }: ContactFormProps) {
 
             if (res.ok) {
                 setStatus('success')
-                setFormData({
-                    name: "",
-                    email: "",
-                    phone: "",
-                    service: "",
-                    budget: "",
-                    message: "",
-                    urgency: "medium"
-                })
+                reset()
             } else {
                 setStatus('error')
                 setErrorMessage(data.error || 'დაფიქსირდა შეცდომა')
@@ -174,33 +184,39 @@ export function ContactForm({ services, defaultValues }: ContactFormProps) {
                         </div>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                         {/* Name & Email */}
                         <div className="grid sm:grid-cols-2 gap-4">
                             <div className={`relative group transition-all duration-300 ${focusedField === 'name' ? 'scale-[1.02]' : ''}`}>
                                 <TbUser className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                                 <Input
-                                    required
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    {...register('name')}
                                     onFocus={() => setFocusedField('name')}
                                     onBlur={() => setFocusedField(null)}
                                     placeholder="თქვენი სახელი *"
                                     className="pl-12 h-14 bg-secondary/30 border-border/50 focus:border-primary focus:bg-secondary/50 transition-all text-base"
+                                    aria-invalid={!!errors.name}
+                                    aria-describedby={errors.name ? 'services-name-error' : undefined}
                                 />
+                                {errors.name && (
+                                    <p id="services-name-error" className="text-sm text-red-500 mt-1">{errors.name.message}</p>
+                                )}
                             </div>
                             <div className={`relative group transition-all duration-300 ${focusedField === 'email' ? 'scale-[1.02]' : ''}`}>
                                 <TbMail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                                 <Input
-                                    required
                                     type="email"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    {...register('email')}
                                     onFocus={() => setFocusedField('email')}
                                     onBlur={() => setFocusedField(null)}
                                     placeholder="ელ-ფოსტა *"
                                     className="pl-12 h-14 bg-secondary/30 border-border/50 focus:border-primary focus:bg-secondary/50 transition-all text-base"
+                                    aria-invalid={!!errors.email}
+                                    aria-describedby={errors.email ? 'services-email-error' : undefined}
                                 />
+                                {errors.email && (
+                                    <p id="services-email-error" className="text-sm text-red-500 mt-1">{errors.email.message}</p>
+                                )}
                             </div>
                         </div>
 
@@ -210,8 +226,7 @@ export function ContactForm({ services, defaultValues }: ContactFormProps) {
                                 <TbPhone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors z-10" />
                                 <Input
                                     type="tel"
-                                    value={formData.phone}
-                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                    {...register('phone')}
                                     onFocus={() => setFocusedField('phone')}
                                     onBlur={() => setFocusedField(null)}
                                     placeholder="ტელეფონი (არასავალდებულო)"
@@ -220,22 +235,25 @@ export function ContactForm({ services, defaultValues }: ContactFormProps) {
                             </div>
                             <div className="relative">
                                 <TbBriefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10 pointer-events-none" />
-                                <Select
-                                    value={formData.service}
-                                    onValueChange={(value) => setFormData({ ...formData, service: value })}
-                                >
-                                    <SelectTrigger className="h-14 pl-12 bg-secondary/30 border-border/50 focus:border-primary focus:ring-primary/20 text-base">
-                                        <SelectValue placeholder="აირჩიეთ სერვისი" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {services.map((service) => (
-                                            <SelectItem key={service.id} value={service.title}>
-                                                {service.title}
-                                            </SelectItem>
-                                        ))}
-                                        <SelectItem value="სხვა">სხვა</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <Controller
+                                    name="service"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Select value={field.value} onValueChange={field.onChange}>
+                                            <SelectTrigger className="h-14 pl-12 bg-secondary/30 border-border/50 focus:border-primary focus:ring-primary/20 text-base">
+                                                <SelectValue placeholder="აირჩიეთ სერვისი" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {services.map((service) => (
+                                                    <SelectItem key={service.id} value={service.title}>
+                                                        {service.title}
+                                                    </SelectItem>
+                                                ))}
+                                                <SelectItem value="სხვა">სხვა</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    )}
+                                />
                             </div>
                         </div>
 
@@ -245,21 +263,24 @@ export function ContactForm({ services, defaultValues }: ContactFormProps) {
                                 <TbCurrencyDollar className="w-4 h-4 text-primary" />
                                 სავარაუდო ბიუჯეტი
                             </label>
-                            <Select
-                                value={formData.budget}
-                                onValueChange={(value) => setFormData({ ...formData, budget: value })}
-                            >
-                                <SelectTrigger className="h-12 bg-secondary/30 border-border/50 focus:border-primary">
-                                    <SelectValue placeholder="აირჩიეთ ბიუჯეტი" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {budgetOptions.map((option) => (
-                                        <SelectItem key={option.value} value={option.value}>
-                                            {option.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <Controller
+                                name="budget"
+                                control={control}
+                                render={({ field }) => (
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <SelectTrigger className="h-12 bg-secondary/30 border-border/50 focus:border-primary">
+                                            <SelectValue placeholder="აირჩიეთ ბიუჯეტი" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {budgetOptions.map((option) => (
+                                                <SelectItem key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                )}
+                            />
                         </div>
 
                         {/* Urgency Selection */}
@@ -273,13 +294,13 @@ export function ContactForm({ services, defaultValues }: ContactFormProps) {
                                     <button
                                         key={option.value}
                                         type="button"
-                                        onClick={() => setFormData({ ...formData, urgency: option.value as Urgency })}
-                                        className={`p-4 rounded-xl border-2 text-center transition-all duration-200 ${formData.urgency === option.value
+                                        onClick={() => setValue('urgency', option.value as Urgency)}
+                                        className={`p-4 rounded-xl border-2 text-center transition-all duration-200 ${urgencyValue === option.value
                                             ? `${option.bgColor} ${option.color} font-semibold scale-105 shadow-lg`
                                             : `bg-secondary/20 border-border/30 text-muted-foreground ${option.hoverBg}`
                                             }`}
                                     >
-                                        <option.icon className={`w-6 h-6 mx-auto mb-2 ${formData.urgency === option.value ? option.color : 'text-muted-foreground'}`} />
+                                        <option.icon className={`w-6 h-6 mx-auto mb-2 ${urgencyValue === option.value ? option.color : 'text-muted-foreground'}`} />
                                         <span className="text-sm block">{option.label}</span>
                                     </button>
                                 ))}
@@ -293,14 +314,17 @@ export function ContactForm({ services, defaultValues }: ContactFormProps) {
                                 შეტყობინება *
                             </label>
                             <Textarea
-                                required
-                                value={formData.message}
-                                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                                {...register('message')}
                                 onFocus={() => setFocusedField('message')}
                                 onBlur={() => setFocusedField(null)}
                                 placeholder="მოგვიყევით თქვენი პროექტის, იდეის ან გამოწვევის შესახებ..."
                                 className="min-h-[160px] bg-secondary/30 border-border/50 focus:border-primary focus:bg-secondary/50 transition-all resize-none text-base"
+                                aria-invalid={!!errors.message}
+                                aria-describedby={errors.message ? 'services-message-error' : undefined}
                             />
+                            {errors.message && (
+                                <p id="services-message-error" className="text-sm text-red-500 mt-1">{errors.message.message}</p>
+                            )}
                         </div>
 
                         {/* Error message */}

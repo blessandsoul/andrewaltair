@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import { getUserFromRequest } from '@/lib/server-auth';
@@ -11,7 +13,7 @@ export async function GET(req: NextRequest) {
 
         const user = await getUserFromRequest(req);
         if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
 
         // Calculate weekly stats from gamification data
@@ -26,10 +28,10 @@ export async function GET(req: NextRequest) {
             weeklyXp: user.gamification?.xp || 0,
         };
 
-        return NextResponse.json({ stats });
+        return apiSuccess({ stats }, 'Stats fetched successfully');
     } catch (error) {
         console.error('Stats Error:', error);
-        return NextResponse.json({ error: 'Failed to get stats' }, { status: 500 });
+        return apiError(ERROR_CODES.CONVERSION_FETCH_FAILED, 'Failed to get stats', 500);
     }
 }
 

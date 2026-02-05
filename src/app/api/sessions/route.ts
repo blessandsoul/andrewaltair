@@ -1,8 +1,10 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import jwt from 'jsonwebtoken'
 import dbConnect from '@/lib/db'
 import Session from '@/models/Session'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -17,7 +19,7 @@ export async function GET(request: NextRequest) {
         // Get token from header
         const authHeader = request.headers.get('authorization')
         if (!authHeader?.startsWith('Bearer ')) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Authorization required', 401)
         }
 
         const token = authHeader.substring(7)
@@ -32,7 +34,7 @@ export async function GET(request: NextRequest) {
             .sort({ lastActivity: -1 })
             .lean()
 
-        return NextResponse.json({
+        return apiSuccess({
             sessions: sessions.map(s => ({
                 id: s._id.toString(),
                 deviceInfo: s.deviceInfo,
@@ -40,10 +42,10 @@ export async function GET(request: NextRequest) {
                 createdAt: s.createdAt,
                 isCurrent: s.token === token,
             })),
-        })
+        }, 'Sessions fetched successfully')
     } catch (error) {
         console.error('Get sessions error:', error)
-        return NextResponse.json({ error: 'Failed to get sessions' }, { status: 500 })
+        return apiError(ERROR_CODES.SESSION_FETCH_FAILED, 'Failed to get sessions', 500)
     }
 }
 
@@ -55,7 +57,7 @@ export async function DELETE(request: NextRequest) {
         // Get token from header
         const authHeader = request.headers.get('authorization')
         if (!authHeader?.startsWith('Bearer ')) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Authorization required', 401)
         }
 
         const token = authHeader.substring(7)
@@ -75,10 +77,7 @@ export async function DELETE(request: NextRequest) {
 
             const result = await Session.updateMany(filter, { isActive: false })
 
-            return NextResponse.json({
-                success: true,
-                message: `Revoked ${result.modifiedCount} sessions`,
-            })
+            return apiSuccess(null, `Revoked ${result.modifiedCount} sessions`)
         }
 
         if (sessionId) {
@@ -90,19 +89,16 @@ export async function DELETE(request: NextRequest) {
             )
 
             if (!session) {
-                return NextResponse.json({ error: 'Session not found' }, { status: 404 })
+                return apiError(ERROR_CODES.SESSION_NOT_FOUND, 'Session not found', 404)
             }
 
-            return NextResponse.json({
-                success: true,
-                message: 'Session revoked',
-            })
+            return apiSuccess(null, 'Session revoked')
         }
 
-        return NextResponse.json({ error: 'Specify session ID or all=true' }, { status: 400 })
+        return apiError(ERROR_CODES.BAD_REQUEST, 'Specify session ID or all=true', 400)
     } catch (error) {
         console.error('Delete session error:', error)
-        return NextResponse.json({ error: 'Failed to revoke session' }, { status: 500 })
+        return apiError(ERROR_CODES.SESSION_REVOKE_FAILED, 'Failed to revoke session', 500)
     }
 }
 

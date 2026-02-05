@@ -1,9 +1,11 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import Session from '@/models/Session';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -22,10 +24,7 @@ export async function GET(request: NextRequest) {
             const cookieToken = cookieStore.get('auth_token')?.value;
 
             if (!cookieToken) {
-                return NextResponse.json(
-                    { error: 'არ ხართ ავტორიზებული' },
-                    { status: 401 }
-                );
+                return apiError(ERROR_CODES.AUTH_REQUIRED, 'არ ხართ ავტორიზებული', 401);
             }
             var token = cookieToken;
         }
@@ -46,10 +45,7 @@ export async function GET(request: NextRequest) {
             });
 
             if (!session) {
-                return NextResponse.json(
-                    { error: 'სესია ვადაგასულია ან არ არსებობს' },
-                    { status: 401 }
-                );
+                return apiError(ERROR_CODES.AUTH_TOKEN_EXPIRED, 'სესია ვადაგასულია ან არ არსებობს', 401);
             }
 
             // Update session activity
@@ -60,17 +56,11 @@ export async function GET(request: NextRequest) {
             const user = await User.findById(decoded.userId);
 
             if (!user) {
-                return NextResponse.json(
-                    { error: 'მომხმარებელი ვერ მოიძებნა' },
-                    { status: 404 }
-                );
+                return apiError(ERROR_CODES.NOT_FOUND, 'მომხმარებელი ვერ მოიძებნა', 404);
             }
 
             if (user.isBlocked) {
-                return NextResponse.json(
-                    { error: 'თქვენი ანგარიში დაბლოკილია' },
-                    { status: 403 }
-                );
+                return apiError(ERROR_CODES.AUTH_ACCOUNT_BLOCKED, 'თქვენი ანგარიში დაბლოკილია', 403);
             }
 
             const userData = {
@@ -86,19 +76,13 @@ export async function GET(request: NextRequest) {
                 createdAt: user.createdAt.toISOString(),
             };
 
-            return NextResponse.json({ user: userData });
+            return apiSuccess({ user: userData }, 'მომხმარებლის მონაცემები');
         } catch {
-            return NextResponse.json(
-                { error: 'არასწორი ტოკენი' },
-                { status: 401 }
-            );
+            return apiError(ERROR_CODES.AUTH_TOKEN_INVALID, 'არასწორი ტოკენი', 401);
         }
     } catch (error) {
         console.error('Auth check error:', error);
-        return NextResponse.json(
-            { error: 'სერვერის შეცდომა' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.INTERNAL_ERROR, 'სერვერის შეცდომა', 500);
     }
 }
 

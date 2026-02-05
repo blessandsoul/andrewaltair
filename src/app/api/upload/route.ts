@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import { MediaService } from '@/services/media.service'
 
 export async function POST(request: NextRequest) {
@@ -16,21 +18,16 @@ export async function POST(request: NextRequest) {
         const type = formData.get('type') as string || 'horizontal'
 
         if (!file) {
-            return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'No file uploaded', 400)
         }
 
         const result = await MediaService.uploadFile(file, title, type);
 
-        return NextResponse.json({
-            success: true,
-            ...result
-        })
+        return apiSuccess(result, 'File uploaded successfully')
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Upload error:', error)
-        return NextResponse.json(
-            { error: error.message || 'Upload failed' },
-            { status: 400 } // Service throws validation errors
-        )
+        const message = error instanceof Error ? error.message : 'Upload failed';
+        return apiError(ERROR_CODES.MEDIA_UPLOAD_FAILED, message, 400)
     }
 }

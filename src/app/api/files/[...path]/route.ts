@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import { readFile, stat } from 'fs/promises'
 import path from 'path'
 
@@ -24,7 +26,7 @@ export async function GET(
 
         // Security: prevent path traversal attacks
         if (relativePath.includes('..') || relativePath.includes('\\')) {
-            return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
+            return apiError(ERROR_CODES.BAD_REQUEST, 'Invalid path', 400)
         }
 
         const filePath = path.join(process.cwd(), 'public', 'uploads', relativePath)
@@ -66,6 +68,6 @@ export async function GET(
 
     } catch (error) {
         console.error('File serve error:', error)
-        return NextResponse.json({ error: 'Failed to serve file' }, { status: 500 })
+        return apiError(ERROR_CODES.FILE_NOT_FOUND, 'Failed to serve file', 500)
     }
 }

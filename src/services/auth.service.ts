@@ -1,6 +1,7 @@
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import Session from '@/models/Session';
+import type { IUser } from '@/models/User';
 import crypto from 'crypto';
 import { signToken } from '@/lib/jwt-config';
 import { sendWelcomeEmail } from '@/lib/email';
@@ -51,8 +52,7 @@ export class AuthService {
     /**
      * Register User
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async register(data: any, userAgent: string = '') {
+    static async register(data: Pick<IUser, 'username' | 'email' | 'password' | 'fullName'>, userAgent: string = '') {
         await dbConnect();
 
         const { username, email, password, fullName } = data;
@@ -156,8 +156,7 @@ export class AuthService {
     /**
      * Create Session Helper
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private static async createSession(user: any, userAgent: string) {
+    private static async createSession(user: IUser, userAgent: string) {
         const token = signToken({
             userId: user._id,
             role: user.role,

@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import dbConnect from '@/lib/db'
 import Activity from '@/models/Activity'
 import Visitor from '@/models/Visitor'
@@ -102,23 +104,20 @@ export async function GET(request: NextRequest) {
             returning: newVsReturning.find(v => v._id === 'returning')?.count || 0
         }
 
-        return NextResponse.json({
-            success: true,
-            data: {
-                pagePerformance,
-                entryPages: topEntryPages.map(p => ({ page: p._id || '/', count: p.count })),
-                exitPages: topExitPages.map(p => ({ page: p._id || '/', count: p.count })),
-                avgTimeByPage: avgTimeByPage.map(p => ({
-                    page: p._id || '/',
-                    avgDuration: Math.round(p.avgDuration),
-                    sessions: p.totalSessions
-                })),
-                visitorBreakdown
-            }
+        return apiSuccess({
+            pagePerformance,
+            entryPages: topEntryPages.map(p => ({ page: p._id || '/', count: p.count })),
+            exitPages: topExitPages.map(p => ({ page: p._id || '/', count: p.count })),
+            avgTimeByPage: avgTimeByPage.map(p => ({
+                page: p._id || '/',
+                avgDuration: Math.round(p.avgDuration),
+                sessions: p.totalSessions
+            })),
+            visitorBreakdown
         })
     } catch (error) {
         console.error('Content performance error:', error)
-        return NextResponse.json({ error: 'Failed to fetch content performance' }, { status: 500 })
+        return apiError(ERROR_CODES.TRACKING_FETCH_FAILED, 'Failed to fetch content performance', 500)
     }
 }
 

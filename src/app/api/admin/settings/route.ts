@@ -1,14 +1,16 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import dbConnect from '@/lib/db'
 import Setting from '@/models/Setting'
 import { VALID_SETTING_KEYS } from '@/lib/settings'
-import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth'
+import { verifyAdmin } from '@/lib/admin-auth'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 // GET - Retrieve all settings (masked values for sensitive data)
 export async function GET(request: Request) {
     if (!verifyAdmin(request)) {
-        return unauthorizedResponse('Admin access required');
+        return apiError(ERROR_CODES.ADMIN_UNAUTHORIZED, 'Admin access required', 401);
     }
 
     try {
@@ -25,16 +27,16 @@ export async function GET(request: Request) {
             updatedAt: s.updatedAt
         }))
 
-        return NextResponse.json({ success: true, settings: masked })
+        return apiSuccess(masked, 'Settings retrieved')
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch settings' }, { status: 500 })
+        return apiError(ERROR_CODES.SETTINGS_FETCH_FAILED, 'Failed to fetch settings', 500)
     }
 }
 
 // POST - Create or update a setting
 export async function POST(request: NextRequest) {
     if (!verifyAdmin(request)) {
-        return unauthorizedResponse('Admin access required');
+        return apiError(ERROR_CODES.ADMIN_UNAUTHORIZED, 'Admin access required', 401);
     }
 
     try {
@@ -43,12 +45,12 @@ export async function POST(request: NextRequest) {
         const { key, value, description } = await request.json()
 
         if (!key || value === undefined) {
-            return NextResponse.json({ error: 'Key and value required' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Key and value required', 400)
         }
 
         // Validate known keys
         if (!VALID_SETTING_KEYS.includes(key)) {
-            return NextResponse.json({ error: 'Invalid setting key' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Invalid setting key', 400)
         }
 
         const setting = await Setting.findOneAndUpdate(
@@ -57,9 +59,8 @@ export async function POST(request: NextRequest) {
             { upsert: true, new: true }
         )
 
-        return NextResponse.json({ success: true, setting: { key: setting.key, hasValue: !!setting.value } })
+        return apiSuccess({ key: setting.key, hasValue: !!setting.value }, 'Setting saved')
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to save setting' }, { status: 500 })
+        return apiError(ERROR_CODES.SETTINGS_UPDATE_FAILED, 'Failed to save setting', 500)
     }
 }
-

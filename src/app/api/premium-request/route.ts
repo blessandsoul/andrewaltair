@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
 import { TELEGRAM_API_URL } from '@/lib/telegram';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 export async function POST(request: Request) {
     try {
@@ -8,10 +9,7 @@ export async function POST(request: Request) {
 
         // Validation
         if (!name || !email || !phone) {
-            return NextResponse.json(
-                { success: false, error: 'სახელი, ელფოსტა და ტელეფონი სავალდებულოა' },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'სახელი, ელფოსტა და ტელეფონი სავალდებულოა', 400);
         }
 
         const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -19,10 +17,7 @@ export async function POST(request: Request) {
 
         if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
             console.error('Telegram credentials not configured');
-            return NextResponse.json(
-                { success: false, error: 'სერვერის კონფიგურაციის შეცდომა' },
-                { status: 500 }
-            );
+            return apiError(ERROR_CODES.PREMIUM_REQUEST_FAILED, 'სერვერის კონფიგურაციის შეცდომა', 500);
         }
 
         // Get section emoji and name
@@ -82,10 +77,7 @@ ${sectionInfo.emoji} *სექცია:* ${sectionInfo.name}
 
         if (!telegramResult.ok) {
             console.error('Telegram API error:', telegramResult);
-            return NextResponse.json(
-                { success: false, error: 'შეტყობინების გაგზავნა ვერ მოხერხდა' },
-                { status: 500 }
-            );
+            return apiError(ERROR_CODES.PREMIUM_REQUEST_FAILED, 'შეტყობინების გაგზავნა ვერ მოხერხდა', 500);
         }
 
         // console.log('[Premium Request] Sent to Telegram:', {
@@ -95,16 +87,10 @@ ${sectionInfo.emoji} *სექცია:* ${sectionInfo.name}
         //     messageId: telegramResult.result?.message_id
         // });
 
-        return NextResponse.json({
-            success: true,
-            message: 'მოთხოვნა წარმატებით გაიგზავნა'
-        });
+        return apiSuccess(null, 'მოთხოვნა წარმატებით გაიგზავნა');
 
     } catch (error) {
         console.error('Premium request error:', error);
-        return NextResponse.json(
-            { success: false, error: 'სერვერის შეცდომა' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.PREMIUM_REQUEST_FAILED, 'სერვერის შეცდომა', 500);
     }
 }

@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 /**
  * Health Check Endpoint for Docker/Kubernetes
@@ -16,15 +17,12 @@ export async function GET() {
             version: process.env.npm_package_version || '1.0.0',
         };
 
-        return NextResponse.json(healthCheck, { status: 200 });
+        return apiSuccess(healthCheck, 'Health check passed');
     } catch (error) {
-        return NextResponse.json(
-            {
-                status: 'unhealthy',
-                timestamp: new Date().toISOString(),
-                error: error instanceof Error ? error.message : 'Unknown error',
-            },
-            { status: 503 }
+        return apiError(
+            ERROR_CODES.HEALTH_CHECK_FAILED,
+            error instanceof Error ? error.message : 'Unknown error',
+            503
         );
     }
 }

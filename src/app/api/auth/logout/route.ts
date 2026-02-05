@@ -1,8 +1,10 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/db';
 import Session from '@/models/Session';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -19,10 +21,7 @@ export async function POST(request: NextRequest) {
         const authHeader = request.headers.get('authorization');
 
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return NextResponse.json(
-                { error: 'არ ხართ ავტორიზებული' },
-                { status: 401 }
-            );
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'არ ხართ ავტორიზებული', 401);
         }
 
         const token = authHeader.substring(7);
@@ -38,22 +37,13 @@ export async function POST(request: NextRequest) {
                 { isActive: false }
             );
 
-            return NextResponse.json({
-                success: true,
-                message: 'წარმატებით გახვედით სისტემიდან'
-            });
+            return apiSuccess(null, 'წარმატებით გახვედით სისტემიდან');
         } catch {
-            return NextResponse.json(
-                { error: 'არასწორი ტოკენი' },
-                { status: 401 }
-            );
+            return apiError(ERROR_CODES.AUTH_TOKEN_INVALID, 'არასწორი ტოკენი', 401);
         }
     } catch (error) {
         console.error('Logout error:', error);
-        return NextResponse.json(
-            { error: 'სერვერის შეცდომა' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.INTERNAL_ERROR, 'სერვერის შეცდომა', 500);
     }
 }
 

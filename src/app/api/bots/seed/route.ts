@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import Bot from '@/models/Bot';
 
@@ -420,28 +421,19 @@ export async function POST(request: Request) {
     try {
         // 🛡️ SECURITY: Only allow in development
         if (process.env.NODE_ENV === 'production') {
-            return NextResponse.json(
-                { error: 'Seeding disabled in production' },
-                { status: 403 }
-            );
+            return apiError(ERROR_CODES.FORBIDDEN, 'Seeding disabled in production', 403);
         }
 
         const { secret } = await request.json();
 
-        // 🛡️ Use env variable instead of hardcoded secret
+        // Use env variable instead of hardcoded secret
         const SEED_SECRET = process.env.SEED_SECRET;
         if (!SEED_SECRET) {
-            return NextResponse.json(
-                { error: 'SEED_SECRET not configured' },
-                { status: 500 }
-            );
+            return apiError(ERROR_CODES.INTERNAL_ERROR, 'SEED_SECRET not configured', 500);
         }
 
         if (secret !== SEED_SECRET) {
-            return NextResponse.json(
-                { error: 'Invalid secret' },
-                { status: 403 }
-            );
+            return apiError(ERROR_CODES.FORBIDDEN, 'Invalid secret', 403);
         }
 
         await dbConnect();
@@ -452,20 +444,15 @@ export async function POST(request: Request) {
         // Insert new bots
         const bots = await Bot.insertMany(botsData);
 
-        return NextResponse.json({
-            success: true,
-            message: 'Bots seeded successfully!',
+        return apiSuccess({
             results: {
                 deleted: deleted.deletedCount,
                 created: bots.length,
             }
-        });
+        }, 'Bots seeded successfully!');
     } catch (error) {
         console.error('Seed bots error:', error);
-        return NextResponse.json(
-            { error: 'Seed failed', details: String(error) },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.SEED_FAILED, 'Seed failed', 500);
     }
 }
 

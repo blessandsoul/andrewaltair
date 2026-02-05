@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import Backup from '@/models/Backup';
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
@@ -19,12 +20,12 @@ export async function DELETE(request: Request, { params }: RouteParams) {
         const backup = await Backup.findByIdAndDelete(id);
 
         if (!backup) {
-            return NextResponse.json({ error: 'Backup not found' }, { status: 404 });
+            return apiError(ERROR_CODES.BACKUP_NOT_FOUND, 'Backup not found', 404);
         }
 
-        return NextResponse.json({ success: true, message: 'Backup deleted successfully' });
+        return apiSuccess(null, 'Backup deleted successfully');
     } catch (error) {
         console.error('Delete backup error:', error);
-        return NextResponse.json({ error: 'Failed to delete backup' }, { status: 500 });
+        return apiError(ERROR_CODES.BACKUP_DELETE_FAILED, 'Failed to delete backup', 500);
     }
 }

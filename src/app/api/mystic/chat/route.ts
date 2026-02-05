@@ -1,6 +1,8 @@
 export const dynamic = 'force-dynamic'
 import OpenAI from "openai"
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import { AI_CONFIG, CHAT_RULES } from "@/lib/mystic-rules"
 import { getUserFromRequest } from "@/lib/server-auth"
 
@@ -53,19 +55,13 @@ export async function POST(request: NextRequest) {
         // 🛡️ AUTHENTICATION REQUIRED
         const user = await getUserFromRequest(request);
         if (!user) {
-            return NextResponse.json(
-                { error: "ავტორიზაცია აუცილებელია" },
-                { status: 401 }
-            );
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'ავტორიზაცია აუცილებელია', 401);
         }
 
         // 🛡️ RATE LIMITING
         const rateLimit = checkMysticRateLimit(user._id.toString());
         if (!rateLimit.allowed) {
-            return NextResponse.json(
-                { error: "ძალიან ბევრი მოთხოვნა. გთხოვთ დაელოდოთ 1 საათს." },
-                { status: 429 }
-            );
+            return apiError(ERROR_CODES.RATE_LIMITED, 'Too many requests', 429);
         }
 
         const client = getClient()
@@ -76,7 +72,7 @@ export async function POST(request: NextRequest) {
 
         const messageValidation = validateAIInput(message, 'შეტყობინება', 1, 1000);
         if (!messageValidation.valid) {
-            return NextResponse.json({ error: messageValidation.error }, { status: 400 });
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Message is required', 400);
         }
 
         const safeMessage = sanitizeAIInput(message, { maxLength: 1000 });
@@ -119,14 +115,11 @@ ${zodiacContext}`
         // 🛡️ Sanitize Response
         const safeContent = sanitizeAIResponse(content);
 
-        return NextResponse.json({ response: safeContent })
+        return apiSuccess({ response: safeContent })
 
     } catch (error) {
         console.error("Mystic Chat API error:", error)
-        return NextResponse.json(
-            { error: "Failed to get mystic response" },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.MYSTIC_FETCH_FAILED, 'Chat failed', 500)
     }
 }
 

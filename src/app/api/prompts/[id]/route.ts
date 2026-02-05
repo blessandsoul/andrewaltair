@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import MarketplacePrompt from '@/models/MarketplacePrompt';
 import { generateUniqueId } from '@/lib/id-system';
@@ -23,20 +25,14 @@ export async function GET(request: NextRequest, { params }: Params) {
         const prompt = await MarketplacePrompt.findOne(query).lean();
 
         if (!prompt) {
-            return NextResponse.json(
-                { error: 'Prompt not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.PROMPT_NOT_FOUND, 'Prompt not found', 404);
         }
 
         // Check if admin or if prompt is published
         const isAdmin = verifyAdmin(request);
 
         if (prompt.status !== 'published' && !isAdmin) {
-            return NextResponse.json(
-                { error: 'Prompt not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.PROMPT_NOT_FOUND, 'Prompt not found', 404);
         }
 
         // View increment is now handled by client-side server action to avoid caching issues
@@ -59,13 +55,10 @@ export async function GET(request: NextRequest, { params }: Params) {
             result.numericId = numericId;
         }
 
-        return NextResponse.json({ prompt: result });
+        return apiSuccess({ prompt: result });
     } catch (error) {
         console.error('Get marketplace prompt error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch prompt' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.PROMPT_FETCH_FAILED, 'Failed to fetch prompt', 500);
     }
 }
 
@@ -74,7 +67,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
     try {
         const admin = await verifyAdmin(request);
         if (!admin) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
 
         await dbConnect();
@@ -90,20 +83,14 @@ export async function PUT(request: NextRequest, { params }: Params) {
         const prompt = await MarketplacePrompt.findOne(query);
 
         if (!prompt) {
-            return NextResponse.json(
-                { error: 'Prompt not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.PROMPT_NOT_FOUND, 'Prompt not found', 404);
         }
 
         // If slug is being changed, check for uniqueness
         if (body.slug && body.slug !== prompt.slug) {
             const existingSlug = await MarketplacePrompt.findOne({ slug: body.slug });
             if (existingSlug) {
-                return NextResponse.json(
-                    { error: 'A prompt with this slug already exists' },
-                    { status: 400 }
-                );
+                return apiError(ERROR_CODES.VALIDATION_FAILED, 'A prompt with this slug already exists', 400);
             }
         }
 
@@ -133,17 +120,13 @@ export async function PUT(request: NextRequest, { params }: Params) {
             indexPrompt(prompt.slug).catch(err => console.error('[IndexNow] Failed:', err));
         }
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             id: prompt._id.toString(),
             slug: prompt.slug,
-        });
+        }, 'Prompt updated successfully');
     } catch (error) {
         console.error('Update marketplace prompt error:', error);
-        return NextResponse.json(
-            { error: 'Failed to update prompt' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.PROMPT_UPDATE_FAILED, 'Failed to update prompt', 500);
     }
 }
 
@@ -152,7 +135,7 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     try {
         const admin = await verifyAdmin(request);
         if (!admin) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
 
         await dbConnect();
@@ -166,18 +149,12 @@ export async function DELETE(request: NextRequest, { params }: Params) {
         const result = await MarketplacePrompt.deleteOne(query);
 
         if (result.deletedCount === 0) {
-            return NextResponse.json(
-                { error: 'Prompt not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.PROMPT_NOT_FOUND, 'Prompt not found', 404);
         }
 
-        return NextResponse.json({ success: true });
+        return apiSuccess(null, 'Prompt deleted successfully');
     } catch (error) {
         console.error('Delete marketplace prompt error:', error);
-        return NextResponse.json(
-            { error: 'Failed to delete prompt' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.PROMPT_FETCH_FAILED, 'Failed to delete prompt', 500);
     }
 }

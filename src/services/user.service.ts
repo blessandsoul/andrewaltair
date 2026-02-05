@@ -2,12 +2,34 @@ import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import Post from '@/models/Post';
 import Comment from '@/models/Comment';
+import mongoose from 'mongoose';
+
+import type { IUser } from '@/models/User';
+import type { IComment } from '@/models/Comment';
 
 export interface UserQueryOptions {
     role?: string | null;
     search?: string | null;
     page?: number;
     limit?: number;
+}
+
+interface UpdateProfileData {
+    fullName?: string;
+    avatar?: string;
+    coverImage?: string;
+    coverOffsetY?: number;
+    bio?: string;
+    website?: string;
+    publicProfile?: boolean;
+}
+
+interface CreateUserData {
+    username: string;
+    email: string;
+    password: string;
+    fullName: string;
+    role?: IUser['role'];
 }
 
 export class UserService {
@@ -20,18 +42,18 @@ export class UserService {
         const user = await User.findById(userId).lean();
         if (!user) return null;
 
-        // Get user's comments
-        const userComments = await Comment.find({ email: user.email })
-            .sort({ createdAt: -1 })
-            .limit(10)
-            .lean();
-
-        // Get recent posts interactions (mock-ish in original code)
-        const recentPosts = await Post.find({ status: "published" })
-            .sort({ createdAt: -1 })
-            .limit(5)
-            .select("title slug views createdAt")
-            .lean();
+        // Get user's comments and recent posts in parallel
+        const [userComments, recentPosts] = await Promise.all([
+            Comment.find({ email: user.email })
+                .sort({ createdAt: -1 })
+                .limit(10)
+                .lean(),
+            Post.find({ status: "published" })
+                .sort({ createdAt: -1 })
+                .limit(5)
+                .select("title slug views createdAt")
+                .lean(),
+        ]);
 
         // Build activity log
         const activity = [
@@ -41,8 +63,7 @@ export class UserService {
                 description: "სისტემაში შესვლა",
                 time: new Date().toISOString(),
             },
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ...userComments.slice(0, 5).map((comment: any, i: number) => ({
+            ...userComments.slice(0, 5).map((comment: IComment, i: number) => ({
                 id: `comment-${i}`,
                 type: "comment",
                 description: `კომენტარი: "${comment.content?.substring(0, 50)}..."`,
@@ -67,12 +88,11 @@ export class UserService {
         };
 
         // Social accounts
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const userAny = user as any;
+        const userRecord = user as unknown as Record<string, unknown>;
         const socialAccounts = [
-            { id: "google", name: "Google", connected: !!userAny.googleId, icon: "Chrome", color: "bg-red-500" },
-            { id: "facebook", name: "Facebook", connected: !!userAny.facebookId, icon: "Facebook", color: "bg-blue-600" },
-            { id: "telegram", name: "Telegram", connected: !!userAny.telegramId, icon: "Send", color: "bg-sky-500" },
+            { id: "google", name: "Google", connected: !!userRecord.googleId, icon: "Chrome", color: "bg-red-500" },
+            { id: "facebook", name: "Facebook", connected: !!userRecord.facebookId, icon: "Facebook", color: "bg-blue-600" },
+            { id: "telegram", name: "Telegram", connected: !!userRecord.telegramId, icon: "Send", color: "bg-sky-500" },
         ];
 
         // Subscriptions
@@ -100,8 +120,7 @@ export class UserService {
             stats,
             socialAccounts,
             subscriptions,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            recentPosts: recentPosts.map((p: any) => ({
+            recentPosts: recentPosts.map((p) => ({
                 id: p._id.toString(),
                 title: p.title,
                 slug: p.slug,
@@ -114,8 +133,7 @@ export class UserService {
     /**
      * Update User Profile
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async updateProfile(userId: string, data: any) {
+    static async updateProfile(userId: string, data: UpdateProfileData) {
         await dbConnect();
 
         const updateFields: Record<string, unknown> = {};
@@ -156,8 +174,7 @@ export class UserService {
 
         const { role, search, page = 1, limit = 20 } = options;
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const query: any = {};
+        const query: Record<string, unknown> = {};
         if (role) query.role = role;
         if (search) {
             query.$or = [
@@ -167,16 +184,17 @@ export class UserService {
             ];
         }
 
-        const total = await User.countDocuments(query);
-        const users = await User.find(query)
-            .select('username email role status lastLogin createdAt sessions fullName')
-            .sort({ _id: -1 })
-            .skip((page - 1) * limit)
-            .limit(limit)
-            .lean();
+        const [total, users] = await Promise.all([
+            User.countDocuments(query),
+            User.find(query)
+                .select('username email role status lastLogin createdAt sessions fullName')
+                .sort({ _id: -1 })
+                .skip((page - 1) * limit)
+                .limit(limit)
+                .lean(),
+        ]);
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const transformedUsers = users.map((user: any) => ({
+        const transformedUsers = users.map((user) => ({
             ...user,
             id: user._id.toString(),
             _id: undefined,
@@ -196,8 +214,7 @@ export class UserService {
     /**
      * Create User (Admin)
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async createUser(data: any) {
+    static async createUser(data: CreateUserData) {
         await dbConnect();
 
         const existingUser = await User.findOne({

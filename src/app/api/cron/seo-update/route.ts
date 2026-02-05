@@ -1,10 +1,10 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import dbConnect from '@/lib/db'
 import Post from '@/models/Post'
 import { getAllArticles } from '@/data/vibeCodingContent'
-import fs from 'fs/promises'
-import path from 'path'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 /**
  * Daily SEO Content Update API
@@ -29,10 +29,7 @@ export async function POST(request: NextRequest) {
         const providedToken = authHeader?.replace('Bearer ', '')
 
         if (providedToken !== CRON_SECRET) {
-            return NextResponse.json(
-                { error: 'Unauthorized' },
-                { status: 401 }
-            )
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized: invalid cron secret', 401)
         }
 
         await dbConnect()
@@ -202,23 +199,20 @@ export async function POST(request: NextRequest) {
             agents_json: agentsJsonContent
         }
 
-        return NextResponse.json(updateResult)
+        return apiSuccess(updateResult, 'SEO update completed successfully')
     } catch (error) {
         console.error('SEO Update Cron error:', error)
-        return NextResponse.json(
-            { error: 'SEO update failed', details: String(error) },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.SEO_CRON_FAILED, 'SEO update failed', 500)
     }
 }
 
 // GET endpoint for health check
 export async function GET() {
-    return NextResponse.json({
+    return apiSuccess({
         status: 'ok',
         endpoint: 'SEO Update Cron',
         description: 'POST to this endpoint with Authorization header to trigger SEO content update',
         required_header: 'Authorization: Bearer {CRON_SECRET}'
-    })
+    }, 'SEO cron health check')
 }
 

@@ -1,6 +1,8 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import OpenAI from "openai"
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 // Lazy initialization to avoid build errors when API key is not set
 let openai: OpenAI | null = null
@@ -22,10 +24,7 @@ export async function POST(request: NextRequest) {
         const { action, text, prompt } = await request.json()
 
         if (!text || !prompt) {
-            return NextResponse.json(
-                { error: "ტექსტი და მოქმედება აუცილებელია" },
-                { status: 400 }
-            )
+            return apiError(ERROR_CODES.VALIDATION_FAILED, "ტექსტი და მოქმედება აუცილებელია", 400)
         }
 
         const client = getOpenAI()
@@ -47,13 +46,10 @@ export async function POST(request: NextRequest) {
 
         const result = completion.choices[0]?.message?.content || text
 
-        return NextResponse.json({ result, action })
+        return apiSuccess({ result, action }, 'AI text processed')
     } catch (error) {
         console.error("AI text processing error:", error)
-        return NextResponse.json(
-            { error: "AI დამუშავება ვერ მოხერხდა" },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.AI_PROCESSING_FAILED, "AI დამუშავება ვერ მოხერხდა", 500)
     }
 }
 

@@ -1,6 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/db';
 import Tool from '@/models/Tool';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 export async function POST(
     request: NextRequest,
@@ -19,21 +21,12 @@ export async function POST(
         );
 
         if (!tool) {
-            return NextResponse.json(
-                { error: 'Tool not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.TOOL_NOT_FOUND, 'Tool not found', 404);
         }
 
-        return NextResponse.json({
-            success: true,
-            views: tool.views
-        });
+        return apiSuccess({ views: tool.views }, 'View count incremented');
     } catch (error) {
         console.error('Increment views error:', error);
-        return NextResponse.json(
-            { error: 'Failed to increment views' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.TOOL_UPDATE_FAILED, 'Failed to increment views', 500);
     }
 }

@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import dbConnect from '@/lib/db'
 import Prompt from '@/models/Prompt'
 
@@ -15,17 +17,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         const prompt = await Prompt.findOne({ shareToken: token }).lean()
 
         if (!prompt) {
-            return NextResponse.json(
-                { error: 'Shared prompt not found' },
-                { status: 404 }
-            )
+            return apiError(ERROR_CODES.PROMPT_NOT_FOUND, 'Shared prompt not found', 404)
         }
 
         // Increment views
         await Prompt.findByIdAndUpdate(prompt._id, { $inc: { views: 1 } })
 
         // Return only public-safe data
-        return NextResponse.json({
+        return apiSuccess({
             id: prompt._id.toString(),
             content: prompt.content,
             formData: prompt.formData,
@@ -39,13 +38,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             uses: prompt.uses,
             likes: prompt.likes,
             createdAt: prompt.createdAt,
-        })
+        }, 'Shared prompt fetched successfully')
 
     } catch (error) {
         console.error('Get shared prompt error:', error)
-        return NextResponse.json(
-            { error: 'Failed to fetch shared prompt' },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.PROMPT_FETCH_FAILED, 'Failed to fetch shared prompt', 500)
     }
 }

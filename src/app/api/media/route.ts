@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import { MediaService } from '@/services/media.service';
 
 // GET - List all media
@@ -15,10 +16,10 @@ export async function GET(request: Request) {
         if (type) query.type = type;
 
         const media = await MediaService.getAllMedia(query);
-        return NextResponse.json({ media });
+        return apiSuccess({ media }, 'Media fetched successfully');
     } catch (error) {
         console.error('Get media error:', error);
-        return NextResponse.json({ error: 'Failed to fetch media' }, { status: 500 });
+        return apiError(ERROR_CODES.MEDIA_FETCH_FAILED, 'Failed to fetch media', 500);
     }
 }
 
@@ -27,9 +28,9 @@ export async function POST(request: Request) {
     try {
         const data = await request.json();
         const media = await MediaService.createMedia(data);
-        return NextResponse.json({ success: true, media });
+        return apiSuccess({ media }, 'Media created successfully');
     } catch (error) {
         console.error('Create media error:', error);
-        return NextResponse.json({ error: 'Failed to create media' }, { status: 500 });
+        return apiError(ERROR_CODES.MEDIA_UPLOAD_FAILED, 'Failed to create media', 500);
     }
 }

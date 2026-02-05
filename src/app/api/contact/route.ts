@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 interface ContactFormData {
     name: string
@@ -51,19 +53,14 @@ export async function POST(request: NextRequest) {
         // 🛡️ Check rate limit
         const rateLimit = checkContactRateLimit(ip);
         if (!rateLimit.allowed) {
-            return NextResponse.json({
-                error: `ძალიან ბევრი მოთხოვნა. გთხოვთ დაელოდოთ ${Math.ceil((rateLimit.resetIn || 0) / 60)} წუთს.`
-            }, { status: 429 });
+            return apiError(ERROR_CODES.RATE_LIMITED, `ძალიან ბევრი მოთხოვნა. გთხოვთ დაელოდოთ ${Math.ceil((rateLimit.resetIn || 0) / 60)} წუთს.`, 429);
         }
 
         const data: ContactFormData = await request.json()
 
         // Validate required fields
         if (!data.name || !data.email || !data.message) {
-            return NextResponse.json(
-                { error: 'სახელი, ელ-ფოსტა და შეტყობინება აუცილებელია' },
-                { status: 400 }
-            )
+            return apiError(ERROR_CODES.CONTACT_VALIDATION_FAILED, 'სახელი, ელ-ფოსტა და შეტყობინება აუცილებელია', 400)
         }
 
         const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
@@ -71,10 +68,7 @@ export async function POST(request: NextRequest) {
 
         if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
             console.error('Telegram credentials not configured')
-            return NextResponse.json(
-                { error: 'სერვისი დროებით მიუწვდომელია' },
-                { status: 500 }
-            )
+            return apiError(ERROR_CODES.CONTACT_SEND_FAILED, 'სერვისი დროებით მიუწვდომელია', 500)
         }
 
         // Format message for Telegram
@@ -124,23 +118,14 @@ ${escapeMarkdown(data.message)}
         if (!telegramResponse.ok) {
             const error = await telegramResponse.text()
             console.error('Telegram API error:', error)
-            return NextResponse.json(
-                { error: 'შეტყობინების გაგზავნა ვერ მოხერხდა' },
-                { status: 500 }
-            )
+            return apiError(ERROR_CODES.CONTACT_SEND_FAILED, 'შეტყობინების გაგზავნა ვერ მოხერხდა', 500)
         }
 
-        return NextResponse.json({
-            success: true,
-            message: 'შეტყობინება წარმატებით გაიგზავნა! დაგიკავშირდებით მალე.'
-        })
+        return apiSuccess(null, 'შეტყობინება წარმატებით გაიგზავნა! დაგიკავშირდებით მალე.')
 
     } catch (error) {
         console.error('Contact form error:', error)
-        return NextResponse.json(
-            { error: 'დაფიქსირდა შეცდომა' },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.CONTACT_SEND_FAILED, 'დაფიქსირდა შეცდომა', 500)
     }
 }
 

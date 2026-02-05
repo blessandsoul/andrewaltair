@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Tag from '@/models/Tag';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -14,15 +15,13 @@ export async function GET(request: Request, { params }: RouteParams) {
         const tag = await Tag.findById(id).lean();
 
         if (!tag) {
-            return NextResponse.json({ error: 'Tag not found' }, { status: 404 });
+            return apiError(ERROR_CODES.TAG_NOT_FOUND, 'Tag not found', 404);
         }
 
-        return NextResponse.json({
-            tag: { ...tag, id: tag._id.toString() },
-        });
+        return apiSuccess({ ...tag, id: tag._id.toString() }, 'Tag retrieved');
     } catch (error) {
         console.error('Get tag error:', error);
-        return NextResponse.json({ error: 'Failed to fetch tag' }, { status: 500 });
+        return apiError(ERROR_CODES.TAG_FETCH_FAILED, 'Failed to fetch tag', 500);
     }
 }
 
@@ -42,16 +41,13 @@ export async function PUT(request: Request, { params }: RouteParams) {
         ).lean();
 
         if (!tag) {
-            return NextResponse.json({ error: 'Tag not found' }, { status: 404 });
+            return apiError(ERROR_CODES.TAG_NOT_FOUND, 'Tag not found', 404);
         }
 
-        return NextResponse.json({
-            success: true,
-            tag: { ...tag, id: tag._id.toString() },
-        });
+        return apiSuccess({ ...tag, id: tag._id.toString() }, 'Tag updated');
     } catch (error) {
         console.error('Update tag error:', error);
-        return NextResponse.json({ error: 'Failed to update tag' }, { status: 500 });
+        return apiError(ERROR_CODES.TAG_UPDATE_FAILED, 'Failed to update tag', 500);
     }
 }
 
@@ -63,12 +59,12 @@ export async function DELETE(request: Request, { params }: RouteParams) {
         const tag = await Tag.findByIdAndDelete(id);
 
         if (!tag) {
-            return NextResponse.json({ error: 'Tag not found' }, { status: 404 });
+            return apiError(ERROR_CODES.TAG_NOT_FOUND, 'Tag not found', 404);
         }
 
-        return NextResponse.json({ success: true, message: 'Tag deleted successfully' });
+        return apiSuccess(null, 'Tag deleted successfully');
     } catch (error) {
         console.error('Delete tag error:', error);
-        return NextResponse.json({ error: 'Failed to delete tag' }, { status: 500 });
+        return apiError(ERROR_CODES.TAG_DELETE_FAILED, 'Failed to delete tag', 500);
     }
 }

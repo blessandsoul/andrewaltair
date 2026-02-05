@@ -1,14 +1,15 @@
+import mongoose from 'mongoose';
 import dbConnect from '@/lib/db';
 import Tutorial from '@/models/Tutorial';
 import Lesson from '@/models/Lesson';
+import type { ITutorial } from '@/models/Tutorial';
 
 export class TutorialService {
     static async getAllTutorials(options: { status?: string, limit?: number } = {}) {
         await dbConnect();
         const { status, limit = 10 } = options;
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const query: any = {};
+        const query: Record<string, unknown> = {};
         if (status) query.status = status;
         // If no status specified, maybe return all? Or default to published?
         // Original code returned all if status not specified.
@@ -20,16 +21,14 @@ export class TutorialService {
             .limit(limit)
             .lean();
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return tutorials.map((t: any) => ({
+        return tutorials.map((t: ITutorial) => ({
             ...t,
             id: t._id.toString(),
             _id: undefined
         }));
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async createTutorial(data: any) {
+    static async createTutorial(data: Partial<ITutorial> & { title: string }) {
         await dbConnect();
 
         if (!data.slug) {

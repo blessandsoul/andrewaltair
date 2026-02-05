@@ -1,8 +1,8 @@
 export const dynamic = 'force-dynamic'
 
-
-import { NextResponse } from "next/server"
 import productsData from "@/data/products.json"
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 export async function GET(request: Request) {
     try {
@@ -23,10 +23,10 @@ export async function GET(request: Request) {
             )
         }
 
-        return NextResponse.json({ products })
+        return apiSuccess({ products }, 'Products fetched successfully')
     } catch (error) {
         console.error("Get products error:", error)
-        return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 })
+        return apiError(ERROR_CODES.PRODUCT_FETCH_FAILED, 'Failed to fetch products', 500)
     }
 }
 

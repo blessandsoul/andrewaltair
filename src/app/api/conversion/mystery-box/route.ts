@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import { getUserFromRequest } from '@/lib/server-auth';
 import dbConnect from '@/lib/db';
 
@@ -8,7 +10,7 @@ export async function POST(req: NextRequest) {
         const user = await getUserFromRequest(req);
 
         if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
 
         const now = new Date();
@@ -19,10 +21,7 @@ export async function POST(req: NextRequest) {
             const cooldown = 24 * 60 * 60 * 1000;
             if (diff < cooldown) {
                 const remaining = Math.ceil((cooldown - diff) / (1000 * 60)); // minutes
-                return NextResponse.json({
-                    error: 'Cooldown active',
-                    remainingMinutes: remaining
-                }, { status: 400 });
+                return apiError(ERROR_CODES.BAD_REQUEST, `Cooldown active. ${remaining} minutes remaining`, 400);
             }
         }
 
@@ -37,15 +36,14 @@ export async function POST(req: NextRequest) {
 
         await user.save();
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             reward: { type: 'credits', value: rewardAmount },
             newBalance: user.credits
-        });
+        }, 'Mystery box claimed!');
 
     } catch (error) {
         console.error('MysteryBox Error:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        return apiError(ERROR_CODES.CONVERSION_ACTION_FAILED, 'Internal Server Error', 500);
     }
 }
 
@@ -54,7 +52,7 @@ export async function GET(req: NextRequest) {
         const user = await getUserFromRequest(req);
 
         if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
 
         const lastClaim = user.mysteryBox?.lastClaimedAt;
@@ -69,15 +67,15 @@ export async function GET(req: NextRequest) {
             }
         }
 
-        return NextResponse.json({
+        return apiSuccess({
             canClaim,
             lastClaimedAt: lastClaim,
             streak: user.mysteryBox?.streak || 0,
             credits: user.credits
-        });
+        }, 'Mystery box status fetched');
 
     } catch (error) {
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        return apiError(ERROR_CODES.CONVERSION_FETCH_FAILED, 'Internal Server Error', 500);
     }
 }
 

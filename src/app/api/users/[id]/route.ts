@@ -1,7 +1,8 @@
-import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -40,10 +41,7 @@ export async function GET(request: Request, { params }: RouteParams) {
         const admin = await verifyAdmin(request);
 
         if (!admin) {
-            return NextResponse.json(
-                { error: 'წვდომა აკრძალულია' },
-                { status: 403 }
-            );
+            return apiError(ERROR_CODES.ADMIN_UNAUTHORIZED, 'წვდომა აკრძალულია', 403);
         }
 
         await dbConnect();
@@ -53,25 +51,19 @@ export async function GET(request: Request, { params }: RouteParams) {
         const user = await User.findById(id).select('-password').lean();
 
         if (!user) {
-            return NextResponse.json(
-                { error: 'User not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.USER_NOT_FOUND, 'User not found', 404);
         }
 
-        return NextResponse.json({
+        return apiSuccess({
             user: {
                 ...user,
                 id: user._id.toString(),
                 _id: undefined,
             },
-        });
+        }, 'User fetched');
     } catch (error) {
         console.error('Get user error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch user' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.USER_FETCH_FAILED, 'Failed to fetch user', 500);
     }
 }
 
@@ -81,10 +73,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
         const admin = await verifyAdmin(request);
 
         if (!admin) {
-            return NextResponse.json(
-                { error: 'წვდომა აკრძალულია' },
-                { status: 403 }
-            );
+            return apiError(ERROR_CODES.ADMIN_UNAUTHORIZED, 'წვდომა აკრძალულია', 403);
         }
 
         await dbConnect();
@@ -109,26 +98,19 @@ export async function PUT(request: Request, { params }: RouteParams) {
         ).select('-password').lean();
 
         if (!user) {
-            return NextResponse.json(
-                { error: 'User not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.USER_NOT_FOUND, 'User not found', 404);
         }
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             user: {
                 ...user,
                 id: user._id.toString(),
                 _id: undefined,
             },
-        });
+        }, 'User updated');
     } catch (error) {
         console.error('Update user error:', error);
-        return NextResponse.json(
-            { error: 'Failed to update user' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.USER_UPDATE_FAILED, 'Failed to update user', 500);
     }
 }
 
@@ -138,10 +120,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
         const admin = await verifyAdmin(request);
 
         if (!admin) {
-            return NextResponse.json(
-                { error: 'წვდომა აკრძალულია' },
-                { status: 403 }
-            );
+            return apiError(ERROR_CODES.ADMIN_UNAUTHORIZED, 'წვდომა აკრძალულია', 403);
         }
 
         await dbConnect();
@@ -150,30 +129,18 @@ export async function DELETE(request: Request, { params }: RouteParams) {
 
         // Prevent deleting self
         if (admin.userId === id) {
-            return NextResponse.json(
-                { error: 'საკუთარი ანგარიშის წაშლა შეუძლებელია' },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.BAD_REQUEST, 'საკუთარი ანგარიშის წაშლა შეუძლებელია', 400);
         }
 
         const user = await User.findByIdAndDelete(id);
 
         if (!user) {
-            return NextResponse.json(
-                { error: 'User not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.USER_NOT_FOUND, 'User not found', 404);
         }
 
-        return NextResponse.json({
-            success: true,
-            message: 'User deleted successfully',
-        });
+        return apiSuccess(null, 'User deleted successfully');
     } catch (error) {
         console.error('Delete user error:', error);
-        return NextResponse.json(
-            { error: 'Failed to delete user' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.USER_DELETE_FAILED, 'Failed to delete user', 500);
     }
 }

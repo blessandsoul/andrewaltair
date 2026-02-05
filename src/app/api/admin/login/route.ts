@@ -1,5 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { validateAdminPassword, generateAdminToken } from '@/lib/admin-auth';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
@@ -7,10 +9,7 @@ export async function POST(request: NextRequest) {
         const { password } = await request.json();
 
         if (!password) {
-            return NextResponse.json(
-                { error: 'პაროლი აუცილებელია', success: false },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'პაროლი აუცილებელია', 400);
         }
 
         // Get IP for rate limiting
@@ -22,30 +21,22 @@ export async function POST(request: NextRequest) {
         const result = validateAdminPassword(password, ip);
 
         if (result.locked) {
-            return NextResponse.json({
-                error: `ძალიან ბევრი მცდელობა. სცადეთ ${Math.ceil((result.lockoutRemaining || 0) / 60)} წუთში.`,
-                locked: true,
-                lockoutRemaining: result.lockoutRemaining,
-                success: false
-            }, { status: 429 });
+            return apiError(
+                ERROR_CODES.ADMIN_LOCKED,
+                `ძალიან ბევრი მცდელობა. სცადეთ ${Math.ceil((result.lockoutRemaining || 0) / 60)} წუთში.`,
+                429
+            );
         }
 
         if (!result.valid) {
-            return NextResponse.json({
-                error: 'არასწორი პაროლი',
-                remainingAttempts: result.remainingAttempts,
-                success: false
-            }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_INVALID_CREDENTIALS, 'არასწორი პაროლი', 401);
         }
 
         // Generate JWT token
         const token = generateAdminToken();
 
-        // 🛡️ Create response WITHOUT token in body (only in httpOnly cookie)
-        const response = NextResponse.json({
-            success: true,
-            message: 'წარმატებით შეხვედით'
-        });
+        // Create response WITHOUT token in body (only in httpOnly cookie)
+        const response = apiSuccess(null, 'წარმატებით შეხვედით');
 
         // Set httpOnly cookie for security
         response.cookies.set('admin_session', token, {
@@ -58,9 +49,6 @@ export async function POST(request: NextRequest) {
         return response;
     } catch (error) {
         console.error('Admin login error:', error);
-        return NextResponse.json(
-            { error: 'შესვლა ვერ მოხერხდა', success: false },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.ADMIN_LOGIN_FAILED, 'შესვლა ვერ მოხერხდა', 500);
     }
 }

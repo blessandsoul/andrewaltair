@@ -4,12 +4,42 @@ import EncyclopediaSection from '@/models/EncyclopediaSection';
 import EncyclopediaCategory from '@/models/EncyclopediaCategory';
 import EncyclopediaVersion from '@/models/EncyclopediaVersion';
 
+import type { IEncyclopediaArticle } from '@/models/EncyclopediaArticle';
+
 export interface EncycloQueryOptions {
     sectionId?: string | null;
     categoryId?: string | null;
     published?: boolean;
     limit?: number;
     search?: string | null;
+}
+
+interface CreateArticleData {
+    slug: string;
+    title: string;
+    content: string;
+    excerpt?: string;
+    sectionId: string;
+    categoryId: string;
+    author?: { name: string; avatar?: string; role?: string };
+    isFree?: boolean;
+    isPublished?: boolean;
+    order?: number;
+    difficulty?: IEncyclopediaArticle['difficulty'];
+    videoUrl?: string;
+    videoId?: string;
+    tags?: string[];
+}
+
+interface CreateSectionData {
+    slug: string;
+    title: string;
+    description?: string;
+    gradientFrom?: string;
+    gradientTo?: string;
+    icon?: string;
+    order?: number;
+    isActive?: boolean;
 }
 
 export class EncyclopediaService {
@@ -32,8 +62,7 @@ export class EncyclopediaService {
             .populate('categoryId', 'title slug icon')
             .lean();
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return articles.map((a: any) => ({
+        return articles.map((a) => ({
             ...a,
             id: a._id.toString(),
             _id: undefined
@@ -64,8 +93,7 @@ export class EncyclopediaService {
                 .select('slug title excerpt sectionId categoryId difficulty estimatedMinutes isFree')
                 .lean();
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            return articles.map((a: any) => ({ ...a, id: a._id.toString() }));
+            return articles.map((a) => ({ ...a, id: a._id.toString() }));
 
         } catch {
             // Fallback Regex
@@ -83,16 +111,14 @@ export class EncyclopediaService {
                 .select('slug title excerpt sectionId categoryId difficulty estimatedMinutes isFree')
                 .lean();
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            return articles.map((a: any) => ({ ...a, id: a._id.toString() }));
+            return articles.map((a) => ({ ...a, id: a._id.toString() }));
         }
     }
 
     /**
      * Create Article
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async createArticle(data: any) {
+    static async createArticle(data: CreateArticleData) {
         await dbConnect();
 
         // Logic extraction
@@ -144,12 +170,10 @@ export class EncyclopediaService {
     static async getAllSections() {
         await dbConnect();
         const sections = await EncyclopediaSection.find({ isActive: true }).sort({ order: 1 }).lean();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return sections.map((s: any) => ({ ...s, id: s._id.toString() }));
+        return sections.map((s) => ({ ...s, id: s._id.toString() }));
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async createSection(data: any) {
+    static async createSection(data: CreateSectionData) {
         await dbConnect();
         const section = await EncyclopediaSection.create({
             slug: data.slug,
@@ -171,7 +195,6 @@ export class EncyclopediaService {
         await dbConnect();
         // Assuming EncyclopediaCategory follows simplified pattern
         const categories = await EncyclopediaCategory.find().sort({ title: 1 }).lean();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return categories.map((c: any) => ({ ...c, id: c._id.toString() }));
+        return categories.map((c) => ({ ...c, id: c._id.toString() }));
     }
 }

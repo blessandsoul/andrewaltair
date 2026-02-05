@@ -1,19 +1,18 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
-import connectDB from '@/lib/mongodb'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
+import dbConnect from '@/lib/db'
 import Post from '@/models/Post'
 
 export async function POST(request: NextRequest) {
     try {
-        await connectDB()
+        await dbConnect()
 
         const { title, tags, category, excludeSlug } = await request.json()
 
         if (!title && !tags?.length && !category) {
-            return NextResponse.json(
-                { error: 'title, tags, or category required' },
-                { status: 400 }
-            )
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'title, tags, or category required', 400)
         }
 
         // Build query to find related posts
@@ -113,17 +112,11 @@ export async function POST(request: NextRequest) {
         // Sort by relevance score
         scoredPosts.sort((a: { relevanceScore: number }, b: { relevanceScore: number }) => b.relevanceScore - a.relevanceScore)
 
-        return NextResponse.json({
-            success: true,
-            relatedPosts: scoredPosts.slice(0, 5)
-        })
+        return apiSuccess({ relatedPosts: scoredPosts.slice(0, 5) }, 'Related posts fetched successfully')
 
     } catch (error) {
         console.error('Suggest links error:', error)
-        return NextResponse.json(
-            { error: 'Failed to suggest links', relatedPosts: [] },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.POST_FETCH_FAILED, 'Failed to suggest links', 500)
     }
 }
 

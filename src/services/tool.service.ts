@@ -2,9 +2,19 @@ import dbConnect from '@/lib/db';
 import Tool from '@/models/Tool';
 import mongoose from 'mongoose';
 
+import type { ITool } from '@/models/Tool';
+
+interface GetAllToolsParams {
+    page?: number;
+    limit?: number;
+    category?: string;
+    pricing?: ITool['pricing'];
+    search?: string;
+    featured?: string;
+}
+
 export class ToolService {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async getAllTools(params: any) {
+    static async getAllTools(params: GetAllToolsParams) {
         await dbConnect();
         const {
             page = 1,
@@ -15,8 +25,7 @@ export class ToolService {
             featured
         } = params;
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const query: any = {};
+        const query: Record<string, unknown> = {};
         if (category) query.category = category;
         if (pricing) query.pricing = pricing;
         if (featured === "true") query.featured = true;
@@ -29,8 +38,7 @@ export class ToolService {
             .limit(limit)
             .lean();
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const transformedTools = tools.map((tool: any) => ({
+        const transformedTools = tools.map((tool) => ({
             ...tool,
             id: tool._id.toString(),
             _id: undefined
@@ -57,20 +65,16 @@ export class ToolService {
         const tool = await Tool.findById(id).lean();
         if (!tool) return null;
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return { ...tool, id: tool._id.toString(), _id: undefined };
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async createTool(data: any) {
+    static async createTool(data: mongoose.UpdateQuery<ITool>) {
         await dbConnect();
-        const tool = await Tool.create(data) as any;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const tool = await Tool.create(data);
         return { ...tool.toObject(), id: tool._id.toString() };
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async updateTool(id: string, data: any) {
+    static async updateTool(id: string, data: mongoose.UpdateQuery<ITool>) {
         await dbConnect();
         if (!mongoose.Types.ObjectId.isValid(id)) throw new Error('Invalid tool ID');
 

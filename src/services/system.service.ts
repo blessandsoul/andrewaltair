@@ -1,7 +1,8 @@
+import mongoose from 'mongoose';
+
 import dbConnect from '@/lib/db';
 import Backup from '@/models/Backup';
 import ErrorLog from '@/models/ErrorLog';
-import mongoose from 'mongoose';
 
 export class SystemService {
     /**
@@ -14,17 +15,15 @@ export class SystemService {
             .limit(20)
             .lean();
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return backups.map((b: any) => ({
+        return backups.map((b) => ({
             ...b,
-            id: b._id.toString(),
+            id: (b._id as mongoose.Types.ObjectId).toString(),
             date: b.date?.toISOString?.() || b.date,
             _id: undefined,
         }));
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async createBackup(data: any) {
+    static async createBackup(data: { size?: string; sizeBytes?: number; type?: 'auto' | 'manual' }) {
         await dbConnect();
         const backup = new Backup({
             ...data,
@@ -44,17 +43,15 @@ export class SystemService {
         if (level && level !== 'all') query.level = level;
 
         const logs = await ErrorLog.find(query).sort({ createdAt: -1 }).limit(100).lean();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return logs.map((l: any) => ({
+        return logs.map((l) => ({
             ...l,
-            id: l._id.toString(),
+            id: (l._id as mongoose.Types.ObjectId).toString(),
             time: l.createdAt,
             _id: undefined,
         }));
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async createErrorLog(data: any) {
+    static async createErrorLog(data: { level?: 'error' | 'warning' | 'info'; message: string; source?: string }) {
         await dbConnect();
         const log = new ErrorLog(data);
         await log.save();

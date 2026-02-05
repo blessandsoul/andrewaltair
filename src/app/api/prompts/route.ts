@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import MarketplacePrompt from '@/models/MarketplacePrompt';
 import { generateUniqueId } from '@/lib/id-system';
@@ -108,7 +110,7 @@ export async function GET(request: NextRequest) {
         const categories = await MarketplacePrompt.distinct('category', { status: 'published' });
         const aiModels = await MarketplacePrompt.distinct('aiModel', { status: 'published' });
 
-        return NextResponse.json({
+        return apiSuccess({
             prompts: prompts.map(p => ({
                 ...p,
                 id: p._id.toString(),
@@ -127,10 +129,7 @@ export async function GET(request: NextRequest) {
         });
     } catch (error) {
         console.error('Get marketplace prompts error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch prompts' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.PROMPT_FETCH_FAILED, 'Failed to fetch prompts', 500);
     }
 }
 
@@ -140,7 +139,7 @@ export async function POST(request: NextRequest) {
         // Verify admin
         const admin = await verifyAdmin(request);
         if (!admin) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
 
         await dbConnect();
@@ -187,19 +186,13 @@ export async function POST(request: NextRequest) {
         if (!coverImage) missingFields.push('coverImage');
 
         if (missingFields.length > 0) {
-            return NextResponse.json(
-                { error: `Missing required fields: ${missingFields.join(', ')}` },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.VALIDATION_FAILED, `Missing required fields: ${missingFields.join(', ')}`, 400);
         }
 
         // Check if slug is unique
         const existingPrompt = await MarketplacePrompt.findOne({ slug });
         if (existingPrompt) {
-            return NextResponse.json(
-                { error: 'A prompt with this slug already exists' },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'A prompt with this slug already exists', 400);
         }
 
         // Generate numericId
@@ -243,17 +236,13 @@ export async function POST(request: NextRequest) {
             indexPrompt(prompt.slug).catch(err => console.error('[IndexNow] Failed:', err));
         }
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             id: prompt._id.toString(),
             slug: prompt.slug,
-        });
+        }, 'Prompt created successfully', 201);
     } catch (error) {
         console.error('Create marketplace prompt error:', error);
-        return NextResponse.json(
-            { error: 'Failed to create prompt' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.PROMPT_CREATE_FAILED, 'Failed to create prompt', 500);
     }
 }
 

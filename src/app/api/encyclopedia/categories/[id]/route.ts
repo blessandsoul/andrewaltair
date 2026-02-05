@@ -1,6 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
+import { NextRequest } from 'next/server';
+import dbConnect from '@/lib/db';
 import EncyclopediaCategory from '@/models/EncyclopediaCategory';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 // GET single category
 export async function GET(
@@ -14,13 +16,13 @@ export async function GET(
             .lean();
 
         if (!category) {
-            return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+            return apiError(ERROR_CODES.ENCYCLOPEDIA_NOT_FOUND, 'Category not found', 404);
         }
 
-        return NextResponse.json({ category });
+        return apiSuccess(category, 'Category fetched successfully');
     } catch (error) {
         console.error('Error fetching category:', error);
-        return NextResponse.json({ error: 'Failed to fetch category' }, { status: 500 });
+        return apiError(ERROR_CODES.ENCYCLOPEDIA_FETCH_FAILED, 'Failed to fetch category', 500);
     }
 }
 
@@ -40,13 +42,13 @@ export async function PUT(
         );
 
         if (!category) {
-            return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+            return apiError(ERROR_CODES.ENCYCLOPEDIA_NOT_FOUND, 'Category not found', 404);
         }
 
-        return NextResponse.json({ category });
+        return apiSuccess(category, 'Category updated successfully');
     } catch (error) {
         console.error('Error updating category:', error);
-        return NextResponse.json({ error: 'Failed to update category' }, { status: 500 });
+        return apiError(ERROR_CODES.ENCYCLOPEDIA_UPDATE_FAILED, 'Failed to update category', 500);
     }
 }
 
@@ -60,12 +62,12 @@ export async function DELETE(
         const category = await EncyclopediaCategory.findByIdAndDelete(params.id);
 
         if (!category) {
-            return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+            return apiError(ERROR_CODES.ENCYCLOPEDIA_NOT_FOUND, 'Category not found', 404);
         }
 
-        return NextResponse.json({ message: 'Category deleted' });
+        return apiSuccess({ message: 'Category deleted' }, 'Category deleted successfully');
     } catch (error) {
         console.error('Error deleting category:', error);
-        return NextResponse.json({ error: 'Failed to delete category' }, { status: 500 });
+        return apiError(ERROR_CODES.ENCYCLOPEDIA_DELETE_FAILED, 'Failed to delete category', 500);
     }
 }

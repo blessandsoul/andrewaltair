@@ -1,7 +1,8 @@
 export const dynamic = 'force-dynamic';
-import { NextResponse } from 'next/server';
 import { generateUniqueId } from '@/lib/id-system';
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 /**
  * GET /api/posts/generate-code
@@ -17,15 +18,9 @@ export async function GET(request: Request) {
     try {
         const code = await generateUniqueId();
 
-        return NextResponse.json({
-            success: true,
-            code: code
-        });
+        return apiSuccess({ code }, 'Code generated successfully');
     } catch (error) {
         console.error('Generate code error:', error);
-        return NextResponse.json(
-            { error: 'კოდის გენერაცია ვერ მოხერხდა' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.POST_CREATE_FAILED, 'კოდის გენერაცია ვერ მოხერხდა', 500);
     }
 }

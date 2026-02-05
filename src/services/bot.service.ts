@@ -3,6 +3,44 @@ import Bot from '@/models/Bot';
 import OpenAI from "openai";
 import mongoose from 'mongoose';
 
+import type { IBot, BotCategory, BotTier } from '@/models/Bot';
+
+interface GetAllBotsParams {
+    page?: number;
+    limit?: number;
+    category?: BotCategory | 'all';
+    tier?: BotTier | 'all';
+    search?: string;
+    featured?: string;
+    sort?: string;
+    min_price?: number;
+    max_price?: number;
+    rating?: number;
+}
+
+interface CreateBotData {
+    name: string;
+    codename: string;
+    version?: string;
+    description: string;
+    shortDescription: string;
+    category: BotCategory;
+    tier?: BotTier;
+    price?: number;
+    icon?: string;
+    color?: string;
+    features?: string[];
+    masterPrompt: string;
+    rating?: number;
+    isRecentlyAdded?: boolean;
+    isFeatured?: boolean;
+}
+
+interface ChatHistoryMessage {
+    role: 'user' | 'assistant';
+    content: string;
+}
+
 // Lazy init client
 function getAIClient() {
     return new OpenAI({
@@ -15,8 +53,7 @@ export class BotService {
     /**
      * Smart Search for Bots
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async getAllBots(params: any) {
+    static async getAllBots(params: GetAllBotsParams) {
         await dbConnect();
         const {
             page = 1,
@@ -31,8 +68,7 @@ export class BotService {
             rating = 0
         } = params;
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const pipeline: any[] = [{ $match: { isActive: true } }];
+        const pipeline: mongoose.PipelineStage[] = [{ $match: { isActive: true } }];
 
         // 1. Search
         if (search) {
@@ -69,8 +105,7 @@ export class BotService {
         if (rating > 0) pipeline.push({ $match: { rating: { $gte: rating } } });
 
         // 3. Sort
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let sortStage: any = { isFeatured: -1, isRecentlyAdded: -1 };
+        let sortStage: Record<string, 1 | -1> = { isFeatured: -1, isRecentlyAdded: -1 };
         switch (sort) {
             case 'newest': sortStage = { createdAt: -1 }; break;
             case 'lowest_price': sortStage = { price: 1 }; break;
@@ -98,8 +133,7 @@ export class BotService {
         const metadata = results[0].metadata[0] || { total: 0 };
         const bots = results[0].bots || [];
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const transformedBots = bots.map((bot: any) => ({
+        const transformedBots = bots.map((bot: Record<string, unknown> & { _id: mongoose.Types.ObjectId }) => ({
             ...bot,
             id: bot._id.toString(),
             _id: undefined
@@ -136,12 +170,10 @@ export class BotService {
         // It does NOT check admin. So private bots hide prompts from EVERYONE in GET /api/bots/[id].
         const masterPrompt = bot.tier === 'private' ? null : bot.masterPrompt;
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return { ...bot, id: bot._id.toString(), _id: undefined, masterPrompt: isAdmin ? bot.masterPrompt : masterPrompt };
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async createBot(data: any) {
+    static async createBot(data: CreateBotData) {
         await dbConnect();
         const bot = await Bot.create({
             name: data.name,
@@ -163,8 +195,7 @@ export class BotService {
         return { ...bot.toObject(), id: bot._id.toString() };
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async updateBot(id: string, data: any) {
+    static async updateBot(id: string, data: mongoose.UpdateQuery<IBot>) {
         await dbConnect();
         if (!mongoose.Types.ObjectId.isValid(id)) throw new Error("Invalid bot ID");
 
@@ -191,7 +222,7 @@ export class BotService {
     /**
      * CHAT Logic
      */
-    static async chat(message: string, history: any[], masterPrompt?: string) {
+    static async chat(message: string, history: ChatHistoryMessage[], masterPrompt?: string) {
         const client = getAIClient();
 
         let systemPrompt = "შენ ხარ AI ასისტენტი. პასუხობ ქართულად და ეხმარები მომხმარებელს.";
@@ -205,7 +236,6 @@ export class BotService {
         ];
 
         if (history && Array.isArray(history)) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             for (const msg of history.slice(-10)) {
                 if (msg.role === "user" || msg.role === "assistant") {
                     messages.push({ role: msg.role, content: msg.content });

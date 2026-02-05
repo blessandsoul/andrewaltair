@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import dbConnect from '@/lib/db'
 import Visitor from '@/models/Visitor'
 import Activity from '@/models/Activity'
@@ -42,10 +43,10 @@ export async function POST() {
 
         console.log('Data cleanup completed:', result)
 
-        return NextResponse.json(result)
+        return apiSuccess(result, 'Cleanup completed successfully')
     } catch (error) {
         console.error('Cleanup error:', error)
-        return NextResponse.json({ error: 'Cleanup failed' }, { status: 500 })
+        return apiError(ERROR_CODES.TRACKING_FETCH_FAILED, 'Cleanup failed', 500)
     }
 }
 
@@ -74,8 +75,7 @@ export async function GET() {
             Click.countDocuments()
         ])
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             retentionDays,
             cutoffDate: cutoffDate.toISOString(),
             current: {
@@ -90,7 +90,7 @@ export async function GET() {
             }
         })
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to get cleanup status' }, { status: 500 })
+        return apiError(ERROR_CODES.TRACKING_FETCH_FAILED, 'Failed to get cleanup status', 500)
     }
 }
 

@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import dbConnect from '@/lib/db'
 import Alert from '@/models/Alert'
 import Visitor from '@/models/Visitor'
@@ -104,8 +106,7 @@ Increase: *${Math.round((currentTraffic / Math.max(baselineTraffic, 1)) * 100)}%
             .sort({ createdAt: -1 })
             .limit(5)
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             alerts,
             status: {
                 trafficStatus: currentTraffic > baselineTraffic * 1.5 ? 'high' : 'normal',
@@ -116,7 +117,7 @@ Increase: *${Math.round((currentTraffic / Math.max(baselineTraffic, 1)) * 100)}%
 
     } catch (error) {
         console.error('Anomaly check error:', error)
-        return NextResponse.json({ error: 'Failed to fetch alerts' }, { status: 500 })
+        return apiError(ERROR_CODES.TRACKING_FETCH_FAILED, 'Failed to fetch alerts', 500)
     }
 }
 
@@ -128,9 +129,9 @@ export async function POST(request: NextRequest) {
 
         await Alert.findByIdAndUpdate(id, { isRead: true })
 
-        return NextResponse.json({ success: true })
+        return apiSuccess(null, 'Operation successful')
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to update alert' }, { status: 500 })
+        return apiError(ERROR_CODES.TRACKING_FETCH_FAILED, 'Failed to update alert', 500)
     }
 }
 

@@ -1,7 +1,9 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { UserService } from "@/services/user.service"
 import { verifyToken } from "@/lib/jwt-config"
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 // Helper to verify JWT token and get userId
 function getAuth(request: NextRequest) {
@@ -23,19 +25,19 @@ export async function GET(request: NextRequest) {
         const decoded = getAuth(request)
 
         if (!decoded) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Authentication required', 401)
         }
 
         const data = await UserService.getProfile(decoded.userId)
 
         if (!data) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 })
+            return apiError(ERROR_CODES.USER_NOT_FOUND, 'User not found', 404)
         }
 
-        return NextResponse.json(data)
+        return apiSuccess(data, 'Profile fetched successfully')
     } catch (error) {
         console.error("Profile API error:", error)
-        return NextResponse.json({ error: "Failed to fetch profile" }, { status: 500 })
+        return apiError(ERROR_CODES.PROFILE_FETCH_FAILED, 'Failed to fetch profile', 500)
     }
 }
 
@@ -45,7 +47,7 @@ export async function PUT(request: NextRequest) {
         const decoded = getAuth(request)
 
         if (!decoded) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Authentication required', 401)
         }
 
         const body = await request.json()
@@ -53,15 +55,12 @@ export async function PUT(request: NextRequest) {
         const updatedUser = await UserService.updateProfile(decoded.userId, body)
 
         if (!updatedUser) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 })
+            return apiError(ERROR_CODES.USER_NOT_FOUND, 'User not found', 404)
         }
 
-        return NextResponse.json({
-            user: updatedUser,
-            message: "Profile updated successfully",
-        })
+        return apiSuccess({ user: updatedUser }, 'Profile updated successfully')
     } catch (error) {
         console.error("Profile update error:", error)
-        return NextResponse.json({ error: "Failed to update profile" }, { status: 500 })
+        return apiError(ERROR_CODES.PROFILE_UPDATE_FAILED, 'Failed to update profile', 500)
     }
 }

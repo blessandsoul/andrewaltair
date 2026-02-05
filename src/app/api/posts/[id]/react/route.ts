@@ -1,6 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import dbConnect from "@/lib/db";
 import Post from "@/models/Post";
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 // Valid reaction types
 const VALID_REACTIONS = [
@@ -21,10 +23,7 @@ export async function POST(
 
         // Validate reaction type
         if (!type || !VALID_REACTIONS.includes(type)) {
-            return NextResponse.json(
-                { error: "Invalid reaction type" },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Invalid reaction type', 400);
         }
 
         // Determine increment (add or remove)
@@ -39,7 +38,7 @@ export async function POST(
         );
 
         if (!post) {
-            return NextResponse.json({ error: "Post not found" }, { status: 404 });
+            return apiError(ERROR_CODES.POST_NOT_FOUND, 'Post not found', 404);
         }
 
         // Ensure no negative values
@@ -48,15 +47,14 @@ export async function POST(
             post.reactions[type] = 0;
         }
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             reactions: post.reactions,
             type,
             newCount: post.reactions[type]
-        });
+        }, 'Reaction updated');
     } catch (error) {
         console.error("Error updating reaction:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return apiError(ERROR_CODES.POST_UPDATE_FAILED, 'Failed to update reaction', 500);
     }
 }
 
@@ -72,15 +70,12 @@ export async function GET(
         const post = await Post.findById(id).select('reactions');
 
         if (!post) {
-            return NextResponse.json({ error: "Post not found" }, { status: 404 });
+            return apiError(ERROR_CODES.POST_NOT_FOUND, 'Post not found', 404);
         }
 
-        return NextResponse.json({
-            success: true,
-            reactions: post.reactions
-        });
+        return apiSuccess({ reactions: post.reactions }, 'Reactions fetched');
     } catch (error) {
         console.error("Error fetching reactions:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return apiError(ERROR_CODES.POST_FETCH_FAILED, 'Failed to fetch reactions', 500);
     }
 }

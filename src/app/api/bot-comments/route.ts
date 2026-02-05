@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import BotComment from '@/models/BotComment';
 import { getUserFromRequest } from '@/lib/server-auth';
@@ -13,13 +15,10 @@ export async function GET(request: NextRequest) {
         const botId = searchParams.get('botId');
 
         if (!botId) {
-            return NextResponse.json(
-                { error: 'Bot ID is required' },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.BAD_REQUEST, 'Bot ID is required', 400);
         }
 
-        const comments = await BotComment.find({ 
+        const comments = await BotComment.find({
             botId,
             status: 'approved'
         })
@@ -38,16 +37,13 @@ export async function GET(request: NextRequest) {
             createdAt: comment.createdAt.toISOString(),
         }));
 
-        return NextResponse.json({ 
+        return apiSuccess({
             comments: transformedComments,
             total: transformedComments.length
-        });
+        }, 'Comments fetched successfully');
     } catch (error) {
         console.error('Get bot comments error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch comments' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.BOT_COMMENT_FETCH_FAILED, 'Failed to fetch comments', 500);
     }
 }
 
@@ -57,38 +53,26 @@ export async function POST(request: NextRequest) {
         // 🛡️ AUTHENTICATION REQUIRED
         const user = await getUserFromRequest(request);
         if (!user) {
-            return NextResponse.json(
-                { error: 'ავტორიზაცია აუცილებელია კომენტარის დასატოვებლად' },
-                { status: 401 }
-            );
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'ავტორიზაცია აუცილებელია კომენტარის დასატოვებლად', 401);
         }
 
         await dbConnect();
 
         const { botId, text, rating } = await request.json();
 
-        // 🛡️ Validate required fields
+        // Validate required fields
         if (!botId || !text) {
-            return NextResponse.json(
-                { error: 'Bot ID და text აუცილებელია' },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Bot ID და text აუცილებელია', 400);
         }
 
-        // 🛡️ Validate text length
+        // Validate text length
         if (text.length < 2 || text.length > 1000) {
-            return NextResponse.json(
-                { error: 'კომენტარი უნდა იყოს 2-1000 სიმბოლო' },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'კომენტარი უნდა იყოს 2-1000 სიმბოლო', 400);
         }
 
-        // 🛡️ Validate rating
+        // Validate rating
         if (rating && (rating < 1 || rating > 5)) {
-            return NextResponse.json(
-                { error: 'რეიტინგი უნდა იყოს 1-დან 5-მდე' },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'რეიტინგი უნდა იყოს 1-დან 5-მდე', 400);
         }
 
         // Create comment with authenticated user data
@@ -104,8 +88,7 @@ export async function POST(request: NextRequest) {
 
         await comment.save();
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             comment: {
                 id: comment._id.toString(),
                 botId: comment.botId.toString(),
@@ -116,13 +99,10 @@ export async function POST(request: NextRequest) {
                 likes: comment.likes,
                 createdAt: comment.createdAt.toISOString(),
             }
-        });
+        }, 'Comment created successfully', 201);
     } catch (error) {
         console.error('Create bot comment error:', error);
-        return NextResponse.json(
-            { error: 'კომენტარის შექმნა ვერ მოხერხდა' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.BOT_COMMENT_CREATE_FAILED, 'კომენტარის შექმნა ვერ მოხერხდა', 500);
     }
 }
 

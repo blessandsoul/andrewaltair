@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import Testimonial from '@/models/Testimonial';
 
@@ -12,10 +13,10 @@ export async function GET() {
             .sort({ order: 1, createdAt: -1 })
             .limit(10);
 
-        return NextResponse.json({ testimonials });
+        return apiSuccess({ testimonials }, 'Testimonials fetched successfully');
     } catch (error) {
         console.error('Testimonials Error:', error);
-        return NextResponse.json({ error: 'Failed to get testimonials' }, { status: 500 });
+        return apiError(ERROR_CODES.CONVERSION_FETCH_FAILED, 'Failed to get testimonials', 500);
     }
 }
 

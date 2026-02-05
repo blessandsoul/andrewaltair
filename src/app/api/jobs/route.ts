@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import dbConnect from '@/lib/db'
 import ScheduledJob from '@/models/ScheduledJob'
 
@@ -30,7 +32,7 @@ export async function GET(request: NextRequest) {
             failed: await ScheduledJob.countDocuments({ status: 'failed' }),
         }
 
-        return NextResponse.json({
+        return apiSuccess({
             jobs: jobs.map(j => ({
                 id: j._id.toString(),
                 name: j.name,
@@ -45,10 +47,10 @@ export async function GET(request: NextRequest) {
                 updatedAt: j.updatedAt,
             })),
             stats,
-        })
+        }, 'Jobs fetched successfully')
     } catch (error) {
         console.error('Get jobs error:', error)
-        return NextResponse.json({ error: 'Failed to get jobs' }, { status: 500 })
+        return apiError(ERROR_CODES.JOB_FETCH_FAILED, 'Failed to get jobs', 500)
     }
 }
 
@@ -60,7 +62,7 @@ export async function POST(request: NextRequest) {
         const data = await request.json()
 
         if (!data.name) {
-            return NextResponse.json({ error: 'Job name is required' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Job name is required', 400)
         }
 
         const job = await ScheduledJob.create({
@@ -72,17 +74,16 @@ export async function POST(request: NextRequest) {
             maxRetries: data.maxRetries || 3,
         })
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             job: {
                 id: job._id.toString(),
                 name: job.name,
                 status: job.status,
             },
-        })
+        }, 'Job created', 201)
     } catch (error) {
         console.error('Create job error:', error)
-        return NextResponse.json({ error: 'Failed to create job' }, { status: 500 })
+        return apiError(ERROR_CODES.JOB_CREATE_FAILED, 'Failed to create job', 500)
     }
 }
 
@@ -94,7 +95,7 @@ export async function PUT(request: NextRequest) {
         const { id, status, result } = await request.json()
 
         if (!id) {
-            return NextResponse.json({ error: 'Job ID is required' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Job ID is required', 400)
         }
 
         const updateData: Record<string, unknown> = {}
@@ -111,19 +112,18 @@ export async function PUT(request: NextRequest) {
         const job = await ScheduledJob.findByIdAndUpdate(id, updateData, { new: true })
 
         if (!job) {
-            return NextResponse.json({ error: 'Job not found' }, { status: 404 })
+            return apiError(ERROR_CODES.JOB_NOT_FOUND, 'Job not found', 404)
         }
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             job: {
                 id: job._id.toString(),
                 status: job.status,
             },
-        })
+        }, 'Job updated')
     } catch (error) {
         console.error('Update job error:', error)
-        return NextResponse.json({ error: 'Failed to update job' }, { status: 500 })
+        return apiError(ERROR_CODES.JOB_UPDATE_FAILED, 'Failed to update job', 500)
     }
 }
 
@@ -136,22 +136,19 @@ export async function DELETE(request: NextRequest) {
         const id = searchParams.get('id')
 
         if (!id) {
-            return NextResponse.json({ error: 'Job ID is required' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Job ID is required', 400)
         }
 
         const job = await ScheduledJob.findByIdAndDelete(id)
 
         if (!job) {
-            return NextResponse.json({ error: 'Job not found' }, { status: 404 })
+            return apiError(ERROR_CODES.JOB_NOT_FOUND, 'Job not found', 404)
         }
 
-        return NextResponse.json({
-            success: true,
-            message: 'Job deleted',
-        })
+        return apiSuccess(null, 'Job deleted')
     } catch (error) {
         console.error('Delete job error:', error)
-        return NextResponse.json({ error: 'Failed to delete job' }, { status: 500 })
+        return apiError(ERROR_CODES.JOB_DELETE_FAILED, 'Failed to delete job', 500)
     }
 }
 

@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import CronJob from '@/models/CronJob';
 
@@ -14,12 +15,12 @@ export async function PUT(request: Request, { params }: RouteParams) {
         const data = await request.json();
         const job = await CronJob.findByIdAndUpdate(id, data, { new: true }).lean();
         if (!job) {
-            return NextResponse.json({ error: 'Cron job not found' }, { status: 404 });
+            return apiError(ERROR_CODES.CRON_NOT_FOUND, 'Cron job not found', 404);
         }
-        return NextResponse.json({ success: true, job: { ...job, id: job._id.toString() } });
+        return apiSuccess({ job: { ...job, id: job._id.toString() } }, 'Cron job updated');
     } catch (error) {
         console.error('Update cron job error:', error);
-        return NextResponse.json({ error: 'Failed to update cron job' }, { status: 500 });
+        return apiError(ERROR_CODES.CRON_UPDATE_FAILED, 'Failed to update cron job', 500);
     }
 }
 
@@ -29,9 +30,9 @@ export async function DELETE(request: Request, { params }: RouteParams) {
         await dbConnect();
         const { id } = await params;
         await CronJob.findByIdAndDelete(id);
-        return NextResponse.json({ success: true });
+        return apiSuccess(null, 'Cron job deleted');
     } catch (error) {
         console.error('Delete cron job error:', error);
-        return NextResponse.json({ error: 'Failed to delete cron job' }, { status: 500 });
+        return apiError(ERROR_CODES.CRON_DELETE_FAILED, 'Failed to delete cron job', 500);
     }
 }

@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import { ToolService } from "@/services/tool.service"
 
 interface RouteParams {
@@ -13,13 +15,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         const tool = await ToolService.getToolById(id)
 
         if (!tool) {
-            return NextResponse.json({ error: "Tool not found" }, { status: 404 })
+            return apiError(ERROR_CODES.TOOL_NOT_FOUND, 'Tool not found', 404)
         }
 
-        return NextResponse.json(tool)
+        return apiSuccess(tool, 'Tool fetched successfully')
     } catch (error: any) {
         console.error("Get tool error:", error)
-        return NextResponse.json({ error: error.message || "Failed to fetch tool" }, { status: 500 })
+        return apiError(ERROR_CODES.TOOL_FETCH_FAILED, error.message || 'Failed to fetch tool', 500)
     }
 }
 
@@ -32,13 +34,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         const tool = await ToolService.updateTool(id, body)
 
         if (!tool) {
-            return NextResponse.json({ error: "Tool not found" }, { status: 404 })
+            return apiError(ERROR_CODES.TOOL_NOT_FOUND, 'Tool not found', 404)
         }
 
-        return NextResponse.json(tool)
+        return apiSuccess(tool, 'Tool updated successfully')
     } catch (error: any) {
         console.error("Update tool error:", error)
-        return NextResponse.json({ error: error.message || "Failed to update tool" }, { status: 500 })
+        return apiError(ERROR_CODES.TOOL_UPDATE_FAILED, error.message || 'Failed to update tool', 500)
     }
 }
 
@@ -49,12 +51,12 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         const result = await ToolService.deleteTool(id)
 
         if (!result) {
-            return NextResponse.json({ error: "Tool not found" }, { status: 404 })
+            return apiError(ERROR_CODES.TOOL_NOT_FOUND, 'Tool not found', 404)
         }
 
-        return NextResponse.json({ message: "Tool deleted successfully" })
+        return apiSuccess(null, 'Tool deleted successfully')
     } catch (error: any) {
         console.error("Delete tool error:", error)
-        return NextResponse.json({ error: error.message || "Failed to delete tool" }, { status: 500 })
+        return apiError(ERROR_CODES.TOOL_DELETE_FAILED, error.message || 'Failed to delete tool', 500)
     }
 }

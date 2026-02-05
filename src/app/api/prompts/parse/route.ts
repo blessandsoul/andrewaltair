@@ -1,6 +1,8 @@
 export const dynamic = 'force-dynamic'
 import OpenAI from "openai"
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import { getUserFromRequest } from "@/lib/server-auth"
 
 const client = new OpenAI({
@@ -41,12 +43,12 @@ export async function POST(request: NextRequest) {
     try {
         const user = await getUserFromRequest(request);
         if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
 
         const { text } = await request.json()
         if (!text) {
-            return NextResponse.json({ error: "Text is required" }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Text is required', 400)
         }
 
         // --- HYBRID PARSING STRATEGY ---
@@ -108,11 +110,11 @@ export async function POST(request: NextRequest) {
             negativePrompt: negativePrompt || aiResult.negativePrompt
         }
 
-        return NextResponse.json(finalResult)
+        return apiSuccess(finalResult, 'Prompt parsed successfully')
 
     } catch (error) {
         console.error("Parse API Error:", error)
-        return NextResponse.json({ error: "Parse failed" }, { status: 500 })
+        return apiError(ERROR_CODES.PROMPT_PARSE_FAILED, 'Parse failed', 500)
     }
 }
 

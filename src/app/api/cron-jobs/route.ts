@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import CronJob from '@/models/CronJob';
 
@@ -13,10 +14,10 @@ export async function GET() {
             id: j._id.toString(),
             _id: undefined,
         }));
-        return NextResponse.json({ jobs: transformed });
+        return apiSuccess({ jobs: transformed }, 'Cron jobs fetched successfully');
     } catch (error) {
         console.error('Get cron jobs error:', error);
-        return NextResponse.json({ error: 'Failed to fetch cron jobs' }, { status: 500 });
+        return apiError(ERROR_CODES.CRON_FETCH_FAILED, 'Failed to fetch cron jobs', 500);
     }
 }
 
@@ -27,13 +28,12 @@ export async function POST(request: Request) {
         const data = await request.json();
         const job = new CronJob(data);
         await job.save();
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             job: { ...job.toObject(), id: job._id.toString() },
-        });
+        }, 'Cron job created', 201);
     } catch (error) {
         console.error('Create cron job error:', error);
-        return NextResponse.json({ error: 'Failed to create cron job' }, { status: 500 });
+        return apiError(ERROR_CODES.CRON_CREATE_FAILED, 'Failed to create cron job', 500);
     }
 }
 

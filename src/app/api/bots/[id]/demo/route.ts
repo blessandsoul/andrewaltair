@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 export const dynamic = 'force-dynamic';
 import dbConnect from '@/lib/db';
@@ -91,30 +93,17 @@ export async function POST(
 
         // Validate input
         if (!message || typeof message !== 'string') {
-            return NextResponse.json(
-                { error: 'Message is required' },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.BAD_REQUEST, 'Message is required', 400);
         }
 
         // Check message length
         if (message.length > 500) {
-            return NextResponse.json(
-                { error: 'Message too long. Demo mode limit is 500 characters.' },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.BAD_REQUEST, 'Message too long. Demo mode limit is 500 characters.', 400);
         }
 
         // Check conversation history length (demo limit)
         if (conversationHistory.length >= MAX_DEMO_MESSAGES * 2) {
-            return NextResponse.json(
-                {
-                    error: 'Demo limit reached',
-                    message: 'დემო რეჟიმის ლიმიტი ამოიწურა. სრული ვერსიისთვის შეიძინეთ ბოტი.',
-                    limitReached: true
-                },
-                { status: 429 }
-            );
+            return apiError(ERROR_CODES.RATE_LIMITED, 'დემო რეჟიმის ლიმიტი ამოიწურა. სრული ვერსიისთვის შეიძინეთ ბოტი.', 429);
         }
 
         // Rate limiting
@@ -122,18 +111,12 @@ export async function POST(
         const rateLimit = checkRateLimit(rateLimitKey);
 
         if (!rateLimit.allowed) {
-            return NextResponse.json(
-                {
-                    error: 'Rate limit exceeded',
-                    message: 'ძალიან ბევრი მოთხოვნა. სცადეთ 1 საათში.'
-                },
-                { status: 429 }
-            );
+            return apiError(ERROR_CODES.RATE_LIMITED, 'ძალიან ბევრი მოთხოვნა. სცადეთ 1 საათში.', 429);
         }
 
         // Detect prompt injection
         if (detectPromptInjection(message)) {
-            return NextResponse.json({
+            return apiSuccess({
                 response: 'გთხოვთ, გამოიყენოთ ბოტი დანიშნულებისამებრ.',
                 demoWarning: true
             });
@@ -144,18 +127,12 @@ export async function POST(
         const bot = await Bot.findById(id);
 
         if (!bot) {
-            return NextResponse.json(
-                { error: 'Bot not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.BOT_NOT_FOUND, 'Bot not found', 404);
         }
 
         // Don't allow demo for private bots
         if (bot.tier === 'private') {
-            return NextResponse.json(
-                { error: 'Demo not available for private bots' },
-                { status: 403 }
-            );
+            return apiError(ERROR_CODES.FORBIDDEN, 'Demo not available for private bots', 403);
         }
 
         // Create secure demo prompt
@@ -164,10 +141,7 @@ export async function POST(
         // Check API key
         const apiKey = process.env.GROQ_API_KEY;
         if (!apiKey) {
-            return NextResponse.json(
-                { error: 'AI service not configured' },
-                { status: 500 }
-            );
+            return apiError(ERROR_CODES.AI_SERVICE_ERROR, 'AI service not configured', 500);
         }
 
         // Create Groq client (compatible with OpenAI SDK)
@@ -203,7 +177,7 @@ export async function POST(
             .replace(/master prompt/gi, '[FILTERED]')
             .replace(/instructions/gi, '[FILTERED]');
 
-        return NextResponse.json({
+        return apiSuccess({
             response: filteredResponse,
             messagesRemaining: MAX_DEMO_MESSAGES - Math.floor((conversationHistory.length + 2) / 2),
             demoMode: true
@@ -211,9 +185,6 @@ export async function POST(
 
     } catch (error) {
         console.error('Demo chat error:', error);
-        return NextResponse.json(
-            { error: 'Internal server error' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.AI_GENERATION_FAILED, 'Internal server error', 500);
     }
 }

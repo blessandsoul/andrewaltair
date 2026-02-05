@@ -1,6 +1,8 @@
 export const dynamic = 'force-dynamic'
 import OpenAI from "openai"
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import { AI_CONFIG, TAROT_RULES, parseAIResponse } from "@/lib/mystic-rules"
 
 // Lazy initialization to avoid build-time errors
@@ -25,7 +27,7 @@ export async function POST(request: NextRequest) {
         const { sanitizeAIInput, sanitizeAIResponse } = await import('@/lib/prompt-sanitizer');
 
         if (!cards || !Array.isArray(cards) || cards.length === 0) {
-            return NextResponse.json({ error: "Cards are required" }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Input is required', 400)
         }
 
         // Sanitize card names
@@ -76,7 +78,7 @@ ${spreadPrompt}
             const jsonMatch = safeContent.match(/\{[\s\S]*\}/)
             if (jsonMatch) {
                 const parsed = JSON.parse(jsonMatch[0])
-                return NextResponse.json({
+                return apiSuccess({
                     cards: safeCards,
                     interpretation: sanitizeAIResponse(parsed.interpretation || ''),
                     advice: sanitizeAIResponse(parsed.advice || '')
@@ -86,7 +88,7 @@ ${spreadPrompt}
             // Parsing failed
         }
 
-        return NextResponse.json({
+        return apiSuccess({
             cards,
             interpretation: "კარტები მოგითხრობენ მნიშვნელოვან ისტორიას. წარსული და აწმყო ერთმანეთს უკავშირდება, რათა გზა გაგიხსნას მომავლისკენ.",
             advice: "მიენდე შენს ინტუიციას და გაბედე სწორი ნაბიჯის გადადგმა."
@@ -94,10 +96,7 @@ ${spreadPrompt}
 
     } catch (error) {
         console.error("Tarot API error:", error)
-        return NextResponse.json(
-            { error: "Failed to interpret tarot" },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.MYSTIC_FETCH_FAILED, 'Tarot reading failed', 500)
     }
 }
 

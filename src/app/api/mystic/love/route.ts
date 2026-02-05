@@ -1,6 +1,8 @@
 export const dynamic = 'force-dynamic'
 import OpenAI from "openai"
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import { AI_CONFIG, LOVE_RULES, pickRandom, parseAIResponse } from "@/lib/mystic-rules"
 import { protectMysticEndpoint, validateInputLength } from "@/lib/mystic-auth"
 
@@ -27,7 +29,7 @@ export async function POST(request: NextRequest) {
         const { name1, name2 } = await request.json()
 
         if (!name1 || !name2) {
-            return NextResponse.json({ error: "Both names are required" }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Both names are required', 400)
         }
 
         // 🛡️ Validate input lengths
@@ -83,13 +85,13 @@ export async function POST(request: NextRequest) {
             const jsonMatch = content.match(/\{[\s\S]*\}/)
             if (jsonMatch) {
                 const parsed = JSON.parse(jsonMatch[0])
-                return NextResponse.json(parsed)
+                return apiSuccess(parsed)
             }
         } catch {
             // Parsing failed
         }
 
-        return NextResponse.json({
+        return apiSuccess({
             percentage: 78,
             title: "ვარსკვლავებით დაწერილი კავშირი",
             description: "თქვენს გულებს შორის უჩინარი ძაფი გადაჭიმულია, რომელიც სამყაროს ენერგიებით პულსირებს. ეს კავშირი იშვიათი საჩუქარია ბედისგან."
@@ -97,10 +99,7 @@ export async function POST(request: NextRequest) {
 
     } catch (error) {
         console.error("Love API error:", error)
-        return NextResponse.json(
-            { error: "Failed to calculate compatibility" },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.MYSTIC_FETCH_FAILED, 'Love prediction failed', 500)
     }
 }
 

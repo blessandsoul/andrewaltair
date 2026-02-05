@@ -1,8 +1,10 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import jwt from 'jsonwebtoken'
 import dbConnect from '@/lib/db'
 import User from '@/models/User'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import {
     generateTOTPSecret,
     generateOTPAuthURL,
@@ -40,16 +42,16 @@ export async function POST(request: NextRequest) {
 
         const userId = await getUserFromToken(request)
         if (!userId) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Authentication required', 401)
         }
 
         const user = await User.findById(userId).select('+twoFactorSecret')
         if (!user) {
-            return NextResponse.json({ error: 'User not found' }, { status: 404 })
+            return apiError(ERROR_CODES.USER_NOT_FOUND, 'User not found', 404)
         }
 
         if (user.twoFactorEnabled) {
-            return NextResponse.json({ error: '2FA is already enabled' }, { status: 400 })
+            return apiError(ERROR_CODES.AUTH_2FA_INVALID, '2FA is already enabled', 400)
         }
 
         // Generate new secret
@@ -61,14 +63,10 @@ export async function POST(request: NextRequest) {
         user.twoFactorSecret = secret
         await user.save()
 
-        return NextResponse.json({
-            success: true,
-            secret, // Show to user for manual entry
-            qrCode, // Data URL for QR code image
-        })
+        return apiSuccess({ secret, qrCode }, '2FA setup initiated')
     } catch (error) {
         console.error('2FA setup error:', error)
-        return NextResponse.json({ error: 'Failed to setup 2FA' }, { status: 500 })
+        return apiError(ERROR_CODES.AUTH_2FA_INVALID, 'Failed to setup 2FA', 500)
     }
 }
 
@@ -79,25 +77,25 @@ export async function PUT(request: NextRequest) {
 
         const userId = await getUserFromToken(request)
         if (!userId) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Authentication required', 401)
         }
 
         const { token, action } = await request.json()
 
         const user = await User.findById(userId).select('+twoFactorSecret +backupCodes')
         if (!user) {
-            return NextResponse.json({ error: 'User not found' }, { status: 404 })
+            return apiError(ERROR_CODES.USER_NOT_FOUND, 'User not found', 404)
         }
 
         if (action === 'enable') {
             // Verify the token before enabling
             if (!user.twoFactorSecret) {
-                return NextResponse.json({ error: 'Run setup first' }, { status: 400 })
+                return apiError(ERROR_CODES.AUTH_2FA_REQUIRED, 'Run setup first', 400)
             }
 
             const isValid = verifyTOTP(token, user.twoFactorSecret)
             if (!isValid) {
-                return NextResponse.json({ error: 'Invalid code' }, { status: 400 })
+                return apiError(ERROR_CODES.AUTH_2FA_INVALID, 'Invalid code', 400)
             }
 
             // Generate backup codes
@@ -108,22 +106,18 @@ export async function PUT(request: NextRequest) {
             user.backupCodes = hashedCodes
             await user.save()
 
-            return NextResponse.json({
-                success: true,
-                message: '2FA enabled successfully',
-                backupCodes, // Show once to user
-            })
+            return apiSuccess({ backupCodes }, '2FA enabled successfully')
         }
 
         if (action === 'disable') {
             // Verify token before disabling
             if (!user.twoFactorSecret) {
-                return NextResponse.json({ error: '2FA not enabled' }, { status: 400 })
+                return apiError(ERROR_CODES.AUTH_2FA_INVALID, '2FA not enabled', 400)
             }
 
             const isValid = verifyTOTP(token, user.twoFactorSecret)
             if (!isValid) {
-                return NextResponse.json({ error: 'Invalid code' }, { status: 400 })
+                return apiError(ERROR_CODES.AUTH_2FA_INVALID, 'Invalid code', 400)
             }
 
             user.twoFactorEnabled = false
@@ -131,16 +125,13 @@ export async function PUT(request: NextRequest) {
             user.backupCodes = undefined
             await user.save()
 
-            return NextResponse.json({
-                success: true,
-                message: '2FA disabled successfully',
-            })
+            return apiSuccess(null, '2FA disabled successfully')
         }
 
         if (action === 'verify') {
             // Verify token (for login flow)
             if (!user.twoFactorSecret) {
-                return NextResponse.json({ error: '2FA not enabled' }, { status: 400 })
+                return apiError(ERROR_CODES.AUTH_2FA_INVALID, '2FA not enabled', 400)
             }
 
             // First try TOTP
@@ -157,16 +148,17 @@ export async function PUT(request: NextRequest) {
                 }
             }
 
-            return NextResponse.json({
-                success: isValid,
-                message: isValid ? 'Code verified' : 'Invalid code',
-            })
+            if (!isValid) {
+                return apiError(ERROR_CODES.AUTH_2FA_INVALID, 'Invalid code', 400)
+            }
+
+            return apiSuccess({ verified: true }, 'Code verified')
         }
 
-        return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
+        return apiError(ERROR_CODES.BAD_REQUEST, 'Unknown action', 400)
     } catch (error) {
         console.error('2FA verification error:', error)
-        return NextResponse.json({ error: 'Failed to verify 2FA' }, { status: 500 })
+        return apiError(ERROR_CODES.AUTH_2FA_INVALID, 'Failed to verify 2FA', 500)
     }
 }
 
@@ -177,20 +169,18 @@ export async function GET(request: NextRequest) {
 
         const userId = await getUserFromToken(request)
         if (!userId) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Authentication required', 401)
         }
 
         const user = await User.findById(userId).select('twoFactorEnabled')
         if (!user) {
-            return NextResponse.json({ error: 'User not found' }, { status: 404 })
+            return apiError(ERROR_CODES.USER_NOT_FOUND, 'User not found', 404)
         }
 
-        return NextResponse.json({
-            enabled: user.twoFactorEnabled,
-        })
+        return apiSuccess({ enabled: user.twoFactorEnabled }, '2FA status fetched')
     } catch (error) {
         console.error('2FA status error:', error)
-        return NextResponse.json({ error: 'Failed to get 2FA status' }, { status: 500 })
+        return apiError(ERROR_CODES.AUTH_2FA_INVALID, 'Failed to get 2FA status', 500)
     }
 }
 

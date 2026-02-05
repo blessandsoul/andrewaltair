@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 const INDEXNOW_KEY = process.env.INDEXNOW_KEY || 'indexnow-key-andrewaltair'
 
@@ -26,10 +28,7 @@ export async function POST(request: NextRequest) {
         const { urls } = await request.json()
 
         if (!urls || !Array.isArray(urls) || urls.length === 0) {
-            return NextResponse.json(
-                { error: 'URLs array is required' },
-                { status: 400 }
-            )
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'URLs array is required', 400)
         }
 
         const baseUrl = 'https://andrewaltair.ge'
@@ -70,19 +69,14 @@ export async function POST(request: NextRequest) {
             (r) => r.status === 'fulfilled' && r.value.ok
         ).length
 
-        return NextResponse.json({
-            success: true,
-            message: `Submitted to ${successCount}/${endpoints.length} endpoints`,
+        return apiSuccess({
             results: results.map((r) =>
                 r.status === 'fulfilled' ? r.value : { error: r.reason }
             ),
-        })
+        }, `Submitted to ${successCount}/${endpoints.length} endpoints`)
     } catch (error) {
         console.error('IndexNow error:', error)
-        return NextResponse.json(
-            { error: 'Failed to submit to IndexNow' },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.INTERNAL_ERROR, 'Failed to submit to IndexNow', 500)
     }
 }
 

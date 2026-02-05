@@ -1,5 +1,7 @@
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import mongoose from 'mongoose';
+
 import dbConnect from '@/lib/db';
 import Media from '@/models/Media';
 import Video from '@/models/Video';
@@ -64,21 +66,18 @@ export class MediaService {
     /**
      * Media (DB)
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async getAllMedia(query: any = {}) {
+    static async getAllMedia(query: Record<string, unknown> = {}) {
         await dbConnect();
         const media = await Media.find(query).sort({ uploadedAt: -1 }).lean();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return media.map((m: any) => ({
+        return media.map((m) => ({
             ...m,
-            id: m._id.toString(),
+            id: (m._id as mongoose.Types.ObjectId).toString(),
             uploadedAt: m.uploadedAt?.toISOString?.()?.split('T')[0] || m.uploadedAt,
             _id: undefined,
         }));
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async createMedia(data: any) {
+    static async createMedia(data: { name: string; url: string; data?: string; mimeType?: string; type?: 'image' | 'video'; size?: string; sizeBytes?: number; width?: number; height?: number; altText?: string; caption?: string; folder?: string }) {
         await dbConnect();
         const media = new Media({
             ...data,
@@ -91,16 +90,13 @@ export class MediaService {
     /**
      * Videos
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async getAllVideos(query: any = {}, limit = 20) {
+    static async getAllVideos(query: Record<string, unknown> = {}, limit = 20) {
         await dbConnect();
         const videos = await Video.find(query).sort({ publishedAt: -1 }).limit(limit).lean();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return videos.map((v: any) => ({ ...v, id: v._id.toString(), _id: undefined }));
+        return videos.map((v) => ({ ...v, id: (v._id as mongoose.Types.ObjectId).toString(), _id: undefined }));
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async createVideo(data: any) {
+    static async createVideo(data: { title: string; description: string; youtubeId: string; thumbnail?: string; category: string; publishedAt?: Date; views?: number; duration?: string; type?: 'long' | 'short'; authorName?: string; authorAvatar?: string }) {
         await dbConnect();
         const video = new Video(data);
         await video.save();

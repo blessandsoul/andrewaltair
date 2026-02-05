@@ -1,7 +1,9 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import dbConnect from '@/lib/db'
 import Tool from '@/models/Tool'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 // POST - Bulk import tools from JSON
 export async function POST(request: NextRequest) {
@@ -11,7 +13,7 @@ export async function POST(request: NextRequest) {
         const { tools, options = {} } = await request.json()
 
         if (!Array.isArray(tools) || tools.length === 0) {
-            return NextResponse.json({ error: 'Tools array is required' }, { status: 400 })
+            return apiError(ERROR_CODES.BAD_REQUEST, 'Tools array is required', 400)
         }
 
         const { skipDuplicates = true, updateExisting = false } = options
@@ -66,14 +68,13 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             ...results,
             total: tools.length,
-        })
+        }, 'Bulk import completed')
     } catch (error) {
         console.error('Bulk import error:', error)
-        return NextResponse.json({ error: 'Failed to import tools' }, { status: 500 })
+        return apiError(ERROR_CODES.TOOL_CREATE_FAILED, 'Failed to import tools', 500)
     }
 }
 
@@ -84,7 +85,7 @@ export async function GET() {
 
         const tools = await Tool.find({}).lean()
 
-        return NextResponse.json({
+        return apiSuccess({
             tools: tools.map(t => ({
                 name: t.name,
                 description: t.description,
@@ -99,10 +100,10 @@ export async function GET() {
             })),
             exportedAt: new Date().toISOString(),
             count: tools.length,
-        })
+        }, 'Tools exported successfully')
     } catch (error) {
         console.error('Export tools error:', error)
-        return NextResponse.json({ error: 'Failed to export tools' }, { status: 500 })
+        return apiError(ERROR_CODES.TOOL_FETCH_FAILED, 'Failed to export tools', 500)
     }
 }
 

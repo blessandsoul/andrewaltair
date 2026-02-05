@@ -1,7 +1,8 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 // GET - Simple list of users for admin dropdown (name, avatar, verified status)
 export async function GET() {
@@ -23,13 +24,10 @@ export async function GET() {
             verified: ['god', 'admin'].includes(user.role),
         }));
 
-        return NextResponse.json({ users: userList });
+        return apiSuccess({ users: userList }, 'Users list fetched successfully');
     } catch (error) {
         console.error('Get users list error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch users' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.USER_FETCH_FAILED, 'Failed to fetch users list', 500);
     }
 }
 

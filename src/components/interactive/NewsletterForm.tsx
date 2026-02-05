@@ -1,11 +1,19 @@
 "use client"
 
 import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { TbSend, TbCheck, TbLoader2 } from "react-icons/tb"
 import { cn } from "@/lib/utils"
 import { useVisitorTracking } from "@/hooks/useVisitorTracking"
+
+const newsletterSchema = z.object({
+    email: z.string().email('გთხოვთ შეიყვანოთ სწორი ელფოსტა'),
+})
+type NewsletterFormData = z.infer<typeof newsletterSchema>
 
 interface NewsletterFormProps {
     className?: string
@@ -22,14 +30,16 @@ export function NewsletterForm({
     buttonText = "გამოწერა",
     placeholder = "შენი ელფოსტა..."
 }: NewsletterFormProps) {
-    const [email, setEmail] = useState("")
     const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
     const [message, setMessage] = useState("")
     const { visitorId, recordActivity } = useVisitorTracking()
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!email.trim() || status === "loading") return
+    const { register, handleSubmit, formState: { errors }, reset } = useForm<NewsletterFormData>({
+        resolver: zodResolver(newsletterSchema),
+    })
+
+    const onSubmit = async (formData: NewsletterFormData) => {
+        if (status === "loading") return
 
         setStatus("loading")
 
@@ -37,7 +47,7 @@ export function NewsletterForm({
             const res = await fetch("/api/newsletter", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, visitorId })
+                body: JSON.stringify({ email: formData.email, visitorId })
             })
 
             const data = await res.json()
@@ -45,11 +55,11 @@ export function NewsletterForm({
             if (res.ok) {
                 setStatus("success")
                 setMessage(data.message || "გამოწერა წარმატებით შესრულდა!")
-                setEmail("")
+                reset()
 
-                // 🎯 Also track on client side for immediate social proof
+                // Track on client side for immediate social proof
                 recordActivity("subscribe", {
-                    metadata: { displayName: email.replace(/(.{2}).*@/, "$1***@") },
+                    metadata: { displayName: formData.email.replace(/(.{2}).*@/, "$1***@") },
                     isPublic: true
                 })
             } else {
@@ -72,15 +82,15 @@ export function NewsletterForm({
 
     if (variant === "compact") {
         return (
-            <form onSubmit={handleSubmit} className={cn("flex gap-2", className)}>
+            <form onSubmit={handleSubmit(onSubmit)} className={cn("flex gap-2", className)}>
                 <Input
                     type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    {...register('email')}
                     placeholder={placeholder}
-                    required
                     disabled={status === "loading" || status === "success"}
                     className="flex-1 h-9"
+                    aria-invalid={!!errors.email}
+                    aria-describedby={errors.email ? 'compact-email-error' : undefined}
                 />
                 <Button
                     type="submit"
@@ -95,6 +105,9 @@ export function NewsletterForm({
                         <TbSend className="w-4 h-4" />
                     )}
                 </Button>
+                {errors.email && (
+                    <p id="compact-email-error" className="sr-only">{errors.email.message}</p>
+                )}
             </form>
         )
     }
@@ -102,15 +115,15 @@ export function NewsletterForm({
     if (variant === "inline") {
         return (
             <div className={cn("space-y-2", className)}>
-                <form onSubmit={handleSubmit} className="flex gap-2">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex gap-2">
                     <Input
                         type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        {...register('email')}
                         placeholder={placeholder}
-                        required
                         disabled={status === "loading" || status === "success"}
                         className="flex-1"
+                        aria-invalid={!!errors.email}
+                        aria-describedby={errors.email ? 'inline-email-error' : undefined}
                     />
                     <Button type="submit" disabled={status === "loading" || status === "success"}>
                         {status === "loading" ? (
@@ -123,6 +136,11 @@ export function NewsletterForm({
                         {buttonText}
                     </Button>
                 </form>
+                {errors.email && (
+                    <p id="inline-email-error" className="text-sm text-red-500">
+                        {errors.email.message}
+                    </p>
+                )}
                 {message && (
                     <p className={cn(
                         "text-sm",
@@ -147,15 +165,22 @@ export function NewsletterForm({
                 </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-3">
-                <Input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder={placeholder}
-                    required
-                    disabled={status === "loading" || status === "success"}
-                />
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+                <div>
+                    <Input
+                        type="email"
+                        {...register('email')}
+                        placeholder={placeholder}
+                        disabled={status === "loading" || status === "success"}
+                        aria-invalid={!!errors.email}
+                        aria-describedby={errors.email ? 'default-email-error' : undefined}
+                    />
+                    {errors.email && (
+                        <p id="default-email-error" className="text-sm text-red-500 mt-1">
+                            {errors.email.message}
+                        </p>
+                    )}
+                </div>
                 <Button
                     type="submit"
                     className="w-full"

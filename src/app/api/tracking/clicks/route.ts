@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import dbConnect from '@/lib/db'
 import Click from '@/models/Click'
 import Activity from '@/models/Activity'
@@ -16,7 +18,7 @@ export async function POST(request: NextRequest) {
         const { visitorId, page, x, y, element, resolution } = body
 
         if (!visitorId || !page || x === undefined || y === undefined) {
-            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Missing required fields', 400)
         }
 
         // Save the click
@@ -80,9 +82,9 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        return NextResponse.json({ success: true })
+        return apiSuccess(null, 'Operation successful')
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to record click' }, { status: 500 })
+        return apiError(ERROR_CODES.TRACKING_FETCH_FAILED, 'Failed to record click', 500)
     }
 }
 
@@ -95,7 +97,7 @@ export async function GET(request: NextRequest) {
         const page = searchParams.get('page')
 
         if (!page) {
-            return NextResponse.json({ error: 'Page required' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Page required', 400)
         }
 
         const match: any = { page }
@@ -107,8 +109,7 @@ export async function GET(request: NextRequest) {
             .limit(2000)
             .lean()
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             clicks: clicks.map((c: any) => ({
                 x: c.x,
                 y: c.y,
@@ -116,7 +117,7 @@ export async function GET(request: NextRequest) {
             }))
         })
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch heatmap' }, { status: 500 })
+        return apiError(ERROR_CODES.TRACKING_FETCH_FAILED, 'Failed to fetch heatmap', 500)
     }
 }
 

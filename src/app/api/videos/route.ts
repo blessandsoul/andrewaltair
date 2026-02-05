@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import { MediaService } from '@/services/media.service';
 
 // GET - List all videos with filtering
@@ -16,10 +17,10 @@ export async function GET(request: Request) {
         if (category) query.category = category;
 
         const videos = await MediaService.getAllVideos(query, limit);
-        return NextResponse.json({ videos });
+        return apiSuccess(videos, 'Videos fetched successfully');
     } catch (error) {
         console.error('Get videos error:', error);
-        return NextResponse.json({ error: 'Failed to fetch videos' }, { status: 500 });
+        return apiError(ERROR_CODES.VIDEO_FETCH_FAILED, 'Failed to fetch videos', 500);
     }
 }
 
@@ -28,9 +29,9 @@ export async function POST(request: Request) {
     try {
         const data = await request.json();
         const video = await MediaService.createVideo(data);
-        return NextResponse.json({ success: true, video });
+        return apiSuccess(video, 'Video created successfully', 201);
     } catch (error) {
         console.error('Create video error:', error);
-        return NextResponse.json({ error: 'Failed to create video' }, { status: 500 });
+        return apiError(ERROR_CODES.VIDEO_CREATE_FAILED, 'Failed to create video', 500);
     }
 }

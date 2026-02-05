@@ -1,8 +1,10 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import dbConnect from "@/lib/db"
 import Tool from "@/models/Tool"
 import toolsData from "@/data/tools.json"
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 // POST - Seed tools from JSON file to MongoDB (one-time operation)
 export async function POST(request: NextRequest) {
@@ -14,16 +16,13 @@ export async function POST(request: NextRequest) {
         const authHeader = request.headers.get("x-seed-key")
 
         if (!isDev && authHeader !== process.env.SEED_SECRET_KEY) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+            return apiError(ERROR_CODES.ADMIN_UNAUTHORIZED, 'Unauthorized access to seed endpoint', 401)
         }
 
         // Check if tools already exist
         const existingCount = await Tool.countDocuments()
         if (existingCount > 0) {
-            return NextResponse.json({
-                message: "Tools already seeded",
-                count: existingCount,
-            })
+            return apiSuccess({ count: existingCount }, 'Tools already seeded')
         }
 
         // Transform and insert tools
@@ -41,13 +40,10 @@ export async function POST(request: NextRequest) {
 
         const result = await Tool.insertMany(toolsToInsert)
 
-        return NextResponse.json({
-            message: "Tools seeded successfully",
-            count: result.length,
-        })
+        return apiSuccess({ count: result.length }, 'Tools seeded successfully')
     } catch (error) {
         console.error("Seed tools error:", error)
-        return NextResponse.json({ error: "Failed to seed tools" }, { status: 500 })
+        return apiError(ERROR_CODES.SEED_FAILED, 'Failed to seed tools', 500)
     }
 }
 
@@ -57,14 +53,14 @@ export async function GET() {
         await dbConnect()
         const count = await Tool.countDocuments()
 
-        return NextResponse.json({
+        return apiSuccess({
             seeded: count > 0,
             count,
             totalInJson: toolsData.length,
-        })
+        }, 'Seed status retrieved')
     } catch (error) {
         console.error("Get seed status error:", error)
-        return NextResponse.json({ error: "Failed to get seed status" }, { status: 500 })
+        return apiError(ERROR_CODES.SEED_FAILED, 'Failed to get seed status', 500)
     }
 }
 

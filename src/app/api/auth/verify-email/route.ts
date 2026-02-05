@@ -1,8 +1,10 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -16,10 +18,7 @@ export async function POST(request: NextRequest) {
         const { token } = await request.json();
 
         if (!token) {
-            return NextResponse.json(
-                { error: 'ვერიფიკაციის ტოკენი აუცილებელია' },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'ვერიფიკაციის ტოკენი აუცილებელია', 400);
         }
 
         // Find user with this verification token
@@ -29,10 +28,7 @@ export async function POST(request: NextRequest) {
         }).select('+emailVerificationToken +emailVerificationExpires');
 
         if (!user) {
-            return NextResponse.json(
-                { error: 'ვერიფიკაციის ტოკენი არასწორია ან ვადაგასულია' },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.AUTH_TOKEN_INVALID, 'ვერიფიკაციის ტოკენი არასწორია ან ვადაგასულია', 400);
         }
 
         // Mark email as verified
@@ -60,18 +56,10 @@ export async function POST(request: NextRequest) {
             createdAt: user.createdAt.toISOString(),
         };
 
-        return NextResponse.json({
-            success: true,
-            message: 'ელ-ფოსტა წარმატებით დადასტურდა!',
-            user: userData,
-            token: jwtToken,
-        });
+        return apiSuccess({ user: userData, token: jwtToken }, 'ელ-ფოსტა წარმატებით დადასტურდა!');
     } catch (error) {
         console.error('Email verification error:', error);
-        return NextResponse.json(
-            { error: 'ვერიფიკაცია ვერ მოხერხდა' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.INTERNAL_ERROR, 'ვერიფიკაცია ვერ მოხერხდა', 500);
     }
 }
 

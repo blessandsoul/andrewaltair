@@ -1,8 +1,10 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getUserFromRequest } from '@/lib/server-auth';
 import { z } from 'zod';
 import User from '@/models/User';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 const profileUpdateSchema = z.object({
     fullName: z.string().min(1).optional(),
@@ -18,17 +20,14 @@ export async function PUT(req: NextRequest) {
         const user = await getUserFromRequest(req);
 
         if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Authentication required', 401);
         }
 
         const body = await req.json();
         const parseResult = profileUpdateSchema.safeParse(body);
 
         if (!parseResult.success) {
-            return NextResponse.json(
-                { error: 'Validation failed', details: parseResult.error.flatten() },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Validation failed', 400);
         }
 
         const data = parseResult.data;
@@ -37,7 +36,7 @@ export async function PUT(req: NextRequest) {
         if (data.username && data.username !== user.username) {
             const exists = await User.findOne({ username: data.username, _id: { $ne: user._id } });
             if (exists) {
-                return NextResponse.json({ error: 'Username already taken' }, { status: 400 });
+                return apiError(ERROR_CODES.AUTH_DUPLICATE_USERNAME, 'Username already taken', 400);
             }
             user.username = data.username;
         }
@@ -45,7 +44,7 @@ export async function PUT(req: NextRequest) {
         if (data.email && data.email !== user.email) {
             const exists = await User.findOne({ email: data.email, _id: { $ne: user._id } });
             if (exists) {
-                return NextResponse.json({ error: 'Email already in use' }, { status: 400 });
+                return apiError(ERROR_CODES.AUTH_DUPLICATE_EMAIL, 'Email already in use', 400);
             }
             user.email = data.email;
         }
@@ -72,11 +71,11 @@ export async function PUT(req: NextRequest) {
             newsletterSubscribed: user.newsletterSubscribed
         };
 
-        return NextResponse.json({ success: true, user: userData });
+        return apiSuccess({ user: userData }, 'Profile updated successfully');
 
     } catch (error) {
         console.error('Profile Update Error:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        return apiError(ERROR_CODES.PROFILE_UPDATE_FAILED, 'Failed to update profile', 500);
     }
 }
 

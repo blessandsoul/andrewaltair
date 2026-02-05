@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import { getUserFromRequest } from '@/lib/server-auth';
@@ -11,16 +13,16 @@ export async function GET(req: NextRequest) {
 
         const user = await getUserFromRequest(req);
         if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
 
-        return NextResponse.json({
+        return apiSuccess({
             xp: user.gamification?.xp || 0,
             unlockedSkills: user.gamification?.unlockedSkills || ['prompt-basics'],
-        });
+        }, 'Skills fetched successfully');
     } catch (error) {
         console.error('Skills Error:', error);
-        return NextResponse.json({ error: 'Failed to get skills' }, { status: 500 });
+        return apiError(ERROR_CODES.CONVERSION_FETCH_FAILED, 'Failed to get skills', 500);
     }
 }
 
@@ -31,12 +33,12 @@ export async function POST(req: NextRequest) {
 
         const user = await getUserFromRequest(req);
         if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
 
         const { skillId } = await req.json();
         if (!skillId) {
-            return NextResponse.json({ error: 'Skill ID required' }, { status: 400 });
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Skill ID required', 400);
         }
 
         // Initialize gamification if not exists
@@ -53,7 +55,7 @@ export async function POST(req: NextRequest) {
 
         // Check if skill already unlocked
         if (user.gamification.unlockedSkills?.includes(skillId)) {
-            return NextResponse.json({ error: 'Skill already unlocked' }, { status: 400 });
+            return apiError(ERROR_CODES.BAD_REQUEST, 'Skill already unlocked', 400);
         }
 
         // Add skill to unlocked list
@@ -63,13 +65,12 @@ export async function POST(req: NextRequest) {
         user.gamification.unlockedSkills.push(skillId);
         await user.save();
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             unlockedSkills: user.gamification.unlockedSkills,
-        });
+        }, 'Skill unlocked successfully');
     } catch (error) {
         console.error('Skill Unlock Error:', error);
-        return NextResponse.json({ error: 'Failed to unlock skill' }, { status: 500 });
+        return apiError(ERROR_CODES.CONVERSION_ACTION_FAILED, 'Failed to unlock skill', 500);
     }
 }
 

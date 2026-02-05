@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import dbConnect from '@/lib/db'
 import PromptTest from '@/models/PromptTest'
 
@@ -18,20 +20,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             .lean()
 
         if (!test) {
-            return NextResponse.json(
-                { error: 'Test not found' },
-                { status: 404 }
-            )
+            return apiError(ERROR_CODES.NOT_FOUND, 'Test not found', 404)
         }
 
-        return NextResponse.json({ test })
+        return apiSuccess({ test }, 'Test fetched successfully')
 
     } catch (error) {
         console.error('Get test error:', error)
-        return NextResponse.json(
-            { error: 'Failed to fetch test' },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.PROMPT_FETCH_FAILED, 'Failed to fetch test', 500)
     }
 }
 
@@ -44,10 +40,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
         const test = await PromptTest.findById(id)
         if (!test) {
-            return NextResponse.json(
-                { error: 'Test not found' },
-                { status: 404 }
-            )
+            return apiError(ERROR_CODES.NOT_FOUND, 'Test not found', 404)
         }
 
         if (action === 'record-use') {
@@ -110,14 +103,11 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             await test.save()
         }
 
-        return NextResponse.json({ success: true })
+        return apiSuccess(null, 'Test updated successfully')
 
     } catch (error) {
         console.error('Update test error:', error)
-        return NextResponse.json(
-            { error: 'Failed to update test' },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.PROMPT_UPDATE_FAILED, 'Failed to update test', 500)
     }
 }
 
@@ -129,13 +119,10 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
         await PromptTest.findByIdAndDelete(id)
 
-        return NextResponse.json({ success: true })
+        return apiSuccess(null, 'Test deleted successfully')
 
     } catch (error) {
         console.error('Delete test error:', error)
-        return NextResponse.json(
-            { error: 'Failed to delete test' },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.PROMPT_DELETE_FAILED, 'Failed to delete test', 500)
     }
 }

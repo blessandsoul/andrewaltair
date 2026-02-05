@@ -1,6 +1,8 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { AuthService } from '@/services/auth.service';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 export async function POST(request: NextRequest) {
     try {
@@ -10,12 +12,11 @@ export async function POST(request: NextRequest) {
         // Registration logic
         const result = await AuthService.register(data, userAgent);
 
-        const response = NextResponse.json({
-            success: true,
-            message: 'რეგისტრაცია წარმატებულია!',
-            user: result.user,
-            requiresVerification: false,
-        });
+        const response = apiSuccess(
+            { user: result.user, requiresVerification: false },
+            'რეგისტრაცია წარმატებულია!',
+            201
+        );
 
         // ✅ Set httpOnly cookie
         response.cookies.set('auth_token', result.token, {
@@ -30,9 +31,15 @@ export async function POST(request: NextRequest) {
 
     } catch (error: any) {
         console.error('Registration error:', error);
-        return NextResponse.json(
-            { error: error.message || 'სერვერის შეცდომა' },
-            { status: error.message === 'სერვერის შეცდომა' ? 500 : 400 }
+        const msg = error.message || 'სერვერის შეცდომა';
+        const isDuplicate = msg.includes('უკვე არსებობს') || msg.includes('duplicate');
+        if (isDuplicate) {
+            return apiError(ERROR_CODES.AUTH_DUPLICATE_EMAIL, msg, 400);
+        }
+        return apiError(
+            msg === 'სერვერის შეცდომა' ? ERROR_CODES.INTERNAL_ERROR : ERROR_CODES.AUTH_REGISTRATION_FAILED,
+            msg,
+            msg === 'სერვერის შეცდომა' ? 500 : 400
         );
     }
 }

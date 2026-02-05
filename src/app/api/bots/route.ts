@@ -1,7 +1,9 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { BotService } from "@/services/bot.service";
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 // GET - List all bots (Smart Search)
 export async function GET(request: NextRequest) {
@@ -22,10 +24,10 @@ export async function GET(request: NextRequest) {
         };
 
         const result = await BotService.getAllBots(params);
-        return NextResponse.json(result);
+        return apiSuccess(result, 'Bots fetched successfully');
     } catch (error) {
         console.error("Smart Search error:", error);
-        return NextResponse.json({ error: "Search failed" }, { status: 500 });
+        return apiError(ERROR_CODES.BOT_FETCH_FAILED, 'Search failed', 500);
     }
 }
 
@@ -38,9 +40,9 @@ export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
         const bot = await BotService.createBot(body);
-        return NextResponse.json(bot, { status: 201 });
+        return apiSuccess(bot, 'Bot created successfully', 201);
     } catch (error) {
         console.error("Create bot error:", error);
-        return NextResponse.json({ error: "Failed to create bot" }, { status: 500 });
+        return apiError(ERROR_CODES.BOT_CREATE_FAILED, 'Failed to create bot', 500);
     }
 }

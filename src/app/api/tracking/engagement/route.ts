@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import dbConnect from '@/lib/db'
 import Visitor from '@/models/Visitor'
 
@@ -12,7 +14,7 @@ export async function POST(request: NextRequest) {
         const { visitorId, scrollDepth, timeOnPage, action } = body
 
         if (!visitorId) {
-            return NextResponse.json({ error: 'Visitor ID required' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Visitor ID required', 400)
         }
 
         const updateOps: any = {
@@ -40,10 +42,10 @@ export async function POST(request: NextRequest) {
             { new: true }
         )
 
-        return NextResponse.json({ success: true })
+        return apiSuccess(null, 'Operation successful')
     } catch (error) {
         console.error('Engagement tracking error:', error)
-        return NextResponse.json({ error: 'Failed to track engagement' }, { status: 500 })
+        return apiError(ERROR_CODES.TRACKING_FETCH_FAILED, 'Failed to track engagement', 500)
     }
 }
 
@@ -56,7 +58,7 @@ export async function GET(request: NextRequest) {
         const visitorId = searchParams.get('visitorId')
 
         if (!visitorId) {
-            return NextResponse.json({ error: 'Visitor ID required' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Visitor ID required', 400)
         }
 
         const visitor = await Visitor.findOne({ visitorId })
@@ -64,7 +66,7 @@ export async function GET(request: NextRequest) {
             .lean()
 
         if (!visitor) {
-            return NextResponse.json({ error: 'Visitor not found' }, { status: 404 })
+            return apiError(ERROR_CODES.NOT_FOUND, 'Visitor not found', 404)
         }
 
         // Calculate engagement score (0-100)
@@ -76,8 +78,7 @@ export async function GET(request: NextRequest) {
 
         const engagementScore = Math.round(scrollScore + timeScore + pageScore + bounceScore)
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             metrics: {
                 scrollDepth: visitor.maxScrollDepth || 0,
                 timeOnSite: visitor.totalTimeOnSite || 0,
@@ -87,7 +88,7 @@ export async function GET(request: NextRequest) {
             }
         })
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch engagement' }, { status: 500 })
+        return apiError(ERROR_CODES.TRACKING_FETCH_FAILED, 'Failed to fetch engagement', 500)
     }
 }
 

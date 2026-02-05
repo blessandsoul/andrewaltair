@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import { generateCSRFToken, setCSRFCookie } from '@/lib/csrf';
 
 export const dynamic = 'force-dynamic';
@@ -13,10 +15,7 @@ export async function GET(request: NextRequest) {
         const csrfToken = generateCSRFToken();
 
         // Create response with token
-        const response = NextResponse.json({
-            success: true,
-            csrfToken
-        });
+        const response = apiSuccess({ csrfToken }, 'CSRF token generated');
 
         // Set token in httpOnly cookie
         setCSRFCookie(response, csrfToken);
@@ -24,9 +23,6 @@ export async function GET(request: NextRequest) {
         return response;
     } catch (error) {
         console.error('CSRF token generation error:', error);
-        return NextResponse.json(
-            { error: 'Failed to generate CSRF token' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.CSRF_GENERATION_FAILED, 'Failed to generate CSRF token', 500);
     }
 }

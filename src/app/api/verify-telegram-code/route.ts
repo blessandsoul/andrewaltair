@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 // In-memory store for verification codes (in production, use Redis or database)
 // Format: { code: { userId: string, expiresAt: number, used: boolean } }
@@ -13,10 +15,7 @@ export async function POST(request: NextRequest) {
         const { code } = await request.json();
 
         if (!code || typeof code !== 'string') {
-            return NextResponse.json(
-                { success: false, message: 'კოდი არ არის მითითებული' },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'კოდი არ არის მითითებული', 400);
         }
 
         const normalizedCode = code.trim().toUpperCase();
@@ -25,46 +24,29 @@ export async function POST(request: NextRequest) {
         const codeData = verificationCodes.get(normalizedCode);
 
         if (!codeData) {
-            return NextResponse.json(
-                { success: false, message: 'არასწორი კოდი' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.TELEGRAM_VERIFICATION_FAILED, 'არასწორი კოდი', 404);
         }
 
         // Check if code is expired
         if (Date.now() > codeData.expiresAt) {
             verificationCodes.delete(normalizedCode);
-            return NextResponse.json(
-                { success: false, message: 'კოდის ვადა გაუვიდა' },
-                { status: 410 }
-            );
+            return apiError(ERROR_CODES.TELEGRAM_VERIFICATION_FAILED, 'კოდის ვადა გაუვიდა', 410);
         }
 
         // Check if code was already used
         if (codeData.used) {
-            return NextResponse.json(
-                { success: false, message: 'კოდი უკვე გამოყენებულია' },
-                { status: 409 }
-            );
+            return apiError(ERROR_CODES.TELEGRAM_VERIFICATION_FAILED, 'კოდი უკვე გამოყენებულია', 409);
         }
 
         // Mark code as used
         codeData.used = true;
         verificationCodes.set(normalizedCode, codeData);
 
-        return NextResponse.json({
-            success: true,
-            message: 'კოდი დადასტურებულია',
-            freeBots: FREE_BOTS,
-            userId: codeData.userId
-        });
+        return apiSuccess({ freeBots: FREE_BOTS, userId: codeData.userId }, 'კოდი დადასტურებულია');
 
     } catch (error) {
         console.error('Telegram code verification error:', error);
-        return NextResponse.json(
-            { success: false, message: 'სერვერის შეცდომა' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.TELEGRAM_VERIFICATION_FAILED, 'სერვერის შეცდომა', 500);
     }
 }
 
@@ -74,10 +56,7 @@ export async function PUT(request: NextRequest) {
         const { userId, telegramUsername } = await request.json();
 
         if (!userId) {
-            return NextResponse.json(
-                { success: false, message: 'userId is required' },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'userId is required', 400);
         }
 
         // Generate random 6-character code
@@ -100,19 +79,11 @@ export async function PUT(request: NextRequest) {
             }
         }
 
-        return NextResponse.json({
-            success: true,
-            code,
-            expiresAt,
-            message: `Your verification code is: ${code}\nValid for 24 hours.`
-        });
+        return apiSuccess({ code, expiresAt }, `Your verification code is: ${code}\nValid for 24 hours.`);
 
     } catch (error) {
         console.error('Code generation error:', error);
-        return NextResponse.json(
-            { success: false, message: 'Server error' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.TELEGRAM_VERIFICATION_FAILED, 'Server error', 500);
     }
 }
 

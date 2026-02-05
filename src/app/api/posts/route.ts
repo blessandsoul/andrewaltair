@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 import { PostService } from '@/services/post.service';
 
@@ -31,13 +32,10 @@ export async function GET(request: Request) {
             type
         });
 
-        return NextResponse.json(result);
+        return apiSuccess(result, 'Posts fetched successfully');
     } catch (error) {
         console.error('Fetch posts error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch posts' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.POST_FETCH_FAILED, 'Failed to fetch posts', 500);
     }
 }
 
@@ -59,31 +57,16 @@ export async function POST(request: Request) {
         revalidatePath('/');
         revalidatePath('/sitemap.xml');
 
-        return NextResponse.json({
-            success: true,
-            post,
-        });
+        return apiSuccess(post, 'Post created successfully', 201);
     } catch (error: any) {
         console.error('Create post error:', error);
 
-        // Detailed error message
-        let errorMessage = 'Failed to create post';
-        let details = error instanceof Error ? error.message : 'Unknown error';
-
         // Handle Mongoose validation errors specifically
         if (error.name === 'ValidationError') {
-            errorMessage = 'Validation Failed';
-            details = Object.values(error.errors).map((err: any) => err.message).join(', ');
+            const details = Object.values(error.errors).map((err: any) => err.message).join(', ');
+            return apiError(ERROR_CODES.VALIDATION_FAILED, details, 400);
         }
 
-        return NextResponse.json(
-            {
-                error: errorMessage,
-                details: details,
-                // Include full error object in dev for easier debugging
-                debug: process.env.NODE_ENV === 'development' ? error : undefined
-            },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.POST_CREATE_FAILED, 'Failed to create post', 500);
     }
 }

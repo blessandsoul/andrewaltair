@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from "@/lib/db";
 import PayoutRequest from "@/models/PayoutRequest";
 import User from "@/models/User";
@@ -10,7 +12,7 @@ export async function GET(request: NextRequest) {
     try {
         const user = await getUserFromRequest(request);
         if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
 
         await dbConnect();
@@ -18,10 +20,10 @@ export async function GET(request: NextRequest) {
         const payouts = await PayoutRequest.find({ userId: user._id })
             .sort({ createdAt: -1 });
 
-        return NextResponse.json({ payouts });
+        return apiSuccess({ payouts }, 'Payouts fetched successfully');
     } catch (error) {
         console.error("Payout list error:", error);
-        return NextResponse.json({ error: "Failed to fetch payouts" }, { status: 500 });
+        return apiError(ERROR_CODES.PAYOUT_FETCH_FAILED, 'Failed to fetch payouts', 500);
     }
 }
 
@@ -30,7 +32,7 @@ export async function POST(request: NextRequest) {
     try {
         const user = await getUserFromRequest(request);
         if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
 
         await dbConnect();
@@ -42,11 +44,11 @@ export async function POST(request: NextRequest) {
         const { amount, method, details } = await request.json();
 
         if (amount < 50) {
-            return NextResponse.json({ error: "Minimum withdrawal is ₾50" }, { status: 400 });
+            return apiError(ERROR_CODES.BAD_REQUEST, 'Minimum withdrawal is ₾50', 400);
         }
 
         if (amount > availableBalance) {
-            return NextResponse.json({ error: "Insufficient balance" }, { status: 400 });
+            return apiError(ERROR_CODES.BAD_REQUEST, 'Insufficient balance', 400);
         }
 
         // Check for pending requests
@@ -56,7 +58,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (existingPending) {
-            return NextResponse.json({ error: "You already have a pending request" }, { status: 400 });
+            return apiError(ERROR_CODES.BAD_REQUEST, 'You already have a pending request', 400);
         }
 
         const payout = await PayoutRequest.create({
@@ -66,11 +68,11 @@ export async function POST(request: NextRequest) {
             details
         });
 
-        return NextResponse.json({ payout }, { status: 201 });
+        return apiSuccess({ payout }, 'Payout requested successfully', 201);
 
     } catch (error) {
         console.error("Payout request error:", error);
-        return NextResponse.json({ error: "Failed to request payout" }, { status: 500 });
+        return apiError(ERROR_CODES.PAYOUT_REQUEST_FAILED, 'Failed to request payout', 500);
     }
 }
 

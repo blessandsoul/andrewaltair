@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Notification from '@/models/Notification';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -14,12 +15,12 @@ export async function PUT(request: Request, { params }: RouteParams) {
         const data = await request.json();
         const notification = await Notification.findByIdAndUpdate(id, data, { new: true }).lean();
         if (!notification) {
-            return NextResponse.json({ error: 'Notification not found' }, { status: 404 });
+            return apiError(ERROR_CODES.NOTIFICATION_NOT_FOUND, 'Notification not found', 404);
         }
-        return NextResponse.json({ success: true, notification: { ...notification, id: notification._id.toString() } });
+        return apiSuccess({ notification: { ...notification, id: notification._id.toString() } }, 'Notification updated successfully');
     } catch (error) {
         console.error('Update notification error:', error);
-        return NextResponse.json({ error: 'Failed to update notification' }, { status: 500 });
+        return apiError(ERROR_CODES.NOTIFICATION_UPDATE_FAILED, 'Failed to update notification', 500);
     }
 }
 
@@ -29,9 +30,9 @@ export async function DELETE(request: Request, { params }: RouteParams) {
         await dbConnect();
         const { id } = await params;
         await Notification.findByIdAndDelete(id);
-        return NextResponse.json({ success: true });
+        return apiSuccess(null, 'Notification deleted successfully');
     } catch (error) {
         console.error('Delete notification error:', error);
-        return NextResponse.json({ error: 'Failed to delete notification' }, { status: 500 });
+        return apiError(ERROR_CODES.NOTIFICATION_DELETE_FAILED, 'Failed to delete notification', 500);
     }
 }

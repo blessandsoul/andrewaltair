@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import Comment from '@/models/Comment';
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
@@ -17,24 +18,18 @@ export async function GET(request: Request, { params }: RouteParams) {
         const comment = await Comment.findById(id).lean();
 
         if (!comment) {
-            return NextResponse.json(
-                { error: 'Comment not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.COMMENT_FETCH_FAILED, 'Comment not found', 404);
         }
 
-        return NextResponse.json({
+        return apiSuccess({
             comment: {
                 ...comment,
                 id: comment._id.toString(),
             },
-        });
+        }, 'Comment fetched successfully');
     } catch (error) {
         console.error('Get comment error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch comment' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.COMMENT_FETCH_FAILED, 'Failed to fetch comment', 500);
     }
 }
 
@@ -61,25 +56,18 @@ export async function PUT(request: Request, { params }: RouteParams) {
         ).lean();
 
         if (!comment) {
-            return NextResponse.json(
-                { error: 'Comment not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.COMMENT_UPDATE_FAILED, 'Comment not found', 404);
         }
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             comment: {
                 ...comment,
                 id: comment._id.toString(),
             },
-        });
+        }, 'Comment updated successfully');
     } catch (error) {
         console.error('Update comment error:', error);
-        return NextResponse.json(
-            { error: 'Failed to update comment' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.COMMENT_UPDATE_FAILED, 'Failed to update comment', 500);
     }
 }
 
@@ -97,21 +85,12 @@ export async function DELETE(request: Request, { params }: RouteParams) {
         const comment = await Comment.findByIdAndDelete(id);
 
         if (!comment) {
-            return NextResponse.json(
-                { error: 'Comment not found' },
-                { status: 404 }
-            );
+            return apiError(ERROR_CODES.COMMENT_DELETE_FAILED, 'Comment not found', 404);
         }
 
-        return NextResponse.json({
-            success: true,
-            message: 'Comment deleted successfully',
-        });
+        return apiSuccess(null, 'Comment deleted successfully');
     } catch (error) {
         console.error('Delete comment error:', error);
-        return NextResponse.json(
-            { error: 'Failed to delete comment' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.COMMENT_DELETE_FAILED, 'Failed to delete comment', 500);
     }
 }

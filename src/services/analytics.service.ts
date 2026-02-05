@@ -61,59 +61,52 @@ export class AnalyticsService {
             Comment.countDocuments(),
         ]);
 
-        // Aggregations
-        const postsViews = await Post.aggregate([
-            { $match: { status: 'published' } },
-            { $group: { _id: null, totalViews: { $sum: '$views' } } }
-        ]);
-
-        const videosViews = await Video.aggregate([
-            { $group: { _id: null, totalViews: { $sum: '$views' } } }
-        ]);
-
-        const postsReactions = await Post.aggregate([
-            { $match: { status: 'published' } },
-            {
-                $group: {
-                    _id: null,
-                    likes: { $sum: '$reactions.likes' },
-                    loves: { $sum: '$reactions.loves' },
-                    fires: { $sum: '$reactions.fires' },
-                    claps: { $sum: '$reactions.claps' }
-                }
-            }
-        ]);
-
-        // Top Content
-        const topPosts = await Post.find({ status: 'published' })
-            .sort({ views: -1 }).limit(5).select('title slug views').lean();
-
-        const topVideos = await Video.find({})
-            .sort({ views: -1 }).limit(5).select('title youtubeId views').lean();
-
-        // Recent Activity
+        // Aggregations, top content, recent activity, and daily stats in parallel
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
-        const recentPosts = await Post.find({ createdAt: { $gte: weekAgo } })
-            .sort({ createdAt: -1 }).limit(10).select('title createdAt views').lean();
 
-        // Daily Stats
-        const dailyStats = await Post.aggregate([
-            { $match: { status: 'published' } },
-            {
-                $group: {
-                    _id: { $dayOfWeek: '$createdAt' },
-                    count: { $sum: 1 },
-                    views: { $sum: '$views' }
+        const [postsViews, videosViews, postsReactions, topPosts, topVideos, recentPosts, dailyStats] = await Promise.all([
+            Post.aggregate([
+                { $match: { status: 'published' } },
+                { $group: { _id: null, totalViews: { $sum: '$views' } } }
+            ]),
+            Video.aggregate([
+                { $group: { _id: null, totalViews: { $sum: '$views' } } }
+            ]),
+            Post.aggregate([
+                { $match: { status: 'published' } },
+                {
+                    $group: {
+                        _id: null,
+                        likes: { $sum: '$reactions.likes' },
+                        loves: { $sum: '$reactions.loves' },
+                        fires: { $sum: '$reactions.fires' },
+                        claps: { $sum: '$reactions.claps' }
+                    }
                 }
-            },
-            { $sort: { _id: 1 } }
+            ]),
+            Post.find({ status: 'published' })
+                .sort({ views: -1 }).limit(5).select('title slug views').lean(),
+            Video.find({})
+                .sort({ views: -1 }).limit(5).select('title youtubeId views').lean(),
+            Post.find({ createdAt: { $gte: weekAgo } })
+                .sort({ createdAt: -1 }).limit(10).select('title createdAt views').lean(),
+            Post.aggregate([
+                { $match: { status: 'published' } },
+                {
+                    $group: {
+                        _id: { $dayOfWeek: '$createdAt' },
+                        count: { $sum: 1 },
+                        views: { $sum: '$views' }
+                    }
+                },
+                { $sort: { _id: 1 } }
+            ]),
         ]);
 
         const dayNames = ['კვი', 'ორშ', 'სამ', 'ოთხ', 'ხუთ', 'პარ', 'შაბ'];
         const weeklyData = dayNames.map((day, i) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const stat = dailyStats.find((s: any) => s._id === i + 1);
+            const stat = dailyStats.find((s: { _id: number; count: number; views: number }) => s._id === i + 1);
             return {
                 day,
                 views: stat?.views || Math.floor(Math.random() * 2000) + 1000,
@@ -136,12 +129,9 @@ export class AnalyticsService {
                 totalReactions,
             },
             weeklyData,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            topPosts: topPosts.map((p: any) => ({ title: p.title, slug: p.slug, views: p.views || 0 })),
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            topVideos: topVideos.map((v: any) => ({ title: v.title, youtubeId: v.youtubeId, views: v.views || 0 })),
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            recentActivity: recentPosts.map((p: any) => ({ title: p.title, date: p.createdAt, views: p.views || 0 })),
+            topPosts: topPosts.map((p: { title: string; slug: string; views?: number }) => ({ title: p.title, slug: p.slug, views: p.views || 0 })),
+            topVideos: topVideos.map((v: { title: string; youtubeId: string; views?: number }) => ({ title: v.title, youtubeId: v.youtubeId, views: v.views || 0 })),
+            recentActivity: recentPosts.map((p: { title: string; createdAt: Date; views?: number }) => ({ title: p.title, date: p.createdAt, views: p.views || 0 })),
         };
     }
 
@@ -161,8 +151,7 @@ export class AnalyticsService {
     /**
      * Visitor Tracking Logic
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async trackVisitor(data: any, ip: string, userAgent: string) {
+    static async trackVisitor(data: { visitorId: string; currentPage?: string; referrer?: string; type?: string }, ip: string, userAgent: string) {
         // Basic bot check
         const bots = ['googlebot', 'bingbot', 'yandex', 'facebook', 'twitter', 'slack', 'telegram', 'whatsapp'];
         if (bots.some(b => userAgent.toLowerCase().includes(b))) return { success: true, ignored: true };
@@ -234,8 +223,7 @@ export class AnalyticsService {
             online: onlineCount,
             totalVisitors,
             totalPageViews: pageViewsResult[0]?.total || 0,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            dailyData: visitsResult.map((v: any) => ({ date: v._id, visitors: v.count })),
+            dailyData: visitsResult.map((v: { _id: string; count: number }) => ({ date: v._id, visitors: v.count })),
             period
         };
     }

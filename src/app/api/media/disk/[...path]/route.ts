@@ -1,8 +1,10 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { unlink, rename, stat, mkdir } from 'fs/promises'
 import path from 'path'
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 const UPLOADS_DIR = path.join(process.cwd(), 'public', 'uploads')
 
@@ -33,27 +35,25 @@ export async function DELETE(
         const fullPath = validatePath(relativePath)
 
         if (!fullPath) {
-            return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Invalid path', 400)
         }
 
         // Check file exists
         try {
             await stat(fullPath)
         } catch {
-            return NextResponse.json({ error: 'File not found' }, { status: 404 })
+            return apiError(ERROR_CODES.MEDIA_NOT_FOUND, 'File not found', 404)
         }
 
         // Delete file
         await unlink(fullPath)
 
-        return NextResponse.json({
-            success: true,
-            message: 'File deleted',
+        return apiSuccess({
             path: relativePath
-        })
+        }, 'File deleted')
     } catch (error) {
         console.error('Delete error:', error)
-        return NextResponse.json({ error: 'Delete failed' }, { status: 500 })
+        return apiError(ERROR_CODES.MEDIA_DELETE_FAILED, 'Delete failed', 500)
     }
 }
 
@@ -72,7 +72,7 @@ export async function PATCH(
         const fullPath = validatePath(relativePath)
 
         if (!fullPath) {
-            return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Invalid path', 400)
         }
 
         const body = await request.json()
@@ -82,7 +82,7 @@ export async function PATCH(
         try {
             await stat(fullPath)
         } catch {
-            return NextResponse.json({ error: 'File not found' }, { status: 404 })
+            return apiError(ERROR_CODES.MEDIA_NOT_FOUND, 'File not found', 404)
         }
 
         let newPath: string
@@ -95,7 +95,7 @@ export async function PATCH(
 
             // Validate target directory is within uploads
             if (!path.normalize(targetDir).startsWith(UPLOADS_DIR)) {
-                return NextResponse.json({ error: 'Invalid target folder' }, { status: 400 })
+                return apiError(ERROR_CODES.VALIDATION_FAILED, 'Invalid target folder', 400)
             }
 
             // Create target directory if needed
@@ -106,12 +106,12 @@ export async function PATCH(
             // Just renaming in same folder
             newPath = path.join(currentDir, newName)
         } else {
-            return NextResponse.json({ error: 'No changes specified' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'No changes specified', 400)
         }
 
         // Validate new path
         if (!path.normalize(newPath).startsWith(UPLOADS_DIR)) {
-            return NextResponse.json({ error: 'Invalid target path' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Invalid target path', 400)
         }
 
         // Perform rename/move
@@ -119,15 +119,13 @@ export async function PATCH(
 
         const newRelativePath = path.relative(UPLOADS_DIR, newPath).replace(/\\/g, '/')
 
-        return NextResponse.json({
-            success: true,
-            message: newFolder !== undefined ? 'File moved' : 'File renamed',
+        return apiSuccess({
             oldPath: relativePath,
             newPath: newRelativePath,
             url: `/api/files/${newRelativePath}`
-        })
+        }, newFolder !== undefined ? 'File moved' : 'File renamed')
     } catch (error) {
         console.error('Rename/move error:', error)
-        return NextResponse.json({ error: 'Operation failed' }, { status: 500 })
+        return apiError(ERROR_CODES.MEDIA_UPLOAD_FAILED, 'Operation failed', 500)
     }
 }

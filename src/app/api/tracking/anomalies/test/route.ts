@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import dbConnect from '@/lib/db'
 import Setting from '@/models/Setting'
 
@@ -16,10 +17,7 @@ export async function POST() {
         const chatId = chatIdSetting?.value
 
         if (!token || !chatId) {
-            return NextResponse.json({
-                success: false,
-                error: 'Telegram not configured. Please set Bot Token and Chat ID in settings.'
-            }, { status: 400 })
+            return apiError(ERROR_CODES.TRACKING_FETCH_FAILED, 'Telegram not configured. Please set Bot Token and Chat ID in settings.', 400)
         }
 
         // Send test message
@@ -49,16 +47,13 @@ If you received this message, alerts are properly configured!`
         const result = await response.json()
 
         if (!result.ok) {
-            return NextResponse.json({
-                success: false,
-                error: result.description || 'Telegram API error'
-            }, { status: 400 })
+            return apiError(ERROR_CODES.TELEGRAM_POST_FAILED, result.description || 'Telegram API error', 400)
         }
 
-        return NextResponse.json({ success: true, message: 'Test message sent successfully' })
+        return apiSuccess(null, 'Test message sent successfully')
     } catch (error) {
         console.error('Telegram test error:', error)
-        return NextResponse.json({ error: 'Failed to send test message' }, { status: 500 })
+        return apiError(ERROR_CODES.TRACKING_FETCH_FAILED, 'Failed to send test message', 500)
     }
 }
 

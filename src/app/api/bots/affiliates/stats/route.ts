@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from "@/lib/db";
 import AffiliateLink from "@/models/AffiliateLink";
 import Purchase from "@/models/Purchase";
@@ -10,7 +12,7 @@ export async function GET(request: NextRequest) {
     try {
         const user = await getUserFromRequest(request);
         if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
 
         await dbConnect();
@@ -55,14 +57,10 @@ export async function GET(request: NextRequest) {
             date: sale.purchasedAt
         }));
 
-        return NextResponse.json({
-            stats: overall,
-            recentActivity
-        });
+        return apiSuccess({ stats: overall, recentActivity }, 'Affiliate stats fetched successfully');
 
     } catch (error) {
         console.error("Affiliate stats error:", error);
-        return NextResponse.json({ error: "Failed to fetch stats" }, { status: 500 });
+        return apiError(ERROR_CODES.BOT_FETCH_FAILED, 'Failed to fetch stats', 500);
     }
 }
-

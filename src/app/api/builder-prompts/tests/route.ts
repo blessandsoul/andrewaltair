@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import dbConnect from '@/lib/db'
 import PromptTest from '@/models/PromptTest'
 import Prompt from '@/models/Prompt'
@@ -17,14 +19,11 @@ export async function GET(request: NextRequest) {
             .sort({ createdAt: -1 })
             .lean()
 
-        return NextResponse.json({ tests })
+        return apiSuccess({ tests }, 'Tests fetched successfully')
 
     } catch (error) {
         console.error('Get tests error:', error)
-        return NextResponse.json(
-            { error: 'Failed to fetch tests' },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.PROMPT_FETCH_FAILED, 'Failed to fetch tests', 500)
     }
 }
 
@@ -36,19 +35,13 @@ export async function POST(request: NextRequest) {
         const { name, description, promptIds } = await request.json()
 
         if (!name || !promptIds || promptIds.length < 2) {
-            return NextResponse.json(
-                { error: 'Name and at least 2 prompts are required' },
-                { status: 400 }
-            )
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Name and at least 2 prompts are required', 400)
         }
 
         // Verify all prompts exist
         const prompts = await Prompt.find({ _id: { $in: promptIds } })
         if (prompts.length !== promptIds.length) {
-            return NextResponse.json(
-                { error: 'Some prompts not found' },
-                { status: 404 }
-            )
+            return apiError(ERROR_CODES.PROMPT_NOT_FOUND, 'Some prompts not found', 404)
         }
 
         // Initialize results for each prompt
@@ -68,17 +61,13 @@ export async function POST(request: NextRequest) {
             startedAt: new Date()
         })
 
-        return NextResponse.json({
+        return apiSuccess({
             id: test._id.toString(),
-            message: 'A/B test created successfully'
-        })
+        }, 'A/B test created successfully', 201)
 
     } catch (error) {
         console.error('Create test error:', error)
-        return NextResponse.json(
-            { error: 'Failed to create test' },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.PROMPT_CREATE_FAILED, 'Failed to create test', 500)
     }
 }
 

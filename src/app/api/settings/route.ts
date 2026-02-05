@@ -1,7 +1,8 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Settings from '@/models/Settings';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 // GET - Get all settings or by category
 export async function GET(request: Request) {
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
 
         if (key) {
             const setting = await Settings.findOne({ key }).lean();
-            return NextResponse.json({ setting });
+            return apiSuccess({ setting }, 'Setting fetched');
         }
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,10 +29,10 @@ export async function GET(request: Request) {
             _id: undefined,
         }));
 
-        return NextResponse.json({ settings: transformedSettings });
+        return apiSuccess({ settings: transformedSettings }, 'Settings fetched');
     } catch (error) {
         console.error('Get settings error:', error);
-        return NextResponse.json({ error: 'Failed to fetch settings' }, { status: 500 });
+        return apiError(ERROR_CODES.SETTINGS_FETCH_FAILED, 'Failed to fetch settings', 500);
     }
 }
 
@@ -49,16 +50,15 @@ export async function POST(request: Request) {
             { new: true, upsert: true, runValidators: true }
         );
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             setting: {
                 ...setting.toObject(),
                 id: setting._id.toString(),
             },
-        });
+        }, 'Setting updated');
     } catch (error) {
         console.error('Update settings error:', error);
-        return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 });
+        return apiError(ERROR_CODES.SETTINGS_UPDATE_FAILED, 'Failed to update settings', 500);
     }
 }
 

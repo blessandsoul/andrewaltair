@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
-import { NextResponse } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import { SystemService } from '@/services/system.service';
 
 // GET - List error logs
@@ -9,10 +10,10 @@ export async function GET(request: Request) {
         const level = searchParams.get('level') || undefined;
 
         const logs = await SystemService.getErrorLogs(level);
-        return NextResponse.json({ logs });
+        return apiSuccess({ logs }, 'Error logs fetched successfully');
     } catch (error) {
         console.error('Get error logs error:', error);
-        return NextResponse.json({ error: 'Failed to fetch error logs' }, { status: 500 });
+        return apiError(ERROR_CODES.ERROR_LOG_FETCH_FAILED, 'Failed to fetch error logs', 500);
     }
 }
 
@@ -21,10 +22,10 @@ export async function POST(request: Request) {
     try {
         const data = await request.json();
         const log = await SystemService.createErrorLog(data);
-        return NextResponse.json({ success: true, log });
+        return apiSuccess({ log }, 'Error log created successfully');
     } catch (error) {
         console.error('Create error log error:', error);
-        return NextResponse.json({ error: 'Failed to create error log' }, { status: 500 });
+        return apiError(ERROR_CODES.ERROR_LOG_CREATE_FAILED, 'Failed to create error log', 500);
     }
 }
 
@@ -32,9 +33,9 @@ export async function POST(request: Request) {
 export async function DELETE() {
     try {
         await SystemService.clearErrorLogs();
-        return NextResponse.json({ success: true, message: 'All logs cleared' });
+        return apiSuccess(null, 'All logs cleared');
     } catch (error) {
         console.error('Clear logs error:', error);
-        return NextResponse.json({ error: 'Failed to clear logs' }, { status: 500 });
+        return apiError(ERROR_CODES.ERROR_LOG_DELETE_FAILED, 'Failed to clear logs', 500);
     }
 }

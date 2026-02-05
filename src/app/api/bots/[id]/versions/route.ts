@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from "@/lib/db";
 import BotVersion from "@/models/BotVersion";
 import mongoose from "mongoose";
@@ -14,22 +16,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         const { id } = await params;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return NextResponse.json({ error: "Invalid bot ID" }, { status: 400 });
+            return apiError(ERROR_CODES.BAD_REQUEST, 'Invalid bot ID', 400);
         }
 
-        // Fetch versions sorted by creation date (newest first)
-        // We exclude 'masterPromptSnapshot' for security unless the user is the creator (logic pending)
-        // For now, public history just shows version, description, changelog
         const versions = await BotVersion.find({ botId: id })
             .sort({ createdAt: -1 })
             .select('version description changelog createdAt')
             .lean();
 
-        return NextResponse.json({
-            versions
-        });
+        return apiSuccess(versions, 'Bot versions fetched successfully');
     } catch (error) {
         console.error("Get bot versions error:", error);
-        return NextResponse.json({ error: "Failed to fetch versions" }, { status: 500 });
+        return apiError(ERROR_CODES.BOT_FETCH_FAILED, 'Failed to fetch versions', 500);
     }
 }

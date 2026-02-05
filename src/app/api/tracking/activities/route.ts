@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import dbConnect from '@/lib/db'
 import Activity, { ActivityType } from '@/models/Activity'
 
@@ -45,7 +47,7 @@ export async function POST(request: NextRequest) {
         } = body
 
         if (!type) {
-            return NextResponse.json({ error: 'type required' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'type required', 400)
         }
 
         // Create activity
@@ -65,17 +67,16 @@ export async function POST(request: NextRequest) {
             isPublic,
         })
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             activity: {
                 id: activity._id,
                 type: activity.type,
                 displayName: activity.displayName,
             }
-        })
+        }, 'Activity recorded successfully')
     } catch (error) {
         console.error('Activity recording error:', error)
-        return NextResponse.json({ error: 'Recording failed' }, { status: 500 })
+        return apiError(ERROR_CODES.TRACKING_FETCH_FAILED, 'Recording failed', 500)
     }
 }
 
@@ -119,14 +120,14 @@ export async function GET(request: NextRequest) {
             timeAgo: getTimeAgo(a.createdAt),
         }))
 
-        return NextResponse.json({
+        return apiSuccess({
             activities: formatted,
             count: formatted.length,
             timestamp: new Date().toISOString()
         })
     } catch (error) {
         console.error('Activity fetch error:', error)
-        return NextResponse.json({ activities: [], error: 'Failed to fetch' }, { status: 500 })
+        return apiError(ERROR_CODES.TRACKING_FETCH_FAILED, 'Failed to fetch', 500)
     }
 }
 

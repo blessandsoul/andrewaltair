@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import dbConnect from '@/lib/db'
 import Prompt from '@/models/Prompt'
 import { nanoid } from 'nanoid'
@@ -16,27 +18,21 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         const prompt = await Prompt.findById(id).lean()
 
         if (!prompt) {
-            return NextResponse.json(
-                { error: 'Prompt not found' },
-                { status: 404 }
-            )
+            return apiError(ERROR_CODES.PROMPT_NOT_FOUND, 'Prompt not found', 404)
         }
 
         // Increment views
         await Prompt.findByIdAndUpdate(id, { $inc: { views: 1 } })
 
-        return NextResponse.json({
+        return apiSuccess({
             ...prompt,
             id: prompt._id.toString(),
             _id: undefined,
-        })
+        }, 'Prompt fetched successfully')
 
     } catch (error) {
         console.error('Get prompt error:', error)
-        return NextResponse.json(
-            { error: 'Failed to fetch prompt' },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.PROMPT_FETCH_FAILED, 'Failed to fetch prompt', 500)
     }
 }
 
@@ -52,17 +48,11 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         // Check ownership
         const prompt = await Prompt.findById(id)
         if (!prompt) {
-            return NextResponse.json(
-                { error: 'Prompt not found' },
-                { status: 404 }
-            )
+            return apiError(ERROR_CODES.PROMPT_NOT_FOUND, 'Prompt not found', 404)
         }
 
         if (prompt.sessionId !== sessionId && !prompt.isTemplate) {
-            return NextResponse.json(
-                { error: 'Not authorized' },
-                { status: 403 }
-            )
+            return apiError(ERROR_CODES.FORBIDDEN, 'Not authorized', 403)
         }
 
         const {
@@ -128,18 +118,15 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             { new: true, lean: true }
         )
 
-        return NextResponse.json({
+        return apiSuccess({
             ...updated,
             id: updated._id.toString(),
             _id: undefined,
-        })
+        }, 'Prompt updated successfully')
 
     } catch (error) {
         console.error('Update prompt error:', error)
-        return NextResponse.json(
-            { error: 'Failed to update prompt' },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.PROMPT_UPDATE_FAILED, 'Failed to update prompt', 500)
     }
 }
 
@@ -154,29 +141,20 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         // Check ownership
         const prompt = await Prompt.findById(id)
         if (!prompt) {
-            return NextResponse.json(
-                { error: 'Prompt not found' },
-                { status: 404 }
-            )
+            return apiError(ERROR_CODES.PROMPT_NOT_FOUND, 'Prompt not found', 404)
         }
 
         if (prompt.sessionId !== sessionId) {
-            return NextResponse.json(
-                { error: 'Not authorized' },
-                { status: 403 }
-            )
+            return apiError(ERROR_CODES.FORBIDDEN, 'Not authorized', 403)
         }
 
         await Prompt.findByIdAndDelete(id)
 
-        return NextResponse.json({ success: true })
+        return apiSuccess(null, 'Prompt deleted successfully')
 
     } catch (error) {
         console.error('Delete prompt error:', error)
-        return NextResponse.json(
-            { error: 'Failed to delete prompt' },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.PROMPT_DELETE_FAILED, 'Failed to delete prompt', 500)
     }
 }
 
@@ -200,21 +178,15 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
                 incrementField.likes = 1
                 break
             default:
-                return NextResponse.json(
-                    { error: 'Invalid action' },
-                    { status: 400 }
-                )
+                return apiError(ERROR_CODES.BAD_REQUEST, 'Invalid action', 400)
         }
 
         await Prompt.findByIdAndUpdate(id, { $inc: incrementField })
 
-        return NextResponse.json({ success: true })
+        return apiSuccess(null, 'Prompt updated successfully')
 
     } catch (error) {
         console.error('Patch prompt error:', error)
-        return NextResponse.json(
-            { error: 'Failed to update prompt' },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.PROMPT_UPDATE_FAILED, 'Failed to update prompt', 500)
     }
 }

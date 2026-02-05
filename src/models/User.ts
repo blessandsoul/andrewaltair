@@ -1,4 +1,3 @@
-// @ts-nocheck
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
@@ -208,6 +207,9 @@ const UserSchema = new Schema<IUser>(
 
 // Indexes for performance
 UserSchema.index({ role: 1 });
+UserSchema.index({ email: 1, username: 1 });
+UserSchema.index({ isBlocked: 1 });
+UserSchema.index({ lastLogin: -1 });
 
 
 // Hash password before saving

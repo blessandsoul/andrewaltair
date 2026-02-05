@@ -1,8 +1,68 @@
+import mongoose from 'mongoose';
+
 import dbConnect from '@/lib/db';
 import Post from '@/models/Post';
 import { generateUniqueId } from '@/lib/id-system';
 import { indexBlogPost } from '@/lib/indexnow';
 // import { sendTelegramPost, TelegramPostData } from '@/lib/telegram';
+
+import type { IPost } from '@/models/Post';
+
+interface FaqItem {
+    question?: string;
+    answer?: string;
+    q?: string;
+    a?: string;
+}
+
+interface PostCreateData {
+    slug?: string;
+    title?: string;
+    excerpt?: string;
+    content?: string | Record<string, unknown>[];
+    sections?: IPost['sections'];
+    categories?: string[];
+    tags?: string[];
+    author?: IPost['author'];
+    status?: IPost['status'];
+    readingTime?: number;
+    numericId?: string;
+    coverImage?: string;
+    coverImages?: IPost['coverImages'];
+    featured?: boolean;
+    trending?: boolean;
+    faq?: FaqItem[];
+    keyPoints?: string[];
+    entities?: string[];
+    telegramContent?: string;
+    telegramButtonText?: string;
+    seo?: {
+        excerpt?: string;
+        key_points?: string[];
+        faq?: FaqItem[];
+        entities?: string[];
+    };
+    telegram?: {
+        text?: string;
+        button_text?: string;
+    };
+    meta?: {
+        id?: string;
+        title: string;
+        slug?: string;
+        excerpt?: string;
+        category?: string;
+        tags?: string[];
+        key_points?: string[];
+        faq?: FaqItem[];
+        entities?: string[];
+        author?: {
+            name?: string;
+            role?: string;
+        };
+    };
+    [key: string]: unknown;
+}
 
 export interface PostQueryOptions {
     page?: number;
@@ -35,8 +95,7 @@ export class PostService {
             type
         } = options;
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const query: any = {};
+        const query: Record<string, unknown> = {};
 
         if (status) query.status = status;
         if (category) query.categories = category;
@@ -69,18 +128,19 @@ export class PostService {
 
         const skip = afterSlug ? 0 : (page - 1) * limit; // Skip is 0 for cursor pagination
 
-        const posts = await Post.find(query)
-            .sort({ publishedAt: -1 })
-            .skip(skip)
-            .limit(limit)
-            .lean();
-
-        const total = await Post.countDocuments(query);
+        const [posts, total] = await Promise.all([
+            Post.find(query)
+                .sort({ publishedAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+            Post.countDocuments(query),
+        ]);
 
         return {
-            posts: posts.map((post: any) => ({
+            posts: posts.map((post) => ({
                 ...post,
-                id: post._id.toString(),
+                id: (post._id as mongoose.Types.ObjectId).toString(),
             })),
             pagination: {
                 total,
@@ -112,8 +172,7 @@ export class PostService {
         await dbConnect();
 
         // First try to find posts in same categories
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let posts: any[] = [];
+        let posts: (mongoose.FlattenMaps<IPost> & { _id: mongoose.Types.ObjectId })[] = [];
 
         if (categories.length > 0) {
             posts = await Post.find({
@@ -130,7 +189,7 @@ export class PostService {
         if (posts.length < limit) {
             const recentPosts = await Post.find({
                 status: 'published',
-                slug: { $ne: currentSlug, $nin: posts.map((p: any) => p.slug) }
+                slug: { $ne: currentSlug, $nin: posts.map((p) => p.slug) }
             })
                 .sort({ createdAt: -1 })
                 .limit(limit - posts.length)
@@ -139,7 +198,7 @@ export class PostService {
             posts = [...posts, ...recentPosts];
         }
 
-        return posts.map((post: any) => ({
+        return posts.map((post) => ({
             ...post,
             id: post._id.toString(),
             _id: post._id.toString(),
@@ -157,8 +216,7 @@ export class PostService {
     /**
      * Get adjacent posts (prev/next) for navigation
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async getAdjacentPosts(post: any) {
+    static async getAdjacentPosts(post: { order: number; createdAt: Date }) {
         await dbConnect();
 
         const [prevPost, nextPost] = await Promise.all([
@@ -193,8 +251,7 @@ export class PostService {
     /**
      * Create a new post
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async createPost(data: any) {
+    static async createPost(data: PostCreateData) {
         await dbConnect();
 
         // Generate slug if not provided (Clean, no random suffix)
@@ -249,8 +306,7 @@ export class PostService {
         }
 
         // Prepare Post Data
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let postData: any = {};
+        let postData: Record<string, unknown> = {};
 
         if (meta) {
             // NEW JSON STRUCTURE HANDLING
@@ -275,7 +331,7 @@ export class PostService {
 
                 // SEO & Extra Fields - check both top-level (from PostEditor) and nested seo object (from raw JSON)
                 keyPoints: data.keyPoints || data.seo?.key_points || meta.key_points || [],
-                faq: (data.faq || data.seo?.faq || meta.faq || []).map((item: any) => ({
+                faq: (data.faq || data.seo?.faq || meta.faq || []).map((item: FaqItem) => ({
                     question: item.question || item.q || '',
                     answer: item.answer || item.a || '',
                 })),
@@ -296,7 +352,7 @@ export class PostService {
                 author: data.author || { name: 'Andrew Altair', avatar: '/avatar.jpg', role: 'AI ინოვატორი' },
                 status: data.status || 'published',
                 readingTime: data.readingTime || 5,
-                faq: (data.faq || []).map((item: any) => ({
+                faq: (data.faq || []).map((item: FaqItem) => ({
                     question: item.question || item.q || '',
                     answer: item.answer || item.a || '',
                 })),

@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import dbConnect from '@/lib/db'
 import Funnel from '@/models/Funnel'
 import Activity from '@/models/Activity'
@@ -86,15 +88,14 @@ export async function GET(request: NextRequest) {
             }
         })
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             funnelName: funnel.name,
             steps: finalResults
         })
 
     } catch (error) {
         console.error("Funnel error:", error)
-        return NextResponse.json({ error: 'Failed to fetch funnel' }, { status: 500 })
+        return apiError(ERROR_CODES.TRACKING_FETCH_FAILED, 'Failed to fetch funnel', 500)
     }
 }
 

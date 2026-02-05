@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import dbConnect from "@/lib/db"
 import Post from "@/models/Post"
 import Video from "@/models/Video"
@@ -48,10 +50,7 @@ export async function GET(request: NextRequest) {
         'unknown';
 
     if (!checkRateLimit(ip).allowed) {
-        return NextResponse.json(
-            { error: "Too many requests. Please slow down.", results: [], total: 0 },
-            { status: 429 }
-        );
+        return apiError(ERROR_CODES.RATE_LIMITED, 'Too many requests. Please slow down.', 429);
     }
 
     try {
@@ -63,11 +62,7 @@ export async function GET(request: NextRequest) {
         const limit = parseInt(searchParams.get("limit") || "10")
 
         if (!query || query.length < 2) {
-            return NextResponse.json({
-                results: [],
-                total: 0,
-                message: "Query must be at least 2 characters"
-            })
+            return apiSuccess({ results: [], total: 0 }, 'Query must be at least 2 characters')
         }
 
         const results: {
@@ -199,14 +194,10 @@ export async function GET(request: NextRequest) {
             });
         }
 
-        return NextResponse.json({
-            results,
-            total: results.length,
-            query
-        })
+        return apiSuccess({ results, total: results.length, query }, 'Search completed')
     } catch (error) {
         console.error("Search error:", error)
-        return NextResponse.json({ error: "Search failed" }, { status: 500 })
+        return apiError(ERROR_CODES.SEARCH_FAILED, 'Search failed', 500)
     } finally {
         // Log search activity (fire and forget)
         try {

@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 import dbConnect from '@/lib/db';
 import Bot from '@/models/Bot';
 
@@ -11,28 +13,19 @@ export async function POST(request: NextRequest) {
     try {
         // 🛡️ SECURITY: Only allow in development
         if (process.env.NODE_ENV === 'production') {
-            return NextResponse.json(
-                { error: 'Seeding disabled in production' },
-                { status: 403 }
-            );
+            return apiError(ERROR_CODES.FORBIDDEN, 'Seeding disabled in production', 403);
         }
 
         const { secret } = await request.json();
 
-        // 🛡️ Use env variable instead of hardcoded secret
+        // Use env variable instead of hardcoded secret
         const SEED_SECRET = process.env.SEED_SECRET;
         if (!SEED_SECRET) {
-            return NextResponse.json(
-                { error: 'SEED_SECRET not configured' },
-                { status: 500 }
-            );
+            return apiError(ERROR_CODES.INTERNAL_ERROR, 'SEED_SECRET not configured', 500);
         }
 
         if (secret !== SEED_SECRET) {
-            return NextResponse.json(
-                { error: 'არასწორი საიდუმლო კოდი' },
-                { status: 403 }
-            );
+            return apiError(ERROR_CODES.FORBIDDEN, 'არასწორი საიდუმლო კოდი', 403);
         }
 
         await dbConnect();
@@ -227,17 +220,12 @@ export async function POST(request: NextRequest) {
 
         const insertedBots = await Bot.insertMany(botsData);
 
-        return NextResponse.json({
-            success: true,
-            message: `${insertedBots.length} ბოტი წარმატებით დაემატა`,
+        return apiSuccess({
             count: insertedBots.length
-        });
+        }, `${insertedBots.length} ბოტი წარმატებით დაემატა`);
     } catch (error) {
         console.error('Seed error:', error);
-        return NextResponse.json(
-            { error: 'Failed to seed bots' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.SEED_FAILED, 'Failed to seed bots', 500);
     }
 }
 

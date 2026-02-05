@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
@@ -29,16 +31,13 @@ export async function POST(request: NextRequest) {
     try {
         const GROQ_API_KEY = process.env.GROQ_API_KEY
         if (!GROQ_API_KEY) {
-            return NextResponse.json({ error: 'GROQ_API_KEY not configured' }, { status: 500 })
+            return apiError(ERROR_CODES.AI_SERVICE_ERROR, 'GROQ_API_KEY not configured', 500)
         }
 
         const { title, excerpt, content, category } = await request.json()
 
         if (!title && !content) {
-            return NextResponse.json(
-                { error: 'title or content required' },
-                { status: 400 }
-            )
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'title or content required', 400)
         }
 
         const context = `
@@ -98,37 +97,32 @@ export async function POST(request: NextRequest) {
                 else break
             }
 
-            return NextResponse.json({
-                success: true,
-                tags: finalTags
-            })
+            return apiSuccess({ tags: finalTags }, 'Tags generated successfully')
 
         } catch (parseError) {
             console.error('JSON parse error:', parseError, 'Raw:', rawContent)
             // Fallback tags
-            return NextResponse.json({
-                success: true,
+            return apiSuccess({
                 tags: [
                     'ტექნოლოგიები', 'AI', 'სიახლეები', 'ტრენდი', 'აქტუალური',
                     'საინტერესო', 'გასაოცარი', 'ინოვაცია', 'მომავალი', 'მეცნიერება',
                     'ხელოვნურიინტელექტი', 'AndrewAltair', 'მსოფლიო', 'საქართველო',
                     'ბიზნესი', 'ეკონომიკა', 'კულტურა', 'განათლება', 'ციფრული', 'პროგრესი'
                 ]
-            })
+            }, 'Tags generated with fallback')
         }
 
     } catch (error) {
         console.error('AI tags error:', error)
         // Return fallback tags on error
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             tags: [
                 'ტექნოლოგიები', 'AI', 'სიახლეები', 'ტრენდი', 'აქტუალური',
                 'საინტერესო', 'გასაოცარი', 'ინოვაცია', 'მომავალი', 'მეცნიერება',
                 'ხელოვნურიინტელექტი', 'AndrewAltair', 'მსოფლიო', 'საქართველო',
                 'ბიზნესი', 'ეკონომიკა', 'კულტურა', 'განათლება', 'ციფრული', 'პროგრესი'
             ]
-        })
+        }, 'Tags generated with fallback')
     }
 }
 

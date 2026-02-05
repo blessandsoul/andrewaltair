@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 // In-memory storage для share codes
 const shareCodes = new Map<string, {
@@ -26,10 +28,7 @@ export async function POST(request: NextRequest) {
         const { articleId, userId } = await request.json();
 
         if (!articleId) {
-            return NextResponse.json(
-                { success: false, error: 'Article ID is required' },
-                { status: 400 }
-            );
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Article ID is required', 400);
         }
 
         const code = generateShareCode();
@@ -47,18 +46,9 @@ export async function POST(request: NextRequest) {
         // Очистка истекших кодов
         cleanupExpiredCodes();
 
-        return NextResponse.json({
-            success: true,
-            code,
-            articleId,
-            expiresAt,
-            expiresIn: 15 * 60 * 1000 // 15 минут в миллисекундах
-        });
+        return apiSuccess({ code, articleId, expiresAt, expiresIn: 15 * 60 * 1000 }, 'Share code generated successfully');
     } catch (error) {
-        return NextResponse.json(
-            { success: false, error: 'Failed to generate share code' },
-            { status: 500 }
-        );
+        return apiError(ERROR_CODES.VIBE_CODE_CREATE_FAILED, 'Failed to generate share code', 500);
     }
 }
 
@@ -68,19 +58,13 @@ export async function GET(request: NextRequest) {
     const code = searchParams.get('code');
 
     if (!code) {
-        return NextResponse.json(
-            { success: false, error: 'Code is required' },
-            { status: 400 }
-        );
+        return apiError(ERROR_CODES.VALIDATION_FAILED, 'Code is required', 400);
     }
 
     const codeData = shareCodes.get(code);
 
     if (!codeData) {
-        return NextResponse.json({
-            success: false,
-            error: 'Неверный код или код уже использован'
-        });
+        return apiError(ERROR_CODES.VIBE_CODE_NOT_FOUND, 'Invalid code or code already used', 404);
     }
 
     const now = Date.now();
@@ -88,18 +72,12 @@ export async function GET(request: NextRequest) {
     // Проверка истечения срока
     if (now > codeData.expiresAt) {
         shareCodes.delete(code);
-        return NextResponse.json({
-            success: false,
-            error: 'Код истек (15 минут прошло)'
-        });
+        return apiError(ERROR_CODES.VIBE_CODE_NOT_FOUND, 'Code expired (15 minutes passed)', 410);
     }
 
     // Проверка использования
     if (codeData.used) {
-        return NextResponse.json({
-            success: false,
-            error: 'Этот код уже был использован'
-        });
+        return apiError(ERROR_CODES.VIBE_CODE_NOT_FOUND, 'This code has already been used', 409);
     }
 
     // Помечаем как использованный
@@ -108,13 +86,11 @@ export async function GET(request: NextRequest) {
     // Возвращаем доступ на 15 минут к одной статье
     const accessExpiresAt = now + (15 * 60 * 1000);
 
-    return NextResponse.json({
-        success: true,
+    return apiSuccess({
         articleId: codeData.articleId,
         expiresAt: accessExpiresAt,
         remainingTime: 15 * 60 * 1000,
-        message: 'У вас есть 15 минут доступа к этой статье'
-    });
+    }, 'You have 15 minutes of access to this article');
 }
 
 // Очистка истекших кодов

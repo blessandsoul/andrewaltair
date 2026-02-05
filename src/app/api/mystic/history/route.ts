@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import dbConnect from "@/lib/db"
 import MysticHistory from "@/models/MysticHistory"
 
@@ -12,7 +14,7 @@ export async function GET(request: NextRequest) {
         const limit = parseInt(searchParams.get("limit") || "50")
 
         if (!sessionId) {
-            return NextResponse.json({ error: "Session ID required" }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Session ID required', 400)
         }
 
         await dbConnect()
@@ -25,7 +27,7 @@ export async function GET(request: NextRequest) {
             .limit(limit)
             .lean()
 
-        return NextResponse.json({
+        return apiSuccess({
             history: history.map(item => ({
                 id: item._id.toString(),
                 toolType: item.toolType,
@@ -33,10 +35,10 @@ export async function GET(request: NextRequest) {
                 result: item.result,
                 createdAt: item.createdAt,
             }))
-        })
+        }, 'History fetched successfully')
     } catch (error) {
         console.error("History GET error:", error)
-        return NextResponse.json({ error: "Failed to fetch history" }, { status: 500 })
+        return apiError(ERROR_CODES.MYSTIC_HISTORY_FAILED, 'Failed to fetch history', 500)
     }
 }
 
@@ -46,7 +48,7 @@ export async function POST(request: NextRequest) {
         const { sessionId, toolType, input, result } = await request.json()
 
         if (!sessionId || !toolType || !result) {
-            return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Missing required fields', 400)
         }
 
         await dbConnect()
@@ -58,13 +60,12 @@ export async function POST(request: NextRequest) {
             result,
         })
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             id: historyItem._id.toString()
-        })
+        }, 'History saved successfully', 201)
     } catch (error) {
         console.error("History POST error:", error)
-        return NextResponse.json({ error: "Failed to save history" }, { status: 500 })
+        return apiError(ERROR_CODES.MYSTIC_HISTORY_FAILED, 'Failed to save history', 500)
     }
 }
 
@@ -75,17 +76,17 @@ export async function DELETE(request: NextRequest) {
         const id = searchParams.get("id")
 
         if (!id) {
-            return NextResponse.json({ error: "ID required" }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'ID required', 400)
         }
 
         await dbConnect()
 
         await MysticHistory.findByIdAndDelete(id)
 
-        return NextResponse.json({ success: true })
+        return apiSuccess(null, 'History deleted successfully')
     } catch (error) {
         console.error("History DELETE error:", error)
-        return NextResponse.json({ error: "Failed to delete history" }, { status: 500 })
+        return apiError(ERROR_CODES.MYSTIC_HISTORY_FAILED, 'Failed to delete history', 500)
     }
 }
 

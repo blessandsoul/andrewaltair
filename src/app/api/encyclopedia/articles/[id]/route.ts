@@ -1,7 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
+import { NextRequest } from 'next/server';
+import dbConnect from '@/lib/db';
 import EncyclopediaArticle from '@/models/EncyclopediaArticle';
 import EncyclopediaVersion from '@/models/EncyclopediaVersion';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 // GET single article
 export async function GET(
@@ -21,16 +23,16 @@ export async function GET(
             .lean();
 
         if (!article) {
-            return NextResponse.json({ error: 'Article not found' }, { status: 404 });
+            return apiError(ERROR_CODES.ENCYCLOPEDIA_NOT_FOUND, 'Article not found', 404);
         }
 
         // Increment views
         await EncyclopediaArticle.findByIdAndUpdate(article._id, { $inc: { views: 1 } });
 
-        return NextResponse.json({ article });
+        return apiSuccess(article, 'Article fetched successfully');
     } catch (error) {
         console.error('Error fetching article:', error);
-        return NextResponse.json({ error: 'Failed to fetch article' }, { status: 500 });
+        return apiError(ERROR_CODES.ENCYCLOPEDIA_FETCH_FAILED, 'Failed to fetch article', 500);
     }
 }
 
@@ -45,7 +47,7 @@ export async function PUT(
 
         const existingArticle = await EncyclopediaArticle.findById(params.id);
         if (!existingArticle) {
-            return NextResponse.json({ error: 'Article not found' }, { status: 404 });
+            return apiError(ERROR_CODES.ENCYCLOPEDIA_NOT_FOUND, 'Article not found', 404);
         }
 
         // Check if content changed -> create new version
@@ -87,10 +89,10 @@ export async function PUT(
             });
         }
 
-        return NextResponse.json({ article });
+        return apiSuccess(article, 'Article updated successfully');
     } catch (error) {
         console.error('Error updating article:', error);
-        return NextResponse.json({ error: 'Failed to update article' }, { status: 500 });
+        return apiError(ERROR_CODES.ENCYCLOPEDIA_UPDATE_FAILED, 'Failed to update article', 500);
     }
 }
 
@@ -104,15 +106,15 @@ export async function DELETE(
 
         const article = await EncyclopediaArticle.findByIdAndDelete(params.id);
         if (!article) {
-            return NextResponse.json({ error: 'Article not found' }, { status: 404 });
+            return apiError(ERROR_CODES.ENCYCLOPEDIA_NOT_FOUND, 'Article not found', 404);
         }
 
         // Also delete version history
         await EncyclopediaVersion.deleteMany({ articleId: params.id });
 
-        return NextResponse.json({ message: 'Article deleted' });
+        return apiSuccess({ message: 'Article deleted' }, 'Article deleted successfully');
     } catch (error) {
         console.error('Error deleting article:', error);
-        return NextResponse.json({ error: 'Failed to delete article' }, { status: 500 });
+        return apiError(ERROR_CODES.ENCYCLOPEDIA_DELETE_FAILED, 'Failed to delete article', 500);
     }
 }

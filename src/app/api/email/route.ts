@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import { sendEmail, sendWelcomeEmail, sendNotificationEmail } from '@/lib/email'
 
 // POST - Send email
@@ -9,7 +11,7 @@ export async function POST(request: NextRequest) {
         const { type, to, ...params } = data
 
         if (!to) {
-            return NextResponse.json({ error: 'Recipient email is required' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Recipient email is required', 400)
         }
 
         let result
@@ -17,41 +19,40 @@ export async function POST(request: NextRequest) {
         switch (type) {
             case 'welcome':
                 if (!params.name) {
-                    return NextResponse.json({ error: 'Name is required for welcome email' }, { status: 400 })
+                    return apiError(ERROR_CODES.VALIDATION_FAILED, 'Name is required for welcome email', 400)
                 }
                 result = await sendWelcomeEmail(params.name, to)
                 break
 
             case 'notification':
                 if (!params.title || !params.message) {
-                    return NextResponse.json({ error: 'Title and message are required' }, { status: 400 })
+                    return apiError(ERROR_CODES.VALIDATION_FAILED, 'Title and message are required', 400)
                 }
                 result = await sendNotificationEmail(to, params.title, params.message, params.actionUrl, params.actionText)
                 break
 
             case 'custom':
                 if (!params.subject || !params.html) {
-                    return NextResponse.json({ error: 'Subject and html are required' }, { status: 400 })
+                    return apiError(ERROR_CODES.VALIDATION_FAILED, 'Subject and html are required', 400)
                 }
                 result = await sendEmail({ to, subject: params.subject, html: params.html, text: params.text })
                 break
 
             default:
-                return NextResponse.json({ error: 'Unknown email type' }, { status: 400 })
+                return apiError(ERROR_CODES.BAD_REQUEST, 'Unknown email type', 400)
         }
 
         if (result.success) {
-            return NextResponse.json({
-                success: true,
+            return apiSuccess({
                 messageId: result.messageId,
-                previewUrl: result.previewUrl, // For test accounts only
-            })
+                previewUrl: result.previewUrl,
+            }, 'Email sent successfully')
         } else {
-            return NextResponse.json({ error: result.error }, { status: 500 })
+            return apiError(ERROR_CODES.EMAIL_SEND_FAILED, result.error || 'Failed to send email', 500)
         }
     } catch (error) {
         console.error('Email API error:', error)
-        return NextResponse.json({ error: 'Failed to send email' }, { status: 500 })
+        return apiError(ERROR_CODES.EMAIL_SEND_FAILED, 'Failed to send email', 500)
     }
 }
 

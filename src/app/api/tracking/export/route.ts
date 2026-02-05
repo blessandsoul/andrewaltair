@@ -3,6 +3,8 @@ import dbConnect from '@/lib/db'
 import Visitor from '@/models/Visitor'
 import Activity from '@/models/Activity'
 import Click from '@/models/Click'
+import { apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 export const dynamic = 'force-dynamic'
 
@@ -64,7 +66,7 @@ export async function GET(request: NextRequest) {
                 break
 
             default:
-                return NextResponse.json({ error: 'Invalid export type' }, { status: 400 })
+                return apiError(ERROR_CODES.VALIDATION_FAILED, 'Invalid export type', 400)
         }
 
         // Convert to CSV
@@ -122,6 +124,6 @@ export async function GET(request: NextRequest) {
 
     } catch (error) {
         console.error('Export error:', error)
-        return NextResponse.json({ error: 'Export failed' }, { status: 500 })
+        return apiError(ERROR_CODES.TRACKING_EXPORT_FAILED, 'Export failed', 500)
     }
 }

@@ -1,8 +1,10 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { mkdir, rmdir, readdir } from 'fs/promises'
 import path from 'path'
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 
 const UPLOADS_DIR = path.join(process.cwd(), 'public', 'uploads')
 
@@ -16,7 +18,7 @@ export async function POST(request: NextRequest) {
         const { name, parent } = await request.json()
 
         if (!name || typeof name !== 'string') {
-            return NextResponse.json({ error: 'Folder name is required' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Folder name is required', 400)
         }
 
         // Sanitize folder name
@@ -27,23 +29,22 @@ export async function POST(request: NextRequest) {
 
         // Security check
         if (!path.normalize(folderPath).startsWith(UPLOADS_DIR)) {
-            return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Invalid path', 400)
         }
 
         await mkdir(folderPath, { recursive: true })
 
         const relativePath = path.relative(UPLOADS_DIR, folderPath).replace(/\\/g, '/')
 
-        return NextResponse.json({
-            success: true,
+        return apiSuccess({
             folder: {
                 name: safeName,
                 path: relativePath
             }
-        })
+        }, 'Folder created')
     } catch (error) {
         console.error('Create folder error:', error)
-        return NextResponse.json({ error: 'Failed to create folder' }, { status: 500 })
+        return apiError(ERROR_CODES.MEDIA_FOLDER_FAILED, 'Failed to create folder', 500)
     }
 }
 
@@ -58,30 +59,27 @@ export async function DELETE(request: NextRequest) {
         const folderPath = searchParams.get('path')
 
         if (!folderPath) {
-            return NextResponse.json({ error: 'Folder path is required' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Folder path is required', 400)
         }
 
         const fullPath = path.join(UPLOADS_DIR, folderPath)
 
         // Security check
         if (!path.normalize(fullPath).startsWith(UPLOADS_DIR) || fullPath === UPLOADS_DIR) {
-            return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Invalid path', 400)
         }
 
         // Check if folder is empty
         const contents = await readdir(fullPath)
         if (contents.length > 0) {
-            return NextResponse.json({ error: 'Folder is not empty' }, { status: 400 })
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Folder is not empty', 400)
         }
 
         await rmdir(fullPath)
 
-        return NextResponse.json({
-            success: true,
-            message: 'Folder deleted'
-        })
+        return apiSuccess({ deleted: true }, 'Folder deleted')
     } catch (error) {
         console.error('Delete folder error:', error)
-        return NextResponse.json({ error: 'Failed to delete folder' }, { status: 500 })
+        return apiError(ERROR_CODES.MEDIA_FOLDER_FAILED, 'Failed to delete folder', 500)
     }
 }

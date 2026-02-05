@@ -1,6 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
+import { NextRequest } from 'next/server';
+import dbConnect from '@/lib/db';
 import EncyclopediaSection from '@/models/EncyclopediaSection';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 // GET single section
 export async function GET(
@@ -12,13 +14,13 @@ export async function GET(
         const section = await EncyclopediaSection.findById(params.id).lean();
 
         if (!section) {
-            return NextResponse.json({ error: 'Section not found' }, { status: 404 });
+            return apiError(ERROR_CODES.ENCYCLOPEDIA_NOT_FOUND, 'Section not found', 404);
         }
 
-        return NextResponse.json({ section });
+        return apiSuccess(section, 'Section fetched successfully');
     } catch (error) {
         console.error('Error fetching section:', error);
-        return NextResponse.json({ error: 'Failed to fetch section' }, { status: 500 });
+        return apiError(ERROR_CODES.ENCYCLOPEDIA_FETCH_FAILED, 'Failed to fetch section', 500);
     }
 }
 
@@ -38,13 +40,13 @@ export async function PUT(
         );
 
         if (!section) {
-            return NextResponse.json({ error: 'Section not found' }, { status: 404 });
+            return apiError(ERROR_CODES.ENCYCLOPEDIA_NOT_FOUND, 'Section not found', 404);
         }
 
-        return NextResponse.json({ section });
+        return apiSuccess(section, 'Section updated successfully');
     } catch (error) {
         console.error('Error updating section:', error);
-        return NextResponse.json({ error: 'Failed to update section' }, { status: 500 });
+        return apiError(ERROR_CODES.ENCYCLOPEDIA_UPDATE_FAILED, 'Failed to update section', 500);
     }
 }
 
@@ -58,12 +60,12 @@ export async function DELETE(
         const section = await EncyclopediaSection.findByIdAndDelete(params.id);
 
         if (!section) {
-            return NextResponse.json({ error: 'Section not found' }, { status: 404 });
+            return apiError(ERROR_CODES.ENCYCLOPEDIA_NOT_FOUND, 'Section not found', 404);
         }
 
-        return NextResponse.json({ message: 'Section deleted' });
+        return apiSuccess({ message: 'Section deleted' }, 'Section deleted successfully');
     } catch (error) {
         console.error('Error deleting section:', error);
-        return NextResponse.json({ error: 'Failed to delete section' }, { status: 500 });
+        return apiError(ERROR_CODES.ENCYCLOPEDIA_DELETE_FAILED, 'Failed to delete section', 500);
     }
 }

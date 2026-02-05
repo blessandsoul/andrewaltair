@@ -10,6 +10,12 @@ interface VibeCodeData {
     createdAt: number;
 }
 
+interface CreateCodeInput {
+    type?: 'full' | 'single-article';
+    duration?: number;
+    maxUsage?: number;
+}
+
 const accessCodes = new Map<string, VibeCodeData>();
 
 export class VibeCodeService {
@@ -22,8 +28,7 @@ export class VibeCodeService {
         return code;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static createCode(data: any) {
+    static createCode(data: CreateCodeInput) {
         const { type, duration, maxUsage = 1 } = data;
         const code = this.generateCode();
         const now = Date.now();

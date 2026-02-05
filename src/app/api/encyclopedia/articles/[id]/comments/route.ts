@@ -1,6 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
+import { NextRequest } from 'next/server';
+import dbConnect from '@/lib/db';
 import Comment from '@/models/Comment';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 // GET comments for encyclopedia article
 export async function GET(
@@ -30,10 +32,10 @@ export async function GET(
             })
         );
 
-        return NextResponse.json({ comments: commentsWithReplies });
+        return apiSuccess(commentsWithReplies, 'Comments fetched successfully');
     } catch (error) {
         console.error('Error fetching comments:', error);
-        return NextResponse.json({ error: 'Failed to fetch comments' }, { status: 500 });
+        return apiError(ERROR_CODES.COMMENT_FETCH_FAILED, 'Failed to fetch comments', 500);
     }
 }
 
@@ -59,9 +61,9 @@ export async function POST(
             parentId: body.parentId || null,
         });
 
-        return NextResponse.json({ comment }, { status: 201 });
+        return apiSuccess(comment, 'Comment created successfully', 201);
     } catch (error) {
         console.error('Error creating comment:', error);
-        return NextResponse.json({ error: 'Failed to create comment' }, { status: 500 });
+        return apiError(ERROR_CODES.COMMENT_CREATE_FAILED, 'Failed to create comment', 500);
     }
 }

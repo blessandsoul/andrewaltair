@@ -1,7 +1,9 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
+import { NextRequest } from 'next/server';
+import dbConnect from '@/lib/db';
 import EncyclopediaCategory from '@/models/EncyclopediaCategory';
+import { apiSuccess, apiError } from '@/lib/api-response';
+import { ERROR_CODES } from '@/lib/error-codes';
 
 // GET all categories (optionally filtered by sectionId)
 export async function GET(request: NextRequest) {
@@ -16,10 +18,10 @@ export async function GET(request: NextRequest) {
             .populate('sectionId', 'title slug')
             .lean();
 
-        return NextResponse.json({ categories });
+        return apiSuccess(categories, 'Categories fetched successfully');
     } catch (error) {
         console.error('Error fetching categories:', error);
-        return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 });
+        return apiError(ERROR_CODES.ENCYCLOPEDIA_FETCH_FAILED, 'Failed to fetch categories', 500);
     }
 }
 
@@ -38,10 +40,9 @@ export async function POST(request: NextRequest) {
             isActive: body.isActive ?? true,
         });
 
-        return NextResponse.json({ category }, { status: 201 });
+        return apiSuccess(category, 'Category created successfully', 201);
     } catch (error) {
         console.error('Error creating category:', error);
-        return NextResponse.json({ error: 'Failed to create category' }, { status: 500 });
+        return apiError(ERROR_CODES.ENCYCLOPEDIA_CREATE_FAILED, 'Failed to create category', 500);
     }
 }
-

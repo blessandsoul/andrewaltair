@@ -1,5 +1,6 @@
 import dbConnect from '@/lib/db';
 import Seo from '@/models/Seo';
+import type { ISeo } from '@/models/Seo';
 
 export interface SeoQueryOptions {
     type?: string | null;
@@ -19,8 +20,7 @@ export class SeoService {
 
         const settings = await Seo.find(query).lean();
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return settings.map((s: any) => ({
+        return settings.map((s: ISeo) => ({
             ...s,
             id: s._id.toString(),
             _id: undefined,
@@ -30,8 +30,7 @@ export class SeoService {
     /**
      * Create or update SEO setting
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async updateSeoSetting(data: any) {
+    static async updateSeoSetting(data: Partial<Pick<ISeo, 'key' | 'value' | 'type'>>) {
         await dbConnect();
 
         const setting = await Seo.findOneAndUpdate(
@@ -42,8 +41,6 @@ export class SeoService {
 
         if (!setting) return null;
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s: any = setting;
-        return { ...s, id: s._id.toString() };
+        return { ...setting, id: setting._id.toString() };
     }
 }

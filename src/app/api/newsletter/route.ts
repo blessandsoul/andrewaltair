@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { ERROR_CODES } from '@/lib/error-codes'
 import dbConnect from '@/lib/db'
 import User from '@/models/User'
 import { trackSubscribe } from '@/lib/activityTracker'
@@ -32,10 +34,7 @@ export async function POST(request: NextRequest) {
 
         // Rate limiting
         if (isRateLimited(ip)) {
-            return NextResponse.json(
-                { error: 'ძალიან ბევრი მოთხოვნა. სცადეთ მოგვიანებით.' },
-                { status: 429 }
-            )
+            return apiError(ERROR_CODES.RATE_LIMITED, 'ძალიან ბევრი მოთხოვნა. სცადეთ მოგვიანებით.', 429)
         }
 
         await dbConnect()
@@ -44,19 +43,13 @@ export async function POST(request: NextRequest) {
         const { email, name, visitorId } = body
 
         if (!email) {
-            return NextResponse.json(
-                { error: 'ელფოსტა სავალდებულოა' },
-                { status: 400 }
-            )
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'ელფოსტა სავალდებულოა', 400)
         }
 
         // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         if (!emailRegex.test(email)) {
-            return NextResponse.json(
-                { error: 'არასწორი ელფოსტის ფორმატი' },
-                { status: 400 }
-            )
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'არასწორი ელფოსტის ფორმატი', 400)
         }
 
         // Check if already subscribed
@@ -64,10 +57,7 @@ export async function POST(request: NextRequest) {
 
         if (existingUser) {
             if (existingUser.newsletterSubscribed) {
-                return NextResponse.json({
-                    success: true,
-                    message: 'თქვენ უკვე გამოწერილი ხართ! 🎉'
-                })
+                return apiSuccess(null, 'თქვენ უკვე გამოწერილი ხართ!')
             }
 
             // Update existing user to subscribe
@@ -90,16 +80,10 @@ export async function POST(request: NextRequest) {
         // 🎯 TRACK SUBSCRIBE ACTIVITY
         trackSubscribe(email, { visitorId }).catch(() => { })
 
-        return NextResponse.json({
-            success: true,
-            message: 'გამოწერა წარმატებით შესრულდა! 🎉'
-        })
+        return apiSuccess(null, 'გამოწერა წარმატებით შესრულდა!')
     } catch (error) {
         console.error('Newsletter subscription error:', error)
-        return NextResponse.json(
-            { error: 'სერვერის შეცდომა' },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.NEWSLETTER_SUBSCRIBE_FAILED, 'სერვერის შეცდომა', 500)
     }
 }
 
@@ -110,15 +94,10 @@ export async function GET() {
 
         const count = await User.countDocuments({ newsletterSubscribed: true })
 
-        return NextResponse.json({
-            subscriberCount: count
-        })
+        return apiSuccess({ subscriberCount: count }, 'Subscriber count fetched')
     } catch (error) {
         console.error('Newsletter count error:', error)
-        return NextResponse.json(
-            { error: 'Failed to get count' },
-            { status: 500 }
-        )
+        return apiError(ERROR_CODES.NEWSLETTER_SUBSCRIBE_FAILED, 'Failed to get subscriber count', 500)
     }
 }
 
