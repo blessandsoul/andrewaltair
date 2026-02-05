@@ -82,8 +82,8 @@ const nextConfig = {
         destination: '/api/files/:path*',
       },
     ];
+    ];
   },
-};
 
 // Increase timeout for static page generation (helps with OOM/timeout on low-resource VPS)
 staticPageGenerationTimeout: 180,
