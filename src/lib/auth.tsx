@@ -71,13 +71,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 }
 
                 // Token automatically sent via cookie
+                // Prevent browser caching of the auth state
                 const response = await fetch("/api/auth/me", {
-                    signal: abortController.signal
+                    signal: abortController.signal,
+                    cache: "no-store",
+                    headers: {
+                        "Pragma": "no-cache",
+                        "Cache-Control": "no-cache, no-store, must-revalidate"
+                    }
                 })
+
+                console.log(`[Auth Client] /api/auth/me status: ${response.status}`);
 
                 if (response.ok && mounted) {
                     const data = await response.json()
+                    console.log(`[Auth Client] User loaded: ${data.user?.username}`);
                     setUser(data.user)
+                } else {
+                    console.log(`[Auth Client] Failed to load user. Status: ${response.status}`);
                 }
             } catch (error) {
                 // Ignore abort errors
