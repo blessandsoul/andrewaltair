@@ -82,11 +82,10 @@ const nextConfig = {
         destination: '/api/files/:path*',
       },
     ];
-    ];
   },
 
-// Increase timeout for static page generation (helps with OOM/timeout on low-resource VPS)
-staticPageGenerationTimeout: 180,
+  // Increase timeout for static page generation (helps with OOM/timeout on low-resource VPS)
+  staticPageGenerationTimeout: 180,
 };
 
 // 🧹 Clean up: Remove console.log only in production builds
