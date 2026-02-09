@@ -125,6 +125,13 @@ export const brand = {
         { id: "science", name: "მეცნიერება და ტექნიკა", icon: "Atom", color: "#10b981" },
         { id: "tutorials", name: "ტუტორიალები", icon: "Book", color: "#f59e0b" },
         { id: "news", name: "სიახლეები", icon: "News", color: "#ef4444" },
+        { id: "technology", name: "ტექნოლოგიები", icon: "Cpu", color: "#8b5cf6" },
+        { id: "economy", name: "ეკონომიკა", icon: "TrendingUp", color: "#f97316" },
+        { id: "politics", name: "პოლიტიკა", icon: "Landmark", color: "#dc2626" },
+        { id: "business", name: "ბიზნესი", icon: "Briefcase", color: "#0ea5e9" },
+        { id: "society", name: "საზოგადოება", icon: "Users", color: "#a855f7" },
+        { id: "education", name: "განათლება", icon: "GraduationCap", color: "#14b8a6" },
+        { id: "world", name: "მსოფლიო", icon: "Globe", color: "#6366f1" },
       ]
     },
   ],
