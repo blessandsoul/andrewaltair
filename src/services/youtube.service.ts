@@ -201,4 +201,85 @@ export class YoutubeService {
             }
         };
     }
+
+    /**
+     * Fetch all videos from a YouTube channel using the Data API.
+     * Uses search.list to get all video IDs, then videos.list for details.
+     */
+    static async getChannelVideos(channelHandle: string, maxResults = 200) {
+        const apiKey = process.env.YOUTUBE_API_KEY;
+        if (!apiKey) throw new Error('YOUTUBE_API_KEY not configured');
+
+        // Step 1: Resolve channel handle to channel ID
+        let channelId = channelHandle;
+        if (channelHandle.startsWith('@')) {
+            const handleRes = await fetch(
+                `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${channelHandle}&key=${apiKey}`
+            );
+            if (!handleRes.ok) throw new Error('Failed to resolve channel handle');
+            const handleData = await handleRes.json();
+            if (!handleData.items?.length) throw new Error('Channel not found');
+            channelId = handleData.items[0].id;
+        }
+
+        // Step 2: Fetch all video IDs via search.list with pagination
+        const allVideoIds: string[] = [];
+        let nextPageToken: string | undefined;
+
+        do {
+            const pageParam = nextPageToken ? `&pageToken=${nextPageToken}` : '';
+            const searchRes = await fetch(
+                `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${channelId}&type=video&order=date&maxResults=50${pageParam}&key=${apiKey}`
+            );
+            if (!searchRes.ok) throw new Error('YouTube search API failed');
+            const searchData = await searchRes.json();
+
+            for (const item of searchData.items || []) {
+                if (item.id?.videoId) allVideoIds.push(item.id.videoId);
+            }
+
+            nextPageToken = searchData.nextPageToken;
+        } while (nextPageToken && allVideoIds.length < maxResults);
+
+        // Step 3: Fetch video details in batches of 50
+        const videos: Array<{
+            videoId: string;
+            title: string;
+            description: string;
+            publishedAt: string;
+            thumbnail: string;
+            duration: string;
+            type: 'long' | 'short';
+        }> = [];
+
+        for (let i = 0; i < allVideoIds.length; i += 50) {
+            const batch = allVideoIds.slice(i, i + 50);
+            const detailsRes = await fetch(
+                `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${batch.join(',')}&key=${apiKey}`
+            );
+            if (!detailsRes.ok) continue;
+            const detailsData = await detailsRes.json();
+
+            for (const item of detailsData.items || []) {
+                const durationStr = item.contentDetails?.duration || '';
+                const durationMatch = durationStr.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+                const mins = parseInt(durationMatch?.[2] || '0');
+                const secs = parseInt(durationMatch?.[3] || '0');
+                const hours = parseInt(durationMatch?.[1] || '0');
+                const isShort = hours === 0 && mins === 0 && secs <= 60;
+
+                videos.push({
+                    videoId: item.id,
+                    title: item.snippet?.title || '',
+                    description: item.snippet?.description || '',
+                    publishedAt: item.snippet?.publishedAt || new Date().toISOString(),
+                    thumbnail: `https://img.youtube.com/vi/${item.id}/mqdefault.jpg`,
+                    duration: this.parseISO8601Duration(durationStr),
+                    type: isShort ? 'short' : 'long',
+                });
+            }
+        }
+
+        return { channelId, videos };
+    }
 }

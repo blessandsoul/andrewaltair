@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { TbVideo, TbSearch, TbEdit, TbTrash, TbEye, TbClock, TbPlayerPlay, TbX, TbDeviceFloppy, TbBrandYoutube, TbPlus, TbDownload, TbUpload, TbChartBar, TbRefresh, TbCalendar, TbTag, TbGripVertical, TbCheck, TbJson, TbFileSpreadsheet, TbTrendingUp, TbUsers, TbExternalLink, TbSquareCheck, TbSquare, TbStack2 } from "react-icons/tb"
+import { TbVideo, TbSearch, TbEdit, TbTrash, TbEye, TbClock, TbPlayerPlay, TbX, TbDeviceFloppy, TbBrandYoutube, TbPlus, TbDownload, TbUpload, TbChartBar, TbRefresh, TbCalendar, TbTag, TbGripVertical, TbCheck, TbJson, TbFileSpreadsheet, TbTrendingUp, TbUsers, TbExternalLink, TbSquareCheck, TbSquare, TbStack2, TbArrowsSort, TbCloudDownload } from "react-icons/tb"
 // Videos fetched from MongoDB API
 
 interface VideoItem {
@@ -77,7 +77,9 @@ export default function VideosPage() {
     const [showAnalytics, setShowAnalytics] = React.useState(false)
     const [showImportExport, setShowImportExport] = React.useState(false)
     const [syncing, setSyncing] = React.useState(false)
+    const [syncResult, setSyncResult] = React.useState<{ added: number; skipped: number } | null>(null)
     const [draggedItem, setDraggedItem] = React.useState<string | null>(null)
+    const [sortBy, setSortBy] = React.useState<"date" | "views" | "name" | "order">("date")
 
     // Fetch videos from MongoDB API
     React.useEffect(() => {
@@ -105,7 +107,7 @@ export default function VideosPage() {
         fetchVideos()
     }, [])
 
-    // Filter videos
+    // Filter & sort videos
     const filteredVideos = videos
         .filter(video => {
             const matchesSearch = video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -114,7 +116,20 @@ export default function VideosPage() {
             const matchesTags = !tagFilter || (video.tags && video.tags.includes(tagFilter))
             return matchesSearch && matchesType && matchesTags
         })
-        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .sort((a, b) => {
+            switch (sortBy) {
+                case "date":
+                    return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+                case "views":
+                    return b.views - a.views
+                case "name":
+                    return a.title.localeCompare(b.title, "ka")
+                case "order":
+                    return (a.order ?? 0) - (b.order ?? 0)
+                default:
+                    return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+            }
+        })
 
     // Analytics calculations
     const totalViews = videos.reduce((sum, v) => sum + v.views, 0)
@@ -218,15 +233,73 @@ export default function VideosPage() {
         }
     }
 
-    // Sync with YouTube - updates lastSynced timestamp
-    const syncWithYouTube = async () => {
+    // Import new videos from YouTube channel
+    const importFromChannel = async () => {
         setSyncing(true)
-        await new Promise(resolve => setTimeout(resolve, 2000))
-        setVideos(videos.map(v => ({
-            ...v,
-            lastSynced: new Date().toISOString()
-        })))
-        setSyncing(false)
+        setSyncResult(null)
+        try {
+            const res = await fetch('/api/youtube/channel')
+            if (!res.ok) {
+                const err = await res.json()
+                alert(err.error?.message || 'იმპორტი ვერ მოხერხდა')
+                setSyncing(false)
+                return
+            }
+            const { data } = await res.json()
+            const channelVideos: Array<{ videoId: string; title: string; description: string; publishedAt: string; thumbnail: string; type: 'long' | 'short' }> = data.videos || []
+
+            // Get existing youtubeIds from DB
+            const existingIds = new Set(videos.map(v => v.youtubeId))
+            const newVideos = channelVideos.filter(v => !existingIds.has(v.videoId))
+
+            // Import new videos to DB
+            let addedCount = 0
+            for (const v of newVideos) {
+                try {
+                    const createRes = await fetch('/api/videos', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            title: v.title,
+                            description: v.description,
+                            youtubeId: v.videoId,
+                            thumbnail: v.thumbnail,
+                            category: 'ტუტორიალი',
+                            publishedAt: v.publishedAt,
+                            type: v.type,
+                            views: 0
+                        })
+                    })
+                    if (createRes.ok) addedCount++
+                } catch (err) {
+                    console.error('Failed to import video:', v.videoId, err)
+                }
+            }
+
+            setSyncResult({ added: addedCount, skipped: channelVideos.length - newVideos.length })
+
+            // Refresh list
+            if (addedCount > 0) {
+                const refreshRes = await fetch('/api/videos?limit=100')
+                if (refreshRes.ok) {
+                    const refreshData = await refreshRes.json()
+                    const formattedVideos = (refreshData.data || []).map((v: VideoItem, i: number) => ({
+                        ...v,
+                        id: v.id || v.youtubeId,
+                        tags: v.tags || [],
+                        status: v.status || 'published',
+                        order: v.order ?? i,
+                        lastSynced: null
+                    }))
+                    setVideos(formattedVideos)
+                }
+            }
+        } catch (error) {
+            console.error('Channel import error:', error)
+            alert('იმპორტი ვერ მოხერხდა')
+        } finally {
+            setSyncing(false)
+        }
     }
 
     // Export videos
@@ -294,15 +367,15 @@ export default function VideosPage() {
                         ანალიტიკა
                     </Button>
 
-                    {/* Sync Button */}
+                    {/* Import from Channel */}
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={syncWithYouTube}
+                        onClick={importFromChannel}
                         disabled={syncing}
                     >
-                        <TbRefresh className={`w-4 h-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
-                        {syncing ? "სინქრონიზაცია..." : "YouTube Sync"}
+                        <TbCloudDownload className={`w-4 h-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
+                        {syncing ? "იმპორტი..." : "არხიდან იმპორტი"}
                     </Button>
 
                     {/* Import/Export */}
@@ -471,6 +544,18 @@ export default function VideosPage() {
 
                 <div className="flex-1" />
 
+                {/* Sort Selector */}
+                <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as "date" | "views" | "name" | "order")}
+                    className="px-3 py-2 rounded-md border border-input bg-background text-sm"
+                >
+                    <option value="date">📅 თარიღით (ახალი)</option>
+                    <option value="views">👁 ნახვებით</option>
+                    <option value="name">🔤 სახელით</option>
+                    <option value="order">↕ ხელით</option>
+                </select>
+
                 {/* Tag Filter */}
                 <select
                     value={tagFilter}
@@ -496,6 +581,20 @@ export default function VideosPage() {
                     />
                 </div>
             </div>
+
+            {/* Import Result Banner */}
+            {syncResult && (
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-sm">
+                    <TbCheck className="w-5 h-5 text-green-500 shrink-0" />
+                    <span>
+                        <strong>{syncResult.added}</strong> ახალი ვიდეო დაემატა
+                        {syncResult.skipped > 0 && <> • <strong>{syncResult.skipped}</strong> უკვე არსებობდა</>}
+                    </span>
+                    <button onClick={() => setSyncResult(null)} className="ml-auto">
+                        <TbX className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                    </button>
+                </div>
+            )}
 
             {/* Videos Grid */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -599,12 +698,10 @@ export default function VideosPage() {
                                     {formatNumber(video.views)}
                                 </span>
                                 <Badge variant="outline">{video.category}</Badge>
-                                {video.scheduledAt && (
-                                    <span className="flex items-center gap-1 text-xs">
-                                        <TbCalendar className="w-3 h-3" />
-                                        {formatDate(video.scheduledAt)}
-                                    </span>
-                                )}
+                                <span className="flex items-center gap-1 text-xs ml-auto">
+                                    <TbCalendar className="w-3 h-3" />
+                                    {formatDate(video.publishedAt)}
+                                </span>
                             </div>
 
                             <div className="flex gap-2 mt-4">
