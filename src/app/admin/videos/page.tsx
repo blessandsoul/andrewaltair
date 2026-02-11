@@ -86,7 +86,7 @@ export default function VideosPage() {
                 const res = await fetch('/api/videos?limit=100')
                 if (res.ok) {
                     const data = await res.json()
-                    const formattedVideos = (data.videos || []).map((v: VideoItem, i: number) => ({
+                    const formattedVideos = (data.data || []).map((v: VideoItem, i: number) => ({
                         ...v,
                         id: v.id || v.youtubeId,
                         tags: v.tags || [],
