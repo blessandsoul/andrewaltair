@@ -250,6 +250,7 @@ export class YoutubeService {
             thumbnail: string;
             duration: string;
             type: 'long' | 'short';
+            tags: string[];
         }> = [];
 
         for (let i = 0; i < allVideoIds.length; i += 50) {
@@ -268,6 +269,12 @@ export class YoutubeService {
                 const hours = parseInt(durationMatch?.[1] || '0');
                 const isShort = hours === 0 && mins === 0 && secs <= 60;
 
+                // Extract tags: YouTube API tags + hashtags from description
+                const apiTags: string[] = item.snippet?.tags || [];
+                const descriptionTags = this.extractHashtagsFromDescription(item.snippet?.description || '');
+                // Merge and deduplicate
+                const allTags = [...new Set([...descriptionTags, ...apiTags])];
+
                 videos.push({
                     videoId: item.id,
                     title: item.snippet?.title || '',
@@ -276,6 +283,7 @@ export class YoutubeService {
                     thumbnail: `https://img.youtube.com/vi/${item.id}/mqdefault.jpg`,
                     duration: this.parseISO8601Duration(durationStr),
                     type: isShort ? 'short' : 'long',
+                    tags: allTags,
                 });
             }
         }

@@ -27,7 +27,7 @@ interface VideoItem {
     thumbnail?: string
 }
 
-const CATEGORIES = ["ტუტორიალი", "მიმოხილვა", "ხრიკები", "ინტერვიუ", "პოდკასტი", "ვლოგი"]
+const CATEGORIES = ["ვიდეო", "ტუტორიალი", "მიმოხილვა", "ხრიკები", "ინტერვიუ", "პოდკასტი", "ვლოგი"]
 const AVAILABLE_TAGS = ["AI", "ChatGPT", "Gemini", "DALL-E", "Automation", "Make.com", "Prompts", "Tutorial", "Beginner", "Advanced"]
 
 function formatNumber(num: number): string {
@@ -246,7 +246,7 @@ export default function VideosPage() {
                 return
             }
             const { data } = await res.json()
-            const channelVideos: Array<{ videoId: string; title: string; description: string; publishedAt: string; thumbnail: string; type: 'long' | 'short' }> = data.videos || []
+            const channelVideos: Array<{ videoId: string; title: string; description: string; publishedAt: string; thumbnail: string; type: 'long' | 'short'; tags: string[] }> = data.videos || []
 
             // Get existing youtubeIds from DB
             const existingIds = new Set(videos.map(v => v.youtubeId))
@@ -264,9 +264,10 @@ export default function VideosPage() {
                             description: v.description,
                             youtubeId: v.videoId,
                             thumbnail: v.thumbnail,
-                            category: 'ტუტორიალი',
+                            category: 'ვიდეო',
                             publishedAt: v.publishedAt,
                             type: v.type,
+                            tags: v.tags || [],
                             views: 0
                         })
                     })
@@ -697,7 +698,9 @@ export default function VideosPage() {
                                     <TbEye className="w-4 h-4" />
                                     {formatNumber(video.views)}
                                 </span>
-                                <Badge variant="outline">{video.category}</Badge>
+                                {video.category && video.category !== 'ვიდეო' && (
+                                    <Badge variant="outline">{video.category}</Badge>
+                                )}
                                 <span className="flex items-center gap-1 text-xs ml-auto">
                                     <TbCalendar className="w-3 h-3" />
                                     {formatDate(video.publishedAt)}

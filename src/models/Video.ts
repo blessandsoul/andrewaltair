@@ -11,6 +11,7 @@ export interface IVideo extends Document {
     views: number;
     duration?: string;
     type: 'long' | 'short';
+    tags?: string[];
     authorName?: string;
     authorAvatar?: string;
     createdAt: Date;
@@ -57,6 +58,10 @@ const VideoSchema = new Schema<IVideo>(
             type: String,
             enum: ['long', 'short'],
             default: 'long',
+        },
+        tags: {
+            type: [String],
+            default: [],
         },
         authorName: {
             type: String,
