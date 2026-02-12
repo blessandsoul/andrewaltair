@@ -1,5 +1,5 @@
-// Force dynamic rendering to fix build OOM/Timeout issues
-export const dynamic = 'force-dynamic'
+// ISR: Revalidate homepage every hour for fresh content + fast TTFB
+export const revalidate = 3600
 
 import Link from "next/link"
 import Image from "next/image"
@@ -34,7 +34,6 @@ import dbConnect from "@/lib/db"
 import Post from "@/models/Post"
 import Video from "@/models/Video"
 import MarketplacePrompt from "@/models/MarketplacePrompt"
-import MarketplacePromptCard from "@/components/prompts/MarketplacePromptCard"
 import { HeroCarousel } from "@/components/home/HeroCarousel"
 import { NewsletterForm } from "@/components/home/NewsletterForm"
 import { HomeLayoutSwitcher } from "@/components/home/HomeLayoutSwitcher"
@@ -266,36 +265,7 @@ export default async function Home() {
         {/* Dynamic Layout Section - User can switch between 4 layouts */}
         <HomeLayoutSwitcher posts={postsData} videos={videosData} />
 
-        {/* Latest Prompts Section */}
-        <section className="py-20 lg:py-24 bg-muted/20 border-t border-b border-border/50">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-            <div className="flex flex-col md:flex-row items-end justify-between gap-4 mb-12">
-              <div className="space-y-4 max-w-2xl">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold uppercase tracking-wider w-fit">
-                  <TbSparkles className="w-3.5 h-3.5" />
-                  პრემიუმ ხარისხის პრომპტები
-                </div>
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight">უახლესი AI პრომპტები</h2>
-                <p className="text-muted-foreground text-lg">
-                  CHATGPT 5.2, GEMINI 3 / NANO BANANA, GROK 3, CLAUDE 4.5
-                </p>
-              </div>
-
-              <Link href="/prompts">
-                <Button variant="outline" className="gap-2 group">
-                  ყველას ნახვა
-                  <TbArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {promptsData.map((prompt: any) => (
-                <MarketplacePromptCard key={prompt.id} prompt={prompt} />
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* Prompts are shown in HubLayout below — no duplicate section needed */}
 
 
 

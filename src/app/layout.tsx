@@ -8,7 +8,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { ConfirmDialogProvider } from "@/components/ui/confirm-dialog";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import { Agentation } from "agentation";
-import { siteMetadata } from "@/config/metadata";
+import { siteMetadata, siteViewport } from "@/config/metadata";
 import { jsonLdSchemas } from "@/config/json-ld";
 
 const inter = Inter({
@@ -29,6 +29,7 @@ const notoGeorgian = Noto_Sans_Georgian({
 });
 
 export const metadata: Metadata = siteMetadata;
+export const viewport = siteViewport;
 
 export default function RootLayout({
   children,
