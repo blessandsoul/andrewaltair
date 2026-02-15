@@ -84,8 +84,8 @@ const servicesData = [
 // Bots data showcase
 const botsShowcase = [
     {
-        id: "aicontent",
-        name: "AICONTENT",
+        id: "CONTENT_MASTER",
+        name: "კონტენტის მაგისტრი",
         description: "კონტენტის ტრანსფორმატორი Facebook + Telegram-ისთვის",
         tier: "free",
         rating: 4.9,
@@ -94,8 +94,8 @@ const botsShowcase = [
         gradient: "from-violet-500 to-purple-500"
     },
     {
-        id: "mystic",
-        name: "Mystic AI",
+        id: "MYSTIC_ADVISOR",
+        name: "მისტიკური მრჩეველი",
         description: "ტაროს კითხვა და ნუმეროლოგია AI-ით",
         tier: "premium",
         price: 15,
@@ -105,8 +105,8 @@ const botsShowcase = [
         gradient: "from-purple-600 to-pink-500"
     },
     {
-        id: "translator",
-        name: "Pro Translator",
+        id: "TRANSLATION_PRO",
+        name: "თარგმნის ოსტატი",
         description: "პროფესიონალური თარგმანი 50+ ენაზე",
         tier: "free",
         rating: 4.7,
@@ -115,8 +115,8 @@ const botsShowcase = [
         gradient: "from-blue-500 to-cyan-500"
     },
     {
-        id: "coder",
-        name: "Code Assistant",
+        id: "BOT_26",
+        name: "კოდის გენერატორი",
         description: "კოდის გენერაცია და ოპტიმიზაცია",
         tier: "premium",
         price: 25,
