@@ -383,7 +383,7 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
                                                         </span>
                                                         <span className="flex items-center gap-1">
                                                             <TbCalendar className="w-3 h-3" />
-                                                            {relatedVideo.publishedAt}
+                                                            {formatDate(relatedVideo.publishedAt)}
                                                         </span>
                                                     </div>
                                                 </div>
