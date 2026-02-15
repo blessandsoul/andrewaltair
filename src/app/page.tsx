@@ -72,15 +72,24 @@ async function getVideos() {
   try {
     await dbConnect()
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const videos = await Video.find({})
       .sort({ publishedAt: -1 })
       .limit(8)
-      .lean()
+      .lean() as any[]
 
     return videos.map(video => ({
-      ...video,
       id: video._id.toString(),
-      _id: undefined,
+      youtubeId: video.youtubeId,
+      title: video.title,
+      description: video.description,
+      category: video.category,
+      duration: video.duration || '',
+      views: video.views || 0,
+      type: video.type || 'long',
+      publishedAt: video.publishedAt ? new Date(video.publishedAt).toISOString() : new Date().toISOString(),
+      authorName: video.authorName || 'Andrew Altair',
+      authorAvatar: video.authorAvatar || '/andrewaltair.png',
     }))
   } catch (error) {
     console.error('Error fetching videos:', error)

@@ -280,9 +280,11 @@ export function HubLayout({ posts, videos }: HubLayoutProps) {
                                                 <TbPlayerPlay className="w-6 h-6 text-white ml-0.5" />
                                             </div>
                                         </div>
-                                        <Badge className="absolute top-2 right-2 bg-black/70 text-white border-0 text-xs">
-                                            {video.duration || "00:00"}
-                                        </Badge>
+                                        {video.duration && (
+                                            <Badge className="absolute top-2 right-2 bg-black/70 text-white border-0 text-xs">
+                                                {video.duration}
+                                            </Badge>
+                                        )}
                                     </div>
                                     <div className="p-3">
                                         <h4 className="font-medium text-sm line-clamp-2 group-hover:text-red-500 transition-colors">
