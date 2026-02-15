@@ -23,6 +23,7 @@ import { RichPostContent } from "@/components/blog/RichPostContent"
 import { ResponsiveCover } from "@/components/blog/ResponsiveCover"
 import { PostGallery } from "@/components/blog/PostGallery"
 import { brand } from "@/lib/brand"
+import { formatRelativeDate } from "@/lib/blog-utils"
 
 // Rich content section type
 interface Section {
@@ -250,7 +251,7 @@ function FullArticle({ post, index }: { post: Post; index: number }) {
                             </Badge>
                             <span className="text-sm text-muted-foreground flex items-center gap-1">
                                 <TbCalendar className="w-4 h-4" />
-                                {post.publishedAt}
+                                {formatRelativeDate(post.publishedAt)}
                             </span>
                             <span className="text-sm text-muted-foreground flex items-center gap-1">
                                 <TbClock className="w-4 h-4" />
