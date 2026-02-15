@@ -246,11 +246,27 @@ export default function VideosPage() {
                 return
             }
             const { data } = await res.json()
-            const channelVideos: Array<{ videoId: string; title: string; description: string; publishedAt: string; thumbnail: string; type: 'long' | 'short'; tags: string[] }> = data.videos || []
+            const channelVideos: Array<{ videoId: string; title: string; description: string; publishedAt: string; thumbnail: string; duration: string; type: 'long' | 'short'; tags: string[] }> = data.videos || []
 
             // Get existing youtubeIds from DB
-            const existingIds = new Set(videos.map(v => v.youtubeId))
-            const newVideos = channelVideos.filter(v => !existingIds.has(v.videoId))
+            const existingMap = new Map(videos.map(v => [v.youtubeId, v]))
+            const newVideos = channelVideos.filter(v => !existingMap.has(v.videoId))
+
+            // Update duration for existing videos that have empty duration
+            for (const v of channelVideos) {
+                const existing = existingMap.get(v.videoId)
+                if (existing && !existing.duration && v.duration) {
+                    try {
+                        await fetch(`/api/videos/${existing.id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ duration: v.duration })
+                        })
+                    } catch (err) {
+                        console.error('Failed to update duration:', v.videoId, err)
+                    }
+                }
+            }
 
             // Import new videos to DB
             let addedCount = 0
@@ -266,6 +282,7 @@ export default function VideosPage() {
                             thumbnail: v.thumbnail,
                             category: 'ვიდეო',
                             publishedAt: v.publishedAt,
+                            duration: v.duration || '',
                             type: v.type,
                             tags: v.tags || [],
                             views: 0

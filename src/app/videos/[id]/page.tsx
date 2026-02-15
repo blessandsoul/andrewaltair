@@ -8,6 +8,9 @@ import { ShareButtons } from "@/components/interactive/ShareButtons"
 import { ReactionBar } from "@/components/interactive/ReactionBar"
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import mongoose from 'mongoose'
+import dbConnect from "@/lib/db"
+import Video from "@/models/Video"
 
 // TbVideo interface
 interface TbVideo {
@@ -29,8 +32,6 @@ function formatDate(dateString: string): string {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
     })
 }
 
@@ -52,20 +53,39 @@ function getAuthorAvatar(author: { name?: string, avatar?: string, role?: string
     return author.avatar || '/logo.png'
 }
 
-// Fetch video from MongoDB API (helper)
+// Fetch video directly from MongoDB
 async function getVideoData(id: string): Promise<TbVideo | null> {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/videos?limit=50`, {
-            cache: 'no-store' // Ensure fresh data
-        })
-        if (res.ok) {
-            const data = await res.json()
-            return (data.videos || []).find((v: TbVideo) => v.id === id || v.youtubeId === id) || null
+        await dbConnect()
+
+        // Try to find by ObjectId first, then by youtubeId
+        let video = null
+        if (mongoose.Types.ObjectId.isValid(id)) {
+            video = await Video.findById(id).lean()
+        }
+        if (!video) {
+            video = await Video.findOne({ youtubeId: id }).lean()
+        }
+        if (!video) return null
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const v = video as any
+        return {
+            id: v._id.toString(),
+            youtubeId: v.youtubeId,
+            title: v.title,
+            description: v.description,
+            category: v.category,
+            duration: v.duration || '',
+            views: v.views || 0,
+            publishedAt: v.publishedAt ? new Date(v.publishedAt).toISOString() : new Date().toISOString(),
+            authorName: v.authorName || 'Andrew Altair',
+            authorAvatar: v.authorAvatar || '/andrewaltair.png',
         }
     } catch (error) {
         console.error('Error fetching video:', error)
+        return null
     }
-    return null
 }
 
 // Generate Metadata for SEO
@@ -102,20 +122,39 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     }
 }
 
-// Get related videos from MongoDB
+// Get related videos directly from MongoDB
 async function getRelatedVideos(currentId: string): Promise<TbVideo[]> {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/videos?limit=5`, {
-            cache: 'no-store'
-        })
-        if (res.ok) {
-            const data = await res.json()
-            return (data.videos || []).filter((v: TbVideo) => v.id !== currentId && v.youtubeId !== currentId).slice(0, 4)
+        await dbConnect()
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const filter: any = {}
+        if (mongoose.Types.ObjectId.isValid(currentId)) {
+            filter._id = { $ne: new mongoose.Types.ObjectId(currentId) }
         }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const videos = await Video.find(filter)
+            .sort({ publishedAt: -1 })
+            .limit(4)
+            .lean() as any[]
+
+        return videos.map(v => ({
+            id: v._id.toString(),
+            youtubeId: v.youtubeId,
+            title: v.title,
+            description: v.description,
+            category: v.category,
+            duration: v.duration || '',
+            views: v.views || 0,
+            publishedAt: v.publishedAt ? new Date(v.publishedAt).toISOString() : new Date().toISOString(),
+            authorName: v.authorName || 'Andrew Altair',
+            authorAvatar: v.authorAvatar || '/andrewaltair.png',
+        }))
     } catch (error) {
         console.error('Error fetching related videos:', error)
+        return []
     }
-    return []
 }
 
 export default async function VideoPage({ params }: { params: Promise<{ id: string }> }) {
