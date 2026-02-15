@@ -837,7 +837,9 @@ export default function BotsPage() {
             const res = await fetch(`/api/bots?${params.toString()}`);
             const data = await res.json();
 
-            if (data.bots) {
+            if (data.success && data.data?.bots) {
+                setBots(data.data.bots);
+            } else if (data.bots) {
                 setBots(data.bots);
             }
         } catch (error) {
@@ -910,9 +912,10 @@ export default function BotsPage() {
     const handleCopy = async (botId: string) => {
         try {
             const res = await fetch(`/api/bots/${botId}`);
-            const bot = await res.json();
+            const result = await res.json();
+            const bot = result.success ? result.data : result;
 
-            if (bot.masterPrompt) {
+            if (bot?.masterPrompt) {
                 await navigator.clipboard.writeText(bot.masterPrompt);
                 setCopiedId(botId);
                 setTimeout(() => setCopiedId(null), 2000);

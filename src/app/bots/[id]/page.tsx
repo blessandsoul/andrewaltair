@@ -186,9 +186,14 @@ export default function BotDetailPage() {
         try {
             const response = await fetch(`/api/bots/${params.id}`);
             const data = await response.json();
-            setBot(data);
+            if (data.success && data.data) {
+                setBot(data.data);
+            } else {
+                setBot(null);
+            }
         } catch (error) {
             console.error('Error fetching bot:', error);
+            setBot(null);
         } finally {
             setIsLoading(false);
         }
