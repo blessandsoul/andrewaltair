@@ -36,13 +36,14 @@ export function LiveVisitorCounter({
                 const res = await fetch('/api/tracking/visitors')
                 if (res.ok) {
                     const json = await res.json()
-                    setData(json)
+                    const payload = json.data || json
+                    setData(payload)
 
                     // Animate if count changed
-                    if (json.online !== prevCount) {
+                    if (payload.online !== prevCount) {
                         setIsAnimating(true)
                         setTimeout(() => setIsAnimating(false), 300)
-                        setPrevCount(json.online)
+                        setPrevCount(payload.online)
                     }
                 }
             } catch (error) {

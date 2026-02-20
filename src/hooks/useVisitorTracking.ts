@@ -148,7 +148,7 @@ export function useOnlineCount(pollInterval = 30000) {
                 const res = await fetch('/api/tracking/visitors')
                 if (res.ok) {
                     const json = await res.json()
-                    setData(json)
+                    setData(json.data || json)
                 }
             } catch (error) {
                 // Silently fail
