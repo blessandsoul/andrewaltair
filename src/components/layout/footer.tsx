@@ -143,11 +143,14 @@ export function Footer() {
             </div>
           </div>
 
-          {/* TOP.GE ASYNC COUNTER CODE */}
-          <div className="mt-6 flex justify-center">
+          {/* COUNTERS: TOP.GE and OXO.GE */}
+          <div className="mt-6 flex justify-center items-center gap-4">
+            {/* TOP.GE */}
             <div id="top-ge-counter-container" data-site-id="117786"></div>
+            {/* OXO.GE */}
+            <div id="top-ge-counter-container" data-site-id="7" data-counter-style="5" data-counter-color="#ffffff"></div>
           </div>
-          {/* / END OF TOP.GE COUNTER CODE */}
+          {/* / END OF COUNTERS */}
         </div>
       </div>
 
@@ -157,6 +160,14 @@ export function Footer() {
         strategy="lazyOnload"
         onLoad={() => console.log('TOP.GE counter loaded')}
         onError={() => console.error('TOP.GE counter failed')}
+      />
+
+      {/* OXO.GE Counter Script */}
+      <Script
+        src="//oxo.ge/counter.js"
+        strategy="lazyOnload"
+        onLoad={() => console.log('OXO.GE counter loaded')}
+        onError={() => console.error('OXO.GE counter failed')}
       />
     </footer>
   )
