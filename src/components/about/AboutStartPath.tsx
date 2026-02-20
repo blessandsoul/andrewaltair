@@ -33,8 +33,8 @@ const paths = [
 
 export function AboutStartPath() {
     return (
-        <section className="py-24 border-b border-white/5">
-            <div className="container mx-auto px-6 lg:px-12 max-w-[90rem]">
+        <section className="py-12 sm:py-16 lg:py-24 border-b border-white/5">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-12 max-w-[90rem]">
                 <div className="grid lg:grid-cols-12 gap-12 items-center">
 
                     <div className="lg:col-span-4">

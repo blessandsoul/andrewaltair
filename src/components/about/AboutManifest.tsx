@@ -14,8 +14,8 @@ const beliefs = [
 
 export function AboutManifest() {
     return (
-        <section className="py-24 border-b border-white/5">
-            <div className="container mx-auto px-6 lg:px-12 max-w-[90rem]">
+        <section className="py-12 sm:py-16 lg:py-24 border-b border-white/5">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-12 max-w-[90rem]">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl font-bold tracking-tight mb-4">მანიფესტი</h2>
                     <p className="text-muted-foreground">მთავარი პრინციპები, რომლითაც ვხელმძღვანელობ</p>

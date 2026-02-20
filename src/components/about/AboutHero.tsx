@@ -14,7 +14,7 @@ export function AboutHero() {
             {/* Neuro-Grid Background */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
-            <div className="container relative mx-auto px-6 lg:px-12 max-w-[90rem]">
+            <div className="container relative mx-auto px-4 sm:px-6 lg:px-12 max-w-[90rem]">
                 <div className="grid lg:grid-cols-12 gap-12 lg:gap-24 items-center">
 
                     {/* Typography / Content (Left - 7 cols) */}
@@ -29,7 +29,7 @@ export function AboutHero() {
                                 AI ინოვატორი
                             </Badge>
 
-                            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.9] text-foreground">
+                            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.9] text-foreground">
                                 Andrew <br />
                                 <span className="text-muted-foreground/30">Altair.</span>
                             </h1>

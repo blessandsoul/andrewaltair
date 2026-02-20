@@ -175,7 +175,7 @@ export function HubLayout({ posts, videos }: HubLayoutProps) {
                             <Card className={`overflow-hidden border-0 shadow-lg bg-gradient-to-r ${promo.gradient} text-white hover-lift h-full`}>
                                 <CardContent className="p-3 text-center flex flex-col items-center justify-center gap-2">
                                     <promo.icon className="w-6 h-6 mb-1" />
-                                    <span className="font-bold text-sm whitespace-nowrap">{promo.title}</span>
+                                    <span className="font-bold text-sm">{promo.title}</span>
                                 </CardContent>
                             </Card>
                         </Link>

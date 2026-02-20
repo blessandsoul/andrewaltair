@@ -7,8 +7,8 @@ import { brand } from "@/lib/brand"
 
 export function AboutBioDetail() {
     return (
-        <section className="py-20 bg-background">
-            <div className="container mx-auto px-6 lg:px-12 max-w-[90rem]">
+        <section className="py-12 sm:py-16 lg:py-20 bg-background">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-12 max-w-[90rem]">
                 <div className="grid lg:grid-cols-12 gap-12 lg:gap-20">
 
                     {/* Left Column - Sticky Title or Intro */}

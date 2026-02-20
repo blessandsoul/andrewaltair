@@ -28,8 +28,8 @@ const movies = [
 
 export function AboutInspiration() {
     return (
-        <section className="py-24 border-b border-white/5">
-            <div className="container mx-auto px-6 lg:px-12 max-w-[90rem]">
+        <section className="py-12 sm:py-16 lg:py-24 border-b border-white/5">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-12 max-w-[90rem]">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
                     <div>
                         <h2 className="text-3xl font-bold tracking-tight mb-2">Cinematic DNA</h2>

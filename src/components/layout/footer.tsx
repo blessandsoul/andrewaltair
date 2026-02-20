@@ -20,7 +20,7 @@ export function Footer() {
     <footer className="border-t border-border bg-card">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <div className="py-12 md:py-16">
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 md:grid-cols-4">
             {/* Brand */}
             <div className="space-y-4">
               <Link href="/" className="flex items-center gap-3">

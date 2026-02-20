@@ -156,7 +156,7 @@ export default async function BlogPage(props: {
               </p>
 
               {/* TbSearch Bar */}
-              <div className="flex gap-3 max-w-lg mx-auto pt-4">
+              <div className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto pt-4">
                 <div className="relative flex-1">
                   <TbSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
@@ -319,7 +319,7 @@ export default async function BlogPage(props: {
               <p className="text-lg text-white/80">
                 გამოიწერე და მიიღე ახალი კონტენტი პირველმა
               </p>
-              <div className="flex gap-3 max-w-md mx-auto">
+              <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
                 <div className="relative flex-1">
                   <TbMail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                   <Input

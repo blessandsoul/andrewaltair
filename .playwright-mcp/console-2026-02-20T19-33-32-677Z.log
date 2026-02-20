@@ -1,0 +1,80 @@
+[    2641ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3001/api/auth/me:0
+[    4073ms] [WARNING] Image with src "/images/avatars/alpha.jpg?v=6" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:696
+[    4181ms] [WARNING] Image with src "/images/avatars/deep.png?v=6" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:696
+[   74957ms] [WARNING] [Fast Refresh] performing full reload
+
+Fast Refresh will perform a full reload when you edit a file that's imported by modules outside of the React rendering tree.
+You might have a file which exports a React component but also exports a value that is imported by a non-React component file.
+Consider migrating the non-React component export to a separate file and importing it into both files.
+
+It is also possible the parent component of the component you edited is a class component, which disables Fast Refresh.
+Fast Refresh requires at least one parent function component in your React tree. @ http://localhost:3001/_next/static/chunks/%5Bturbopack%5D_dev_client_dcbd7d._.js:112
+[   75991ms] [ERROR] Failed to fetch RSC payload for http://localhost:3001/blog. Falling back to browser navigation. TypeError: Failed to fetch
+    at fetchServerResponse (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:365:27)
+    at fastRefreshReducerImpl (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:3115:67)
+    at clientReducer (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:3472:67)
+    at Object.action (http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:592:55)
+    at runAction (http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:498:38)
+    at runRemainingActions (http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:472:13)
+    at handleResult (http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:508:9) @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:13373
+[   78046ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3001/api/auth/me:0
+[   80514ms] [WARNING] [Fast Refresh] performing full reload
+
+Fast Refresh will perform a full reload when you edit a file that's imported by modules outside of the React rendering tree.
+You might have a file which exports a React component but also exports a value that is imported by a non-React component file.
+Consider migrating the non-React component export to a separate file and importing it into both files.
+
+It is also possible the parent component of the component you edited is a class component, which disables Fast Refresh.
+Fast Refresh requires at least one parent function component in your React tree. @ http://localhost:3001/_next/static/chunks/%5Bturbopack%5D_dev_client_dcbd7d._.js:112
+[   80545ms] [WARNING] Image with src "/images/avatars/alpha.jpg?v=6" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:696
+[   80557ms] [WARNING] Image with src "/images/avatars/deep.png?v=6" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:696
+[   81586ms] [ERROR] Failed to fetch RSC payload for http://localhost:3001/blog. Falling back to browser navigation. TypeError: network error @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:13373
+[   83420ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3001/api/auth/me:0
+[   85575ms] [WARNING] Image with src "/images/avatars/deep.png?v=6" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:696
+[   85575ms] [WARNING] Image with src "/images/avatars/alpha.jpg?v=6" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:696
+[  122544ms] [WARNING] [Fast Refresh] performing full reload
+
+Fast Refresh will perform a full reload when you edit a file that's imported by modules outside of the React rendering tree.
+You might have a file which exports a React component but also exports a value that is imported by a non-React component file.
+Consider migrating the non-React component export to a separate file and importing it into both files.
+
+It is also possible the parent component of the component you edited is a class component, which disables Fast Refresh.
+Fast Refresh requires at least one parent function component in your React tree. @ http://localhost:3001/_next/static/chunks/%5Bturbopack%5D_dev_client_dcbd7d._.js:112
+[  123400ms] [ERROR] Failed to fetch RSC payload for http://localhost:3001/blog. Falling back to browser navigation. TypeError: Failed to fetch
+    at fetchServerResponse (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:365:27)
+    at fastRefreshReducerImpl (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:3115:67)
+    at clientReducer (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:3472:67)
+    at Object.action (http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:592:55)
+    at runAction (http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:498:38)
+    at runRemainingActions (http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:472:13)
+    at handleResult (http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:508:9) @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:13373
+[  125034ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3001/api/auth/me:0
+[  126206ms] [WARNING] Image with src "/images/avatars/deep.png?v=6" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:696
+[  126211ms] [WARNING] Image with src "/images/avatars/alpha.jpg?v=6" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:696
+[  301887ms] [WARNING] [Fast Refresh] performing full reload
+
+Fast Refresh will perform a full reload when you edit a file that's imported by modules outside of the React rendering tree.
+You might have a file which exports a React component but also exports a value that is imported by a non-React component file.
+Consider migrating the non-React component export to a separate file and importing it into both files.
+
+It is also possible the parent component of the component you edited is a class component, which disables Fast Refresh.
+Fast Refresh requires at least one parent function component in your React tree. @ http://localhost:3001/_next/static/chunks/%5Bturbopack%5D_dev_client_dcbd7d._.js:112
+[  302785ms] [ERROR] Failed to fetch RSC payload for http://localhost:3001/blog. Falling back to browser navigation. TypeError: Failed to fetch
+    at fetchServerResponse (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:365:27)
+    at fastRefreshReducerImpl (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:3115:67)
+    at clientReducer (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:3472:67)
+    at Object.action (http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:592:55)
+    at runAction (http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:498:38)
+    at dispatchAction (http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:555:9)
+    at Object.dispatch (http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:587:40)
+    at http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:3631:21
+    at http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:12930:25
+    at startTransition (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react_a1d82d._.js:2135:39)
+    at Object.fastRefresh (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:12929:48)
+    at http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:12476:28
+    at startTransition (http://localhost:3001/_next/static/chunks/node_modules_next_dist_compiled_react_a1d82d._.js:2135:39)
+    at processMessage (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:12475:44)
+    at WebSocket.handler (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:12596:17) @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:13373
+[  304357ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3001/api/auth/me:0
+[  305613ms] [WARNING] Image with src "/images/avatars/deep.png?v=6" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:696
+[  305616ms] [WARNING] Image with src "/images/avatars/alpha.jpg?v=6" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:696

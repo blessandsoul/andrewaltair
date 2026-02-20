@@ -199,7 +199,7 @@ export function Header() {
     return true
   })
   const search = useSearchDialog()
-  const { user, isLoading } = useAuth()
+  const { user, isLoading, logout } = useAuth()
 
   const handleDismissNotice = () => {
     setShowDevNotice(false)
@@ -489,7 +489,6 @@ export function Header() {
                         variant="destructive"
                         className="flex-1 gap-2"
                         onClick={() => {
-                          const { logout } = useAuth()
                           logout()
                           setIsMobileMenuOpen(false)
                         }}

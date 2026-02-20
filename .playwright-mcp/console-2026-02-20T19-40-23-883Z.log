@@ -1,0 +1,2 @@
+[    2254ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3001/api/auth/me:0
+[   19445ms] [WARNING] Image with src "/images/avatars/alpha.jpg?v=6" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:696

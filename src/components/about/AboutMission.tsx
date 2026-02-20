@@ -5,7 +5,7 @@ import { TbWorld, TbUsersGroup } from "react-icons/tb"
 
 export function AboutMission() {
     return (
-        <section className="py-20 lg:py-32 bg-background relative overflow-hidden">
+        <section className="py-12 sm:py-16 lg:py-32 bg-background relative overflow-hidden">
             <div className="container mx-auto px-4 max-w-5xl relative z-10">
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                     <motion.div
@@ -51,7 +51,7 @@ export function AboutMission() {
             </div>
 
             {/* Background Graphic */}
-            <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl -z-10" />
+            <div className="absolute top-1/2 right-0 -translate-y-1/2 w-62.5 h-62.5 sm:w-100 sm:h-100 lg:w-125 lg:h-125 bg-primary/5 rounded-full blur-3xl -z-10" />
         </section>
     )
 }

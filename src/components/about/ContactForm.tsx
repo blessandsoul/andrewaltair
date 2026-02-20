@@ -77,7 +77,7 @@ export function ContactForm() {
     }
 
     return (
-        <section className="py-20 relative overflow-hidden">
+        <section className="py-12 sm:py-16 lg:py-20 relative overflow-hidden">
             <div className="absolute inset-0 bg-secondary/20"></div>
             <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
                 <motion.div

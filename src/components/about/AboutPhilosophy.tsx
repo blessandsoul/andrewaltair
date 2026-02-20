@@ -5,7 +5,7 @@ import { TbBrain, TbScale } from "react-icons/tb"
 
 export function AboutPhilosophy() {
     return (
-        <section className="py-20 bg-secondary/5 border-y border-white/5">
+        <section className="py-12 sm:py-16 lg:py-20 bg-secondary/5 border-y border-white/5">
             <div className="container mx-auto px-4 max-w-6xl">
                 <div className="text-center mb-16">
                     <motion.h2

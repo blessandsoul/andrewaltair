@@ -61,8 +61,8 @@ export function AboutContactWidget() {
     }
 
     return (
-        <section className="py-24">
-            <div className="container mx-auto px-6 lg:px-12 max-w-[90rem]">
+        <section className="py-12 sm:py-16 lg:py-24">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-12 max-w-[90rem]">
                 <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
 
                     {/* Left: Content */}
