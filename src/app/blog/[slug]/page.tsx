@@ -93,9 +93,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     createdAt: rawPost.createdAt instanceof Date ? rawPost.createdAt.toISOString() : rawPost.createdAt,
     updatedAt: rawPost.updatedAt instanceof Date ? rawPost.updatedAt.toISOString() : rawPost.updatedAt,
     publishedAt: rawPost.publishedAt instanceof Date ? rawPost.publishedAt.toISOString() : rawPost.publishedAt,
+    scheduledFor: rawPost.scheduledFor instanceof Date ? rawPost.scheduledFor.toISOString() : rawPost.scheduledFor,
   }
 
-  const relatedPosts = await PostService.getRelatedPosts(slug, post.categories) // Pass categories for better recommendations
+  const rawRelatedPosts = await PostService.getRelatedPosts(slug, post.categories) // Pass categories for better recommendations
+
+  // Serialize relatedPosts for Client Component (Date objects are not serializable across the RSC boundary)
+  const relatedPosts = rawRelatedPosts.map((rp: any) => ({
+    ...rp,
+    createdAt: rp.createdAt instanceof Date ? rp.createdAt.toISOString() : rp.createdAt,
+    updatedAt: rp.updatedAt instanceof Date ? rp.updatedAt.toISOString() : rp.updatedAt,
+    publishedAt: rp.publishedAt instanceof Date ? rp.publishedAt.toISOString() : rp.publishedAt,
+    scheduledFor: rp.scheduledFor instanceof Date ? rp.scheduledFor.toISOString() : rp.scheduledFor,
+  }))
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
   let imageUrl = post.coverImages?.horizontal || post.coverImage
 

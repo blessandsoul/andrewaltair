@@ -1,0 +1,77 @@
+[    1322ms] [ERROR] Warning: Prop `%s` did not match. Server: %s Client: %s%s style "left:33.819660112501055%;top:38.24429495415054%;transform:translate(-50%, -50%);opacity:0.85;animation:float2 18s ease-in-out infinite;animation-play-state:running;animation-delay:1.7999999999999998s" "left:33.81966011250105%;top:38.24429495415054%;transform:translate(-50%, -50%);opacity:0.85;animation:float2 18s ease-in-out infinite;animation-play-state:running;animation-delay:1.7999999999999998s" 
+    at a
+    at LinkComponent (http://localhost:3001/_next/static/chunks/node_modules_next_494f6d._.js:3001:19)
+    at div
+    at div
+    at FloatingTagCloud (http://localhost:3001/_next/static/chunks/src_daf7cd._.js:7429:29)
+    at div
+    at div
+    at div
+    at div
+    at section
+    at div
+    at div
+    at div
+    at InfiniteScrollPosts (http://localhost:3001/_next/static/chunks/src_daf7cd._.js:6476:32)
+    at BlogPostClient (http://localhost:3001/_next/static/chunks/src_daf7cd._.js:7914:27)
+    at article
+    at BlogPostPage (Server)
+    at InnerLayoutRouter (http://localhost:3001/_next/static/chunks/node_modules_next_494f6d._.js:6592:11)
+    at RedirectErrorBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:4922:9)
+    at RedirectBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:4930:11)
+    at NotFoundBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:5175:11)
+    at LoadingBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_494f6d._.js:6696:11)
+    at ErrorBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:4636:11)
+    at InnerScrollAndFocusHandler (http://localhost:3001/_next/static/chunks/node_modules_next_494f6d._.js:6503:9)
+    at ScrollAndFocusHandler (http://localhost:3001/_next/static/chunks/node_modules_next_494f6d._.js:6578:11)
+    at RenderFromTemplateContext (http://localhost:3001/_next/static/chunks/node_modules_next_494f6d._.js:6822:44)
+    at OuterLayoutRouter (http://localhost:3001/_next/static/chunks/node_modules_next_494f6d._.js:6716:11)
+    at InnerLayoutRouter (http://localhost:3001/_next/static/chunks/node_modules_next_494f6d._.js:6592:11)
+    at RedirectErrorBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:4922:9)
+    at RedirectBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:4930:11)
+    at NotFoundBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:5175:11)
+    at Suspense
+    at LoadingBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_494f6d._.js:6696:11)
+    at ErrorBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:4636:11)
+    at InnerScrollAndFocusHandler (http://localhost:3001/_next/static/chunks/node_modules_next_494f6d._.js:6503:9)
+    at ScrollAndFocusHandler (http://localhost:3001/_next/static/chunks/node_modules_next_494f6d._.js:6578:11)
+    at RenderFromTemplateContext (http://localhost:3001/_next/static/chunks/node_modules_next_494f6d._.js:6822:44)
+    at OuterLayoutRouter (http://localhost:3001/_next/static/chunks/node_modules_next_494f6d._.js:6716:11)
+    at InnerLayoutRouter (http://localhost:3001/_next/static/chunks/node_modules_next_494f6d._.js:6592:11)
+    at RedirectErrorBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:4922:9)
+    at RedirectBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:4930:11)
+    at NotFoundErrorBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:5167:9)
+    at NotFoundBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:5175:11)
+    at Suspense
+    at LoadingBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_494f6d._.js:6696:11)
+    at ErrorBoundaryHandler (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:4590:9)
+    at ErrorBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:4636:11)
+    at InnerScrollAndFocusHandler (http://localhost:3001/_next/static/chunks/node_modules_next_494f6d._.js:6503:9)
+    at ScrollAndFocusHandler (http://localhost:3001/_next/static/chunks/node_modules_next_494f6d._.js:6578:11)
+    at RenderFromTemplateContext (http://localhost:3001/_next/static/chunks/node_modules_next_494f6d._.js:6822:44)
+    at OuterLayoutRouter (http://localhost:3001/_next/static/chunks/node_modules_next_494f6d._.js:6716:11)
+    at div
+    at MotionDOMComponent (http://localhost:3001/_next/static/chunks/node_modules_framer-motion_dist_es_a21dd3._.js:2718:192)
+    at PageTransition (http://localhost:3001/_next/static/chunks/src_7168ed._.js:6235:27)
+    at main
+    at LayoutWrapper (http://localhost:3001/_next/static/chunks/src_7168ed._.js:6318:26)
+    at ConfirmDialogProvider (http://localhost:3001/_next/static/chunks/src_7168ed._.js:6937:34)
+    at ToastProvider (http://localhost:3001/_next/static/chunks/src_7168ed._.js:6694:26)
+    at AuthProvider (http://localhost:3001/_next/static/chunks/src_7168ed._.js:1045:25)
+    at body
+    at html
+    at RedirectErrorBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:4922:9)
+    at RedirectBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:4930:11)
+    at NotFoundErrorBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:5167:9)
+    at NotFoundBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:5175:11)
+    at DevRootNotFoundBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:5235:11)
+    at ReactDevOverlay (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:11751:9)
+    at HotReload (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:12522:11)
+    at Router (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:12839:11)
+    at ErrorBoundaryHandler (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:4590:9)
+    at ErrorBoundary (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:4636:11)
+    at AppRouter (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:13203:13)
+    at ServerRoot (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:13452:27)
+    at Root (http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:13456:11) @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_client_8bb71d._.js:13373
+[    1639ms] [WARNING] Image with src "/api/files/2026/02/untitled-horizontal-1771585973589.jpeg" has "fill" prop and "sizes" prop of "100vw", but image is not rendered at full viewport width. Please adjust "sizes" to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_38ecb8._.js:696
+[    2438ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3001/api/auth/me:0
