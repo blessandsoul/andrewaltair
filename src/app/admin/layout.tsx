@@ -2,14 +2,11 @@
 
 import * as React from "react"
 import { AdminSidebar, AdminHeader } from "@/components/admin/AdminSidebar"
-import { AdminAuth } from "@/components/admin/AdminAuth"
+import { AdminAuth, useAdminAuth } from "@/components/admin/AdminAuth"
 import { OnboardingTour, useOnboarding } from "@/components/admin/OnboardingTour"
 
-export default function AdminLayout({
-    children,
-}: {
-    children: React.ReactNode
-}) {
+function AdminLayoutContent({ children }: { children: React.ReactNode }) {
+    const { isAuthenticated, isLoading } = useAdminAuth()
     const [sidebarOpen, setSidebarOpen] = React.useState(false)
     const [theme, setTheme] = React.useState<"light" | "dark">("light")
     const { showTour, endTour } = useOnboarding()
@@ -20,7 +17,6 @@ export default function AdminLayout({
         if (savedTheme) {
             setTheme(savedTheme)
         } else {
-            // Default to light for admin panel
             setTheme("light")
         }
     }, [])
@@ -39,29 +35,44 @@ export default function AdminLayout({
         setTheme(prev => prev === "dark" ? "light" : "dark")
     }
 
+    // Don't render sidebar/header until authenticated
+    if (isLoading || !isAuthenticated) {
+        return <>{children}</>
+    }
+
     return (
-        <AdminAuth>
-            <div className="min-h-screen bg-background">
-                <AdminSidebar
-                    isOpen={sidebarOpen}
-                    onClose={() => setSidebarOpen(false)}
+        <div className="min-h-screen bg-background">
+            <AdminSidebar
+                isOpen={sidebarOpen}
+                onClose={() => setSidebarOpen(false)}
+                theme={theme}
+                onThemeToggle={toggleTheme}
+            />
+            <div className="lg:pl-64">
+                <AdminHeader
+                    onMenuClick={() => setSidebarOpen(true)}
                     theme={theme}
                     onThemeToggle={toggleTheme}
                 />
-                <div className="lg:pl-64">
-                    <AdminHeader
-                        onMenuClick={() => setSidebarOpen(true)}
-                        theme={theme}
-                        onThemeToggle={toggleTheme}
-                    />
-                    <main className="p-4 md:p-6 lg:p-8">
-                        {children}
-                    </main>
-                </div>
+                <main className="p-4 md:p-6 lg:p-8">
+                    {children}
+                </main>
             </div>
 
             {/* Onboarding Tour */}
             <OnboardingTour isOpen={showTour} onComplete={endTour} />
+        </div>
+    )
+}
+
+export default function AdminLayout({
+    children,
+}: {
+    children: React.ReactNode
+}) {
+    return (
+        <AdminAuth>
+            <AdminLayoutContent>{children}</AdminLayoutContent>
         </AdminAuth>
     )
 }

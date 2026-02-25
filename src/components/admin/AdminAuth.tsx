@@ -9,6 +9,20 @@ import { TbLock, TbEye, TbEyeOff, TbShield, TbAlertCircle, TbDeviceMobile, TbCir
 // Password is now verified via API - NO HARDCODING!
 // Credentials are stored in .env.local as ADMIN_PASSWORD
 
+interface AdminAuthContextValue {
+    isAuthenticated: boolean
+    isLoading: boolean
+}
+
+const AdminAuthContext = React.createContext<AdminAuthContextValue>({
+    isAuthenticated: false,
+    isLoading: true,
+})
+
+export function useAdminAuth(): AdminAuthContextValue {
+    return React.useContext(AdminAuthContext)
+}
+
 interface AdminAuthProps {
     children: React.ReactNode
 }
@@ -128,18 +142,26 @@ export function AdminAuth({ children }: AdminAuthProps) {
         localStorage.setItem("admin_2fa_enabled", String(newValue))
     }
 
+    const contextValue = React.useMemo<AdminAuthContextValue>(
+        () => ({ isAuthenticated, isLoading }),
+        [isAuthenticated, isLoading]
+    )
+
     // Loading state
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center">
-                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            </div>
+            <AdminAuthContext.Provider value={contextValue}>
+                <div className="min-h-screen bg-background flex items-center justify-center">
+                    <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                </div>
+            </AdminAuthContext.Provider>
         )
     }
 
     // 2FA verification step
     if (show2FA) {
         return (
+            <AdminAuthContext.Provider value={contextValue}>
             <div className="min-h-screen bg-background flex items-center justify-center p-4">
                 <Card className="w-full max-w-md">
                     <CardHeader className="text-center">
@@ -192,12 +214,14 @@ export function AdminAuth({ children }: AdminAuthProps) {
                     </CardContent>
                 </Card>
             </div>
+            </AdminAuthContext.Provider>
         )
     }
 
     // Not authenticated - show login
     if (!isAuthenticated) {
         return (
+            <AdminAuthContext.Provider value={contextValue}>
             <div className="min-h-screen bg-background flex items-center justify-center p-4">
                 <Card className="w-full max-w-md">
                     <CardHeader className="text-center">
@@ -293,9 +317,10 @@ export function AdminAuth({ children }: AdminAuthProps) {
                     </CardContent>
                 </Card>
             </div>
+            </AdminAuthContext.Provider>
         )
     }
 
     // Authenticated - show admin content
-    return <>{children}</>
+    return <AdminAuthContext.Provider value={contextValue}>{children}</AdminAuthContext.Provider>
 }
