@@ -76,28 +76,32 @@ export default async function BlogPage(props: {
   }
 
   // Fetch data
-  await dbConnect()
+  let allPosts: any[] = []
+  let featuredPosts: any[] = []
+  let totalPostsCount = 0
 
-  // 1. Get total count
-  const totalPostsCount = await Post.countDocuments(query)
+  try {
+    await dbConnect()
 
-  // 2. Get posts (with simple pagination or increased limit)
-  // For now increasing limit, but ideally should match infinite scroll logic if used
-  const displayLimit = 50 // Keep fetching limit reasonable but disconnect it from "Total"
+    totalPostsCount = await Post.countDocuments(query)
 
-  const postsData = await Post.find(query)
-    .sort({ createdAt: -1 }) // Sort by new
-    .limit(displayLimit)
-    .lean()
+    const displayLimit = 50
 
-  // Transform to serializable objects
-  const allPosts = postsData.map((post) => ({
-    ...post,
-    id: post._id.toString(),
-    _id: post._id.toString(),
-  }))
+    const postsData = await Post.find(query)
+      .sort({ createdAt: -1 })
+      .limit(displayLimit)
+      .lean()
 
-  const featuredPosts = allPosts.filter((p: any) => p.featured)
+    allPosts = postsData.map((post) => ({
+      ...post,
+      id: post._id.toString(),
+      _id: post._id.toString(),
+    }))
+
+    featuredPosts = allPosts.filter((p: any) => p.featured)
+  } catch (error) {
+    console.error('Error fetching blog posts:', error)
+  }
 
   // CollectionPage Schema for Blog
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'

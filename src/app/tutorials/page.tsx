@@ -15,14 +15,17 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 async function getTutorials() {
-    await dbConnect()
-    // Fetch only published tutorials
-    const tutorials = await Tutorial.find({ status: 'published' })
-        .sort({ createdAt: -1 })
-        .lean()
+    try {
+        await dbConnect()
+        const tutorials = await Tutorial.find({ status: 'published' })
+            .sort({ createdAt: -1 })
+            .lean()
 
-    // Serialize for Next.js (ObjectId to string)
-    return JSON.parse(JSON.stringify(tutorials))
+        return JSON.parse(JSON.stringify(tutorials))
+    } catch (error) {
+        console.error('Error fetching tutorials:', error)
+        return []
+    }
 }
 
 export default async function TutorialsPage() {

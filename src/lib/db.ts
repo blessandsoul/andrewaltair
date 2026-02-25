@@ -2,7 +2,10 @@ import mongoose from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI!;
 
-if (!MONGODB_URI) {
+// Detect Docker build-time placeholder to fail fast instead of hanging on connection timeout
+const isBuildTimePlaceholder = !MONGODB_URI || MONGODB_URI.includes('placeholder');
+
+if (!MONGODB_URI && !isBuildTimePlaceholder) {
     throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
 }
 
@@ -23,8 +26,12 @@ if (!global.mongoose) {
 }
 
 async function dbConnect(): Promise<typeof mongoose> {
+    // During Docker build, MONGODB_URI is a placeholder — fail fast so pages return empty data
+    if (isBuildTimePlaceholder) {
+        throw new Error('MongoDB unavailable during build (placeholder URI)');
+    }
+
     if (cached.conn) {
-        // console.log('Using cached MongoDB connection');
         return cached.conn;
     }
 

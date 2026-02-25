@@ -6,12 +6,16 @@ import { notFound } from 'next/navigation'
 import dbConnect from "@/lib/db"
 import Tutorial from "@/models/Tutorial"
 
-// Function to fetch data
 async function getTutorial(slug: string) {
-    await dbConnect()
-    const tutorial = await Tutorial.findOne({ slug: slug }).lean()
-    if (!tutorial) return null
-    return JSON.parse(JSON.stringify(tutorial))
+    try {
+        await dbConnect()
+        const tutorial = await Tutorial.findOne({ slug: slug }).lean()
+        if (!tutorial) return null
+        return JSON.parse(JSON.stringify(tutorial))
+    } catch (error) {
+        console.error('Error fetching tutorial:', error)
+        return null
+    }
 }
 
 
