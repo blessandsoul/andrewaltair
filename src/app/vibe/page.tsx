@@ -22,7 +22,10 @@ export const metadata: Metadata = {
         card: 'summary_large_image',
         title: 'Vibe Coding - AI პროგრამირების სრული გაიდი',
         description: 'სრული სახელმძღვანელო AI-ასისტირებულ პროგრამირებაზე',
-    }
+    },
+    alternates: {
+        canonical: 'https://andrewaltair.ge/vibe',
+    },
 };
 
 export default function VibeCodingLandingPage() {

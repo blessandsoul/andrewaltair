@@ -1,7 +1,25 @@
-'use client';
-
+import type { Metadata } from 'next';
 import { AIReadinessAssessment } from '@/components/conversion';
 import { TbClipboardCheck, TbDeviceDesktop, TbChartBar, TbUsers, TbCash } from 'react-icons/tb';
+
+export const metadata: Metadata = {
+    title: 'AI მზადყოფნის შეფასება',
+    description: 'შეაფასე შენი კომპანიის მზადყოფნა AI ტექნოლოგიების დანერგვისთვის. გაიგე რა სფეროებში გჭირდება განვითარება.',
+    openGraph: {
+        title: 'AI მზადყოფნის შეფასება',
+        description: 'შეაფასე შენი კომპანიის მზადყოფნა AI ტექნოლოგიების დანერგვისთვის.',
+        type: 'website',
+        images: [{ url: '/og.png', width: 1200, height: 630 }],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'AI მზადყოფნის შეფასება',
+        description: 'შეაფასე შენი კომპანიის მზადყოფნა AI ტექნოლოგიების დანერგვისთვის.',
+    },
+    alternates: {
+        canonical: 'https://andrewaltair.ge/ai-readiness',
+    },
+};
 
 export default function AIReadinessPage() {
     return (

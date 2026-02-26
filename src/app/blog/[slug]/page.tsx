@@ -61,6 +61,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         description: seoDescription,
         images: [imageUrl],
       },
+      alternates: {
+        canonical: post.seo?.canonicalUrl || `${siteUrl}/blog/${slug}`,
+      },
     }
   } catch (error) {
     console.error(`[generateMetadata] Error for /blog/${slug}:`, error)

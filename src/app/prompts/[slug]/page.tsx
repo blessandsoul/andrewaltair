@@ -109,7 +109,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             title: title,
             description: excerpt,
             images: [coverImage],
-        }
+        },
+        alternates: {
+            canonical: `${siteUrl}/prompts/${slug}`,
+        },
     }
 }
 

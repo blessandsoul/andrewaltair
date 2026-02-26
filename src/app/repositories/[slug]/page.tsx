@@ -66,7 +66,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
             title: post.title,
             description: seoDescription,
             images: [imageUrl],
-        }
+        },
+        alternates: {
+            canonical: `${siteUrl}/repositories/${slug}`,
+        },
     }
 }
 

@@ -2,75 +2,123 @@ import { MetadataRoute } from 'next'
 import { getAllArticles } from '@/data/vibeCodingContent'
 import dbConnect from '@/lib/db'
 import Post from '@/models/Post'
-
+import Tutorial from '@/models/Tutorial'
 import MarketplacePrompt from '@/models/MarketplacePrompt'
 import Bot from '@/models/Bot'
 import Video from '@/models/Video'
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = 'https://andrewaltair.ge'
 
-    // Static pages
+    // Static pages with fixed dates
     const staticPages: MetadataRoute.Sitemap = [
         {
             url: baseUrl,
-            lastModified: new Date(),
+            lastModified: new Date('2025-06-01'),
             changeFrequency: 'weekly',
             priority: 1,
         },
         {
             url: `${baseUrl}/blog`,
-            lastModified: new Date(),
+            lastModified: new Date('2025-06-01'),
             changeFrequency: 'daily',
             priority: 0.9,
         },
         {
             url: `${baseUrl}/encyclopedia/vibe-coding`,
-            lastModified: new Date(),
+            lastModified: new Date('2025-01-01'),
             changeFrequency: 'daily',
             priority: 0.9,
         },
         {
             url: `${baseUrl}/bots/pricing`,
-            lastModified: new Date(),
+            lastModified: new Date('2025-01-01'),
             changeFrequency: 'weekly',
             priority: 0.8,
         },
         {
             url: `${baseUrl}/videos`,
-            lastModified: new Date(),
+            lastModified: new Date('2025-01-01'),
             changeFrequency: 'weekly',
             priority: 0.8,
         },
         {
+            url: `${baseUrl}/tools`,
+            lastModified: new Date('2025-01-01'),
+            changeFrequency: 'weekly',
+            priority: 0.8,
+        },
+        {
+            url: `${baseUrl}/prompts`,
+            lastModified: new Date('2025-01-01'),
+            changeFrequency: 'daily',
+            priority: 0.8,
+        },
+        {
+            url: `${baseUrl}/bots`,
+            lastModified: new Date('2025-01-01'),
+            changeFrequency: 'weekly',
+            priority: 0.8,
+        },
+        {
+            url: `${baseUrl}/encyclopedia/ai-2026`,
+            lastModified: new Date('2025-01-01'),
+            changeFrequency: 'weekly',
+            priority: 0.8,
+        },
+        {
+            url: `${baseUrl}/services`,
+            lastModified: new Date('2025-01-01'),
+            changeFrequency: 'monthly',
+            priority: 0.7,
+        },
+        {
+            url: `${baseUrl}/tutorials`,
+            lastModified: new Date('2025-01-01'),
+            changeFrequency: 'weekly',
+            priority: 0.7,
+        },
+        {
+            url: `${baseUrl}/products`,
+            lastModified: new Date('2025-01-01'),
+            changeFrequency: 'weekly',
+            priority: 0.7,
+        },
+        {
+            url: `${baseUrl}/quiz`,
+            lastModified: new Date('2025-01-01'),
+            changeFrequency: 'yearly',
+            priority: 0.6,
+        },
+        {
             url: `${baseUrl}/bots/affiliate`,
-            lastModified: new Date(),
+            lastModified: new Date('2025-01-01'),
             changeFrequency: 'monthly',
             priority: 0.6,
         },
         {
             url: `${baseUrl}/about`,
-            lastModified: new Date(),
+            lastModified: new Date('2025-01-01'),
             changeFrequency: 'monthly',
             priority: 0.6,
         },
         {
             url: `${baseUrl}/mystic`,
-            lastModified: new Date(),
+            lastModified: new Date('2025-01-01'),
             changeFrequency: 'weekly',
             priority: 0.7,
         },
         {
             url: `${baseUrl}/privacy`,
-            lastModified: new Date(),
+            lastModified: new Date('2025-01-01'),
             changeFrequency: 'yearly',
             priority: 0.3,
         },
         {
             url: `${baseUrl}/terms`,
-            lastModified: new Date(),
+            lastModified: new Date('2025-01-01'),
             changeFrequency: 'yearly',
             priority: 0.3,
         },
@@ -80,7 +128,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const libraryArticles = getAllArticles()
     const libraryUrls: MetadataRoute.Sitemap = libraryArticles.map((article) => ({
         url: `${baseUrl}/encyclopedia/vibe-coding/${article.id}`,
-        lastModified: new Date(),
+        lastModified: new Date('2025-01-01'),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
     }))
@@ -103,10 +151,43 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         console.error('Sitemap: Error fetching blog posts:', error)
     }
 
+    // Tutorials from MongoDB
+    let tutorialUrls: MetadataRoute.Sitemap = []
+    try {
+        const tutorials = await Tutorial.find({ status: 'published' })
+            .select('slug updatedAt createdAt')
+            .lean()
+
+        tutorialUrls = tutorials.map((tutorial) => ({
+            url: `${baseUrl}/tutorials/${tutorial.slug}`,
+            lastModified: tutorial.updatedAt || tutorial.createdAt || new Date(),
+            changeFrequency: 'weekly' as const,
+            priority: 0.7,
+        }))
+    } catch (error) {
+        console.error('Sitemap: Error fetching tutorials:', error)
+    }
+
+    // Repositories from MongoDB
+    let repositoryUrls: MetadataRoute.Sitemap = []
+    try {
+        const repos = await Post.find({ status: 'published', 'repository.url': { $exists: true } })
+            .select('slug updatedAt createdAt')
+            .lean()
+
+        repositoryUrls = repos.map((repo) => ({
+            url: `${baseUrl}/repositories/${repo.slug}`,
+            lastModified: repo.updatedAt || repo.createdAt || new Date(),
+            changeFrequency: 'monthly' as const,
+            priority: 0.6,
+        }))
+    } catch (error) {
+        console.error('Sitemap: Error fetching repositories:', error)
+    }
+
     // Marketplace Prompts from MongoDB
     let promptUrls: MetadataRoute.Sitemap = []
     try {
-        await dbConnect()
         const prompts = await MarketplacePrompt.find({ status: 'published' })
             .select('slug updatedAt createdAt')
             .lean()
@@ -124,7 +205,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Bots (New Marketplace)
     let botEntries: MetadataRoute.Sitemap = []
     try {
-        await dbConnect()
         const bots = await Bot.find({ tier: { $ne: 'private' }, isActive: true })
             .select('_id updatedAt createdAt')
             .lean()
@@ -142,7 +222,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Videos
     let videoUrls: MetadataRoute.Sitemap = []
     try {
-        await dbConnect()
         const videos = await Video.find({})
             .select('_id updatedAt createdAt')
             .lean()
@@ -157,5 +236,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         console.error('Sitemap: Error fetching videos:', error)
     }
 
-    return [...staticPages, ...libraryUrls, ...blogUrls, ...promptUrls, ...botEntries, ...videoUrls]
+    return [...staticPages, ...libraryUrls, ...blogUrls, ...tutorialUrls, ...repositoryUrls, ...promptUrls, ...botEntries, ...videoUrls]
 }

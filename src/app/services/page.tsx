@@ -23,6 +23,9 @@ export const metadata: Metadata = {
         title: "AI კონსულტაცია და სერვისები",
         description: "პროფესიონალური AI კონსულტაცია, ავტომატიზაცია და ტრენინგი.",
     },
+    alternates: {
+        canonical: 'https://andrewaltair.ge/services',
+    },
 }
 
 // Client wrapper for ContactForm to pass services data

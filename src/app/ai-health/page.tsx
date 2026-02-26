@@ -1,7 +1,25 @@
-'use client';
-
+import type { Metadata } from 'next';
 import { AIHealthScore } from '@/components/conversion';
 import { TbActivity, TbSeeding, TbSchool, TbBolt, TbRocket } from 'react-icons/tb';
+
+export const metadata: Metadata = {
+    title: 'AI ჯანმრთელობის ტესტი',
+    description: 'შეაფასე შენი AI ცოდნა და მზადყოფნა. გაიგე რა დონეზე ხარ და რა უნდა ისწავლო შემდეგ. პერსონალური რეკომენდაციები AI გამოყენების გასაუმჯობესებლად.',
+    openGraph: {
+        title: 'AI ჯანმრთელობის ტესტი',
+        description: 'შეაფასე შენი AI ცოდნა და მზადყოფნა.',
+        type: 'website',
+        images: [{ url: '/og.png', width: 1200, height: 630 }],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'AI ჯანმრთელობის ტესტი',
+        description: 'შეაფასე შენი AI ცოდნა და მზადყოფნა.',
+    },
+    alternates: {
+        canonical: 'https://andrewaltair.ge/ai-health',
+    },
+};
 
 export default function AIHealthPage() {
     return (

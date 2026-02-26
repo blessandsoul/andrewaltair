@@ -67,12 +67,22 @@ export const siteMetadata: Metadata = {
         siteName: 'Andrew Altair AI',
         locale: 'ka_GE',
         type: 'website',
+        images: [
+            {
+                url: '/og.png',
+                width: 1200,
+                height: 630,
+                alt: 'Andrew Altair AI',
+            }
+        ],
     },
     twitter: {
         card: 'summary_large_image',
         title: "Andrew Altair | AI ექსპერტი საქართველოში",
         description: "ისწავლე AI ტექნოლოგიები და გაზარდე შენი ბიზნესი ხელოვნური ინტელექტის დახმარებით.",
-        creator: '@AndrewAltair',
+        creator: '@andr3waltair',
+        site: '@andr3waltair',
+        images: ['/og.png'],
     },
     robots: {
         index: true,

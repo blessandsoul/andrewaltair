@@ -46,7 +46,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
             title: tutorial.title,
             description: tutorial.intro,
             images: [coverImage],
-        }
+        },
+        alternates: {
+            canonical: `${siteUrl}/tutorials/${params.slug}`,
+        },
     }
 }
 

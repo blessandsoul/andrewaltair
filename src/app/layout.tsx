@@ -9,7 +9,7 @@ import { ConfirmDialogProvider } from "@/components/ui/confirm-dialog";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import { Agentation } from "agentation";
 import { siteMetadata, siteViewport } from "@/config/metadata";
-import { jsonLdSchemas } from "@/config/json-ld";
+import { personSchema, organizationSchema, websiteSchema } from "@/config/json-ld";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -24,7 +24,7 @@ const jetbrainsMono = JetBrains_Mono({
 const notoGeorgian = Noto_Sans_Georgian({
   variable: "--font-georgian",
   subsets: ["georgian", "latin"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  weight: ["400", "500", "600", "700"],
   display: 'swap',
 });
 
@@ -37,7 +37,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ka" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -54,10 +54,9 @@ export default function RootLayout({
             `,
           }}
         />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchemas) }}
-        />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
       </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} ${notoGeorgian.variable} antialiased font-georgian`}

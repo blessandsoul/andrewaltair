@@ -41,6 +41,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         };
     }
 
+    const imageUrl = 'https://andrewaltair.ge/og.png'
+
     return {
         title: `${data.meta.title} | AI 2026`,
         description: data.meta.description || data.seo?.excerpt,
@@ -49,8 +51,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             description: data.meta.description || data.seo?.excerpt,
             type: 'article',
             publishedTime: data.meta.last_updated,
-            tags: data.meta.tags
-        }
+            tags: data.meta.tags,
+            images: [{ url: imageUrl, width: 1200, height: 630, alt: data.meta.title }],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: data.meta.title,
+            description: data.meta.description || data.seo?.excerpt,
+            images: [imageUrl],
+        },
+        alternates: {
+            canonical: `https://andrewaltair.ge/encyclopedia/ai-2026/${params.slug}`,
+        },
     };
 }
 

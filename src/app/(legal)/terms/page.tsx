@@ -3,6 +3,18 @@ import { Metadata } from 'next'
 export const metadata: Metadata = {
     title: 'მომსახურების პირობები | Andrew Altair',
     description: 'Andrew Altair-ის ვებგვერდის გამოყენების პირობები და წესები.',
+    openGraph: {
+        title: 'მომსახურების პირობები',
+        type: 'website',
+        images: [{ url: '/og.png' }],
+    },
+    twitter: {
+        card: 'summary',
+        title: 'მომსახურების პირობები',
+    },
+    alternates: {
+        canonical: 'https://andrewaltair.ge/terms',
+    },
 }
 
 export default function TermsOfServicePage() {

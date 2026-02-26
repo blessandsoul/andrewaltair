@@ -2,24 +2,19 @@ import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
     const baseUrl = 'https://andrewaltair.ge'
+    const commonDisallow = ['/admin/', '/api/', '/private/', '/_next/', '/login', '/register']
 
     return {
         rules: [
             {
                 userAgent: '*',
                 allow: '/',
-                disallow: [
-                    '/admin/',
-                    '/api/',
-                    '/private/',
-                    '/_next/',
-                    '/login',
-                    '/register',
-                ],
+                disallow: commonDisallow,
             },
             {
                 userAgent: 'Googlebot',
                 allow: '/',
+                disallow: commonDisallow,
             },
             {
                 userAgent: 'Googlebot-Image',
@@ -47,15 +42,21 @@ export default function robots(): MetadataRoute.Robots {
                 disallow: ['/admin/', '/api/', '/private/'],
             },
             {
+                userAgent: 'PerplexityBot',
+                allow: '/',
+                disallow: ['/admin/', '/api/', '/private/'],
+            },
+            {
                 userAgent: 'Google-Extended',
                 allow: '/',
+                disallow: commonDisallow,
             },
             {
                 userAgent: 'Bingbot',
                 allow: '/',
+                disallow: commonDisallow,
             },
         ],
         sitemap: `${baseUrl}/sitemap.xml`,
-        host: baseUrl,
     }
 }

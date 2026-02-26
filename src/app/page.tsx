@@ -288,15 +288,17 @@ export default async function Home() {
             </div>
             <div className="flex flex-wrap items-center justify-center gap-6">
               {[
-                { name: 'YouTube', icon: TbBrandYoutube, color: 'text-red-500', followers: '25K' },
-                { name: 'Instagram', icon: TbSparkles, color: 'text-pink-500', followers: '15K' },
-                { name: 'Facebook', icon: TbSparkles, color: 'text-blue-500', followers: '10K' },
-                { name: 'TikTok', icon: TbSparkles, color: 'text-foreground', followers: '8K' },
-                { name: 'Telegram', icon: TbSend, color: 'text-sky-500', followers: '5K' },
+                { name: 'YouTube', icon: TbBrandYoutube, color: 'text-red-500', followers: '25K', href: brand.social.youtube },
+                { name: 'Instagram', icon: TbSparkles, color: 'text-pink-500', followers: '15K', href: brand.social.instagram },
+                { name: 'Facebook', icon: TbSparkles, color: 'text-blue-500', followers: '10K', href: brand.social.facebook },
+                { name: 'TikTok', icon: TbSparkles, color: 'text-foreground', followers: '8K', href: brand.social.tiktok },
+                { name: 'Telegram', icon: TbSend, color: 'text-sky-500', followers: '5K', href: brand.social.telegram },
               ].map((social) => (
-                <Link
+                <a
                   key={social.name}
-                  href="#"
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex items-center gap-3 px-5 py-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors group"
                 >
                   <social.icon className={`w-5 h-5 ${social.color}`} />
@@ -305,7 +307,7 @@ export default async function Home() {
                     <div className="text-sm text-muted-foreground">{social.followers} გამომწერი</div>
                   </div>
                   <TbExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                </Link>
+                </a>
               ))}
             </div>
           </div>

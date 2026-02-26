@@ -117,7 +117,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
             title,
             description,
             images: [imageUrl],
-        }
+        },
+        alternates: {
+            canonical: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'}/videos/${id}`,
+        },
     }
 }
 
@@ -154,6 +157,22 @@ async function getRelatedVideos(currentId: string): Promise<TbVideo[]> {
     }
 }
 
+function toISO8601Duration(humanDuration: string): string {
+    if (!humanDuration) return ''
+    if (humanDuration.startsWith('PT')) return humanDuration
+
+    const parts = humanDuration.split(':').map(Number)
+    if (parts.length === 2) {
+        const [m, s] = parts
+        return `PT${m}M${s}S`
+    }
+    if (parts.length === 3) {
+        const [h, m, s] = parts
+        return `PT${h}H${m}M${s}S`
+    }
+    return humanDuration
+}
+
 export default async function VideoPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
     const video = await getVideoData(id)
@@ -185,7 +204,7 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
             `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg`
         ],
         uploadDate: new Date(video.publishedAt).toISOString(), // Ensure ISO format if possible
-        duration: video.duration, // Should be ISO 8601 duration generally, but sticking to provided format for now
+        duration: toISO8601Duration(video.duration),
         contentUrl: `https://www.youtube.com/watch?v=${video.youtubeId}`,
         embedUrl: `https://www.youtube.com/embed/${video.youtubeId}`,
         interactionStatistic: {

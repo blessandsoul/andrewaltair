@@ -1,7 +1,25 @@
-'use client';
-
+import type { Metadata } from 'next';
 import { MysteryBox } from '@/components/conversion';
 import { TbClock, TbCoins, TbTargetArrow, TbGift } from 'react-icons/tb';
+
+export const metadata: Metadata = {
+    title: 'AI Mystery Box - ყოველდღიური საჩუქარი',
+    description: 'გახსენი Mystery Box ყოველ 24 საათში და მიიღე AI კრედიტები, ფასდაკლებები და სხვა პრიზები!',
+    openGraph: {
+        title: 'AI Mystery Box - ყოველდღიური საჩუქარი',
+        description: 'გახსენი Mystery Box ყოველ 24 საათში და მიიღე AI კრედიტები და პრიზები!',
+        type: 'website',
+        images: [{ url: '/og.png', width: 1200, height: 630 }],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'AI Mystery Box',
+        description: 'გახსენი Mystery Box ყოველ 24 საათში და მიიღე AI კრედიტები და პრიზები!',
+    },
+    alternates: {
+        canonical: 'https://andrewaltair.ge/mystery-box',
+    },
+};
 
 export default function MysteryBoxPage() {
     return (

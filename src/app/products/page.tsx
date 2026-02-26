@@ -4,6 +4,27 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { TbShoppingCart, TbStar, TbDownload, TbPlayerPlay, TbBook, TbStack2, TbSparkles, TbArrowRight, TbGift, TbCheck, TbBolt } from "react-icons/tb"
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+    title: 'AI პროდუქტები და კურსები',
+    description: 'AI პრომპტები, ბოტები, კურსები და ციფრული პროდუქტები. შეიძინე AI ინსტრუმენტები ბიზნეს და შემოქმედებითი სამუშაოებისთვის.',
+    openGraph: {
+        title: 'AI პროდუქტები და კურსები',
+        description: 'AI პრომპტები, ბოტები, კურსები და ციფრული პროდუქტები.',
+        type: 'website',
+        images: [{ url: '/og.png', width: 1200, height: 630 }],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'AI პროდუქტები და კურსები',
+        description: 'AI პრომპტები, ბოტები, კურსები და ციფრული პროდუქტები.',
+    },
+    alternates: {
+        canonical: 'https://andrewaltair.ge/products',
+    },
+}
+
 // Force dynamic rendering to fix build
 export const dynamic = 'force-dynamic'
 

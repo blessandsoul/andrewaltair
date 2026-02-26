@@ -8,6 +8,18 @@ import { TbArrowLeft, TbShield, TbLock, TbFileText, TbEye, TbDatabase, TbServer,
 export const metadata: Metadata = {
     title: 'კონფიდენციალურობის პოლიტიკა | Andrew Altair',
     description: 'Andrew Altair-ის კონფიდენციალურობის პოლიტიკა და მომხმარებლის მონაცემების დაცვის პირობები.',
+    openGraph: {
+        title: 'კონფიდენციალურობის პოლიტიკა',
+        type: 'website',
+        images: [{ url: '/og.png' }],
+    },
+    twitter: {
+        card: 'summary',
+        title: 'კონფიდენციალურობის პოლიტიკა',
+    },
+    alternates: {
+        canonical: 'https://andrewaltair.ge/privacy',
+    },
 }
 
 export default function PrivacyPolicyPage() {

@@ -33,21 +33,21 @@ export function Footer() {
                 {brand.bio.short}
               </p>
               <div className="flex gap-2">
-                <Link href={brand.social.youtube} className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+                <a href={brand.social.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
                   <TbBrandYoutube className="w-4 h-4" />
-                </Link>
-                <Link href={brand.social.instagram} className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+                </a>
+                <a href={brand.social.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
                   <TbBrandInstagram className="w-4 h-4" />
-                </Link>
-                <Link href={brand.social.telegram} className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+                </a>
+                <a href={brand.social.telegram} target="_blank" rel="noopener noreferrer" aria-label="Telegram" className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
                   <TbSend className="w-4 h-4" />
-                </Link>
-                <Link href={brand.social.github} className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+                </a>
+                <a href={brand.social.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
                   <TbBrandGithub className="w-4 h-4" />
-                </Link>
-                <Link href={brand.social.linkedin} className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+                </a>
+                <a href={brand.social.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
                   <TbBrandLinkedin className="w-4 h-4" />
-                </Link>
+                </a>
               </div>
             </div>
 
@@ -117,15 +117,15 @@ export function Footer() {
                 </li>
                 <li className="flex items-center gap-2">
                   <TbSend className="w-4 h-4" />
-                  <Link href={brand.social.telegram} className="hover:text-foreground transition-colors">
+                  <a href={brand.social.telegram} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
                     @andr3waltairchannel
-                  </Link>
+                  </a>
                 </li>
                 <li className="flex items-center gap-2">
                   <TbBrandYoutube className="w-4 h-4" />
-                  <Link href={brand.social.youtube} className="hover:text-foreground transition-colors">
+                  <a href={brand.social.youtube} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
                     YouTube არხი
-                  </Link>
+                  </a>
                 </li>
               </ul>
             </div>
@@ -158,8 +158,6 @@ export function Footer() {
       <Script
         src="//counter.top.ge/counter.js"
         strategy="lazyOnload"
-        onLoad={() => console.log('TOP.GE counter loaded')}
-        onError={() => console.error('TOP.GE counter failed')}
       />
 
       {/* OXO.GE Counter Script - Inlined because its original logic conflicts with TOP.GE's hardcoded element ID */}

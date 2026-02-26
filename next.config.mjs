@@ -69,6 +69,15 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/vibe-coding',
+        destination: '/vibe',
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {

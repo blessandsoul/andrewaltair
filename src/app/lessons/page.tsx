@@ -1,7 +1,25 @@
-'use client';
-
+import type { Metadata } from 'next';
 import { MicroLessons } from '@/components/conversion';
 import { TbBook, TbTrophy, TbBolt } from 'react-icons/tb';
+
+export const metadata: Metadata = {
+    title: 'AI მიკრო-გაკვეთილები',
+    description: '2-წუთიანი AI გაკვეთილები სწრაფი სწავლისთვის. დაასრულე გაკვეთილები, მიიღე XP და ისწავლე AI ტექნიკები პრაქტიკულად.',
+    openGraph: {
+        title: 'AI მიკრო-გაკვეთილები',
+        description: '2-წუთიანი AI გაკვეთილები სწრაფი სწავლისთვის.',
+        type: 'website',
+        images: [{ url: '/og.png', width: 1200, height: 630 }],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'AI მიკრო-გაკვეთილები',
+        description: '2-წუთიანი AI გაკვეთილები სწრაფი სწავლისთვის.',
+    },
+    alternates: {
+        canonical: 'https://andrewaltair.ge/lessons',
+    },
+};
 
 export default function LessonsPage() {
     return (

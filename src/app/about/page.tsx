@@ -21,7 +21,10 @@ export const metadata: Metadata = {
     username: "andr3waltair",
     gender: "male",
     images: ["/i.png"],
-  }
+  },
+  alternates: {
+    canonical: 'https://andrewaltair.ge/about',
+  },
 }
 
 // JSON-LD Structured Data for Google/LLMs
