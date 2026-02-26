@@ -1,12 +1,15 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import PromptDetailClient from './PromptDetailClient'
+import dbConnect from '@/lib/db'
+import MarketplacePrompt from '@/models/MarketplacePrompt'
+import { generateUniqueId } from '@/lib/id-system'
 
 interface Props {
     params: { slug: string }
 }
 
-const optimizeYouTubeUrl = (url: any) => {
+const optimizeYouTubeUrl = (url: unknown): string => {
     if (!url || typeof url !== 'string') return ''
     if (url.includes('img.youtube.com') || url.includes('i.ytimg.com')) {
         return url.replace('maxresdefault.jpg', 'hqdefault.jpg')
@@ -14,7 +17,7 @@ const optimizeYouTubeUrl = (url: any) => {
     return url
 }
 
-const safeRender = (value: any): string => {
+const safeRender = (value: unknown): string => {
     try {
         if (value === null || value === undefined) return ''
         if (typeof value === 'string') return value
@@ -22,54 +25,83 @@ const safeRender = (value: any): string => {
         if (typeof value === 'boolean') return String(value)
         if (Array.isArray(value)) return value.map(safeRender).join(', ')
         if (typeof value === 'object') {
-            return value.name || value.title || value.slug || value.label || JSON.stringify(value)
+            const obj = value as Record<string, unknown>
+            return String(obj.name || obj.title || obj.slug || obj.label || JSON.stringify(value))
         }
         return String(value)
-    } catch (e) {
+    } catch {
         return ''
     }
 }
 
 async function getPrompt(slug: string) {
     try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-        const res = await fetch(`${baseUrl}/api/prompts/${slug}`, {
-            next: { revalidate: 60 }
-        })
-        if (!res.ok) return null
-        const data = await res.json()
-        const prompt = data.prompt
+        await dbConnect()
 
-        if (prompt) {
-            if (prompt.coverImage) prompt.coverImage = optimizeYouTubeUrl(prompt.coverImage)
-            if (Array.isArray(prompt.exampleImages)) {
-                prompt.exampleImages = prompt.exampleImages.map((img: any) => ({
-                    ...img,
-                    src: optimizeYouTubeUrl(img.src)
-                }))
-            } else {
-                prompt.exampleImages = []
-            }
+        const prompt = await MarketplacePrompt.findOne({ slug }).lean()
+        if (!prompt) return null
+
+        // Only show published prompts to public
+        if (prompt.status !== 'published') return null
+
+        const result: any = {
+            ...prompt,
+            id: prompt._id.toString(),
+            _id: undefined,
         }
 
-        return prompt
-    } catch {
+        // For paid prompts, hide the full template
+        if (!prompt.isFree) {
+            result.promptTemplate = (prompt.promptTemplate || '').substring(0, 100) + '...[Preview - Purchase to see full prompt]'
+            result.instructions = prompt.instructions ? prompt.instructions.substring(0, 100) + '...' : ''
+            result.negativePrompt = prompt.negativePrompt ? prompt.negativePrompt.substring(0, 50) + '...' : ''
+        }
+
+        // Backfill numericId if missing
+        if (!prompt.numericId) {
+            const numericId = await generateUniqueId()
+            await MarketplacePrompt.updateOne({ _id: prompt._id }, { numericId })
+            result.numericId = numericId
+        }
+
+        // Optimize YouTube URLs
+        if (result.coverImage) result.coverImage = optimizeYouTubeUrl(result.coverImage)
+        if (Array.isArray(result.exampleImages)) {
+            result.exampleImages = result.exampleImages.map((img: any) => ({
+                ...img,
+                src: optimizeYouTubeUrl(img.src)
+            }))
+        } else {
+            result.exampleImages = []
+        }
+
+        return result
+    } catch (error) {
+        console.error('getPrompt error:', error)
         return null
     }
 }
 
 async function getRelatedPrompts(category: string, currentSlug: string) {
     try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-        const res = await fetch(
-            `${baseUrl}/api/prompts?category=${category}&status=published&limit=4`,
-            { next: { revalidate: 60 } }
-        )
-        if (!res.ok) return []
-        const data = await res.json()
-        if (!Array.isArray(data.prompts)) return []
-        return data.prompts.filter((p: { slug: string }) => p.slug !== currentSlug)
-    } catch {
+        await dbConnect()
+
+        const prompts = await MarketplacePrompt.find({
+            category,
+            status: 'published',
+            slug: { $ne: currentSlug },
+        })
+            .limit(4)
+            .select('-promptTemplate -instructions -variables -negativePrompt')
+            .lean()
+
+        return prompts.map(p => ({
+            ...p,
+            id: p._id.toString(),
+            _id: undefined,
+        }))
+    } catch (error) {
+        console.error('getRelatedPrompts error:', error)
         return []
     }
 }
@@ -83,7 +115,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 
     const title = safeRender(prompt.title)
-    const excerpt = safeRender(prompt.excerpt || prompt.description?.substring(0, 160))
+    const description = typeof prompt.description === 'string' ? prompt.description.substring(0, 160) : ''
+    const excerpt = safeRender(prompt.excerpt || description)
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
     let coverImage = typeof prompt.coverImage === 'string' ? prompt.coverImage : ''

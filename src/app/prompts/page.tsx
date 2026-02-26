@@ -6,9 +6,8 @@ import { PromptsFilters } from '@/components/prompts/PromptsFilters'
 import { PromptsTagsCloud } from '@/components/prompts/PromptsTagsCloud'
 import { PromptsSearch } from '@/components/prompts/PromptsSearch'
 import MarketplacePromptCard from '@/components/prompts/MarketplacePromptCard'
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import dbConnect from '@/lib/db'
+import MarketplacePrompt from '@/models/MarketplacePrompt'
 
 export const metadata: Metadata = {
     title: 'AI Prompts Marketplace | Andrew Altair',
@@ -16,24 +15,83 @@ export const metadata: Metadata = {
 }
 
 async function getPrompts(searchParams: { [key: string]: string | undefined }) {
-    const params = new URLSearchParams()
-    params.set('status', 'published')
-    if (searchParams.category) params.set('category', searchParams.category)
-
-    if (searchParams.free) params.set('isFree', searchParams.free)
-    if (searchParams.sort) params.set('sort', searchParams.sort)
-    if (searchParams.search) params.set('search', searchParams.search)
-    if (searchParams.generationType) params.set('generationType', searchParams.generationType)
-    params.set('limit', searchParams.limit || '24')
-
     try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-        const res = await fetch(`${baseUrl}/api/prompts?${params.toString()}`, {
-            next: { revalidate: 60 }
-        })
-        if (!res.ok) return { prompts: [], filters: { categories: [], aiModels: [] } }
-        return await res.json()
-    } catch {
+        await dbConnect()
+
+        const query: Record<string, unknown> = { status: 'published' }
+
+        if (searchParams.category) {
+            query.category = searchParams.category
+        }
+
+        if (searchParams.free) {
+            query.isFree = searchParams.free === 'true'
+        }
+
+        if (searchParams.generationType) {
+            const gt = searchParams.generationType
+            if (gt === 'video') {
+                query.generationType = { $in: ['text-to-video', 'image-to-video', 'video-to-video'] }
+            } else if (gt === 'image') {
+                query.generationType = { $in: ['text-to-image', 'image-to-image'] }
+            } else {
+                query.generationType = gt
+            }
+        }
+
+        if (searchParams.search) {
+            const s = searchParams.search
+            if (/^\d{6}$/.test(s)) {
+                query.numericId = s
+            } else {
+                query.$text = { $search: s }
+            }
+        }
+
+        let sortOrder: Record<string, 1 | -1> = {}
+        switch (searchParams.sort) {
+            case 'price-asc': sortOrder = { price: 1 }; break
+            case 'price-desc': sortOrder = { price: -1 }; break
+            case 'popular': sortOrder = { purchases: -1 }; break
+            case 'rating': sortOrder = { rating: -1 }; break
+            case 'featured': sortOrder = { featuredOrder: 1, createdAt: -1 }; break
+            case 'oldest': sortOrder = { createdAt: 1 }; break
+            default: sortOrder = { createdAt: -1 }
+        }
+
+        const limit = parseInt(searchParams.limit || '24', 10)
+
+        const prompts = await MarketplacePrompt.find(query)
+            .sort(sortOrder)
+            .limit(limit)
+            .select('-promptTemplate -instructions -variables -negativePrompt')
+            .lean()
+
+        const categories = await MarketplacePrompt.distinct('category', { status: 'published' })
+        const aiModels = await MarketplacePrompt.distinct('aiModel', { status: 'published' })
+
+        return {
+            prompts: prompts.map(p => ({
+                id: p._id.toString(),
+                slug: p.slug,
+                title: p.title,
+                excerpt: p.excerpt,
+                coverImage: p.coverImage,
+                price: p.price,
+                currency: p.currency,
+                isFree: p.isFree,
+                category: p.category,
+                aiModel: p.aiModel,
+                generationType: p.generationType,
+                views: p.views,
+                purchases: p.purchases,
+                downloads: p.downloads,
+                rating: p.rating,
+            })) as Prompt[],
+            filters: { categories, aiModels },
+        }
+    } catch (error) {
+        console.error('getPrompts error:', error)
         return { prompts: [], filters: { categories: [], aiModels: [] } }
     }
 }
@@ -47,7 +105,7 @@ interface Prompt {
     price: number
     currency: 'GEL' | 'USD'
     isFree: boolean
-    category: string
+    category: string[]
     aiModel: string
     generationType?: string
     views: number
