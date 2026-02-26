@@ -238,7 +238,7 @@ export function parseRepositoryPost(text: string): ParsedRepoData {
 
         return { ...data, success: true } as ParsedRepoData;
 
-    } catch (error: any) {
-        return { success: false, error: error.message } as ParsedRepoData;
+    } catch (error: unknown) {
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' } as ParsedRepoData;
     }
 }

@@ -18,8 +18,7 @@ export async function GET(request: Request) {
             return apiSuccess({ setting }, 'Setting fetched');
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const query: any = {};
+        const query: Record<string, string> = {};
         if (category) query.category = category;
 
         const settings = await Settings.find(query).lean();

@@ -68,10 +68,9 @@ async function getVideoData(id: string): Promise<TbVideo | null> {
         }
         if (!video) return null
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const v = video as any
         return {
-            id: v._id.toString(),
+            id: String(v._id),
             youtubeId: v.youtubeId,
             title: v.title,
             description: v.description,
@@ -127,13 +126,11 @@ async function getRelatedVideos(currentId: string): Promise<TbVideo[]> {
     try {
         await dbConnect()
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const filter: any = {}
+        const filter: Record<string, unknown> = {}
         if (mongoose.Types.ObjectId.isValid(currentId)) {
             filter._id = { $ne: new mongoose.Types.ObjectId(currentId) }
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const videos = await Video.find(filter)
             .sort({ publishedAt: -1 })
             .limit(4)

@@ -81,23 +81,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     }
                 })
 
-                console.log(`[Auth Client] /api/auth/me status: ${response.status}`);
-
                 if (response.ok && mounted) {
                     const resJson = await response.json()
                     // apiSuccess wraps data in a 'data' property
                     const userData = resJson.data?.user || resJson.user
-                    console.log(`[Auth Client] User loaded: ${userData?.username}`);
                     setUser(userData)
-                } else {
-                    console.log(`[Auth Client] Failed to load user. Status: ${response.status}`);
                 }
             } catch (error) {
                 // Ignore abort errors
                 if (error instanceof Error && error.name === 'AbortError') {
                     return
                 }
-                console.error('Failed to load auth:', error)
+                // Silently fail — user is just not authenticated
             } finally {
                 if (mounted) {
                     setIsLoading(false)
@@ -180,8 +175,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     "x-csrf-token": csrfToken || ""
                 }
             })
-        } catch (e) {
-            console.error(e)
+        } catch {
+            // Logout API call failed — proceed with local cleanup
         }
         setUser(null)
         setToken(null)

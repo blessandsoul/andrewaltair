@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { TbCheck, TbCopy, TbTerminal } from "react-icons/tb"
 import { cn } from "@/lib/utils"
+import { sanitizeHtml } from "@/lib/sanitize"
 
 interface CodeBlockProps {
     code: string
@@ -104,6 +105,7 @@ export function EnhancedContent({
     className?: string
 }) {
     const containerRef = useRef<HTMLDivElement>(null)
+    const sanitizedHtml = useMemo(() => sanitizeHtml(html), [html])
 
     useEffect(() => {
         if (!containerRef.current) return
@@ -142,7 +144,7 @@ export function EnhancedContent({
         <div
             ref={containerRef}
             className={className}
-            dangerouslySetInnerHTML={{ __html: html }}
+            dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
         />
     )
 }

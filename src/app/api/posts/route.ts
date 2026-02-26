@@ -58,12 +58,12 @@ export async function POST(request: Request) {
         revalidatePath('/sitemap.xml');
 
         return apiSuccess(post, 'Post created successfully', 201);
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Create post error:', error);
 
         // Handle Mongoose validation errors specifically
-        if (error.name === 'ValidationError') {
-            const details = Object.values(error.errors).map((err: any) => err.message).join(', ');
+        if (error instanceof Error && error.name === 'ValidationError' && 'errors' in error) {
+            const details = Object.values((error as Record<string, unknown>).errors as Record<string, { message: string }>).map((err) => err.message).join(', ');
             return apiError(ERROR_CODES.VALIDATION_FAILED, details, 400);
         }
 

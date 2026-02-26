@@ -29,9 +29,9 @@ export async function POST(request: NextRequest) {
 
         return response;
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Registration error:', error);
-        const msg = error.message || 'სერვერის შეცდომა';
+        const msg = error instanceof Error ? error.message : 'სერვერის შეცდომა';
         const isDuplicate = msg.includes('უკვე არსებობს') || msg.includes('duplicate');
         if (isDuplicate) {
             return apiError(ERROR_CODES.AUTH_DUPLICATE_EMAIL, msg, 400);

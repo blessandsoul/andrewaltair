@@ -24,10 +24,6 @@ export function PostGallery({ images, title = "გალერეა", className
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
     const [direction, setDirection] = useState(0);
 
-    if (!images || images.length === 0) {
-        return null;
-    }
-
     const goToNext = useCallback(() => {
         setDirection(1);
         setCurrentIndex((prev) => (prev + 1) % images.length);
@@ -37,6 +33,10 @@ export function PostGallery({ images, title = "გალერეა", className
         setDirection(-1);
         setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
     }, [images.length]);
+
+    if (!images || images.length === 0) {
+        return null;
+    }
 
     const openLightbox = (index: number) => {
         setCurrentIndex(index);

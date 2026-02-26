@@ -418,7 +418,7 @@ export default function PromptBuilderPage() {
         }
     }
 
-    const useSuggestion = (suggestion: string) => {
+    const applySuggestion = (suggestion: string) => {
         // Remove numbering (1. 2. 3.) from start
         const cleanSuggestion = suggestion.replace(/^\d+\.\s*/, '')
         setTask(cleanSuggestion)
@@ -695,7 +695,7 @@ export default function PromptBuilderPage() {
                                                                     {taskSuggestions.map((suggestion, index) => (
                                                                         <button
                                                                             key={index}
-                                                                            onClick={() => useSuggestion(suggestion)}
+                                                                            onClick={() => applySuggestion(suggestion)}
                                                                             className="w-full text-left text-sm p-2 rounded-md hover:bg-accent/20 transition-colors"
                                                                         >
                                                                             {suggestion}

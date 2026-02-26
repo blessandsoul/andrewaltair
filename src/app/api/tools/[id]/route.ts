@@ -19,9 +19,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         }
 
         return apiSuccess(tool, 'Tool fetched successfully')
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Get tool error:", error)
-        return apiError(ERROR_CODES.TOOL_FETCH_FAILED, error.message || 'Failed to fetch tool', 500)
+        return apiError(ERROR_CODES.TOOL_FETCH_FAILED, error instanceof Error ? error.message : 'Failed to fetch tool', 500)
     }
 }
 
@@ -38,9 +38,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         }
 
         return apiSuccess(tool, 'Tool updated successfully')
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Update tool error:", error)
-        return apiError(ERROR_CODES.TOOL_UPDATE_FAILED, error.message || 'Failed to update tool', 500)
+        return apiError(ERROR_CODES.TOOL_UPDATE_FAILED, error instanceof Error ? error.message : 'Failed to update tool', 500)
     }
 }
 
@@ -55,8 +55,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         }
 
         return apiSuccess(null, 'Tool deleted successfully')
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Delete tool error:", error)
-        return apiError(ERROR_CODES.TOOL_DELETE_FAILED, error.message || 'Failed to delete tool', 500)
+        return apiError(ERROR_CODES.TOOL_DELETE_FAILED, error instanceof Error ? error.message : 'Failed to delete tool', 500)
     }
 }

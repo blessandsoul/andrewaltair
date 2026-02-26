@@ -43,28 +43,20 @@ export function AdminAuth({ children }: AdminAuthProps) {
     const [otpCode, setOtpCode] = React.useState("")
     const [otpError, setOtpError] = React.useState("")
 
-    // Check for existing session on mount
+    // Check for existing session on mount (cookie-based auth)
     React.useEffect(() => {
         const verifySession = async () => {
-            const token = localStorage.getItem("admin_token")
             const twoFA = localStorage.getItem("admin_2fa_enabled")
 
-            if (token) {
-                // Verify token is still valid
-                try {
-                    const res = await fetch('/api/admin/verify', {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    })
-                    if (res.ok) {
-                        setIsAuthenticated(true)
-                    } else {
-                        localStorage.removeItem("admin_token")
-                    }
-                } catch {
-                    // Token might still be valid, allow offline access
+            try {
+                const res = await fetch('/api/admin/verify')
+                if (res.ok) {
                     setIsAuthenticated(true)
                 }
+            } catch {
+                // Network error — session state unknown
             }
+
             if (twoFA === "true") {
                 setTwoFAEnabled(true)
             }
@@ -88,9 +80,7 @@ export function AdminAuth({ children }: AdminAuthProps) {
             const data = await res.json()
 
             if (res.ok && data.success) {
-                // Store token securely
-                localStorage.setItem("admin_token", data.token)
-
+                // Token is stored in httpOnly cookie by the server
                 if (twoFAEnabled) {
                     setShow2FA(true)
                 } else {
@@ -128,8 +118,12 @@ export function AdminAuth({ children }: AdminAuthProps) {
         }
     }
 
-    const handleLogout = () => {
-        localStorage.removeItem("admin_token")
+    const handleLogout = async () => {
+        try {
+            await fetch('/api/admin/logout', { method: 'POST' })
+        } catch {
+            // Best effort — clear local state regardless
+        }
         setIsAuthenticated(false)
         setPassword("")
         setOtpCode("")

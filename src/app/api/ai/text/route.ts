@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
         return apiSuccess({ result, action }, 'AI text processed')
     } catch (error) {
         console.error("AI text processing error:", error)
-        return apiError(ERROR_CODES.AI_PROCESSING_FAILED, "AI დამუშავება ვერ მოხერხდა", 500)
+        return apiError(ERROR_CODES.AI_SERVICE_ERROR, "AI დამუშავება ვერ მოხერხდა", 500)
     }
 }
 

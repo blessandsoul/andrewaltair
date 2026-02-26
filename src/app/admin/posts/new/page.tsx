@@ -11,14 +11,6 @@ export default function NewPostPage() {
 
     const handleSave = async (post: PostData) => {
         try {
-            // Get admin token for authentication
-            const token = localStorage.getItem('admin_token')
-            if (!token) {
-                alert('სესია ამოიწურა. გთხოვთ შეხვიდეთ თავიდან.')
-                router.push('/admin')
-                return
-            }
-
             // Handle Tutorial Type
             if (post.type === 'tutorial') {
                 const tutorialPayload = {
@@ -40,7 +32,7 @@ export default function NewPostPage() {
 
                 const res = await fetch('/api/tutorials', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(tutorialPayload)
                 })
 
@@ -89,7 +81,6 @@ export default function NewPostPage() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(payload)
             })
@@ -118,9 +109,10 @@ export default function NewPostPage() {
                 }
             }
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Save post error:', error)
-            alert(`შეცდომა: ${error.message}`)
+            alert(`შეცდომა: ${error instanceof Error ? error.message : 'Unknown error'}`)
+
             throw error
         }
     }

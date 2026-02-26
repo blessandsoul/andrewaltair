@@ -67,10 +67,11 @@ export async function POST(request: Request) {
         const user = await UserService.createUser(data);
 
         return apiSuccess({ user }, 'User created successfully');
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Create user error:', error);
-        const status = error.message === 'მომხმარებელი უკვე არსებობს' ? 400 : 500;
+        const message = error instanceof Error ? error.message : 'Failed to create user';
+        const status = message === 'მომხმარებელი უკვე არსებობს' ? 400 : 500;
         const code = status === 400 ? ERROR_CODES.AUTH_DUPLICATE_EMAIL : ERROR_CODES.USER_FETCH_FAILED;
-        return apiError(code, error.message || 'Failed to create user', status);
+        return apiError(code, message, status);
     }
 }

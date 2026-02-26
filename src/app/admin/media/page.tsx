@@ -75,9 +75,6 @@ export default function MediaPage() {
     // Upload progress
     const [uploadProgress, setUploadProgress] = React.useState<{ name: string; progress: number }[]>([])
 
-    // Get admin token
-    const getToken = () => localStorage.getItem('admin_token') || ''
-
     // Fetch files from disk
     const fetchFiles = React.useCallback(async () => {
         setIsLoading(true)
@@ -86,9 +83,7 @@ export default function MediaPage() {
                 ? `/api/media/disk?folder=${encodeURIComponent(currentFolder)}`
                 : '/api/media/disk'
 
-            const res = await fetch(url, {
-                headers: { 'Authorization': `Bearer ${getToken()}` }
-            })
+            const res = await fetch(url)
 
             if (res.ok) {
                 const data = await res.json()
@@ -160,7 +155,6 @@ export default function MediaPage() {
 
                 const res = await fetch('/api/media/disk', {
                     method: 'POST',
-                    headers: { 'Authorization': `Bearer ${getToken()}` },
                     body: formData
                 })
 
@@ -213,8 +207,7 @@ export default function MediaPage() {
     const handleDelete = async (file: FileInfo) => {
         try {
             const res = await fetch(`/api/media/disk/${file.path}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${getToken()}` }
+                method: 'DELETE'
             })
 
             if (res.ok) {
@@ -234,8 +227,7 @@ export default function MediaPage() {
     const deleteSelected = async () => {
         for (const path of selectedItems) {
             await fetch(`/api/media/disk/${path}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${getToken()}` }
+                method: 'DELETE'
             })
         }
         toast.success('წაშლილია', `${selectedItems.length} ფაილი`)
@@ -251,8 +243,7 @@ export default function MediaPage() {
             const res = await fetch(`/api/media/disk/${renamingFile.path}`, {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${getToken()}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ newName: newFileName })
             })
@@ -277,8 +268,7 @@ export default function MediaPage() {
             const res = await fetch(`/api/media/disk/${movingFile.path}`, {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${getToken()}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ newFolder: targetFolder })
             })
@@ -303,8 +293,7 @@ export default function MediaPage() {
             const res = await fetch('/api/media/disk/folder', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${getToken()}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     name: newFolderName,

@@ -245,35 +245,26 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
         try {
             const formData = new FormData()
             formData.append('file', file)
-            const token = localStorage.getItem('admin_token')
-            console.log('[PostEditor] Starting upload. Token present:', !!token);
 
             const response = await fetch('/api/upload', {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
                 body: formData
             })
 
-            console.log('[PostEditor] Response status:', response.status);
-
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}))
-                console.error('[PostEditor] Upload failed:', errorData);
                 throw new Error(errorData.error || errorData.message || 'Upload failed')
             }
 
             const result = await response.json()
-            console.log('[PostEditor] Upload success:', result);
 
             setPost(prev => ({
                 ...prev,
                 coverImages: { ...prev.coverImages, [type]: result.data.url } // Fix: access data.url since apiSuccess wraps it
             }))
-        } catch (error: any) {
-            console.error('[PostEditor] Upload error:', error)
-            alert(error.message || 'ატვირთვა ვერ მოხერხდა')
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'ატვირთვა ვერ მოხერხდა'
+            alert(message)
         } finally {
             if (type === 'horizontal') setIsUploadingH(false)
             else setIsUploadingV(false)
@@ -285,17 +276,14 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
         if (isGeneratingCode) return
         setIsGeneratingCode(true)
         try {
-            const token = localStorage.getItem('admin_token')
-            const res = await fetch('/api/posts/generate-code', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            })
+            const res = await fetch('/api/posts/generate-code')
             if (!res.ok) throw new Error('კოდის გენერაცია ვერ მოხერხდა')
             const data = await res.json()
             if (data.code) {
                 setPost(prev => ({ ...prev, numericId: data.code }))
             }
-        } catch (error: any) {
-            alert(error.message)
+        } catch (error: unknown) {
+            alert(error instanceof Error ? error.message : 'კოდის გენერაცია ვერ მოხერხდა')
         } finally {
             setIsGeneratingCode(false)
         }
@@ -513,8 +501,8 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                     })
                 }
             }
-        } catch (e: any) {
-            setJsonError(e.message || 'Invalid JSON')
+        } catch (e: unknown) {
+            setJsonError(e instanceof Error ? e.message : 'Invalid JSON')
         }
     }, [jsonInput])
 

@@ -37,10 +37,10 @@ const demoFeatures = [
 ]
 
 const statusColors = {
-    wip: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
-    demo: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    internal: "bg-purple-500/10 text-purple-500 border-purple-500/20",
-    dev: "bg-gray-500/10 text-gray-400 border-gray-500/20",
+    wip: "bg-warning/10 text-warning border-warning/20",
+    demo: "bg-info/10 text-info border-info/20",
+    internal: "bg-primary/10 text-primary border-primary/20",
+    dev: "bg-muted text-muted-foreground border-border",
 }
 
 const statusLabels = {

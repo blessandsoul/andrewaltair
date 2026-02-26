@@ -244,6 +244,6 @@ UserSchema.statics.findByCredentials = async function (
 };
 
 // Prevent model compilation error in development
-const User: IUserModel = mongoose.models.User || mongoose.model<IUser, IUserModel>('User', UserSchema);
+const User: IUserModel = (mongoose.models.User as IUserModel) || mongoose.model<IUser, IUserModel>('User', UserSchema);
 
 export default User;

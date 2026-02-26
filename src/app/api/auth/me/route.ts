@@ -6,7 +6,11 @@ import User from '@/models/User';
 import Session from '@/models/Session';
 import { apiSuccess, apiError } from '@/lib/api-response';
 import { ERROR_CODES } from '@/lib/error-codes';
-import { verifyToken } from '@/lib/jwt-config';
+
+interface JwtPayload {
+    userId: string;
+    role: string;
+}
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -17,27 +21,21 @@ export async function GET(request: NextRequest) {
     try {
         const authHeader = request.headers.get('authorization');
 
+        let token: string | undefined;
+
         if (authHeader && authHeader.startsWith('Bearer ')) {
-            var token = authHeader.substring(7);
+            token = authHeader.substring(7);
         } else {
             // Fallback to cookie
-            const cookieStore = request.cookies;
-            const cookieToken = cookieStore.get('auth_token')?.value;
-
-            if (!cookieToken) {
-                return apiError(ERROR_CODES.AUTH_REQUIRED, 'არ ხართ ავტორიზებული', 401);
-            }
-            var token = cookieToken;
+            token = request.cookies.get('auth_token')?.value;
         }
 
         if (!token) {
-            console.log('[Auth Me] No token found in header or cookie');
             return apiError(ERROR_CODES.AUTH_REQUIRED, 'არ ხართ ავტორიზებული', 401);
         }
 
         try {
-            const decoded = jwt.verify(token, JWT_SECRET!) as { userId: string; role: string };
-            // console.log(`[Auth Me] Token Verified for User: ${decoded.userId}`);
+            const decoded = jwt.verify(token, JWT_SECRET!) as JwtPayload;
 
             await dbConnect();
 
@@ -50,12 +48,6 @@ export async function GET(request: NextRequest) {
             });
 
             if (!session) {
-                console.log(`[Auth Me] Session not found or expired for user ${decoded.userId}`);
-                // DEBUG: Check if session exists but inactive or expired
-                const debugSession = await Session.findOne({ token });
-                if (debugSession) {
-                    console.log(`[Auth Me DEBUG] Session exists but match failed. isActive: ${debugSession.isActive}, Expires: ${debugSession.expiresAt}, Now: ${new Date()}`);
-                }
                 return apiError(ERROR_CODES.AUTH_TOKEN_EXPIRED, 'სესია ვადაგასულია ან არ არსებობს', 401);
             }
 
@@ -67,7 +59,6 @@ export async function GET(request: NextRequest) {
             const user = await User.findById(decoded.userId);
 
             if (!user) {
-                console.log(`[Auth Me] User not found: ${decoded.userId}`);
                 return apiError(ERROR_CODES.NOT_FOUND, 'მომხმარებელი ვერ მოიძებნა', 404);
             }
 

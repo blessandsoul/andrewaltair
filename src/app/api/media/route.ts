@@ -10,8 +10,7 @@ export async function GET(request: Request) {
         const folder = searchParams.get('folder');
         const type = searchParams.get('type');
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const query: any = {};
+        const query: Record<string, string> = {};
         if (folder && folder !== 'all') query.folder = folder;
         if (type) query.type = type;
 

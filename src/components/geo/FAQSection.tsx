@@ -7,6 +7,7 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion"
 import { motion } from "framer-motion"
+import { sanitizeHtml } from "@/lib/sanitize"
 
 interface FAQItem {
     question: string
@@ -60,7 +61,7 @@ export function FAQSection({ title = "Frequently Asked Questions", items }: FAQS
                                 {item.question}
                             </AccordionTrigger>
                             <AccordionContent className="text-muted-foreground text-base leading-relaxed pb-6">
-                                <div dangerouslySetInnerHTML={{ __html: item.answer }} />
+                                <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.answer) }} />
                             </AccordionContent>
                         </AccordionItem>
                     ))}

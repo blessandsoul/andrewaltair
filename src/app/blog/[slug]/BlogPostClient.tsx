@@ -313,7 +313,7 @@ console.log(data.result);
                                         <TbMessage className="w-4 h-4" />
                                         {post.comments}
                                     </span>
-                                    <span className="text-sm text-red-500 flex items-center gap-1">
+                                    <span className="text-sm text-destructive flex items-center gap-1">
                                         <TbHeart className="w-4 h-4" />
                                         {(Object.values(post.reactions) as number[]).reduce((a, b) => a + b, 0)}
                                     </span>
@@ -484,7 +484,7 @@ console.log(data.result);
                                     {post.videos && post.videos.length > 0 && (
                                         <div className="mt-12 pt-8 border-t border-border">
                                             <h4 className="text-sm font-medium text-muted-foreground mb-4 flex items-center gap-2">
-                                                <div className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center">
+                                                <div className="w-4 h-4 rounded-full bg-destructive flex items-center justify-center">
                                                     <div className="w-0 h-0 border-t-[3px] border-t-transparent border-l-[5px] border-l-white border-b-[3px] border-b-transparent ml-0.5" />
                                                 </div>
                                                 ვიდეო
@@ -626,19 +626,19 @@ console.log(data.result);
                                                                             <div className="absolute bottom-2 left-2 right-2 flex items-center justify-center z-10">
                                                                                 <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white/90 text-[9px] font-medium shadow-lg">
                                                                                     <div className="flex items-center gap-0.5" title="ნახვები">
-                                                                                        <TbEye className="w-3 h-3 text-blue-400" />
+                                                                                        <TbEye className="w-3 h-3 text-info" />
                                                                                         <span>{relatedPost.views >= 1000 ? `${(relatedPost.views / 1000).toFixed(1)}K` : relatedPost.views}</span>
                                                                                     </div>
                                                                                     <div className="flex items-center gap-0.5" title="მოწონებები">
-                                                                                        <TbHeart className="w-3 h-3 text-red-400" />
+                                                                                        <TbHeart className="w-3 h-3 text-destructive" />
                                                                                         <span>{totalReactions >= 1000 ? `${(totalReactions / 1000).toFixed(1)}K` : totalReactions}</span>
                                                                                     </div>
                                                                                     <div className="flex items-center gap-0.5" title="კომენტარები">
-                                                                                        <TbMessage className="w-3 h-3 text-green-400" />
+                                                                                        <TbMessage className="w-3 h-3 text-success" />
                                                                                         <span>{relatedPost.comments >= 1000 ? `${(relatedPost.comments / 1000).toFixed(1)}K` : relatedPost.comments}</span>
                                                                                     </div>
                                                                                     <div className="flex items-center gap-0.5" title="გაზიარება">
-                                                                                        <TbShare className="w-3 h-3 text-orange-400" />
+                                                                                        <TbShare className="w-3 h-3 text-warning" />
                                                                                         <span>{relatedPost.shares >= 1000 ? `${(relatedPost.shares / 1000).toFixed(1)}K` : relatedPost.shares}</span>
                                                                                     </div>
                                                                                 </div>

@@ -144,10 +144,10 @@ export function parseTutorialPost(text: string): ParsedTutorial {
 
         return result;
 
-    } catch (e: any) {
+    } catch (e: unknown) {
         return {
             success: false,
-            error: e.message,
+            error: e instanceof Error ? e.message : 'Unknown error',
             title: '',
             intro: '',
             tools: '',

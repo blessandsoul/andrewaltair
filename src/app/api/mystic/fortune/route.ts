@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
         const nameValidation = validateAIInput(name, 'სახელი', 2, 100);
         if (!nameValidation.valid) {
-            return apiError(ERROR_CODES.VALIDATION_FAILED, nameValidation.error, 400);
+            return apiError(ERROR_CODES.VALIDATION_FAILED, nameValidation.error ?? 'Validation failed', 400);
         }
 
         // Sanitize inputs

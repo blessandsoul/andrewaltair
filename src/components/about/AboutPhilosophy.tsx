@@ -40,7 +40,7 @@ export function AboutPhilosophy() {
                             კრეატიულობა გახდება ყველაზე ღირებული ვალუტა."
                         </p>
                         <div className="text-sm font-mono text-indigo-400 opacity-60">
-                            // Andrew Altair
+                            {`// Andrew Altair`}
                         </div>
                     </motion.div>
 

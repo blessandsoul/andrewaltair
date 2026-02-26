@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ChecklistSection as ChecklistSectionType } from '@/types/vibeCodingArticle';
 import { useState } from 'react';
 import { TbCheck } from 'react-icons/tb';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 interface ChecklistSectionProps {
     section: ChecklistSectionType;
@@ -112,9 +113,9 @@ export default function ChecklistSection({ section }: ChecklistSectionProps) {
                                 <div key={idx} className="p-4 rounded-lg bg-gray-50 border border-gray-200 shadow-sm">
                                     <div
                                         dangerouslySetInnerHTML={{
-                                            __html: paragraph
+                                            __html: sanitizeHtml(paragraph
                                                 .replace(/\*\*(.+?)\*\*/g, '<strong class="text-purple-600">$1</strong>')
-                                                .replace(/\n/g, '<br />')
+                                                .replace(/\n/g, '<br />'))
                                         }}
                                     />
                                 </div>
@@ -124,8 +125,8 @@ export default function ChecklistSection({ section }: ChecklistSectionProps) {
                             <p
                                 key={idx}
                                 dangerouslySetInnerHTML={{
-                                    __html: paragraph
-                                        .replace(/\*\*(.+?)\*\*/g, '<strong class="text-gray-900">$1</strong>')
+                                    __html: sanitizeHtml(paragraph
+                                        .replace(/\*\*(.+?)\*\*/g, '<strong class="text-gray-900">$1</strong>'))
                                 }}
                             />
                         );

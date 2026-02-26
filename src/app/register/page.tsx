@@ -92,10 +92,10 @@ export default function RegisterPage() {
                     router.refresh();
                 }, 1500);
 
-            } catch (error: any) {
+            } catch (error: unknown) {
                 setErrors(prev => ({
                     ...prev,
-                    submit: error.message || "დაფიქსირდა შეცდომა, გთხოვთ სცადოთ თავიდან"
+                    submit: error instanceof Error ? error.message : "დაფიქსირდა შეცდომა, გთხოვთ სცადოთ თავიდან"
                 }));
             } finally {
                 setIsLoading(false)

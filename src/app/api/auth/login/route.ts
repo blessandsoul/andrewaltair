@@ -25,8 +25,6 @@ export async function POST(request: NextRequest) {
 
         const result = await AuthService.login(loginField, password, ip, userAgent, twoFactorCode);
 
-        console.log(`[Login Success] User: ${result.user.username} (${result.user.id})`);
-
         const response = apiSuccess({ user: result.user }, 'წარმატებით შეხვედით სისტემაში');
 
         // ✅ Set httpOnly cookie with robust settings
@@ -48,11 +46,8 @@ export async function POST(request: NextRequest) {
 
         return response;
 
-    } catch (error: any) {
-        console.error('[Login Failed] Error:', error);
-        console.error('[Login Failed] Stack:', error.stack);
-
-        const msg = error.message || 'სერვერის შეცდომა';
+    } catch (error: unknown) {
+        const msg = error instanceof Error ? error.message : 'სერვერის შეცდომა';
 
         if (msg.startsWith('RateLimit:locked:')) {
             const remaining = parseInt(msg.split(':')[2]);

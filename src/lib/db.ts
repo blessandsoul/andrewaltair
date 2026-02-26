@@ -43,13 +43,7 @@ async function dbConnect(): Promise<typeof mongoose> {
             serverSelectionTimeoutMS: 5000,
         };
 
-        console.log('Creating new MongoDB connection...');
-        console.time('MongooseConnect');
-        cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-            console.timeEnd('MongooseConnect');
-            console.log('MongoDB Connected successfully');
-            return mongoose;
-        });
+        cached.promise = mongoose.connect(MONGODB_URI, opts);
     }
 
     try {

@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { ComparisonTableSection } from '@/types/vibeCodingArticle';
 import { useState } from 'react';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 interface ComparisonTableProps {
     section: ComparisonTableSection;
@@ -133,9 +134,9 @@ export default function ComparisonTable({ section }: ComparisonTableProps) {
                                 <div
                                     className="text-gray-700"
                                     dangerouslySetInnerHTML={{
-                                        __html: content
+                                        __html: sanitizeHtml(content
                                             .replace(/\*\*(.+?)\*\*/g, '<strong class="text-purple-700 font-bold">$1</strong>')
-                                            .replace(/\n/g, '<br />')
+                                            .replace(/\n/g, '<br />'))
                                     }}
                                 />
                             </div>

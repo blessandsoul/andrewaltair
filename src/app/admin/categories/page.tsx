@@ -211,7 +211,7 @@ export default function CategoriesPage() {
             })
             if (res.ok) {
                 const data = await res.json()
-                const now = new Date().toISOString().split('T')[0]
+                const now = new Date().toISOString().slice(0, 10)
                 const newCategory: Category = {
                     ...data.category,
                     createdAt: now,
@@ -263,7 +263,7 @@ export default function CategoriesPage() {
     }
 
     const saveEdit = async (id: string) => {
-        const now = new Date().toISOString().split('T')[0]
+        const now = new Date().toISOString().slice(0, 10)
         try {
             const res = await fetch(`/api/categories/${id}`, {
                 method: 'PUT',
@@ -318,7 +318,7 @@ export default function CategoriesPage() {
     }
 
     const totalPosts = categories.reduce((sum, c) => sum + c.count, 0)
-    const topCategory = categories.reduce((max, c) => c.count > max.count ? c : max, categories[0])
+    const topCategory = categories.length > 0 ? categories.reduce((max, c) => c.count > max.count ? c : max, categories[0]) : null
 
     // Icon Picker Modal Component
     const IconPickerModal = () => (

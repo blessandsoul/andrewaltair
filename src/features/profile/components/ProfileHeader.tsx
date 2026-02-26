@@ -45,6 +45,40 @@ export function ProfileHeader({ onAvatarChange, onCoverChange, onLogout }: Profi
         }
     }, [user?.coverImage, user?.coverOffsetY])
 
+    // Handle global mouse events for drag
+    React.useEffect(() => {
+        const handleGlobalMouseMove = (e: MouseEvent) => {
+            if (!isDragging.current || !isRepositioning || !coverRef.current) return
+
+            const deltaY = e.clientY - dragStartY.current
+            const containerHeight = coverRef.current.offsetHeight
+            const percentChange = (deltaY / containerHeight) * 100
+
+            // Invert: dragging down shows top of image (lower %)
+            const newOffset = dragStartOffset.current - percentChange
+            const clampedOffset = Math.min(100, Math.max(0, newOffset))
+
+            setCoverOffsetY(clampedOffset)
+        }
+
+        const handleGlobalMouseUp = () => {
+            if (isDragging.current) {
+                isDragging.current = false
+                setOriginalOffsetY(coverOffsetY)
+            }
+        }
+
+        if (isRepositioning) {
+            window.addEventListener('mousemove', handleGlobalMouseMove)
+            window.addEventListener('mouseup', handleGlobalMouseUp)
+        }
+
+        return () => {
+            window.removeEventListener('mousemove', handleGlobalMouseMove)
+            window.removeEventListener('mouseup', handleGlobalMouseUp)
+        }
+    }, [isRepositioning, coverOffsetY])
+
     if (!user) return null
 
     const roleConfig = ROLE_CONFIG[user.role]
@@ -115,40 +149,6 @@ export function ProfileHeader({ onAvatarChange, onCoverChange, onLogout }: Profi
         dragStartY.current = e.clientY
         dragStartOffset.current = coverOffsetY
     }
-
-    // Handle global mouse events for drag
-    React.useEffect(() => {
-        const handleGlobalMouseMove = (e: MouseEvent) => {
-            if (!isDragging.current || !isRepositioning || !coverRef.current) return
-
-            const deltaY = e.clientY - dragStartY.current
-            const containerHeight = coverRef.current.offsetHeight
-            const percentChange = (deltaY / containerHeight) * 100
-
-            // Invert: dragging down shows top of image (lower %)
-            const newOffset = dragStartOffset.current - percentChange
-            const clampedOffset = Math.min(100, Math.max(0, newOffset))
-
-            setCoverOffsetY(clampedOffset)
-        }
-
-        const handleGlobalMouseUp = () => {
-            if (isDragging.current) {
-                isDragging.current = false
-                setOriginalOffsetY(coverOffsetY)
-            }
-        }
-
-        if (isRepositioning) {
-            window.addEventListener('mousemove', handleGlobalMouseMove)
-            window.addEventListener('mouseup', handleGlobalMouseUp)
-        }
-
-        return () => {
-            window.removeEventListener('mousemove', handleGlobalMouseMove)
-            window.removeEventListener('mouseup', handleGlobalMouseUp)
-        }
-    }, [isRepositioning, coverOffsetY])
 
     const handleLogoutClick = () => {
         logout()

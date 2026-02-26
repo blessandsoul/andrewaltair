@@ -79,13 +79,12 @@ export default async function BlogPage(props: {
   let allPosts: any[] = []
   let featuredPosts: any[] = []
   let totalPostsCount = 0
+  const displayLimit = 50
 
   try {
     await dbConnect()
 
     totalPostsCount = await Post.countDocuments(query)
-
-    const displayLimit = 50
 
     const postsData = await Post.find(query)
       .sort({ createdAt: -1 })

@@ -72,7 +72,6 @@ async function getVideos() {
   try {
     await dbConnect()
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const videos = await Video.find({})
       .sort({ publishedAt: -1 })
       .limit(8)

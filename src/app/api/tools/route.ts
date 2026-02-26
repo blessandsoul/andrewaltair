@@ -12,13 +12,13 @@ export async function GET(request: NextRequest) {
         const params = {
             page: parseInt(searchParams.get("page") || "1"),
             limit: parseInt(searchParams.get("limit") || "50"),
-            category: searchParams.get("category"),
-            pricing: searchParams.get("pricing"),
-            search: searchParams.get("search"),
-            featured: searchParams.get("featured"),
+            category: searchParams.get("category") ?? undefined,
+            pricing: searchParams.get("pricing") ?? undefined,
+            search: searchParams.get("search") ?? undefined,
+            featured: searchParams.get("featured") ?? undefined,
         }
 
-        const result = await ToolService.getAllTools(params)
+        const result = await ToolService.getAllTools(params as Parameters<typeof ToolService.getAllTools>[0])
         return apiSuccess(result, 'Tools fetched successfully')
     } catch (error) {
         console.error("Get tools error:", error)

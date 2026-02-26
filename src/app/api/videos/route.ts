@@ -11,8 +11,7 @@ export async function GET(request: Request) {
         const category = searchParams.get('category');
         const limit = parseInt(searchParams.get('limit') || '20');
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const query: any = {};
+        const query: Record<string, string> = {};
         if (type) query.type = type;
         if (category) query.category = category;
 

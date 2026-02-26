@@ -1272,9 +1272,9 @@ function EditPostModal({
 
             const result = await response.json()
             setCoverImages(prev => ({ ...prev, [type]: result.url }))
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Upload error:', error)
-            alert(error.message || 'ატვირთვა ვერ მოხერხდა')
+            alert(error instanceof Error ? error.message : 'ატვირთვა ვერ მოხერხდა')
         } finally {
             if (type === 'horizontal') setIsUploadingH(false)
             else setIsUploadingV(false)

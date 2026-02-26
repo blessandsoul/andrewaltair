@@ -111,9 +111,9 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
             }
 
             // Success handled by PostEditor modal
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Update post error:', error)
-            alert(error.message || "შეცდომა პოსტის განახლებისას")
+            alert(error instanceof Error ? error.message : "შეცდომა პოსტის განახლებისას")
             throw error // Re-throw to prevent success modal
         }
     }

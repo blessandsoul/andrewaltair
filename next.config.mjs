@@ -20,12 +20,11 @@ const nextConfig = {
       },
     ],
   },
-  // ⚡ Skip linting and type checking during build to save memory/time on server
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   async headers() {
     const isDev = process.env.NODE_ENV !== 'production';
@@ -89,13 +88,12 @@ const nextConfig = {
 };
 
 // 🧹 Clean up: Remove console.log only in production builds
-// DISABLED FOR DEBUGGING LOGIN
-// if (process.env.NODE_ENV === 'production') {
-//   nextConfig.compiler = {
-//     removeConsole: {
-//       exclude: ['error', 'warn'],
-//     },
-//   };
-// }
+if (process.env.NODE_ENV === 'production') {
+  nextConfig.compiler = {
+    removeConsole: {
+      exclude: ['error', 'warn'],
+    },
+  };
+}
 
 export default nextConfig;

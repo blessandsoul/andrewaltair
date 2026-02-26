@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { SectionStandard } from '@/types/vibeCodingArticle';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 interface StandardSectionProps {
     section: SectionStandard;
@@ -77,7 +78,7 @@ export default function StandardSection({ section, renderWithGlossary }: Standar
                         return (
                             <p
                                 key={idx}
-                                dangerouslySetInnerHTML={{ __html: formattedText }}
+                                dangerouslySetInnerHTML={{ __html: sanitizeHtml(formattedText) }}
                             />
                         );
                     })}

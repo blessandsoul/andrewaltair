@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion';
 import { HeroModern, TextColumns, HighlightBox, QuoteMinimal, AuthorBioInline } from '@/types/universalSections';
 import { TbBulb, TbAlertTriangle, TbQuote } from 'react-icons/tb';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 // 1. Hero Modern
 export function HeroModernComponent({ data }: { data: HeroModern }) {
@@ -28,7 +29,7 @@ export function TextColumnsComponent({ data }: { data: TextColumns }) {
     return (
         <div className={`grid gap-8 my-8 md:grid-cols-${data.cols_count || 2}`}>
             {data.columns.map((col, idx) => (
-                <div key={idx} className="prose prose-lg text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: col }} /> // Ideally parse markdown
+                <div key={idx} className="prose prose-lg text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: sanitizeHtml(col) }} />
             ))}
         </div>
     );

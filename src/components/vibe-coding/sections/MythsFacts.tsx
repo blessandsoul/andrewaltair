@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { MythsFactsSection } from '@/types/vibeCodingArticle';
 import { TbX, TbCheck } from 'react-icons/tb';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 interface MythsFactsProps {
     section: MythsFactsSection;
@@ -78,8 +79,8 @@ export default function MythsFacts({ section }: MythsFactsProps) {
                             <p
                                 key={idx}
                                 dangerouslySetInnerHTML={{
-                                    __html: paragraph
-                                        .replace(/\*\*(.+?)\*\*/g, '<strong class="text-gray-900">$1</strong>')
+                                    __html: sanitizeHtml(paragraph
+                                        .replace(/\*\*(.+?)\*\*/g, '<strong class="text-gray-900">$1</strong>'))
                                 }}
                             />
                         ))}

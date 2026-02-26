@@ -13,17 +13,17 @@ export async function GET(request: NextRequest) {
         const params = {
             page: parseInt(searchParams.get("page") || "1"),
             limit: parseInt(searchParams.get("limit") || "50"),
-            category: searchParams.get("category"),
-            tier: searchParams.get("tier"),
-            search: searchParams.get("search"),
-            featured: searchParams.get("featured"),
-            sort: searchParams.get("sort"),
+            category: searchParams.get("category") ?? undefined,
+            tier: searchParams.get("tier") ?? undefined,
+            search: searchParams.get("search") ?? undefined,
+            featured: searchParams.get("featured") ?? undefined,
+            sort: searchParams.get("sort") ?? undefined,
             min_price: searchParams.get("min_price") ? parseFloat(searchParams.get("min_price")!) : 0,
             max_price: searchParams.get("max_price") ? parseFloat(searchParams.get("max_price")!) : 1000,
             rating: searchParams.get("rating") ? parseFloat(searchParams.get("rating")!) : 0,
         };
 
-        const result = await BotService.getAllBots(params);
+        const result = await BotService.getAllBots(params as Parameters<typeof BotService.getAllBots>[0]);
         return apiSuccess(result, 'Bots fetched successfully');
     } catch (error) {
         console.error("Smart Search error:", error);

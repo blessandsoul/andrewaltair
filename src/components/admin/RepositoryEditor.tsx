@@ -133,9 +133,9 @@ export function RepositoryEditor({ initialData, onSave, onCancel, isEditing = fa
                 coverImages: { ...prev.coverImages, [type]: result.url }
             }))
             toast.success(`${type === 'horizontal' ? 'Horizontal' : 'Vertical'} image uploaded!`)
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Upload error:', error)
-            toast.error(error.message || 'Upload failed')
+            toast.error(error instanceof Error ? error.message : 'Upload failed')
         } finally {
             if (type === 'horizontal') setIsUploadingH(false)
             else setIsUploadingV(false)

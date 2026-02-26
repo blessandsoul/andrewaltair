@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { SectionOutro } from '@/types/vibeCodingArticle';
 import { TbRocket } from 'react-icons/tb';
 import Link from 'next/link';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 interface OutroSectionProps {
     section: SectionOutro;
@@ -37,9 +38,9 @@ export default function OutroSection({ section }: OutroSectionProps) {
                         <p
                             key={idx}
                             dangerouslySetInnerHTML={{
-                                __html: paragraph
+                                __html: sanitizeHtml(paragraph
                                     .replace(/\*\*(.+?)\*\*/g, '<strong class="text-purple-600">$1</strong>')
-                                    .replace(/\\\"(.+?)\\\"/g, '<em class="text-pink-600">"$1"</em>')
+                                    .replace(/\\\"(.+?)\\\"/g, '<em class="text-pink-600">"$1"</em>'))
                             }}
                         />
                     ))}
