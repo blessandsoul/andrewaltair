@@ -459,9 +459,17 @@ function SectionRenderer({ section, index }: { section: Section; index: number }
                             <IconComponent className="w-5 h-5" />
                         </span>
                     )}
-                    <p className="text-lg leading-relaxed whitespace-pre-line">
-                        {section.content}
-                    </p>
+                    <div className="text-lg leading-relaxed whitespace-pre-line">
+                        <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                                p: ({ node, ...props }) => <span className="block mb-2 last:mb-0" {...props} />,
+                                a: ({ node, ...props }) => <a className="text-primary hover:underline not-italic" {...props} />,
+                            }}
+                        >
+                            {section.content}
+                        </ReactMarkdown>
+                    </div>
                 </div>
             </blockquote>
         );
