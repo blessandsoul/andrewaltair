@@ -88,7 +88,7 @@ export default function NewPostPage() {
             if (!res.ok) {
                 const error = await res.json()
                 console.error('API Error Response:', error);
-                throw new Error(error.details || error.error || 'პოსტის შენახვა ვერ მოხერხდა')
+                throw new Error(error.details || error.error?.message || error.error || 'პოსტის შენახვა ვერ მოხერხდა')
             }
 
             const savedPost = await res.json()
