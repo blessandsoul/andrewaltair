@@ -204,9 +204,9 @@ export class YoutubeService {
 
     /**
      * Fetch all videos from a YouTube channel using the Data API.
-     * Uses search.list to get all video IDs, then videos.list for details.
+     * Uses playlistItems.list (uploads playlist) for reliable, quota-efficient fetching.
      */
-    static async getChannelVideos(channelHandle: string, maxResults = 200) {
+    static async getChannelVideos(channelHandle: string, maxResults = 5000) {
         const apiKey = process.env.YOUTUBE_API_KEY;
         if (!apiKey) throw new Error('YOUTUBE_API_KEY not configured');
 
@@ -214,7 +214,7 @@ export class YoutubeService {
         let channelId = channelHandle;
         if (channelHandle.startsWith('@')) {
             const handleRes = await fetch(
-                `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${channelHandle}&key=${apiKey}`
+                `https://www.googleapis.com/youtube/v3/channels?part=id,contentDetails&forHandle=${channelHandle}&key=${apiKey}`
             );
             if (!handleRes.ok) throw new Error('Failed to resolve channel handle');
             const handleData = await handleRes.json();
@@ -222,26 +222,32 @@ export class YoutubeService {
             channelId = handleData.items[0].id;
         }
 
-        // Step 2: Fetch all video IDs via search.list with pagination
+        // Step 2: Get uploads playlist ID (replace UC prefix with UU)
+        const uploadsPlaylistId = channelId.replace(/^UC/, 'UU');
+
+        // Step 3: Fetch all video IDs via playlistItems.list (1 unit per request vs 100 for search.list)
         const allVideoIds: string[] = [];
         let nextPageToken: string | undefined;
 
         do {
             const pageParam = nextPageToken ? `&pageToken=${nextPageToken}` : '';
-            const searchRes = await fetch(
-                `https://www.googleapis.com/youtube/v3/search?part=id&channelId=${channelId}&type=video&order=date&maxResults=50${pageParam}&key=${apiKey}`
+            const playlistRes = await fetch(
+                `https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&playlistId=${uploadsPlaylistId}&maxResults=50${pageParam}&key=${apiKey}`
             );
-            if (!searchRes.ok) throw new Error('YouTube search API failed');
-            const searchData = await searchRes.json();
+            if (!playlistRes.ok) {
+                const errData = await playlistRes.json().catch(() => ({}));
+                throw new Error(`YouTube playlistItems API failed: ${errData?.error?.message || playlistRes.statusText}`);
+            }
+            const playlistData = await playlistRes.json();
 
-            for (const item of searchData.items || []) {
-                if (item.id?.videoId) allVideoIds.push(item.id.videoId);
+            for (const item of playlistData.items || []) {
+                if (item.contentDetails?.videoId) allVideoIds.push(item.contentDetails.videoId);
             }
 
-            nextPageToken = searchData.nextPageToken;
+            nextPageToken = playlistData.nextPageToken;
         } while (nextPageToken && allVideoIds.length < maxResults);
 
-        // Step 3: Fetch video details in batches of 50
+        // Step 4: Fetch video details in batches of 50
         const videos: Array<{
             videoId: string;
             title: string;
