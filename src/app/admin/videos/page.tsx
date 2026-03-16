@@ -85,7 +85,7 @@ export default function VideosPage() {
     React.useEffect(() => {
         async function fetchVideos() {
             try {
-                const res = await fetch('/api/videos?limit=100')
+                const res = await fetch('/api/videos?limit=500')
                 if (res.ok) {
                     const data = await res.json()
                     const formattedVideos = (data.data || []).map((v: VideoItem, i: number) => ({
@@ -298,7 +298,7 @@ export default function VideosPage() {
 
             // Refresh list
             if (addedCount > 0) {
-                const refreshRes = await fetch('/api/videos?limit=100')
+                const refreshRes = await fetch('/api/videos?limit=500')
                 if (refreshRes.ok) {
                     const refreshData = await refreshRes.json()
                     const formattedVideos = (refreshData.data || []).map((v: VideoItem, i: number) => ({
