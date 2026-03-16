@@ -157,6 +157,8 @@ export class AnalyticsService {
         const bots = ['googlebot', 'bingbot', 'yandex', 'facebook', 'twitter', 'slack', 'telegram', 'whatsapp'];
         if (bots.some(b => userAgent.toLowerCase().includes(b))) return { success: true, ignored: true };
 
+        await dbConnect();
+
         const { visitorId, currentPage, referrer, type = 'pageview' } = data;
         const pageViewInc = type === 'heartbeat' ? 0 : 1;
 
