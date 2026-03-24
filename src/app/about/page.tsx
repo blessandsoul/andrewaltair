@@ -4,6 +4,7 @@ import { AboutManifest } from "@/components/about/AboutManifest"
 import { AboutInspiration } from "@/components/about/AboutInspiration"
 import { AboutStartPath } from "@/components/about/AboutStartPath"
 import { AboutContactWidget } from "@/components/about/AboutContactWidget"
+import { AboutCertificates } from "@/components/about/AboutCertificates"
 import { AboutOnlineStatus } from "@/components/about/AboutOnlineStatus"
 import { AboutBioDetail } from "@/components/about/AboutBioDetail"
 import { TbCode, TbCpu, TbAnalyze, TbBrain } from "react-icons/tb"
@@ -102,7 +103,10 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* 3. Deep Content (SEO/GEO) */}
+      {/* 3. Certificates */}
+      <AboutCertificates />
+
+      {/* 4. Deep Content (SEO/GEO) */}
       <AboutBioDetail />
 
       {/* 4. Deep Dive (Manifest & Inspiration) */}
