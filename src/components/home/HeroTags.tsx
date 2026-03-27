@@ -80,7 +80,7 @@ export function HeroTags() {
     return (
         <div className="w-full space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
             {/* Category Tabs */}
-            <div className="flex flex-wrap items-center gap-2 p-1 bg-secondary/30 backdrop-blur-sm rounded-xl border border-primary/10 w-fit">
+            <div className="flex flex-wrap items-center gap-2 p-1 bg-muted/70 backdrop-blur-sm rounded-xl border border-border/30 w-fit">
                 {categories.map((cat) => (
                     cat.id === 'All' ? (
                         <Link
@@ -141,12 +141,12 @@ export function HeroTags() {
                                 className="group"
                             >
                                 <Badge
-                                    variant="secondary"
+                                    variant="outline"
                                     className={cn(
-                                        "px-3 py-1.5 text-sm transition-all duration-300 cursor-pointer border hover:border-primary/30",
+                                        "px-3 py-1.5 text-sm transition-all duration-300 cursor-pointer hover:border-primary/40 text-foreground",
                                         "hover:scale-105 hover:shadow-lg hover:-translate-y-0.5",
-                                        "bg-background/50 backdrop-blur-sm",
-                                        tool.isNew && "border-accent/40 bg-accent/5 pr-2.5"
+                                        "bg-card/80 backdrop-blur-sm",
+                                        tool.isNew && "border-accent/50 bg-accent/10 pr-2.5"
                                     )}
                                 >
                                     <span className="opacity-70 group-hover:opacity-100 transition-opacity">#</span>

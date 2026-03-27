@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { TbArrowRight, TbDownload, TbShoppingBag } from "react-icons/tb"
+import { TbArrowRight, TbCopy, TbShoppingBag } from "react-icons/tb"
 
 interface Prompt {
   id: string
@@ -14,52 +14,70 @@ interface PromptsSectionProps {
   prompts: Prompt[]
 }
 
+const DOT_COLORS: Record<string, { primary: string; secondary: string }> = {
+  Marketing:  { primary: "bg-emerald-400", secondary: "bg-emerald-200" },
+  Coding:     { primary: "bg-blue-400",    secondary: "bg-blue-200" },
+  Creative:   { primary: "bg-purple-400",  secondary: "bg-purple-200" },
+  Finance:    { primary: "bg-orange-400",  secondary: "bg-orange-200" },
+  Design:     { primary: "bg-pink-400",    secondary: "bg-pink-200" },
+}
+const FALLBACK = { primary: "bg-primary/60", secondary: "bg-primary/20" }
+
 export function PromptsSection({ prompts }: PromptsSectionProps) {
   if (!prompts.length) return null
 
   return (
     <section className="space-y-6">
-      <div className="flex items-center justify-between px-1">
-        <h2 className="text-2xl font-headline font-bold text-on-surface">Prompts</h2>
+      <div className="flex items-end justify-between px-1">
+        <div>
+          <h2 className="text-2xl font-headline font-bold text-on-surface">პოპულარული პრომტები</h2>
+          <p className="text-on-surface-variant text-sm mt-1">გამოიყენეთ მზა შაბლონები საუკეთესო შედეგისთვის</p>
+        </div>
         <Link
           href="/prompts"
-          className="text-sm text-primary font-medium flex items-center gap-1 hover:gap-2 transition-all"
+          className="text-sm text-primary font-medium flex items-center gap-1 hover:gap-2 transition-all shrink-0"
         >
-          View All <TbArrowRight className="w-4 h-4" />
+          ყველა <TbArrowRight className="w-4 h-4" />
         </Link>
       </div>
 
       <div className="overflow-x-auto hide-scrollbar -mx-4 px-4">
         <div className="flex gap-4" style={{ width: "max-content" }}>
-          {prompts.map((prompt) => (
-            <Link
-              key={prompt.id}
-              href={`/prompts/${prompt.id}`}
-              className="group min-w-[280px] bg-card rounded-xl p-5 border border-border/30 hover:-translate-y-1 transition-transform"
-            >
-              <div className="flex items-center justify-between mb-3">
-                {prompt.category && (
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-primary/70 bg-primary/8 px-2 py-0.5 rounded">
-                    {prompt.category}
-                  </span>
-                )}
-                <span className={`text-sm font-bold ml-auto ${prompt.isFree ? "text-green-500" : "text-on-surface"}`}>
-                  {prompt.isFree ? "Free" : prompt.price ? `₾${prompt.price}` : ""}
-                </span>
-              </div>
-
-              <h3 className="font-semibold text-sm text-on-surface leading-snug mb-4 line-clamp-3 group-hover:text-primary transition-colors">
-                {prompt.title}
-              </h3>
-
-              {prompt.downloads !== undefined && (
-                <div className="flex items-center gap-1 text-xs text-on-surface-variant">
-                  <TbDownload className="w-3.5 h-3.5" />
-                  {prompt.downloads.toLocaleString()}
+          {prompts.map((prompt) => {
+            const cat = prompt.category ?? ""
+            const dots = DOT_COLORS[cat] ?? FALLBACK
+            return (
+              <Link
+                key={prompt.id}
+                href={`/prompts/${prompt.id}`}
+                className="group min-w-70 bg-card rounded-xl p-5 border border-outline-variant/10 shadow-sm hover:-translate-y-1 transition-transform flex flex-col justify-between gap-4"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex gap-1 items-center">
+                      <span className={`w-2 h-2 rounded-full ${dots.primary}`} />
+                      <span className={`w-2 h-2 rounded-full ${dots.secondary}`} />
+                    </div>
+                    <TbCopy className="w-4 h-4 text-slate-300 group-hover:text-primary transition-colors" />
+                  </div>
+                  <p className="text-sm font-medium leading-relaxed line-clamp-3 text-on-surface">
+                    &ldquo;{prompt.title}&rdquo;
+                  </p>
                 </div>
-              )}
-            </Link>
-          ))}
+                <div className="flex items-center justify-between text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+                  <span>{cat || "Prompt"}</span>
+                  {prompt.downloads !== undefined && (
+                    <span>{prompt.downloads.toLocaleString()} uses</span>
+                  )}
+                  {prompt.price !== undefined && (
+                    <span className={prompt.isFree ? "text-green-500" : "text-on-surface"}>
+                      {prompt.isFree ? "Free" : `₾${prompt.price}`}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            )
+          })}
 
           {/* View all card */}
           <Link

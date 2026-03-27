@@ -18,65 +18,73 @@ const quickLinks = [
     icon: TbBrain,
     featured: true,
     tag: "New",
+    iconColor: "text-primary",
   },
   {
     href: "/mystic",
     title: "Mystic AI",
     label: "Tarot & Numerology",
     icon: TbSparkles,
-    featured: false,
+    iconColor: "text-secondary-accent",
   },
   {
     href: "/encyclopedia",
     title: "Encyclopedia",
     label: "AI Knowledge",
     icon: TbBook,
-    featured: false,
+    iconColor: "text-amber-700",
   },
   {
     href: "/tools",
     title: "AI Tools",
     label: "Ratings",
     icon: TbSettings,
-    featured: false,
+    iconColor: "text-slate-500",
   },
   {
     href: "/prompt-builder",
     title: "Prompt Builder",
     label: "Build & Test",
     icon: TbPencil,
-    featured: false,
+    iconColor: "text-primary",
   },
   {
     href: "/mystery-box",
     title: "Gift Box",
     label: "Surprise",
     icon: TbGift,
-    featured: false,
+    iconColor: "text-orange-500",
   },
 ]
 
 export function QuickAccessGrid() {
   return (
-    <div className="grid grid-cols-2 gap-3 h-full">
+    <div className="grid grid-cols-2 gap-3">
       {quickLinks.map((item) => (
         <Link
           key={item.href}
           href={item.href}
           className={cn(
-            "group relative bg-surface-container-low dark:bg-slate-800/60 rounded-xl p-4 flex flex-col gap-2 hover:bg-white dark:hover:bg-slate-800 transition-colors",
+            "group relative bg-surface-container-low dark:bg-slate-800/60 rounded-xl p-5 flex flex-col justify-between min-h-20 hover:bg-white dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-outline-variant/20 shadow-sm",
             item.featured && "col-span-2"
           )}
         >
           <div className="flex items-start justify-between">
-            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-              <item.icon className="w-5 h-5" />
-            </div>
+            <item.icon
+              className={cn(
+                item.featured ? "w-8 h-8" : "w-6 h-6",
+                item.iconColor
+              )}
+            />
             {item.tag && <PerspectiveTag>{item.tag}</PerspectiveTag>}
           </div>
           <div>
-            <div className="font-semibold text-sm text-on-surface">{item.title}</div>
-            <div className="text-xs text-on-surface-variant">{item.label}</div>
+            <div className={cn("font-bold text-on-surface", item.featured ? "text-lg" : "text-sm")}>
+              {item.title}
+            </div>
+            <div className="text-[10px] text-on-surface-variant uppercase tracking-widest mt-0.5">
+              {item.label}
+            </div>
           </div>
         </Link>
       ))}

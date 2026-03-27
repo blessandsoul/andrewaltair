@@ -23,7 +23,7 @@ export function Footer() {
             {/* Brand — span 2 */}
             <div className="lg:col-span-2 space-y-4">
               <Link href="/" className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-container rounded-xl flex items-center justify-center text-white shadow-sm">
+                <div className="w-10 h-10 bg-linear-to-br from-primary to-primary-container rounded-xl flex items-center justify-center text-white shadow-sm">
                   <TbRobot className="w-6 h-6" />
                 </div>
                 <span className="font-headline font-bold text-xl text-on-surface">Altair AI</span>

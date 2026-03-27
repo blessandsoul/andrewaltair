@@ -39,6 +39,7 @@
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
+  --color-secondary-accent: var(--secondary-accent);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
   --color-popover-foreground: var(--popover-foreground);
@@ -93,9 +94,9 @@
   --primary: #3525cd;
   --primary-foreground: #ffffff;
 
-  /* Secondary - Violet */
-  --secondary: #8127cf;
-  --secondary-foreground: #ffffff;
+  /* Secondary - Surface (used for badges/chips across the site) */
+  --secondary: #e8ecff;
+  --secondary-foreground: #1a1340;
 
   /* Muted - Surface Low */
   --muted: #eff4ff;
@@ -159,6 +160,9 @@
   --primary-fixed-dim: #c3c0ff;
   --on-primary-fixed: #0f0069;
 
+  /* Secondary accent - pure purple for icons/accents (not for Badge) */
+  --secondary-accent: #8127cf;
+
   /* MD3 Secondary scale */
   --secondary-container: #9c48ea;
   --secondary-fixed: #f0dbff;
@@ -196,6 +200,7 @@
   /* Secondary */
   --secondary: #ddb7ff;
   --secondary-foreground: #2c0051;
+  --secondary-accent: #ddb7ff;
 
   /* Muted */
   --muted: #1e2a3e;

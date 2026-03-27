@@ -88,7 +88,7 @@ function UserProfileDropdown() {
         className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-muted transition-colors"
       >
         <div
-          className={`relative w-8 h-8 rounded-full bg-gradient-to-br ${roleConfig.color} flex items-center justify-center text-white font-bold text-sm overflow-hidden`}
+          className={`relative w-8 h-8 rounded-full bg-linear-to-br ${roleConfig.color} flex items-center justify-center text-white font-bold text-sm overflow-hidden`}
         >
           {user.avatar ? (
             <Image src={user.avatar} alt={user.fullName} fill className="object-cover" />
@@ -113,7 +113,7 @@ function UserProfileDropdown() {
             <div className="p-4 border-b border-border bg-muted/30">
               <div className="flex items-center gap-3">
                 <div
-                  className={`relative w-12 h-12 rounded-full bg-gradient-to-br ${roleConfig.color} flex items-center justify-center text-white font-bold overflow-hidden`}
+                  className={`relative w-12 h-12 rounded-full bg-linear-to-br ${roleConfig.color} flex items-center justify-center text-white font-bold overflow-hidden`}
                 >
                   {user.avatar ? (
                     <Image src={user.avatar} alt={user.fullName} fill className="object-cover" />
@@ -198,7 +198,7 @@ export function Header() {
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 shrink-0 group">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white shadow-sm group-hover:shadow-primary/20 group-hover:shadow-md transition-shadow">
+              <div className="w-9 h-9 rounded-xl bg-linear-to-br from-primary to-primary-container flex items-center justify-center text-white shadow-sm group-hover:shadow-primary/20 group-hover:shadow-md transition-shadow">
                 <TbRobot className="w-5 h-5" />
               </div>
               <span className="font-headline font-bold text-lg tracking-tight text-on-surface">
@@ -290,7 +290,7 @@ export function Header() {
                   <Link href="/register">
                     <Button
                       size="sm"
-                      className="gap-2 bg-gradient-to-br from-primary to-primary-container text-white border-0 shadow-sm hover:shadow-primary/20 hover:shadow-md transition-shadow"
+                      className="gap-2 bg-linear-to-br from-primary to-primary-container text-white border-0 shadow-sm hover:shadow-primary/20 hover:shadow-md transition-shadow"
                     >
                       <TbUserPlus className="w-4 h-4" />
                       რეგისტრაცია
@@ -308,7 +308,7 @@ export function Header() {
               <ThemeToggle />
               {user && (
                 <div
-                  className={`relative w-8 h-8 rounded-full bg-gradient-to-br ${ROLE_CONFIG[user.role].color} flex items-center justify-center text-white font-bold text-xs overflow-hidden`}
+                  className={`relative w-8 h-8 rounded-full bg-linear-to-br ${ROLE_CONFIG[user.role].color} flex items-center justify-center text-white font-bold text-xs overflow-hidden`}
                 >
                   {user.avatar ? (
                     <Image src={user.avatar} alt={user.fullName} fill className="object-cover" />
@@ -335,7 +335,7 @@ export function Header() {
                   <div className="px-4 py-3 mb-4 bg-muted/30 rounded-xl mx-2">
                     <div className="flex items-center gap-3">
                       <div
-                        className={`relative w-10 h-10 rounded-full bg-gradient-to-br ${ROLE_CONFIG[user.role].color} flex items-center justify-center text-white font-bold overflow-hidden`}
+                        className={`relative w-10 h-10 rounded-full bg-linear-to-br ${ROLE_CONFIG[user.role].color} flex items-center justify-center text-white font-bold overflow-hidden`}
                       >
                         {user.avatar ? (
                           <Image src={user.avatar} alt={user.fullName} fill className="object-cover" />
@@ -411,7 +411,7 @@ export function Header() {
                       <Link href="/register" className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
                         <Button
                           size="sm"
-                          className="w-full gap-2 bg-gradient-to-br from-primary to-primary-container text-white border-0"
+                          className="w-full gap-2 bg-linear-to-br from-primary to-primary-container text-white border-0"
                         >
                           <TbUserPlus className="w-4 h-4" />
                           რეგისტრაცია

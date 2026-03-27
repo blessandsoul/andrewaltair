@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { TbArrowRight, TbClock } from "react-icons/tb"
+import { TbArrowRight } from "react-icons/tb"
 import { PerspectiveTag } from "@/components/ui/PerspectiveTag"
 import { formatRelativeDate, getCategoryInfo } from "@/lib/blog-utils"
 
@@ -24,26 +24,26 @@ export function ArticlesSection({ posts }: ArticlesSectionProps) {
   if (!posts.length) return null
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-8">
       <div className="flex items-center justify-between px-1">
-        <h2 className="text-2xl font-headline font-bold text-on-surface">სტატიები</h2>
+        <h2 className="text-2xl font-headline font-bold text-on-surface">უახლესი სტატიები</h2>
         <Link
           href="/blog"
           className="text-sm text-primary font-medium flex items-center gap-1 hover:gap-2 transition-all"
         >
-          View All <TbArrowRight className="w-4 h-4" />
+          ყველა <TbArrowRight className="w-4 h-4" />
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {posts.slice(0, 3).map((post) => {
           const categoryInfo = post.category ? getCategoryInfo(post.category) : null
 
           return (
             <Link key={post.id} href={`/blog/${post.id}`} className="group">
-              <article className="bg-card rounded-xl overflow-hidden border border-border/20 h-full hover:border-border/50 transition-colors">
+              <article className="flex flex-col gap-4">
                 {/* Image */}
-                <div className="relative aspect-video bg-muted overflow-hidden">
+                <div className="aspect-video overflow-hidden rounded-xl bg-muted relative">
                   {post.coverImage ? (
                     <Image
                       src={post.coverImage}
@@ -55,30 +55,27 @@ export function ArticlesSection({ posts }: ArticlesSectionProps) {
                     <div className="absolute inset-0 bg-linear-to-br from-primary/20 to-secondary/20" />
                   )}
                   {categoryInfo && (
-                    <div className="absolute top-3 left-3">
+                    <div className="absolute top-3 right-3">
                       <PerspectiveTag>{categoryInfo.name}</PerspectiveTag>
                     </div>
                   )}
                 </div>
 
                 {/* Content */}
-                <div className="p-5">
-                  <div className="flex items-center gap-3 text-xs text-on-surface-variant mb-3">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
                     {post.publishedAt && (
                       <span>{formatRelativeDate(post.publishedAt)}</span>
                     )}
                     {post.readingTime && (
                       <>
-                        <span>·</span>
-                        <span className="flex items-center gap-1">
-                          <TbClock className="w-3.5 h-3.5" />
-                          {post.readingTime} წთ
-                        </span>
+                        <span className="w-1 h-1 rounded-full bg-outline-variant" />
+                        <span>{post.readingTime} წთ კითხვა</span>
                       </>
                     )}
                   </div>
 
-                  <h3 className="font-semibold text-on-surface leading-snug mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                  <h3 className="text-xl font-bold leading-tight text-on-surface group-hover:text-primary transition-colors">
                     {post.title}
                   </h3>
 

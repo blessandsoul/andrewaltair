@@ -8,7 +8,7 @@ const gradientButtonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-gradient-to-br from-primary to-primary-container text-white shadow-sm hover:shadow-primary/20 hover:shadow-lg",
+          "bg-linear-to-br from-primary to-primary-container text-white shadow-sm hover:shadow-primary/20 hover:shadow-lg",
         glass:
           "bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20",
       },

@@ -49,7 +49,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
                         <div className="flex h-14 sm:h-16 items-center justify-between">
                             {/* Logo */}
                             <a href="/" className="flex items-center gap-2 sm:gap-3 group">
-                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
+                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-linear-to-br from-purple-600 to-pink-600 flex items-center justify-center">
                                     <TbSparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                                 </div>
                                 <span className="font-bold text-base sm:text-lg text-white hidden sm:block">Andrew Altair</span>
