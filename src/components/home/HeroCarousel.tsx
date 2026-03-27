@@ -72,7 +72,7 @@ export function HeroCarousel({ posts, autoPlayInterval = 5000 }: HeroCarouselPro
 
   return (
     <div
-      className="relative rounded-2xl overflow-hidden min-h-125 group"
+      className="relative rounded-2xl overflow-hidden group aspect-9/16 sm:aspect-auto sm:min-h-125"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -85,13 +85,23 @@ export function HeroCarousel({ posts, autoPlayInterval = 5000 }: HeroCarouselPro
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="absolute inset-0"
         >
-          {/* Full-bleed image */}
-          {(currentPost.coverImage || currentPost.coverImages?.horizontal) ? (
+          {/* Mobile: vertical 9:16 image */}
+          {(currentPost.coverImages?.vertical || currentPost.coverImage) && (
+            <Image
+              src={currentPost.coverImages?.vertical || currentPost.coverImage || ""}
+              alt={currentPost.title}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-700 sm:hidden"
+              priority
+            />
+          )}
+          {/* Desktop: horizontal 16:9 image */}
+          {(currentPost.coverImages?.horizontal || currentPost.coverImage) ? (
             <Image
               src={currentPost.coverImages?.horizontal || currentPost.coverImage || ""}
               alt={currentPost.title}
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-700"
+              className="object-cover group-hover:scale-105 transition-transform duration-700 hidden sm:block"
               priority
             />
           ) : (
@@ -154,10 +164,6 @@ export function HeroCarousel({ posts, autoPlayInterval = 5000 }: HeroCarouselPro
             <TbHeart className="w-4 h-4 text-red-400 fill-red-400" />
             {formatNumber(getTotalReactions(currentPost.reactions))}
           </span>
-          <span className="flex items-center gap-1.5">
-            <TbClock className="w-4 h-4" />
-            {currentPost.readingTime || 5} წთ
-          </span>
         </div>
 
         {/* Title & excerpt */}
@@ -182,12 +188,6 @@ export function HeroCarousel({ posts, autoPlayInterval = 5000 }: HeroCarouselPro
             >
               წაიკითხე
               <TbArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href="/blog"
-              className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-semibold text-sm transition-all duration-300 bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20"
-            >
-              ყველა სტატია
             </Link>
           </div>
 
