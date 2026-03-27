@@ -12,6 +12,8 @@ import { ScrollProgress, BackToTop } from "@/components/ui/scroll-progress"
 import { VisitorTracker } from "@/components/tracking"
 import { HeatmapOverlay } from "@/components/analytics/HeatmapOverlay"
 import { PageTransition } from "@/components/layout/PageTransition"
+import { MobileNav } from "@/components/layout/MobileNav"
+import { TbSparkles } from "react-icons/tb"
 
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
@@ -48,7 +50,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
                             {/* Logo */}
                             <a href="/" className="flex items-center gap-2 sm:gap-3 group">
                                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
-                                    <span className="text-white text-sm sm:text-base">✨</span>
+                                    <TbSparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                                 </div>
                                 <span className="font-bold text-base sm:text-lg text-white hidden sm:block">Andrew Altair</span>
                             </a>
@@ -102,12 +104,13 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
 
             {/* Main Layout */}
             <Header />
-            <main className="min-h-screen">
+            <main className="min-h-screen pb-24 lg:pb-0">
                 <PageTransition>
                     {children}
                 </PageTransition>
             </main>
             <Footer />
+            <MobileNav />
 
             {/* Floating Elements */}
             <SocialProofToast enabled={true} />

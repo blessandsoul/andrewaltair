@@ -1,0 +1,243 @@
+<h2>Маппинг секций: шаблон → твой контент</h2>
+<p class="subtitle">Слева — layout из шаблона, справа — какой реальный контент туда пойдёт. Какие секции оставляем?</p>
+
+<div class="section">
+  <h3>Desktop Homepage — порядок секций</h3>
+
+  <div class="mockup" style="margin-bottom: 1.5rem;">
+    <div class="mockup-header">1. HERO (8/12) + Quick Access (4/12)</div>
+    <div class="mockup-body" style="padding: 1rem;">
+      <div style="display: flex; gap: 12px;">
+        <div style="flex: 2; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 8px; padding: 16px; color: white; min-height: 140px;">
+          <div style="font-size: 9px; background: #3525cd; display: inline-block; padding: 2px 6px; border-radius: 3px; margin-bottom: 6px;">News</div>
+          <div style="font-size: 16px; font-weight: 800; line-height: 1.2;">AI ინოვატორი საქართველოში 🇬🇪</div>
+          <div style="font-size: 10px; opacity: 0.7; margin-top: 6px;">Био + философия Эндрю</div>
+          <div style="display: flex; gap: 6px; margin-top: 10px;">
+            <div style="background: linear-gradient(135deg, #3525cd, #4f46e5); padding: 3px 10px; border-radius: 4px; font-size: 9px;">ბლოგის კითხვა</div>
+            <div style="border: 1px solid white; padding: 3px 10px; border-radius: 4px; font-size: 9px;">▶ ვიდეოს ნახვა</div>
+          </div>
+        </div>
+        <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+          <div style="background: #eff4ff; border-radius: 6px; padding: 8px; grid-column: span 2;">
+            <div style="font-size: 9px; font-weight: 700;">🔑 AI გასაღები</div>
+            <div style="font-size: 8px; color: #464555;">Quick promo card</div>
+          </div>
+          <div style="background: #eff4ff; border-radius: 6px; padding: 8px;">
+            <div style="font-size: 9px; font-weight: 700;">✨ Magic AI</div>
+          </div>
+          <div style="background: #eff4ff; border-radius: 6px; padding: 8px;">
+            <div style="font-size: 9px; font-weight: 700;">📖 Encyclopedia</div>
+          </div>
+          <div style="background: #eff4ff; border-radius: 6px; padding: 8px;">
+            <div style="font-size: 9px; font-weight: 700;">🛠 Tools</div>
+          </div>
+          <div style="background: #eff4ff; border-radius: 6px; padding: 8px;">
+            <div style="font-size: 9px; font-weight: 700;">📝 Prompts</div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size: 10px; color: #464555; margin-top: 8px; text-align: center;">← Карусель постов внутри hero + AI Tool Tags под CTA →</div>
+    </div>
+  </div>
+
+  <div class="mockup" style="margin-bottom: 1.5rem;">
+    <div class="mockup-header">2. ПРОМПТЫ — горизонтальный скролл</div>
+    <div class="mockup-body" style="padding: 1rem;">
+      <div style="display: flex; gap: 8px; overflow: hidden;">
+        <div style="min-width: 140px; background: white; border-radius: 8px; padding: 10px; border: 1px solid #c7c4d815;">
+          <div style="display: flex; gap: 4px; margin-bottom: 6px;">
+            <div style="width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></div>
+            <div style="width: 6px; height: 6px; border-radius: 50%; background: #10b98166;"></div>
+          </div>
+          <div style="font-size: 9px; font-weight: 500;">Реальные промпты из MarketplacePrompt модели</div>
+          <div style="display: flex; justify-content: space-between; font-size: 8px; color: #777; margin-top: 8px;">
+            <span>Marketing</span><span>4.9k uses</span>
+          </div>
+        </div>
+        <div style="min-width: 140px; background: white; border-radius: 8px; padding: 10px; border: 1px solid #c7c4d815;">
+          <div style="display: flex; gap: 4px; margin-bottom: 6px;">
+            <div style="width: 6px; height: 6px; border-radius: 50%; background: #6366f1;"></div>
+            <div style="width: 6px; height: 6px; border-radius: 50%; background: #6366f166;"></div>
+          </div>
+          <div style="font-size: 9px; font-weight: 500;">С ценами, категориями, downloads</div>
+          <div style="display: flex; justify-content: space-between; font-size: 8px; color: #777; margin-top: 8px;">
+            <span>Coding</span><span>2.1k uses</span>
+          </div>
+        </div>
+        <div style="min-width: 140px; background: white; border-radius: 8px; padding: 10px; border: 1px solid #c7c4d815; opacity: 0.5;">
+          <div style="font-size: 9px; color: #999;">+ ещё карточки →</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup" style="margin-bottom: 1.5rem;">
+    <div class="mockup-header">3. СТАТЬИ — 3-колоночная сетка</div>
+    <div class="mockup-body" style="padding: 1rem;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+        <div>
+          <div style="background: #ddd; border-radius: 6px; height: 60px; position: relative;">
+            <div style="position: absolute; top: 4px; right: 4px; background: #ffdbca; color: #341100; font-size: 7px; padding: 1px 4px; border-radius: 3px; font-weight: 700;">Trends</div>
+          </div>
+          <div style="font-size: 8px; color: #777; margin-top: 4px;">15 მარტი • 5 წთ</div>
+          <div style="font-size: 10px; font-weight: 700; margin-top: 2px;">Реальные посты из MongoDB</div>
+        </div>
+        <div>
+          <div style="background: #ddd; border-radius: 6px; height: 60px; position: relative;">
+            <div style="position: absolute; top: 4px; right: 4px; background: #ffdbca; color: #341100; font-size: 7px; padding: 1px 4px; border-radius: 3px; font-weight: 700;">Tech</div>
+          </div>
+          <div style="font-size: 8px; color: #777; margin-top: 4px;">12 მარტი • 8 წთ</div>
+          <div style="font-size: 10px; font-weight: 700; margin-top: 2px;">С reactions, views, tags</div>
+        </div>
+        <div>
+          <div style="background: #ddd; border-radius: 6px; height: 60px; position: relative;">
+            <div style="position: absolute; top: 4px; right: 4px; background: #ffdbca; color: #341100; font-size: 7px; padding: 1px 4px; border-radius: 3px; font-weight: 700;">Creative</div>
+          </div>
+          <div style="font-size: 8px; color: #777; margin-top: 4px;">10 მარტი • 4 წთ</div>
+          <div style="font-size: 10px; font-weight: 700; margin-top: 2px;">Perspective Tags</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup" style="margin-bottom: 1.5rem;">
+    <div class="mockup-header">4. AI БОТЫ — на surface-container-low фоне</div>
+    <div class="mockup-body" style="padding: 1rem; background: #eff4ff;">
+      <div style="display: flex; gap: 8px; justify-content: center;">
+        <div style="background: white; border-radius: 8px; padding: 10px; text-align: center; width: 80px;">
+          <div style="width: 32px; height: 32px; border-radius: 8px; background: #e2dfff; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-size: 14px;">🧠</div>
+          <div style="font-size: 9px; font-weight: 700;">Altair Pro</div>
+          <div style="font-size: 7px; color: #777;">Universal</div>
+        </div>
+        <div style="background: white; border-radius: 8px; padding: 10px; text-align: center; width: 80px;">
+          <div style="width: 32px; height: 32px; border-radius: 8px; background: #f0dbff; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-size: 14px;">⚖️</div>
+          <div style="font-size: 9px; font-weight: 700;">Lega-Bot</div>
+          <div style="font-size: 7px; color: #777;">Legal</div>
+        </div>
+        <div style="background: white; border-radius: 8px; padding: 10px; text-align: center; width: 80px;">
+          <div style="width: 32px; height: 32px; border-radius: 8px; background: #ffdbca; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-size: 14px;">💻</div>
+          <div style="font-size: 9px; font-weight: 700;">Code Master</div>
+          <div style="font-size: 7px; color: #777;">Dev</div>
+        </div>
+        <div style="background: white; border-radius: 8px; padding: 10px; text-align: center; width: 80px;">
+          <div style="width: 32px; height: 32px; border-radius: 8px; background: #d1fae5; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-size: 14px;">🌐</div>
+          <div style="font-size: 9px; font-weight: 700;">Linguist</div>
+          <div style="font-size: 7px; color: #777;">Translate</div>
+        </div>
+        <div style="background: white; border-radius: 8px; padding: 10px; text-align: center; width: 80px;">
+          <div style="width: 32px; height: 32px; border-radius: 8px; background: #f1f5f9; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-size: 14px;">➕</div>
+          <div style="font-size: 9px; font-weight: 700;">Custom</div>
+          <div style="font-size: 7px; color: #777;">Create</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup" style="margin-bottom: 1.5rem;">
+    <div class="mockup-header">5. СЕРВИСЫ — 2 больших блока</div>
+    <div class="mockup-body" style="padding: 1rem;">
+      <div style="display: flex; gap: 10px;">
+        <div style="flex: 1; background: #3525cd; border-radius: 10px; padding: 14px; color: white;">
+          <div style="font-size: 18px; margin-bottom: 6px;">🏢</div>
+          <div style="font-size: 13px; font-weight: 800;">AI კონსულტაცია</div>
+          <div style="font-size: 9px; opacity: 0.8; margin-top: 4px;">150₾/час — реальные цены</div>
+          <div style="background: white; color: #3525cd; padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: 700; display: inline-block; margin-top: 8px;">დაჯავშნე</div>
+        </div>
+        <div style="flex: 1; background: #8127cf; border-radius: 10px; padding: 14px; color: white;">
+          <div style="font-size: 18px; margin-bottom: 6px;">🎓</div>
+          <div style="font-size: 13px; font-weight: 800;">AI ტრენინგები</div>
+          <div style="font-size: 9px; opacity: 0.8; margin-top: 4px;">500₾/team — курсы и тренинги</div>
+          <div style="background: white; color: #8127cf; padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: 700; display: inline-block; margin-top: 8px;">იხილე კურსები</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup" style="margin-bottom: 1.5rem;">
+    <div class="mockup-header">6. ВИДЕО — горизонтальный скролл</div>
+    <div class="mockup-body" style="padding: 1rem;">
+      <div style="display: flex; gap: 10px;">
+        <div style="min-width: 140px;">
+          <div style="background: #ddd; border-radius: 6px; height: 70px; position: relative;">
+            <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;">
+              <div style="width: 24px; height: 24px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px;">▶</div>
+            </div>
+            <div style="position: absolute; bottom: 3px; right: 3px; background: rgba(0,0,0,0.6); color: white; font-size: 7px; padding: 1px 4px; border-radius: 3px;">12:45</div>
+          </div>
+          <div style="font-size: 9px; font-weight: 700; margin-top: 4px;">Реальные YouTube видео</div>
+          <div style="font-size: 7px; color: #777;">Tutorials • 2.4k views</div>
+        </div>
+        <div style="min-width: 140px;">
+          <div style="background: #ccc; border-radius: 6px; height: 70px; position: relative;">
+            <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;">
+              <div style="width: 24px; height: 24px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px;">▶</div>
+            </div>
+          </div>
+          <div style="font-size: 9px; font-weight: 700; margin-top: 4px;">Из Video модели</div>
+          <div style="font-size: 7px; color: #777;">Data Science • 1.1k</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup" style="margin-bottom: 1.5rem;">
+    <div class="mockup-header">7. SOCIAL PROOF + FOOTER</div>
+    <div class="mockup-body" style="padding: 1rem;">
+      <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 10px;">
+        <div style="text-align: center;">
+          <div style="font-size: 16px; font-weight: 800; color: #3525cd;">25K</div>
+          <div style="font-size: 8px; color: #777;">YouTube</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 16px; font-weight: 800; color: #8127cf;">15K</div>
+          <div style="font-size: 8px; color: #777;">Instagram</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 16px; font-weight: 800; color: #3525cd;">10K</div>
+          <div style="font-size: 8px; color: #777;">Facebook</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 16px; font-weight: 800; color: #8127cf;">8K</div>
+          <div style="font-size: 8px; color: #777;">TikTok</div>
+        </div>
+      </div>
+      <div style="background: #f1f5f9; border-radius: 6px; padding: 8px; text-align: center; font-size: 9px; color: #777;">
+        Footer из шаблона: Продукт | Ресурсы | Компания | Юридическое + соцсети + переключатель языка
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3 style="margin-top: 2rem;">Какие секции убрать или поменять местами?</h3>
+<p class="subtitle">По умолчанию предлагаю этот порядок. Если всё ок — напиши "ок". Или скажи что хочешь изменить.</p>
+
+<div class="options" data-multiselect>
+  <div class="option" data-choice="keep-all" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>Оставить все 7 секций как есть</h3>
+      <p>Hero + Quick Access → Промпты → Статьи → AI Боты → Сервисы → Видео → Social Proof + Footer</p>
+    </div>
+  </div>
+  <div class="option" data-choice="drop-social" onclick="toggleSelect(this)">
+    <div class="letter">−</div>
+    <div class="content">
+      <h3>Убрать Social Proof (числа подписчиков)</h3>
+      <p>Перенести в footer или убрать совсем</p>
+    </div>
+  </div>
+  <div class="option" data-choice="add-tutorials" onclick="toggleSelect(this)">
+    <div class="letter">+</div>
+    <div class="content">
+      <h3>Добавить секцию Tutorials/Уроки</h3>
+      <p>Сейчас в HubLayout есть секция уроков — добавить между видео и footer</p>
+    </div>
+  </div>
+  <div class="option" data-choice="reorder" onclick="toggleSelect(this)">
+    <div class="letter">↕</div>
+    <div class="content">
+      <h3>Поменять порядок секций</h3>
+      <p>Напиши в терминале какой порядок хочешь</p>
+    </div>
+  </div>
+</div>

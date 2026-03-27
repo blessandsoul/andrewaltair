@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Noto_Sans_Georgian } from "next/font/google";
+import { Inter, JetBrains_Mono, Manrope, Noto_Sans_Georgian } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import { LayoutWrapper } from "@/components/layout/LayoutWrapper";
@@ -14,6 +14,13 @@ import { personSchema, organizationSchema, websiteSchema } from "@/config/json-l
 const inter = Inter({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+});
+
+const manrope = Manrope({
+  variable: "--font-manrope",
+  subsets: ["latin"],
+  weight: ["700", "800"],
+  display: "swap",
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -59,7 +66,7 @@ export default function RootLayout({
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
       </head>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} ${notoGeorgian.variable} antialiased font-georgian`}
+        className={`${inter.variable} ${jetbrainsMono.variable} ${notoGeorgian.variable} ${manrope.variable} antialiased font-georgian`}
         suppressHydrationWarning
       >
         <AuthProvider>

@@ -11,62 +11,68 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
-import { TbRobot, TbBook, TbVideo, TbSettings, TbBulb, TbBriefcase, TbShoppingBag, TbInfoCircle, TbUser, TbSearch, TbMenu2, TbX, TbLogin, TbUserPlus, TbLogout, TbChevronDown, TbSparkles, TbShield, TbCrown, TbGift, TbActivity, TbClipboardCheck } from "react-icons/tb"
+import {
+  TbRobot,
+  TbBook,
+  TbVideo,
+  TbSettings,
+  TbBulb,
+  TbBriefcase,
+  TbShoppingBag,
+  TbUser,
+  TbSearch,
+  TbMenu2,
+  TbX,
+  TbLogin,
+  TbUserPlus,
+  TbLogout,
+  TbChevronDown,
+  TbSparkles,
+  TbShield,
+  TbCrown,
+  TbChartBar,
+} from "react-icons/tb"
 import { useState } from "react"
 import { ThemeToggle } from "./ThemeToggle"
-
 import { SearchDialog, useSearchDialog } from "@/components/interactive/SearchDialog"
 import { useAuth, ROLE_CONFIG } from "@/lib/auth"
+import { usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
 
-// Ready Features - shown in main navigation
-const readyItems = [
-  { href: "/mystic", label: "მისტიკა", icon: TbBulb, description: "AI მისტიკური პრედიქციები" },
-  { href: "/encyclopedia", label: "ენციკლოპედია", icon: TbBook, description: "AI ცოდნის ბაზა" },
-  { href: "/tools", label: "ინსტრუმენტები", icon: TbSettings, description: "AI ინსტრუმენტების რეიტინგი" },
-  { href: "/services", label: "კონსულტაცია", icon: TbBriefcase, description: "AI კონსალტინგი" },
-  { href: "/products", label: "პროდუქტები", icon: TbShoppingBag, description: "კურსები და ტემპლეიტები" },
-  { href: "/quiz", label: "ქვიზი", icon: TbInfoCircle, description: "იპოვე შენი AI" },
-  { href: "/bots", label: "ბოტები", icon: TbRobot, description: "AI ჩატბოტები" },
-  { href: "/about", label: "ჩემს შესახებ", icon: TbUser, description: "Andrew Altair" },
+// Main nav items (flat links)
+const mainNavItems = [
+  { href: "/blog", label: "Blog" },
+  { href: "/prompts", label: "Prompts" },
+  { href: "/bots", label: "Bots" },
+  { href: "/services", label: "Services" },
 ]
 
-// Demo items removed - modules now have dedicated pages
-
-// Legacy arrays for backward compat, but we now use readyItems  
-const contentItems = [
-  { href: "/encyclopedia", label: "ენციკლოპედია", icon: TbBook, description: "AI ცოდნის ბაზა" },
-  { href: "/blog", label: "ბლოგი", icon: TbBook, description: "სტატიები და სიახლეები" },
-  { href: "/tutorials", label: "Blueprints", icon: TbBook, description: "სისტემური ტუტორიალები" },
-  { href: "/videos", label: "ვიდეოები", icon: TbVideo, description: "YouTube ტუტორიალები" },
-  { href: "/prompt-builder", label: "Prompt Builder", icon: TbSparkles, description: "AI პრომპტის შემქმნელი" },
-  { href: "/prompts", label: "პრომპტების მაღაზია", icon: TbShoppingBag, description: "AI პრომპტების მარკეტპლეისი" },
+// Explore dropdown
+const exploreItems = [
+  { href: "/videos", label: "Videos", icon: TbVideo, description: "YouTube tutorials" },
+  { href: "/tools", label: "Tools", icon: TbSettings, description: "AI tool ratings" },
+  { href: "/encyclopedia", label: "Encyclopedia", icon: TbBook, description: "AI knowledge base" },
+  { href: "/lessons", label: "Lessons", icon: TbBulb, description: "Micro-lessons" },
+  { href: "/about", label: "About", icon: TbUser, description: "Andrew Altair" },
 ]
 
-const servicesItems = [
-  { href: "/mystic", label: "მისტიკური AI", icon: TbBulb, description: "AI პრედიქციები" },
-  { href: "/tools", label: "AI ინსტრუმენტები", icon: TbSettings, description: "რეიტინგები და მიმოხილვები" },
-  { href: "/services", label: "კონსულტაცია", icon: TbBriefcase, description: "AI კონსალტინგი" },
-  { href: "/products", label: "პროდუქტები", icon: TbShoppingBag, description: "კურსები და ტემპლეიტები" },
-  { href: "/quiz", label: "AI ქვიზი", icon: TbInfoCircle, description: "იპოვე შენი AI" },
-  { href: "/bots", label: "AI ბოტები", icon: TbRobot, description: "ჩატბოტები" },
-  { href: "/mystery-box", label: "საჩუქრის ყუთი", icon: TbGift, description: "ყოველდღიური პრიზები" },
-  { href: "/lessons", label: "მიკრო-გაკვეთილები", icon: TbBook, description: "სწრაფი AI სწავლება" },
-  { href: "/ai-health", label: "AI ჯანმრთელობა", icon: TbActivity, description: "შეაფასე AI მზადყოფნა" },
-  { href: "/ai-readiness", label: "AI მზადყოფნა", icon: TbClipboardCheck, description: "ბიზნეს შეფასება" },
+// Mobile menu — all sections
+const mobileNavSections = [
+  {
+    category: "Main",
+    items: [
+      { href: "/blog", label: "Blog", icon: TbBook },
+      { href: "/prompts", label: "Prompts", icon: TbShoppingBag },
+      { href: "/bots", label: "Bots", icon: TbRobot },
+      { href: "/services", label: "Services", icon: TbBriefcase },
+    ],
+  },
+  {
+    category: "Explore",
+    items: exploreItems.map((i) => ({ href: i.href, label: i.label, icon: i.icon })),
+  },
 ]
 
-const aboutItems = [
-  { href: "/about", label: "ჩემს შესახებ", icon: TbUser, description: "Andrew Altair" },
-]
-
-// All items for mobile
-const allMobileItems = [
-  { category: "კონტენტი", items: contentItems },
-  { category: "სერვისები", items: servicesItems },
-  { category: "შესახებ", items: aboutItems },
-]
-
-// User Profile Dropdown
 function UserProfileDropdown() {
   const { user, logout, isGod, isAdmin } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
@@ -79,17 +85,13 @@ function UserProfileDropdown() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-secondary transition-colors"
+        className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-muted transition-colors"
       >
-        {/* Avatar */}
-        <div className={`relative w-8 h-8 rounded-full bg-gradient-to-br ${roleConfig.color} flex items-center justify-center text-white font-bold text-sm overflow-hidden`}>
+        <div
+          className={`relative w-8 h-8 rounded-full bg-gradient-to-br ${roleConfig.color} flex items-center justify-center text-white font-bold text-sm overflow-hidden`}
+        >
           {user.avatar ? (
-            <Image
-              src={user.avatar}
-              alt={user.fullName}
-              fill
-              className="object-cover"
-            />
+            <Image src={user.avatar} alt={user.fullName} fill className="object-cover" />
           ) : (
             user.fullName[0]
           )}
@@ -104,22 +106,17 @@ function UserProfileDropdown() {
         <TbChevronDown className="w-4 h-4 text-muted-foreground" />
       </button>
 
-      {/* Dropdown */}
       {isOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-          <div className="absolute right-0 top-full mt-2 w-64 z-50 bg-card border border-border rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2">
-            {/* User Info */}
+          <div className="absolute right-0 top-full mt-2 w-64 z-50 bg-card rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2">
             <div className="p-4 border-b border-border bg-muted/30">
               <div className="flex items-center gap-3">
-                <div className={`relative w-12 h-12 rounded-full bg-gradient-to-br ${roleConfig.color} flex items-center justify-center text-white font-bold overflow-hidden`}>
+                <div
+                  className={`relative w-12 h-12 rounded-full bg-gradient-to-br ${roleConfig.color} flex items-center justify-center text-white font-bold overflow-hidden`}
+                >
                   {user.avatar ? (
-                    <Image
-                      src={user.avatar}
-                      alt={user.fullName}
-                      fill
-                      className="object-cover"
-                    />
+                    <Image src={user.avatar} alt={user.fullName} fill className="object-cover" />
                   ) : (
                     user.fullName[0]
                   )}
@@ -130,14 +127,11 @@ function UserProfileDropdown() {
                     {isGod && <TbCrown className="w-4 h-4 text-yellow-500" />}
                   </div>
                   <div className="text-sm text-muted-foreground">{user.email}</div>
-                  {user.badge && (
-                    <div className="text-xs text-primary mt-1">{user.badge}</div>
-                  )}
+                  {user.badge && <div className="text-xs text-primary mt-1">{user.badge}</div>}
                 </div>
               </div>
             </div>
 
-            {/* Menu Items */}
             <div className="py-2">
               <Link
                 href="/profile"
@@ -155,8 +149,6 @@ function UserProfileDropdown() {
                 <TbSettings className="w-4 h-4 text-muted-foreground" />
                 პარამეტრები
               </Link>
-
-              {/* Admin Link - Only for admins */}
               {isAdmin && (
                 <Link
                   href="/admin"
@@ -165,12 +157,15 @@ function UserProfileDropdown() {
                 >
                   <TbShield className="w-4 h-4" />
                   ადმინ პანელი
-                  {isGod && <span className="ml-auto text-xs bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded">GOD</span>}
+                  {isGod && (
+                    <span className="ml-auto text-xs bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded">
+                      GOD
+                    </span>
+                  )}
                 </Link>
               )}
             </div>
 
-            {/* Logout */}
             <div className="border-t border-border py-2">
               <button
                 onClick={() => {
@@ -192,150 +187,68 @@ function UserProfileDropdown() {
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [showDevNotice, setShowDevNotice] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('hideDevNotice') !== 'true'
-    }
-    return true
-  })
   const search = useSearchDialog()
   const { user, isLoading, logout } = useAuth()
-
-  const handleDismissNotice = () => {
-    setShowDevNotice(false)
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('hideDevNotice', 'true')
-    }
-  }
+  const pathname = usePathname()
 
   return (
     <>
-      {/* Development Notice Banner */}
-      {showDevNotice && (
-        <div className="relative w-full bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border-b border-amber-500/20 backdrop-blur-sm z-[55]">
-          <div className="container mx-auto px-4 py-2 text-center">
-            <p className="text-sm font-medium text-amber-600 dark:text-amber-400 flex items-center justify-center gap-2">
-              <span>⚠️ საიტი ჯერ კიდევ მუშავდება და ყველაფერი შეიძლება შეიცვალოს</span>
-              <button
-                onClick={handleDismissNotice}
-                className="ml-2 text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors"
-                aria-label="Close notice"
-              >
-                <TbX className="w-4 h-4" />
-              </button>
-            </p>
-          </div>
-        </div>
-      )}
-
-      <header className="sticky top-0 z-[60] w-full border-b border-border/50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-[60] w-full bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border-b border-outline-variant/20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="flex items-center space-x-3 group shrink-0">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent rounded-xl blur-md opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                <div className="relative w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center text-white font-bold text-sm group-hover:scale-105 transition-transform shadow-lg">
-                  <TbRobot className="w-6 h-6" />
-                </div>
+            <Link href="/" className="flex items-center gap-3 shrink-0 group">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white shadow-sm group-hover:shadow-primary/20 group-hover:shadow-md transition-shadow">
+                <TbRobot className="w-5 h-5" />
               </div>
-              <div className="hidden sm:block">
-                <span className="font-bold text-xl text-gradient">
-                  Andrew Altair
-                </span>
-                <div className="text-xs text-muted-foreground">AI ინოვატორი</div>
-              </div>
+              <span className="font-headline font-bold text-lg tracking-tight text-on-surface">
+                Altair AI
+              </span>
             </Link>
 
             {/* Desktop Navigation */}
             <NavigationMenu className="hidden lg:flex">
               <NavigationMenuList>
-                {/* Home */}
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      href="/"
-                      className="group inline-flex h-10 w-max items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-all hover:bg-secondary hover:text-foreground text-muted-foreground"
-                    >
-                      მთავარი
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
+                {mainNavItems.map((item) => (
+                  <NavigationMenuItem key={item.href}>
+                    <NavigationMenuLink asChild>
+                      <Link
+                        href={item.href}
+                        className={cn(
+                          "inline-flex h-10 items-center px-4 text-sm font-medium transition-colors rounded-lg",
+                          pathname === item.href
+                            ? "text-primary font-semibold border-b-2 border-primary rounded-none"
+                            : "text-on-surface-variant hover:text-primary hover:bg-muted"
+                        )}
+                      >
+                        {item.label}
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                ))}
 
-                {/* Content Dropdown */}
+                {/* Explore Dropdown */}
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="h-10 px-4 text-sm font-medium text-muted-foreground bg-transparent">
-                    კონტენტი
+                  <NavigationMenuTrigger className="h-10 px-4 text-sm font-medium text-on-surface-variant bg-transparent hover:text-primary">
+                    Explore
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <ul className="grid w-[320px] gap-2 p-4">
-                      {contentItems.map((item) => (
+                    <ul className="grid w-[280px] gap-1 p-3">
+                      {exploreItems.map((item) => (
                         <li key={item.href}>
                           <NavigationMenuLink asChild>
                             <Link
                               href={item.href}
-                              className="group flex items-center gap-3 rounded-lg p-2 hover:bg-secondary transition-colors"
+                              className="flex items-center gap-3 rounded-lg p-2.5 hover:bg-muted transition-colors group"
                             >
-                              <item.icon className="w-5 h-5 text-primary shrink-0" />
+                              <item.icon className="w-4 h-4 text-primary shrink-0" />
                               <div className="min-w-0">
-                                <div className="font-medium text-sm">{item.label}</div>
-                                <div className="text-xs text-muted-foreground truncate">{item.description}</div>
-                              </div>
-                            </Link>
-                          </NavigationMenuLink>
-                        </li>
-                      ))}
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-
-                {/* Services Dropdown */}
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="h-10 px-4 text-sm font-medium text-muted-foreground bg-transparent">
-                    სერვისები
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid w-[320px] gap-2 p-4">
-                      {servicesItems.map((item) => (
-                        <li key={item.href}>
-                          <NavigationMenuLink asChild>
-                            <Link
-                              href={item.href}
-                              className="group flex items-center gap-3 rounded-lg p-2 hover:bg-secondary transition-colors"
-                            >
-                              <item.icon className="w-5 h-5 text-primary shrink-0" />
-                              <div className="min-w-0">
-                                <div className="font-medium text-sm">{item.label}</div>
-                                <div className="text-xs text-muted-foreground truncate">{item.description}</div>
-                              </div>
-                            </Link>
-                          </NavigationMenuLink>
-                        </li>
-                      ))}
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-
-
-
-                {/* About Dropdown */}
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="h-10 px-4 text-sm font-medium text-muted-foreground bg-transparent">
-                    შესახებ
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid w-[320px] gap-2 p-4">
-                      {aboutItems.map((item) => (
-                        <li key={item.href}>
-                          <NavigationMenuLink asChild>
-                            <Link
-                              href={item.href}
-                              className="group flex items-center gap-3 rounded-lg p-2 hover:bg-secondary transition-colors"
-                            >
-                              <item.icon className="w-5 h-5 text-primary shrink-0" />
-                              <div className="min-w-0">
-                                <div className="font-medium text-sm">{item.label}</div>
-                                <div className="text-xs text-muted-foreground truncate">{item.description}</div>
+                                <div className="font-medium text-sm text-on-surface">
+                                  {item.label}
+                                </div>
+                                <div className="text-xs text-on-surface-variant truncate">
+                                  {item.description}
+                                </div>
                               </div>
                             </Link>
                           </NavigationMenuLink>
@@ -348,19 +261,20 @@ export function Header() {
             </NavigationMenu>
 
             {/* Desktop Actions */}
-            <div className="hidden lg:flex items-center space-x-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-muted-foreground hover:text-foreground"
-                onClick={search.open}
-              >
-                <TbSearch className="w-5 h-5" />
-              </Button>
+            <div className="hidden lg:flex items-center gap-2">
+              <div className="relative group">
+                <button
+                  onClick={search.open}
+                  className="flex items-center gap-2 bg-surface-container-low rounded-full pl-4 pr-3 py-1.5 text-sm text-on-surface-variant w-56 hover:bg-muted transition-colors"
+                >
+                  <TbSearch className="w-4 h-4 shrink-0" />
+                  <span className="flex-1 text-left">Search...</span>
+                  <span className="text-xs opacity-50 hidden xl:block">Ctrl K</span>
+                </button>
+              </div>
 
               <ThemeToggle />
 
-              {/* Auth Buttons or User Profile */}
               {isLoading ? (
                 <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
               ) : user ? (
@@ -368,13 +282,16 @@ export function Header() {
               ) : (
                 <>
                   <Link href="/login">
-                    <Button variant="ghost" size="sm" className="gap-2">
+                    <Button variant="ghost" size="sm" className="gap-2 text-on-surface-variant">
                       <TbLogin className="w-4 h-4" />
                       შესვლა
                     </Button>
                   </Link>
                   <Link href="/register">
-                    <Button size="sm" className="gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white border-0 shadow-lg">
+                    <Button
+                      size="sm"
+                      className="gap-2 bg-gradient-to-br from-primary to-primary-container text-white border-0 shadow-sm hover:shadow-primary/20 hover:shadow-md transition-shadow"
+                    >
                       <TbUserPlus className="w-4 h-4" />
                       რეგისტრაცია
                     </Button>
@@ -384,20 +301,17 @@ export function Header() {
             </div>
 
             {/* Mobile Actions */}
-            <div className="flex lg:hidden items-center space-x-2">
+            <div className="flex lg:hidden items-center gap-2">
               <Button variant="ghost" size="icon" onClick={search.open}>
                 <TbSearch className="w-5 h-5" />
               </Button>
               <ThemeToggle />
               {user && (
-                <div className={`relative w-8 h-8 rounded-full bg-gradient-to-br ${ROLE_CONFIG[user.role].color} flex items-center justify-center text-white font-bold text-xs overflow-hidden`}>
+                <div
+                  className={`relative w-8 h-8 rounded-full bg-gradient-to-br ${ROLE_CONFIG[user.role].color} flex items-center justify-center text-white font-bold text-xs overflow-hidden`}
+                >
                   {user.avatar ? (
-                    <Image
-                      src={user.avatar}
-                      alt={user.fullName}
-                      fill
-                      className="object-cover"
-                    />
+                    <Image src={user.avatar} alt={user.fullName} fill className="object-cover" />
                   ) : (
                     user.fullName[0]
                   )}
@@ -415,20 +329,16 @@ export function Header() {
 
           {/* Mobile Menu */}
           {isMobileMenuOpen && (
-            <div className="lg:hidden border-t border-border py-4 animate-in slide-in-from-top-2 max-h-[70vh] overflow-y-auto">
+            <div className="lg:hidden border-t border-border/30 py-4 animate-in slide-in-from-top-2 max-h-[70vh] overflow-y-auto">
               <nav className="space-y-4">
-                {/* User Info (Mobile) */}
                 {user && (
-                  <div className="px-4 py-3 mb-4 bg-muted/30 rounded-lg mx-2">
+                  <div className="px-4 py-3 mb-4 bg-muted/30 rounded-xl mx-2">
                     <div className="flex items-center gap-3">
-                      <div className={`relative w-10 h-10 rounded-full bg-gradient-to-br ${ROLE_CONFIG[user.role].color} flex items-center justify-center text-white font-bold overflow-hidden`}>
+                      <div
+                        className={`relative w-10 h-10 rounded-full bg-gradient-to-br ${ROLE_CONFIG[user.role].color} flex items-center justify-center text-white font-bold overflow-hidden`}
+                      >
                         {user.avatar ? (
-                          <Image
-                            src={user.avatar}
-                            alt={user.fullName}
-                            fill
-                            className="object-cover"
-                          />
+                          <Image src={user.avatar} alt={user.fullName} fill className="object-cover" />
                         ) : (
                           user.fullName[0]
                         )}
@@ -444,44 +354,37 @@ export function Header() {
                   </div>
                 )}
 
-                {/* Home */}
-                <Link
-                  href="/"
-                  className="flex items-center px-4 py-3 text-sm font-medium text-foreground hover:bg-secondary rounded-lg transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <TbSparkles className="w-5 h-5 mr-3 text-primary" />
-                  მთავარი
-                </Link>
-
-                {/* Categories */}
-                {allMobileItems.map((category) => (
-                  <div key={category.category} className="space-y-1">
-                    <div className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      {category.category}
+                {mobileNavSections.map((section) => (
+                  <div key={section.category} className="space-y-1">
+                    <div className="px-4 py-1 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+                      {section.category}
                     </div>
-                    {category.items.map((item) => (
+                    {section.items.map((item) => (
                       <Link
                         key={item.href}
                         href={item.href}
-                        className="flex items-center px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg transition-colors"
+                        className={cn(
+                          "flex items-center px-4 py-2.5 text-sm rounded-lg transition-colors mx-1",
+                          pathname === item.href
+                            ? "text-primary bg-primary/10 font-semibold"
+                            : "text-on-surface-variant hover:text-on-surface hover:bg-muted"
+                        )}
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
-                        <item.icon className="w-4 h-4 mr-3 text-primary/70" />
+                        <item.icon className="w-4 h-4 mr-3 text-primary/70 shrink-0" />
                         {item.label}
                       </Link>
                     ))}
                   </div>
                 ))}
 
-                {/* Auth Actions */}
-                <div className="flex items-center space-x-2 px-4 pt-4 border-t border-border">
+                <div className="flex items-center gap-2 px-4 pt-4 border-t border-border/30">
                   {user ? (
                     <>
                       <Link href="/admin" className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
                         <Button variant="outline" size="sm" className="w-full gap-2">
                           <TbShield className="w-4 h-4" />
-                          ადმინ პანელი
+                          ადმინ
                         </Button>
                       </Link>
                       <Button
@@ -506,7 +409,10 @@ export function Header() {
                         </Button>
                       </Link>
                       <Link href="/register" className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
-                        <Button size="sm" className="w-full gap-2 bg-gradient-to-r from-primary to-accent text-white border-0">
+                        <Button
+                          size="sm"
+                          className="w-full gap-2 bg-gradient-to-br from-primary to-primary-container text-white border-0"
+                        >
                           <TbUserPlus className="w-4 h-4" />
                           რეგისტრაცია
                         </Button>
@@ -520,7 +426,6 @@ export function Header() {
         </div>
       </header>
 
-      {/* TbSearch Dialog */}
       <SearchDialog isOpen={search.isOpen} onClose={search.close} />
     </>
   )

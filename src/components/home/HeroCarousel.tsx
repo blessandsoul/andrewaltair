@@ -4,226 +4,230 @@ import React, { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 import {
-    TbChevronLeft,
-    TbChevronRight,
-    TbFlame,
-    TbEye,
-    TbHeart,
-    TbClock,
-    TbSparkles
+  TbChevronLeft,
+  TbChevronRight,
+  TbFlame,
+  TbEye,
+  TbHeart,
+  TbClock,
+  TbSparkles,
+  TbArrowRight,
 } from "react-icons/tb"
-import { brand } from "@/lib/brand"
 
 import { getAuthorAvatar, getCategoryInfo, formatNumber, getTotalReactions } from "@/lib/blog-utils"
 
 interface Post {
-    id: string
-    slug: string
-    title: string
-    excerpt: string
-    coverImage?: string
-    coverImages?: {
-        horizontal?: string
-        vertical?: string
-    }
-    category?: string
-    trending?: boolean
-    featured?: boolean
-    views: number
-    readingTime: number
-    reactions: Record<string, number>
-    author?: {
-        name: string
-        avatar?: string
-        role?: string
-    }
+  id: string
+  slug: string
+  title: string
+  excerpt: string
+  coverImage?: string
+  coverImages?: {
+    horizontal?: string
+    vertical?: string
+  }
+  category?: string
+  trending?: boolean
+  featured?: boolean
+  views: number
+  readingTime: number
+  reactions: Record<string, number>
+  author?: {
+    name: string
+    avatar?: string
+    role?: string
+  }
 }
 
 interface HeroCarouselProps {
-    posts: Post[]
-    autoPlayInterval?: number
+  posts: Post[]
+  autoPlayInterval?: number
 }
 
 export function HeroCarousel({ posts, autoPlayInterval = 5000 }: HeroCarouselProps) {
-    const [currentIndex, setCurrentIndex] = useState(0)
-    const [isHovered, setIsHovered] = useState(false)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isHovered, setIsHovered] = useState(false)
 
-    const goToNext = useCallback(() => {
-        setCurrentIndex((prev) => (prev + 1) % posts.length)
-    }, [posts.length])
+  const goToNext = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % posts.length)
+  }, [posts.length])
 
-    const goToPrev = useCallback(() => {
-        setCurrentIndex((prev) => (prev - 1 + posts.length) % posts.length)
-    }, [posts.length])
+  const goToPrev = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + posts.length) % posts.length)
+  }, [posts.length])
 
-    // Auto-play
-    useEffect(() => {
-        if (isHovered || posts.length <= 1) return
+  // Auto-play
+  useEffect(() => {
+    if (isHovered || posts.length <= 1) return
+    const interval = setInterval(goToNext, autoPlayInterval)
+    return () => clearInterval(interval)
+  }, [isHovered, goToNext, autoPlayInterval, posts.length])
 
-        const interval = setInterval(goToNext, autoPlayInterval)
-        return () => clearInterval(interval)
-    }, [isHovered, goToNext, autoPlayInterval, posts.length])
+  if (posts.length === 0) return null
 
-    if (posts.length === 0) return null
+  const currentPost = posts[currentIndex]
 
-    const currentPost = posts[currentIndex]
-
-    return (
-        <div
-            className="relative"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden min-h-125 group"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentPost.id}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="absolute inset-0"
         >
-            <AnimatePresence mode="wait">
-                <motion.div
-                    key={currentPost.id}
-                    initial={{ opacity: 0, x: 50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -50 }}
-                    transition={{ duration: 0.5, ease: "easeOut" }}
-                >
-                    <Card className="relative glass-strong rounded-3xl overflow-hidden hover-lift group">
-                        <CardContent className="p-0">
-                            <div className="aspect-video bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center relative overflow-hidden">
-                                {(currentPost.coverImage || currentPost.coverImages?.horizontal) ? (
-                                    <Image
-                                        src={currentPost.coverImages?.horizontal || currentPost.coverImage || ''}
-                                        alt={currentPost.title}
-                                        fill
-                                        className="object-cover group-hover:scale-105 transition-transform duration-700"
-                                        priority
-                                    />
-                                ) : (
-                                    <TbSparkles className="w-16 h-16 text-primary/50" />
-                                )}
+          {/* Full-bleed image */}
+          {(currentPost.coverImage || currentPost.coverImages?.horizontal) ? (
+            <Image
+              src={currentPost.coverImages?.horizontal || currentPost.coverImage || ""}
+              alt={currentPost.title}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-700"
+              priority
+            />
+          ) : (
+            <div className="absolute inset-0 bg-linear-to-br from-primary/30 to-secondary/30 flex items-center justify-center">
+              <TbSparkles className="w-20 h-20 text-primary/30" />
+            </div>
+          )}
 
-                                {/* Dark gradient overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
+        </motion.div>
+      </AnimatePresence>
 
-                                {/* Badges */}
-                                <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
-                                    {currentPost.trending && (
-                                        <Badge className="bg-red-500 text-white border-0 backdrop-blur-md">
-                                            <TbFlame className="w-3 h-3 mr-1" />
-                                            ტრენდული
-                                        </Badge>
-                                    )}
-                                    <Badge
-                                        variant="outline"
-                                        className="border-0 backdrop-blur-md w-fit"
-                                        style={{
-                                            backgroundColor: `${getCategoryInfo(currentPost.category || 'ai').color}40`,
-                                            color: "white"
-                                        }}
-                                    >
-                                        {getCategoryInfo(currentPost.category || 'ai').name}
-                                    </Badge>
-                                </div>
+      {/* Top badges */}
+      <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+        {currentPost.trending && (
+          <Badge className="bg-red-500 text-white border-0 backdrop-blur-md">
+            <TbFlame className="w-3 h-3 mr-1" />
+            ტრენდული
+          </Badge>
+        )}
+        <Badge
+          variant="outline"
+          className="border-0 backdrop-blur-md w-fit"
+          style={{
+            backgroundColor: `${getCategoryInfo(currentPost.category || "ai").color}40`,
+            color: "white",
+          }}
+        >
+          {getCategoryInfo(currentPost.category || "ai").name}
+        </Badge>
+      </div>
 
-                                {/* Author Indicator - Top Right */}
-                                {currentPost.author && (
-                                    <div className="absolute top-4 right-4 z-10 hidden sm:block">
-                                        <div className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 shadow-lg">
-                                            <div className="relative w-6 h-6 rounded-full overflow-hidden border border-white/20">
-                                                <Image
-                                                    src={getAuthorAvatar(currentPost.author)}
-                                                    alt={currentPost.author.name}
-                                                    fill
-                                                    className="object-cover"
-                                                />
-                                            </div>
-                                            <span className="text-xs font-medium text-white/90">
-                                                {currentPost.author.name}
-                                            </span>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Stats */}
-                                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between z-10 text-white/90 text-sm">
-                                    <div className="flex items-center gap-4">
-                                        <span className="flex items-center gap-1.5">
-                                            <TbEye className="w-4 h-4" />
-                                            {formatNumber(currentPost.views || 0)}
-                                        </span>
-                                        <span className="flex items-center gap-1.5">
-                                            <TbHeart className="w-4 h-4 text-red-500 fill-red-500" />
-                                            {formatNumber(getTotalReactions(currentPost.reactions))}
-                                        </span>
-                                    </div>
-                                    <span className="flex items-center gap-1.5">
-                                        <TbClock className="w-4 h-4" />
-                                        {currentPost.readingTime || 5} წთ
-                                    </span>
-                                </div>
-
-                                {/* Navigation Arrows - Always visible */}
-                                {posts.length > 1 && (
-                                    <>
-                                        <button
-                                            onClick={(e) => { e.preventDefault(); goToPrev(); }}
-                                            className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-black/50 hover:bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all hover:scale-110 shadow-lg"
-                                            aria-label="Previous post"
-                                        >
-                                            <TbChevronLeft className="w-7 h-7" />
-                                        </button>
-                                        <button
-                                            onClick={(e) => { e.preventDefault(); goToNext(); }}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-black/50 hover:bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all hover:scale-110 shadow-lg"
-                                            aria-label="Next post"
-                                        >
-                                            <TbChevronRight className="w-7 h-7" />
-                                        </button>
-                                        {/* Slide counter badge - moved down to avoid author avatar */}
-                                        <div className="absolute top-14 right-4 z-20 bg-black/60 backdrop-blur-sm text-white text-sm font-medium px-3 py-1 rounded-full pointer-events-none">
-                                            {currentIndex + 1} / {posts.length}
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-
-                            <div className="p-6 space-y-4">
-                                <h3 className="text-xl font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors">
-                                    {currentPost.title}
-                                </h3>
-                                <p className="text-muted-foreground line-clamp-2">
-                                    {currentPost.excerpt}
-                                </p>
-
-                                <div className="flex items-center justify-between pt-2">
-                                    <Button variant="ghost" size="sm" className="text-primary p-0 h-auto hover:bg-transparent hover:text-primary/80" asChild>
-                                        <Link href={`/blog/${currentPost.slug}`} className="group/link flex items-center">
-                                            წაიკითხე სრულად
-                                            <TbChevronRight className="w-4 h-4 ml-1 group-hover/link:translate-x-1 transition-transform" />
-                                        </Link>
-                                    </Button>
-
-                                    {/* Dots indicator */}
-                                    {posts.length > 1 && (
-                                        <div className="flex items-center gap-2">
-                                            {posts.map((_, index) => (
-                                                <button
-                                                    key={index}
-                                                    onClick={() => setCurrentIndex(index)}
-                                                    className={`w-2 h-2 rounded-full transition-all ${index === currentIndex
-                                                        ? 'bg-primary w-6'
-                                                        : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
-                                                        }`}
-                                                    aria-label={`Go to slide ${index + 1}`}
-                                                />
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </motion.div>
-            </AnimatePresence>
+      {/* Author — top right */}
+      {currentPost.author && (
+        <div className="absolute top-4 right-4 z-10 hidden sm:block">
+          <div className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
+            <div className="relative w-6 h-6 rounded-full overflow-hidden border border-white/20">
+              <Image
+                src={getAuthorAvatar(currentPost.author)}
+                alt={currentPost.author.name}
+                fill
+                className="object-cover"
+              />
+            </div>
+            <span className="text-xs font-medium text-white/90">{currentPost.author.name}</span>
+          </div>
         </div>
-    )
+      )}
+
+      {/* Bottom content overlay */}
+      <div className="absolute bottom-0 left-0 right-0 z-10 p-6 space-y-4">
+        {/* Stats row */}
+        <div className="flex items-center gap-4 text-white/80 text-sm">
+          <span className="flex items-center gap-1.5">
+            <TbEye className="w-4 h-4" />
+            {formatNumber(currentPost.views || 0)}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <TbHeart className="w-4 h-4 text-red-400 fill-red-400" />
+            {formatNumber(getTotalReactions(currentPost.reactions))}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <TbClock className="w-4 h-4" />
+            {currentPost.readingTime || 5} წთ
+          </span>
+        </div>
+
+        {/* Title & excerpt */}
+        <div>
+          <h2 className="text-xl sm:text-2xl font-headline font-bold text-white leading-tight line-clamp-2 mb-2">
+            {currentPost.title}
+          </h2>
+          <p className="text-white/70 text-sm line-clamp-2 hidden sm:block">
+            {currentPost.excerpt}
+          </p>
+        </div>
+
+        {/* CTAs + dots */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/blog/${currentPost.slug}`}
+              className={cn(
+                "inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-semibold text-sm transition-all duration-300",
+                "bg-linear-to-br from-primary to-primary-container text-white shadow-sm hover:shadow-lg hover:shadow-primary/20"
+              )}
+            >
+              წაიკითხე
+              <TbArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/blog"
+              className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-semibold text-sm transition-all duration-300 bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20"
+            >
+              ყველა სტატია
+            </Link>
+          </div>
+
+          {/* Dot indicators */}
+          {posts.length > 1 && (
+            <div className="flex items-center gap-2">
+              {posts.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`h-1.5 rounded-full transition-all ${
+                    index === currentIndex ? "bg-white w-6" : "bg-white/40 w-1.5 hover:bg-white/60"
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Prev/Next arrows */}
+      {posts.length > 1 && (
+        <>
+          <button
+            onClick={goToPrev}
+            className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-black/50 hover:bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all hover:scale-110 opacity-0 group-hover:opacity-100"
+            aria-label="Previous post"
+          >
+            <TbChevronLeft className="w-6 h-6" />
+          </button>
+          <button
+            onClick={goToNext}
+            className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-black/50 hover:bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all hover:scale-110 opacity-0 group-hover:opacity-100"
+            aria-label="Next post"
+          >
+            <TbChevronRight className="w-6 h-6" />
+          </button>
+        </>
+      )}
+    </div>
+  )
 }
