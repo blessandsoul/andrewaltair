@@ -64,6 +64,7 @@ interface ReferrerSource {
 interface ContentDistributionItem {
     name: string
     value: number
+    [key: string]: unknown
 }
 
 interface AnalyticsData {
@@ -502,6 +503,8 @@ const stats = getStats(postsData, videosData)
         }
     }
 
+    const PIE_COLORS = ["#6366f1", "#ef4444", "#22c55e", "#f59e0b"]
+
     // Render widget content based on type
     const renderWidget = (widget: Widget) => {
         switch (widget.type) {
@@ -646,7 +649,8 @@ const stats = getStats(postsData, videosData)
                 )
 
             // Feature 3: Charts
-            case "charts":
+            case "charts": {
+                const pieData = analyticsData?.contentDistribution || []
                 return (
                     <div className="grid gap-4 lg:grid-cols-3">
                         {/* Line Chart */}
@@ -659,9 +663,9 @@ const stats = getStats(postsData, videosData)
                             </CardHeader>
                             <CardContent className="p-4">
                                 <ResponsiveContainer width="100%" height={200}>
-                                    <RechartsLineChart data={viewsData}>
+                                    <RechartsLineChart data={analyticsData?.weeklyData || []}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                                        <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
+                                        <XAxis dataKey="day" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
                                         <YAxis tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
                                         <Tooltip
                                             contentStyle={{
@@ -690,7 +694,7 @@ const stats = getStats(postsData, videosData)
                                 <ResponsiveContainer width="100%" height={200}>
                                     <RechartsPieChart>
                                         <Pie
-                                            data={contentDistribution}
+                                            data={pieData}
                                             cx="50%"
                                             cy="50%"
                                             innerRadius={40}
@@ -698,8 +702,8 @@ const stats = getStats(postsData, videosData)
                                             paddingAngle={2}
                                             dataKey="value"
                                         >
-                                            {contentDistribution.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                            {pieData.map((_entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                                             ))}
                                         </Pie>
                                         <Tooltip />
@@ -710,6 +714,7 @@ const stats = getStats(postsData, videosData)
                         </Card>
                     </div>
                 )
+            }
 
             // Feature 5: Notifications
             case "notifications":
