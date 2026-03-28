@@ -25,8 +25,6 @@ import {
 } from "recharts"
 // Posts and videos are now fetched from MongoDB API via useEffect
 
-// Date range types
-type DateRange = "today" | "week" | "month" | "year" | "all"
 
 // Post/TbVideo interfaces for MongoDB data
 interface Post {
@@ -207,9 +205,7 @@ export default function AdminDashboard() {
         fetchData()
     }, [])
 
-    // Date range state
-    const [dateRange, setDateRange] = React.useState<DateRange>("all")
-    const stats = getStats(postsData, videosData)
+const stats = getStats(postsData, videosData)
 
     // Widgets state
     const [widgets, setWidgets] = React.useState<Widget[]>(() => {
@@ -460,7 +456,7 @@ export default function AdminDashboard() {
         },
         {
             title: "ნახვები",
-            value: formatNumber(stats.totalViews + liveStats.views),
+            value: formatNumber(analyticsData?.stats.totalViews || 0),
             icon: <TbEye className="w-5 h-5" />,
             color: "from-green-500 to-emerald-500",
             bgColor: "bg-green-500",
@@ -469,7 +465,7 @@ export default function AdminDashboard() {
         },
         {
             title: "რეაქციები",
-            value: formatNumber(stats.totalReactions + liveStats.reactions),
+            value: formatNumber(analyticsData?.stats.totalReactions || 0),
             icon: <TbHeart className="w-5 h-5" />,
             color: "from-orange-500 to-amber-500",
             bgColor: "bg-orange-500",
@@ -516,24 +512,6 @@ export default function AdminDashboard() {
                         <CardContent className="p-4">
                             <div className="flex flex-wrap items-center gap-2">
                                 <TbFilter className="w-4 h-4 text-indigo-500" />
-                                <span className="text-sm font-medium mr-2">პერიოდი:</span>
-                                {[
-                                    { value: "today", label: "დღეს" },
-                                    { value: "week", label: "კვირა" },
-                                    { value: "month", label: "თვე" },
-                                    { value: "year", label: "წელი" },
-                                    { value: "all", label: "ყველა" }
-                                ].map((option) => (
-                                    <Button
-                                        key={option.value}
-                                        variant={dateRange === option.value ? "default" : "outline"}
-                                        size="sm"
-                                        onClick={() => setDateRange(option.value as DateRange)}
-                                        className="h-8"
-                                    >
-                                        {option.label}
-                                    </Button>
-                                ))}
                                 <div className="ml-auto flex items-center gap-2">
                                     <button
                                         onClick={() => setIsLive(!isLive)}
@@ -782,93 +760,6 @@ export default function AdminDashboard() {
                                     </div>
                                 ))
                             )}
-                        </CardContent>
-                    </Card>
-                )
-
-            // Feature 7: System Health
-            case "systemHealth":
-                return (
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-base flex items-center gap-2">
-                                <TbActivity className="w-4 h-4 text-green-500" />
-                                სისტემის სტატუსი
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className={`${compactView ? "p-3" : "p-4"} space-y-3`}>
-                            {/* Server Status */}
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm flex items-center gap-2">
-                                    <TbServer className="w-4 h-4" />
-                                    სერვერი
-                                </span>
-                                <Badge variant={systemHealth.serverStatus === "online" ? "default" : "destructive"}
-                                    className={systemHealth.serverStatus === "online" ? "bg-green-500" : ""}>
-                                    {systemHealth.serverStatus === "online" ? (
-                                        <><TbWifi className="w-3 h-3 mr-1" /> ონლაინ</>
-                                    ) : (
-                                        <><TbWifiOff className="w-3 h-3 mr-1" /> ოფლაინ</>
-                                    )}
-                                </Badge>
-                            </div>
-
-                            {/* Response Time */}
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm flex items-center gap-2">
-                                    <TbClock className="w-4 h-4" />
-                                    Response Time
-                                </span>
-                                <span className="text-sm font-medium">{systemHealth.responseTime}ms</span>
-                            </div>
-
-                            {/* Memory Usage */}
-                            <div className="space-y-1">
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="flex items-center gap-2">
-                                        <TbActivity className="w-4 h-4" />
-                                        მეხსიერება
-                                    </span>
-                                    <span>{systemHealth.memoryUsage}%</span>
-                                </div>
-                                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                                    <div
-                                        className={`h-full transition-all ${systemHealth.memoryUsage > 80 ? "bg-red-500" :
-                                            systemHealth.memoryUsage > 60 ? "bg-yellow-500" : "bg-green-500"
-                                            }`}
-                                        style={{ width: `${systemHealth.memoryUsage}%` }}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Disk Space */}
-                            <div className="space-y-1">
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="flex items-center gap-2">
-                                        <TbDeviceSdCard className="w-4 h-4" />
-                                        დისკი
-                                    </span>
-                                    <span>{systemHealth.diskSpace}%</span>
-                                </div>
-                                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                                    <div
-                                        className="h-full bg-indigo-500 transition-all"
-                                        style={{ width: `${systemHealth.diskSpace}%` }}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Last Backup */}
-                            <div className="flex items-center justify-between pt-2 border-t">
-                                <span className="text-xs text-muted-foreground">ბოლო ბექაპი</span>
-                                <span className="text-xs">{systemHealth.lastBackup}</span>
-                            </div>
-
-                            {/* Active Sessions */}
-                            <div className="flex items-center justify-between">
-                                <span className="text-xs text-muted-foreground">აქტიური სესიები</span>
-                                <span className="text-xs font-medium">{systemHealth.activeSessions}</span>
-                            </div>
                         </CardContent>
                     </Card>
                 )
