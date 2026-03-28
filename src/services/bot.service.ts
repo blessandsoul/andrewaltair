@@ -233,7 +233,7 @@ export class BotService {
         let geminiHistory: GeminiMessage[] = [];
         if (history && Array.isArray(history)) {
             for (const msg of history.slice(-10)) {
-                if (msg.role === "user" || msg.role === "assistant") {
+                if ((msg.role === "user" || msg.role === "assistant") && msg.content?.trim()) {
                     geminiHistory.push({
                         role: msg.role === "assistant" ? "model" : "user",
                         parts: [{ text: msg.content }],

@@ -102,7 +102,9 @@ export function AIChatAssistant() {
                 body: JSON.stringify({
                     message: userInput,
                     role: selectedRole.id,
-                    history: currentMessages.map(m => ({ role: m.role, content: m.content }))
+                    history: currentMessages
+                        .filter(m => m.id !== "welcome")
+                        .map(m => ({ role: m.role, content: m.content }))
                 }),
             })
 
