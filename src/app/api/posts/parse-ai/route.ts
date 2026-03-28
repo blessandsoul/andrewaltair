@@ -3,8 +3,6 @@ import { NextRequest } from 'next/server'
 import { apiSuccess, apiError } from '@/lib/api-response'
 import { ERROR_CODES } from '@/lib/error-codes'
 
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
-
 interface ParsedSection {
     icon?: string  // lucide icon name (e.g., 'TrendingDown', 'Factory', 'Globe')
     title?: string
@@ -182,48 +180,6 @@ JSON:
 
 არ დაამატო არაფერი JSON-ის გარდა.`
 
-
-async function callGroq(rawContent: string, apiKey: string): Promise<ParseResult> {
-    const response = await fetch(GROQ_API_URL, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            model: 'llama-3.3-70b-versatile',
-            messages: [
-                { role: 'system', content: SYSTEM_PROMPT },
-                { role: 'user', content: `გააანალიზე და დააპარსე ეს კონტენტი:\n\n${rawContent}` }
-            ],
-            temperature: 0.1,
-            max_tokens: 8000,
-        }),
-    })
-
-    if (!response.ok) {
-        const errorText = await response.text()
-        console.error('Groq API error:', errorText)
-        throw new Error('Groq API error')
-    }
-
-    const data = await response.json()
-    const content = data.choices?.[0]?.message?.content || ''
-
-    // Parse JSON from response
-    try {
-        // Remove any markdown code blocks if present
-        const cleanContent = content
-            .replace(/```json\n?/g, '')
-            .replace(/```\n?/g, '')
-            .trim()
-
-        return JSON.parse(cleanContent)
-    } catch (e) {
-        console.error('Failed to parse AI response:', content)
-        throw new Error('Failed to parse AI response as JSON')
-    }
-}
 
 // Improved fallback parser with multi-part content handling
 // Structure: PART1 (main) → hashtags → PART2 (skip telegram mirror) → hashtags → author comment
@@ -458,11 +414,6 @@ function fallbackParse(rawContent: string): ParseResult {
 
 export async function POST(request: NextRequest) {
     try {
-        const GROQ_API_KEY = process.env.GROQ_API_KEY
-        if (!GROQ_API_KEY) {
-            return apiError(ERROR_CODES.AI_SERVICE_ERROR, 'GROQ_API_KEY not configured', 500)
-        }
-
         const { rawContent } = await request.json()
 
         if (!rawContent || typeof rawContent !== 'string') {
