@@ -85,32 +85,18 @@ interface AnalyticsData {
     referrerSources: ReferrerSource[]
 }
 
-// Calculate statistics with date filter
-function getStats(postsData: Post[], videosData: VideoData[], dateRange: DateRange = "all") {
+// Calculate statistics from real data
+function getStats(postsData: Post[], videosData: VideoData[]) {
     const totalPosts = postsData.length
     const totalVideos = videosData.length
-
-    // Simulate filtered data based on date range
-    const multiplier = dateRange === "today" ? 0.1 : dateRange === "week" ? 0.3 : dateRange === "month" ? 0.5 : dateRange === "year" ? 0.8 : 1
-
-    const totalPostViews = Math.floor(postsData.reduce((sum, post) => sum + (post.views || 0), 0) * multiplier)
-    const totalVideoViews = Math.floor(videosData.reduce((sum, video) => sum + (video.views || 0), 0) * multiplier)
-    const totalViews = totalPostViews + totalVideoViews
-
-    const totalReactions = Math.floor(postsData.reduce((sum, post) => {
-        return sum + Object.values(post.reactions || {}).reduce((a, b) => a + b, 0)
-    }, 0) * multiplier)
-
     const featuredPosts = postsData.filter(p => p.featured).length
     const trendingPosts = postsData.filter(p => p.trending).length
 
     return {
         totalPosts,
         totalVideos,
-        totalViews,
-        totalReactions,
         featuredPosts,
-        trendingPosts
+        trendingPosts,
     }
 }
 
@@ -123,7 +109,7 @@ function formatNumber(num: number): string {
 // Widget types - EXTENDED
 type WidgetType = "stats" | "posts" | "videos" | "activity" | "analytics" |
     "dateFilter" | "charts" | "quickActions" | "notifications" |
-    "search" | "systemHealth" | "topContent" | "tasks" | "layoutSettings"
+    "search" | "topContent" | "tasks" | "layoutSettings"
 
 // Widget size types
 type WidgetSize = "small" | "medium" | "large" | "full"
@@ -162,7 +148,6 @@ const defaultWidgets: Widget[] = [
     { id: "quickActions", type: "quickActions", title: "სწრაფი მოქმედებები", visible: true, order: 3, size: "full" },
     { id: "charts", type: "charts", title: "გრაფიკები", visible: true, order: 4, size: "full" },
     { id: "notifications", type: "notifications", title: "შეტყობინებები", visible: true, order: 5, size: "medium" },
-    { id: "systemHealth", type: "systemHealth", title: "სისტემის სტატუსი", visible: true, order: 6, size: "medium" },
     { id: "posts", type: "posts", title: "ბოლო პოსტები", visible: true, order: 7, size: "medium" },
     { id: "activity", type: "activity", title: "აქტივობა", visible: true, order: 8, size: "medium" },
     { id: "topContent", type: "topContent", title: "ტოპ კონტენტი", visible: true, order: 9, size: "medium" },
@@ -181,38 +166,6 @@ const defaultNotifications: Notification[] = [
     { id: "5", type: "comment", message: "5 ახალი კომენტარი მოდერაციას ელოდება", time: "3 სთ წინ", read: false },
 ]
 
-// Mock activity data
-const recentActivity = [
-    { type: "comment", message: "ახალი კომენტარი პოსტზე", time: "5 წთ წინ", icon: TbMessage },
-    { type: "view", message: "+500 ნახვა ბოლო საათში", time: "1 სთ წინ", icon: TbEye },
-    { type: "trending", message: "პოსტი გახდა trending", time: "2 სთ წინ", icon: TbFlame },
-    { type: "reaction", message: "+50 ახალი რეაქცია", time: "3 სთ წინ", icon: TbHeart },
-]
-
-// Chart data
-const viewsData = [
-    { name: "ორშ", views: 4000, reactions: 2400 },
-    { name: "სამ", views: 3000, reactions: 1398 },
-    { name: "ოთხ", views: 2000, reactions: 9800 },
-    { name: "ხუთ", views: 2780, reactions: 3908 },
-    { name: "პარ", views: 1890, reactions: 4800 },
-    { name: "შაბ", views: 2390, reactions: 3800 },
-    { name: "კვი", views: 3490, reactions: 4300 },
-]
-
-const contentDistribution = [
-    { name: "პოსტები", value: 45, color: "#6366f1" },
-    { name: "ვიდეოები", value: 30, color: "#ef4444" },
-    { name: "შორტები", value: 15, color: "#22c55e" },
-    { name: "სხვა", value: 10, color: "#f59e0b" },
-]
-
-const trafficSources = [
-    { source: "Google", visitors: 4500, percentage: 45 },
-    { source: "Direct", visitors: 2800, percentage: 28 },
-    { source: "Social", visitors: 1500, percentage: 15 },
-    { source: "Referral", visitors: 1200, percentage: 12 },
-]
 
 export default function AdminDashboard() {
     // MongoDB data state
@@ -256,7 +209,7 @@ export default function AdminDashboard() {
 
     // Date range state
     const [dateRange, setDateRange] = React.useState<DateRange>("all")
-    const stats = getStats(postsData, videosData, dateRange)
+    const stats = getStats(postsData, videosData)
 
     // Widgets state
     const [widgets, setWidgets] = React.useState<Widget[]>(() => {
@@ -275,7 +228,6 @@ export default function AdminDashboard() {
 
     // Real-time update simulation
     const [isLive, setIsLive] = React.useState(true)
-    const [liveStats, setLiveStats] = React.useState({ views: 0, reactions: 0 })
 
     // Notifications - fetched from API
     const [notifications, setNotifications] = React.useState<Notification[]>([])
@@ -324,15 +276,6 @@ export default function AdminDashboard() {
     const [searchResults, setSearchResults] = React.useState<any[]>([])
     const [isSearching, setIsSearching] = React.useState(false)
 
-    // System health (mock)
-    const [systemHealth] = React.useState({
-        serverStatus: "online" as "online" | "offline" | "warning",
-        responseTime: 45,
-        memoryUsage: 68,
-        diskSpace: 42,
-        lastBackup: "2024-12-28 15:30",
-        activeSessions: 24
-    })
 
     // Save widgets to localStorage
     React.useEffect(() => {
@@ -344,17 +287,6 @@ export default function AdminDashboard() {
         localStorage.setItem("admin_dashboard_tasks", JSON.stringify(tasks))
     }, [tasks])
 
-    // Real-time updates simulation
-    React.useEffect(() => {
-        if (!isLive) return
-        const interval = setInterval(() => {
-            setLiveStats(prev => ({
-                views: prev.views + Math.floor(Math.random() * 10),
-                reactions: prev.reactions + Math.floor(Math.random() * 3)
-            }))
-        }, 3000)
-        return () => clearInterval(interval)
-    }, [isLive])
 
     // TbKeyboard shortcut for search (Ctrl+K)
     React.useEffect(() => {
