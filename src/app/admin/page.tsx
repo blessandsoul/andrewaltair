@@ -206,7 +206,7 @@ export default function AdminDashboard() {
         fetchData()
     }, [])
 
-const stats = getStats(postsData, videosData)
+    const stats = getStats(postsData, videosData)
 
     // Widgets state
     const [widgets, setWidgets] = React.useState<Widget[]>(() => {
@@ -222,9 +222,6 @@ const stats = getStats(postsData, videosData)
     // Layout settings
     const [columns, setColumns] = React.useState<1 | 2 | 3>(2)
     const [compactView, setCompactView] = React.useState(false)
-
-    // Real-time update simulation
-    const [isLive, setIsLive] = React.useState(true)
 
     // Notifications - fetched from API
     const [notifications, setNotifications] = React.useState<Notification[]>([])
@@ -461,7 +458,7 @@ const stats = getStats(postsData, videosData)
             icon: <TbEye className="w-5 h-5" />,
             color: "from-green-500 to-emerald-500",
             bgColor: "bg-green-500",
-            badge: isLive ? "🔴 Live" : "ჯამური",
+            badge: "ჯამური",
             href: "/admin/analytics"
         },
         {
@@ -529,18 +526,6 @@ const stats = getStats(postsData, videosData)
                         <CardContent className="p-4">
                             <div className="flex flex-wrap items-center gap-2">
                                 <TbFilter className="w-4 h-4 text-indigo-500" />
-                                <div className="ml-auto flex items-center gap-2">
-                                    <button
-                                        onClick={() => setIsLive(!isLive)}
-                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${isLive
-                                            ? "bg-red-500/20 text-red-500"
-                                            : "bg-muted text-muted-foreground"
-                                            }`}
-                                    >
-                                        <span className={`w-2 h-2 rounded-full ${isLive ? "bg-red-500 animate-pulse" : "bg-muted-foreground"}`} />
-                                        {isLive ? "Live" : "Paused"}
-                                    </button>
-                                </div>
                             </div>
                         </CardContent>
                     </Card>
