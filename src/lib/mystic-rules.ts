@@ -28,9 +28,7 @@ export const MYSTIC_BRAND = {
 // ============================================
 
 export const AI_CONFIG = {
-    model: "llama-3.3-70b-versatile",
-    temperature: 0.88,  // Баланс креативности и консистентности
-    baseURL: "https://api.groq.com/openai/v1"
+    temperature: 0.88,
 }
 
 // ============================================
@@ -337,15 +335,4 @@ export function parseAIResponse<T>(content: string): T | null {
         // Parsing failed
     }
     return null
-}
-
-/**
- * Создает OpenAI клиент для Groq
- */
-export function createMysticClient() {
-    const OpenAI = require('openai').default
-    return new OpenAI({
-        apiKey: process.env.GROQ_API_KEY,
-        baseURL: AI_CONFIG.baseURL
-    })
 }
