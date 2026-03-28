@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
-import OpenAI from "openai"
+import { callGemini } from "@/lib/gemini"
+import type { GeminiMessage } from "@/lib/gemini"
 import { NextRequest } from "next/server"
 import { apiSuccess, apiError } from '@/lib/api-response'
 import { ERROR_CODES } from '@/lib/error-codes'
@@ -31,14 +32,6 @@ function checkMysticRateLimit(userId: string): { allowed: boolean; remaining: nu
     return { allowed: true, remaining: MAX_REQUESTS_PER_HOUR - 1 };
 }
 
-// Lazy initialization to avoid build-time errors
-function getClient() {
-    return new OpenAI({
-        apiKey: process.env.GROQ_API_KEY,
-        baseURL: AI_CONFIG.baseURL,
-    })
-}
-
 // Функция для получения трейта зодиака из централизованных правил
 function getZodiacTrait(sign: string): string | undefined {
     const traits = CHAT_RULES.zodiacTraits as Record<string, string>
@@ -64,7 +57,6 @@ export async function POST(request: NextRequest) {
             return apiError(ERROR_CODES.RATE_LIMITED, 'Too many requests', 429);
         }
 
-        const client = getClient()
         const { message, history = [], userName, zodiacSign } = await request.json()
 
         // 🛡️ API VALIDATION & SANITIZATION
@@ -97,20 +89,20 @@ ${zodiacContext}`
             content: sanitizeAIInput(m.content, { maxLength: 1000 })
         }));
 
-        const messages = [
-            { role: "system" as const, content: fullSystemPrompt },
-            ...safeHistory.slice(-8),
-            { role: "user" as const, content: safeMessage }
-        ]
+        const geminiHistory: GeminiMessage[] = safeHistory.slice(-8).map(
+            (m: { role: string; content: string }) => ({
+                role: m.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: m.content }],
+            })
+        )
 
-        const response = await client.chat.completions.create({
-            model: AI_CONFIG.model,
-            messages,
+        const content = await callGemini({
+            systemPrompt: fullSystemPrompt,
+            userMessage: safeMessage,
             temperature: AI_CONFIG.temperature,
-            max_tokens: 500,
-        })
-
-        const content = response.choices[0]?.message?.content || "ვარსკვლავები დროებით დადუმდნენ... გთხოვ სცადო ხელახლა."
+            maxOutputTokens: 500,
+            history: geminiHistory,
+        }).catch(() => "ვარსკვლავები დროებით დადუმდნენ... გთხოვ სცადო ხელახლა.")
 
         // 🛡️ Sanitize Response
         const safeContent = sanitizeAIResponse(content);
