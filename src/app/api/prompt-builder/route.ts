@@ -9,7 +9,7 @@ interface ModelSettings {
     maxTokens?: number
 }
 
-async function callGroqCompat(
+async function callAI(
     systemPrompt: string,
     userMessage: string,
     settings: ModelSettings = {}
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
         switch (action) {
             case 'enhance':
-                result = await callGroqCompat(
+                result = await callAI(
                     `შენ ხარ ექსპერტი პრომპტ ინჟინერი. შენი ამოცანაა მომხმარებლის პრომპტის გაუმჯობესება.
 
 წესები:
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
                 break
 
             case 'suggest-task':
-                result = await callGroqCompat(
+                result = await callAI(
                     `You are a helpful assistant that suggests specific, actionable tasks.
 
 Based on the user's chosen expert role and context, suggest 3 specific tasks they could ask the AI to help with.
@@ -67,7 +67,7 @@ RULES:
                 break
 
             case 'improve-task':
-                result = await callGroqCompat(
+                result = await callAI(
                     `You are an expert at writing clear, specific task descriptions for AI assistants.
 
 RULES:
@@ -83,7 +83,7 @@ RULES:
                 break
 
             case 'score':
-                result = await callGroqCompat(
+                result = await callAI(
                     `შენ ხარ პრომპტების ექსპერტი შემფასებელი. გააანალიზე მოცემული პრომპტი და მიაწოდე:
 1. ხარისხის ქულა 1-დან 10-მდე
 2. მოკლე ფიდბექი რა არის კარგად
@@ -111,7 +111,7 @@ RULES:
                 }
                 const targetLang = langNames[targetLanguage] || 'English'
 
-                result = await callGroqCompat(
+                result = await callAI(
                     `You are a professional translator. Translate the following prompt to ${targetLang}.
 
 RULES:
@@ -125,7 +125,7 @@ RULES:
                 break
 
             case 'variations':
-                result = await callGroqCompat(
+                result = await callAI(
                     `You are a creative prompt engineer. Create 3 different variations of the given prompt.
 
 Each variation should:
@@ -142,7 +142,7 @@ Separate each variation with a blank line.`,
                 break
 
             case 'test':
-                result = await callGroqCompat(
+                result = await callAI(
                     prompt,
                     `გამარჯობა! გამოიყენე შენი შესაძლებლობები და აჩვენე რა შეგიძლიათ გააკეთოთ. მოაწოდეთ ერთი კონკრეტული მაგალითი თქვენი როლის შესაბამისად პასუხის სახით. პასუხი უნდა იყოს ქართულ ენაზე.`,
                     { ...settings, maxTokens: 2000 }

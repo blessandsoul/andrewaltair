@@ -1,6 +1,6 @@
+import mongoose from 'mongoose';
 import dbConnect from '@/lib/db';
 import Bot from '@/models/Bot';
-import mongoose from 'mongoose';
 import { callGemini } from '@/lib/gemini';
 
 import type { IBot, BotCategory, BotTier } from '@/models/Bot';
