@@ -8,6 +8,7 @@ import { formatRelativeDate, getCategoryInfo } from "@/lib/blog-utils"
 
 interface Post {
   id: string
+  slug: string
   title: string
   excerpt?: string
   coverImage?: string
@@ -40,7 +41,7 @@ export function ArticlesSection({ posts }: ArticlesSectionProps) {
           const categoryInfo = post.category ? getCategoryInfo(post.category) : null
 
           return (
-            <Link key={post.id} href={`/blog/${post.id}`} className="group">
+            <Link key={post.id} href={`/blog/${post.slug}`} className="group">
               <article className="flex flex-col gap-4">
                 {/* Image */}
                 <div className="aspect-video overflow-hidden rounded-xl bg-muted relative">

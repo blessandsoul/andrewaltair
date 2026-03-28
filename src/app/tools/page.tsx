@@ -218,7 +218,7 @@ export default function ToolsPage() {
                 const res = await fetch('/api/tools?limit=2000')
                 if (res.ok) {
                     const data = await res.json()
-                    setToolsData(data.tools || [])
+                    setToolsData(data.data?.tools || [])
                 }
             } catch {
                 // Silently handle error

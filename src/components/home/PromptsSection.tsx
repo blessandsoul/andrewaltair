@@ -1,10 +1,13 @@
+import Image from "next/image"
 import Link from "next/link"
 import { TbArrowRight, TbCopy, TbShoppingBag } from "react-icons/tb"
 
 interface Prompt {
   id: string
+  slug: string
   title: string
   category?: string
+  coverImage?: string
   downloads?: number
   price?: number
   isFree?: boolean
@@ -49,21 +52,32 @@ export function PromptsSection({ prompts }: PromptsSectionProps) {
             return (
               <Link
                 key={prompt.id}
-                href={`/prompts/${prompt.id}`}
-                className="group min-w-70 bg-card rounded-xl p-5 border border-outline-variant/10 shadow-sm hover:-translate-y-1 transition-transform flex flex-col justify-between gap-4"
+                href={`/prompts/${prompt.slug}`}
+                className="group min-w-70 bg-card rounded-xl overflow-hidden border border-outline-variant/10 shadow-sm hover:-translate-y-1 transition-transform flex flex-col justify-between gap-0"
               >
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex gap-1 items-center">
-                      <span className={`w-2 h-2 rounded-full ${dots.primary}`} />
-                      <span className={`w-2 h-2 rounded-full ${dots.secondary}`} />
-                    </div>
-                    <TbCopy className="w-4 h-4 text-slate-300 group-hover:text-primary transition-colors" />
+                {prompt.coverImage && (
+                  <div className="aspect-video relative overflow-hidden">
+                    <Image
+                      src={prompt.coverImage}
+                      alt={prompt.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
                   </div>
-                  <p className="text-sm font-medium leading-relaxed line-clamp-3 text-on-surface">
-                    &ldquo;{prompt.title}&rdquo;
-                  </p>
-                </div>
+                )}
+                <div className="p-5 flex flex-col gap-4 flex-1">
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex gap-1 items-center">
+                        <span className={`w-2 h-2 rounded-full ${dots.primary}`} />
+                        <span className={`w-2 h-2 rounded-full ${dots.secondary}`} />
+                      </div>
+                      <TbCopy className="w-4 h-4 text-slate-300 group-hover:text-primary transition-colors" />
+                    </div>
+                    <p className="text-sm font-medium leading-relaxed line-clamp-3 text-on-surface">
+                      &ldquo;{prompt.title}&rdquo;
+                    </p>
+                  </div>
                 <div className="flex items-center justify-between text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
                   <span>{cat || "პრომპტი"}</span>
                   {prompt.downloads !== undefined && (
@@ -74,6 +88,7 @@ export function PromptsSection({ prompts }: PromptsSectionProps) {
                       {prompt.isFree ? "უფასო" : `₾${prompt.price}`}
                     </span>
                   )}
+                </div>
                 </div>
               </Link>
             )
