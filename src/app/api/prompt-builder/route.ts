@@ -2,8 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextRequest } from 'next/server'
 import { apiSuccess, apiError } from '@/lib/api-response'
 import { ERROR_CODES } from '@/lib/error-codes'
-
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
+import { callGemini } from '@/lib/gemini'
 
 interface ModelSettings {
     model?: string
@@ -11,51 +10,22 @@ interface ModelSettings {
     maxTokens?: number
 }
 
-async function callGroq(
+async function callGroqCompat(
     systemPrompt: string,
     userMessage: string,
-    apiKey: string,
     settings: ModelSettings = {}
 ): Promise<string> {
-    const {
-        model = 'llama-3.3-70b-versatile',
-        temperature = 0.7,
-        maxTokens = 1500
-    } = settings
-
-    const response = await fetch(GROQ_API_URL, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            model,
-            messages: [
-                { role: 'system', content: systemPrompt },
-                { role: 'user', content: userMessage }
-            ],
-            temperature,
-            max_tokens: maxTokens,
-        }),
+    const { temperature = 0.7, maxTokens = 1500 } = settings
+    return callGemini({
+        systemPrompt,
+        userMessage,
+        temperature,
+        maxOutputTokens: maxTokens,
     })
-
-    if (!response.ok) {
-        throw new Error('Groq API error')
-    }
-
-    const data = await response.json()
-    return data.choices?.[0]?.message?.content || ''
 }
 
 export async function POST(request: NextRequest) {
     try {
-        // Check API key first
-        const GROQ_API_KEY = process.env.GROQ_API_KEY
-        if (!GROQ_API_KEY) {
-            return apiError(ERROR_CODES.PROMPT_FETCH_FAILED, 'GROQ_API_KEY not configured', 500)
-        }
-
         const { action, prompt, task, role, context, targetLanguage, modelSettings } = await request.json()
         const settings: ModelSettings = modelSettings || {}
 
@@ -64,7 +34,7 @@ export async function POST(request: NextRequest) {
 
         switch (action) {
             case 'enhance':
-                result = await callGroq(
+                result = await callGroqCompat(
                     `შენ ხარ ექსპერტი პრომპტ ინჟინერი. შენი ამოცანაა მომხმარებლის პრომპტის გაუმჯობესება.
 
 წესები:
@@ -76,13 +46,12 @@ export async function POST(request: NextRequest) {
 6. ყველაფერი უნდა იყოს ქართულ ენაზე (ქართული ენა)
 7. დააბრუნე მხოლოდ გაუმჯობესებული პრომპტი, სხვა არაფერი`,
                     `გააუმჯობესე ეს პრომპტი ქართულ ენაზე:\n\n${prompt}`,
-                    GROQ_API_KEY,
                     settings
                 )
                 break
 
             case 'suggest-task':
-                result = await callGroq(
+                result = await callGroqCompat(
                     `You are a helpful assistant that suggests specific, actionable tasks.
 
 Based on the user's chosen expert role and context, suggest 3 specific tasks they could ask the AI to help with.
@@ -94,13 +63,12 @@ RULES:
 4. ALWAYS respond in Georgian language (ქართული)
 5. Format as a numbered list`,
                     `Role: ${role}\nContext: ${context || 'No specific context provided'}\n\nSuggest 3 specific tasks for this role in Georgian:`,
-                    GROQ_API_KEY,
                     settings
                 )
                 break
 
             case 'improve-task':
-                result = await callGroq(
+                result = await callGroqCompat(
                     `You are an expert at writing clear, specific task descriptions for AI assistants.
 
 RULES:
@@ -111,13 +79,12 @@ RULES:
 5. ALWAYS respond in Georgian language (ქართული)
 6. Return ONLY the improved task description, no explanations`,
                     `Improve this task description and respond in Georgian:\n\n${task}`,
-                    GROQ_API_KEY,
                     settings
                 )
                 break
 
             case 'score':
-                result = await callGroq(
+                result = await callGroqCompat(
                     `შენ ხარ პრომპტების ექსპერტი შემფასებელი. გააანალიზე მოცემული პრომპტი და მიაწოდე:
 1. ხარისხის ქულა 1-დან 10-მდე
 2. მოკლე ფიდბექი რა არის კარგად
@@ -132,7 +99,6 @@ RULES:
 
 დააბრუნე მხოლოდ ვალიდური JSON, სხვა არაფერი.`,
                     `შეაფასე ეს პრომპტი:\n\n${prompt}`,
-                    GROQ_API_KEY,
                     { ...settings, maxTokens: 500 }
                 )
                 break
@@ -146,7 +112,7 @@ RULES:
                 }
                 const targetLang = langNames[targetLanguage] || 'English'
 
-                result = await callGroq(
+                result = await callGroqCompat(
                     `You are a professional translator. Translate the following prompt to ${targetLang}.
 
 RULES:
@@ -155,13 +121,12 @@ RULES:
 3. Maintain the same tone and style
 4. Return ONLY the translated text, nothing else`,
                     `Translate this prompt to ${targetLang}:\n\n${prompt}`,
-                    GROQ_API_KEY,
                     settings
                 )
                 break
 
             case 'variations':
-                result = await callGroq(
+                result = await callGroqCompat(
                     `You are a creative prompt engineer. Create 3 different variations of the given prompt.
 
 Each variation should:
@@ -173,16 +138,14 @@ Each variation should:
 Format as numbered list (1., 2., 3.)
 Separate each variation with a blank line.`,
                     `Create 3 variations of this prompt:\n\n${prompt}`,
-                    GROQ_API_KEY,
                     { ...settings, maxTokens: 2000 }
                 )
                 break
 
             case 'test':
-                result = await callGroq(
+                result = await callGroqCompat(
                     prompt,
                     `გამარჯობა! გამოიყენე შენი შესაძლებლობები და აჩვენე რა შეგიძლიათ გააკეთოთ. მოაწოდეთ ერთი კონკრეტული მაგალითი თქვენი როლის შესაბამისად პასუხის სახით. პასუხი უნდა იყოს ქართულ ენაზე.`,
-                    GROQ_API_KEY,
                     { ...settings, maxTokens: 2000 }
                 )
                 break
