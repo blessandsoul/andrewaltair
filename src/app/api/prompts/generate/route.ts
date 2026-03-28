@@ -1,15 +1,10 @@
 export const dynamic = 'force-dynamic'
-import OpenAI from "openai"
+import { callGemini } from "@/lib/gemini"
 import { NextRequest } from 'next/server'
 import { apiSuccess, apiError } from '@/lib/api-response'
 import { ERROR_CODES } from '@/lib/error-codes'
 import { verifyAdmin } from "@/lib/admin-auth"
 
-// Initialize OpenAI client for Groq
-const client = new OpenAI({
-    apiKey: process.env.GROQ_API_KEY,
-    baseURL: "https://api.groq.com/openai/v1",
-})
 
 export async function POST(request: NextRequest) {
     try {
@@ -53,17 +48,13 @@ Description: ${description || "N/A"}
 Prompt Template: ${promptTemplate || "N/A"}
 `
 
-        const completion = await client.chat.completions.create({
-            model: "llama-3.1-8b-instant",
-            messages: [
-                { role: "system", content: systemPrompt },
-                { role: "user", content: userContent }
-            ],
+        const content = await callGemini({
+            systemPrompt,
+            userMessage: userContent,
             temperature: 0.7,
-            response_format: { type: "json_object" }
+            jsonMode: true,
         })
 
-        const content = completion.choices[0]?.message?.content
         if (!content) {
             throw new Error("No content received from AI")
         }
