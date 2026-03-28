@@ -334,7 +334,6 @@ function fallbackParse(rawContent: string): ParseResult {
                 // Save current intro section before starting new emoji section
                 if (currentSection) {
                     sections.push(currentSection)
-                    // console.log('📝 Intro completed - final length:', currentSection.content.length, 'chars')
                 }
 
                 const emoji = emojiMatch[0]
@@ -376,13 +375,9 @@ function fallbackParse(rawContent: string): ParseResult {
             if (currentSection) {
                 // Append to existing section (intro or regular)
                 currentSection.content += '\n' + trimmed
-                if (currentSection.type === 'intro') {
-                    console.log('📝 Appending to intro:', trimmed.slice(0, 80), '... (total:', currentSection.content.length, 'chars)')
-                }
             } else {
                 // Create intro section - will accumulate all content until first emoji
                 currentSection = { type: 'intro', content: trimmed }
-                console.log('📝 Starting intro:', trimmed.slice(0, 80), '...')
             }
         }
     }
@@ -394,11 +389,7 @@ function fallbackParse(rawContent: string): ParseResult {
         .map(s => ({ ...s, content: s.content.trim() }))
         .filter(s => s.content)
 
-    // Debug: Log intro content length
     const introSection = cleanSections.find(s => s.type === 'intro')
-    if (introSection) {
-        // console.log('📝 Intro parsed - length:', introSection.content.length, 'chars')
-    }
 
     return {
         title: cleanContent(title),
@@ -424,7 +415,6 @@ export async function POST(request: NextRequest) {
 
         // Using fallback regex parser - Groq AI was truncating intro content
         result = fallbackParse(rawContent)
-        console.log('Parsed with fallback - intro length:', result.sections?.find(s => s.type === 'intro')?.content.length)
 
         return apiSuccess(result, 'Content parsed successfully')
 
