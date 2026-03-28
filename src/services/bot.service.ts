@@ -230,7 +230,7 @@ export class BotService {
             systemPrompt = masterPrompt;
         }
 
-        const geminiHistory: GeminiMessage[] = [];
+        let geminiHistory: GeminiMessage[] = [];
         if (history && Array.isArray(history)) {
             for (const msg of history.slice(-10)) {
                 if (msg.role === "user" || msg.role === "assistant") {
@@ -240,6 +240,11 @@ export class BotService {
                     });
                 }
             }
+        }
+
+        // Gemini requires the first message to have role 'user'
+        while (geminiHistory.length > 0 && geminiHistory[0].role === 'model') {
+            geminiHistory.shift();
         }
 
         return callGemini({
