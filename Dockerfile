@@ -49,6 +49,9 @@ ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
 
 ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
 
+# Increase Node.js memory for build (build traces can OOM in constrained containers)
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 # Mount .next/cache to speed up Next.js builds
 RUN --mount=type=cache,target=/app/.next/cache npm run build
 
