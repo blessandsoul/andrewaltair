@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
-import { TbFileText, TbVideo, TbEye, TbTrendingUp, TbFlame, TbHeart, TbMessage, TbBolt, TbPlus, TbArrowRight, TbClock, TbChartBar, TbSparkles, TbCalendar, TbGripVertical, TbX, TbRefresh, TbSettings, TbShare, TbSearch, TbBell, TbDatabase, TbServer, TbActivity, TbDeviceSdCard, TbWifi, TbWifiOff, TbCircleCheck, TbAlertTriangle, TbCircleX, TbTrash, TbDownload, TbUpload, TbWorld, TbUsers, TbPhoto, TbStack2, TbListCheck, TbCalendarEvent, TbStar, TbChartPie, TbChartLine, TbLayoutGrid, TbLayoutList, TbColumns, TbMaximize, TbMinimize, TbCommand, TbFilter, TbMapPin } from "react-icons/tb"
+import { TbFileText, TbVideo, TbEye, TbTrendingUp, TbFlame, TbHeart, TbMessage, TbBolt, TbPlus, TbArrowRight, TbClock, TbChartBar, TbSparkles, TbCalendar, TbGripVertical, TbX, TbRefresh, TbSettings, TbShare, TbSearch, TbBell, TbDatabase, TbServer, TbActivity, TbAlertTriangle, TbTrash, TbDownload, TbUpload, TbWorld, TbUsers, TbPhoto, TbStack2, TbListCheck, TbCalendarEvent, TbStar, TbChartPie, TbChartLine, TbLayoutGrid, TbLayoutList, TbColumns, TbMaximize, TbMinimize, TbCommand, TbFilter, TbMapPin } from "react-icons/tb"
 import {
     LineChart as RechartsLineChart,
     Line,
@@ -505,6 +505,20 @@ const stats = getStats(postsData, videosData)
 
     const PIE_COLORS = ["#6366f1", "#ef4444", "#22c55e", "#f59e0b"]
 
+    const ACTIVITY_ICON_MAP: Record<string, { icon: React.ComponentType<{ className?: string }>; label: string }> = {
+        page_view: { icon: TbEye, label: "გვერდი ნახეს" },
+        comment: { icon: TbMessage, label: "ახალი კომენტარი" },
+        reaction: { icon: TbHeart, label: "ახალი რეაქცია" },
+        share: { icon: TbShare, label: "გაზიარება" },
+        subscribe: { icon: TbStar, label: "გამოწერა" },
+        signup: { icon: TbUsers, label: "რეგისტრაცია" },
+        purchase: { icon: TbBolt, label: "შეძენა" },
+        achievement: { icon: TbSparkles, label: "მიღწევა" },
+        download: { icon: TbDownload, label: "ჩამოტვირთვა" },
+        search: { icon: TbSearch, label: "ძებნა" },
+    }
+    const DEFAULT_ACTIVITY = { icon: TbActivity, label: "აქტივობა" }
+
     // Render widget content based on type
     const renderWidget = (widget: Widget) => {
         switch (widget.type) {
@@ -800,7 +814,7 @@ const stats = getStats(postsData, videosData)
                             {/* Traffic Sources */}
                             <div className="space-y-2">
                                 <p className="text-xs font-medium text-muted-foreground uppercase">ტრაფიკის წყაროები</p>
-                                {trafficSources.map((source, i) => (
+                                {(analyticsData?.referrerSources || []).map((source, i) => (
                                     <div key={i} className="space-y-1">
                                         <div className="flex items-center justify-between text-xs">
                                             <span className="flex items-center gap-1">
@@ -934,17 +948,24 @@ const stats = getStats(postsData, videosData)
                             </CardTitle>
                         </CardHeader>
                         <CardContent className={`${compactView ? "p-3" : "p-6"} space-y-4`}>
-                            {recentActivity.slice(0, 4).map((activity, i) => (
-                                <div key={i} className="flex items-start gap-2">
-                                    <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                                        <activity.icon className="w-3 h-3" />
+                            {(analyticsData?.recentActivity || []).length === 0 ? (
+                                <p className="text-sm text-muted-foreground text-center py-4">აქტივობა არ არის</p>
+                            ) : (analyticsData?.recentActivity || []).slice(0, 4).map((activity, i) => {
+                                const mapping = ACTIVITY_ICON_MAP[activity.type] || DEFAULT_ACTIVITY
+                                const IconComponent = mapping.icon
+                                const timeAgo = new Date(activity.createdAt).toLocaleDateString('ka-GE', { month: 'short', day: 'numeric' })
+                                return (
+                                    <div key={i} className="flex items-start gap-2">
+                                        <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                                            <IconComponent className="w-3 h-3" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm">{mapping.label}{activity.targetTitle ? `: ${activity.targetTitle}` : ''}</p>
+                                            <p className="text-xs text-muted-foreground">{timeAgo}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-sm">{activity.message}</p>
-                                        <p className="text-xs text-muted-foreground">{activity.time}</p>
-                                    </div>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </CardContent>
                     </Card>
                 )
