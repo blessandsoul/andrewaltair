@@ -1,14 +1,10 @@
 export const dynamic = 'force-dynamic'
-import OpenAI from "openai"
+import { callGemini } from "@/lib/gemini"
 import { NextRequest } from 'next/server'
 import { apiSuccess, apiError } from '@/lib/api-response'
 import { ERROR_CODES } from '@/lib/error-codes'
 import { getUserFromRequest } from "@/lib/server-auth"
 
-const client = new OpenAI({
-    apiKey: process.env.GROQ_API_KEY,
-    baseURL: "https://api.groq.com/openai/v1",
-})
 
 const SYSTEM_PROMPT = `You are an expert Content Parser.
 Your task is to extract structured data from a raw "Prompt Product" text.
@@ -84,17 +80,13 @@ export async function POST(request: NextRequest) {
 
         // 2. USE AI ONLY FOR METADATA (Title, Desc, Tags)
         // We give it the "cleaned" text without the confusion of the prompt block.
-        const completion = await client.chat.completions.create({
-            model: "llama-3.1-8b-instant",
-            messages: [
-                { role: "system", content: SYSTEM_PROMPT },
-                { role: "user", content: textForAI }
-            ],
+        const content = await callGemini({
+            systemPrompt: SYSTEM_PROMPT,
+            userMessage: textForAI,
             temperature: 0.1,
-            response_format: { type: "json_object" }
+            jsonMode: true,
         })
 
-        const content = completion.choices[0]?.message?.content
         if (!content) throw new Error("No content from AI")
 
         const aiResult = JSON.parse(content)
