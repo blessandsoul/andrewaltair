@@ -116,7 +116,8 @@ export default function UsersPage() {
 
                 if (res.ok) {
                     const data = await res.json()
-                    const formattedUsers = (data.users || []).map((u: { id?: string; username?: string; email?: string; role?: string; lastLogin?: string; status?: string; twoFA?: boolean; createdAt?: string; sessions?: number; fullName?: string; avatar?: string }) => ({
+                    const users = data.data?.users || data.users || []
+                    const formattedUsers = users.map((u: { id?: string; username?: string; email?: string; role?: string; lastLogin?: string; status?: string; twoFA?: boolean; createdAt?: string; sessions?: number; fullName?: string; avatar?: string }) => ({
                         id: u.id,
                         name: u.fullName || u.username || 'Unknown',
                         email: u.email || '',

@@ -187,7 +187,7 @@ export class UserService {
         const [total, users] = await Promise.all([
             User.countDocuments(query),
             User.find(query)
-                .select('username email role status lastLogin createdAt sessions fullName')
+                .select('username email role status lastLogin createdAt sessions fullName avatar')
                 .sort({ _id: -1 })
                 .skip((page - 1) * limit)
                 .limit(limit)

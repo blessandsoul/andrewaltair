@@ -139,7 +139,7 @@ export function AIChatAssistant() {
         return (
             <button
                 onClick={() => setIsOpen(true)}
-                className="fixed bottom-4 right-4 z-50 h-14 w-14 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center group cursor-pointer"
+                className="fixed bottom-24 lg:bottom-4 right-4 z-50 h-14 w-14 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center group cursor-pointer"
                 style={{ pointerEvents: 'auto' }}
             >
                 <TbRobot className="h-6 w-6" />
@@ -304,7 +304,7 @@ export function AIChatAssistant() {
 
     // Normal small widget mode
     return (
-        <div className="fixed bottom-4 right-4 z-50 w-96 h-[500px] max-h-[80vh] bg-card rounded-2xl shadow-2xl border overflow-hidden flex flex-col">
+        <div className="fixed bottom-24 lg:bottom-4 right-4 z-50 w-96 h-[500px] max-h-[80vh] bg-card rounded-2xl shadow-2xl border overflow-hidden flex flex-col">
             {/* Header */}
             <div className={`flex items-center justify-between bg-gradient-to-r ${selectedRole.color} p-3 text-white`}>
                 <div className="flex items-center gap-2">
