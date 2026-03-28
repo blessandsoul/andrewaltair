@@ -66,7 +66,7 @@ export function VideosSection({ videos }: VideosSectionProps) {
               </h4>
               {video.views !== undefined && (
                 <p className="text-[10px] text-on-surface-variant uppercase tracking-widest">
-                  {video.category ? `${video.category} • ` : ""}{formatNumber(video.views)} views
+                  {video.category ? `${video.category} • ` : ""}{formatNumber(video.views)} ნახვა
                 </p>
               )}
             </Link>

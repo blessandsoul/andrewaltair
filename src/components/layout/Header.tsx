@@ -41,34 +41,34 @@ import { cn } from "@/lib/utils"
 
 // Main nav items (flat links)
 const mainNavItems = [
-  { href: "/blog", label: "Blog" },
-  { href: "/prompts", label: "Prompts" },
-  { href: "/bots", label: "Bots" },
-  { href: "/services", label: "Services" },
+  { href: "/blog", label: "ბლოგი" },
+  { href: "/prompts", label: "პრომპტები" },
+  { href: "/bots", label: "ბოტები" },
+  { href: "/services", label: "სერვისები" },
 ]
 
 // Explore dropdown
 const exploreItems = [
-  { href: "/videos", label: "Videos", icon: TbVideo, description: "YouTube tutorials" },
-  { href: "/tools", label: "Tools", icon: TbSettings, description: "AI tool ratings" },
-  { href: "/encyclopedia", label: "Encyclopedia", icon: TbBook, description: "AI knowledge base" },
-  { href: "/lessons", label: "Lessons", icon: TbBulb, description: "Micro-lessons" },
-  { href: "/about", label: "About", icon: TbUser, description: "Andrew Altair" },
+  { href: "/videos", label: "ვიდეოები", icon: TbVideo, description: "YouTube გაკვეთილები" },
+  { href: "/tools", label: "ხელსაწყოები", icon: TbSettings, description: "AI ხელსაწყოების რეიტინგი" },
+  { href: "/encyclopedia", label: "ენციკლოპედია", icon: TbBook, description: "AI ცოდნის ბაზა" },
+  { href: "/lessons", label: "გაკვეთილები", icon: TbBulb, description: "მიკრო-გაკვეთილები" },
+  { href: "/about", label: "ჩვენს შესახებ", icon: TbUser, description: "Andrew Altair" },
 ]
 
 // Mobile menu — all sections
 const mobileNavSections = [
   {
-    category: "Main",
+    category: "მთავარი",
     items: [
-      { href: "/blog", label: "Blog", icon: TbBook },
-      { href: "/prompts", label: "Prompts", icon: TbShoppingBag },
-      { href: "/bots", label: "Bots", icon: TbRobot },
-      { href: "/services", label: "Services", icon: TbBriefcase },
+      { href: "/blog", label: "ბლოგი", icon: TbBook },
+      { href: "/prompts", label: "პრომპტები", icon: TbShoppingBag },
+      { href: "/bots", label: "ბოტები", icon: TbRobot },
+      { href: "/services", label: "სერვისები", icon: TbBriefcase },
     ],
   },
   {
-    category: "Explore",
+    category: "მეტი",
     items: exploreItems.map((i) => ({ href: i.href, label: i.label, icon: i.icon })),
   },
 ]
@@ -230,7 +230,7 @@ export function Header() {
                 {/* Explore Dropdown */}
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className="h-10 px-4 text-sm font-medium text-on-surface-variant bg-transparent hover:text-primary">
-                    Explore
+                    მეტი
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-[280px] gap-1 p-3">
@@ -268,7 +268,7 @@ export function Header() {
                   className="flex items-center gap-2 bg-surface-container-low rounded-full pl-4 pr-3 py-1.5 text-sm text-on-surface-variant w-56 hover:bg-muted transition-colors"
                 >
                   <TbSearch className="w-4 h-4 shrink-0" />
-                  <span className="flex-1 text-left">Search...</span>
+                  <span className="flex-1 text-left">ძებნა...</span>
                   <span className="text-xs opacity-50 hidden xl:block">Ctrl K</span>
                 </button>
               </div>

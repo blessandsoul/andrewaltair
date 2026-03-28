@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils"
 
 const navItems = [
   { href: "/", label: "მთავარი", icon: TbHome },
-  { href: "/blog", label: "Explore", icon: TbSparkles },
-  { href: "/prompts", label: "Insights", icon: TbChartBar },
-  { href: "/profile", label: "Profile", icon: TbUser },
+  { href: "/blog", label: "სტატიები", icon: TbSparkles },
+  { href: "/prompts", label: "პრომპტები", icon: TbChartBar },
+  { href: "/profile", label: "პროფილი", icon: TbUser },
 ]
 
 export function MobileNav() {

@@ -65,13 +65,13 @@ export function PromptsSection({ prompts }: PromptsSectionProps) {
                   </p>
                 </div>
                 <div className="flex items-center justify-between text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
-                  <span>{cat || "Prompt"}</span>
+                  <span>{cat || "პრომპტი"}</span>
                   {prompt.downloads !== undefined && (
-                    <span>{prompt.downloads.toLocaleString()} uses</span>
+                    <span>{prompt.downloads.toLocaleString()} გამოყენება</span>
                   )}
                   {prompt.price !== undefined && (
                     <span className={prompt.isFree ? "text-green-500" : "text-on-surface"}>
-                      {prompt.isFree ? "Free" : `₾${prompt.price}`}
+                      {prompt.isFree ? "უფასო" : `₾${prompt.price}`}
                     </span>
                   )}
                 </div>
@@ -82,12 +82,12 @@ export function PromptsSection({ prompts }: PromptsSectionProps) {
           {/* View all card */}
           <Link
             href="/prompts"
-            className="min-w-[180px] bg-primary/5 rounded-xl p-5 border border-primary/20 flex flex-col items-center justify-center gap-3 hover:bg-primary/10 transition-colors"
+            className="min-w-45 bg-primary/5 rounded-xl p-5 border border-primary/20 flex flex-col items-center justify-center gap-3 hover:bg-primary/10 transition-colors"
           >
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
               <TbShoppingBag className="w-6 h-6 text-primary" />
             </div>
-            <span className="text-sm font-semibold text-primary text-center">View all prompts</span>
+            <span className="text-sm font-semibold text-primary text-center">ყველა პრომპტი</span>
           </Link>
         </div>
       </div>

@@ -1,10 +1,10 @@
 import { brand } from "@/lib/brand"
 
 const stats = [
-  { value: brand.stats.subscribers, label: "Subscribers" },
-  { value: brand.stats.articles, label: "Articles" },
-  { value: brand.stats.yearsExperience, label: "Years" },
-  { value: brand.stats.projects, label: "Projects" },
+  { value: brand.stats.subscribers, label: "გამომწერი" },
+  { value: brand.stats.articles, label: "სტატია" },
+  { value: brand.stats.yearsExperience, label: "წელი" },
+  { value: brand.stats.projects, label: "პროექტი" },
 ]
 
 export function SocialProof() {

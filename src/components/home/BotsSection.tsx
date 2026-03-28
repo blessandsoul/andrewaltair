@@ -12,7 +12,7 @@ const botsShowcase = [
   {
     id: "CONTENT_MASTER",
     name: "კონტენტის მაგისტრი",
-    category: "Content",
+    category: "კონტენტი",
     icon: TbPencil,
     color: "text-primary",
     bg: "bg-primary-fixed",
@@ -20,7 +20,7 @@ const botsShowcase = [
   {
     id: "MYSTIC_ADVISOR",
     name: "მისტიკური მრჩეველი",
-    category: "Mystic",
+    category: "მისტიკა",
     icon: TbSparkles,
     color: "text-secondary-accent",
     bg: "bg-secondary-fixed",
@@ -28,7 +28,7 @@ const botsShowcase = [
   {
     id: "TRANSLATION_PRO",
     name: "თარგმნის ოსტატი",
-    category: "Language",
+    category: "თარგმანი",
     icon: TbMessage,
     color: "text-amber-700",
     bg: "bg-tertiary-fixed",
@@ -36,7 +36,7 @@ const botsShowcase = [
   {
     id: "BOT_26",
     name: "კოდის გენერატორი",
-    category: "Dev",
+    category: "კოდირება",
     icon: TbBrain,
     color: "text-emerald-600",
     bg: "bg-emerald-100",
@@ -74,8 +74,8 @@ export function BotsSection() {
           <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center mb-4 group-hover:rotate-6 transition-transform">
             <TbPlus className="w-7 h-7 text-slate-500" />
           </div>
-          <div className="font-bold text-sm text-on-surface">Custom</div>
-          <div className="text-[10px] text-on-surface-variant mt-1 uppercase tracking-tighter">Create Own</div>
+          <div className="font-bold text-sm text-on-surface">საკუთარი</div>
+          <div className="text-[10px] text-on-surface-variant mt-1 uppercase tracking-tighter">შექმნა</div>
         </Link>
       </div>
     </section>
