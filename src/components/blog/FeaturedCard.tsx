@@ -122,8 +122,6 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
                                     <TbClock className="w-4 h-4" />
                                     {formatRelativeDate(post.publishedAt)}
                                 </time>
-                                <span className="w-1 h-1 rounded-full bg-white/30" />
-                                <span>{post.readingTime} წთ კითხვა</span>
                             </div>
 
                             {/* Title */}

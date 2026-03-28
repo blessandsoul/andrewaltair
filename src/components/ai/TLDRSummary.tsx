@@ -20,12 +20,6 @@ export function TLDRSummary({ summary, keyPoints, readingTime }: TLDRSummaryProp
                         <TbSparkles className="h-3 w-3" />
                         AI შეჯამება
                     </Badge>
-                    {readingTime && (
-                        <span className="text-sm text-muted-foreground flex items-center gap-1">
-                            <TbClock className="h-3 w-3" />
-                            {readingTime} წთ
-                        </span>
-                    )}
                 </div>
 
                 <p className="text-foreground/90 leading-relaxed mb-4">{summary}</p>

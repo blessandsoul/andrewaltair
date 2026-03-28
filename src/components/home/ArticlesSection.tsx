@@ -68,12 +68,6 @@ export function ArticlesSection({ posts }: ArticlesSectionProps) {
                     {post.publishedAt && (
                       <span>{formatRelativeDate(post.publishedAt)}</span>
                     )}
-                    {post.readingTime && (
-                      <>
-                        <span className="w-1 h-1 rounded-full bg-outline-variant" />
-                        <span>{post.readingTime} წთ კითხვა</span>
-                      </>
-                    )}
                   </div>
 
                   <h3 className="text-xl font-bold leading-tight text-on-surface group-hover:text-primary transition-colors">

@@ -254,10 +254,6 @@ function FullArticle({ post, index }: { post: Post; index: number }) {
                                 {formatRelativeDate(post.publishedAt)}
                             </span>
                             <span className="text-sm text-muted-foreground flex items-center gap-1">
-                                <TbClock className="w-4 h-4" />
-                                {post.readingTime} წთ
-                            </span>
-                            <span className="text-sm text-muted-foreground flex items-center gap-1">
                                 <TbEye className="w-4 h-4" />
                                 {post.views.toLocaleString()}
                             </span>

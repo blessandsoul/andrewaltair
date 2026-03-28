@@ -65,10 +65,6 @@ export default function EncyclopediaArticleViewer({
                     </span>
                     <div className="flex items-center gap-4 text-xs text-gray-500 font-medium">
                         <div className="flex items-center gap-1.5">
-                            <TbClock className="w-4 h-4" />
-                            {readingTime} წუთი
-                        </div>
-                        <div className="flex items-center gap-1.5">
                             <TbChartBar className="w-4 h-4" />
                             Beginner
                         </div>

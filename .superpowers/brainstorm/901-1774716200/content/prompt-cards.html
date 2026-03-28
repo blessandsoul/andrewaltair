@@ -1,0 +1,98 @@
+<h2>Дизайн карточек промптов</h2>
+<p class="subtitle">3 варианта — выбери что нравится (или скажи что взять от каждого)</p>
+
+<div class="cards">
+
+  <!-- OPTION A: Gradient glow + image top -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f0f14;padding:0;overflow:hidden;border-radius:8px 8px 0 0;position:relative;height:220px">
+      <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1040 0%,#0d1a3a 50%,#1a0d30 100%);position:relative;overflow:hidden">
+        <!-- fake image placeholder -->
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+          <div style="width:120px;height:80px;background:linear-gradient(135deg,#6366f1,#a855f7);border-radius:12px;opacity:0.7;filter:blur(1px)"></div>
+          <div style="position:absolute;font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:2px;top:12px;left:14px;text-transform:uppercase">cover image</div>
+        </div>
+        <!-- category badge -->
+        <div style="position:absolute;top:12px;right:12px;background:rgba(99,102,241,0.25);border:1px solid rgba(99,102,241,0.4);color:#a5b4fc;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:20px;backdrop-filter:blur(8px)">Coding</div>
+        <!-- glow -->
+        <div style="position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);width:140px;height:60px;background:rgba(99,102,241,0.35);filter:blur(25px);border-radius:50%"></div>
+      </div>
+    </div>
+    <div class="card-body" style="background:#111118;border:1px solid rgba(255,255,255,0.06);border-top:none;border-radius:0 0 8px 8px;padding:16px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div style="width:6px;height:6px;border-radius:50%;background:#6366f1"></div>
+        <div style="width:6px;height:6px;border-radius:50%;background:#a855f7;opacity:0.5"></div>
+      </div>
+      <p style="color:#e2e8f0;font-size:13px;font-weight:500;line-height:1.55;margin:0 0 14px">"Write a Python script that scrapes product prices and sends alerts via Telegram"</p>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#6366f1">Coding</span>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:10px;color:#64748b;font-weight:600">1.2k გამოყენება</span>
+          <span style="font-size:12px;font-weight:700;color:#4ade80">უფასო</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION B: Minimal glassmorphism, no separate image area, gradient header -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:linear-gradient(135deg,#0f172a,#1e1b4b);padding:0;overflow:hidden;border-radius:8px 8px 0 0;position:relative;height:220px">
+      <div style="position:absolute;inset:0">
+        <!-- image placeholder -->
+        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px">
+          <div style="width:130px;height:85px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:10px;opacity:0.65"></div>
+          <span style="font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase">cover image</span>
+        </div>
+        <!-- overlay gradient at bottom -->
+        <div style="position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(to top,rgba(15,23,42,1),transparent)"></div>
+        <div style="position:absolute;bottom:12px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:center">
+          <span style="background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.3);color:#c4b5fd;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px">Marketing</span>
+          <span style="background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.25);color:#4ade80;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px">FREE</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-top:none;border-radius:0 0 8px 8px;padding:16px;backdrop-filter:blur(10px)">
+      <p style="color:#cbd5e1;font-size:13px;font-weight:500;line-height:1.55;margin:0 0 14px">"Create a 30-day social media content calendar for a SaaS startup launching in Q1"</p>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:6px">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <span style="font-size:10px;color:#64748b;font-weight:600">890 გამოყენება</span>
+        </div>
+        <span style="font-size:10px;color:#475569;font-weight:600;letter-spacing:1px;text-transform:uppercase">Marketing</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION C: Bold image, colored accent stripe, vibrant -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0a0a0f;padding:0;overflow:hidden;border-radius:8px 8px 0 0;position:relative;height:220px">
+      <div style="width:100%;height:100%;position:relative;overflow:hidden">
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+          <div style="width:130px;height:85px;background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:10px;opacity:0.6"></div>
+          <span style="position:absolute;font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;margin-top:100px">cover image</span>
+        </div>
+        <!-- top accent stripe -->
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#f59e0b,#ef4444,#ec4899)"></div>
+        <!-- corner badge -->
+        <div style="position:absolute;top:14px;left:14px;display:flex;align-items:center;gap:6px">
+          <div style="width:8px;height:8px;border-radius:50%;background:#f59e0b"></div>
+          <span style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#fbbf24">Creative</span>
+        </div>
+        <div style="position:absolute;top:10px;right:12px;background:rgba(0,0,0,0.5);border:1px solid rgba(245,158,11,0.4);color:#fbbf24;font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px">₾9</div>
+      </div>
+    </div>
+    <div class="card-body" style="background:#0d0d12;border:1px solid rgba(255,255,255,0.06);border-top:2px solid rgba(245,158,11,0.3);border-radius:0 0 8px 8px;padding:16px">
+      <p style="color:#e2e8f0;font-size:13px;font-weight:500;line-height:1.55;margin:0 0 14px">"Design a brand identity system for a luxury fashion house — logo, palette, typography rules"</p>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#f59e0b">Creative</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:10px;color:#64748b;font-weight:600">543 გამოყენება</span>
+          <span style="font-size:12px;font-weight:700;color:#fb923c">₾9</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:24px;text-align:center">Нажми на карточку чтобы выбрать, или скажи что нравится / не нравится в каждой</p>

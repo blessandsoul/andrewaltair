@@ -104,13 +104,6 @@ export function ArticleHeader({
                         </span>
                     )}
 
-                    {/* Reading Time */}
-                    {estimatedMinutes && (
-                        <span className="flex items-center gap-1">
-                            <TbClock className="w-4 h-4" />
-                            {estimatedMinutes} წთ კითხვა
-                        </span>
-                    )}
 
                     {/* Difficulty */}
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${difficultyLabels[difficulty].color}`}>

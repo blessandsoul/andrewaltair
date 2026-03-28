@@ -182,10 +182,6 @@ export function ReadingStatsCard({
             <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4 text-sm">
-                        <div>
-                            <span className="text-muted-foreground">⏱️</span>
-                            <span className="font-medium ml-1">{readingTime} წთ</span>
-                        </div>
                         {wordCount && (
                             <div>
                                 <span className="text-muted-foreground">📝</span>
