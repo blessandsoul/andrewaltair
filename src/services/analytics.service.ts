@@ -98,7 +98,18 @@ export class AnalyticsService {
                     $group: {
                         _id: { $dayOfWeek: '$createdAt' },
                         count: { $sum: 1 },
-                        views: { $sum: '$views' }
+                        views: { $sum: '$views' },
+                        reactions: {
+                            $sum: {
+                                $add: [
+                                    { $ifNull: ['$reactions.fire', 0] },
+                                    { $ifNull: ['$reactions.love', 0] },
+                                    { $ifNull: ['$reactions.mindblown', 0] },
+                                    { $ifNull: ['$reactions.applause', 0] },
+                                    { $ifNull: ['$reactions.insightful', 0] },
+                                ]
+                            }
+                        }
                     }
                 },
                 { $sort: { _id: 1 } }
@@ -107,11 +118,11 @@ export class AnalyticsService {
 
         const dayNames = ['კვი', 'ორშ', 'სამ', 'ოთხ', 'ხუთ', 'პარ', 'შაბ'];
         const weeklyData = dayNames.map((day, i) => {
-            const stat = dailyStats.find((s: { _id: number; count: number; views: number }) => s._id === i + 1);
+            const stat = dailyStats.find((s: { _id: number; count: number; views: number; reactions: number }) => s._id === i + 1);
             return {
                 day,
-                views: stat?.views || Math.floor(Math.random() * 2000) + 1000,
-                reactions: Math.floor(Math.random() * 100) + 20
+                views: stat?.views || 0,
+                reactions: stat?.reactions || 0,
             };
         });
 
