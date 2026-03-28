@@ -10,7 +10,7 @@ export function GalleryMasonryComponent({ data }: { data: GalleryMasonry }) {
         <div className="my-12 grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
             {data.images.map((img, idx) => (
                 <div key={idx} className={`relative group overflow-hidden rounded-xl ${idx === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}>
-                    <img src={img.url} alt={img.caption || ''} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img src={img.url} alt={img.caption || ''} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     {img.caption && (
                         <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity">
                             {img.caption}
@@ -28,7 +28,7 @@ export function ImageSliderComponent({ data }: { data: ImageSlider }) {
     // Ideally use a library like Swiper or Embla, but custom minimal here
     return (
         <div className="my-10 relative rounded-2xl overflow-hidden shadow-2xl">
-            <img src={data.items[0].url} className="w-full md:h-[500px] object-cover" />
+            <img src={data.items[0].url} alt={data.items[0].label || ''} loading="lazy" decoding="async" className="w-full md:h-[500px] object-cover" />
             <div className="absolute top-4 left-4 bg-black/60 text-white px-3 py-1 rounded-full text-xs font-bold backdrop-blur-md">
                 {data.items[0].label || 'Visualization'}
             </div>
@@ -63,7 +63,7 @@ export function VideoEmbedCustomComponent({ data }: { data: VideoEmbedCustom }) 
 
     return (
         <div className="relative w-full aspect-video bg-gray-900 rounded-2xl overflow-hidden my-8 group cursor-pointer shadow-xl" onClick={() => setIsPlaying(true)}>
-            <img src={data.thumbnail_url || `https://img.youtube.com/vi/${yId}/maxresdefault.jpg`} className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity" />
+            <img src={data.thumbnail_url || `https://img.youtube.com/vi/${yId}/maxresdefault.jpg`} alt={data.title || ''} loading="lazy" decoding="async" className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity" />
             <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/40 group-hover:scale-110 transition-transform">
                     <TbPlayerPlay className="w-10 h-10 text-white fill-current translate-x-1" />

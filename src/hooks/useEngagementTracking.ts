@@ -20,16 +20,21 @@ export function useEngagementTracking() {
         visitorId.current = localStorage.getItem('visitorId')
         if (!visitorId.current) return
 
-        // Track scroll depth
+        // Track scroll depth (throttled via RAF)
+        let scrollRafId: number | null = null
         const handleScroll = () => {
-            const scrollTop = window.scrollY
-            const docHeight = document.documentElement.scrollHeight - window.innerHeight
-            if (docHeight <= 0) return
+            if (scrollRafId !== null) return
+            scrollRafId = requestAnimationFrame(() => {
+                scrollRafId = null
+                const scrollTop = window.scrollY
+                const docHeight = document.documentElement.scrollHeight - window.innerHeight
+                if (docHeight <= 0) return
 
-            const scrollPercent = Math.round((scrollTop / docHeight) * 100)
-            if (scrollPercent > maxScrollDepth.current) {
-                maxScrollDepth.current = scrollPercent
-            }
+                const scrollPercent = Math.round((scrollTop / docHeight) * 100)
+                if (scrollPercent > maxScrollDepth.current) {
+                    maxScrollDepth.current = scrollPercent
+                }
+            })
         }
 
         // Track visibility changes
@@ -73,6 +78,7 @@ export function useEngagementTracking() {
         handleScroll()
 
         return () => {
+            if (scrollRafId !== null) cancelAnimationFrame(scrollRafId)
             window.removeEventListener('scroll', handleScroll)
             document.removeEventListener('visibilitychange', handleVisibilityChange)
             window.removeEventListener('pagehide', sendEngagement)

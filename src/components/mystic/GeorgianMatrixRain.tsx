@@ -27,10 +27,17 @@ export function GeorgianMatrixRain() {
         const ctx = canvas.getContext("2d")
         if (!ctx) return
 
+        let resizeTimer: ReturnType<typeof setTimeout> | null = null
+
         const resizeCanvas = () => {
             canvas.width = window.innerWidth
             canvas.height = window.innerHeight
             initChars()
+        }
+
+        const handleResize = () => {
+            if (resizeTimer) clearTimeout(resizeTimer)
+            resizeTimer = setTimeout(resizeCanvas, 200)
         }
 
         const initChars = () => {
@@ -54,9 +61,18 @@ export function GeorgianMatrixRain() {
         }
 
         resizeCanvas()
-        window.addEventListener("resize", resizeCanvas)
+        window.addEventListener("resize", handleResize)
 
         let animationFrame: number
+        const fontCache = new Map<number, string>()
+        const getFont = (size: number): string => {
+            let f = fontCache.get(size)
+            if (!f) {
+                f = `${size}px 'Noto Sans Georgian', monospace`
+                fontCache.set(size, f)
+            }
+            return f
+        }
 
         const draw = () => {
             // Semi-transparent black to create trail effect
@@ -65,7 +81,7 @@ export function GeorgianMatrixRain() {
 
             charsRef.current.forEach((char, index) => {
                 // Draw character
-                ctx.font = `${char.size}px 'Noto Sans Georgian', monospace`
+                ctx.font = getFont(char.size)
 
                 // Gradient color based on position
                 const hue = (char.y / canvas.height) * 60 + 270 // Purple to pink
@@ -103,7 +119,8 @@ export function GeorgianMatrixRain() {
         draw()
 
         return () => {
-            window.removeEventListener("resize", resizeCanvas)
+            window.removeEventListener("resize", handleResize)
+            if (resizeTimer) clearTimeout(resizeTimer)
             cancelAnimationFrame(animationFrame)
         }
     }, [isEnabled])

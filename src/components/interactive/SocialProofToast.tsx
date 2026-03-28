@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 
@@ -182,7 +182,8 @@ function ToastContent({ toast }: { toast: Toast }) {
 
 export function SocialProofToast({ enabled = true }: { enabled?: boolean }) {
     const [toasts, setToasts] = useState<Toast[]>([])
-    const [lastFetchTime, setLastFetchTime] = useState<string | null>(null)
+    const lastFetchTimeRef = useRef<string | null>(null)
+    const toastTimeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set())
 
     // Fetch REAL activities from API (no fallbacks)
     const fetchActivities = useCallback(async () => {
@@ -191,15 +192,14 @@ export function SocialProofToast({ enabled = true }: { enabled?: boolean }) {
                 limit: '5',
                 types: 'subscribe,comment,reaction,share,purchase,achievement,signup'
             })
-            if (lastFetchTime) {
-                params.set('since', lastFetchTime)
+            if (lastFetchTimeRef.current) {
+                params.set('since', lastFetchTimeRef.current)
             }
 
             const res = await fetch(`/api/tracking/activities?${params}`)
             if (res.ok) {
                 const data = await res.json()
                 if (data.activities && data.activities.length > 0) {
-                    // Transform API data to Toast format
                     const newToast: Toast = {
                         id: data.activities[0].id,
                         type: data.activities[0].type as Toast["type"],
@@ -211,19 +211,20 @@ export function SocialProofToast({ enabled = true }: { enabled?: boolean }) {
                     }
 
                     setToasts(prev => [...prev.slice(-1), newToast])
-                    setLastFetchTime(data.timestamp)
+                    lastFetchTimeRef.current = data.timestamp
 
-                    // Auto-remove after 6 seconds
-                    setTimeout(() => {
+                    // Auto-remove after 6 seconds with cleanup tracking
+                    const timeout = setTimeout(() => {
                         setToasts(prev => prev.filter(t => t.id !== newToast.id))
+                        toastTimeoutsRef.current.delete(timeout)
                     }, 6000)
+                    toastTimeoutsRef.current.add(timeout)
                 }
-                // If no activities, do nothing - don't show fake data
             }
-        } catch (error) {
+        } catch {
             // On error, just don't show anything - no fake data
         }
-    }, [lastFetchTime])
+    }, [])
 
     useEffect(() => {
         if (!enabled) return
@@ -241,6 +242,8 @@ export function SocialProofToast({ enabled = true }: { enabled?: boolean }) {
         return () => {
             clearTimeout(initialDelay)
             clearInterval(interval)
+            toastTimeoutsRef.current.forEach(t => clearTimeout(t))
+            toastTimeoutsRef.current.clear()
         }
     }, [enabled, fetchActivities])
 

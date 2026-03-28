@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { useThrottledCallback } from '@/hooks/useThrottledCallback';
 
 const STORAGE_KEY = 'encyclopedia_progress';
 
@@ -98,17 +99,19 @@ export function ReadingProgressBar({ current, total }: { current: number; total:
 export function ScrollProgressIndicator() {
     const [scrollProgress, setScrollProgress] = useState(0);
 
-    useEffect(() => {
-        const handleScroll = () => {
+    const handleScroll = useThrottledCallback(
+        useCallback(() => {
             const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
             const scrolled = window.scrollY;
             const progress = scrollHeight > 0 ? (scrolled / scrollHeight) * 100 : 0;
             setScrollProgress(Math.min(progress, 100));
-        };
+        }, [])
+    );
 
-        window.addEventListener('scroll', handleScroll);
+    useEffect(() => {
+        window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    }, [handleScroll]);
 
     return (
         <div className="fixed top-16 left-0 right-0 z-50 h-1 bg-secondary/30">

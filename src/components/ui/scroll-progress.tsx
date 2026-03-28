@@ -1,21 +1,24 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
+import { useThrottledCallback } from "@/hooks/useThrottledCallback"
 
 export function ScrollProgress() {
     const [progress, setProgress] = useState(0)
 
-    useEffect(() => {
-        const handleScroll = () => {
+    const handleScroll = useThrottledCallback(
+        useCallback(() => {
             const scrollHeight = document.documentElement.scrollHeight - window.innerHeight
             const scrolled = window.scrollY
             const percentage = (scrolled / scrollHeight) * 100
             setProgress(Math.min(100, Math.max(0, percentage)))
-        }
+        }, [])
+    )
 
+    useEffect(() => {
         window.addEventListener("scroll", handleScroll, { passive: true })
         return () => window.removeEventListener("scroll", handleScroll)
-    }, [])
+    }, [handleScroll])
 
     return (
         <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-transparent">
@@ -31,14 +34,16 @@ export function ScrollProgress() {
 export function BackToTop() {
     const [isVisible, setIsVisible] = useState(false)
 
-    useEffect(() => {
-        const handleScroll = () => {
+    const handleScroll = useThrottledCallback(
+        useCallback(() => {
             setIsVisible(window.scrollY > 500)
-        }
+        }, [])
+    )
 
+    useEffect(() => {
         window.addEventListener("scroll", handleScroll, { passive: true })
         return () => window.removeEventListener("scroll", handleScroll)
-    }, [])
+    }, [handleScroll])
 
     const scrollToTop = () => {
         window.scrollTo({ top: 0, behavior: "smooth" })

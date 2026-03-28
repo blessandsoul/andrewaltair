@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { cn } from "@/lib/utils"
 import { TbUsers, TbEye } from "react-icons/tb"
 
@@ -28,7 +28,8 @@ export function LiveVisitorCounter({
 }: LiveVisitorCounterProps) {
     const [data, setData] = useState<OnlineData | null>(null)
     const [isAnimating, setIsAnimating] = useState(false)
-    const [prevCount, setPrevCount] = useState(0)
+    const prevCountRef = useRef(0)
+    const animTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     useEffect(() => {
         const fetchCount = async () => {
@@ -40,25 +41,27 @@ export function LiveVisitorCounter({
                     setData(payload)
 
                     // Animate if count changed
-                    if (payload.online !== prevCount) {
+                    if (payload.online !== prevCountRef.current) {
                         setIsAnimating(true)
-                        setTimeout(() => setIsAnimating(false), 300)
-                        setPrevCount(payload.online)
+                        if (animTimeoutRef.current) clearTimeout(animTimeoutRef.current)
+                        animTimeoutRef.current = setTimeout(() => setIsAnimating(false), 300)
+                        prevCountRef.current = payload.online
                     }
                 }
-            } catch (error) {
+            } catch {
                 // Silently fail - don't show fake data
             }
         }
 
-        // Initial fetch
         fetchCount()
 
-        // Poll for updates
         const interval = setInterval(fetchCount, pollInterval)
 
-        return () => clearInterval(interval)
-    }, [pollInterval, prevCount])
+        return () => {
+            clearInterval(interval)
+            if (animTimeoutRef.current) clearTimeout(animTimeoutRef.current)
+        }
+    }, [pollInterval])
 
     const count = data?.online ?? 0
 

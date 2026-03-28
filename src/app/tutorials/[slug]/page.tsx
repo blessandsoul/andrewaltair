@@ -9,7 +9,11 @@ import Tutorial from "@/models/Tutorial"
 async function getTutorial(slug: string) {
     try {
         await dbConnect()
-        const tutorial = await Tutorial.findOne({ slug: slug }).lean()
+        const tutorial = await Tutorial.findOneAndUpdate(
+            { slug: slug },
+            { $inc: { views: 1 } },
+            { new: true }
+        ).lean()
         if (!tutorial) return null
         return JSON.parse(JSON.stringify(tutorial))
     } catch (error) {
@@ -126,7 +130,7 @@ export default async function TutorialDetailPage({ params }: { params: { slug: s
         publishedAt: tutorial.createdAt || new Date().toISOString(),
         updatedAt: tutorial.updatedAt || new Date().toISOString(),
         readingTime: 10, // Mock or calculate
-        views: 0, // Should come from DB but schema might differ
+        views: tutorial.views || 0,
         comments: 0,
         shares: 0,
         reactions: { like: 0, love: 0, fire: 0 },
