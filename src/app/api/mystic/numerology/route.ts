@@ -1,17 +1,9 @@
 export const dynamic = 'force-dynamic'
-import OpenAI from "openai"
+import { callGemini } from "@/lib/gemini"
 import { NextRequest } from "next/server"
 import { apiSuccess, apiError } from '@/lib/api-response'
 import { ERROR_CODES } from '@/lib/error-codes'
 import { AI_CONFIG, NUMEROLOGY_RULES, parseAIResponse } from "@/lib/mystic-rules"
-
-// Lazy initialization to avoid build-time errors
-function getClient() {
-    return new OpenAI({
-        apiKey: process.env.GROQ_API_KEY,
-        baseURL: AI_CONFIG.baseURL,
-    })
-}
 
 // Функция для получения значения числа из централизованных правил
 function getNumberMeaning(num: number): string {
@@ -26,7 +18,6 @@ export async function POST(request: NextRequest) {
         const csrfError = requireCSRF(request);
         if (csrfError) return csrfError;
 
-        const client = getClient()
         const { fullName, birthDate, lifePath, destiny, soul, personality } = await request.json()
 
         // 🛡️ API VALIDATION & SANITIZATION
@@ -69,24 +60,14 @@ export async function POST(request: NextRequest) {
     "yearForecast": "${NUMEROLOGY_RULES.outputFormat.yearForecast}"
 }`
 
-        const response = await client.chat.completions.create({
-            model: AI_CONFIG.model,
-            messages: [
-                {
-                    role: "system",
-                    content: NUMEROLOGY_RULES.systemPrompt
-                },
-                {
-                    role: "user",
-                    content: prompt
-                }
-            ],
+        const rawContent = await callGemini({
+            systemPrompt: NUMEROLOGY_RULES.systemPrompt,
+            userMessage: prompt,
             temperature: AI_CONFIG.temperature,
-            max_tokens: 800,
+            maxOutputTokens: 800,
         })
 
-        const content = response.choices[0]?.message?.content || ""
-        const safeContent = sanitizeAIResponse(content);
+        const safeContent = sanitizeAIResponse(rawContent);
 
         try {
             const jsonMatch = safeContent.match(/\{[\s\S]*\}/)

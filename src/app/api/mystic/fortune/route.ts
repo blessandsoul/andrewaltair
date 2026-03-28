@@ -1,18 +1,10 @@
 export const dynamic = 'force-dynamic'
-import OpenAI from "openai"
+import { callGemini } from "@/lib/gemini"
 import { NextRequest } from "next/server"
 import { apiSuccess, apiError } from '@/lib/api-response'
 import { ERROR_CODES } from '@/lib/error-codes'
 import { AI_CONFIG, FORTUNE_RULES, pickRandom, parseAIResponse } from "@/lib/mystic-rules"
 import { protectMysticEndpoint } from "@/lib/mystic-auth"
-
-// Lazy initialization to avoid build-time errors
-function getClient() {
-    return new OpenAI({
-        apiKey: process.env.GROQ_API_KEY,
-        baseURL: AI_CONFIG.baseURL,
-    })
-}
 
 export async function POST(request: NextRequest) {
     try {
@@ -25,7 +17,6 @@ export async function POST(request: NextRequest) {
         const { user, error } = await protectMysticEndpoint(request, 'fortune');
         if (error) return error;
 
-        const client = getClient()
         const { name, birthDate } = await request.json()
 
         // 🛡️ Validate input (using new sanitizer lib)
@@ -72,26 +63,14 @@ export async function POST(request: NextRequest) {
     "luckyDay": "${FORTUNE_RULES.outputFormat.luckyDay}"
 }`
 
-        const response = await client.chat.completions.create({
-            model: AI_CONFIG.model,
-            messages: [
-                {
-                    role: "system",
-                    content: FORTUNE_RULES.systemPrompt
-                },
-                {
-                    role: "user",
-                    content: prompt
-                }
-            ],
+        const rawContent = await callGemini({
+            systemPrompt: FORTUNE_RULES.systemPrompt,
+            userMessage: prompt,
             temperature: AI_CONFIG.temperature,
-            max_tokens: 800,
+            maxOutputTokens: 800,
         })
 
-        const content = response.choices[0]?.message?.content || ""
-
-        // Sanitize AI response
-        const safeContent = sanitizeAIResponse(content);
+        const safeContent = sanitizeAIResponse(rawContent);
 
         try {
             const jsonMatch = safeContent.match(/\{[\s\S]*\}/)

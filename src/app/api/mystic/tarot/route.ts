@@ -1,17 +1,9 @@
 export const dynamic = 'force-dynamic'
-import OpenAI from "openai"
+import { callGemini } from "@/lib/gemini"
 import { NextRequest } from "next/server"
 import { apiSuccess, apiError } from '@/lib/api-response'
 import { ERROR_CODES } from '@/lib/error-codes'
 import { AI_CONFIG, TAROT_RULES, parseAIResponse } from "@/lib/mystic-rules"
-
-// Lazy initialization to avoid build-time errors
-function getClient() {
-    return new OpenAI({
-        apiKey: process.env.GROQ_API_KEY,
-        baseURL: AI_CONFIG.baseURL,
-    })
-}
 
 export async function POST(request: NextRequest) {
     try {
@@ -20,7 +12,6 @@ export async function POST(request: NextRequest) {
         const csrfError = requireCSRF(request);
         if (csrfError) return csrfError;
 
-        const client = getClient()
         const { cards, spreadType = 'three' } = await request.json()
 
         // 🛡️ API VALIDATION & SANITIZATION
@@ -55,24 +46,14 @@ ${spreadPrompt}
     "advice": "${TAROT_RULES.outputFormat.advice}"
 }`
 
-        const response = await client.chat.completions.create({
-            model: AI_CONFIG.model,
-            messages: [
-                {
-                    role: "system",
-                    content: TAROT_RULES.systemPrompt
-                },
-                {
-                    role: "user",
-                    content: prompt
-                }
-            ],
+        const rawContent = await callGemini({
+            systemPrompt: TAROT_RULES.systemPrompt,
+            userMessage: prompt,
             temperature: AI_CONFIG.temperature,
-            max_tokens: 1000,
+            maxOutputTokens: 1000,
         })
 
-        const content = response.choices[0]?.message?.content || ""
-        const safeContent = sanitizeAIResponse(content);
+        const safeContent = sanitizeAIResponse(rawContent);
 
         try {
             const jsonMatch = safeContent.match(/\{[\s\S]*\}/)

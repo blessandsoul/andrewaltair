@@ -1,18 +1,10 @@
 export const dynamic = 'force-dynamic'
-import OpenAI from "openai"
+import { callGemini } from "@/lib/gemini"
 import { NextRequest } from "next/server"
 import { apiSuccess, apiError } from '@/lib/api-response'
 import { ERROR_CODES } from '@/lib/error-codes'
 import { AI_CONFIG, LOVE_RULES, pickRandom, parseAIResponse } from "@/lib/mystic-rules"
 import { protectMysticEndpoint, validateInputLength } from "@/lib/mystic-auth"
-
-// Lazy initialization to avoid build-time errors
-function getClient() {
-    return new OpenAI({
-        apiKey: process.env.GROQ_API_KEY,
-        baseURL: AI_CONFIG.baseURL,
-    })
-}
 
 export async function POST(request: NextRequest) {
     try {
@@ -25,7 +17,6 @@ export async function POST(request: NextRequest) {
         const { user, error } = await protectMysticEndpoint(request, 'love');
         if (error) return error;
 
-        const client = getClient()
         const { name1, name2 } = await request.json()
 
         if (!name1 || !name2) {
@@ -63,23 +54,12 @@ export async function POST(request: NextRequest) {
     "description": "${LOVE_RULES.outputFormat.description}"
 }`
 
-        const response = await client.chat.completions.create({
-            model: AI_CONFIG.model,
-            messages: [
-                {
-                    role: "system",
-                    content: LOVE_RULES.systemPrompt
-                },
-                {
-                    role: "user",
-                    content: prompt
-                }
-            ],
+        const content = await callGemini({
+            systemPrompt: LOVE_RULES.systemPrompt,
+            userMessage: prompt,
             temperature: AI_CONFIG.temperature,
-            max_tokens: 700,
+            maxOutputTokens: 700,
         })
-
-        const content = response.choices[0]?.message?.content || ""
 
         try {
             const jsonMatch = content.match(/\{[\s\S]*\}/)
