@@ -436,7 +436,7 @@ export default function AdminDashboard() {
     const statCards = [
         {
             title: "პოსტები",
-            value: stats.totalPosts,
+            value: analyticsData?.stats.posts ?? 0,
             icon: <TbFileText className="w-5 h-5" />,
             color: "from-blue-500 to-indigo-500",
             bgColor: "bg-blue-500",
@@ -445,7 +445,7 @@ export default function AdminDashboard() {
         },
         {
             title: "ვიდეოები",
-            value: stats.totalVideos,
+            value: analyticsData?.stats.videos ?? 0,
             icon: <TbVideo className="w-5 h-5" />,
             color: "from-red-500 to-pink-500",
             bgColor: "bg-red-500",
