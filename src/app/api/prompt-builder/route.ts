@@ -5,7 +5,6 @@ import { ERROR_CODES } from '@/lib/error-codes'
 import { callGemini } from '@/lib/gemini'
 
 interface ModelSettings {
-    model?: string
     temperature?: number
     maxTokens?: number
 }

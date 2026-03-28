@@ -1,8 +1,7 @@
+export const dynamic = 'force-dynamic';
 import { NextRequest } from 'next/server';
 import { apiSuccess, apiError } from '@/lib/api-response';
 import { ERROR_CODES } from '@/lib/error-codes';
-
-export const dynamic = 'force-dynamic';
 import dbConnect from '@/lib/db';
 import Bot from '@/models/Bot';
 import { callGemini } from '@/lib/gemini';

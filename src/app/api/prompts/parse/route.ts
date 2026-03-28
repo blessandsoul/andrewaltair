@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic'
-import { callGemini } from "@/lib/gemini"
 import { NextRequest } from 'next/server'
+import { callGemini } from "@/lib/gemini"
 import { apiSuccess, apiError } from '@/lib/api-response'
 import { ERROR_CODES } from '@/lib/error-codes'
 import { getUserFromRequest } from "@/lib/server-auth"

@@ -1,9 +1,10 @@
 import dbConnect from '@/lib/db';
 import Bot from '@/models/Bot';
-import OpenAI from "openai";
 import mongoose from 'mongoose';
+import { callGemini } from '@/lib/gemini';
 
 import type { IBot, BotCategory, BotTier } from '@/models/Bot';
+import type { GeminiMessage } from '@/lib/gemini';
 
 interface GetAllBotsParams {
     page?: number;
@@ -41,13 +42,6 @@ interface ChatHistoryMessage {
     content: string;
 }
 
-// Lazy init client
-function getAIClient() {
-    return new OpenAI({
-        apiKey: process.env.GROQ_API_KEY,
-        baseURL: "https://api.groq.com/openai/v1",
-    });
-}
 
 export class BotService {
     /**
@@ -229,36 +223,31 @@ export class BotService {
     /**
      * CHAT Logic
      */
-    static async chat(message: string, history: ChatHistoryMessage[], masterPrompt?: string) {
-        const client = getAIClient();
-
+    static async chat(message: string, history: ChatHistoryMessage[], masterPrompt?: string): Promise<string> {
         let systemPrompt = "შენ ხარ AI ასისტენტი. პასუხობ ქართულად და ეხმარები მომხმარებელს.";
         if (masterPrompt) {
             if (masterPrompt.length > 2000) throw new Error("Master prompt ძალიან გრძელია");
             systemPrompt = masterPrompt;
         }
 
-        const messages: { role: "system" | "user" | "assistant"; content: string }[] = [
-            { role: "system", content: systemPrompt }
-        ];
-
+        const geminiHistory: GeminiMessage[] = [];
         if (history && Array.isArray(history)) {
             for (const msg of history.slice(-10)) {
                 if (msg.role === "user" || msg.role === "assistant") {
-                    messages.push({ role: msg.role, content: msg.content });
+                    geminiHistory.push({
+                        role: msg.role === "assistant" ? "model" : "user",
+                        parts: [{ text: msg.content }],
+                    });
                 }
             }
         }
 
-        messages.push({ role: "user", content: message });
-
-        const response = await client.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
-            messages,
+        return callGemini({
+            systemPrompt,
+            userMessage: message,
             temperature: 0.7,
-            max_tokens: 500,
+            maxOutputTokens: 500,
+            history: geminiHistory,
         });
-
-        return response.choices[0]?.message?.content || "ბოდიში, დროებით ვერ ვპასუხობ. სცადეთ თავიდან! 🙏";
     }
 }
