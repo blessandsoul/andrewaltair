@@ -51,6 +51,40 @@ interface VideoData {
     youtubeId?: string
 }
 
+interface ActivityItem {
+    type: string
+    targetTitle: string
+    createdAt: string
+}
+
+interface ReferrerSource {
+    source: string
+    visitors: number
+    percentage: number
+}
+
+interface ContentDistributionItem {
+    name: string
+    value: number
+}
+
+interface AnalyticsData {
+    stats: {
+        posts: number
+        videos: number
+        users: number
+        comments: number
+        totalViews: number
+        totalReactions: number
+    }
+    weeklyData: Array<{ day: string; views: number; reactions: number }>
+    topPosts: Array<{ title: string; slug: string; views: number }>
+    topVideos: Array<{ title: string; youtubeId: string; views: number }>
+    recentActivity: ActivityItem[]
+    contentDistribution: ContentDistributionItem[]
+    referrerSources: ReferrerSource[]
+}
+
 // Calculate statistics with date filter
 function getStats(postsData: Post[], videosData: VideoData[], dateRange: DateRange = "all") {
     const totalPosts = postsData.length
@@ -185,14 +219,16 @@ export default function AdminDashboard() {
     const [postsData, setPostsData] = React.useState<Post[]>([])
     const [videosData, setVideosData] = React.useState<VideoData[]>([])
     const [isLoading, setIsLoading] = React.useState(true)
+    const [analyticsData, setAnalyticsData] = React.useState<AnalyticsData | null>(null)
 
     // Fetch data from MongoDB API
     React.useEffect(() => {
         async function fetchData() {
             try {
-                const [postsRes, videosRes] = await Promise.all([
+                const [postsRes, videosRes, analyticsRes] = await Promise.all([
                     fetch('/api/posts?limit=1000'),
-                    fetch('/api/videos?limit=1000')
+                    fetch('/api/videos?limit=1000'),
+                    fetch('/api/analytics'),
                 ])
 
                 if (postsRes.ok) {
@@ -203,6 +239,11 @@ export default function AdminDashboard() {
                 if (videosRes.ok) {
                     const videosJson = await videosRes.json()
                     setVideosData(videosJson.videos || [])
+                }
+
+                if (analyticsRes.ok) {
+                    const analyticsJson = await analyticsRes.json()
+                    setAnalyticsData(analyticsJson.data || null)
                 }
             } catch (error) {
                 console.error('Error fetching data:', error)
