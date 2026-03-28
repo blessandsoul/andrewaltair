@@ -1,9 +1,8 @@
 export const dynamic = 'force-dynamic'
 import { NextRequest } from 'next/server'
+import { callGemini } from '@/lib/gemini'
 import { apiSuccess, apiError } from '@/lib/api-response'
 import { ERROR_CODES } from '@/lib/error-codes'
-
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
 const SYSTEM_PROMPT = `შენ ხარ Georgian SEO ექსპერტი. შენი ამოცანაა სტატიის კონტენტიდან 20 კონტექსტუალური, SEO-ოპტიმიზებული ჰეშთეგის ამოღება.
 
@@ -29,11 +28,6 @@ const SYSTEM_PROMPT = `შენ ხარ Georgian SEO ექსპერტი
 
 export async function POST(request: NextRequest) {
     try {
-        const GROQ_API_KEY = process.env.GROQ_API_KEY
-        if (!GROQ_API_KEY) {
-            return apiError(ERROR_CODES.AI_SERVICE_ERROR, 'GROQ_API_KEY not configured', 500)
-        }
-
         const { title, excerpt, content, category } = await request.json()
 
         if (!title && !content) {
@@ -47,31 +41,12 @@ export async function POST(request: NextRequest) {
 
 გენერირე 20 კონტექსტუალური SEO თეგი ქართულად!`
 
-        const response = await fetch(GROQ_API_URL, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${GROQ_API_KEY}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                model: 'llama-3.3-70b-versatile',
-                messages: [
-                    { role: 'system', content: SYSTEM_PROMPT },
-                    { role: 'user', content: context }
-                ],
-                temperature: 0.5,
-                max_tokens: 500,
-            }),
+        const rawContent = await callGemini({
+            systemPrompt: SYSTEM_PROMPT,
+            userMessage: context,
+            temperature: 0.5,
+            maxOutputTokens: 500,
         })
-
-        if (!response.ok) {
-            const errText = await response.text()
-            console.error('Groq API error:', errText)
-            throw new Error('Groq API error')
-        }
-
-        const data = await response.json()
-        const rawContent = data.choices?.[0]?.message?.content || ''
 
         // Parse JSON array
         try {
