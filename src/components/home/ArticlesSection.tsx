@@ -1,5 +1,6 @@
 "use client"
 
+import type { ComponentType } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { TbArrowRight, TbRobot, TbAtom, TbBook, TbNews, TbCpu, TbTrendingUp, TbBuildingBank, TbBriefcase, TbUsers, TbSchool, TbWorld, TbFileText } from "react-icons/tb"
@@ -19,7 +20,7 @@ interface ArticlesSectionProps {
   posts: Post[]
 }
 
-const CATEGORY_ICONS: Record<string, React.ElementType> = {
+const CATEGORY_ICONS: Record<string, ComponentType<{ className?: string }>> = {
   Bot: TbRobot,
   Atom: TbAtom,
   Book: TbBook,

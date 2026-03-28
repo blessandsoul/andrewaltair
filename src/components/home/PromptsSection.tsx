@@ -1,3 +1,4 @@
+import type { ComponentType } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { TbArrowRight, TbRobot, TbAtom, TbBook, TbNews, TbCpu, TbTrendingUp, TbBuildingBank, TbBriefcase, TbUsers, TbSchool, TbWorld, TbSparkles } from "react-icons/tb"
@@ -17,7 +18,7 @@ interface PromptsSectionProps {
   prompts: Prompt[]
 }
 
-const CATEGORY_ICONS: Record<string, React.ElementType> = {
+const CATEGORY_ICONS: Record<string, ComponentType<{ className?: string }>> = {
   Marketing: TbTrendingUp,
   Coding: TbCpu,
   Creative: TbSparkles,
