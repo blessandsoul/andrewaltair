@@ -117,7 +117,7 @@ export function AIChatAssistant() {
             const aiResponse: Message = {
                 id: (Date.now() + 1).toString(),
                 role: "assistant",
-                content: data.response,
+                content: data.data.response,
                 timestamp: new Date(),
             }
 
