@@ -53,7 +53,8 @@ export function ArticlesSection({ posts }: ArticlesSectionProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {posts.slice(0, 3).map((post) => {
           const categoryInfo = post.category ? getCategoryInfo(post.category) : null
-          const IconComponent = categoryInfo?.icon ? (CATEGORY_ICONS[categoryInfo.icon] ?? TbFileText) : TbFileText
+          const iconKey = categoryInfo && 'icon' in categoryInfo ? String(categoryInfo.icon) : ''
+          const IconComponent = CATEGORY_ICONS[iconKey] ?? TbFileText
 
           return (
             <Link key={post.id} href={`/blog/${post.slug}`} className="group">
