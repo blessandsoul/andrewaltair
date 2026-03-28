@@ -5,8 +5,8 @@ import { ERROR_CODES } from '@/lib/error-codes';
 export const dynamic = 'force-dynamic';
 import dbConnect from '@/lib/db';
 import Bot from '@/models/Bot';
-import OpenAI from 'openai';
-import { AI_CONFIG } from '@/lib/mystic-rules';
+import { callGemini } from '@/lib/gemini';
+import type { GeminiMessage } from '@/lib/gemini';
 
 // Rate limiting map (in production, use Redis or similar)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -138,38 +138,21 @@ export async function POST(
         // Create secure demo prompt
         const securePrompt = createSecureDemoPrompt(bot.masterPrompt);
 
-        // Check API key
-        const apiKey = process.env.GROQ_API_KEY;
-        if (!apiKey) {
-            return apiError(ERROR_CODES.AI_SERVICE_ERROR, 'AI service not configured', 500);
-        }
+        // Prepare history in Gemini format
+        const geminiHistory: GeminiMessage[] = conversationHistory.slice(-6).map(
+            (m: { role: string; content: string }) => ({
+                role: m.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: m.content }],
+            })
+        );
 
-        // Create Groq client (compatible with OpenAI SDK)
-        const client = new OpenAI({
-            apiKey: apiKey,
-            baseURL: AI_CONFIG.baseURL,
-        });
-
-        // Prepare messages for AI API
-        const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
-            { role: 'system', content: securePrompt },
-            ...conversationHistory.slice(-6).map((m: { role: string; content: string }) => ({
-                role: m.role as 'user' | 'assistant',
-                content: m.content
-            })),
-            { role: 'user', content: message }
-        ];
-
-        // Call Groq API via OpenAI SDK
-        const response = await client.chat.completions.create({
-            model: AI_CONFIG.model,
-            messages: messages,
+        const aiResponse = await callGemini({
+            systemPrompt: securePrompt,
+            userMessage: message,
             temperature: 0.7,
-            max_tokens: 200, // Limited for demo
-        });
-
-        const aiResponse = response.choices[0]?.message?.content ||
-            'ვერ მოხერხდა პასუხის გენერაცია.';
+            maxOutputTokens: 200,
+            history: geminiHistory,
+        }).catch(() => 'ვერ მოხერხდა პასუხის გენერაცია.');
 
         // Final security check - filter out any prompt leakage
         const filteredResponse = aiResponse
