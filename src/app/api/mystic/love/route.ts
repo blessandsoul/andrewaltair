@@ -3,7 +3,7 @@ import { callGemini } from "@/lib/gemini"
 import { NextRequest } from "next/server"
 import { apiSuccess, apiError } from '@/lib/api-response'
 import { ERROR_CODES } from '@/lib/error-codes'
-import { AI_CONFIG, LOVE_RULES, pickRandom, parseAIResponse } from "@/lib/mystic-rules"
+import { AI_CONFIG, LOVE_RULES, pickRandom } from "@/lib/mystic-rules"
 import { protectMysticEndpoint, validateInputLength } from "@/lib/mystic-auth"
 
 export async function POST(request: NextRequest) {

@@ -3,7 +3,7 @@ import { callGemini } from "@/lib/gemini"
 import { NextRequest } from "next/server"
 import { apiSuccess, apiError } from '@/lib/api-response'
 import { ERROR_CODES } from '@/lib/error-codes'
-import { AI_CONFIG, TAROT_RULES, parseAIResponse } from "@/lib/mystic-rules"
+import { AI_CONFIG, TAROT_RULES } from "@/lib/mystic-rules"
 
 export async function POST(request: NextRequest) {
     try {
@@ -70,7 +70,7 @@ ${spreadPrompt}
         }
 
         return apiSuccess({
-            cards,
+            cards: safeCards,
             interpretation: "კარტები მოგითხრობენ მნიშვნელოვან ისტორიას. წარსული და აწმყო ერთმანეთს უკავშირდება, რათა გზა გაგიხსნას მომავლისკენ.",
             advice: "მიენდე შენს ინტუიციას და გაბედე სწორი ნაბიჯის გადადგმა."
         })

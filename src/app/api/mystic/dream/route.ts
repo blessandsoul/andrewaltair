@@ -3,7 +3,7 @@ import { callGemini } from "@/lib/gemini"
 import { NextRequest } from "next/server"
 import { apiSuccess, apiError } from '@/lib/api-response'
 import { ERROR_CODES } from '@/lib/error-codes'
-import { AI_CONFIG, DREAM_RULES, pickRandom, parseAIResponse } from "@/lib/mystic-rules"
+import { AI_CONFIG, DREAM_RULES, pickRandom } from "@/lib/mystic-rules"
 import { getUserFromRequest } from "@/lib/server-auth"
 
 // 🛡️ Rate limiting for dream interpretation

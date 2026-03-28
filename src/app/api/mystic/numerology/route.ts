@@ -3,7 +3,7 @@ import { callGemini } from "@/lib/gemini"
 import { NextRequest } from "next/server"
 import { apiSuccess, apiError } from '@/lib/api-response'
 import { ERROR_CODES } from '@/lib/error-codes'
-import { AI_CONFIG, NUMEROLOGY_RULES, parseAIResponse } from "@/lib/mystic-rules"
+import { AI_CONFIG, NUMEROLOGY_RULES } from "@/lib/mystic-rules"
 
 // Функция для получения значения числа из централизованных правил
 function getNumberMeaning(num: number): string {
