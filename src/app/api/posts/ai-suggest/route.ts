@@ -1,9 +1,8 @@
 export const dynamic = 'force-dynamic'
 import { NextRequest } from 'next/server'
+import { callGemini } from '@/lib/gemini'
 import { apiSuccess, apiError } from '@/lib/api-response'
 import { ERROR_CODES } from '@/lib/error-codes'
-
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
 interface SuggestionResult {
     focusKeyword: string
@@ -38,11 +37,6 @@ JSON ფორმატი:
 
 export async function POST(request: NextRequest) {
     try {
-        const GROQ_API_KEY = process.env.GROQ_API_KEY
-        if (!GROQ_API_KEY) {
-            return apiError(ERROR_CODES.AI_SERVICE_ERROR, 'GROQ_API_KEY not configured', 500)
-        }
-
         const { title, excerpt, rawContent } = await request.json()
 
         if (!title && !rawContent) {
@@ -56,29 +50,12 @@ export async function POST(request: NextRequest) {
 კონტენტი (პირველი 1500 სიმბოლო): ${(rawContent || '').slice(0, 1500)}
 `
 
-        const response = await fetch(GROQ_API_URL, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${GROQ_API_KEY}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                model: 'llama-3.3-70b-versatile',
-                messages: [
-                    { role: 'system', content: SYSTEM_PROMPT },
-                    { role: 'user', content: context }
-                ],
-                temperature: 0.3,
-                max_tokens: 1000,
-            }),
+        const content = await callGemini({
+            systemPrompt: SYSTEM_PROMPT,
+            userMessage: context,
+            temperature: 0.3,
+            maxOutputTokens: 1000,
         })
-
-        if (!response.ok) {
-            throw new Error('Groq API error')
-        }
-
-        const data = await response.json()
-        const content = data.choices?.[0]?.message?.content || ''
 
         // Parse JSON
         try {
