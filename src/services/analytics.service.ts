@@ -63,10 +63,7 @@ export class AnalyticsService {
         ]);
 
         // Aggregations, top content, recent activity, and daily stats in parallel
-        const weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 7);
-
-        const [postsViews, videosViews, postsReactions, topPosts, topVideos, recentPosts, dailyStats] = await Promise.all([
+        const [postsViews, videosViews, postsReactions, topPosts, topVideos, recentActivities, dailyStats, referrerAgg, videoTypeAgg] = await Promise.all([
             Post.aggregate([
                 { $match: { status: 'published' } },
                 { $group: { _id: null, totalViews: { $sum: '$views' } } }
@@ -90,8 +87,10 @@ export class AnalyticsService {
                 .sort({ views: -1 }).limit(5).select('title slug views').lean(),
             Video.find({})
                 .sort({ views: -1 }).limit(5).select('title youtubeId views').lean(),
-            Post.find({ createdAt: { $gte: weekAgo } })
-                .sort({ createdAt: -1 }).limit(10).select('title createdAt views').lean(),
+            Activity.find({ isPublic: true })
+                .sort({ createdAt: -1 }).limit(5)
+                .select('type targetTitle createdAt')
+                .lean(),
             Post.aggregate([
                 { $match: { status: 'published' } },
                 {
@@ -114,6 +113,13 @@ export class AnalyticsService {
                 },
                 { $sort: { _id: 1 } }
             ]),
+            Visitor.aggregate([
+                { $group: { _id: '$referrerSource', count: { $sum: 1 } } },
+                { $sort: { count: -1 } }
+            ]),
+            Video.aggregate([
+                { $group: { _id: '$type', count: { $sum: 1 } } }
+            ]),
         ]);
 
         const dayNames = ['კვი', 'ორშ', 'სამ', 'ოთხ', 'ხუთ', 'პარ', 'შაბ'];
@@ -131,6 +137,21 @@ export class AnalyticsService {
             ? (postsReactions[0].likes + postsReactions[0].loves + postsReactions[0].fires + postsReactions[0].claps)
             : 0;
 
+        const totalVisitors = referrerAgg.reduce((sum: number, r: { _id: string; count: number }) => sum + r.count, 0) || 1;
+        const referrerSources = referrerAgg.map((r: { _id: string; count: number }) => ({
+            source: r._id || 'direct',
+            visitors: r.count,
+            percentage: Math.round((r.count / totalVisitors) * 100),
+        }));
+
+        const videoLong = videoTypeAgg.find((v: { _id: string; count: number }) => v._id === 'long')?.count || 0;
+        const videoShort = videoTypeAgg.find((v: { _id: string; count: number }) => v._id === 'short')?.count || 0;
+        const contentDistribution = [
+            { name: 'პოსტები', value: postsCount },
+            { name: 'ვიდეოები', value: videoLong },
+            { name: 'შორტები', value: videoShort },
+        ];
+
         return {
             stats: {
                 posts: postsCount,
@@ -141,9 +162,19 @@ export class AnalyticsService {
                 totalReactions,
             },
             weeklyData,
-            topPosts: topPosts.map((p: { title: string; slug: string; views?: number }) => ({ title: p.title, slug: p.slug, views: p.views || 0 })),
-            topVideos: topVideos.map((v: { title: string; youtubeId: string; views?: number }) => ({ title: v.title, youtubeId: v.youtubeId, views: v.views || 0 })),
-            recentActivity: recentPosts.map((p: { title: string; createdAt: Date; views?: number }) => ({ title: p.title, date: p.createdAt, views: p.views || 0 })),
+            topPosts: topPosts.map((p: { title: string; slug: string; views?: number }) => ({
+                title: p.title, slug: p.slug, views: p.views || 0,
+            })),
+            topVideos: topVideos.map((v: { title: string; youtubeId: string; views?: number }) => ({
+                title: v.title, youtubeId: v.youtubeId, views: v.views || 0,
+            })),
+            recentActivity: recentActivities.map((a: { type: string; targetTitle?: string; createdAt: Date }) => ({
+                type: a.type,
+                targetTitle: a.targetTitle || '',
+                createdAt: a.createdAt,
+            })),
+            contentDistribution,
+            referrerSources,
         };
     }
 
