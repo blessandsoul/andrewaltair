@@ -9,27 +9,31 @@ import Activity from '@/models/Activity'
 // In-memory store for rage click detection (per visitor)
 const recentClicks = new Map<string, { x: number; y: number; time: number }[]>()
 
-// POST - Record a click with rage click detection
+// POST - Record a click (or batch of clicks) with rage click detection
 export async function POST(request: NextRequest) {
     try {
         await dbConnect()
 
         const body = await request.json()
-        const { visitorId, page, x, y, element, resolution } = body
+        const { visitorId, clicks } = body
 
-        if (!visitorId || !page || x === undefined || y === undefined) {
+        if (!visitorId) {
             return apiError(ERROR_CODES.VALIDATION_FAILED, 'Missing required fields', 400)
         }
 
-        // Save the click
-        await Click.create({
-            visitorId,
-            page,
-            x,
-            y,
-            element,
-            resolution
-        })
+        // Support batched format: { visitorId, clicks: [{page, x, y, element, resolution}] }
+        const clickList: { page: string; x: number; y: number; element?: string; resolution?: string }[] =
+            Array.isArray(clicks) ? clicks : [{ page: body.page, x: body.x, y: body.y, element: body.element, resolution: body.resolution }]
+
+        if (clickList.length === 0 || clickList.some(c => !c.page || c.x === undefined || c.y === undefined)) {
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'Missing required fields', 400)
+        }
+
+        // Use the last click for rage detection context
+        const { page, x, y, element, resolution } = clickList[clickList.length - 1]
+
+        // Save all clicks
+        await Click.insertMany(clickList.map(c => ({ visitorId, ...c })))
 
         // Rage Click Detection
         // A rage click is 3+ clicks within 100px radius in < 2 seconds

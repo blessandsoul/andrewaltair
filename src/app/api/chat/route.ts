@@ -23,14 +23,12 @@ async function checkRateLimit(userId: string) {
 
 export async function POST(request: NextRequest) {
     try {
-        // 🛡️ AUTHENTICATION REQUIRED
+        // Use user ID for rate limiting if authenticated, fallback to IP
         const user = await getUserFromRequest(request);
-        if (!user) {
-            return apiError(ERROR_CODES.AUTH_REQUIRED, 'ავტორიზაცია აუცილებელია', 401);
-        }
+        const rateLimitKey = user ? user._id.toString() : (request.headers.get('x-forwarded-for') || 'anonymous');
 
         // 🛡️ RATE LIMITING
-        const { allowed } = await checkRateLimit(user._id.toString());
+        const { allowed } = await checkRateLimit(rateLimitKey);
         if (!allowed) {
             return apiError(ERROR_CODES.RATE_LIMITED, 'ძალიან ბევრი მოთხოვნა. გთხოვთ დაელოდოთ 1 წუთს.', 429);
         }

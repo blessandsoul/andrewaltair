@@ -109,7 +109,7 @@ export function AIChatAssistant() {
             const data = await response.json()
 
             if (!response.ok) {
-                throw new Error(data.error || "API error")
+                throw new Error(data.error?.message || "API error")
             }
 
             const aiResponse: Message = {
@@ -304,7 +304,7 @@ export function AIChatAssistant() {
 
     // Normal small widget mode
     return (
-        <div className="fixed bottom-24 lg:bottom-4 right-4 z-50 w-96 h-[500px] max-h-[80vh] bg-card rounded-2xl shadow-2xl border overflow-hidden flex flex-col">
+        <div className="fixed bottom-24 lg:bottom-4 right-4 z-50 w-[calc(100vw-2rem)] sm:w-96 h-125 max-h-[80vh] bg-card rounded-2xl shadow-2xl border overflow-hidden flex flex-col">
             {/* Header */}
             <div className={`flex items-center justify-between bg-gradient-to-r ${selectedRole.color} p-3 text-white`}>
                 <div className="flex items-center gap-2">
