@@ -37,6 +37,7 @@ function RedirectToLogin(): null {
 export function AdminAuth({ children }: AdminAuthProps) {
     const [isAuthenticated, setIsAuthenticated] = React.useState(false)
     const [isLoading, setIsLoading] = React.useState(true)
+    const pathname = usePathname()
 
     // Check for existing session on mount (cookie-based auth)
     React.useEffect(() => {
@@ -58,6 +59,11 @@ export function AdminAuth({ children }: AdminAuthProps) {
         () => ({ isAuthenticated, isLoading }),
         [isAuthenticated, isLoading]
     )
+
+    // Login page is always accessible — don't intercept it
+    if (pathname === '/admin/login') {
+        return <AdminAuthContext.Provider value={contextValue}>{children}</AdminAuthContext.Provider>
+    }
 
     // Loading state
     if (isLoading) {
