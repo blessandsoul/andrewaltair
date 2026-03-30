@@ -202,7 +202,7 @@ export function Header() {
                 <TbRobot className="w-5 h-5" />
               </div>
               <span className="font-headline font-bold text-lg tracking-tight text-on-surface">
-                Altair AI
+                Andrew Altair
               </span>
             </Link>
 

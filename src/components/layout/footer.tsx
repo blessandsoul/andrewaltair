@@ -31,7 +31,7 @@ export function Footer() {
             <div className="w-7 h-7 bg-linear-to-br from-primary to-primary-container rounded-lg flex items-center justify-center text-white">
               <TbRobot className="w-4 h-4" />
             </div>
-            <span className="text-sm font-semibold text-on-surface">Altair AI</span>
+            <span className="text-sm font-semibold text-on-surface">Andrew Altair</span>
           </Link>
 
           {/* Copyright */}

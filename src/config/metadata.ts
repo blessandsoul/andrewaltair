@@ -64,7 +64,7 @@ export const siteMetadata: Metadata = {
         title: "Andrew Altair | AI ექსპერტი საქართველოში",
         description: "ისწავლე AI ტექნოლოგიები, გამოიყენე ბიზნესის ზრდისთვის და გახდი ლიდერი ციფრულ ეპოქაში. პირველი AI მარკეტფლეისი და ენციკლოპედია ქართულად.",
         url: 'https://andrewaltair.ge',
-        siteName: 'Andrew Altair AI',
+        siteName: 'Andrew Altair',
         locale: 'ka_GE',
         type: 'website',
         images: [
@@ -72,7 +72,7 @@ export const siteMetadata: Metadata = {
                 url: '/og.png',
                 width: 1200,
                 height: 630,
-                alt: 'Andrew Altair AI',
+                alt: 'Andrew Altair',
             }
         ],
     },

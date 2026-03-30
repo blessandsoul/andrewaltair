@@ -9,7 +9,34 @@ import PremiumRequestModal from '@/components/premium/PremiumRequestModal';
 export default function AI2026Landing() {
     const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
 
+    const courseSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'Course',
+        '@id': 'https://andrewaltair.ge/encyclopedia/ai-2026#course',
+        name: 'AI 2026: დიდი ფილტრი',
+        description: 'ეს არ არის პროგნოზი, ეს არის განაჩენი. გაიგე, როგორ გამოიყურება სამყარო, სადაც შენ ან "არქიტექტორი" ხარ, ან "რესურსი".',
+        url: 'https://andrewaltair.ge/encyclopedia/ai-2026',
+        inLanguage: 'ka',
+        educationalLevel: 'Intermediate to Advanced',
+        numberOfLessons: 12,
+        teaches: ['AI Strategy 2026', 'Career Transformation', 'AI Tools', 'Future of Work', 'AI Automation'],
+        provider: {
+            '@type': 'Organization',
+            '@id': 'https://andrewaltair.ge/#organization',
+        },
+        author: {
+            '@type': 'Person',
+            '@id': 'https://andrewaltair.ge/#person',
+        },
+        isAccessibleForFree: false,
+    };
+
     return (
+        <>
+        <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(courseSchema) }}
+        />
         <div className="min-h-screen relative overflow-hidden bg-gray-50">
             {/* Animated Background - distinct form Vibe Coding */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -232,6 +259,7 @@ export default function AI2026Landing() {
                 source="ai-2026"
             />
         </div>
+        </>
     );
 }
 

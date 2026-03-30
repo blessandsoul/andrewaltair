@@ -65,6 +65,17 @@ export default function AboutPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'მთავარი', item: `https://${brand.domain}` },
+            { '@type': 'ListItem', position: 2, name: 'Andrew Altair-ის შესახებ', item: `https://${brand.domain}/about` },
+          ],
+        }) }}
+      />
 
       {/* 1. Hero Section (High Impact) */}
       <AboutHero />

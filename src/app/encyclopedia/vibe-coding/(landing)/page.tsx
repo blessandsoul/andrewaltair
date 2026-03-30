@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import VibeCodingLanding from '@/components/vibe-coding/VibeCodingLanding';
+import { getAllArticles } from '@/data/vibeCodingContent';
 
 export const metadata: Metadata = {
     title: 'Vibe Coding ენციკლოპედია - AI პროგრამირების სრული გაიდი | Andrew Altair',
@@ -31,5 +32,37 @@ export const metadata: Metadata = {
 };
 
 export default function VibeCodingEncyclopediaPage() {
-    return <VibeCodingLanding />;
+    const articleCount = getAllArticles().length;
+
+    const courseSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'Course',
+        '@id': 'https://andrewaltair.ge/encyclopedia/vibe-coding#course',
+        name: 'Vibe Coding ენციკლოპედია',
+        description: 'სრული სახელმძღვანელო AI-ასისტირებულ პროგრამირებაზე. ისწავლე Cursor, Claude, ChatGPT პროფესიონალურად.',
+        url: 'https://andrewaltair.ge/encyclopedia/vibe-coding',
+        inLanguage: 'ka',
+        educationalLevel: 'Beginner to Advanced',
+        numberOfLessons: articleCount,
+        teaches: ['Vibe Coding', 'AI Programming', 'Prompt Engineering', 'Cursor IDE', 'Claude Code', 'Windsurf IDE', 'N8N Automation'],
+        provider: {
+            '@type': 'Organization',
+            '@id': 'https://andrewaltair.ge/#organization',
+        },
+        author: {
+            '@type': 'Person',
+            '@id': 'https://andrewaltair.ge/#person',
+        },
+        isAccessibleForFree: false,
+    };
+
+    return (
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(courseSchema) }}
+            />
+            <VibeCodingLanding />
+        </>
+    );
 }

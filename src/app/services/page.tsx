@@ -102,7 +102,7 @@ export default async function ServicesPage() {
     const serviceSchema = {
         '@context': 'https://schema.org',
         '@type': 'ProfessionalService',
-        name: 'Andrew Altair AI Services',
+        name: 'Andrew Altair Services',
         description: 'პროფესიონალური AI კონსულტაცია, ავტომატიზაცია და ტრენინგი',
         url: `${siteUrl}/services`,
         provider: {
@@ -158,6 +158,15 @@ export default async function ServicesPage() {
         ]
     }
 
+    const breadcrumbSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'მთავარი', item: siteUrl },
+            { '@type': 'ListItem', position: 2, name: 'სერვისები', item: `${siteUrl}/services` },
+        ],
+    }
+
     return (
         <>
             <script
@@ -167,6 +176,10 @@ export default async function ServicesPage() {
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
             />
             <div className="min-h-screen">
                 {/* Hero Section */}

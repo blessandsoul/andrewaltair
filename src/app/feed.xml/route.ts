@@ -45,7 +45,7 @@ export async function GET() {
     const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Andrew Altair AI</title>
+    <title>Andrew Altair</title>
     <link>${baseUrl}</link>
     <description>AI ინოვატორი და კონტენტ კრეატორი - ხელოვნური ინტელექტის ექსპერტი</description>
     <language>ka</language>
@@ -53,7 +53,7 @@ export async function GET() {
     <atom:link href="${baseUrl}/feed.xml" rel="self" type="application/rss+xml"/>
     <image>
       <url>${baseUrl}/logo.png</url>
-      <title>Andrew Altair AI</title>
+      <title>Andrew Altair</title>
       <link>${baseUrl}</link>
     </image>
     <webMaster>contact@andrewaltair.ge (Andrew Altair)</webMaster>
@@ -79,7 +79,7 @@ export async function GET() {
     const basicRss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <title>Andrew Altair AI</title>
+    <title>Andrew Altair</title>
     <link>${baseUrl}</link>
     <description>AI ინოვატორი და კონტენტ კრეატორი</description>
     <language>ka</language>

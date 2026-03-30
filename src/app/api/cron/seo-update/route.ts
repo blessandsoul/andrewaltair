@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { NextRequest } from 'next/server'
+import fs from 'fs'
+import path from 'path'
 import dbConnect from '@/lib/db'
 import Post from '@/models/Post'
 import { getAllArticles } from '@/data/vibeCodingContent'
@@ -78,7 +80,7 @@ export async function POST(request: NextRequest) {
         // Generate updated agents.json content
         const agentsJsonContent = {
             version: '1.0',
-            name: 'Andrew Altair AI',
+            name: 'Andrew Altair',
             description: 'AI Expert & Business Consultant platform - საქართველოს #1 AI ექსპერტი',
             url: baseUrl,
             owner: {
@@ -182,9 +184,22 @@ export async function POST(request: NextRequest) {
             last_updated: new Date().toISOString()
         }
 
-        // Note: In production, this would write to a persistent storage
-        // For Vercel/serverless, you'd use a database or external storage
-        // For Docker/VPS, you can write directly to the filesystem
+        // Write agents.json and ai-plugin.json to disk (Docker/VPS deployment)
+        let fileWriteResult: { agents_json: string; ai_plugin_json: string } | { error: string }
+        try {
+            const agentsPath = path.join(process.cwd(), 'public/.well-known/agents.json')
+            fs.writeFileSync(agentsPath, JSON.stringify(agentsJsonContent, null, 4), 'utf-8')
+
+            const pluginPath = path.join(process.cwd(), 'public/.well-known/ai-plugin.json')
+            const plugin = JSON.parse(fs.readFileSync(pluginPath, 'utf-8'))
+            plugin.last_updated = new Date().toISOString()
+            fs.writeFileSync(pluginPath, JSON.stringify(plugin, null, 4), 'utf-8')
+
+            fileWriteResult = { agents_json: 'updated', ai_plugin_json: 'updated' }
+        } catch (fileError) {
+            console.error('Failed to write SEO files to disk:', fileError)
+            fileWriteResult = { error: 'File write failed — check filesystem permissions' }
+        }
 
         const updateResult = {
             success: true,
@@ -196,6 +211,7 @@ export async function POST(request: NextRequest) {
                 urls_submitted_to_indexnow: urlsToIndex.length
             },
             indexnow: indexNowResult,
+            file_writes: fileWriteResult,
             agents_json: agentsJsonContent
         }
 

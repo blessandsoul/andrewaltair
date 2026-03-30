@@ -2,8 +2,8 @@ import { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: 'Andrew Altair AI',
-        short_name: 'Altair AI',
+        name: 'Andrew Altair',
+        short_name: 'Andrew Altair',
         description: 'AI ინოვატორი და კონტენტ კრეატორი - ხელოვნური ინტელექტის ექსპერტი',
         start_url: '/',
         display: 'standalone',

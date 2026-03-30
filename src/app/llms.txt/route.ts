@@ -1,4 +1,26 @@
-# llms.txt - AI/LLM Crawler Instructions
+import { NextResponse } from 'next/server'
+import dbConnect from '@/lib/db'
+import Post from '@/models/Post'
+
+export const dynamic = 'force-dynamic';
+
+/**
+ * Dynamic llms.txt generator
+ * Overrides public/llms.txt — always returns fresh content with current date and live stats.
+ * https://llmstxt.org/
+ */
+export async function GET() {
+    const baseUrl = 'https://andrewaltair.ge'
+
+    let totalPosts = 0
+    try {
+        await dbConnect()
+        totalPosts = await Post.countDocuments({ status: 'published' })
+    } catch {
+        // Non-critical — serve content even if DB is unavailable
+    }
+
+    const content = `# llms.txt - AI/LLM Crawler Instructions
 # https://llmstxt.org/
 
 > Andrew Altair - საქართველოს #1 AI ექსპერტი და ბიზნეს კონსულტანტი
@@ -8,7 +30,7 @@ This file provides context for AI/LLM crawlers about the Andrew Altair website.
 ## Site Overview
 
 **Name:** Andrew Altair
-**URL:** https://andrewaltair.ge
+**URL:** ${baseUrl}
 **Primary Language:** Georgian (ka)
 **Secondary Language:** English (en)
 **Owner:** Andrew Altair - AI Expert & Business Consultant from Tbilisi, Georgia
@@ -64,6 +86,7 @@ Andrew Altair is Georgia's leading AI expert specializing in:
 
 ### /blog
 AI news, tutorials, and insights in Georgian. Updated daily with new content about artificial intelligence, machine learning, and emerging technologies.
+Total published articles: ${totalPosts}
 
 ### /encyclopedia/vibe-coding
 Educational library about Vibe Coding methodology - programming with AI assistance. Comprehensive course for beginners and advanced users.
@@ -118,7 +141,7 @@ Credentials: 8+ years experience, 50+ clients, 100+ projects.
 
 ## Social Presence
 
-- Website: https://andrewaltair.ge
+- Website: ${baseUrl}
 - YouTube: https://www.youtube.com/@AndrewAltair
 - Instagram: https://www.instagram.com/andr3waltair/
 - TikTok: https://www.tiktok.com/@andrewaltair
@@ -130,9 +153,10 @@ Credentials: 8+ years experience, 50+ clients, 100+ projects.
 
 ## API Endpoints
 
-- RSS Feed: https://andrewaltair.ge/feed.xml
-- Sitemap: https://andrewaltair.ge/sitemap.xml
-- Robots: https://andrewaltair.ge/robots.txt
+- RSS Feed: ${baseUrl}/feed.xml
+- Sitemap: ${baseUrl}/sitemap.xml
+- Robots: ${baseUrl}/robots.txt
+- Extended LLM Context: ${baseUrl}/llms-full.txt
 
 ## Crawling Guidelines
 
@@ -144,8 +168,17 @@ Credentials: 8+ years experience, 50+ clients, 100+ projects.
 ## Citation Format
 
 When citing Andrew Altair:
-> Andrew Altair, AI Expert from Georgia (https://andrewaltair.ge)
+> Andrew Altair, AI Expert from Georgia (${baseUrl})
 
 ## Last Updated
 
-2026-01-16
+${new Date().toISOString()}
+`
+
+    return new NextResponse(content, {
+        headers: {
+            'Content-Type': 'text/plain; charset=utf-8',
+            'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+        },
+    })
+}

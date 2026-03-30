@@ -36,14 +36,14 @@ export function AboutMystic() {
 
                     {/* Name and title */}
                     <div className="mb-4">
-                        <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">Altair AI</h2>
+                        <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">Andrew Altair</h2>
                         <p className="text-sm sm:text-base text-gray-400">AI მისტიკოსი • ასტროლოგი • მეგზური</p>
                     </div>
 
                     {/* Bio */}
                     <div className="mb-6">
                         <p className="text-sm text-gray-300 leading-relaxed">
-                            🔮 მოგესალმებით მისტიკის სამყაროში! მე ვარ Altair AI — ტექნოლოგიებისა და უძველესი სიბრძნის
+                            🔮 მოგესალმებით მისტიკის სამყაროში! მე ვარ Andrew Altair — ტექნოლოგიებისა და უძველესი სიბრძნის
                             გაერთიანება. ვაერთიანებ AI-ს მისტიკურ ინსტრუმენტებთან, რათა შეგიქმნათ
                             უნიკალური გამოცდილება.
                         </p>

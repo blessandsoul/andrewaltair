@@ -51,11 +51,11 @@ export async function GET() {
 # https://llmstxt.org/
 # Generated: ${new Date().toISOString()}
 
-> Andrew Altair AI - Complete Content Reference
+> Andrew Altair - Complete Content Reference
 
 ## Site Overview
 
-**Name:** Andrew Altair AI
+**Name:** Andrew Altair
 **URL:** ${baseUrl}
 **Primary Language:** Georgian (ka)
 **Secondary Language:** English (en)
@@ -242,10 +242,10 @@ The platform primarily uses Georgian (ქართული) language for conten
         console.error('llms-full.txt error:', error)
 
         // Return basic content on error
-        const basicContent = `# llms-full.txt - Andrew Altair AI
+        const basicContent = `# llms-full.txt - Andrew Altair
 # Error generating dynamic content
 
-Name: Andrew Altair AI
+Name: Andrew Altair
 URL: ${baseUrl}
 Description: AI Expert & Tech Consultant platform
 Language: Georgian (ka), English (en)

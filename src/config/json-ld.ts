@@ -41,7 +41,7 @@ export const organizationSchema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     '@id': 'https://andrewaltair.ge/#organization',
-    name: 'Andrew Altair AI',
+    name: 'Andrew Altair',
     url: 'https://andrewaltair.ge',
     logo: {
         '@type': 'ImageObject',
