@@ -54,7 +54,11 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
 
                             ogImage: ""
                         },
-                        repository: p.repository
+                        repository: p.repository,
+                        keyPoints: p.keyPoints || [],
+                        faq: p.faq || [],
+                        entities: p.entities || [],
+                        sources: p.sources || []
                     })
                 } else {
                     alert("პოსტი ვერ მოიძებნა")
@@ -101,7 +105,11 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
                     relatedPosts: updatedPost.relatedPosts || [],
                     seo: updatedPost.seo,
                     telegramContent: updatedPost.telegramContent,
-                    repository: updatedPost.repository
+                    repository: updatedPost.repository,
+                    keyPoints: updatedPost.keyPoints,
+                    faq: updatedPost.faq,
+                    entities: updatedPost.entities,
+                    sources: updatedPost.sources
                 })
             })
 

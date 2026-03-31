@@ -343,7 +343,13 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
     const [editorMode, setEditorMode] = React.useState<'visual' | 'json'>('json')
     const [jsonInput, setJsonInput] = React.useState('')
     const [parsedSections, setParsedSections] = React.useState<Section[]>([])
-    const [sourcesInput, setSourcesInput] = React.useState('')
+    const [sourcesInput, setSourcesInput] = React.useState(() => {
+        const existing = initialData?.sources
+        if (!existing || existing.length === 0) return ''
+        return existing.map(s =>
+            `${s.index}. ${s.outlet}: "${s.title}"\n   - URL: ${s.url}${s.keyFact ? `\n   - Key Fact: ${s.keyFact}` : ''}${s.context ? `\n   - Context: ${s.context}` : ''}`
+        ).join('\n\n')
+    })
 
     // Upload States
     const [isUploadingH, setIsUploadingH] = React.useState(false)
