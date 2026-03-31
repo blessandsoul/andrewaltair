@@ -201,6 +201,133 @@ function generateSlug(title: string): string {
         .trim()
 }
 
+// ─── Sources Interpreter ─────────────────────────────────────────────────────
+
+interface ParsedSource {
+    index: number
+    outlet: string
+    title: string
+    url: string
+    keyFact: string
+    context: string
+}
+
+function parseSources(raw: string): ParsedSource[] {
+    const sources: ParsedSource[] = []
+    const blocks = raw.split(/\n(?=\d+\.\s)/).filter(Boolean)
+
+    for (const block of blocks) {
+        const lines = block.trim().split('\n').map(l => l.trim())
+        const headerMatch = lines[0]?.match(/^(\d+)\.\s+(.+?):\s+"(.+)"$/)
+        if (!headerMatch) continue
+
+        const index = parseInt(headerMatch[1], 10)
+        const outlet = headerMatch[2].trim()
+        const title = headerMatch[3].trim()
+
+        let url = ''
+        let keyFact = ''
+        let context = ''
+
+        for (const line of lines.slice(1)) {
+            if (line.startsWith('- URL:')) url = line.replace('- URL:', '').trim()
+            else if (line.startsWith('- Key Fact:')) keyFact = line.replace('- Key Fact:', '').trim()
+            else if (line.startsWith('- Context:')) context = line.replace('- Context:', '').trim()
+        }
+
+        sources.push({ index, outlet, title, url, keyFact, context })
+    }
+
+    return sources
+}
+
+function SourcesInterpreter({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+    const sources = React.useMemo(() => parseSources(value), [value])
+
+    return (
+        <div className="grid lg:grid-cols-2 gap-6">
+            <Card>
+                <CardHeader><CardTitle>Sources (links.md)</CardTitle></CardHeader>
+                <CardContent>
+                    <textarea
+                        className="w-full min-h-150 p-4 font-mono text-sm bg-zinc-950 text-zinc-100 rounded-lg resize-y"
+                        value={value}
+                        onChange={(e) => onChange(e.target.value)}
+                        placeholder={"# Sources\n\n1. Outlet Name: \"Article Title\"\n   - URL: https://example.com\n   - Key Fact: ...\n   - Context: ..."}
+                    />
+                </CardContent>
+            </Card>
+
+            <div className="space-y-4">
+                <div className="flex items-center gap-2 px-1">
+                    <TbBook className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium text-muted-foreground">
+                        {sources.length} {sources.length === 1 ? 'source' : 'sources'} parsed
+                    </span>
+                </div>
+
+                {sources.length === 0 && value.trim() && (
+                    <Card className="border-destructive/30 bg-destructive/5">
+                        <CardContent className="p-4 text-sm text-destructive">
+                            Could not parse sources. Check that each entry follows the format:<br />
+                            <code className="text-xs font-mono">1. Outlet: "Title"</code>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {sources.map((src) => (
+                    <Card key={src.index} className="overflow-hidden">
+                        <div className="flex items-stretch">
+                            {/* Index badge */}
+                            <div className="w-12 shrink-0 bg-primary/10 flex items-center justify-center">
+                                <span className="text-xl font-bold text-primary">{src.index}</span>
+                            </div>
+
+                            <CardContent className="p-4 flex-1 min-w-0 space-y-2">
+                                {/* Outlet + Title */}
+                                <div>
+                                    <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                                        {src.outlet}
+                                    </span>
+                                    <p className="font-semibold text-sm leading-snug">{src.title}</p>
+                                </div>
+
+                                {/* URL */}
+                                {src.url && (
+                                    <a
+                                        href={src.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-1 text-xs text-primary hover:underline truncate"
+                                    >
+                                        <TbWorld className="w-3 h-3 shrink-0" />
+                                        <span className="truncate">{src.url}</span>
+                                    </a>
+                                )}
+
+                                {/* Key Fact */}
+                                {src.keyFact && (
+                                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-md px-3 py-2">
+                                        <p className="text-[10px] font-semibold uppercase tracking-widest text-amber-600 mb-0.5">Key Fact</p>
+                                        <p className="text-xs text-foreground/80">{src.keyFact}</p>
+                                    </div>
+                                )}
+
+                                {/* Context */}
+                                {src.context && (
+                                    <p className="text-xs text-muted-foreground italic">{src.context}</p>
+                                )}
+                            </CardContent>
+                        </div>
+                    </Card>
+                ))}
+            </div>
+        </div>
+    )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 interface PostEditorProps {
     initialData?: Partial<PostData>
     onSave: (data: PostData) => Promise<void> | void
@@ -215,9 +342,10 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
     })
 
     // Editor Mode State
-    const [editorMode, setEditorMode] = React.useState<'visual' | 'json'>('json')
+    const [editorMode, setEditorMode] = React.useState<'visual' | 'json' | 'sources'>('json')
     const [jsonInput, setJsonInput] = React.useState('')
     const [parsedSections, setParsedSections] = React.useState<Section[]>([])
+    const [sourcesInput, setSourcesInput] = React.useState('')
 
     // Upload States
     const [isUploadingH, setIsUploadingH] = React.useState(false)
@@ -530,6 +658,15 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                             <TbCode className="w-3 h-3 mr-1" />
                             JSON
                         </Button>
+                        <Button
+                            variant={editorMode === 'sources' ? 'secondary' : 'ghost'}
+                            size="sm"
+                            onClick={() => setEditorMode('sources')}
+                            className="text-xs"
+                        >
+                            <TbBook className="w-3 h-3 mr-1" />
+                            Sources
+                        </Button>
                     </div>
                 </div>
             </div>
@@ -676,6 +813,8 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                         </CardContent>
                     </Card>
                 </div>
+            ) : editorMode === 'sources' ? (
+                <SourcesInterpreter value={sourcesInput} onChange={setSourcesInput} />
             ) : (
                 <div className="p-10 text-center border-2 border-dashed rounded-lg">
                     Visual Mode Not Implemented in Skeleton
