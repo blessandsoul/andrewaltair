@@ -80,6 +80,7 @@ interface Post {
     sections?: Section[]
     videos?: VideoEmbed[]
     relatedPosts?: string[]
+    sources?: { index: number; outlet: string; title: string; url: string; keyFact?: string; context?: string }[]
     tags: string[]
     // AI & SEO Fields
     keyPoints?: string[]
@@ -466,6 +467,46 @@ console.log(data.result);
                                                     </AccordionItem>
                                                 ))}
                                             </Accordion>
+                                        </div>
+                                    )}
+
+                                    {/* Sources */}
+                                    {post.sources && post.sources.length > 0 && (
+                                        <div className="mt-12 pt-8 border-t border-border">
+                                            <h4 className="text-xl font-bold mb-6 flex items-center gap-2">
+                                                <TbHash className="w-5 h-5 text-primary" />
+                                                წყაროები
+                                            </h4>
+                                            <div className="space-y-3">
+                                                {post.sources.map((src) => (
+                                                    <div key={src.index} className="flex items-stretch gap-0 rounded-xl overflow-hidden border border-border bg-card">
+                                                        <div className="w-10 shrink-0 bg-primary/10 flex items-center justify-center">
+                                                            <span className="text-sm font-bold text-primary">{src.index}</span>
+                                                        </div>
+                                                        <div className="p-4 flex-1 min-w-0 space-y-1.5">
+                                                            <div>
+                                                                <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">{src.outlet}</span>
+                                                                <p className="font-semibold text-sm leading-snug">{src.title}</p>
+                                                            </div>
+                                                            {src.url && (
+                                                                <a href={src.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-primary hover:underline truncate">
+                                                                    <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                                                    <span className="truncate">{src.url}</span>
+                                                                </a>
+                                                            )}
+                                                            {src.keyFact && (
+                                                                <div className="bg-amber-500/10 border border-amber-500/20 rounded-md px-3 py-2">
+                                                                    <p className="text-[10px] font-semibold uppercase tracking-widest text-amber-600 mb-0.5">Key Fact</p>
+                                                                    <p className="text-xs text-foreground/80">{src.keyFact}</p>
+                                                                </div>
+                                                            )}
+                                                            {src.context && (
+                                                                <p className="text-xs text-muted-foreground italic">{src.context}</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
                                     )}
 

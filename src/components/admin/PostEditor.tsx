@@ -116,6 +116,7 @@ export interface PostData {
     keyPoints?: string[]
     faq?: { question: string, answer: string }[]
     entities?: string[]
+    sources?: ParsedSource[]
     // Tutorial Specific
     intro?: string
     tools?: string
@@ -245,36 +246,32 @@ function SourcesInterpreter({ value, onChange }: { value: string; onChange: (v: 
     const sources = React.useMemo(() => parseSources(value), [value])
 
     return (
-        <div className="grid lg:grid-cols-2 gap-6">
-            <Card>
-                <CardHeader><CardTitle>Sources (links.md)</CardTitle></CardHeader>
-                <CardContent>
-                    <textarea
-                        className="w-full min-h-150 p-4 font-mono text-sm bg-zinc-950 text-zinc-100 rounded-lg resize-y"
-                        value={value}
-                        onChange={(e) => onChange(e.target.value)}
-                        placeholder={"# Sources\n\n1. Outlet Name: \"Article Title\"\n   - URL: https://example.com\n   - Key Fact: ...\n   - Context: ..."}
-                    />
-                </CardContent>
-            </Card>
-
-            <div className="space-y-4">
-                <div className="flex items-center gap-2 px-1">
-                    <TbBook className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm font-medium text-muted-foreground">
-                        {sources.length} {sources.length === 1 ? 'source' : 'sources'} parsed
-                    </span>
-                </div>
-
-                {sources.length === 0 && value.trim() && (
-                    <Card className="border-destructive/30 bg-destructive/5">
-                        <CardContent className="p-4 text-sm text-destructive">
-                            Could not parse sources. Check that each entry follows the format:<br />
-                            <code className="text-xs font-mono">1. Outlet: "Title"</code>
-                        </CardContent>
-                    </Card>
+        <div className="space-y-3">
+            <div className="flex items-center justify-between">
+                <label className="text-xs font-medium flex items-center gap-1">
+                    <TbBook className="w-3 h-3" />
+                    Sources (links.md)
+                </label>
+                {sources.length > 0 && (
+                    <span className="text-xs text-muted-foreground">{sources.length} parsed</span>
                 )}
+            </div>
 
+            <textarea
+                className="w-full min-h-40 p-4 font-mono text-sm bg-zinc-950 text-zinc-100 rounded-lg resize-y"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                placeholder={"# Sources\n\n1. Outlet Name: \"Article Title\"\n   - URL: https://example.com\n   - Key Fact: ...\n   - Context: ..."}
+            />
+
+            {sources.length === 0 && value.trim() && (
+                <p className="text-xs text-destructive px-1">
+                    Could not parse. Expected format: <code className="font-mono">1. Outlet: "Title"</code>
+                </p>
+            )}
+
+            {sources.length > 0 && (
+                <div className="space-y-2">
                 {sources.map((src) => (
                     <Card key={src.index} className="overflow-hidden">
                         <div className="flex items-stretch">
@@ -321,7 +318,8 @@ function SourcesInterpreter({ value, onChange }: { value: string; onChange: (v: 
                         </div>
                     </Card>
                 ))}
-            </div>
+                </div>
+            )}
         </div>
     )
 }
@@ -342,7 +340,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
     })
 
     // Editor Mode State
-    const [editorMode, setEditorMode] = React.useState<'visual' | 'json' | 'sources'>('json')
+    const [editorMode, setEditorMode] = React.useState<'visual' | 'json'>('json')
     const [jsonInput, setJsonInput] = React.useState('')
     const [parsedSections, setParsedSections] = React.useState<Section[]>([])
     const [sourcesInput, setSourcesInput] = React.useState('')
@@ -416,6 +414,12 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
             setIsGeneratingCode(false)
         }
     }
+
+    // Sync parsed sources → post.sources
+    React.useEffect(() => {
+        const parsed = parseSources(sourcesInput)
+        setPost(prev => ({ ...prev, sources: parsed.length > 0 ? parsed : [] }))
+    }, [sourcesInput])
 
     // JSON Sync Logic
     React.useEffect(() => {
@@ -658,15 +662,6 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                             <TbCode className="w-3 h-3 mr-1" />
                             JSON
                         </Button>
-                        <Button
-                            variant={editorMode === 'sources' ? 'secondary' : 'ghost'}
-                            size="sm"
-                            onClick={() => setEditorMode('sources')}
-                            className="text-xs"
-                        >
-                            <TbBook className="w-3 h-3 mr-1" />
-                            Sources
-                        </Button>
                     </div>
                 </div>
             </div>
@@ -696,7 +691,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs font-medium">Vertical (9:16)</label>
-                                    <div className="relative w-16 aspect-[9/16] bg-muted rounded overflow-hidden border group">
+                                    <div className="relative w-16 aspect-9/16 bg-muted rounded overflow-hidden border group">
                                         {post.coverImages?.vertical ? (
                                             <img src={post.coverImages.vertical} className="w-full h-full object-cover" />
                                         ) : (
@@ -793,7 +788,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                             <div className="space-y-2">
                                 <label className="text-xs font-medium">Content JSON</label>
                                 <textarea
-                                    className={`w-full min-h-[500px] p-4 font-mono text-sm bg-zinc-950 text-zinc-100 rounded-lg resize-y ${jsonError ? 'border-2 border-red-500' : ''}`}
+                                    className={`w-full min-h-125 p-4 font-mono text-sm bg-zinc-950 text-zinc-100 rounded-lg resize-y ${jsonError ? 'border-2 border-red-500' : ''}`}
                                     value={jsonInput}
                                     onChange={(e) => setJsonInput(e.target.value)}
                                     placeholder='[{"type":"intro","content":"..."}]'
@@ -804,6 +799,9 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                     </div>
                                 )}
                             </div>
+
+                            {/* Sources Interpreter */}
+                            <SourcesInterpreter value={sourcesInput} onChange={setSourcesInput} />
                         </CardContent>
                     </Card>
                     <Card className="h-fit sticky top-6">
@@ -813,8 +811,6 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                         </CardContent>
                     </Card>
                 </div>
-            ) : editorMode === 'sources' ? (
-                <SourcesInterpreter value={sourcesInput} onChange={setSourcesInput} />
             ) : (
                 <div className="p-10 text-center border-2 border-dashed rounded-lg">
                     Visual Mode Not Implemented in Skeleton

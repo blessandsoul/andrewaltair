@@ -34,6 +34,7 @@ interface PostCreateData {
     faq?: FaqItem[];
     keyPoints?: string[];
     entities?: string[];
+    sources?: IPost['sources'];
     telegramContent?: string;
     telegramButtonText?: string;
     seo?: {
@@ -336,6 +337,7 @@ export class PostService {
                     answer: item.answer || item.a || '',
                 })),
                 entities: data.entities || data.seo?.entities || meta.entities || [],
+                sources: data.sources || [],
 
                 // Telegram data
                 telegramContent: data.telegramContent || data.telegram?.text || '',

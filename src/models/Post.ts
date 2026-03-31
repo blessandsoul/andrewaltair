@@ -63,6 +63,15 @@ export interface IPromptData {
     music?: string;            // Music style/suggestion
 }
 
+export interface ISource {
+    index: number;
+    outlet: string;
+    title: string;
+    url: string;
+    keyFact?: string;
+    context?: string;
+}
+
 export interface IPost extends Document {
     _id: mongoose.Types.ObjectId;
     slug: string;
@@ -101,6 +110,7 @@ export interface IPost extends Document {
     keyPoints?: string[];      // Array of key takeaways (3-5 items)
     faq?: { question: string; answer: string }[]; // Structured FAQ
     entities?: string[];       // Knowledge graph entities (people, tech, companies)
+    sources?: ISource[];       // Parsed sources from links.md
 }
 
 const ReactionsSchema = new Schema<IReactions>(
@@ -372,6 +382,17 @@ const PostSchema = new Schema<IPost>(
         },
         entities: {
             type: [String],
+            default: []
+        },
+        sources: {
+            type: [{
+                index: { type: Number, required: true },
+                outlet: { type: String, required: true },
+                title: { type: String, required: true },
+                url: { type: String, required: true },
+                keyFact: { type: String },
+                context: { type: String },
+            }],
             default: []
         }
     },

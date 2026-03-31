@@ -73,7 +73,8 @@ export default function NewPostPage() {
                 repository: post.repository,
                 keyPoints: post.keyPoints,
                 faq: post.faq,
-                entities: post.entities
+                entities: post.entities,
+                sources: post.sources
             };
 
             // Create post via MongoDB API
@@ -130,7 +131,7 @@ export default function NewPostPage() {
 
             {/* Success Modal */}
             {successData && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
                     <div className="bg-background border rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl animate-in zoom-in-95 duration-300">
                         {/* Success Icon */}
                         <div className="flex justify-center mb-6">
