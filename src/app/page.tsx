@@ -5,12 +5,14 @@ import dbConnect from "@/lib/db"
 import Post from "@/models/Post"
 import Video from "@/models/Video"
 import MarketplacePrompt from "@/models/MarketplacePrompt"
+import Insight from "@/models/Insight"
 import { HeroCarousel } from "@/components/home/HeroCarousel"
 import { HeroTags } from "@/components/home/HeroTags"
 import { QuickAccessGrid } from "@/components/home/QuickAccessGrid"
 import { PromptsSection } from "@/components/home/PromptsSection"
 import { ArticlesSection } from "@/components/home/ArticlesSection"
 import { BotsSection } from "@/components/home/BotsSection"
+import { InsightsSection } from "@/components/home/InsightsSection"
 import { ServicesSection } from "@/components/home/ServicesSection"
 import { VideosSection } from "@/components/home/VideosSection"
 import { SocialProof } from "@/components/home/SocialProof"
@@ -96,11 +98,34 @@ async function getLatestPrompts() {
   }
 }
 
+// Fetch latest insights directly from MongoDB
+async function getInsights() {
+  try {
+    await dbConnect()
+
+    const insights = await Insight.find({ status: 'published' })
+      .sort({ publishedAt: -1 })
+      .limit(4)
+      .lean()
+
+    return insights.map(insight => ({
+      ...insight,
+      id: insight._id.toString(),
+      _id: undefined,
+      publishedAt: insight.publishedAt ? new Date(insight.publishedAt).toISOString() : new Date().toISOString(),
+    }))
+  } catch (error) {
+    console.error('Error fetching insights:', error)
+    return []
+  }
+}
+
 export default async function Home() {
-  const [postsData, videosData, promptsData] = await Promise.all([
+  const [postsData, videosData, promptsData, insightsData] = await Promise.all([
     getPosts(),
     getVideos(),
     getLatestPrompts(),
+    getInsights(),
   ])
 
   const heroPosts = postsData.filter((p: any) => p.featured || p.trending).slice(0, 5)
@@ -179,6 +204,7 @@ export default async function Home() {
         <div className="px-4 sm:px-6 lg:px-8 space-y-16">
           <PromptsSection prompts={promptsData as any[]} />
           <ArticlesSection posts={postsData.slice(0, 3) as any[]} />
+          <InsightsSection insights={insightsData as any[]} />
           <BotsSection />
           <ServicesSection />
           <VideosSection videos={videosData} />
