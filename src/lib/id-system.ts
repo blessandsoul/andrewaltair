@@ -1,6 +1,7 @@
 import dbConnect from '@/lib/db';
 import Post from '@/models/Post';
 import MarketplacePrompt from '@/models/MarketplacePrompt';
+import Insight from '@/models/Insight';
 
 /**
  * Formats a 6-digit ID into a readable string (e.g., "123-456").
@@ -29,12 +30,13 @@ export async function generateUniqueId(): Promise<string> {
         const potentialId = Math.floor(100000 + Math.random() * 900000).toString();
 
         // Check availability in ALL collections
-        const [existingPost, existingPrompt] = await Promise.all([
+        const [existingPost, existingPrompt, existingInsight] = await Promise.all([
             Post.findOne({ numericId: potentialId }).select('_id').lean(),
-            MarketplacePrompt.findOne({ numericId: potentialId }).select('_id').lean()
+            MarketplacePrompt.findOne({ numericId: potentialId }).select('_id').lean(),
+            Insight.findOne({ numericId: potentialId }).select('_id').lean()
         ]);
 
-        if (!existingPost && !existingPrompt) {
+        if (!existingPost && !existingPrompt && !existingInsight) {
             numericId = potentialId;
         }
 

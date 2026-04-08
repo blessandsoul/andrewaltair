@@ -83,6 +83,13 @@ export async function indexBlogPost(slug: string): Promise<IndexNowResult> {
 }
 
 /**
+ * Submit a single insight URL
+ */
+export async function indexInsight(slug: string): Promise<IndexNowResult> {
+    return submitToIndexNow([`/insights/${slug}`])
+}
+
+/**
  * Submit a single prompt URL
  */
 export async function indexPrompt(slug: string): Promise<IndexNowResult> {
