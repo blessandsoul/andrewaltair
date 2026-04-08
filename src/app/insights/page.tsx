@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { Metadata } from 'next';
 import { InsightsFeed } from '@/components/insights';
 import { InsightService } from '@/services/insight.service';

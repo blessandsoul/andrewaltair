@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 
+import { revalidatePath } from 'next/cache';
 import { apiSuccess, apiError, apiPaginated } from '@/lib/api-response';
 import { ERROR_CODES } from '@/lib/error-codes';
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
@@ -48,6 +49,12 @@ export async function POST(request: Request) {
         }
 
         const insight = await InsightService.createInsight(body);
+        console.log('[API] Insight created:', insight.slug, insight.id);
+
+        // Revalidate pages that show insights
+        revalidatePath('/');
+        revalidatePath('/insights');
+
         return apiSuccess(insight, 'Insight created', 201);
     } catch (error) {
         console.error('[API] POST /api/insights error:', error);

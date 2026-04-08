@@ -75,6 +75,7 @@ type SortDirection = "asc" | "desc"
 
 export default function PostsPage() {
     const [posts, setPosts] = React.useState<Post[]>([])
+    const [insights, setInsights] = React.useState<any[]>([])
     const [isLoading, setIsLoading] = React.useState(true)
     const [isSaving, setIsSaving] = React.useState(false)
     const [searchQuery, setSearchQuery] = React.useState("")
@@ -83,15 +84,18 @@ export default function PostsPage() {
     const [selectedIds, setSelectedIds] = React.useState<string[]>([])
     const [previewPost, setPreviewPost] = React.useState<Post | null>(null)
 
-    // Fetch posts from MongoDB API
+    // Fetch posts + insights from MongoDB API
     React.useEffect(() => {
         async function fetchPosts() {
             try {
-                const res = await fetch('/api/posts?limit=100')
-                if (res.ok) {
-                    const resJson = await res.json()
-                    // API returns { success: true, data: { posts: [], pagination: {} } }
-                    const postsData = resJson.data?.posts || resJson.posts || []
+                const [postsRes, insightsRes] = await Promise.all([
+                    fetch('/api/posts?limit=100'),
+                    fetch('/api/insights?limit=50&status=all'),
+                ])
+
+                if (postsRes.ok) {
+                    const resJson = await postsRes.json()
+                    const postsData = resJson.data?.posts || resJson.data?.items || resJson.posts || []
 
                     const formattedPosts = postsData.map((p: Post, i: number) => ({
                         ...p,
@@ -106,6 +110,11 @@ export default function PostsPage() {
                         shares: p.shares || 0
                     }))
                     setPosts(formattedPosts)
+                }
+
+                if (insightsRes.ok) {
+                    const insightsJson = await insightsRes.json()
+                    setInsights(insightsJson.data?.items || [])
                 }
             } catch (error) {
                 console.error('Error fetching posts:', error)
@@ -627,6 +636,63 @@ export default function PostsPage() {
                     </Link>
                 </div>
             </div>
+
+            {/* Insights Section */}
+            {insights.length > 0 && (
+                <Card className="border-primary/20 bg-primary/5">
+                    <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                            <CardTitle className="text-lg flex items-center gap-2">
+                                <TbFlame className="w-5 h-5 text-primary" />
+                                Insights ({insights.length})
+                            </CardTitle>
+                            <Link href="/insights" target="_blank">
+                                <Button variant="ghost" size="sm" className="text-xs">
+                                    <TbEye className="w-3 h-3 mr-1" /> ნახვა საიტზე
+                                </Button>
+                            </Link>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                        <div className="space-y-2">
+                            {insights.map((insight: any) => (
+                                <div key={insight.id || insight._id} className="flex items-center justify-between p-3 rounded-lg bg-background border border-border">
+                                    <div className="flex-1 min-w-0 mr-4">
+                                        <p className="text-sm truncate">{insight.content?.slice(0, 100) || insight.excerpt}</p>
+                                        <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                                            <span>{insight.sourceDomain}</span>
+                                            <span>{insight.views || 0} views</span>
+                                            <Badge variant={insight.status === 'published' ? 'default' : 'secondary'} className="text-[10px]">
+                                                {insight.status}
+                                            </Badge>
+                                            {insight.tags?.slice(0, 3).map((tag: string) => (
+                                                <span key={tag} className="text-primary/60">#{tag}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <Link href={`/insights/${insight.slug}`} target="_blank">
+                                            <Button variant="ghost" size="sm"><TbEye className="w-4 h-4" /></Button>
+                                        </Link>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="text-destructive hover:text-destructive"
+                                            onClick={async () => {
+                                                if (!confirm('წაშალოთ ეს insight?')) return
+                                                const res = await fetch(`/api/insights/${insight.id || insight._id}`, { method: 'DELETE' })
+                                                if (res.ok) setInsights(prev => prev.filter(i => (i.id || i._id) !== (insight.id || insight._id)))
+                                            }}
+                                        >
+                                            <TbTrash className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
 
             {/* Filters Section */}
             <Card>

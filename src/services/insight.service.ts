@@ -54,7 +54,7 @@ export class InsightService {
 
         const query: Record<string, unknown> = {};
 
-        if (status) query.status = status;
+        if (status && status !== 'all') query.status = status;
         if (tag) query.tags = tag;
 
         if (search) {
