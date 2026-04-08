@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
 import Post from '@/models/Post'
+import Insight from '@/models/Insight'
 import { getAllArticles } from '@/data/vibeCodingContent'
 
 export const dynamic = 'force-dynamic';
@@ -29,6 +30,23 @@ export async function GET() {
       <pubDate>${new Date(post.createdAt).toUTCString()}</pubDate>
       <author>Andrew Altair</author>
       <category>AI News</category>
+    </item>`).join('')
+
+    // Get published insights
+    const insights = await Insight.find({ status: 'published' })
+      .select('slug excerpt content sourceTitle createdAt')
+      .sort({ createdAt: -1 })
+      .lean()
+
+    const insightItems = insights.map((insight) => `
+    <item>
+      <title><![CDATA[${insight.sourceTitle || insight.excerpt?.slice(0, 60) || 'Insight'}]]></title>
+      <link>${baseUrl}/insights/${insight.slug}</link>
+      <guid isPermaLink="true">${baseUrl}/insights/${insight.slug}</guid>
+      <description><![CDATA[${insight.excerpt || ''}]]></description>
+      <pubDate>${new Date(insight.createdAt).toUTCString()}</pubDate>
+      <author>Andrew Altair</author>
+      <category>AI Insights</category>
     </item>`).join('')
 
     const libraryItems = libraryArticles.slice(0, 20).map((article) => `
@@ -62,6 +80,7 @@ export async function GET() {
     <category>Artificial Intelligence</category>
     <ttl>60</ttl>
     ${feedItems}
+    ${insightItems}
     ${libraryItems}
   </channel>
 </rss>`

@@ -49,7 +49,6 @@ export async function POST(request: Request) {
         }
 
         const insight = await InsightService.createInsight(body);
-        console.log('[API] Insight created:', insight.slug, insight.id);
 
         // Revalidate pages that show insights
         revalidatePath('/');

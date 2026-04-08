@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next'
 import { getAllArticles } from '@/data/vibeCodingContent'
 import dbConnect from '@/lib/db'
 import Post from '@/models/Post'
+import Insight from '@/models/Insight'
 import Tutorial from '@/models/Tutorial'
 import MarketplacePrompt from '@/models/MarketplacePrompt'
 import Bot from '@/models/Bot'
@@ -23,6 +24,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         {
             url: `${baseUrl}/blog`,
             lastModified: new Date('2025-06-01'),
+            changeFrequency: 'daily',
+            priority: 0.9,
+        },
+        {
+            url: `${baseUrl}/insights`,
+            lastModified: new Date(),
             changeFrequency: 'daily',
             priority: 0.9,
         },
@@ -236,5 +243,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         console.error('Sitemap: Error fetching videos:', error)
     }
 
-    return [...staticPages, ...libraryUrls, ...blogUrls, ...tutorialUrls, ...repositoryUrls, ...promptUrls, ...botEntries, ...videoUrls]
+    // Insights
+    let insightUrls: MetadataRoute.Sitemap = []
+    try {
+        const insights = await Insight.find({ status: 'published' })
+            .select('slug updatedAt createdAt')
+            .lean()
+
+        insightUrls = insights.map((insight) => ({
+            url: `${baseUrl}/insights/${insight.slug}`,
+            lastModified: insight.updatedAt || insight.createdAt || new Date(),
+            changeFrequency: 'weekly' as const,
+            priority: 0.8,
+        }))
+    } catch (error) {
+        console.error('Sitemap: Error fetching insights:', error)
+    }
+
+    return [...staticPages, ...libraryUrls, ...blogUrls, ...insightUrls, ...tutorialUrls, ...repositoryUrls, ...promptUrls, ...botEntries, ...videoUrls]
 }

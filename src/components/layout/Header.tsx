@@ -42,6 +42,7 @@ import { cn } from "@/lib/utils"
 // Main nav items (flat links)
 const mainNavItems = [
   { href: "/blog", label: "ბლოგი" },
+  { href: "/insights", label: "ინსაითები" },
   { href: "/prompts", label: "პრომპტები" },
   { href: "/bots", label: "ბოტები" },
   { href: "/services", label: "სერვისები" },
@@ -62,6 +63,7 @@ const mobileNavSections = [
     category: "მთავარი",
     items: [
       { href: "/blog", label: "ბლოგი", icon: TbBook },
+      { href: "/insights", label: "ინსაითები", icon: TbBulb },
       { href: "/prompts", label: "პრომპტები", icon: TbShoppingBag },
       { href: "/bots", label: "ბოტები", icon: TbRobot },
       { href: "/services", label: "სერვისები", icon: TbBriefcase },
