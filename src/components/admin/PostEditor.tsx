@@ -52,7 +52,7 @@ export interface PostData {
     numericId?: string
     slug: string
     title: string
-    type: "library" | "news" | "tutorial"
+    type: "library" | "news" | "tutorial" | "insight"
     excerpt: string
     content: string
     rawContent: string
@@ -125,6 +125,8 @@ export interface PostData {
     metaAdvice?: string
     character?: string
     songTrack?: string
+    // Insight specific
+    sourceUrl?: string
 }
 
 const DEFAULT_POST: PostData = {
@@ -445,6 +447,14 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                 if (parsed.type === 'tutorial' || parsed.meta?.type === 'tutorial') {
                     setPost(prev => ({ ...prev, type: 'tutorial' }))
                 }
+                if (parsed.type === 'insight' || parsed.sourceUrl) {
+                    setPost(prev => ({
+                        ...prev,
+                        type: 'insight' as const,
+                        sourceUrl: parsed.sourceUrl || '',
+                        rawContent: parsed.content || prev.rawContent,
+                    }))
+                }
 
                 // Helper to sanitize sections
                 const sanitizeSections = (sections: Section[]) => {
@@ -640,7 +650,28 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                 }
             }
         } catch (e: unknown) {
-            setJsonError(e instanceof Error ? e.message : 'Invalid JSON')
+            // Auto-detect plain text insight: contains წყარო: (source) with URL
+            const sourceMatch = jsonInput.match(/წყარო:\s*(https?:\/\/\S+)/i)
+                || jsonInput.match(/Source:\s*(https?:\/\/\S+)/i)
+            if (sourceMatch) {
+                setJsonError(null)
+                const sourceUrl = sourceMatch[1]
+                const content = jsonInput
+                    .replace(/წყარო:\s*https?:\/\/\S+/i, '')
+                    .replace(/Source:\s*https?:\/\/\S+/i, '')
+                    .trim()
+                setPost(prev => ({
+                    ...prev,
+                    type: 'insight' as const,
+                    sourceUrl,
+                    rawContent: content,
+                    content: content,
+                    title: content.slice(0, 60).replace(/\n/g, ' '),
+                    excerpt: content.slice(0, 160).replace(/\n/g, ' '),
+                }))
+            } else {
+                setJsonError(e instanceof Error ? e.message : 'Invalid JSON')
+            }
         }
     }, [jsonInput])
 
@@ -802,6 +833,12 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                                 {jsonError && (
                                     <div className="text-red-500 text-sm p-3 bg-red-500/10 rounded-lg border border-red-500/20">
                                         <span className="font-semibold">JSON Error:</span> {jsonError}
+                                    </div>
+                                )}
+                                {post.type === 'insight' && (
+                                    <div className="text-emerald-400 text-sm p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20 flex items-center gap-2">
+                                        <TbSparkles className="w-4 h-4" />
+                                        <span><span className="font-semibold">Insight detected</span> — {post.sourceUrl ? `Source: ${post.sourceUrl.slice(0, 60)}...` : 'will auto-extract tags, OG image, and cross-links'}</span>
                                     </div>
                                 )}
                             </div>

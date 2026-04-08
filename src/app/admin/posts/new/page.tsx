@@ -11,6 +11,36 @@ export default function NewPostPage() {
 
     const handleSave = async (post: PostData) => {
         try {
+            // Handle Insight Type
+            if (post.type === 'insight') {
+                const insightPayload = {
+                    content: post.rawContent || post.content,
+                    sourceUrl: post.sourceUrl || '',
+                    categories: post.categories.length > 0 ? post.categories : ['ai', 'tech-insights'],
+                    tags: post.tags,
+                    status: post.status || 'published',
+                    author: post.author || { name: 'Andrew Altair', avatar: '/avatar.jpg', role: 'AI Innovator' },
+                }
+
+                const res = await fetch('/api/insights', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(insightPayload)
+                })
+
+                if (!res.ok) {
+                    const error = await res.json()
+                    throw new Error(error.error?.message || 'Insight creation failed')
+                }
+
+                const savedInsight = await res.json()
+                setSuccessData({
+                    slug: `insights/${savedInsight.data?.slug || 'new'}`,
+                    title: 'Insight Published'
+                })
+                return
+            }
+
             // Handle Tutorial Type
             if (post.type === 'tutorial') {
                 const tutorialPayload = {
