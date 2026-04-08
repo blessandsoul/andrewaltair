@@ -34,8 +34,11 @@ export function ServicesSection() {
           {/* Decorative blur */}
           <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700 pointer-events-none" />
 
+          <div className="absolute top-8 right-8 z-10">
+            <service.icon className="w-8 h-8 text-white/80" />
+          </div>
+
           <div className="relative z-10 space-y-6">
-            <service.icon className="w-10 h-10" />
             <h2 className="text-3xl font-black tracking-tight font-headline">{service.title}</h2>
             <p className="text-white/80 max-w-sm leading-relaxed">{service.description}</p>
             <span className={`inline-block bg-white ${service.ctaColor} px-6 py-2 rounded-lg font-bold hover:bg-primary-fixed transition-colors`}>
