@@ -6,6 +6,15 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { PostService } from "@/services/post.service"
 
+function safeEncodeURIComponent(str: string): string {
+  try {
+    return encodeURIComponent(str)
+  } catch {
+    // Strip lone surrogates that cause URIError, then encode
+    return encodeURIComponent(str.replace(/[\uD800-\uDFFF]/g, ''))
+  }
+}
+
 // 1. DYNAMIC METADATA (Crucial for Google & Facebook)
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -32,9 +41,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     } else {
       // Dynamic OG Image Fallback
       const date = post.publishedAt ? new Date(post.publishedAt).toISOString().split('T')[0] : '';
-      imageUrl = `${siteUrl}/api/og?title=${encodeURIComponent(post.title)}&type=post&date=${date}`;
+      imageUrl = `${siteUrl}/api/og?title=${safeEncodeURIComponent(post.title)}&type=post&date=${date}`;
       if (post.categories?.length) {
-        imageUrl += `&tags=${encodeURIComponent(post.categories.join(','))}`;
+        imageUrl += `&tags=${safeEncodeURIComponent(post.categories.join(','))}`;
       }
     }
 
@@ -108,7 +117,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     if (imageUrl && imageUrl.includes('/api/files/')) {
       imageUrl = imageUrl.replace('/api/files/', '/uploads/')
     }
-    imageUrl = imageUrl || `${siteUrl}/api/og?title=${encodeURIComponent(post.title)}&type=post`
+    imageUrl = imageUrl || `${siteUrl}/api/og?title=${safeEncodeURIComponent(post.title)}&type=post`
     if (imageUrl && !imageUrl.startsWith('http')) {
       imageUrl = `${siteUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`
     }

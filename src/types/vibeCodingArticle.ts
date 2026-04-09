@@ -120,6 +120,18 @@ export interface SectionOutro {
     image_prompt: string;
 }
 
+export interface TeaserSection {
+    type: 'teaser';
+    heading: string;
+    items: string[];
+}
+
+export interface MetaphorSection {
+    type: 'metaphor';
+    heading: string;
+    body: string;
+}
+
 import { UniversalSectionType } from './universalSections';
 
 export type ContentSection =
@@ -131,7 +143,9 @@ export type ContentSection =
     | WarningSection
     | MythsFactsSection
     | SectionOutro
-    | UniversalSectionType;  // Added new types
+    | TeaserSection
+    | MetaphorSection
+    | UniversalSectionType;
 
 export interface VibeCodingArticleData {
     meta: ArticleMeta;

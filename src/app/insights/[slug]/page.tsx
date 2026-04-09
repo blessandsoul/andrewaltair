@@ -5,6 +5,14 @@ import { notFound } from 'next/navigation';
 import { InsightPageClient } from '@/components/insights/InsightPageClient';
 import { InsightService } from '@/services/insight.service';
 
+function safeEncodeURIComponent(str: string): string {
+    try {
+        return encodeURIComponent(str)
+    } catch {
+        return encodeURIComponent(str.replace(/[\uD800-\uDFFF]/g, ''))
+    }
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
 
@@ -21,7 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
             }
         }
         if (!imageUrl) {
-            imageUrl = `${siteUrl}/api/og?title=${encodeURIComponent(insight.excerpt.slice(0, 60))}&type=insight`;
+            imageUrl = `${siteUrl}/api/og?title=${safeEncodeURIComponent(insight.excerpt.slice(0, 60))}&type=insight`;
         }
 
         return {

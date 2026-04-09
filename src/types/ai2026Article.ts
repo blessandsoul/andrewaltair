@@ -86,13 +86,20 @@ export interface FactSection {
     content: string;
 }
 
+export interface TeaserSection {
+    type: 'teaser';
+    heading: string;
+    items: string[];
+}
+
 export type AI2026ContentSection =
     | IntroSection
     | ContentSection
     | CalloutSection
     | QuizSection
     | ResourcesSection
-    | FactSection;
+    | FactSection
+    | TeaserSection;
 
 export interface AI2026ArticleData {
     meta: AI2026Meta;

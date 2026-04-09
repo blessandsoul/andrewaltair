@@ -1,6 +1,7 @@
 'use client';
 
-import { VibeCodingArticleData, ContentSection } from '@/types/vibeCodingArticle';
+import { VibeCodingArticleData, ContentSection, TeaserSection, MetaphorSection } from '@/types/vibeCodingArticle';
+import { sanitizeHtml } from '@/lib/sanitize';
 import HeroIntro from './sections/HeroIntro';
 import Timeline from './sections/Timeline';
 import StandardSection from './sections/StandardSection';
@@ -45,6 +46,35 @@ export default function VibeCodingArticleRenderer({ data }: VibeCodingArticleRen
                 return <MythsFacts key={index} section={section} />;
             case 'section_outro':
                 return <OutroSection key={index} section={section} />;
+            case 'teaser':
+                return (
+                    <section key={index} className="py-8 md:py-12 px-6">
+                        <div className="max-w-4xl mx-auto">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-gray-900">{(section as TeaserSection).heading}</h2>
+                            <ul className="space-y-3">
+                                {(section as TeaserSection).items.map((item, i) => (
+                                    <li key={i} className="flex items-start gap-3 text-gray-700 text-lg">
+                                        <span className="text-purple-500 mt-1">▸</span>
+                                        <span>{item}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </section>
+                );
+            case 'metaphor':
+                return (
+                    <section key={index} className="py-8 md:py-12 px-6">
+                        <div className="max-w-4xl mx-auto">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-gray-900">{(section as MetaphorSection).heading}</h2>
+                            <div className="text-gray-700 leading-relaxed space-y-4">
+                                {(section as MetaphorSection).body.split('\n\n').map((paragraph, idx) => (
+                                    <p key={idx} dangerouslySetInnerHTML={{ __html: sanitizeHtml(paragraph.replace(/\*\*(.+?)\*\*/g, '<strong class="text-gray-900">$1</strong>').replace(/\n/g, '<br />')) }} />
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+                );
 
             // Universal Sections (2026 Design System)
             case 'hero_modern': return <HeroModernComponent key={index} data={section} />;

@@ -1,6 +1,6 @@
 'use client';
 
-import { AI2026ArticleData, AI2026ContentSection } from '@/types/ai2026Article';
+import { AI2026ArticleData, AI2026ContentSection, TeaserSection } from '@/types/ai2026Article';
 import IntroSection from './sections/IntroSection';
 import ContentSection from './sections/ContentSection';
 import CalloutBlock from './sections/CalloutBlock';
@@ -70,6 +70,22 @@ export default function AI2026ArticleRenderer({ data, prev, next }: AI2026Articl
                 return <ResourcesSection key={index} section={section} />;
             case 'fact':
                 return <FactClosing key={index} section={section} />;
+            case 'teaser':
+                return (
+                    <section key={index} className="py-8 md:py-12 px-6">
+                        <div className="max-w-4xl mx-auto">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-gray-900">{(section as TeaserSection).heading}</h2>
+                            <ul className="space-y-3">
+                                {(section as TeaserSection).items.map((item, i) => (
+                                    <li key={i} className="flex items-start gap-3 text-gray-600 text-lg">
+                                        <span className="text-blue-500 mt-1">▸</span>
+                                        <span>{item}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </section>
+                );
             default:
                 console.warn('Unknown section type:', (section as AI2026ContentSection).type);
                 return null;
