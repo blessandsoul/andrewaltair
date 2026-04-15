@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
-import { TbFileText, TbVideo, TbEye, TbTrendingUp, TbFlame, TbHeart, TbMessage, TbBolt, TbPlus, TbArrowRight, TbClock, TbChartBar, TbSparkles, TbCalendar, TbGripVertical, TbX, TbRefresh, TbSettings, TbShare, TbSearch, TbBell, TbDatabase, TbServer, TbActivity, TbAlertTriangle, TbTrash, TbDownload, TbUpload, TbWorld, TbUsers, TbPhoto, TbStack2, TbListCheck, TbCalendarEvent, TbStar, TbChartPie, TbChartLine, TbLayoutGrid, TbLayoutList, TbColumns, TbMaximize, TbMinimize, TbCommand, TbFilter, TbMapPin } from "react-icons/tb"
+import { TbFileText, TbVideo, TbEye, TbTrendingUp, TbFlame, TbHeart, TbMessage, TbBolt, TbPlus, TbArrowRight, TbClock, TbChartBar, TbSparkles, TbCalendar, TbGripVertical, TbX, TbRefresh, TbSettings, TbShare, TbSearch, TbBell, TbDatabase, TbServer, TbActivity, TbAlertTriangle, TbTrash, TbDownload, TbUpload, TbWorld, TbUsers, TbPhoto, TbStack2, TbListCheck, TbCalendarEvent, TbStar, TbChartPie, TbChartLine, TbLayoutGrid, TbLayoutList, TbColumns, TbMaximize, TbMinimize, TbCommand, TbFilter, TbMapPin, TbLink } from "react-icons/tb"
 import {
     LineChart as RechartsLineChart,
     Line,
@@ -108,7 +108,7 @@ function formatNumber(num: number): string {
 // Widget types - EXTENDED
 type WidgetType = "stats" | "posts" | "videos" | "activity" | "analytics" |
     "dateFilter" | "charts" | "quickActions" | "notifications" |
-    "search" | "topContent" | "tasks" | "layoutSettings"
+    "search" | "topContent" | "tasks" | "layoutSettings" | "topLinks"
 
 // Widget size types
 type WidgetSize = "small" | "medium" | "large" | "full"
@@ -150,6 +150,7 @@ const defaultWidgets: Widget[] = [
     { id: "posts", type: "posts", title: "ბოლო პოსტები", visible: true, order: 7, size: "medium" },
     { id: "activity", type: "activity", title: "აქტივობა", visible: true, order: 8, size: "medium" },
     { id: "topContent", type: "topContent", title: "ტოპ კონტენტი", visible: true, order: 9, size: "medium" },
+    { id: "topLinks", type: "topLinks", title: "ტოპ ბმულები", visible: true, order: 9.5, size: "medium" },
     { id: "tasks", type: "tasks", title: "დავალებები", visible: true, order: 10, size: "medium" },
     { id: "videos", type: "videos", title: "ბოლო ვიდეოები", visible: true, order: 11, size: "medium" },
     { id: "analytics", type: "analytics", title: "ანალიტიკა", visible: true, order: 12, size: "full" },
@@ -172,15 +173,17 @@ export default function AdminDashboard() {
     const [videosData, setVideosData] = React.useState<VideoData[]>([])
     const [isLoading, setIsLoading] = React.useState(true)
     const [analyticsData, setAnalyticsData] = React.useState<AnalyticsData | null>(null)
+    const [topLinksData, setTopLinksData] = React.useState<Array<{ _id: string; slug: string; title?: string; totalClicks: number; uniqueClicks: number }>>([])
 
     // Fetch data from MongoDB API
     React.useEffect(() => {
         async function fetchData() {
             try {
-                const [postsRes, videosRes, analyticsRes] = await Promise.all([
+                const [postsRes, videosRes, analyticsRes, topLinksRes] = await Promise.all([
                     fetch('/api/posts?limit=1000'),
                     fetch('/api/videos?limit=1000'),
                     fetch('/api/analytics'),
+                    fetch('/api/admin/links/top?limit=5').catch(() => null),
                 ])
 
                 if (postsRes.ok) {
@@ -196,6 +199,11 @@ export default function AdminDashboard() {
                 if (analyticsRes.ok) {
                     const analyticsJson = await analyticsRes.json()
                     setAnalyticsData(analyticsJson.data || null)
+                }
+
+                if (topLinksRes && topLinksRes.ok) {
+                    const topLinksJson = await topLinksRes.json()
+                    if (topLinksJson.success) setTopLinksData(topLinksJson.data || [])
                 }
             } catch (error) {
                 console.error('Error fetching data:', error)
@@ -821,7 +829,37 @@ export default function AdminDashboard() {
                     </Card>
                 )
 
-            // Feature 9: Tasks
+            case "topLinks":
+                return (
+                    <Card>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-base flex items-center gap-2">
+                                <TbLink className="w-4 h-4 text-indigo-500" />
+                                ტოპ ბმულები
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className={`${compactView ? "p-3" : "p-4"}`}>
+                            {topLinksData.length === 0 ? (
+                                <p className="text-sm text-muted-foreground text-center py-4">ბმულები არ არის</p>
+                            ) : (
+                                <div className="space-y-2">
+                                    {topLinksData.map((link, i) => (
+                                        <Link key={link._id} href={`/admin/links/${link._id}`}>
+                                            <div className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-muted/50 transition-colors">
+                                                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${i === 0 ? "bg-indigo-500 text-white" : i === 1 ? "bg-purple-400 text-white" : "bg-muted text-muted-foreground"}`}>
+                                                    {i + 1}
+                                                </span>
+                                                <span className="text-sm truncate flex-1">{link.title || link.slug}</span>
+                                                <span className="text-xs text-muted-foreground">{formatNumber(link.totalClicks)} clicks</span>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                )
+
             case "tasks":
                 return (
                     <Card>

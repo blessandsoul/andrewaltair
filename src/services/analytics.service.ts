@@ -8,6 +8,7 @@ import { trackServerActivity, ServerActivityOptions, trackSignup, trackSubscribe
 import Visitor from '@/models/Visitor';
 import Activity from '@/models/Activity';
 import { NextRequest } from 'next/server';
+import { getGeoFromIP } from '@/lib/geo';
 
 // Helpers (moved from route)
 function getDateRange(period: string): Date {
@@ -19,31 +20,6 @@ function getDateRange(period: string): Date {
         case 'year': { const d = new Date(now); d.setFullYear(d.getFullYear() - 1); return d; }
         default: return new Date(0);
     }
-}
-
-// Simple in-memory cache for GeoIP
-const geoCache = new Map<string, { city: string; country: string; countryCode: string; expires: number }>();
-const georgianCities = ['Tbilisi', 'Batumi', 'Kutaisi', 'Rustavi', 'Zugdidi', 'Gori', 'Poti', 'Samtredia', 'Khashuri'];
-
-async function getGeoFromIP(ip: string): Promise<{ city: string; country: string; countryCode: string }> {
-    if (!ip || ip === 'unknown' || ip.startsWith('127.') || ip.startsWith('192.168.') || ip.startsWith('10.') || ip === '::1') {
-        return { city: georgianCities[Math.floor(Math.random() * georgianCities.length)], country: 'Georgia', countryCode: 'GE' };
-    }
-    const cached = geoCache.get(ip);
-    if (cached && cached.expires > Date.now()) return { city: cached.city, country: cached.country, countryCode: cached.countryCode };
-
-    try {
-        const res = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,countryCode,city`, { signal: AbortSignal.timeout(3000) });
-        if (res.ok) {
-            const data = await res.json();
-            if (data.status === 'success') {
-                const geo = { city: data.city || 'Unknown', country: data.country || 'Unknown', countryCode: data.countryCode || 'XX' };
-                geoCache.set(ip, { ...geo, expires: Date.now() + 60 * 60 * 1000 });
-                return geo;
-            }
-        }
-    } catch { }
-    return { city: 'Unknown', country: 'Unknown', countryCode: 'XX' };
 }
 
 
