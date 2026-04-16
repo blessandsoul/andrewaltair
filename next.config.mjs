@@ -34,6 +34,13 @@ const nextConfig = {
       : "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://counter.top.ge https://www.google-analytics.com";
 
     return [
+      // Block indexing of admin pages at HTTP header level
+      {
+        source: '/admin/:path*',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+        ],
+      },
       {
         source: '/(.*)',
         headers: [
@@ -69,6 +76,9 @@ const nextConfig = {
       },
     ];
   },
+  // Redirect trailing slashes to canonical URLs (fixes 404s from /page/ → /page)
+  trailingSlash: false,
+
   async redirects() {
     return [
       {
