@@ -8,6 +8,9 @@ export const siteViewport: Viewport = {
 
 export const siteMetadata: Metadata = {
     metadataBase: new URL('https://andrewaltair.ge'),
+    alternates: {
+        canonical: '/',
+    },
     // icons managed by Next.js file-based API (src/app/icon.png)
     manifest: '/manifest.json',
     title: {

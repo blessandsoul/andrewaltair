@@ -309,8 +309,34 @@ export default function ToolsPage() {
         )
     }
 
+    const siteUrl = 'https://andrewaltair.ge'
+    const collectionSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        '@id': `${siteUrl}/tools#collection`,
+        url: `${siteUrl}/tools`,
+        name: 'AI ინსტრუმენტების კატალოგი | Andrew Altair',
+        description: 'საქართველოს ყველაზე დიდი AI ინსტრუმენტების კატალოგი - ჩატბოტები, სურათები, ვიდეო, კოდი, ავტომატიზაცია.',
+        inLanguage: 'ka',
+        isPartOf: { '@id': `${siteUrl}/#website` },
+        mainEntity: {
+            '@type': 'ItemList',
+            numberOfItems: toolsData.length,
+            itemListElement: toolsData.slice(0, 30).map((tool: any, i: number) => ({
+                '@type': 'ListItem',
+                position: i + 1,
+                url: `${siteUrl}/tools/${tool.id}`,
+                name: tool.name,
+            })),
+        },
+    }
+
     return (
         <div className="min-h-screen">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+            />
             {/* Hero with Stats */}
             <section className="relative py-16 lg:py-24 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5">

@@ -12,6 +12,19 @@ import {
 import { RepoCard } from "@/components/repositories/RepoCard"
 import dbConnect from "@/lib/db"
 import Post from "@/models/Post"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+    title: 'GitHub Repositories | Andrew Altair',
+    description: 'AI პროექტები და კოდის რეპოზიტორიები - open source AI tools, automation scripts, Vibe Coding examples.',
+    alternates: { canonical: '/repositories' },
+    openGraph: {
+        title: 'GitHub Repositories | Andrew Altair',
+        description: 'AI პროექტები და კოდის რეპოზიტორიები.',
+        type: 'website',
+        url: 'https://andrewaltair.ge/repositories',
+    },
+}
 
 // Fetch repository posts directly from MongoDB
 async function getRepositories() {

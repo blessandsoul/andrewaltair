@@ -100,11 +100,13 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
             dateModified: insight.updatedAt || insight.publishedAt,
             author: {
                 '@type': 'Person',
+                '@id': `${siteUrl}/#person`,
                 name: insight.author?.name || 'Andrew Altair',
-                url: siteUrl,
+                url: `${siteUrl}/about`,
             },
             publisher: {
                 '@type': 'Organization',
+                '@id': `${siteUrl}/#organization`,
                 name: 'Andrew Altair',
                 logo: { '@type': 'ImageObject', url: `${siteUrl}/logo.png` },
             },

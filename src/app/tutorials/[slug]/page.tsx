@@ -140,9 +140,65 @@ export default async function TutorialDetailPage({ params }: { params: { slug: s
     // Related posts for sidebar (mock or fetch random)
     const relatedPosts: any[] = [] // Empty for now to be safe
 
+    // HowTo Schema for SEO/GEO
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
+    let coverImage = tutorial.coverImage
+    if (coverImage && !coverImage.startsWith('http')) {
+        coverImage = `${siteUrl}${coverImage.startsWith('/') ? '' : '/'}${coverImage}`
+    } else if (!coverImage) {
+        coverImage = `${siteUrl}/og.png`
+    }
+
+    const howToSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'HowTo',
+        name: tutorial.title,
+        description: tutorial.intro,
+        image: coverImage,
+        datePublished: tutorial.createdAt,
+        dateModified: tutorial.updatedAt || tutorial.createdAt,
+        ...(tutorial.tools && {
+            tool: [{ '@type': 'HowToTool', name: tutorial.tools }]
+        }),
+        step: (tutorial.modules || []).map((module: any, i: number) => ({
+            '@type': 'HowToStep',
+            position: i + 1,
+            name: module.title,
+            text: module.explanation
+        })),
+        author: {
+            '@type': 'Person',
+            '@id': `${siteUrl}/#person`,
+            name: 'Andrew Altair',
+            url: siteUrl
+        },
+        publisher: {
+            '@type': 'Organization',
+            '@id': `${siteUrl}/#organization`
+        },
+        mainEntityOfPage: `${siteUrl}/tutorials/${params.slug}`
+    }
+
+    const breadcrumbSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+            { '@type': 'ListItem', position: 2, name: 'Tutorials', item: `${siteUrl}/tutorials` },
+            { '@type': 'ListItem', position: 3, name: tutorial.title, item: `${siteUrl}/tutorials/${params.slug}` }
+        ]
+    }
 
     return (
         <article>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+            />
             {/* Using the actual BlogPostClient which renders Layout, Sidebar, etc */}
             <BlogPostClient
                 post={mappedPost}

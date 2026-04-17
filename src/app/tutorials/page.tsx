@@ -9,6 +9,13 @@ import { Metadata } from "next"
 export const metadata: Metadata = {
     title: "Blueprints | Andrew Altair",
     description: "Systematic tutorials and life algorithms.",
+    alternates: { canonical: '/tutorials' },
+    openGraph: {
+        title: 'Blueprints | Andrew Altair',
+        description: 'Systematic tutorials and life algorithms.',
+        type: 'website',
+        url: 'https://andrewaltair.ge/tutorials',
+    },
 }
 
 // Function to get data

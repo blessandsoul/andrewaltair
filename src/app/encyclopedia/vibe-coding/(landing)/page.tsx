@@ -24,10 +24,12 @@ export const metadata: Metadata = {
         'ანდრეი კარპატი',
         'glue coding'
     ],
+    alternates: { canonical: '/encyclopedia/vibe-coding' },
     openGraph: {
         title: 'Vibe Coding ენციკლოპედია - AI პროგრამირების სრული გაიდი',
         description: 'სრული სახელმძღვანელო AI-ასისტირებულ პროგრამირებაზე. 12+ პრემიუმ სტატია, ექსპერტების ანალიზი.',
         type: 'website',
+        url: 'https://andrewaltair.ge/encyclopedia/vibe-coding',
     }
 };
 

@@ -7,10 +7,12 @@ import { InsightService } from '@/services/insight.service';
 export const metadata: Metadata = {
     title: 'Insights | Andrew Altair',
     description: 'მოკლე ანალიტიკა და კომენტარები ხელოვნური ინტელექტისა და ტექნოლოგიების სამყაროდან.',
+    alternates: { canonical: '/insights' },
     openGraph: {
         title: 'Insights | Andrew Altair',
         description: 'მოკლე ანალიტიკა და კომენტარები ხელოვნური ინტელექტისა და ტექნოლოგიების სამყაროდან.',
         type: 'website',
+        url: 'https://andrewaltair.ge/insights',
     },
 };
 
@@ -47,8 +49,35 @@ export default async function InsightsPage({
 
     const serializedInsights = JSON.parse(JSON.stringify(insights));
 
+    const siteUrl = 'https://andrewaltair.ge';
+    const collectionSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        '@id': `${siteUrl}/insights#collection`,
+        url: `${siteUrl}/insights`,
+        name: 'Insights | Andrew Altair',
+        description: 'მოკლე ანალიტიკა და კომენტარები ხელოვნური ინტელექტისა და ტექნოლოგიების სამყაროდან.',
+        inLanguage: 'ka',
+        isPartOf: { '@id': `${siteUrl}/#website` },
+        about: { '@id': `${siteUrl}/#person` },
+        mainEntity: {
+            '@type': 'ItemList',
+            numberOfItems: serializedInsights.length,
+            itemListElement: serializedInsights.slice(0, 20).map((insight: any, i: number) => ({
+                '@type': 'ListItem',
+                position: i + 1,
+                url: `${siteUrl}/insights/${insight.slug}`,
+                name: insight.title,
+            })),
+        },
+    };
+
     return (
         <main className="min-h-screen bg-background">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+            />
             <div className="container mx-auto px-4 py-12">
                 {/* Header */}
                 <div className="text-center mb-10 max-w-2xl mx-auto">

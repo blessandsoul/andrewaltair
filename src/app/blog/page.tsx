@@ -126,6 +126,7 @@ export default async function BlogPage(props: {
           headline: post.title,
           url: `${siteUrl}/blog/${post.slug}`,
           datePublished: post.publishedAt,
+          dateModified: post.updatedAt || post.publishedAt,
           author: {
             '@type': 'Person',
             name: 'Andrew Altair'

@@ -12,6 +12,13 @@ import MarketplacePrompt from '@/models/MarketplacePrompt'
 export const metadata: Metadata = {
     title: 'AI Prompts Marketplace | Andrew Altair',
     description: 'მაღალხარისხიანი AI პრომპტები ყველა მოდელისთვის. უფასო და პრემიუმ პრომპტები.',
+    alternates: { canonical: '/prompts' },
+    openGraph: {
+        title: 'AI Prompts Marketplace | Andrew Altair',
+        description: 'მაღალხარისხიანი AI პრომპტები ყველა მოდელისთვის.',
+        type: 'website',
+        url: 'https://andrewaltair.ge/prompts',
+    },
 }
 
 async function getPrompts(searchParams: { [key: string]: string | undefined }) {
@@ -188,13 +195,39 @@ export default async function PromptsPage({
     searchParams: Promise<{ [key: string]: string | undefined }>
 }) {
     const params = await searchParams
-    const { filters } = await getPrompts({}) // Get basic filters
+    const { filters, prompts: topPrompts } = await getPrompts({ limit: '30' })
 
     // Check if user is filtering
     const isFiltering = params.category || params.isFree || params.search || params.generationType
 
+    const siteUrl = 'https://andrewaltair.ge'
+    const collectionSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        '@id': `${siteUrl}/prompts#collection`,
+        url: `${siteUrl}/prompts`,
+        name: 'AI Prompts Marketplace | Andrew Altair',
+        description: 'მაღალხარისხიანი AI პრომპტები ყველა მოდელისთვის. უფასო და პრემიუმ პრომპტები.',
+        inLanguage: 'ka',
+        isPartOf: { '@id': `${siteUrl}/#website` },
+        mainEntity: {
+            '@type': 'ItemList',
+            numberOfItems: topPrompts.length,
+            itemListElement: topPrompts.slice(0, 30).map((prompt: any, i: number) => ({
+                '@type': 'ListItem',
+                position: i + 1,
+                url: `${siteUrl}/prompts/${prompt.slug}`,
+                name: prompt.title,
+            })),
+        },
+    }
+
     return (
         <div className="min-h-screen">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+            />
             {/* Hero */}
             {/* Hero Section */}
             <section className="relative pt-24 pb-32 lg:pt-32 lg:pb-40 overflow-hidden">

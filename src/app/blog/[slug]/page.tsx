@@ -131,11 +131,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       dateModified: post.updatedAt || post.publishedAt,
       author: {
         '@type': 'Person',
+        '@id': `${siteUrl}/#person`,
         name: post.author?.name || 'Andrew Altair',
-        url: siteUrl
+        url: `${siteUrl}/about`
       },
       publisher: {
         '@type': 'Organization',
+        '@id': `${siteUrl}/#organization`,
         name: 'Andrew Altair',
         logo: {
           '@type': 'ImageObject',

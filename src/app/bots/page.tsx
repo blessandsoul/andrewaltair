@@ -1003,8 +1003,34 @@ export default function BotsPage() {
         }
     };
 
+    const siteUrl = 'https://andrewaltair.ge';
+    const collectionSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        '@id': `${siteUrl}/bots#collection`,
+        url: `${siteUrl}/bots`,
+        name: 'AI Bots Marketplace | Andrew Altair',
+        description: 'AI ჩატბოტების მარკეტპლეისი - content creation, business, mystic, creative, translation bots.',
+        inLanguage: 'ka',
+        isPartOf: { '@id': `${siteUrl}/#website` },
+        mainEntity: {
+            '@type': 'ItemList',
+            numberOfItems: bots.length,
+            itemListElement: bots.slice(0, 30).map((bot: AIBot, i: number) => ({
+                '@type': 'ListItem',
+                position: i + 1,
+                url: `${siteUrl}/bots/${bot.id}`,
+                name: bot.name,
+            })),
+        },
+    };
+
     return (
         <div className="min-h-screen bg-background">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+            />
             {/* Noise Texture Overlay */}
             <div
                 className="fixed inset-0 pointer-events-none opacity-[0.015] z-50 mix-blend-multiply"

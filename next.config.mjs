@@ -70,7 +70,7 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: `default-src 'self'; ${scriptSrc}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://region1.google-analytics.com https://www.google-analytics.com https://api.groq.com; frame-src 'self' https://www.youtube.com https://player.vimeo.com; media-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests`,
+            value: `default-src 'self'; ${scriptSrc}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://region1.google-analytics.com https://www.google-analytics.com https://generativelanguage.googleapis.com; frame-src 'self' https://www.youtube.com https://player.vimeo.com; media-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests`,
           },
         ],
       },
@@ -86,6 +86,16 @@ const nextConfig = {
         destination: '/vibe',
         permanent: true,
       },
+      // SEO: www → non-www (301)
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.andrewaltair.ge' }],
+        destination: 'https://andrewaltair.ge/:path*',
+        permanent: true,
+      },
+      // E-E-A-T: author page convention
+      { source: '/author/andrew-altair', destination: '/about', permanent: true },
+      { source: '/author/andrewaltair', destination: '/about', permanent: true },
     ];
   },
   async rewrites() {
