@@ -361,6 +361,27 @@ export class PostService {
             };
         }
 
+        if (Array.isArray(postData.sections)) {
+            postData.sections = (postData.sections as Array<Record<string, unknown>>)
+                .filter((s) => {
+                    if (!s) return false;
+                    const content = typeof s.content === 'string' ? s.content.trim() : '';
+                    const prompt = typeof s.prompt === 'string' ? (s.prompt as string).trim() : '';
+                    const title = typeof s.title === 'string' ? (s.title as string).trim() : '';
+                    return content.length > 0 || prompt.length > 0 || title.length > 0;
+                })
+                .map((s) => ({
+                    ...s,
+                    content: typeof s.content === 'string' ? s.content : '',
+                }));
+        }
+
+        if (Array.isArray(postData.faq)) {
+            postData.faq = (postData.faq as Array<{ question?: string; answer?: string }>).filter(
+                (f) => f && (f.question || '').trim().length > 0 && (f.answer || '').trim().length > 0
+            );
+        }
+
         const post = new Post(postData);
         await post.save();
 

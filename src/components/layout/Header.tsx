@@ -144,7 +144,7 @@ function UserProfileDropdown() {
                 პროფილი
               </Link>
               <Link
-                href="/settings"
+                href="/profile?tab=preferences"
                 onClick={() => setIsOpen(false)}
                 className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted transition-colors"
               >

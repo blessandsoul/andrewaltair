@@ -150,14 +150,14 @@ const SectionSchema = new Schema<ISection>(
     {
         icon: { type: String },  // lucide icon name
         title: { type: String },
-        content: { type: String, required: true },
+        content: { type: String, default: '' },
         type: {
             type: String,
             enum: ['intro', 'section', 'heading', 'sarcasm', 'warning', 'tip', 'fact', 'opinion', 'cta', 'hashtags', 'prompt', 'author-comment', 'quote', 'image', 'graph', 'takeaway', 'deep_dive'],
             default: 'section'
         },
     },
-    { _id: false }
+    { _id: false, strict: false }
 );
 
 const CoverImagesSchema = new Schema<ICoverImages>(
