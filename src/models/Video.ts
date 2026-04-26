@@ -27,13 +27,14 @@ const VideoSchema = new Schema<IVideo>(
         },
         description: {
             type: String,
-            required: [true, 'Description is required'],
+            default: '',
             trim: true,
         },
         youtubeId: {
             type: String,
             required: [true, 'YouTube ID is required'],
             trim: true,
+            index: true,
         },
         thumbnail: {
             type: String,

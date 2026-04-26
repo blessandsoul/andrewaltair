@@ -214,7 +214,8 @@ export class YoutubeService {
         let channelId = channelHandle;
         if (channelHandle.startsWith('@')) {
             const handleRes = await fetch(
-                `https://www.googleapis.com/youtube/v3/channels?part=id,contentDetails&forHandle=${channelHandle}&key=${apiKey}`
+                `https://www.googleapis.com/youtube/v3/channels?part=id,contentDetails&forHandle=${channelHandle}&key=${apiKey}`,
+                { cache: 'no-store' }
             );
             if (!handleRes.ok) throw new Error('Failed to resolve channel handle');
             const handleData = await handleRes.json();
@@ -232,7 +233,8 @@ export class YoutubeService {
         do {
             const pageParam = nextPageToken ? `&pageToken=${nextPageToken}` : '';
             const playlistRes = await fetch(
-                `https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&playlistId=${uploadsPlaylistId}&maxResults=50${pageParam}&key=${apiKey}`
+                `https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&playlistId=${uploadsPlaylistId}&maxResults=50${pageParam}&key=${apiKey}`,
+                { cache: 'no-store' }
             );
             if (!playlistRes.ok) {
                 const errData = await playlistRes.json().catch(() => ({}));
@@ -262,10 +264,20 @@ export class YoutubeService {
         for (let i = 0; i < allVideoIds.length; i += 50) {
             const batch = allVideoIds.slice(i, i + 50);
             const detailsRes = await fetch(
-                `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${batch.join(',')}&key=${apiKey}`
+                `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${batch.join(',')}&key=${apiKey}`,
+                { cache: 'no-store' }
             );
-            if (!detailsRes.ok) continue;
+            if (!detailsRes.ok) {
+                const errText = await detailsRes.text().catch(() => '');
+                console.error(`[YouTube] videos.list batch ${i / 50 + 1} failed: ${detailsRes.status} ${detailsRes.statusText} — ${errText.slice(0, 200)}`);
+                continue;
+            }
             const detailsData = await detailsRes.json();
+            const returnedIds = new Set((detailsData.items || []).map((it: { id: string }) => it.id));
+            const missingInBatch = batch.filter(id => !returnedIds.has(id));
+            if (missingInBatch.length > 0) {
+                console.warn(`[YouTube] videos.list batch ${i / 50 + 1} missing ${missingInBatch.length}/${batch.length} videos:`, missingInBatch.slice(0, 5));
+            }
 
             for (const item of detailsData.items || []) {
                 const durationStr = item.contentDetails?.duration || '';

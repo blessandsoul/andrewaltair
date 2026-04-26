@@ -96,10 +96,15 @@ export class MediaService {
         return videos.map((v) => ({ ...v, id: (v._id as mongoose.Types.ObjectId).toString(), _id: undefined }));
     }
 
-    static async createVideo(data: { title: string; description: string; youtubeId: string; thumbnail?: string; category: string; publishedAt?: Date; views?: number; duration?: string; type?: 'long' | 'short'; authorName?: string; authorAvatar?: string }) {
+    static async createVideo(data: { title: string; description?: string; youtubeId: string; thumbnail?: string; category: string; publishedAt?: Date; views?: number; duration?: string; type?: 'long' | 'short'; tags?: string[]; authorName?: string; authorAvatar?: string }) {
         await dbConnect();
-        const video = new Video(data);
-        await video.save();
+        // Upsert by youtubeId to avoid duplicates and tolerate retries
+        const { youtubeId, ...rest } = data;
+        const video = await Video.findOneAndUpdate(
+            { youtubeId },
+            { $setOnInsert: { youtubeId, ...rest, description: rest.description ?? '' } },
+            { new: true, upsert: true, setDefaultsOnInsert: true, runValidators: true },
+        );
         // Background indexing
         indexVideo(video._id.toString()).catch(err => console.error('[IndexNow] Failed:', err));
         return { ...video.toObject(), id: video._id.toString() };
