@@ -114,6 +114,12 @@ const nextConfig = {
 
   // Increase timeout for static page generation (helps with OOM/timeout on low-resource VPS)
   staticPageGenerationTimeout: 180,
+
+  // Reduce build-time memory pressure on low-RAM VPS (build was OOM-killed)
+  experimental: {
+    cpus: 1,
+    workerThreads: false,
+  },
 };
 
 // 🧹 Clean up: Remove console.log only in production builds
