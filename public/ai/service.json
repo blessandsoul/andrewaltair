@@ -1,0 +1,77 @@
+{
+  "$schema": "https://andrewaltair.ge/ai/service.schema.json",
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "Andrew Altair AI Consulting",
+  "url": "https://andrewaltair.ge/services",
+  "image": "https://andrewaltair.ge/og.png",
+  "logo": "https://andrewaltair.ge/logo.png",
+  "description": "AI consulting, automation, and content production services for Georgian and international clients. Specialties: business AI integration, N8N workflows, custom AI agents, AI video/image generation, Vibe Coding development.",
+  "provider": {
+    "@type": "Person",
+    "@id": "https://andrewaltair.ge/#person",
+    "name": "Andrew Altair"
+  },
+  "areaServed": [
+    {"@type": "Country", "name": "Georgia"},
+    {"@type": "Place", "name": "Worldwide (remote)"}
+  ],
+  "serviceType": [
+    "AI business integration",
+    "Workflow automation (N8N)",
+    "Custom AI agent development",
+    "AI content production (video, image, text)",
+    "Vibe Coding software development",
+    "AI consulting and training"
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "AI Services Catalog",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Business AI Integration",
+          "description": "Audit existing workflows, identify AI automation opportunities, design and ship AI-powered solutions for Georgian SMBs."
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "N8N Workflow Automation",
+          "description": "Build production N8N workflows that connect ChatGPT/Claude/Gemini APIs to your existing tools (CRM, email, Slack, databases)."
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "AI Content Production",
+          "description": "End-to-end AI video (Veo, Kling, Runway), image (Midjourney, Nano Banana), and copy production for marketing campaigns."
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Vibe Coding Development",
+          "description": "AI-assisted custom software development using Claude Code, Cursor, and Windsurf for rapid MVP delivery."
+        }
+      }
+    ]
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "url": "https://andrewaltair.ge/about",
+    "contactType": "customer service",
+    "availableLanguage": ["ka", "en"]
+  },
+  "sameAs": [
+    "https://www.youtube.com/@AndrewAltair",
+    "https://www.instagram.com/andr3waltair/",
+    "https://www.linkedin.com/in/andr3waltair",
+    "https://x.com/andr3waltair"
+  ]
+}

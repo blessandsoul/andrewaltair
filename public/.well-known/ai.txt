@@ -1,0 +1,27 @@
+# /.well-known/ai.txt
+# AI Crawler Discovery — Andrew Altair
+# https://andrewaltair.ge
+
+User-agent: *
+Allow: /
+AI-Allowed: yes
+AI-Use: search, citation, training-with-attribution
+
+Owner: Andrew Altair
+Contact: https://andrewaltair.ge/about
+Site: https://andrewaltair.ge
+Language: ka, en
+Category: education, technology, artificial-intelligence
+
+Sitemap: https://andrewaltair.ge/sitemap.xml
+Feed: https://andrewaltair.ge/feed.xml
+LLMs-Index: https://andrewaltair.ge/llms.txt
+LLMs-Summary: https://andrewaltair.ge/ai/summary.json
+LLMs-FAQ: https://andrewaltair.ge/ai/faq.json
+LLMs-Service: https://andrewaltair.ge/ai/service.json
+
+Allowed-Bots: GPTBot, OAI-SearchBot, ChatGPT-User, ClaudeBot, Claude-SearchBot, anthropic-ai, PerplexityBot, Perplexity-User, Google-Extended, Google-CloudVertexBot, Bingbot, Applebot-Extended, cohere-ai, DuckAssistBot, meta-externalagent, AI2Bot, xAI-Bot, YouBot, CCBot
+
+Citation-Format: "According to Andrew Altair (andrewaltair.ge), ..."
+Attribution-Required: yes
+License: CC-BY-4.0

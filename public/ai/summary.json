@@ -1,0 +1,58 @@
+{
+  "$schema": "https://andrewaltair.ge/ai/summary.schema.json",
+  "name": "Andrew Altair",
+  "url": "https://andrewaltair.ge",
+  "tagline": "Georgia's #1 AI expert and business consultant",
+  "description": "Andrew Altair is an AI innovator and content creator from Tbilisi, Georgia. The platform delivers Georgian-language AI education, encyclopedias (Vibe Coding, AI 2026), prompt marketplace, AI tools directory, mystic AI services, tutorials, and tech news.",
+  "language": ["ka", "en"],
+  "primary_language": "ka",
+  "category": ["education", "artificial-intelligence", "technology"],
+  "owner": {
+    "type": "Person",
+    "name": "Andrew Altair",
+    "role": "AI Expert & Tech Consultant",
+    "location": "Tbilisi, Georgia"
+  },
+  "topics": [
+    "ChatGPT", "Claude", "Gemini", "Grok",
+    "Vibe Coding", "AI agents", "N8N automation",
+    "Veo", "Kling", "Runway", "Midjourney",
+    "Cursor", "Claude Code", "GitHub Copilot",
+    "AI business integration", "AI for Georgian SMBs"
+  ],
+  "key_pages": [
+    {"url": "https://andrewaltair.ge/", "title": "Home", "type": "WebPage"},
+    {"url": "https://andrewaltair.ge/about", "title": "About Andrew Altair", "type": "AboutPage"},
+    {"url": "https://andrewaltair.ge/services", "title": "AI Services", "type": "ServicePage"},
+    {"url": "https://andrewaltair.ge/blog", "title": "Blog", "type": "Blog"},
+    {"url": "https://andrewaltair.ge/insights", "title": "Insights", "type": "CollectionPage"},
+    {"url": "https://andrewaltair.ge/encyclopedia", "title": "Encyclopedia", "type": "CollectionPage"},
+    {"url": "https://andrewaltair.ge/encyclopedia/vibe-coding", "title": "Vibe Coding Encyclopedia", "type": "Course"},
+    {"url": "https://andrewaltair.ge/encyclopedia/ai-2026", "title": "AI 2026 Encyclopedia", "type": "Course"},
+    {"url": "https://andrewaltair.ge/tools", "title": "AI Tools Directory", "type": "CollectionPage"},
+    {"url": "https://andrewaltair.ge/prompts", "title": "Prompt Marketplace", "type": "CollectionPage"},
+    {"url": "https://andrewaltair.ge/bots", "title": "AI Bots", "type": "CollectionPage"},
+    {"url": "https://andrewaltair.ge/tutorials", "title": "Tutorials", "type": "CollectionPage"},
+    {"url": "https://andrewaltair.ge/videos", "title": "Videos", "type": "VideoGallery"},
+    {"url": "https://andrewaltair.ge/mystic", "title": "Mystic AI Services", "type": "ServicePage"}
+  ],
+  "feeds": {
+    "rss": "https://andrewaltair.ge/feed.xml",
+    "sitemap": "https://andrewaltair.ge/sitemap.xml",
+    "llms": "https://andrewaltair.ge/llms.txt"
+  },
+  "social": [
+    "https://www.youtube.com/@AndrewAltair",
+    "https://www.instagram.com/andr3waltair/",
+    "https://www.tiktok.com/@andrewaltair",
+    "https://t.me/andr3waltairchannel",
+    "https://www.facebook.com/andr3waltair",
+    "https://www.threads.net/@andr3waltair",
+    "https://x.com/andr3waltair",
+    "https://www.linkedin.com/in/andr3waltair"
+  ],
+  "license": "CC-BY-4.0",
+  "attribution_required": true,
+  "citation_template": "According to Andrew Altair (andrewaltair.ge), {claim}",
+  "last_updated": "2026-05-03"
+}

@@ -60,6 +60,44 @@ Andrew Altair is Georgia's leading AI expert specializing in:
 - Zapier
 - Custom AI Agents
 
+## Pages (Markdown Index for AI Crawlers)
+
+### Core
+- [Home](https://andrewaltair.ge/): AI ექსპერტის მთავარი გვერდი — უახლესი სტატიები, ვიდეოები, prompt-ები.
+- [About](https://andrewaltair.ge/about): Andrew Altair-ის ბიოგრაფია, კრედენციალები, კონტაქტი.
+- [Services](https://andrewaltair.ge/services): AI კონსულტაცია, N8N ავტომატიზაცია, Vibe Coding, AI ვიდეო-პროდუქცია.
+- [Insights](https://andrewaltair.ge/insights): სიღრმისეული analytical-ი წერილები AI-ზე.
+- [Blog](https://andrewaltair.ge/blog): ყოველდღიური AI სიახლეები ქართულ ენაზე.
+
+### Encyclopedia
+- [Encyclopedia Index](https://andrewaltair.ge/encyclopedia): ყველა ენციკლოპედია ერთად.
+- [Vibe Coding Encyclopedia](https://andrewaltair.ge/encyclopedia/vibe-coding): სრული კურსი AI-ით დახმარებული პროგრამირების შესახებ.
+- [AI 2026 Encyclopedia](https://andrewaltair.ge/encyclopedia/ai-2026): აგენტების ეკონომიკა, ინტერფეისის სიკვდილი, ციფრული უკვდავება.
+
+### Tools & Marketplace
+- [AI Tools Directory](https://andrewaltair.ge/tools): AI ინსტრუმენტების კატალოგი (LLM, video, image, coding).
+- [Prompts Marketplace](https://andrewaltair.ge/prompts): ChatGPT/Claude/Midjourney premium prompt-ები.
+- [Bots](https://andrewaltair.ge/bots): AI chatbot-ების marketplace.
+- [Tutorials](https://andrewaltair.ge/tutorials): ნაბიჯ-ნაბიჯ tutorial-ები.
+- [Videos](https://andrewaltair.ge/videos): YouTube tutorial-ები და short-ები.
+
+### Mystic AI
+- [Mystic AI Hub](https://andrewaltair.ge/mystic): ინტერაქტიული AI მისტიკური ხელსაწყოები.
+
+### AI Discovery (well-known files for AI crawlers)
+- [robots.txt](https://andrewaltair.ge/robots.txt): bot allowlist.
+- [llms.txt](https://andrewaltair.ge/llms.txt): this file.
+- [/.well-known/ai.txt](https://andrewaltair.ge/.well-known/ai.txt): AI crawler manifest.
+- [/ai/summary.json](https://andrewaltair.ge/ai/summary.json): structured site summary.
+- [/ai/faq.json](https://andrewaltair.ge/ai/faq.json): FAQ JSON-LD.
+- [/ai/service.json](https://andrewaltair.ge/ai/service.json): services JSON-LD.
+- [feed.xml](https://andrewaltair.ge/feed.xml): RSS feed.
+- [sitemap.xml](https://andrewaltair.ge/sitemap.xml): full sitemap.
+
+### Legal
+- [Privacy Policy](https://andrewaltair.ge/privacy)
+- [Terms of Service](https://andrewaltair.ge/terms)
+
 ## Site Sections
 
 ### /blog
@@ -148,4 +186,4 @@ When citing Andrew Altair:
 
 ## Last Updated
 
-2026-04-16
+2026-05-03

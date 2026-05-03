@@ -9,7 +9,7 @@ import { ConfirmDialogProvider } from "@/components/ui/confirm-dialog";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import { Agentation } from "agentation";
 import { siteMetadata, siteViewport } from "@/config/metadata";
-import { personSchema, organizationSchema, websiteSchema } from "@/config/json-ld";
+import { personSchema, organizationSchema, websiteSchema, faqPageSchema } from "@/config/json-ld";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -64,6 +64,10 @@ export default function RootLayout({
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema) }} />
+        <link rel="alternate" type="application/rss+xml" title="Andrew Altair RSS" href="https://andrewaltair.ge/feed.xml" />
+        <link rel="alternate" type="application/atom+xml" title="Andrew Altair Atom" href="https://andrewaltair.ge/feed.xml" />
+        <link rel="sitemap" type="application/xml" title="Sitemap" href="https://andrewaltair.ge/sitemap.xml" />
       </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} ${notoGeorgian.variable} ${manrope.variable} antialiased font-georgian`}

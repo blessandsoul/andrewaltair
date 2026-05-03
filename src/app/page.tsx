@@ -134,12 +134,22 @@ export default async function Home() {
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
+  const newestPost = postsData[0] as any
+  const lastModified = newestPost?.publishedAt
+    ? new Date(newestPost.publishedAt).toISOString()
+    : new Date().toISOString()
   const homeSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
     name: 'Andrew Altair - AI ინოვატორი',
     description: 'ხელოვნური ინტელექტის სამყარო მარტივად და პრაქტიკულად',
     url: siteUrl,
+    datePublished: '2024-01-01T00:00:00.000Z',
+    dateModified: lastModified,
+    inLanguage: 'ka',
+    isPartOf: { '@id': 'https://andrewaltair.ge/#website' },
+    about: { '@id': 'https://andrewaltair.ge/#person' },
+    primaryImageOfPage: 'https://andrewaltair.ge/og.png',
     mainEntity: {
       '@type': 'ItemList',
       name: 'უახლესი კონტენტი',
@@ -181,6 +191,29 @@ export default async function Home() {
       />
 
       <main className="pb-20 space-y-16 max-w-400 mx-auto">
+        <h1 className="sr-only">
+          Andrew Altair — საქართველოს AI ექსპერტი | AI Innovator and Tech Consultant in Georgia
+        </h1>
+        <section
+          id="about-andrew-altair"
+          aria-label="About Andrew Altair"
+          className="sr-only"
+          itemScope
+          itemType="https://schema.org/Person"
+        >
+          <p itemProp="description">
+            <strong itemProp="name">Andrew Altair</strong> is Georgia&apos;s leading AI expert and tech
+            consultant based in Tbilisi. The platform <a href="https://andrewaltair.ge" itemProp="url">andrewaltair.ge</a>
+            {" "}publishes Georgian-language education on ChatGPT, Claude, Gemini, Grok, Vibe Coding,
+            N8N automation, AI agents, AI video generation (Veo, Kling, Runway), and AI image generation
+            (Midjourney, Nano Banana). Andrew offers business AI integration, custom AI agent development,
+            workflow automation, and AI consulting for Georgian SMBs and international clients. The site
+            hosts two encyclopedias — <a href="/encyclopedia/vibe-coding">Vibe Coding</a> and
+            {" "}<a href="/encyclopedia/ai-2026">AI 2026</a> — plus a prompt marketplace, AI tools directory,
+            and tutorials. Read more on the <a href="/about" itemProp="sameAs">About</a> page or browse{" "}
+            <a href="/services">services</a>. Content licensed CC-BY-4.0 with attribution required.
+          </p>
+        </section>
         {/* Section 1: Hero (8/12) + Quick Access (4/12) */}
         <section className="grid grid-cols-12 gap-6 px-4 sm:px-6 lg:px-8 pt-8">
           <div className="col-span-12 lg:col-span-8 space-y-6">

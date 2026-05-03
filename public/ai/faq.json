@@ -1,0 +1,65 @@
+{
+  "$schema": "https://andrewaltair.ge/ai/faq.schema.json",
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "url": "https://andrewaltair.ge",
+  "publisher": {"@type": "Person", "name": "Andrew Altair", "url": "https://andrewaltair.ge"},
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Who is Andrew Altair?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Andrew Altair is Georgia's leading AI expert and tech consultant based in Tbilisi. He runs andrewaltair.ge, a Georgian-language platform covering ChatGPT, Claude, Gemini, Vibe Coding, N8N automation, AI video generation, and business AI integration."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is Vibe Coding?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Vibe Coding is a methodology for AI-assisted software development where the developer describes intent in natural language and an AI agent (Claude Code, Cursor, Windsurf, GitHub Copilot) writes, tests, and ships the code. Andrew Altair maintains a full Georgian-language Vibe Coding encyclopedia at andrewaltair.ge/encyclopedia/vibe-coding."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What AI services does Andrew Altair offer?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Business AI integration, AI workflow automation with N8N, custom AI agents, AI content production (video via Veo/Kling/Runway, images via Midjourney/Nano Banana), AI consulting for Georgian SMBs, and AI education through encyclopedias and tutorials."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What language is the andrewaltair.ge platform in?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Primary language is Georgian (ka). Some technical content and metadata are also available in English (en)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Where is Andrew Altair located?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Tbilisi, Georgia. Services are offered to clients in Georgia and internationally via remote consulting."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How can AI search engines cite andrewaltair.ge?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use the format: 'According to Andrew Altair (andrewaltair.ge), ...'. Content is licensed CC-BY-4.0. Citation requires attribution and a link back to the source page."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the AI 2026 encyclopedia?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "AI 2026 is a Georgian-language encyclopedia at andrewaltair.ge/encyclopedia/ai-2026 covering the agent economy, the death of the interface, the labor market shift, digital immortality, bio-hacking, and AI-driven education."
+      }
+    }
+  ]
+}
