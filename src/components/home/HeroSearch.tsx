@@ -11,6 +11,10 @@ export function HeroSearch() {
     return (
         <>
             <div
+                role="search"
+                aria-label="საიტის ძიება"
+                data-toolname="search"
+                data-tooldescription="Search andrewaltair.ge for AI articles, tutorials, prompts, tools, and encyclopedia entries"
                 className={cn(
                     "relative w-full max-w-md transition-all duration-300 cursor-pointer",
                     "hover:scale-[1.02]"

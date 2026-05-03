@@ -1,12 +1,24 @@
 {
-  "$schema": "https://andrewaltair.ge/ai/service.schema.json",
-  "@context": "https://schema.org",
-  "@type": "ProfessionalService",
   "name": "Andrew Altair AI Consulting",
   "url": "https://andrewaltair.ge/services",
+  "description": "AI consulting, automation, and content production services for Georgian and international clients. Specialties: business AI integration, N8N workflows, custom AI agents, AI video/image generation, Vibe Coding development.",
+  "capabilities": [
+    "Business AI integration for Georgian SMBs",
+    "N8N workflow automation connecting ChatGPT/Claude/Gemini to CRM, email, Slack, databases",
+    "Custom AI agent development (LangChain, Claude API, OpenAI API)",
+    "AI content production — video (Veo, Kling, Runway), image (Midjourney, Nano Banana), copy",
+    "Vibe Coding software development (Claude Code, Cursor, Windsurf)",
+    "AI education, training, and consulting for teams"
+  ],
+  "languages": ["ka", "en"],
+  "location": "Tbilisi, Georgia",
+  "remote": true,
+  "contact": "https://andrewaltair.ge/about",
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "@id": "https://andrewaltair.ge/#service",
   "image": "https://andrewaltair.ge/og.png",
   "logo": "https://andrewaltair.ge/logo.png",
-  "description": "AI consulting, automation, and content production services for Georgian and international clients. Specialties: business AI integration, N8N workflows, custom AI agents, AI video/image generation, Vibe Coding development.",
   "provider": {
     "@type": "Person",
     "@id": "https://andrewaltair.ge/#person",
@@ -20,7 +32,7 @@
     "AI business integration",
     "Workflow automation (N8N)",
     "Custom AI agent development",
-    "AI content production (video, image, text)",
+    "AI content production",
     "Vibe Coding software development",
     "AI consulting and training"
   ],
@@ -33,7 +45,7 @@
         "itemOffered": {
           "@type": "Service",
           "name": "Business AI Integration",
-          "description": "Audit existing workflows, identify AI automation opportunities, design and ship AI-powered solutions for Georgian SMBs."
+          "description": "Audit workflows, identify automation opportunities, design and ship AI-powered solutions for Georgian SMBs."
         }
       },
       {
@@ -41,7 +53,7 @@
         "itemOffered": {
           "@type": "Service",
           "name": "N8N Workflow Automation",
-          "description": "Build production N8N workflows that connect ChatGPT/Claude/Gemini APIs to your existing tools (CRM, email, Slack, databases)."
+          "description": "Build production N8N workflows connecting ChatGPT/Claude/Gemini APIs to CRM, email, Slack, databases."
         }
       },
       {
@@ -49,7 +61,7 @@
         "itemOffered": {
           "@type": "Service",
           "name": "AI Content Production",
-          "description": "End-to-end AI video (Veo, Kling, Runway), image (Midjourney, Nano Banana), and copy production for marketing campaigns."
+          "description": "End-to-end AI video (Veo, Kling, Runway), image (Midjourney, Nano Banana), and copy production."
         }
       },
       {
@@ -61,12 +73,6 @@
         }
       }
     ]
-  },
-  "contactPoint": {
-    "@type": "ContactPoint",
-    "url": "https://andrewaltair.ge/about",
-    "contactType": "customer service",
-    "availableLanguage": ["ka", "en"]
   },
   "sameAs": [
     "https://www.youtube.com/@AndrewAltair",

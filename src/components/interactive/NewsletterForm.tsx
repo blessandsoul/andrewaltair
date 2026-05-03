@@ -87,6 +87,7 @@ export function NewsletterForm({
                     type="email"
                     {...register('email')}
                     placeholder={placeholder}
+                    aria-label="ელ-ფოსტის მისამართი"
                     disabled={status === "loading" || status === "success"}
                     className="flex-1 h-9"
                     aria-invalid={!!errors.email}
@@ -120,6 +121,7 @@ export function NewsletterForm({
                         type="email"
                         {...register('email')}
                         placeholder={placeholder}
+                        aria-label="ელ-ფოსტის მისამართი"
                         disabled={status === "loading" || status === "success"}
                         className="flex-1"
                         aria-invalid={!!errors.email}

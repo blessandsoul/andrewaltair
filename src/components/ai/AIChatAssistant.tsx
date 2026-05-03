@@ -292,6 +292,7 @@ export function AIChatAssistant() {
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 placeholder={`დაწერე შეკითხვა ${selectedRole.name}-ს...`}
+                                aria-label={`შეკითხვა ${selectedRole.name}-ს`}
                                 className="flex-1 h-12 text-base"
                             />
                             <Button type="submit" size="lg" disabled={!input.trim()} className="h-12 px-6">
@@ -434,6 +435,7 @@ export function AIChatAssistant() {
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         placeholder={`დაწერე შეკითხვა ${selectedRole.name}-ს...`}
+                        aria-label={`შეკითხვა ${selectedRole.name}-ს`}
                         className="flex-1"
                     />
                     <Button type="submit" size="icon" disabled={!input.trim()}>

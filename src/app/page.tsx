@@ -194,26 +194,6 @@ export default async function Home() {
         <h1 className="sr-only">
           Andrew Altair — საქართველოს AI ექსპერტი | AI Innovator and Tech Consultant in Georgia
         </h1>
-        <section
-          id="about-andrew-altair"
-          aria-label="About Andrew Altair"
-          className="sr-only"
-          itemScope
-          itemType="https://schema.org/Person"
-        >
-          <p itemProp="description">
-            <strong itemProp="name">Andrew Altair</strong> is Georgia&apos;s leading AI expert and tech
-            consultant based in Tbilisi. The platform <a href="https://andrewaltair.ge" itemProp="url">andrewaltair.ge</a>
-            {" "}publishes Georgian-language education on ChatGPT, Claude, Gemini, Grok, Vibe Coding,
-            N8N automation, AI agents, AI video generation (Veo, Kling, Runway), and AI image generation
-            (Midjourney, Nano Banana). Andrew offers business AI integration, custom AI agent development,
-            workflow automation, and AI consulting for Georgian SMBs and international clients. The site
-            hosts two encyclopedias — <a href="/encyclopedia/vibe-coding">Vibe Coding</a> and
-            {" "}<a href="/encyclopedia/ai-2026">AI 2026</a> — plus a prompt marketplace, AI tools directory,
-            and tutorials. Read more on the <a href="/about" itemProp="sameAs">About</a> page or browse{" "}
-            <a href="/services">services</a>. Content licensed CC-BY-4.0 with attribution required.
-          </p>
-        </section>
         {/* Section 1: Hero (8/12) + Quick Access (4/12) */}
         <section className="grid grid-cols-12 gap-6 px-4 sm:px-6 lg:px-8 pt-8">
           <div className="col-span-12 lg:col-span-8 space-y-6">

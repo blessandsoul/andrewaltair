@@ -66,6 +66,7 @@ export function NewsletterForm() {
                         type="email"
                         {...register('email')}
                         placeholder="შენი ელ-ფოსტა"
+                        aria-label="ელ-ფოსტის მისამართი სიახლეების მისაღებად"
                         className="pl-10 bg-white/10 border-white/20 text-white placeholder-white/50 focus:bg-white/20 h-12 transition-all"
                         disabled={status === 'submitting' || status === 'success'}
                         aria-invalid={!!errors.email}
