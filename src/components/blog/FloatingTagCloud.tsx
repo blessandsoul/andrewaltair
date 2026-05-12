@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { tagToSlug } from "@/lib/slug"
 import { TbHash } from "react-icons/tb"
 
 interface FloatingTagCloudProps {
@@ -78,7 +79,7 @@ export function FloatingTagCloud({ tags, className, baseUrl = "/blog" }: Floatin
                     return (
                         <Link
                             key={tag}
-                            href={`${baseUrl}?tag=${encodeURIComponent(tag)}`}
+                            href={`${baseUrl}?tag=${encodeURIComponent(tagToSlug(tag))}`}
                             className={cn(
                                 "absolute inline-flex items-center gap-1 px-3 py-1.5 rounded-full",
                                 "bg-card/80 backdrop-blur-sm border border-border/50",
@@ -177,7 +178,7 @@ export function TagCloudInline({ tags, className, baseUrl = "/blog" }: FloatingT
             {tags.slice(0, 15).map((tag, index) => (
                 <Link
                     key={tag}
-                    href={`${baseUrl}?tag=${encodeURIComponent(tag)}`}
+                    href={`${baseUrl}?tag=${encodeURIComponent(tagToSlug(tag))}`}
                     className={cn(
                         "inline-flex items-center gap-1 px-3 py-1.5 rounded-full",
                         "bg-secondary/50 hover:bg-primary hover:text-primary-foreground",

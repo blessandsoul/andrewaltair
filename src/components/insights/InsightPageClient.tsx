@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { TbExternalLink, TbFlame, TbHeart, TbBrain, TbHandClick, TbBulb, TbEye, TbCalendar, TbArrowLeft, TbShare } from 'react-icons/tb';
 import { cn } from '@/lib/utils';
+import { tagToSlug } from '@/lib/slug';
 import { Badge } from '@/components/ui/badge';
 import { InsightRelatedPosts } from './InsightRelatedPosts';
 
@@ -169,7 +170,7 @@ export function InsightPageClient({ insight, relatedPosts, relatedInsights }: In
                 {insight.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-6">
                         {insight.tags.map((tag) => (
-                            <Link key={tag} href={`/insights?tag=${tag}`}>
+                            <Link key={tag} href={`/insights?tag=${encodeURIComponent(tagToSlug(tag))}`}>
                                 <Badge variant="outline" className="hover:bg-primary/10 cursor-pointer">
                                     #{tag}
                                 </Badge>

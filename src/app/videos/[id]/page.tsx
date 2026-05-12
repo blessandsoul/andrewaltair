@@ -11,6 +11,7 @@ import { notFound } from 'next/navigation'
 import mongoose from 'mongoose'
 import dbConnect from "@/lib/db"
 import Video from "@/models/Video"
+import { toISO8601Duration } from "@/lib/video"
 
 // TbVideo interface
 interface TbVideo {
@@ -155,22 +156,6 @@ async function getRelatedVideos(currentId: string): Promise<TbVideo[]> {
         console.error('Error fetching related videos:', error)
         return []
     }
-}
-
-function toISO8601Duration(humanDuration: string): string {
-    if (!humanDuration) return ''
-    if (humanDuration.startsWith('PT')) return humanDuration
-
-    const parts = humanDuration.split(':').map(Number)
-    if (parts.length === 2) {
-        const [m, s] = parts
-        return `PT${m}M${s}S`
-    }
-    if (parts.length === 3) {
-        const [h, m, s] = parts
-        return `PT${h}H${m}M${s}S`
-    }
-    return humanDuration
 }
 
 export default async function VideoPage({ params }: { params: Promise<{ id: string }> }) {

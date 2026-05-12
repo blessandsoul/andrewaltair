@@ -12,15 +12,23 @@ import { Card, CardContent } from "@/components/ui/card"
 import { brand } from "@/lib/brand"
 
 export const metadata: Metadata = {
-  title: "Andrew Altair - AI ინოვატორი და ფუტურისტი",
-  description: "Andrew Altair არის AI არქიტექტორი და კონტენტ კრეატორი. გაიგეთ მეტი აგენტური სისტემების, LLM მოდელების (GPT-5, Gemini 3) და Neuro-Aesthetic დიზაინის შესახებ.",
-  keywords: ["Andrew Altair", "AI Innovator", "Georgian AI", "Artificial Intelligence", "Frontend Architect", "Next.js", "Neuro-Aesthetic", "Future Tech"],
+  title: "Andrew Altair — AI ექსპერტი საქართველოში | ფუტურისტი",
+  description: "AI არქიტექტორი, ლექტორი, კონტენტ კრეატორი — 8+ წლის გამოცდილება, 50+ კლიენტი. გაიგეთ ჩემი გზა აგენტური სისტემების, LLM-ების (GPT-5, Gemini 3, Claude) და Neuro-Aesthetic დიზაინის სამყაროში.",
+  keywords: ["Andrew Altair", "AI ექსპერტი", "AI კონსულტანტი საქართველოში", "ხელოვნური ინტელექტი", "AI არქიტექტორი", "Georgian AI", "Next.js", "Neuro-Aesthetic"],
   openGraph: {
     type: "profile",
     firstName: "Andrew",
     lastName: "Altair",
     username: "andr3waltair",
     gender: "male",
+    title: "Andrew Altair — AI ექსპერტი საქართველოში",
+    description: "AI არქიტექტორი, ლექტორი, კონტენტ კრეატორი — 8+ წლის გამოცდილება, 50+ კლიენტი.",
+    images: [{ url: "/i.png", width: 1200, height: 630, alt: "Andrew Altair — AI ექსპერტი" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Andrew Altair — AI ექსპერტი საქართველოში",
+    description: "AI არქიტექტორი, ლექტორი — 8+ წლის გამოცდილება, 50+ კლიენტი.",
     images: ["/i.png"],
   },
   alternates: {

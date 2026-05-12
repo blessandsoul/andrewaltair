@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
     const baseUrl = 'https://andrewaltair.ge'
-    const commonDisallow = ['/admin/', '/api/', '/private/', '/_next/', '/login', '/register']
+    const commonDisallow = ['/admin/', '/api/', '/private/', '/_next/', '/login', '/register', '/*?_rsc=']
 
     return {
         rules: [
@@ -92,6 +92,9 @@ export default function robots(): MetadataRoute.Robots {
                 disallow: commonDisallow,
             },
         ],
-        sitemap: `${baseUrl}/sitemap.xml`,
+        sitemap: [
+            `${baseUrl}/sitemap.xml`,
+            `${baseUrl}/sitemap-videos.xml`,
+        ],
     }
 }

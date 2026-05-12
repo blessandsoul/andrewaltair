@@ -41,6 +41,14 @@ const nextConfig = {
           { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
         ],
       },
+      // Block indexing of Next.js RSC payload URLs (`?_rsc=*`) — Google was crawling them as separate pages
+      {
+        source: '/:path*',
+        has: [{ type: 'query', key: '_rsc' }],
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+        ],
+      },
       {
         source: '/(.*)',
         headers: [

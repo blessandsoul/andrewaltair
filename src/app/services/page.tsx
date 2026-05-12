@@ -10,18 +10,20 @@ import { AnimatedCounter } from "@/components/ui/AnimatedCounter"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-    title: "AI კონსულტაცია და სერვისები | Andrew Altair",
-    description: "პროფესიონალური AI კონსულტაცია, ავტომატიზაცია და ტრენინგი. ხელოვნური ინტელექტის დანერგვა თქვენს ბიზნესში. 8+ წლის გამოცდილება, 50+ კლიენტი.",
+    title: "AI კონსულტაცია საქართველოში — 50+ კლიენტი | Andrew Altair",
+    description: "AI კონსულტაცია, ავტომატიზაცია, ლექციები და ტრენინგი ბიზნესისთვის. 8+ წლის გამოცდილება, 50+ კლიენტი, 4.9/5 რეიტინგი. დაიწყეთ პროექტი დღესვე.",
     openGraph: {
-        title: "AI კონსულტაცია და სერვისები | Andrew Altair",
-        description: "პროფესიონალური AI კონსულტაცია, ავტომატიზაცია და ტრენინგი.",
+        title: "AI კონსულტაცია საქართველოში — Andrew Altair",
+        description: "AI კონსულტაცია, ავტომატიზაცია, ლექციები. 8+ წლის გამოცდილება, 50+ კლიენტი, 4.9/5 რეიტინგი.",
         type: "website",
         locale: "ka_GE",
+        images: [{ url: '/og.png', width: 1200, height: 630, alt: 'AI კონსულტაცია — Andrew Altair' }],
     },
     twitter: {
         card: "summary_large_image",
-        title: "AI კონსულტაცია და სერვისები",
-        description: "პროფესიონალური AI კონსულტაცია, ავტომატიზაცია და ტრენინგი.",
+        title: "AI კონსულტაცია საქართველოში | Andrew Altair",
+        description: "AI კონსულტაცია, ავტომატიზაცია, ლექციები. 50+ კლიენტი, 4.9/5 რეიტინგი.",
+        images: ['/og.png'],
     },
     alternates: {
         canonical: 'https://andrewaltair.ge/services',

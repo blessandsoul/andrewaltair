@@ -1,6 +1,7 @@
 // ISR: Revalidate homepage every hour for fresh content + fast TTFB
 export const revalidate = 3600
 
+import type { Metadata } from "next"
 import dbConnect from "@/lib/db"
 import Post from "@/models/Post"
 import Video from "@/models/Video"
@@ -17,6 +18,29 @@ import { ServicesSection } from "@/components/home/ServicesSection"
 import { VideosSection } from "@/components/home/VideosSection"
 import { SocialProof } from "@/components/home/SocialProof"
 import { brand } from "@/lib/brand"
+
+export const metadata: Metadata = {
+  title: "Andrew Altair — AI ექსპერტი, ბლოგი და ინსტრუმენტები ქართულად",
+  description: "ხელოვნური ინტელექტი ქართულად: AI ბლოგი, ChatGPT, Grok, Claude და Gemini გზამკვლევები, პრომპტ ბილდერი, AI ბოტები და კონსულტაცია. 400+ სტატია, 50+ ვიდეო.",
+  keywords: ["AI ქართულად", "ხელოვნური ინტელექტი", "ChatGPT საქართველო", "Grok ქართულად", "AI ბლოგი", "Claude", "Gemini", "AI კონსულტაცია", "პრომპტი", "Andrew Altair"],
+  alternates: {
+    canonical: 'https://andrewaltair.ge/',
+  },
+  openGraph: {
+    title: "Andrew Altair — AI ექსპერტი, ბლოგი და ინსტრუმენტები ქართულად",
+    description: "AI ბლოგი, ChatGPT/Grok/Claude გზამკვლევები, პრომპტ ბილდერი, AI ბოტები ქართულად.",
+    url: 'https://andrewaltair.ge/',
+    type: "website",
+    locale: "ka_GE",
+    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'Andrew Altair — AI ექსპერტი საქართველოში' }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Andrew Altair — AI ექსპერტი ქართულად",
+    description: "AI ბლოგი, გზამკვლევები, პრომპტი და AI ბოტები ქართულად.",
+    images: ['/og.png'],
+  },
+}
 
 // Fetch posts directly from MongoDB (avoids self-referencing API deadlock)
 async function getPosts() {

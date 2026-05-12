@@ -167,35 +167,58 @@ export class PostService {
     }
 
     /**
-     * Get related posts
+     * Get related posts.
+     *
+     * Resolution order:
+     *   1. Manually-curated `relatedPosts: string[]` slugs on the current post
+     *      (preferred — lets editors build topical clusters explicitly).
+     *   2. Same-category match.
+     *   3. Recent published posts (filler).
      */
     static async getRelatedPosts(currentSlug: string, categories: string[] = [], limit = 2) {
         await dbConnect();
 
-        // First try to find posts in same categories
         let posts: (mongoose.FlattenMaps<IPost> & { _id: mongoose.Types.ObjectId })[] = [];
 
-        if (categories.length > 0) {
+        // (1) Honor manually-curated relatedPosts on the current post.
+        const currentPost = await Post.findOne({ slug: currentSlug })
+            .select('relatedPosts')
+            .lean<{ relatedPosts?: string[] } | null>();
+        const manualSlugs = (currentPost?.relatedPosts || []).filter((s) => s && s !== currentSlug);
+
+        if (manualSlugs.length > 0) {
             posts = await Post.find({
                 status: 'published',
-                slug: { $ne: currentSlug },
-                categories: { $in: categories }
+                slug: { $in: manualSlugs },
             })
-                .sort({ createdAt: -1 })
                 .limit(limit)
                 .lean();
         }
 
-        // If not enough related posts, fill with recent posts
-        if (posts.length < limit) {
-            const recentPosts = await Post.find({
+        // (2) Fill from same categories if still short.
+        if (posts.length < limit && categories.length > 0) {
+            const exclusion = [currentSlug, ...posts.map((p) => p.slug)];
+            const more = await Post.find({
                 status: 'published',
-                slug: { $ne: currentSlug, $nin: posts.map((p) => p.slug) }
+                slug: { $nin: exclusion },
+                categories: { $in: categories },
             })
                 .sort({ createdAt: -1 })
                 .limit(limit - posts.length)
                 .lean();
+            posts = [...posts, ...more];
+        }
 
+        // (3) Filler: most recent published.
+        if (posts.length < limit) {
+            const exclusion = [currentSlug, ...posts.map((p) => p.slug)];
+            const recentPosts = await Post.find({
+                status: 'published',
+                slug: { $nin: exclusion },
+            })
+                .sort({ createdAt: -1 })
+                .limit(limit - posts.length)
+                .lean();
             posts = [...posts, ...recentPosts];
         }
 

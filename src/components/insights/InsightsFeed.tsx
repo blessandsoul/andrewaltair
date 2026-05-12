@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { TbLoader2 } from 'react-icons/tb';
 import { InsightCard } from './InsightCard';
 import { Badge } from '@/components/ui/badge';
+import { tagToSlug } from '@/lib/slug';
 
 interface Insight {
     id: string;
@@ -99,7 +100,7 @@ export function InsightsFeed({ initialInsights, initialHasMore, activeTag, allTa
                         </Badge>
                     </a>
                     {allTags.map((tag) => (
-                        <a key={tag} href={`/insights?tag=${tag}`}>
+                        <a key={tag} href={`/insights?tag=${encodeURIComponent(tagToSlug(tag))}`}>
                             <Badge
                                 variant={activeTag === tag ? 'default' : 'outline'}
                                 className="cursor-pointer"

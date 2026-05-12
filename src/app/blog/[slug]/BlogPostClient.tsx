@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
-import { TbArrowLeft, TbClock, TbEye, TbCalendar, TbSparkles, TbSend, TbUser, TbMessage, TbShare, TbHeart, TbHash, TbCopy, TbBrain, TbCheck, TbHelp } from "react-icons/tb"
+import { TbArrowLeft, TbClock, TbEye, TbCalendar, TbSparkles, TbSend, TbUser, TbMessage, TbShare, TbHeart, TbHash, TbCopy, TbBrain, TbCheck, TbHelp, TbRefresh } from "react-icons/tb"
 import { useEffect, useState, useCallback, useMemo } from "react"
 import {
     ReactionBar,
@@ -128,16 +128,25 @@ export default function BlogPostClient({ post, prevPost, nextPost, relatedPosts 
     const { isOpen, images, currentIndex, openLightbox, closeLightbox } = useImageLightbox()
     const [articleImages, setArticleImages] = useState<{ src: string; alt: string }[]>([])
     const [formattedDate, setFormattedDate] = useState<string>('')
+    const [formattedUpdatedAt, setFormattedUpdatedAt] = useState<string>('')
 
     // Format date on client only to prevent hydration mismatch
     useEffect(() => {
-        const date = new Date(post.publishedAt)
         const months = [
             'იანვარი', 'თებერვალი', 'მარტი', 'აპრილი', 'მაისი', 'ივნისი',
             'ივლისი', 'აგვისტო', 'სექტემბერი', 'ოქტომბერი', 'ნოემბერი', 'დეკემბერი'
         ]
-        setFormattedDate(`${date.getDate()} ${months[date.getMonth()]}, ${date.getFullYear()}`)
-    }, [post.publishedAt])
+        const fmt = (d: Date) => `${d.getDate()} ${months[d.getMonth()]}, ${d.getFullYear()}`
+        const published = new Date(post.publishedAt)
+        setFormattedDate(fmt(published))
+        // Show "updated" only when meaningfully later than publish (24h+).
+        if (post.updatedAt) {
+            const updated = new Date(post.updatedAt)
+            if (updated.getTime() - published.getTime() > 24 * 60 * 60 * 1000) {
+                setFormattedUpdatedAt(fmt(updated))
+            }
+        }
+    }, [post.publishedAt, post.updatedAt])
 
     // Extract images from content for lightbox (EXCLUDING gallery/thumbnails/background)
     useEffect(() => {
@@ -302,6 +311,12 @@ console.log(data.result);
                                         <TbCalendar className="w-4 h-4" />
                                         {formattedDate || post.publishedAt}
                                     </span>
+                                    {formattedUpdatedAt && (
+                                        <span className="text-sm text-primary/80 flex items-center gap-1" title="ბოლო განახლების თარიღი">
+                                            <TbRefresh className="w-4 h-4" />
+                                            განახლებულია {formattedUpdatedAt}
+                                        </span>
+                                    )}
                                     <span className="text-sm text-muted-foreground flex items-center gap-1">
                                         <TbEye className="w-4 h-4" />
                                         {post.views.toLocaleString()}

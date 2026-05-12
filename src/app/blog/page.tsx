@@ -27,6 +27,7 @@ import { PostCard } from "@/components/blog/PostCard"
 import { FeaturedCard } from "@/components/blog/FeaturedCard"
 import dbConnect from "@/lib/db"
 import Post from "@/models/Post"
+import { slugToRawTag } from "@/lib/slug"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -64,10 +65,6 @@ export default async function BlogPage(props: {
   // Build query
   const query: any = { status: 'published' }
 
-  if (tag) {
-    query.tags = tag
-  }
-
   if (category) {
     query.categories = category
   }
@@ -88,6 +85,15 @@ export default async function BlogPage(props: {
 
   try {
     await dbConnect()
+
+    // Resolve tag slug → raw tag value. Posts store tags as free-text strings,
+    // so URLs use slugs and we reverse-lookup against the live distinct set.
+    // Falls back to raw value for backward compat with old indexed URLs.
+    if (tag) {
+      const allTags = (await Post.distinct('tags', { status: 'published' })) as string[]
+      const resolved = slugToRawTag(tag, allTags)
+      query.tags = resolved ?? tag
+    }
 
     totalPostsCount = await Post.countDocuments(query)
 

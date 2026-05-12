@@ -5,6 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { TbInfinity, TbLoader2, TbChevronUp, TbArrowLeft, TbClock, TbEye, TbCalendar, TbSparkles, TbSend, TbUser, TbMessage, TbShare, TbHeart } from "react-icons/tb"
 import { cn } from "@/lib/utils"
+import { tagToSlug } from "@/lib/slug"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -383,7 +384,7 @@ function FullArticle({ post, index }: { post: Post; index: number }) {
                                         {post.tags.slice(0, 20).map((tag: string) => (
                                             <Link
                                                 key={tag}
-                                                href={`/blog?tag=${encodeURIComponent(tag)}`}
+                                                href={`/blog?tag=${encodeURIComponent(tagToSlug(tag))}`}
                                                 className="inline-flex"
                                             >
                                                 <Badge

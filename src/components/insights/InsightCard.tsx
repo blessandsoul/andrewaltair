@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { TbExternalLink, TbFlame, TbHeart, TbBrain, TbHandClick, TbBulb, TbEye, TbCalendar } from 'react-icons/tb';
 import { cn } from '@/lib/utils';
+import { tagToSlug } from '@/lib/slug';
 import { Badge } from '@/components/ui/badge';
 
 interface InsightCardProps {
@@ -108,7 +109,7 @@ export function InsightCard({ insight }: InsightCardProps) {
                 {insight.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
                         {insight.tags.slice(0, 6).map((tag) => (
-                            <Link key={tag} href={`/insights?tag=${tag}`}>
+                            <Link key={tag} href={`/insights?tag=${encodeURIComponent(tagToSlug(tag))}`}>
                                 <Badge
                                     variant="outline"
                                     className="text-xs hover:bg-primary/10 transition-colors cursor-pointer"

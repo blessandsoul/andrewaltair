@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { Metadata } from 'next';
 import { InsightsFeed } from '@/components/insights';
 import { InsightService } from '@/services/insight.service';
+import { slugToRawTag } from '@/lib/slug';
 
 export const metadata: Metadata = {
     title: 'Insights | Andrew Altair',
@@ -23,13 +24,8 @@ export default async function InsightsPage({
 }) {
     const { tag } = await searchParams;
 
-    const { insights, pagination } = await InsightService.getAllInsights({
-        status: 'published',
-        limit: 10,
-        tag: tag || null,
-    });
-
-    // Get popular tags for filter
+    // Get all insights first to build the slug→raw-tag map for the filter URL param.
+    // Insights store tags as free-text strings — URLs are slugged, then resolved.
     const allInsights = await InsightService.getAllInsights({
         status: 'published',
         limit: 100,
@@ -46,6 +42,16 @@ export default async function InsightsPage({
         .sort((a, b) => b[1] - a[1])
         .slice(0, 15)
         .map(([t]) => t);
+
+    // Resolve tag slug → raw tag, or fall back to raw value (backward compat).
+    const allKnownTags = Object.keys(tagCounts);
+    const resolvedTag = tag ? (slugToRawTag(tag, allKnownTags) ?? tag) : null;
+
+    const { insights, pagination } = await InsightService.getAllInsights({
+        status: 'published',
+        limit: 10,
+        tag: resolvedTag,
+    });
 
     const serializedInsights = JSON.parse(JSON.stringify(insights));
 
