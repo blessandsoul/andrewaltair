@@ -175,22 +175,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         console.error('Sitemap: Error fetching tutorials:', error)
     }
 
-    // Repositories from MongoDB
-    let repositoryUrls: MetadataRoute.Sitemap = []
-    try {
-        const repos = await Post.find({ status: 'published', 'repository.url': { $exists: true } })
-            .select('slug updatedAt createdAt')
-            .lean()
-
-        repositoryUrls = repos.map((repo) => ({
-            url: `${baseUrl}/repositories/${repo.slug}`,
-            lastModified: repo.updatedAt || repo.createdAt || new Date(),
-            changeFrequency: 'monthly' as const,
-            priority: 0.6,
-        }))
-    } catch (error) {
-        console.error('Sitemap: Error fetching repositories:', error)
-    }
+    // NOTE: /repositories/{slug} intentionally excluded from sitemap.
+    // Repo posts are also served at /blog/{slug} (canonical) — listing both
+    // created duplicate URLs in Google Search Console. /repositories/{slug}
+    // now canonicals to /blog/{slug}.
 
     // Marketplace Prompts from MongoDB
     let promptUrls: MetadataRoute.Sitemap = []
@@ -260,5 +248,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         console.error('Sitemap: Error fetching insights:', error)
     }
 
-    return [...staticPages, ...libraryUrls, ...blogUrls, ...insightUrls, ...tutorialUrls, ...repositoryUrls, ...promptUrls, ...botEntries, ...videoUrls]
+    return [...staticPages, ...libraryUrls, ...blogUrls, ...insightUrls, ...tutorialUrls, ...promptUrls, ...botEntries, ...videoUrls]
 }

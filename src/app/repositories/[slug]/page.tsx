@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         openGraph: {
             title: post.title,
             description: seoDescription,
-            url: `${siteUrl}/repositories/${slug}`,
+            url: `${siteUrl}/blog/${slug}`,
             images: [{ url: imageUrl }],
             type: 'article',
         },
@@ -67,8 +67,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
             description: seoDescription,
             images: [imageUrl],
         },
+        // Repo posts are also served at /blog/{slug} — that is the canonical URL.
         alternates: {
-            canonical: `${siteUrl}/repositories/${slug}`,
+            canonical: `${siteUrl}/blog/${slug}`,
         },
     }
 }

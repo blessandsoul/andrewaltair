@@ -5,6 +5,7 @@ export const metadata: Metadata = {
     title: 'AI 2026 სტატიები - მომავლის გზამკვლევი | Andrew Altair',
     description: 'AI 2026: კაცობრიობის დიდი ფილტრი და სხვა ფუტურისტული სტატიები.',
     keywords: ['AI 2026', 'Future', 'Human 2.0', 'სტატიები'],
+    alternates: { canonical: 'https://andrewaltair.ge/encyclopedia/ai-2026/library' },
     openGraph: {
         title: 'AI 2026 სტატიები - მომავლის გზამკვლევი',
         description: 'AI 2026: კაცობრიობის დიდი ფილტრი და სხვა ფუტურისტული სტატიები.',

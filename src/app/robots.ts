@@ -2,7 +2,13 @@ import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
     const baseUrl = 'https://andrewaltair.ge'
-    const commonDisallow = ['/admin/', '/api/', '/private/', '/_next/', '/login', '/register', '/*?_rsc=']
+    const commonDisallow = [
+        '/admin/', '/api/', '/private/', '/_next/',
+        '/login', '/register', '/forgot-password', '/verify-email',
+        '/profile', '/demo-features', '/bots/add', '/link/',
+        '/encyclopedia/progress',
+        '/*?_rsc=',
+    ]
 
     return {
         rules: [
