@@ -11,5 +11,10 @@ services:
       - "3000:3000"
     env_file:
       - .env
+    # Resolve andrewaltair.ge to the Docker host gateway inside the container.
+    # The MongoDB container publishes 27017 on the host; without this the app
+    # routes to the public IP (hairpin NAT) and the connection times out.
+    extra_hosts:
+      - "andrewaltair.ge:host-gateway"
     # environment:
     #   - NODE_ENV=production
