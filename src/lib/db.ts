@@ -23,6 +23,14 @@ const cached: MongooseCache = global.mongoose || { conn: null, promise: null };
 
 if (!global.mongoose) {
     global.mongoose = cached;
+
+    // When the MongoDB server restarts the cached connection goes dead.
+    // Drop the cache on disconnect so the next dbConnect() reconnects fresh
+    // instead of handing out a stale connection that times out on every query.
+    mongoose.connection.on('disconnected', () => {
+        cached.conn = null;
+        cached.promise = null;
+    });
 }
 
 async function dbConnect(): Promise<typeof mongoose> {
@@ -31,8 +39,18 @@ async function dbConnect(): Promise<typeof mongoose> {
         throw new Error('MongoDB unavailable during build (placeholder URI)');
     }
 
-    if (cached.conn) {
+    // readyState: 1 = connected. Only reuse the cache if the socket is actually alive.
+    // Without this, a MongoDB restart leaves cached.conn truthy-but-dead → every query 500s.
+    if (cached.conn && mongoose.connection.readyState === 1) {
         return cached.conn;
+    }
+
+    // Stale (post-restart) or mid-connect failure — discard and force a fresh connect.
+    if (mongoose.connection.readyState !== 1) {
+        cached.conn = null;
+        if (mongoose.connection.readyState === 0) {
+            cached.promise = null;
+        }
     }
 
     if (!cached.promise) {
