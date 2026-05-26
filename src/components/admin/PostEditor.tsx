@@ -216,6 +216,13 @@ interface ParsedSource {
     context: string
 }
 
+function serializeSources(sources: ParsedSource[] | undefined): string {
+    if (!sources || sources.length === 0) return ''
+    return sources.map(s =>
+        `${s.index}. ${s.outlet}: "${s.title}"\n   - URL: ${s.url}${s.keyFact ? `\n   - Key Fact: ${s.keyFact}` : ''}${s.context ? `\n   - Context: ${s.context}` : ''}`
+    ).join('\n\n')
+}
+
 function parseSources(raw: string): ParsedSource[] {
     const sources: ParsedSource[] = []
     const blocks = raw.split(/\n(?=\d+\.\s)/).filter(Boolean)
@@ -346,13 +353,7 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
     const [editorMode, setEditorMode] = React.useState<'visual' | 'json'>('json')
     const [jsonInput, setJsonInput] = React.useState('')
     const [parsedSections, setParsedSections] = React.useState<Section[]>([])
-    const [sourcesInput, setSourcesInput] = React.useState(() => {
-        const existing = initialData?.sources
-        if (!existing || existing.length === 0) return ''
-        return existing.map(s =>
-            `${s.index}. ${s.outlet}: "${s.title}"\n   - URL: ${s.url}${s.keyFact ? `\n   - Key Fact: ${s.keyFact}` : ''}${s.context ? `\n   - Context: ${s.context}` : ''}`
-        ).join('\n\n')
-    })
+    const [sourcesInput, setSourcesInput] = React.useState(() => serializeSources(initialData?.sources))
 
     // Upload States
     const [isUploadingH, setIsUploadingH] = React.useState(false)
@@ -424,10 +425,18 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
         }
     }
 
-    // Sync parsed sources → post.sources
+    // Sync parsed sources → post.sources.
+    // Only wipe sources when textarea is fully empty — partial / malformed text keeps previous sources
+    // intact (Gemini already populated them via JSON paste, don't lose data on a bad keystroke).
     React.useEffect(() => {
+        const trimmed = sourcesInput.trim()
+        if (!trimmed) {
+            setPost(prev => (prev.sources && prev.sources.length > 0 ? { ...prev, sources: [] } : prev))
+            return
+        }
         const parsed = parseSources(sourcesInput)
-        setPost(prev => ({ ...prev, sources: parsed.length > 0 ? parsed : [] }))
+        if (parsed.length === 0) return // bad parse — keep previous sources
+        setPost(prev => ({ ...prev, sources: parsed }))
     }, [sourcesInput])
 
     // JSON Sync Logic
@@ -578,8 +587,13 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                         const entitiesSrc = parsed.entities || parsed.seo?.entities || meta.entities
                         if (Array.isArray(entitiesSrc)) newData.entities = entitiesSrc
 
-                        // 8. Sources — flat top-level
-                        if (Array.isArray(parsed.sources)) newData.sources = parsed.sources
+                        // 8. Sources — flat top-level. Auto-fill the links.md textarea so the visual
+                        // card view + downstream effect stay in sync. Gem already structured them — no
+                        // separate paste needed.
+                        if (Array.isArray(parsed.sources) && parsed.sources.length > 0) {
+                            newData.sources = parsed.sources
+                            setSourcesInput(serializeSources(parsed.sources as ParsedSource[]))
+                        }
 
                         // 9. readingTime / wordCount / publishedAt
                         if (typeof parsed.readingTime === 'number') newData.readingTime = parsed.readingTime

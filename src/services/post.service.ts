@@ -385,6 +385,23 @@ export class PostService {
             };
         }
 
+        // Auto-truncate SEO fields to Mongoose maxlength caps — Gemini cannot count chars reliably,
+        // and a 1-char overflow blocks the entire ingest with a ValidationError.
+        const truncateAtWord = (s: string, max: number): string => {
+            if (s.length <= max) return s;
+            const sliced = s.slice(0, max);
+            const lastSpace = sliced.lastIndexOf(' ');
+            return (lastSpace > max - 15 ? sliced.slice(0, lastSpace) : sliced).trimEnd();
+        };
+        if (postData.seo && typeof postData.seo === 'object') {
+            const seo = postData.seo as Record<string, unknown>;
+            if (typeof seo.metaTitle === 'string') seo.metaTitle = truncateAtWord(seo.metaTitle, 60);
+            if (typeof seo.metaDescription === 'string') seo.metaDescription = truncateAtWord(seo.metaDescription, 160);
+        }
+        if (typeof postData.excerpt === 'string' && (postData.excerpt as string).length > 160) {
+            postData.excerpt = truncateAtWord(postData.excerpt as string, 160);
+        }
+
         if (Array.isArray(postData.sections)) {
             const BANNED_SECTION_TYPES = new Set(['image', 'graph', 'cta', 'prompt']);
             postData.sections = (postData.sections as Array<Record<string, unknown>>)

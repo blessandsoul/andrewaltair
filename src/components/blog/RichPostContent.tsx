@@ -388,13 +388,20 @@ function SectionRenderer({ section, index }: { section: Section; index: number }
         section = { ...section, title: undefined };
     }
 
-    // Plain H2 heading — no background box, no icon, just typography
+    // Editorial heading — eyebrow (§ glyph + gradient hairline) above a large H2.
+    // Used for sub-sections inside DEEP_DIVE. No background box, no icon — just typography hierarchy.
     if (section.type === 'heading') {
         const text = section.title || section.content || '';
         return (
-            <h2 className="text-2xl md:text-3xl font-bold mt-12 mb-4 scroll-mt-24">
-                {text}
-            </h2>
+            <div className="my-14 scroll-mt-24">
+                <div className="flex items-center gap-3 mb-3">
+                    <span className="font-mono text-xs uppercase tracking-[0.25em] text-primary">§</span>
+                    <div className="h-px flex-1 bg-linear-to-r from-primary/40 via-primary/10 to-transparent" />
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold tracking-tight leading-[1.15] text-foreground">
+                    {text}
+                </h2>
+            </div>
         );
     }
 
