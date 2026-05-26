@@ -116,13 +116,14 @@ function getIconComponent(iconName?: string): IconType | null {
     return ICON_COMPONENTS[iconName] || null
 }
 
-// Section type to styling map
-const SECTION_STYLES: Record<Section['type'], {
+// Section type to styling map. Partial — some types (heading/takeaway/deep_dive) are handled by
+// early renderer branches and don't need a style entry; everything else falls back to SECTION_STYLES['section'].
+const SECTION_STYLES: Partial<Record<Section['type'], {
     bgClass: string;
     borderClass: string;
     iconClass: string;
     defaultIcon?: IconType;
-}> = {
+}>> = {
     intro: {
         bgClass: 'bg-transparent',
         borderClass: 'border-transparent',
@@ -248,7 +249,7 @@ function getSectionAccentColor(iconName?: string): string {
 // Prompt/TbCode block component with copy functionality
 function PromptBlockSection({ section }: { section: Section }) {
     const [copied, setCopied] = useState(false);
-    const style = SECTION_STYLES['prompt'];
+    const style = SECTION_STYLES['prompt']!;
     const IconComponent = style.defaultIcon;
 
     const handleCopy = async () => {
@@ -406,7 +407,7 @@ function SectionRenderer({ section: rawSection, index }: { section: Section; ind
         );
     }
 
-    const style = SECTION_STYLES[section.type] || SECTION_STYLES['section'];
+    const style = SECTION_STYLES[section.type] || SECTION_STYLES['section']!;
     const customBorder = getSectionAccentColor(section.icon);
 
     // Get icon component - prefer section.icon, fallback to style.defaultIcon
