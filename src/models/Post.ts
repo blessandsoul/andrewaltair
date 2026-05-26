@@ -19,7 +19,7 @@ export interface ISection {
     icon?: string;  // lucide icon name (e.g., 'Brain', 'Factory', 'Globe')
     title?: string;
     content: string;
-    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'cta' | 'hashtags' | 'prompt' | 'author-comment' | 'graph' | 'takeaway' | 'deep_dive';
+    type: 'intro' | 'section' | 'heading' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'cta' | 'hashtags' | 'prompt' | 'author-comment' | 'quote' | 'image' | 'graph' | 'takeaway' | 'deep_dive';
 }
 
 // Cover images for responsive display
@@ -88,6 +88,7 @@ export interface IPost extends Document {
     author: IAuthor;
     publishedAt: Date;
     readingTime: number;
+    wordCount?: number;
     views: number;
     comments: number;
     shares: number;
@@ -295,6 +296,9 @@ const PostSchema = new Schema<IPost>(
         readingTime: {
             type: Number,
             default: 5,
+        },
+        wordCount: {
+            type: Number,
         },
         views: {
             type: Number,

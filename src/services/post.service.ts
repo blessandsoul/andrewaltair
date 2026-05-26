@@ -362,14 +362,14 @@ export class PostService {
                 entities: data.entities || data.seo?.entities || meta.entities || [],
                 sources: data.sources || [],
 
-                // Telegram data
-                telegramContent: data.telegramContent || data.telegram?.text || '',
-                telegramButtonText: data.telegramButtonText || data.telegram?.button_text || ''
+                // Telegram intentionally stripped — Alpha gem no longer emits telegram payloads
             };
         } else {
             // OLD/STANDARD JSON STRUCTURE
+            const { telegramContent: _tcStrip, telegramButtonText: _tbStrip, telegram: _tStrip, ...dataWithoutTelegram } = data;
+            void _tcStrip; void _tbStrip; void _tStrip;
             postData = {
-                ...data,
+                ...dataWithoutTelegram,
                 slug: uniqueSlug,
                 numericId: numericId, // Add the generated ID
                 excerpt: data.excerpt || data.title || 'პოსტი',
@@ -381,13 +381,16 @@ export class PostService {
                     question: item.question || item.q || '',
                     answer: item.answer || item.a || '',
                 })),
+                telegramContent: '',
             };
         }
 
         if (Array.isArray(postData.sections)) {
+            const BANNED_SECTION_TYPES = new Set(['image', 'graph', 'cta', 'prompt']);
             postData.sections = (postData.sections as Array<Record<string, unknown>>)
                 .filter((s) => {
                     if (!s) return false;
+                    if (typeof s.type === 'string' && BANNED_SECTION_TYPES.has(s.type)) return false;
                     const content = typeof s.content === 'string' ? s.content.trim() : '';
                     const prompt = typeof s.prompt === 'string' ? (s.prompt as string).trim() : '';
                     const title = typeof s.title === 'string' ? (s.title as string).trim() : '';

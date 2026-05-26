@@ -50,25 +50,37 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     // Use telegramContent as SEO description fallback (shorter, optimized for social)
     const seoDescription = post.seo?.metaDescription || post.excerpt || post.telegramContent?.slice(0, 160) || post.title
 
+    const articleSection = post.categories?.[0]
+    const keywordList = post.seo?.keywords
+      ? post.seo.keywords.split(',').map((k: string) => k.trim()).filter(Boolean)
+      : post.tags
+
     return {
-      title: `${post.title} | Andrew Altair`,
+      title: post.seo?.metaTitle || `${post.title} | Andrew Altair`,
       description: seoDescription,
+      keywords: keywordList,
+      authors: [{ name: post.author?.name || 'Andrew Altair', url: `${siteUrl}/about` }],
       openGraph: {
         title: post.title,
         description: seoDescription,
         url: `${siteUrl}/blog/${slug}`,
-        images: [{ url: imageUrl }],
+        images: [{ url: imageUrl, width: 1200, height: 630, alt: post.title }],
         type: 'article',
         siteName: 'Andrew Altair',
+        locale: 'ka_GE',
         authors: [post.author?.name || 'Andrew Altair'],
         publishedTime: post.publishedAt as string,
         modifiedTime: post.updatedAt as string,
+        section: articleSection,
+        tags: post.tags,
       },
       twitter: {
         card: 'summary_large_image',
         title: post.title,
         description: seoDescription,
         images: [imageUrl],
+        site: '@andrewaltair',
+        creator: '@andrewaltair',
       },
       alternates: {
         canonical: post.seo?.canonicalUrl || `${siteUrl}/blog/${slug}`,
@@ -122,7 +134,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       imageUrl = `${siteUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`
     }
 
-    const jsonLd = {
+    const jsonLd: Record<string, unknown> = {
       '@context': 'https://schema.org',
       '@type': 'NewsArticle',
       headline: post.title,
@@ -145,11 +157,15 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         }
       },
       description: post.excerpt,
+      inLanguage: 'ka',
       mainEntityOfPage: {
         '@type': 'WebPage',
         '@id': `${siteUrl}/blog/${slug}`
       }
     }
+    if (post.categories?.[0]) jsonLd.articleSection = post.categories[0]
+    if (post.wordCount) jsonLd.wordCount = post.wordCount
+    if (post.readingTime) jsonLd.timeRequired = `PT${post.readingTime}M`
 
     const breadcrumbLd = {
       '@context': 'https://schema.org',
