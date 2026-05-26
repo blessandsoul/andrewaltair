@@ -117,6 +117,7 @@ export interface PostData {
     faq?: { question: string, answer: string }[]
     entities?: string[]
     sources?: ParsedSource[]
+    wordCount?: number
     // Tutorial Specific
     intro?: string
     tools?: string
@@ -497,87 +498,112 @@ export function PostEditor({ initialData, onSave, onCancel, isEditing = false }:
                         tags: extractedTags.length > 0 ? Array.from(new Set([...(prev.tags || []), ...extractedTags])) : prev.tags
                     }))
                 } else if (typeof parsed === 'object' && parsed !== null) {
-                    // NEW: Full Article Object ({ meta, seo, content })
+                    // NEW: Full Article Object — accepts BOTH formats:
+                    //   - Legacy meta-wrapped: { meta: {title, slug, category, tags, author}, seo: {excerpt, key_points, faq, entities}, content: [...], telegram: {...} }
+                    //   - Flat (Alpha gem 2026-05): { title, slug, excerpt, author, categories, tags, seo: {metaTitle, metaDescription, keywords, focusKeyword, canonicalUrl, ogImage}, keyPoints, faq, entities, sources, sections, readingTime, wordCount, publishedAt }
                     setPost(prev => {
                         const newData = { ...prev }
+                        const meta = parsed.meta || {}
 
-                        // 1. Meta
-                        if (parsed.meta) {
-                            if (parsed.meta.title) newData.title = parsed.meta.title
-                            if (parsed.meta.slug) newData.slug = parsed.meta.slug
+                        // Category normalization map — shared by both formats
+                        const catMap: Record<string, string> = {
+                            'technology': 'technology', 'tehnologia': 'technology', 'tech': 'technology',
+                            'economy': 'economy', 'politics': 'politics', 'business': 'business',
+                            'science': 'science', 'society': 'society', 'education': 'education', 'world': 'world',
+                            'ტექნოლოგიები': 'technology', 'ტექნოლოგია': 'technology',
+                            'ეკონომიკა': 'economy', 'პოლიტიკა': 'politics', 'ბიზნესი': 'business',
+                            'მეცნიერება': 'science', 'საზოგადოება': 'society',
+                            'განათლება': 'education', 'მსოფლიო': 'world',
+                            'ai': 'technology', 'news': 'world', 'articles': 'technology'
+                        }
+                        const normalizeCategory = (c: string) => catMap[c.toLowerCase()] || 'technology'
 
-                            // Category Normalization
-                            if (parsed.meta.category) {
-                                const catMap: Record<string, string> = {
-                                    // English
-                                    'technology': 'technology',
-                                    'tehnologia': 'technology',
-                                    'tech': 'technology',
-                                    'economy': 'economy',
-                                    'politics': 'politics',
-                                    'business': 'business',
-                                    'science': 'science',
-                                    'society': 'society',
-                                    'education': 'education',
-                                    'world': 'world',
-                                    // Georgian (ქართული)
-                                    'ტექნოლოგიები': 'technology',
-                                    'ტექნოლოგია': 'technology',
-                                    'ეკონომიკა': 'economy',
-                                    'პოლიტიკა': 'politics',
-                                    'ბიზნესი': 'business',
-                                    'მეცნიერება': 'science',
-                                    'საზოგადოება': 'society',
-                                    'განათლება': 'education',
-                                    'მსოფლიო': 'world',
-                                    // Legacy mappings
-                                    'ai': 'technology',
-                                    'news': 'world',
-                                    'articles': 'technology'
-                                }
-                                const normalized = catMap[parsed.meta.category.toLowerCase()] || 'technology'
-                                newData.categories = [normalized]
-                            }
+                        // 1. Title / Slug — top-level OR meta-nested
+                        const title = parsed.title || meta.title
+                        const slug = parsed.slug || meta.slug
+                        if (title) newData.title = title
+                        if (slug) newData.slug = slug
 
-                            if (parsed.meta.tags && Array.isArray(parsed.meta.tags)) newData.tags = parsed.meta.tags
-                            if (parsed.meta.author) {
-                                newData.author = { ...prev.author, ...parsed.meta.author }
-                                // Auto-assign avatar for known AI authors
-                                if (parsed.meta.author.name === 'ალფა' && !parsed.meta.author.avatar) {
-                                    newData.author.avatar = '/images/authors/alpha.png'
-                                    newData.author.role = newData.author.role || 'AI ანალიტიკოსი'
-                                }
+                        // 2. Category — accept string (legacy meta.category) OR array (flat categories[])
+                        if (Array.isArray(parsed.categories) && parsed.categories.length > 0) {
+                            newData.categories = parsed.categories.map((c: string) => normalizeCategory(c))
+                        } else if (meta.category) {
+                            newData.categories = [normalizeCategory(meta.category)]
+                        }
+
+                        // 3. Tags
+                        const tagsSource = (Array.isArray(parsed.tags) && parsed.tags) || (Array.isArray(meta.tags) && meta.tags)
+                        if (tagsSource) newData.tags = tagsSource as string[]
+
+                        // 4. Author
+                        const author = parsed.author || meta.author
+                        if (author) {
+                            newData.author = { ...prev.author, ...author }
+                            if (author.name === 'ალფა' && !author.avatar) {
+                                newData.author.avatar = '/images/authors/alpha.png'
+                                newData.author.role = newData.author.role || 'AI ანალიტიკოსი'
                             }
                         }
 
-                        // 2. SEO
-                        if (parsed.seo) {
-                            if (parsed.seo.excerpt) newData.excerpt = parsed.seo.excerpt
-                            if (parsed.seo.key_points) newData.keyPoints = parsed.seo.key_points
-                            if (parsed.seo.faq) newData.faq = parsed.seo.faq.map((item: any) => ({
+                        // 5. Excerpt — top-level wins, fallback seo.excerpt / meta.excerpt
+                        const excerpt = parsed.excerpt || parsed.seo?.excerpt || meta.excerpt
+                        if (excerpt) newData.excerpt = excerpt
+
+                        // 6. SEO subdoc — flat new format (metaTitle/metaDescription/keywords/...)
+                        if (parsed.seo && typeof parsed.seo === 'object') {
+                            newData.seo = {
+                                ...prev.seo,
+                                metaTitle: parsed.seo.metaTitle || prev.seo.metaTitle,
+                                metaDescription: parsed.seo.metaDescription || prev.seo.metaDescription,
+                                keywords: parsed.seo.keywords || prev.seo.keywords,
+                                focusKeyword: parsed.seo.focusKeyword || prev.seo.focusKeyword,
+                                canonicalUrl: parsed.seo.canonicalUrl || prev.seo.canonicalUrl,
+                                ogImage: parsed.seo.ogImage || prev.seo.ogImage,
+                                seoScore: prev.seo.seoScore,
+                            }
+                        }
+
+                        // 7. keyPoints / faq / entities — top-level wins (flat), fallback seo.* (legacy)
+                        const keyPointsSrc = parsed.keyPoints || parsed.seo?.key_points || meta.key_points
+                        if (Array.isArray(keyPointsSrc)) newData.keyPoints = keyPointsSrc
+
+                        const faqSrc = parsed.faq || parsed.seo?.faq || meta.faq
+                        if (Array.isArray(faqSrc)) {
+                            newData.faq = faqSrc.map((item: any) => ({
                                 question: item.question || item.q || '',
                                 answer: item.answer || item.a || '',
                             }))
-                            if (parsed.seo.entities) newData.entities = parsed.seo.entities
                         }
 
-                        // 3. Content
-                        if (parsed.content && Array.isArray(parsed.content)) {
-                            const { cleaned, extractedTags } = sanitizeSections(parsed.content)
+                        const entitiesSrc = parsed.entities || parsed.seo?.entities || meta.entities
+                        if (Array.isArray(entitiesSrc)) newData.entities = entitiesSrc
+
+                        // 8. Sources — flat top-level
+                        if (Array.isArray(parsed.sources)) newData.sources = parsed.sources
+
+                        // 9. readingTime / wordCount / publishedAt
+                        if (typeof parsed.readingTime === 'number') newData.readingTime = parsed.readingTime
+                        if (typeof parsed.wordCount === 'number') newData.wordCount = parsed.wordCount
+                        if (parsed.publishedAt) newData.publishedAt = parsed.publishedAt
+
+                        // 10. Sections — flat `sections[]` wins, fallback legacy `content[]`
+                        const sectionsSrc = Array.isArray(parsed.sections) ? parsed.sections
+                            : Array.isArray(parsed.content) ? parsed.content
+                            : null
+                        if (sectionsSrc) {
+                            const { cleaned, extractedTags } = sanitizeSections(sectionsSrc)
                             newData.sections = cleaned
                             setParsedSections(cleaned)
-
-                            // Merge extracted tags if content had hashtags section
                             if (extractedTags.length > 0) {
                                 newData.tags = Array.from(new Set([...(newData.tags || []), ...extractedTags]))
                             }
                         }
 
-                        // 4. Telegram
+                        // 11. Telegram — legacy only (Alpha gem 2026-05+ no longer emits this)
                         if (parsed.telegram) {
                             newData.telegramContent = parsed.telegram.text || ''
                             newData.telegramButtonText = parsed.telegram.button_text || ''
-                            newData.postToTelegram = true // Automatically enable if telegram data is present
+                            newData.postToTelegram = true
                         }
 
                         // 5. Tutorial Specifics (If detected)
