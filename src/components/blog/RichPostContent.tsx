@@ -375,10 +375,27 @@ function TutorialStepRenderer({ section }: { section: Section }) {
     );
 }
 
+const ACT_TAG_TITLES = new Set(['HEADLINE', 'CONTEXT', 'DEEP_DIVE', 'IMPLICATIONS', 'TAKEAWAY']);
+
 function SectionRenderer({ section, index }: { section: Section; index: number }) {
     // Specialized Renderer for Tutorial Steps
     if (section.type === 'tutorial-step') {
         return <TutorialStepRenderer section={section} />
+    }
+
+    // Strip machine-only act-tag titles — they were used as narrative markers, not user-visible labels
+    if (section.title && ACT_TAG_TITLES.has(section.title)) {
+        section = { ...section, title: undefined };
+    }
+
+    // Plain H2 heading — no background box, no icon, just typography
+    if (section.type === 'heading') {
+        const text = section.title || section.content || '';
+        return (
+            <h2 className="text-2xl md:text-3xl font-bold mt-12 mb-4 scroll-mt-24">
+                {text}
+            </h2>
+        );
     }
 
     const style = SECTION_STYLES[section.type] || SECTION_STYLES['section'];
