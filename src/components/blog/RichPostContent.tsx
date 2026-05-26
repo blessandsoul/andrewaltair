@@ -19,7 +19,7 @@ interface Section {
     content: string;
     quote?: string; // Added for tutorial steps
     stepNumber?: number; // Added for tutorial steps
-    type: 'intro' | 'section' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'quote' | 'cta' | 'hashtags' | 'prompt' | 'author-comment' | 'image' | 'graph' | 'tutorial-step' | 'secret';
+    type: 'intro' | 'section' | 'heading' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'quote' | 'cta' | 'hashtags' | 'prompt' | 'author-comment' | 'image' | 'graph' | 'tutorial-step' | 'secret' | 'takeaway' | 'deep_dive';
 }
 
 interface RichPostContentProps {
@@ -377,16 +377,17 @@ function TutorialStepRenderer({ section }: { section: Section }) {
 
 const ACT_TAG_TITLES = new Set(['HEADLINE', 'CONTEXT', 'DEEP_DIVE', 'IMPLICATIONS', 'TAKEAWAY']);
 
-function SectionRenderer({ section, index }: { section: Section; index: number }) {
+function SectionRenderer({ section: rawSection, index }: { section: Section; index: number }) {
     // Specialized Renderer for Tutorial Steps
-    if (section.type === 'tutorial-step') {
-        return <TutorialStepRenderer section={section} />
+    if (rawSection.type === 'tutorial-step') {
+        return <TutorialStepRenderer section={rawSection} />
     }
 
-    // Strip machine-only act-tag titles — they were used as narrative markers, not user-visible labels
-    if (section.title && ACT_TAG_TITLES.has(section.title)) {
-        section = { ...section, title: undefined };
-    }
+    // Strip machine-only act-tag titles — they were used as narrative markers, not user-visible labels.
+    // Use a local const to avoid parameter reassignment (no-param-reassign lint rule).
+    const section: Section = rawSection.title && ACT_TAG_TITLES.has(rawSection.title)
+        ? { ...rawSection, title: undefined }
+        : rawSection;
 
     // Editorial heading — eyebrow (§ glyph + gradient hairline) above a large H2.
     // Used for sub-sections inside DEEP_DIVE. No background box, no icon — just typography hierarchy.
