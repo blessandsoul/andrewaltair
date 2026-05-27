@@ -19,9 +19,9 @@ export function InsightRelatedPosts({ posts }: InsightRelatedPostsProps) {
 
     return (
         <section className="space-y-4">
-            <h3 className="text-lg font-semibold text-foreground">
+            <h2 className="text-lg font-semibold text-foreground">
                 დაწვრილებით ამ თემაზე
-            </h3>
+            </h2>
             <div className="grid gap-3">
                 {posts.map((post) => {
                     const image = post.coverImages?.horizontal || post.coverImage;

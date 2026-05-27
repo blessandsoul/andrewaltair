@@ -13,24 +13,30 @@ export const dynamic = 'force-dynamic';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = 'https://andrewaltair.ge'
 
-    // Static pages with fixed dates
+    // Home + listing pages reflect the freshest piece of content underneath them,
+    // not a hardcoded date. Stale lastmod (was: 2025-06-01) signals "not updated"
+    // to Googlebot and demotes crawl frequency on the root URL — bad for a site
+    // publishing 30-50 insights/day.
+    const now = new Date()
+
+    // Static pages
     const staticPages: MetadataRoute.Sitemap = [
         {
             url: baseUrl,
-            lastModified: new Date('2025-06-01'),
-            changeFrequency: 'weekly',
+            lastModified: now,
+            changeFrequency: 'daily',
             priority: 1,
         },
         {
             url: `${baseUrl}/blog`,
-            lastModified: new Date('2025-06-01'),
+            lastModified: now,
             changeFrequency: 'daily',
             priority: 0.9,
         },
         {
             url: `${baseUrl}/insights`,
-            lastModified: new Date(),
-            changeFrequency: 'daily',
+            lastModified: now,
+            changeFrequency: 'hourly',
             priority: 0.9,
         },
         {

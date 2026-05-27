@@ -33,6 +33,10 @@ interface InsightPageClientProps {
             avatar?: string;
             role?: string;
         };
+        seo?: {
+            metaTitle?: string;
+            metaDescription?: string;
+        };
     };
     relatedPosts: {
         slug: string;
@@ -123,6 +127,16 @@ export function InsightPageClient({ insight, relatedPosts, relatedInsights }: In
                     <TbArrowLeft className="w-4 h-4" />
                     Insights
                 </Link>
+
+                {/* Headline (H1) — required for SEO + accessibility outline.
+                    Before: page had no article-level H1; Google semantic crawler
+                    saw site-header H1 only, no signal that this URL is about a
+                    specific story. */}
+                {(insight.seo?.metaTitle || insight.sourceTitle) && (
+                    <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4 leading-tight">
+                        {insight.seo?.metaTitle || insight.sourceTitle}
+                    </h1>
+                )}
 
                 {/* Source image */}
                 {insight.sourceImage && (
@@ -224,9 +238,9 @@ export function InsightPageClient({ insight, relatedPosts, relatedInsights }: In
                 {/* Related insights */}
                 {relatedInsights.length > 0 && (
                     <section className="mt-8 space-y-4">
-                        <h3 className="text-lg font-semibold text-foreground">
+                        <h2 className="text-lg font-semibold text-foreground">
                             მსგავსი ინსაითები
-                        </h3>
+                        </h2>
                         <div className="grid gap-3">
                             {relatedInsights.map((related) => (
                                 <Link

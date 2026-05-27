@@ -7,6 +7,7 @@ import { indexInsight } from '@/lib/indexnow';
 import { extractTags } from '@/lib/tag-extractor';
 import { parseSourceUrl } from '@/lib/og-parser';
 import { computeRelatedContent } from '@/lib/interlinking';
+import { titleToSlug, decodeHtmlEntities } from '@/lib/slug';
 
 import type { IInsight } from '@/models/Insight';
 
@@ -134,12 +135,14 @@ export class InsightService {
             ? [...new Set([...data.tags, ...extractedTags])]
             : extractedTags;
 
-        // 3. Generate slug from source title or content
+        // 3. Generate slug from source title or content.
+        // titleToSlug decodes HTML entities before slugifying so "Sam Altman&#039;s"
+        // becomes "sam-altmans" instead of "sam-altman-039-s".
         const slugBase = ogData.title
-            ? ogData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 60)
+            ? titleToSlug(ogData.title, 60)
             : `insight-${Date.now()}`;
 
-        let slug = slugBase;
+        let slug = slugBase || `insight-${Date.now()}`;
         let counter = 2;
         while (await Insight.findOne({ slug })) {
             slug = `${slugBase}-${counter}`;
@@ -158,12 +161,16 @@ export class InsightService {
 
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge';
 
+        // Decode HTML entities in user-visible title once at save time
+        // so &#039; / &quot; never leak into rendered UI, OG tags, or JSON-LD.
+        const cleanTitle = ogData.title ? decodeHtmlEntities(ogData.title).trim() : '';
+
         const insightData = {
             slug,
             content: data.content,
             excerpt,
             sourceUrl: data.sourceUrl,
-            sourceTitle: ogData.title,
+            sourceTitle: cleanTitle,
             sourceDomain: ogData.domain,
             sourceImage: ogData.image,
             tags: finalTags,
@@ -177,8 +184,8 @@ export class InsightService {
             status: data.status || 'published',
             numericId,
             seo: {
-                metaTitle: ogData.title
-                    ? `${ogData.title.slice(0, 50)} — ინსაითი`
+                metaTitle: cleanTitle
+                    ? `${cleanTitle.slice(0, 50)} — ინსაითი`
                     : excerpt.slice(0, 60),
                 metaDescription: excerpt,
                 ogImage: ogData.image || '',
