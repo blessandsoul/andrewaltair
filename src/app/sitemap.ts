@@ -99,29 +99,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             changeFrequency: 'weekly',
             priority: 0.7,
         },
-        {
-            url: `${baseUrl}/quiz`,
-            lastModified: new Date('2025-01-01'),
-            changeFrequency: 'yearly',
-            priority: 0.6,
-        },
-        {
-            url: `${baseUrl}/bots/affiliate`,
-            lastModified: new Date('2025-01-01'),
-            changeFrequency: 'monthly',
-            priority: 0.6,
-        },
+        // /quiz, /bots/affiliate, /mystic intentionally excluded from sitemap (noindex pages — SEO cleanup 2026-05-27).
         {
             url: `${baseUrl}/about`,
             lastModified: new Date('2025-01-01'),
             changeFrequency: 'monthly',
             priority: 0.6,
-        },
-        {
-            url: `${baseUrl}/mystic`,
-            lastModified: new Date('2025-01-01'),
-            changeFrequency: 'weekly',
-            priority: 0.7,
         },
         {
             url: `${baseUrl}/privacy`,

@@ -7,6 +7,7 @@ export default function robots(): MetadataRoute.Robots {
         '/login', '/register', '/forgot-password', '/verify-email',
         '/profile', '/demo-features', '/bots/add', '/link/',
         '/encyclopedia/progress',
+        '/quiz', '/mystic', '/mystic/', '/bots/affiliate',
         '/*?_rsc=',
     ]
 

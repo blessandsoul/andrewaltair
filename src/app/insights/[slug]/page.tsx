@@ -4,6 +4,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { InsightPageClient } from '@/components/insights/InsightPageClient';
 import { InsightService } from '@/services/insight.service';
+import { parseInsightBody } from '@/lib/insight-content';
 
 function safeEncodeURIComponent(str: string): string {
     try {
@@ -100,6 +101,16 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
             imageUrl = `${siteUrl}${imageUrl}`;
         }
 
+        // Parse the bot-emitted content body once. parseInsightBody strips
+        // the headline first-line (already rendered as <h1>) and trailing
+        // "წყარო:" attribution lines (already rendered in the source-link block).
+        // The cleaned text feeds both the JSON-LD articleBody and the client renderer.
+        const parsedBody = parseInsightBody(
+            insight.content,
+            insight.seo?.metaTitle || insight.sourceTitle
+        );
+        const cleanBody = parsedBody.paragraphs.join('\n\n');
+
         // Schema.org: NewsArticle (replaces prior SocialMediaPosting).
         // NewsArticle is the type Google looks for to surface a page in News /
         // Top Stories carousel; SocialMediaPosting is for "I posted this to a
@@ -107,7 +118,7 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
         // https://developers.google.com/search/docs/appearance/structured-data/article
         const publishedIsoLd = new Date(insight.publishedAt).toISOString();
         const modifiedIsoLd = new Date(insight.updatedAt || insight.publishedAt).toISOString();
-        const wordCount = insight.content.split(/\s+/).filter(Boolean).length;
+        const wordCount = cleanBody.split(/\s+/).filter(Boolean).length;
         const headlineLd = (insight.seo?.metaTitle || insight.excerpt).slice(0, 110);
 
         const jsonLd = {
@@ -115,7 +126,7 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
             '@type': 'NewsArticle',
             headline: headlineLd,
             description: insight.seo?.metaDescription || insight.excerpt,
-            articleBody: insight.content,
+            articleBody: cleanBody,
             image: imageUrl ? [imageUrl] : [],
             datePublished: publishedIsoLd,
             dateModified: modifiedIsoLd,
@@ -171,6 +182,7 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
 
                 <InsightPageClient
                     insight={insight}
+                    parsedBody={parsedBody}
                     relatedPosts={JSON.parse(JSON.stringify(relatedPosts))}
                     relatedInsights={JSON.parse(JSON.stringify(relatedInsights))}
                 />

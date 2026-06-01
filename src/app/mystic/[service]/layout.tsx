@@ -9,6 +9,11 @@ export async function generateMetadata({ params }: { params: Promise<{ service: 
     return {
         title: 'Mystic | Andrew Altair',
         description: 'მისტიკური სერვისი — andrewaltair.ge.',
+        robots: {
+            index: false,
+            follow: true,
+            googleBot: { index: false, follow: true },
+        },
         alternates: { canonical },
         openGraph: {
             title: 'Mystic | Andrew Altair',

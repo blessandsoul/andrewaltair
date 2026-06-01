@@ -4,6 +4,11 @@ import QuizClient from './QuizClient';
 export const metadata: Metadata = {
     title: 'AI ინსტრუმენტების ქვიზი',
     description: 'გაიგე რომელი AI ინსტრუმენტი გიხდება 4 კითხვით. ChatGPT, Claude, Midjourney — შენს საჭიროებებზე მორგებული რეკომენდაცია.',
+    robots: {
+        index: false,
+        follow: true,
+        googleBot: { index: false, follow: true },
+    },
     openGraph: {
         title: 'AI ინსტრუმენტების ქვიზი',
         description: 'გაიგე რომელი AI ინსტრუმენტი გიხდება 4 კითხვით.',

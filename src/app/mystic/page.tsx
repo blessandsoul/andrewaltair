@@ -4,6 +4,11 @@ import MysticClient from './MysticClient';
 export const metadata: Metadata = {
     title: 'AI მისტიკური ინსტრუმენტები',
     description: 'AI-ით ამოძრავებული მისტიკური ინსტრუმენტები: ჰოროსკოპი, ტაროტი, სიზმრების ინტერპრეტაცია, ნუმეროლოგია და სხვა.',
+    robots: {
+        index: false,
+        follow: true,
+        googleBot: { index: false, follow: true },
+    },
     openGraph: {
         title: 'AI მისტიკური ინსტრუმენტები',
         description: 'AI-ით ამოძრავებული ჰოროსკოპი, ტაროტი, სიზმრების ინტერპრეტაცია.',

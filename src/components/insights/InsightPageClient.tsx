@@ -3,13 +3,22 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { TbExternalLink, TbFlame, TbHeart, TbBrain, TbHandClick, TbBulb, TbEye, TbCalendar, TbArrowLeft, TbShare } from 'react-icons/tb';
+import { TbExternalLink, TbFlame, TbHeart, TbBrain, TbHandClick, TbBulb, TbEye, TbCalendar, TbArrowLeft, TbShare, TbClock } from 'react-icons/tb';
 import { cn } from '@/lib/utils';
 import { tagToSlug } from '@/lib/slug';
 import { Badge } from '@/components/ui/badge';
 import { InsightRelatedPosts } from './InsightRelatedPosts';
 
 interface InsightPageClientProps {
+    /** Parsed content body — headline first-line + "წყარო:" attribution
+     *  lines stripped (those render in dedicated UI blocks). Server-computed in
+     *  page.tsx via parseInsightBody() so JSON-LD articleBody and rendered
+     *  paragraphs agree byte-for-byte. */
+    parsedBody: {
+        paragraphs: string[];
+        readingMinutes: number;
+        chars: number;
+    };
     insight: {
         id: string;
         slug: string;
@@ -75,7 +84,7 @@ const REACTION_CONFIG = [
     { key: 'insightful', icon: TbBulb, label: 'Insightful' },
 ] as const;
 
-export function InsightPageClient({ insight, relatedPosts, relatedInsights }: InsightPageClientProps) {
+export function InsightPageClient({ insight, parsedBody, relatedPosts, relatedInsights }: InsightPageClientProps) {
     const [reactions, setReactions] = useState(insight.reactions);
     const [isReacting, setIsReacting] = useState(false);
 
@@ -157,9 +166,19 @@ export function InsightPageClient({ insight, relatedPosts, relatedInsights }: In
                     </div>
                 )}
 
-                {/* Content */}
-                <div className="text-foreground whitespace-pre-line leading-relaxed text-[16px] mb-6">
-                    {insight.content}
+                {/* Content — rendered as semantic <p> tags from parsedBody.paragraphs
+                    (headline first-line + "წყარო:" attribution lines already removed
+                    server-side). Each paragraph gets its own block for proper outline
+                    structure + screen-reader navigation. */}
+                <div className="space-y-4 mb-6">
+                    {parsedBody.paragraphs.map((para, i) => (
+                        <p
+                            key={i}
+                            className="text-foreground leading-relaxed text-[17px] md:text-[18px]"
+                        >
+                            {para}
+                        </p>
+                    ))}
                 </div>
 
                 {/* Source link */}
@@ -200,6 +219,12 @@ export function InsightPageClient({ insight, relatedPosts, relatedInsights }: In
                             <TbCalendar className="w-4 h-4" />
                             {publishedDate}
                         </span>
+                        {parsedBody.readingMinutes > 0 && (
+                            <span className="flex items-center gap-1.5" title={`${parsedBody.chars} სიმბოლო`}>
+                                <TbClock className="w-4 h-4" />
+                                {parsedBody.readingMinutes} წთ
+                            </span>
+                        )}
                         <span className="flex items-center gap-1.5">
                             <TbEye className="w-4 h-4" />
                             {insight.views}
