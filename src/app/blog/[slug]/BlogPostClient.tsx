@@ -20,6 +20,7 @@ import {
     TutorialStickyNav
 } from "@/components/interactive"
 import { AuroraReactionBar } from "@/components/interactive/AuroraReactionBar"
+import { PersonaLikeStack } from "@/components/ai/PersonaLikeStack"
 import { ImageLightbox, useImageLightbox } from "@/components/interactive/ImageLightbox"
 import { PostNavigation } from "@/components/blog/PostNavigation"
 import { InfiniteScrollPosts } from "@/components/blog/InfiniteScrollPosts"
@@ -98,6 +99,7 @@ interface Post {
     comments: number
     shares: number
     reactions: Record<string, number>
+    likedBy?: { personaId: string; name: string }[]
     featured?: boolean
     trending?: boolean
 }
@@ -575,6 +577,9 @@ console.log(data.result);
                                                 postId={post.id}
                                                 postTitle={post.title}
                                             />
+                                            {post.likedBy && post.likedBy.length > 0 && (
+                                                <PersonaLikeStack likedBy={post.likedBy} className="mt-4" />
+                                            )}
                                         </div>
 
                                         <ShareButtons

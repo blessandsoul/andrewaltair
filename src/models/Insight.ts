@@ -41,6 +41,7 @@ export interface IInsight extends Document {
     publishedAt: Date;
     views: number;
     reactions: IInsightReactions;
+    likedBy?: { personaId: string; name: string }[]; // AI personas who liked this insight
     numericId: string;
     createdAt: Date;
     updatedAt: Date;
@@ -161,6 +162,10 @@ const InsightSchema = new Schema<IInsight>(
                 applause: 0,
                 insightful: 0,
             }),
+        },
+        likedBy: {
+            type: [{ _id: false, personaId: String, name: String }],
+            default: [],
         },
         numericId: {
             type: String,

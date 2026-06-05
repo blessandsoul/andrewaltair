@@ -7,7 +7,7 @@ import { ERROR_CODES } from '@/lib/error-codes';
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 import dbConnect from '@/lib/db';
 import Post from '@/models/Post';
-import { generateAndSaveComments } from '@/lib/ai-comment-generator';
+import { generateAndSaveComments, seedLikes } from '@/lib/ai-comment-generator';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -43,10 +43,12 @@ export async function POST(request: Request, { params }: RouteParams) {
             return apiError(ERROR_CODES.POST_NOT_FOUND, 'Post not found', 404);
         }
 
-        const result = await generateAndSaveComments(post._id.toString(), {
+        const pid = post._id.toString();
+        const result = await generateAndSaveComments(pid, {
             title: post.title,
             excerpt: post.excerpt,
         });
+        await seedLikes(Post, pid);
 
         return apiSuccess(result, 'AI comments processed');
     } catch (error) {

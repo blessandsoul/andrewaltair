@@ -7,7 +7,7 @@ import { ERROR_CODES } from '@/lib/error-codes';
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 import dbConnect from '@/lib/db';
 import Insight from '@/models/Insight';
-import { generateAndSaveComments } from '@/lib/ai-comment-generator';
+import { generateAndSaveComments, seedLikes } from '@/lib/ai-comment-generator';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -40,10 +40,12 @@ export async function POST(request: Request, { params }: RouteParams) {
             return apiError(ERROR_CODES.POST_NOT_FOUND, 'Insight not found', 404);
         }
 
-        const result = await generateAndSaveComments(insight._id.toString(), {
+        const iid = insight._id.toString();
+        const result = await generateAndSaveComments(iid, {
             title: insight.sourceTitle || insight.excerpt,
             excerpt: insight.excerpt,
         });
+        await seedLikes(Insight, iid);
 
         return apiSuccess(result, 'AI comments processed');
     } catch (error) {

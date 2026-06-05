@@ -7,6 +7,7 @@ import { TbExternalLink, TbFlame, TbHeart, TbBrain, TbHandClick, TbBulb, TbEye, 
 import { cn } from '@/lib/utils';
 import { tagToSlug } from '@/lib/slug';
 import { Badge } from '@/components/ui/badge';
+import { PersonaLikeStack } from '@/components/ai/PersonaLikeStack';
 
 interface InsightCardProps {
     insight: {
@@ -28,6 +29,7 @@ interface InsightCardProps {
             applause: number;
             insightful: number;
         };
+        likedBy?: { personaId: string; name: string }[];
     };
 }
 
@@ -168,6 +170,9 @@ export function InsightCard({ insight }: InsightCardProps) {
                         })}
                     </div>
                 </div>
+                {insight.likedBy && insight.likedBy.length > 0 && (
+                    <PersonaLikeStack likedBy={insight.likedBy} size="xs" max={5} />
+                )}
             </div>
         </article>
     );

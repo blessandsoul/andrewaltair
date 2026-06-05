@@ -16,6 +16,7 @@ export interface IComment extends Document {
     isSpam?: boolean;
     isAI?: boolean;       // true = generated AI persona comment (shown with a 🤖 badge)
     persona?: string;     // persona id from src/lib/ai-personas.ts (traceability)
+    likedBy?: { personaId: string; name: string }[]; // AI personas who liked this comment
     createdAt: Date;
     updatedAt: Date;
 }
@@ -64,6 +65,10 @@ const CommentSchema = new Schema<IComment>(
         },
         persona: {
             type: String,
+        },
+        likedBy: {
+            type: [{ _id: false, personaId: String, name: String }],
+            default: [],
         },
     },
     {

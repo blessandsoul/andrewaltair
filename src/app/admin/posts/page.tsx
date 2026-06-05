@@ -84,6 +84,8 @@ export default function PostsPage() {
     const [selectedIds, setSelectedIds] = React.useState<string[]>([])
     const [previewPost, setPreviewPost] = React.useState<Post | null>(null)
     const [aiBusyId, setAiBusyId] = React.useState<string | null>(null)
+    const [bulkBusy, setBulkBusy] = React.useState(false)
+    const [bulkProgress, setBulkProgress] = React.useState("")
 
     // Fetch posts + insights from MongoDB API
     React.useEffect(() => {
@@ -505,6 +507,30 @@ export default function PostsPage() {
         }
     }
 
+    // Mass-generate AI comments for ALL posts + insights missing them (idempotent, sequential)
+    const genAllAiComments = async () => {
+        if (bulkBusy) return
+        const items: { type: 'posts' | 'insights'; id: string }[] = [
+            ...posts.map((p) => ({ type: 'posts' as const, id: p.id })),
+            ...insights.map((i: { id?: string; _id?: string }) => ({ type: 'insights' as const, id: (i.id || i._id) as string })),
+        ]
+        if (!confirm(`გენერაცია ${items.length} ერთეულზე (პოსტი + ინსაითი, რომელსაც არ აქვს)? შეიძლება დასჭირდეს რამდენიმე წუთი.`)) return
+        setBulkBusy(true)
+        let created = 0, skipped = 0, failed = 0
+        for (let i = 0; i < items.length; i++) {
+            setBulkProgress(`${i + 1}/${items.length}`)
+            try {
+                const res = await fetch(`/api/${items[i].type}/${items[i].id}/ai-comments`, { method: 'POST' })
+                const j = await res.json().catch(() => null)
+                if (res.ok) { if (j?.data?.skipped) skipped++; else created += (j?.data?.created || 0) }
+                else failed++
+            } catch { failed++ }
+        }
+        setBulkBusy(false)
+        setBulkProgress("")
+        alert(`დასრულდა: +${created} კომენტარი · გამოტოვებული ${skipped} · შეცდომა ${failed}`)
+    }
+
     // Drag & Drop handlers
     const handleDragStart = (e: React.DragEvent, id: string) => {
         setDraggedId(id)
@@ -635,6 +661,12 @@ export default function PostsPage() {
                 </div>
 
                 <div className="flex items-center gap-2 flex-wrap">
+                    {/* Mass AI comments */}
+                    <Button variant="outline" size="sm" disabled={bulkBusy} onClick={genAllAiComments}>
+                        <TbRobot className={`w-4 h-4 mr-1 ${bulkBusy ? "animate-pulse" : ""}`} />
+                        {bulkBusy ? `AI… ${bulkProgress}` : "AI ყველას"}
+                    </Button>
+
                     {/* Export Button */}
                     <Button variant="outline" size="sm" onClick={() => setShowExportModal(true)}>
                         <TbDownload className="w-4 h-4 mr-1" />

@@ -81,6 +81,8 @@ export default function VideosPage() {
     const [draggedItem, setDraggedItem] = React.useState<string | null>(null)
     const [sortBy, setSortBy] = React.useState<"date" | "views" | "name" | "order">("date")
     const [aiBusyId, setAiBusyId] = React.useState<string | null>(null)
+    const [bulkBusy, setBulkBusy] = React.useState(false)
+    const [bulkProgress, setBulkProgress] = React.useState("")
 
     // Fetch videos from MongoDB API
     React.useEffect(() => {
@@ -237,6 +239,26 @@ export default function VideosPage() {
         } finally {
             setAiBusyId(null)
         }
+    }
+
+    // Mass-generate AI comments for ALL videos missing them (idempotent, sequential)
+    const genAllVideoAiComments = async () => {
+        if (bulkBusy) return
+        if (!confirm(`გენერაცია ${videos.length} ვიდეოზე (რომელსაც არ აქვს)? შეიძლება დასჭირდეს რამდენიმე წუთი.`)) return
+        setBulkBusy(true)
+        let created = 0, skipped = 0, failed = 0
+        for (let i = 0; i < videos.length; i++) {
+            setBulkProgress(`${i + 1}/${videos.length}`)
+            try {
+                const res = await fetch(`/api/videos/${videos[i].id}/ai-comments`, { method: 'POST' })
+                const j = await res.json().catch(() => null)
+                if (res.ok) { if (j?.data?.skipped) skipped++; else created += (j?.data?.created || 0) }
+                else failed++
+            } catch { failed++ }
+        }
+        setBulkBusy(false)
+        setBulkProgress("")
+        alert(`დასრულდა: +${created} კომენტარი · გამოტოვებული ${skipped} · შეცდომა ${failed}`)
     }
 
     // Toggle video selection
@@ -428,6 +450,17 @@ export default function VideosPage() {
                     >
                         <TbCloudDownload className={`w-4 h-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
                         {syncing ? "იმპორტი..." : "არხიდან იმპორტი"}
+                    </Button>
+
+                    {/* Mass AI comments */}
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={genAllVideoAiComments}
+                        disabled={bulkBusy}
+                    >
+                        <TbRobot className={`w-4 h-4 mr-2 ${bulkBusy ? "animate-pulse" : ""}`} />
+                        {bulkBusy ? `AI… ${bulkProgress}` : "AI ყველას"}
                     </Button>
 
                     {/* Import/Export */}

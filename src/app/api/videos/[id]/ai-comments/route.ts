@@ -7,7 +7,7 @@ import { ERROR_CODES } from '@/lib/error-codes';
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 import dbConnect from '@/lib/db';
 import Video from '@/models/Video';
-import { generateAndSaveComments } from '@/lib/ai-comment-generator';
+import { generateAndSaveComments, seedLikes } from '@/lib/ai-comment-generator';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -38,10 +38,12 @@ export async function POST(request: Request, { params }: RouteParams) {
             return apiError(ERROR_CODES.VIDEO_NOT_FOUND, 'Video not found', 404);
         }
 
-        const result = await generateAndSaveComments(video._id.toString(), {
+        const vid = video._id.toString();
+        const result = await generateAndSaveComments(vid, {
             title: video.title,
             excerpt: video.description,
         });
+        await seedLikes(Video, vid);
 
         return apiSuccess(result, 'AI comments processed');
     } catch (error) {

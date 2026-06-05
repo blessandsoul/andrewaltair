@@ -12,6 +12,7 @@ export interface IVideo extends Document {
     duration?: string;
     type: 'long' | 'short';
     tags?: string[];
+    likedBy?: { personaId: string; name: string }[]; // AI personas who liked this video
     authorName?: string;
     authorAvatar?: string;
     createdAt: Date;
@@ -62,6 +63,10 @@ const VideoSchema = new Schema<IVideo>(
         },
         tags: {
             type: [String],
+            default: [],
+        },
+        likedBy: {
+            type: [{ _id: false, personaId: String, name: String }],
             default: [],
         },
         authorName: {

@@ -93,3 +93,24 @@ export function pickRandomPersonas(count: number): AIPersona[] {
     }
     return pool.slice(0, Math.min(count, pool.length));
 }
+
+export interface PersonaLiker {
+    personaId: string;
+    name: string;
+}
+
+/**
+ * Pick a random subset of personas as "likers" (between min and max, inclusive),
+ * optionally excluding one persona (so a comment author doesn't like itself).
+ */
+export function pickRandomLikers(min: number, max: number, excludeId?: string): PersonaLiker[] {
+    const pool = AI_PERSONAS.filter((p) => p.id !== excludeId);
+    for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    const lo = Math.max(0, Math.min(min, pool.length));
+    const hi = Math.max(lo, Math.min(max, pool.length));
+    const count = lo + Math.floor(Math.random() * (hi - lo + 1));
+    return pool.slice(0, count).map((p) => ({ personaId: p.id, name: p.name }));
+}

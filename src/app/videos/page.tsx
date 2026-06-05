@@ -8,6 +8,7 @@ import Image from "next/image"
 import { Metadata } from "next"
 import dbConnect from "@/lib/db"
 import Video from "@/models/Video"
+import { PersonaLikeStack } from "@/components/ai/PersonaLikeStack"
 
 export const dynamic = 'force-dynamic'
 
@@ -45,6 +46,7 @@ interface TbVideo {
     type?: 'long' | 'short'
     authorName?: string
     authorAvatar?: string
+    likedBy?: { personaId: string; name: string }[]
 }
 
 // Fetch videos directly from MongoDB
@@ -367,6 +369,10 @@ export default async function VideosPage() {
                                                     <p className="text-sm text-muted-foreground line-clamp-2 mb-4 leading-relaxed">
                                                         {video.description}
                                                     </p>
+                                                )}
+
+                                                {video.likedBy && video.likedBy.length > 0 && (
+                                                    <PersonaLikeStack likedBy={video.likedBy} size="xs" max={4} showCount={false} className="mb-4" />
                                                 )}
 
                                                 {/* Footer */}

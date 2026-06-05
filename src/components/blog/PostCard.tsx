@@ -15,6 +15,7 @@ import { brand } from "@/lib/brand"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { getAuthorAvatar, getCategoryInfo, formatNumber, getTotalReactions, formatRelativeDate } from "@/lib/blog-utils"
+import { PersonaLikeStack } from "@/components/ai/PersonaLikeStack"
 
 interface Post {
     id: string
@@ -44,6 +45,7 @@ interface Post {
     comments: number
     shares: number
     reactions: Record<string, number>
+    likedBy?: { personaId: string; name: string }[]
     featured?: boolean
     trending?: boolean
 }
@@ -330,6 +332,10 @@ export function PostCard({
                             <p className="text-sm text-muted-foreground line-clamp-3 mb-5 leading-relaxed">
                                 {getContentPreview(post, 160)}
                             </p>
+                        )}
+
+                        {post.likedBy && post.likedBy.length > 0 && (
+                            <PersonaLikeStack likedBy={post.likedBy} size="xs" max={5} showCount={false} className="mb-4" />
                         )}
 
                         <div className="mt-auto pt-4 border-t border-border/40 flex items-center justify-between gap-4">

@@ -112,6 +112,7 @@ export interface IPost extends Document {
     faq?: { question: string; answer: string }[]; // Structured FAQ
     entities?: string[];       // Knowledge graph entities (people, tech, companies)
     sources?: ISource[];       // Parsed sources from links.md
+    likedBy?: { personaId: string; name: string }[]; // AI personas who liked this post
 }
 
 const ReactionsSchema = new Schema<IReactions>(
@@ -327,6 +328,10 @@ const PostSchema = new Schema<IPost>(
                 applause: 0,
                 insightful: 0,
             }),
+        },
+        likedBy: {
+            type: [{ _id: false, personaId: String, name: String }],
+            default: [],
         },
         featured: {
             type: Boolean,

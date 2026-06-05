@@ -10,6 +10,8 @@ import { TbMessage, TbHeart, TbArrowBackUp, TbSend, TbClock } from "react-icons/
 import { cn } from "@/lib/utils"
 import { useVisitorTracking } from "@/hooks/useVisitorTracking"
 import { useAuth } from "@/lib/auth"
+import { PersonaAvatar } from "@/components/ai/PersonaAvatar"
+import { PersonaLikeStack } from "@/components/ai/PersonaLikeStack"
 
 // 🎭 სასაცილო ავატარები კომენტატორებისთვის
 const funnyAvatars = [
@@ -50,6 +52,9 @@ interface Comment {
     likes: number
     replies?: Comment[]
     isAI?: boolean
+    persona?: string
+    parentId?: string | null
+    likedBy?: { personaId: string; name: string }[]
 }
 
 interface CommentsProps {
@@ -100,16 +105,20 @@ function CommentItem({
     return (
         <div className={cn("group", isReply && "ml-12 mt-4")}>
             <div className="flex gap-3">
-                <div className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-2xl",
-                    authorName === "Andrew Altair"
-                        ? "bg-gradient-to-br from-primary to-accent"
-                        : "bg-secondary/50 backdrop-blur-sm"
-                )}>
-                    {authorName === "Andrew Altair"
-                        ? "⭐"
-                        : (authorAvatar || getAvatarForName(authorName))}
-                </div>
+                {comment.isAI && comment.persona ? (
+                    <PersonaAvatar personaId={comment.persona} size="md" title={authorName} />
+                ) : (
+                    <div className={cn(
+                        "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-2xl",
+                        authorName === "Andrew Altair"
+                            ? "bg-gradient-to-br from-primary to-accent"
+                            : "bg-secondary/50 backdrop-blur-sm"
+                    )}>
+                        {authorName === "Andrew Altair"
+                            ? "⭐"
+                            : (authorAvatar || getAvatarForName(authorName))}
+                    </div>
+                )}
 
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -147,6 +156,9 @@ function CommentItem({
                                 <TbArrowBackUp className="w-4 h-4" />
                                 პასუხი
                             </button>
+                        )}
+                        {comment.likedBy && comment.likedBy.length > 0 && (
+                            <PersonaLikeStack likedBy={comment.likedBy} size="xs" max={4} showCount={false} />
                         )}
                     </div>
 
@@ -193,7 +205,19 @@ export function Comments({ postId, postTitle, className }: CommentsProps) {
                 if (res.ok) {
                     const json = await res.json()
                     // API wraps payload as { data: { comments } }; tolerate both shapes
-                    setComments(json?.data?.comments ?? json?.comments ?? [])
+                    const flat: Comment[] = json?.data?.comments ?? json?.comments ?? []
+                    // Build a one-level reply tree from parentId
+                    const childrenByParent = new Map<string, Comment[]>()
+                    flat.forEach((c) => {
+                        if (c.parentId) {
+                            const arr = childrenByParent.get(c.parentId) ?? []
+                            arr.push(c)
+                            childrenByParent.set(c.parentId, arr)
+                        }
+                    })
+                    const roots = flat.filter((c) => !c.parentId)
+                    roots.forEach((r) => { r.replies = childrenByParent.get(r.id) ?? [] })
+                    setComments(roots)
                 }
             } catch (error) {
                 // Silently fail

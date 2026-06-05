@@ -6,6 +6,7 @@ import { TbArrowLeft, TbEye, TbCalendar, TbClock, TbThumbUp, TbShare, TbSparkles
 import { Comments } from "@/components/interactive/Comments"
 import { ShareButtons } from "@/components/interactive/ShareButtons"
 import { ReactionBar } from "@/components/interactive/ReactionBar"
+import { PersonaLikeStack } from "@/components/ai/PersonaLikeStack"
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import mongoose from 'mongoose'
@@ -25,6 +26,7 @@ interface TbVideo {
     publishedAt: string
     authorName?: string
     authorAvatar?: string
+    likedBy?: { personaId: string; name: string }[]
 }
 
 function formatDate(dateString: string): string {
@@ -81,6 +83,7 @@ async function getVideoData(id: string): Promise<TbVideo | null> {
             publishedAt: v.publishedAt ? new Date(v.publishedAt).toISOString() : new Date().toISOString(),
             authorName: v.authorName || 'Andrew Altair',
             authorAvatar: v.authorAvatar || '/andrewaltair.png',
+            likedBy: (v.likedBy || []) as { personaId: string; name: string }[],
         }
     } catch (error) {
         console.error('Error fetching video:', error)
@@ -338,6 +341,12 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
                                 title={video.title}
                                 description={video.description}
                             />
+
+                            {video.likedBy && video.likedBy.length > 0 && (
+                                <div className="pt-6 border-t border-border">
+                                    <PersonaLikeStack likedBy={video.likedBy} />
+                                </div>
+                            )}
 
                             {/* Comments */}
                             <Comments postId={video.id} className="pt-8 border-t border-border" />

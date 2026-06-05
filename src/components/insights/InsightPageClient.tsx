@@ -9,6 +9,7 @@ import { tagToSlug } from '@/lib/slug';
 import { Badge } from '@/components/ui/badge';
 import { InsightRelatedPosts } from './InsightRelatedPosts';
 import { Comments } from '@/components/interactive/Comments';
+import { PersonaLikeStack } from '@/components/ai/PersonaLikeStack';
 
 interface InsightPageClientProps {
     /** Parsed content body — headline first-line + "წყარო:" attribution
@@ -38,6 +39,7 @@ interface InsightPageClientProps {
             applause: number;
             insightful: number;
         };
+        likedBy?: { personaId: string; name: string }[];
         author: {
             name: string;
             avatar?: string;
@@ -284,6 +286,12 @@ export function InsightPageClient({ insight, parsedBody, relatedPosts, relatedIn
                             ))}
                         </div>
                     </section>
+                )}
+
+                {insight.likedBy && insight.likedBy.length > 0 && (
+                    <div className="mt-8">
+                        <PersonaLikeStack likedBy={insight.likedBy} />
+                    </div>
                 )}
 
                 {/* Comments (incl. AI personas) */}
