@@ -176,7 +176,78 @@ export async function generatePersonaComments(
 
 export type SaveCommentsResult =
     | { created: number }
-    | { skipped: true; existing: number };
+    | { skipped: true; existing: number }
+    | { augmented: true; likedAdded: number; replyAdded: number; existing: number };
+
+interface ExistingComment {
+    _id: unknown;
+    persona?: string;
+    content: string;
+    parentId?: unknown;
+    likedBy?: unknown[];
+}
+
+/** Insert one reply by a persona NOT already used in the thread. Returns true on success. */
+async function buildReply(
+    commentKey: string,
+    seed: PostSeed,
+    usedPersonaIds: string[],
+    parentContent: string,
+    parentId: unknown,
+): Promise<boolean> {
+    const used = new Set(usedPersonaIds.filter(Boolean));
+    const pool = AI_PERSONAS.filter((p) => !used.has(p.id));
+    const candidates = pool.length ? pool : AI_PERSONAS;
+    const replyPersona = candidates[Math.floor(Math.random() * candidates.length)];
+    if (!replyPersona) return false;
+    const apiKey = process.env.OPENROUTER_API_KEY!;
+    const replyText = await generateReplyForPersona(apiKey, replyPersona, seed, parentContent);
+    if (!replyText) return false;
+    const likedBy = pickRandomLikers(1, 5, replyPersona.id);
+    await Comment.create({
+        postId: commentKey,
+        author: { name: replyPersona.name, avatar: replyPersona.avatar },
+        content: replyText,
+        isAI: true,
+        persona: replyPersona.id,
+        parentId,
+        likedBy,
+        likes: likedBy.length,
+        status: 'approved',
+    });
+    return true;
+}
+
+/** Backfill likes + one reply onto comments that already exist (created before this logic). */
+async function augmentExistingComments(
+    commentKey: string,
+    seed: PostSeed,
+    existingDocs: ExistingComment[],
+): Promise<SaveCommentsResult> {
+    let likedAdded = 0;
+    for (const c of existingDocs) {
+        if (!c.likedBy || c.likedBy.length === 0) {
+            const likedBy = pickRandomLikers(1, 6, c.persona);
+            await Comment.updateOne({ _id: c._id }, { $set: { likedBy, likes: likedBy.length } });
+            likedAdded++;
+        }
+    }
+
+    let replyAdded = 0;
+    const hasReply = existingDocs.some((c) => c.parentId);
+    const topLevel = existingDocs.filter((c) => !c.parentId);
+    if (!hasReply && topLevel.length >= 1) {
+        const parent = topLevel[0];
+        const usedIds = existingDocs.map((c) => c.persona).filter(Boolean) as string[];
+        if (await buildReply(commentKey, seed, usedIds, parent.content, parent._id)) replyAdded = 1;
+    }
+
+    // Nothing was missing → report as a clean skip (fully complete already)
+    if (likedAdded === 0 && replyAdded === 0) {
+        return { skipped: true, existing: existingDocs.length };
+    }
+    return { augmented: true, likedAdded, replyAdded, existing: existingDocs.length };
+}
 
 /**
  * Generate AND persist AI-persona comments for any content item, keyed by `commentKey`
@@ -192,15 +263,20 @@ export async function generateAndSaveComments(
 ): Promise<SaveCommentsResult> {
     await dbConnect();
 
-    const existing = await Comment.countDocuments({ postId: commentKey, isAI: true });
-    if (existing > 0) return { skipped: true, existing };
+    // If AI comments already exist, backfill likes + a reply instead of skipping.
+    const existingDocs = await Comment.find({ postId: commentKey, isAI: true })
+        .sort({ createdAt: 1 })
+        .lean<ExistingComment[]>();
+    if (existingDocs.length > 0) {
+        return augmentExistingComments(commentKey, seed, existingDocs);
+    }
 
     const generated = await generatePersonaComments(seed);
     if (generated.length === 0) return { created: 0 };
 
     const docs = await Comment.insertMany(
         generated.map((g) => {
-            const likedBy = pickRandomLikers(0, 6, g.personaId);
+            const likedBy = pickRandomLikers(1, 6, g.personaId);
             return {
                 postId: commentKey,
                 author: { name: g.name, avatar: g.avatar },
@@ -217,29 +293,8 @@ export async function generateAndSaveComments(
     // Make the thread feel alive: a different persona replies to the first comment.
     let replies = 0;
     if (docs.length >= 2) {
-        const used = new Set(generated.map((g) => g.personaId));
-        const pool = AI_PERSONAS.filter((p) => !used.has(p.id));
-        const candidates = pool.length ? pool : AI_PERSONAS.filter((p) => p.id !== generated[0].personaId);
-        const replyPersona = candidates[Math.floor(Math.random() * candidates.length)];
-        if (replyPersona) {
-            const apiKey = process.env.OPENROUTER_API_KEY!;
-            const replyText = await generateReplyForPersona(apiKey, replyPersona, seed, generated[0].content);
-            if (replyText) {
-                const likedBy = pickRandomLikers(0, 5, replyPersona.id);
-                await Comment.create({
-                    postId: commentKey,
-                    author: { name: replyPersona.name, avatar: replyPersona.avatar },
-                    content: replyText,
-                    isAI: true,
-                    persona: replyPersona.id,
-                    parentId: docs[0]._id,
-                    likedBy,
-                    likes: likedBy.length,
-                    status: 'approved',
-                });
-                replies = 1;
-            }
-        }
+        const usedIds = generated.map((g) => g.personaId);
+        if (await buildReply(commentKey, seed, usedIds, generated[0].content, docs[0]._id)) replies = 1;
     }
 
     return { created: docs.length + replies };

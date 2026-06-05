@@ -25,6 +25,7 @@ interface Insight {
         applause: number;
         insightful: number;
     };
+    likedBy?: { personaId: string; name: string }[];
 }
 
 interface InsightsFeedProps {

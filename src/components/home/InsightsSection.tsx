@@ -4,6 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { TbArrowRight, TbExternalLink, TbFlame, TbEye } from "react-icons/tb"
 import { Badge } from "@/components/ui/badge"
+import { PersonaLikeStack } from "@/components/ai/PersonaLikeStack"
 
 interface Insight {
     id: string
@@ -24,6 +25,7 @@ interface Insight {
         applause: number
         insightful: number
     }
+    likedBy?: { personaId: string; name: string }[]
 }
 
 interface InsightsSectionProps {
@@ -114,6 +116,9 @@ export function InsightsSection({ insights }: InsightsSectionProps) {
                                         )}
                                     </div>
                                 </div>
+                                {insight.likedBy && insight.likedBy.length > 0 && (
+                                    <PersonaLikeStack likedBy={insight.likedBy} size="xs" max={4} showCount={false} className="mt-2" />
+                                )}
                             </div>
                         </article>
                     </Link>

@@ -5,6 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { TbArrowRight, TbRobot, TbAtom, TbBook, TbNews, TbCpu, TbTrendingUp, TbBuildingBank, TbBriefcase, TbUsers, TbSchool, TbWorld, TbFileText } from "react-icons/tb"
 import { getCategoryInfo, formatRelativeDate } from "@/lib/blog-utils"
+import { PersonaLikeStack } from "@/components/ai/PersonaLikeStack"
 
 interface Post {
   id: string
@@ -14,6 +15,7 @@ interface Post {
   coverImage?: string
   category?: string
   publishedAt?: string
+  likedBy?: { personaId: string; name: string }[]
 }
 
 interface ArticlesSectionProps {
@@ -97,6 +99,9 @@ export function ArticlesSection({ posts }: ArticlesSectionProps) {
                     <p className="text-sm text-on-surface-variant line-clamp-2 leading-relaxed">
                       {post.excerpt}
                     </p>
+                  )}
+                  {post.likedBy && post.likedBy.length > 0 && (
+                    <PersonaLikeStack likedBy={post.likedBy} size="xs" max={5} showCount={false} />
                   )}
                 </div>
               </article>

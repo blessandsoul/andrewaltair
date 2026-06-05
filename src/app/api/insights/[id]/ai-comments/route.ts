@@ -7,6 +7,8 @@ import { ERROR_CODES } from '@/lib/error-codes';
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 import dbConnect from '@/lib/db';
 import Insight from '@/models/Insight';
+import { revalidatePath } from 'next/cache';
+
 import { generateAndSaveComments, seedLikes } from '@/lib/ai-comment-generator';
 
 interface RouteParams {
@@ -31,10 +33,10 @@ export async function POST(request: Request, { params }: RouteParams) {
 
         let insight = null;
         if (mongoose.Types.ObjectId.isValid(id)) {
-            insight = await Insight.findById(id).select('_id sourceTitle excerpt').lean();
+            insight = await Insight.findById(id).select('_id slug sourceTitle excerpt').lean();
         }
         if (!insight) {
-            insight = await Insight.findOne({ slug: id }).select('_id sourceTitle excerpt').lean();
+            insight = await Insight.findOne({ slug: id }).select('_id slug sourceTitle excerpt').lean();
         }
         if (!insight) {
             return apiError(ERROR_CODES.POST_NOT_FOUND, 'Insight not found', 404);
@@ -46,6 +48,10 @@ export async function POST(request: Request, { params }: RouteParams) {
             excerpt: insight.excerpt,
         });
         await seedLikes(Insight, iid);
+
+        revalidatePath('/');
+        revalidatePath('/insights');
+        if ((insight as { slug?: string }).slug) revalidatePath(`/insights/${(insight as { slug?: string }).slug}`);
 
         return apiSuccess(result, 'AI comments processed');
     } catch (error) {

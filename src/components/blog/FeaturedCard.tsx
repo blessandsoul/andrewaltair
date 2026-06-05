@@ -28,6 +28,7 @@ interface Post {
     comments: number
     shares: number
     reactions: Record<string, number>
+    likedBy?: { personaId: string; name: string }[]
     featured?: boolean
     trending?: boolean
 }
@@ -37,6 +38,7 @@ interface FeaturedCardProps {
 }
 
 import { getAuthorAvatar, getCategoryInfo, formatNumber, getTotalReactions, formatRelativeDate } from "@/lib/blog-utils"
+import { PersonaLikeStack } from "@/components/ai/PersonaLikeStack"
 
 export function FeaturedCard({ post }: FeaturedCardProps) {
     const [imageError, setImageError] = useState(false)
@@ -159,6 +161,9 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
                                     <ButtonGhost icon={TbHeart} count={formatNumber(getTotalReactions(post.reactions))} className="hover:text-red-400" />
                                 </div>
                             </div>
+                            {post.likedBy && post.likedBy.length > 0 && (
+                                <PersonaLikeStack likedBy={post.likedBy} size="xs" max={5} showCount={false} className="mt-3" />
+                            )}
                         </div>
                     </div>
                 </CardContent>

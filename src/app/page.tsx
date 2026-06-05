@@ -89,6 +89,7 @@ async function getVideos() {
       publishedAt: video.publishedAt ? new Date(video.publishedAt).toISOString() : new Date().toISOString(),
       authorName: video.authorName || 'Andrew Altair',
       authorAvatar: video.authorAvatar || '/andrewaltair.png',
+      likedBy: video.likedBy || [],
     }))
   } catch (error) {
     console.error('Error fetching videos:', error)

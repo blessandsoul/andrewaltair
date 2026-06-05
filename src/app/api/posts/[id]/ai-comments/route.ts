@@ -7,6 +7,8 @@ import { ERROR_CODES } from '@/lib/error-codes';
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 import dbConnect from '@/lib/db';
 import Post from '@/models/Post';
+import { revalidatePath } from 'next/cache';
+
 import { generateAndSaveComments, seedLikes } from '@/lib/ai-comment-generator';
 
 interface RouteParams {
@@ -34,10 +36,10 @@ export async function POST(request: Request, { params }: RouteParams) {
         // Resolve by ObjectId or slug (mirrors GET /api/posts/[id])
         let post = null;
         if (mongoose.Types.ObjectId.isValid(id)) {
-            post = await Post.findById(id).select('_id title excerpt').lean();
+            post = await Post.findById(id).select('_id slug title excerpt').lean();
         }
         if (!post) {
-            post = await Post.findOne({ slug: id }).select('_id title excerpt').lean();
+            post = await Post.findOne({ slug: id }).select('_id slug title excerpt').lean();
         }
         if (!post) {
             return apiError(ERROR_CODES.POST_NOT_FOUND, 'Post not found', 404);
@@ -49,6 +51,11 @@ export async function POST(request: Request, { params }: RouteParams) {
             excerpt: post.excerpt,
         });
         await seedLikes(Post, pid);
+
+        // Refresh cached surfaces so the new comments/likes/liker-icons show
+        revalidatePath('/');
+        revalidatePath('/blog');
+        if (post.slug) revalidatePath(`/blog/${post.slug}`);
 
         return apiSuccess(result, 'AI comments processed');
     } catch (error) {

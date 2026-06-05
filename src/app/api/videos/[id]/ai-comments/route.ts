@@ -7,6 +7,8 @@ import { ERROR_CODES } from '@/lib/error-codes';
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
 import dbConnect from '@/lib/db';
 import Video from '@/models/Video';
+import { revalidatePath } from 'next/cache';
+
 import { generateAndSaveComments, seedLikes } from '@/lib/ai-comment-generator';
 
 interface RouteParams {
@@ -44,6 +46,10 @@ export async function POST(request: Request, { params }: RouteParams) {
             excerpt: video.description,
         });
         await seedLikes(Video, vid);
+
+        revalidatePath('/');
+        revalidatePath('/videos');
+        revalidatePath(`/videos/${vid}`);
 
         return apiSuccess(result, 'AI comments processed');
     } catch (error) {

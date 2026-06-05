@@ -230,7 +230,9 @@ export default function VideosPage() {
             const json = await res.json().catch(() => null)
             if (res.ok) {
                 const d = json?.data
-                alert(d?.skipped ? 'AI კომენტარები უკვე არსებობს ✓' : `დაემატა ${d?.created ?? 0} AI კომენტარი 🤖`)
+                if (d?.skipped) alert('უკვე სრულია — გამოტოვდა ✓')
+                else if (d?.augmented) alert(`განახლდა: +${d.likedAdded ?? 0} ლაიქი · +${d.replyAdded ?? 0} პასუხი 🤖`)
+                else alert(`დაემატა ${d?.created ?? 0} AI კომენტარი 🤖`)
             } else {
                 alert('AI კომენტარების გენერაცია ვერ მოხერხდა')
             }
@@ -244,21 +246,25 @@ export default function VideosPage() {
     // Mass-generate AI comments for ALL videos missing them (idempotent, sequential)
     const genAllVideoAiComments = async () => {
         if (bulkBusy) return
-        if (!confirm(`გენერაცია ${videos.length} ვიდეოზე (რომელსაც არ აქვს)? შეიძლება დასჭირდეს რამდენიმე წუთი.`)) return
+        if (!confirm(`შემოწმდება ${videos.length} ვიდეო. დაემატება მხოლოდ იქ სადაც არ არის, დანარჩენი გამოტოვდება. შეიძლება დასჭირდეს რამდენიმე წუთი.`)) return
         setBulkBusy(true)
-        let created = 0, skipped = 0, failed = 0
+        let created = 0, augmented = 0, skipped = 0, failed = 0
         for (let i = 0; i < videos.length; i++) {
             setBulkProgress(`${i + 1}/${videos.length}`)
             try {
                 const res = await fetch(`/api/videos/${videos[i].id}/ai-comments`, { method: 'POST' })
                 const j = await res.json().catch(() => null)
-                if (res.ok) { if (j?.data?.skipped) skipped++; else created += (j?.data?.created || 0) }
-                else failed++
+                if (res.ok) {
+                    const d = j?.data
+                    if (d?.skipped) skipped++
+                    else if (d?.augmented) augmented++
+                    else created += (d?.created || 0)
+                } else failed++
             } catch { failed++ }
         }
         setBulkBusy(false)
         setBulkProgress("")
-        alert(`დასრულდა: +${created} კომენტარი · გამოტოვებული ${skipped} · შეცდომა ${failed}`)
+        alert(`დასრულდა: +${created} ახალი · ${augmented} განახლდა · ${skipped} გამოტოვდა · ${failed} შეცდომა`)
     }
 
     // Toggle video selection

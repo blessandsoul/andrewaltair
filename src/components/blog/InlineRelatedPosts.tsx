@@ -3,6 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { TbSparkles, TbEye, TbHeart, TbMessage, TbShare } from "react-icons/tb"
+import { PersonaLikeStack } from "@/components/ai/PersonaLikeStack"
 
 interface RelatedPost {
     id: string
@@ -12,6 +13,7 @@ interface RelatedPost {
     comments?: number
     shares?: number
     reactions: Record<string, number>
+    likedBy?: { personaId: string; name: string }[]
     coverImage?: string
     coverImages?: {
         horizontal?: string
@@ -96,6 +98,9 @@ export function InlineRelatedPosts({ posts, className = "" }: InlineRelatedPosts
                                 <p className="font-medium line-clamp-2 group-hover:text-primary transition-colors">
                                     {post.title}
                                 </p>
+                                {post.likedBy && post.likedBy.length > 0 && (
+                                    <PersonaLikeStack likedBy={post.likedBy} size="xs" max={4} showCount={false} className="mt-2" />
+                                )}
                             </div>
                         </Link>
                     )

@@ -4,6 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { TbArrowRight, TbPlayerPlay } from "react-icons/tb"
 import { formatNumber } from "@/lib/blog-utils"
+import { PersonaLikeStack } from "@/components/ai/PersonaLikeStack"
 
 interface Video {
   id: string
@@ -12,6 +13,7 @@ interface Video {
   duration?: string
   views?: number
   category?: string
+  likedBy?: { personaId: string; name: string }[]
 }
 
 interface VideosSectionProps {
@@ -68,6 +70,9 @@ export function VideosSection({ videos }: VideosSectionProps) {
                 <p className="text-[10px] text-on-surface-variant uppercase tracking-widest">
                   {video.category ? `${video.category} • ` : ""}{formatNumber(video.views)} ნახვა
                 </p>
+              )}
+              {video.likedBy && video.likedBy.length > 0 && (
+                <PersonaLikeStack likedBy={video.likedBy} size="xs" max={4} showCount={false} />
               )}
             </Link>
           ))}
