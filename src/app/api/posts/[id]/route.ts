@@ -97,6 +97,12 @@ export async function PUT(request: Request, { params }: RouteParams) {
         delete data.id;
         delete data._id;
 
+        // Normalize seo.keywords: editor/Alpha-gem may send an array, schema stores a comma-string.
+        // Query setters don't fire reliably on nested $set paths, so coerce explicitly here.
+        if (data?.seo && Array.isArray(data.seo.keywords)) {
+            data.seo.keywords = data.seo.keywords.filter(Boolean).join(', ');
+        }
+
         const post = await Post.findByIdAndUpdate(
             id,
             { $set: data },

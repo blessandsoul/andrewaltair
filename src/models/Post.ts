@@ -129,7 +129,13 @@ const SEOSchema = new Schema<ISEO>(
     {
         metaTitle: { type: String, maxlength: 60 },
         metaDescription: { type: String, maxlength: 160 },
-        keywords: { type: String },
+        // Stored as a comma-separated string (read-side does seo.keywords.split(',')).
+        // The Alpha-gem JSON sends keywords as an array, so coerce array -> comma-string here.
+        keywords: {
+            type: String,
+            set: (v: unknown): string | undefined =>
+                Array.isArray(v) ? v.filter(Boolean).join(', ') : (v as string | undefined),
+        },
         canonicalUrl: { type: String },
         focusKeyword: { type: String },
         seoScore: { type: Number, min: 0, max: 100 },
