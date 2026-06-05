@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { TbVideo, TbSearch, TbEdit, TbTrash, TbEye, TbClock, TbPlayerPlay, TbX, TbDeviceFloppy, TbBrandYoutube, TbPlus, TbDownload, TbUpload, TbChartBar, TbRefresh, TbCalendar, TbTag, TbGripVertical, TbCheck, TbJson, TbFileSpreadsheet, TbTrendingUp, TbUsers, TbExternalLink, TbSquareCheck, TbSquare, TbStack2, TbArrowsSort, TbCloudDownload } from "react-icons/tb"
+import { TbVideo, TbSearch, TbEdit, TbTrash, TbEye, TbClock, TbPlayerPlay, TbX, TbDeviceFloppy, TbBrandYoutube, TbPlus, TbDownload, TbUpload, TbChartBar, TbRefresh, TbCalendar, TbTag, TbGripVertical, TbCheck, TbJson, TbFileSpreadsheet, TbTrendingUp, TbUsers, TbExternalLink, TbSquareCheck, TbSquare, TbStack2, TbArrowsSort, TbCloudDownload, TbRobot } from "react-icons/tb"
 // Videos fetched from MongoDB API
 
 interface VideoItem {
@@ -80,6 +80,7 @@ export default function VideosPage() {
     const [syncResult, setSyncResult] = React.useState<{ added: number; skipped: number } | null>(null)
     const [draggedItem, setDraggedItem] = React.useState<string | null>(null)
     const [sortBy, setSortBy] = React.useState<"date" | "views" | "name" | "order">("date")
+    const [aiBusyId, setAiBusyId] = React.useState<string | null>(null)
 
     // Fetch videos from MongoDB API
     React.useEffect(() => {
@@ -202,14 +203,39 @@ export default function VideosPage() {
             })
             if (res.ok) {
                 const data = await res.json()
-                setVideos([{ ...newVideo, id: data.video.id, order: videos.length }, ...videos])
+                // POST /api/videos returns the id at data.data.id (apiSuccess wrap)
+                const newVideoId = data?.data?.id ?? data?.video?.id
+                setVideos([{ ...newVideo, id: newVideoId, order: videos.length }, ...videos])
                 setAddingVideo(false)
+                // 🤖 Fire-and-forget: AI-persona comments for the new video
+                if (newVideoId) {
+                    void fetch(`/api/videos/${newVideoId}/ai-comments`, { method: 'POST' }).catch(() => { })
+                }
             } else {
                 alert('შეცდომა დამატებისას')
             }
         } catch (error) {
             console.error('Add error:', error)
             alert('შეცდომა დამატებისას')
+        }
+    }
+
+    // Generate AI persona comments for an existing video (backfill button)
+    const genVideoAiComments = async (id: string) => {
+        setAiBusyId(id)
+        try {
+            const res = await fetch(`/api/videos/${id}/ai-comments`, { method: 'POST' })
+            const json = await res.json().catch(() => null)
+            if (res.ok) {
+                const d = json?.data
+                alert(d?.skipped ? 'AI კომენტარები უკვე არსებობს ✓' : `დაემატა ${d?.created ?? 0} AI კომენტარი 🤖`)
+            } else {
+                alert('AI კომენტარების გენერაცია ვერ მოხერხდა')
+            }
+        } catch {
+            alert('AI კომენტარების გენერაცია ვერ მოხერხდა')
+        } finally {
+            setAiBusyId(null)
         }
     }
 
@@ -288,7 +314,15 @@ export default function VideosPage() {
                             views: 0
                         })
                     })
-                    if (createRes.ok) addedCount++
+                    if (createRes.ok) {
+                        addedCount++
+                        // 🤖 Fire-and-forget AI comments per imported video (idempotent; 429s covered by backfill button)
+                        try {
+                            const created = await createRes.json()
+                            const vid = created?.data?.id
+                            if (vid) void fetch(`/api/videos/${vid}/ai-comments`, { method: 'POST' }).catch(() => { })
+                        } catch { /* ignore */ }
+                    }
                 } catch (err) {
                     console.error('Failed to import video:', v.videoId, err)
                 }
@@ -740,6 +774,15 @@ export default function VideosPage() {
                                     onClick={() => window.open(`https://youtube.com/watch?v=${video.youtubeId}`, "_blank")}
                                 >
                                     <TbExternalLink className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    title="AI კომენტარების გენერაცია"
+                                    disabled={aiBusyId === video.id}
+                                    onClick={() => genVideoAiComments(video.id)}
+                                >
+                                    <TbRobot className={`w-4 h-4 ${aiBusyId === video.id ? 'animate-pulse text-primary' : ''}`} />
                                 </Button>
                                 <Button
                                     variant="ghost"

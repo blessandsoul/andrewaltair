@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { TbShield, TbLock, TbEye, TbEyeOff, TbLoader2, TbAlertTriangle } from "react-icons/tb"
@@ -13,7 +13,6 @@ function AdminLoginForm() {
     const [error, setError] = useState<string | null>(null)
     const [attempts, setAttempts] = useState(0)
 
-    const router = useRouter()
     const searchParams = useSearchParams()
     const from = searchParams.get('from') || '/admin'
 
@@ -36,9 +35,13 @@ function AdminLoginForm() {
                 throw new Error(data.error || 'Login failed')
             }
 
-            // Redirect to the page they tried to access
-            router.push(from)
-            router.refresh()
+            // Hard navigation (not router.push): the cookie-based AdminAuth gate only
+            // verifies the session on mount. Client-side nav keeps its stale
+            // isAuthenticated=false from the pre-login check and bounces back to login
+            // (the "two clicks to log in" bug). A full load remounts it so it re-verifies
+            // with the freshly-set admin_session cookie.
+            window.location.assign(from)
+            return
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Login failed')
         } finally {

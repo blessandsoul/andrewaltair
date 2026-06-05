@@ -34,6 +34,13 @@ export default function NewPostPage() {
                 }
 
                 const savedInsight = await res.json()
+
+                // 🤖 Fire-and-forget: AI-persona comments for the new insight (not awaited)
+                const newInsightId = savedInsight?.data?.id || savedInsight?.data?._id
+                if (newInsightId) {
+                    void fetch(`/api/insights/${newInsightId}/ai-comments`, { method: 'POST' }).catch(() => { })
+                }
+
                 setSuccessData({
                     slug: `insights/${savedInsight.data?.slug || 'new'}`,
                     title: 'Insight Published'
@@ -123,6 +130,13 @@ export default function NewPostPage() {
             }
 
             const savedPost = await res.json()
+
+            // 🤖 Fire-and-forget: generate AI-persona comments for the new post.
+            // Not awaited — publishing must stay instant; comments appear a few seconds later.
+            const newId = savedPost?.data?.id || savedPost?.data?._id
+            if (newId) {
+                void fetch(`/api/posts/${newId}/ai-comments`, { method: 'POST' }).catch(() => { })
+            }
 
             // 🎉 Show Success Modal
             setSuccessData({

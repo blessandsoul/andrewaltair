@@ -4,9 +4,10 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { TbLayoutDashboard, TbFileText, TbVideo, TbMessage, TbChevronLeft, TbMenu2, TbX, TbSparkles, TbSun, TbMoon, TbSearch, TbBell, TbSettings, TbDownload, TbChartBar, TbActivity, TbTag, TbFolderOpen, TbPhoto, TbUsers, TbWorld, TbTool, TbPencil, TbKeyboard, TbCommand, TbBook, TbBrandGithub, TbLink } from "react-icons/tb"
+import { TbLayoutDashboard, TbFileText, TbVideo, TbMessage, TbChevronLeft, TbMenu2, TbX, TbSparkles, TbSun, TbMoon, TbSearch, TbSettings, TbDownload, TbChartBar, TbActivity, TbTag, TbFolderOpen, TbPhoto, TbUsers, TbWorld, TbTool, TbPencil, TbKeyboard, TbCommand, TbBook, TbBrandGithub, TbLink } from "react-icons/tb"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { NotificationBell } from "./NotificationBell"
 
 interface NavItem {
     href: string
@@ -192,7 +193,6 @@ export function AdminHeader({
 }) {
     const [showSearch, setShowSearch] = React.useState(false)
     const [searchQuery, setSearchQuery] = React.useState("")
-    const [notifications] = React.useState(3)
     const router = useRouter()
 
     // TbKeyboard shortcuts
@@ -278,22 +278,22 @@ export function AdminHeader({
                         )}
                     </Button>
 
-                    <Button variant="ghost" size="icon" className="relative h-9 w-9">
-                        <TbBell className="w-4 h-4" />
-                        {notifications > 0 && (
-                            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-medium rounded-full flex items-center justify-center px-1">
-                                {notifications}
-                            </span>
-                        )}
-                    </Button>
+                    <NotificationBell />
 
                     {/* Logout Button */}
                     <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => {
-                            sessionStorage.removeItem("admin_auth")
-                            window.location.reload()
+                        onClick={async () => {
+                            // Auth is the httpOnly admin_session cookie — clearing
+                            // sessionStorage did nothing. Hit the logout endpoint that
+                            // expires the cookie, then hard-redirect to login.
+                            try {
+                                await fetch("/api/admin/logout", { method: "POST" })
+                            } catch {
+                                // ignore — redirect regardless
+                            }
+                            window.location.assign("/admin/login")
                         }}
                         className="h-9 gap-1.5 text-muted-foreground hover:text-foreground"
                     >

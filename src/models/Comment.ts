@@ -14,6 +14,8 @@ export interface IComment extends Document {
     parentId?: mongoose.Types.ObjectId;
     status: 'pending' | 'approved' | 'rejected' | 'spam';
     isSpam?: boolean;
+    isAI?: boolean;       // true = generated AI persona comment (shown with a 🤖 badge)
+    persona?: string;     // persona id from src/lib/ai-personas.ts (traceability)
     createdAt: Date;
     updatedAt: Date;
 }
@@ -54,6 +56,14 @@ const CommentSchema = new Schema<IComment>(
         isSpam: {
             type: Boolean,
             default: false,
+        },
+        isAI: {
+            type: Boolean,
+            default: false,
+            index: true,
+        },
+        persona: {
+            type: String,
         },
     },
     {

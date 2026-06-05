@@ -83,6 +83,7 @@ export default function PostsPage() {
     const [deleteConfirm, setDeleteConfirm] = React.useState<string | null>(null)
     const [selectedIds, setSelectedIds] = React.useState<string[]>([])
     const [previewPost, setPreviewPost] = React.useState<Post | null>(null)
+    const [aiBusyId, setAiBusyId] = React.useState<string | null>(null)
 
     // Fetch posts + insights from MongoDB API
     React.useEffect(() => {
@@ -485,6 +486,25 @@ export default function PostsPage() {
         }
     }
 
+    // Generate AI persona comments for an existing post/insight (backfill button)
+    const genAiComments = async (type: 'posts' | 'insights', id: string) => {
+        setAiBusyId(id)
+        try {
+            const res = await fetch(`/api/${type}/${id}/ai-comments`, { method: 'POST' })
+            const json = await res.json().catch(() => null)
+            if (res.ok) {
+                const d = json?.data
+                alert(d?.skipped ? 'AI კომენტარები უკვე არსებობს ✓' : `დაემატა ${d?.created ?? 0} AI კომენტარი 🤖`)
+            } else {
+                alert('AI კომენტარების გენერაცია ვერ მოხერხდა')
+            }
+        } catch {
+            alert('AI კომენტარების გენერაცია ვერ მოხერხდა')
+        } finally {
+            setAiBusyId(null)
+        }
+    }
+
     // Drag & Drop handlers
     const handleDragStart = (e: React.DragEvent, id: string) => {
         setDraggedId(id)
@@ -674,6 +694,15 @@ export default function PostsPage() {
                                         <Link href={`/insights/${insight.slug}`} target="_blank">
                                             <Button variant="ghost" size="sm"><TbEye className="w-4 h-4" /></Button>
                                         </Link>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            title="AI კომენტარების გენერაცია"
+                                            disabled={aiBusyId === (insight.id || insight._id)}
+                                            onClick={() => genAiComments('insights', insight.id || insight._id)}
+                                        >
+                                            <TbRobot className="w-4 h-4" />
+                                        </Button>
                                         <Button
                                             variant="ghost"
                                             size="sm"
@@ -1001,6 +1030,15 @@ export default function PostsPage() {
                                                     title="რედაქტირება"
                                                 >
                                                     <TbEdit className="w-4 h-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    title="AI კომენტარების გენერაცია"
+                                                    disabled={aiBusyId === post.id}
+                                                    onClick={() => genAiComments('posts', post.id)}
+                                                >
+                                                    <TbRobot className={`w-4 h-4 ${aiBusyId === post.id ? 'animate-pulse text-primary' : ''}`} />
                                                 </Button>
                                                 <Button
                                                     variant="ghost"

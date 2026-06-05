@@ -49,6 +49,7 @@ interface Comment {
     createdAt: string
     likes: number
     replies?: Comment[]
+    isAI?: boolean
 }
 
 interface CommentsProps {
@@ -115,6 +116,9 @@ function CommentItem({
                         <span className="font-semibold">{authorName}</span>
                         {authorName === "Andrew Altair" && (
                             <Badge variant="secondary" className="text-xs">ავტორი</Badge>
+                        )}
+                        {comment.isAI && (
+                            <Badge variant="secondary" className="text-xs gap-1">🤖 AI</Badge>
                         )}
                         <span className="text-sm text-muted-foreground flex items-center gap-1">
                             <TbClock className="w-3 h-3" />
@@ -187,8 +191,9 @@ export function Comments({ postId, postTitle, className }: CommentsProps) {
             try {
                 const res = await fetch(`/api/comments?postId=${postId}&status=approved`)
                 if (res.ok) {
-                    const data = await res.json()
-                    setComments(data.comments || [])
+                    const json = await res.json()
+                    // API wraps payload as { data: { comments } }; tolerate both shapes
+                    setComments(json?.data?.comments ?? json?.comments ?? [])
                 }
             } catch (error) {
                 // Silently fail

@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { tagToSlug } from '@/lib/slug';
 import { Badge } from '@/components/ui/badge';
 import { InsightRelatedPosts } from './InsightRelatedPosts';
+import { Comments } from '@/components/interactive/Comments';
 
 interface InsightPageClientProps {
     /** Parsed content body — headline first-line + "წყარო:" attribution
@@ -284,6 +285,9 @@ export function InsightPageClient({ insight, parsedBody, relatedPosts, relatedIn
                         </div>
                     </section>
                 )}
+
+                {/* Comments (incl. AI personas) */}
+                <Comments postId={insight.id} className="mt-10 pt-6 border-t border-border" />
 
                 {/* Author */}
                 <div className="flex items-center gap-3 mt-10 pt-6 border-t border-border">
