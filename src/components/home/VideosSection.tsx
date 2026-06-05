@@ -62,6 +62,11 @@ export function VideosSection({ videos }: VideosSectionProps) {
                     {video.duration}
                   </span>
                 )}
+                {video.likedBy && video.likedBy.length > 0 && (
+                  <div className="absolute top-2 left-2 z-10">
+                    <PersonaLikeStack likedBy={video.likedBy} overlay size="xs" max={3} showCount={false} />
+                  </div>
+                )}
               </div>
               <h4 className="font-bold text-sm line-clamp-2 text-on-surface group-hover:text-primary transition-colors">
                 {video.title}
@@ -70,9 +75,6 @@ export function VideosSection({ videos }: VideosSectionProps) {
                 <p className="text-[10px] text-on-surface-variant uppercase tracking-widest">
                   {video.category ? `${video.category} • ` : ""}{formatNumber(video.views)} ნახვა
                 </p>
-              )}
-              {video.likedBy && video.likedBy.length > 0 && (
-                <PersonaLikeStack likedBy={video.likedBy} size="xs" max={4} showCount={false} />
               )}
             </Link>
           ))}

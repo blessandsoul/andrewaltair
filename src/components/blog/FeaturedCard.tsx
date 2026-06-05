@@ -162,7 +162,7 @@ export function FeaturedCard({ post }: FeaturedCardProps) {
                                 </div>
                             </div>
                             {post.likedBy && post.likedBy.length > 0 && (
-                                <PersonaLikeStack likedBy={post.likedBy} size="xs" max={5} showCount={false} className="mt-3" />
+                                <PersonaLikeStack likedBy={post.likedBy} overlay size="xs" max={5} className="mt-3 w-fit" />
                             )}
                         </div>
                     </div>

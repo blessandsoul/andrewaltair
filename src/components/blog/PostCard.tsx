@@ -306,6 +306,11 @@ export function PostCard({
                                 </div>
                             </div>
                         </div>
+                        {post.likedBy && post.likedBy.length > 0 && (
+                            <div className="absolute bottom-12 left-3 z-10">
+                                <PersonaLikeStack likedBy={post.likedBy} overlay size="xs" max={4} showCount={false} />
+                            </div>
+                        )}
                     </div>
 
                     {/* Content Section */}
@@ -332,10 +337,6 @@ export function PostCard({
                             <p className="text-sm text-muted-foreground line-clamp-3 mb-5 leading-relaxed">
                                 {getContentPreview(post, 160)}
                             </p>
-                        )}
-
-                        {post.likedBy && post.likedBy.length > 0 && (
-                            <PersonaLikeStack likedBy={post.likedBy} size="xs" max={5} showCount={false} className="mb-4" />
                         )}
 
                         <div className="mt-auto pt-4 border-t border-border/40 flex items-center justify-between gap-4">

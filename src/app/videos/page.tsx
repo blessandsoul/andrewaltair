@@ -353,6 +353,11 @@ export default async function VideosPage() {
                                                             )}
                                                         </div>
                                                     </div>
+                                                    {video.likedBy && video.likedBy.length > 0 && (
+                                                        <div className="absolute top-3 right-3 z-10">
+                                                            <PersonaLikeStack likedBy={video.likedBy} overlay size="xs" max={4} showCount={false} />
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </Link>
 
@@ -369,10 +374,6 @@ export default async function VideosPage() {
                                                     <p className="text-sm text-muted-foreground line-clamp-2 mb-4 leading-relaxed">
                                                         {video.description}
                                                     </p>
-                                                )}
-
-                                                {video.likedBy && video.likedBy.length > 0 && (
-                                                    <PersonaLikeStack likedBy={video.likedBy} size="xs" max={4} showCount={false} className="mb-4" />
                                                 )}
 
                                                 {/* Footer */}

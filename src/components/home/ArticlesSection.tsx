@@ -87,6 +87,13 @@ export function ArticlesSection({ posts }: ArticlesSectionProps) {
                       </span>
                     </div>
                   )}
+
+                  {/* Who liked (on photo) */}
+                  {post.likedBy && post.likedBy.length > 0 && (
+                    <div className="absolute top-3 left-3 z-10">
+                      <PersonaLikeStack likedBy={post.likedBy} overlay size="xs" max={4} showCount={false} />
+                    </div>
+                  )}
                 </div>
 
                 {/* Content */}
@@ -99,9 +106,6 @@ export function ArticlesSection({ posts }: ArticlesSectionProps) {
                     <p className="text-sm text-on-surface-variant line-clamp-2 leading-relaxed">
                       {post.excerpt}
                     </p>
-                  )}
-                  {post.likedBy && post.likedBy.length > 0 && (
-                    <PersonaLikeStack likedBy={post.likedBy} size="xs" max={5} showCount={false} />
                   )}
                 </div>
               </article>
