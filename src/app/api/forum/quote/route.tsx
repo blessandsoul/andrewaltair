@@ -5,22 +5,40 @@ import { getForumPersona } from '@/lib/georgian-forum-personas';
 
 export const runtime = 'edge';
 
+async function loadFont(origin: string, file: string): Promise<ArrayBuffer | null> {
+    try {
+        const res = await fetch(new URL(`/fonts/${file}`, origin));
+        if (!res.ok) return null;
+        return await res.arrayBuffer();
+    } catch {
+        return null;
+    }
+}
+
 /**
  * GET /api/forum/quote?persona=<id>&text=<quote>
  * Shareable 1080×1080 quote card: persona portrait + their line + ANDREWALTAIR.GE.
- * Edge + query-params only (no DB): the share button passes the text it already has.
+ * Edge + query-params only (no DB). Uses STATIC Noto Sans Georgian (satori can't parse
+ * variable fonts); degrades to system font if the file can't be fetched (never 500s on font).
  */
 export async function GET(request: NextRequest) {
     try {
         const { searchParams, origin } = new URL(request.url);
         const personaId = searchParams.get('persona') || '';
-        const text = (searchParams.get('text') || '').slice(0, 400).trim();
+        const text = (searchParams.get('text') || '').slice(0, 400).trim() || 'დიდებულთა საბჭო';
         const persona = getForumPersona(personaId);
         const name = persona?.name || 'დიდებულთა საბჭო';
         const era = persona?.era || '';
         const portrait = persona ? `${origin}/forum-personas/${persona.id}.png` : '';
 
-        const fontData = await fetch(new URL('/fonts/NotoSansGeorgian.ttf', origin)).then((r) => r.arrayBuffer());
+        const [reg, bold] = await Promise.all([
+            loadFont(origin, 'NotoSansGeorgian-Regular.ttf'),
+            loadFont(origin, 'NotoSansGeorgian-Bold.ttf'),
+        ]);
+        const fonts: { name: string; data: ArrayBuffer; weight: 400 | 700; style: 'normal' }[] = [];
+        if (reg) fonts.push({ name: 'NotoG', data: reg, weight: 400, style: 'normal' });
+        if (bold) fonts.push({ name: 'NotoG', data: bold, weight: 700, style: 'normal' });
+
         const fs = text.length > 240 ? 38 : text.length > 150 ? 46 : 56;
 
         return new ImageResponse(
@@ -58,9 +76,9 @@ export async function GET(request: NextRequest) {
                     </div>
                 </div>
             ),
-            { width: 1080, height: 1080, fonts: [{ name: 'NotoG', data: fontData, weight: 400, style: 'normal' }] },
+            { width: 1080, height: 1080, ...(fonts.length ? { fonts } : {}) },
         );
-    } catch {
-        return new Response('quote image error', { status: 500 });
+    } catch (e) {
+        return new Response('quote image error: ' + (e instanceof Error ? e.message : 'unknown'), { status: 500 });
     }
 }
