@@ -1,5 +1,5 @@
 import type { IconType } from "react-icons"
-import { TbTrendingUp, TbCheck, TbX, TbClock } from "react-icons/tb"
+import { TbCheck, TbX, TbClock } from "react-icons/tb"
 
 import { cn } from "@/lib/utils"
 import { getForumPersona } from "@/lib/georgian-forum-personas"
@@ -23,11 +23,9 @@ export function ForumPredictions({ posts }: { posts: ForumPostView[] }) {
 
     return (
         <section className="mb-8">
-            <h2 className="text-lg font-semibold text-on-surface flex items-center gap-2 mb-3">
-                <TbTrendingUp className="w-5 h-5 text-primary" />
-                პროგნოზები
-                <span className="text-xs font-normal text-on-surface-variant">— რა მოხდება შემდეგ</span>
-            </h2>
+            <p className="mb-3 text-sm text-on-surface-variant">
+                რას იწინასწარმეტყველებენ ისტორიული პირები — შედეგი დროთა განმავლობაში გამოჩნდება.
+            </p>
 
             <div className="space-y-2">
                 {predictions.map((p) => {

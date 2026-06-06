@@ -10,6 +10,7 @@ import { ForumThread, type ForumPostView } from '@/components/forum/ForumThread'
 import { ForumCampSplit } from '@/components/forum/ForumCampSplit';
 import { ForumPredictions } from '@/components/forum/ForumPredictions';
 import { ForumCouncil } from '@/components/forum/ForumCouncil';
+import { ForumTabs } from '@/components/forum/ForumTabs';
 import { ForumLikeStack, type ForumLiker } from '@/components/forum/ForumLikeStack';
 import { ForumDisclaimer } from '@/components/forum/ForumDisclaimer';
 import { ForumSubscribeButton } from '@/components/forum/ForumSubscribeButton';
@@ -122,18 +123,20 @@ export default async function ForumTopicPage({ params }: { params: Promise<{ slu
                     </div>
                 )}
 
-                <ForumCampSplit posts={debate} />
-
-                <ForumPredictions posts={predictions} />
-
-                <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
-                    <h2 className="text-lg font-semibold text-on-surface">
-                        {topic.postCount || debate.length} მოსაზრება
-                    </h2>
-                    <ForumAskBox topicId={topic.id} />
-                </div>
-
-                <ForumThread posts={debate} topicId={topic.id} />
+                <ForumTabs
+                    opinionsCount={topic.postCount || debate.length}
+                    predictionsCount={predictions.length}
+                    opinions={
+                        <>
+                            <ForumCampSplit posts={debate} />
+                            <div className="mb-4 flex justify-end">
+                                <ForumAskBox topicId={topic.id} />
+                            </div>
+                            <ForumThread posts={debate} topicId={topic.id} />
+                        </>
+                    }
+                    predictions={<ForumPredictions posts={predictions} />}
+                />
             </div>
         </main>
     );
