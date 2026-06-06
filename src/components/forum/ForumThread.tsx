@@ -230,8 +230,12 @@ export function ForumThread({ posts, topicId }: { posts: ForumPostView[]; topicI
 
     return (
         <div className="space-y-6">
-            {roots.map((node) => (
-                <div key={node.id} className="bg-card rounded-xl border border-border/40 p-4">
+            {roots.map((node, i) => (
+                <div
+                    key={node.id}
+                    className="bg-card rounded-xl border border-border/40 p-4 forum-reveal"
+                    style={{ animationDelay: `${Math.min(i, 12) * 90}ms` }}
+                >
                     <PostCard node={node} depth={0} leaderId={leaderId} topicId={topicId} />
                 </div>
             ))}

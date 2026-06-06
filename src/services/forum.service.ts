@@ -57,6 +57,22 @@ export class ForumService {
         return topics.map(withId);
     }
 
+    /** The single most-agreed persona opinion (recent window, falls back to all-time) —
+     *  powers the home "hot quote of the day". */
+    static async getHotQuote() {
+        await dbConnect();
+        const base = { isUser: { $ne: true }, isPrediction: { $ne: true }, parentId: null };
+        const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        type HotPost = { _id: unknown; topicId: unknown; content: string; agrees?: number; personaId: string };
+        let post = await ForumPost.findOne({ ...base, createdAt: { $gte: since } })
+            .sort({ agrees: -1 })
+            .lean<HotPost | null>();
+        if (!post) post = await ForumPost.findOne(base).sort({ agrees: -1 }).lean<HotPost | null>();
+        if (!post) return null;
+        const [entry] = await this.attachTopics([post]);
+        return { ...entry, personaId: post.personaId };
+    }
+
     /** A topic + all its posts (flat, oldest first — the UI builds the reply tree). */
     static async getTopicBySlug(slug: string) {
         await dbConnect();

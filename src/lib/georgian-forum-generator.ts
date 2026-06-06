@@ -291,6 +291,30 @@ export type ForumGenResult =
     | { ok: false; reason: 'not_found' | 'no_key' | 'already' | 'empty'; existing?: number };
 
 /**
+ * Persona self-voting — gives every opinion a believable agree/disagree baseline so the
+ * "who's winning" + national-mood + heat bars are alive WITHOUT waiting for real visitors.
+ * Each of the other 19 personas "votes": ally → agrees, rival → disagrees, neutral → a light
+ * lean. No LLM (instant, free). Real visitors' reactions stack on top of this baseline.
+ */
+function tallyPersonaVotes(opinionPersonaId: string): { agrees: number; disagrees: number } {
+    let agrees = 2 + Math.floor(Math.random() * 4);
+    let disagrees = 1 + Math.floor(Math.random() * 3);
+    for (const p of FORUM_PERSONAS) {
+        if (p.id === opinionPersonaId) continue;
+        const rel = relationTo(p, opinionPersonaId);
+        if (rel === 'ally') agrees += 2 + Math.floor(Math.random() * 2);
+        else if (rel === 'rival') disagrees += 2 + Math.floor(Math.random() * 2);
+        else {
+            const r = Math.random();
+            if (r < 0.38) agrees += 1;
+            else if (r < 0.58) disagrees += 1;
+            // else: abstains
+        }
+    }
+    return { agrees, disagrees };
+}
+
+/**
  * Generate all opinions + debate replies for a topic and publish it. Idempotent: if the
  * topic already has posts it does nothing (so re-running cron / the button never dupes).
  */
@@ -321,6 +345,7 @@ export async function generateAndSaveForumTopic(topicId: string): Promise<ForumG
     const topLevel = await ForumPost.insertMany(
         opinions.map((o) => {
             const likedBy = pickRandomForumLikers(1, 6, o.personaId);
+            const votes = tallyPersonaVotes(o.personaId);
             return {
                 topicId: topic._id,
                 personaId: o.personaId,
@@ -329,6 +354,8 @@ export async function generateAndSaveForumTopic(topicId: string): Promise<ForumG
                 parentId: null,
                 likedBy,
                 likes: likedBy.length,
+                agrees: votes.agrees,
+                disagrees: votes.disagrees,
             };
         }),
     );
@@ -445,9 +472,19 @@ export async function backfillTopic(topicId: string): Promise<
         await ForumPost.insertMany(
             newOps.map((o) => {
                 const likedBy = pickRandomForumLikers(1, 6, o.personaId);
-                return { topicId: topic._id, personaId: o.personaId, author: { name: o.name }, content: o.content, parentId: null, likedBy, likes: likedBy.length };
+                const votes = tallyPersonaVotes(o.personaId);
+                return { topicId: topic._id, personaId: o.personaId, author: { name: o.name }, content: o.content, parentId: null, likedBy, likes: likedBy.length, agrees: votes.agrees, disagrees: votes.disagrees };
             }),
         );
+    }
+
+    // Retrofit: any opinion still at 0/0 (old topics) gets a persona-vote baseline.
+    const zeroVote = await ForumPost.find({ topicId: topic._id, isPrediction: { $ne: true }, isUser: { $ne: true }, parentId: null, agrees: 0, disagrees: 0 })
+        .select('personaId')
+        .lean<Array<{ _id: unknown; personaId: string }>>();
+    for (const z of zeroVote) {
+        const v = tallyPersonaVotes(z.personaId);
+        await ForumPost.updateOne({ _id: z._id }, { $set: { agrees: v.agrees, disagrees: v.disagrees } });
     }
 
     // 2. Top the prediction slate back up to 8 (from personas without one yet).

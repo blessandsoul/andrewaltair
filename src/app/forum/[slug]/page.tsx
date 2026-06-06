@@ -14,6 +14,7 @@ import { ForumTabs } from '@/components/forum/ForumTabs';
 import { ForumLikeStack, type ForumLiker } from '@/components/forum/ForumLikeStack';
 import { ForumDisclaimer } from '@/components/forum/ForumDisclaimer';
 import { ForumSubscribeButton } from '@/components/forum/ForumSubscribeButton';
+import { ForumSoundToggle } from '@/components/forum/ForumSoundToggle';
 import { ForumAskBox } from '@/components/forum/ForumAskBox';
 
 interface TopicView {
@@ -111,6 +112,7 @@ export default async function ForumTopicPage({ params }: { params: Promise<{ slu
                         <ForumLikeStack likedBy={topic.likedBy} size="xs" max={6} />
                     )}
                     <ForumSubscribeButton scope="forum" />
+                    <ForumSoundToggle />
                 </div>
 
                 <div className="my-6">

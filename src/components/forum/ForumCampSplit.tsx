@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { TbChartPie, TbThumbUp, TbThumbDown } from "react-icons/tb"
+import { TbChartPie, TbThumbUp, TbThumbDown, TbFlame } from "react-icons/tb"
 
 import { ForumPersonaAvatar } from "@/components/forum/ForumPersonaAvatar"
 import type { ForumPostView } from "@/components/forum/ForumThread"
@@ -29,6 +29,9 @@ export function ForumCampSplit({ posts }: { posts: ForumPostView[] }) {
     const moodUp = top.reduce((s, p) => s + (p.agrees || 0), 0)
     const moodDown = top.reduce((s, p) => s + (p.disagrees || 0), 0)
     const moodTotal = moodUp + moodDown
+    const polarization = moodTotal > 0 ? 1 - Math.abs(moodUp - moodDown) / moodTotal : 0
+    const heat = Math.round((polarization * 0.7 + Math.min(moodTotal / 150, 1) * 0.3) * 100)
+    const heatLabel = heat >= 66 ? "ცხელი" : heat >= 33 ? "თბილი" : "მშვიდი"
 
     if (totalAgrees === 0) return null
 
@@ -73,6 +76,24 @@ export function ForumCampSplit({ posts }: { posts: ForumPostView[] }) {
                             {moodDown}
                             <TbThumbDown className="w-3 h-3" />
                         </span>
+                    </div>
+                </div>
+            )}
+
+            {moodTotal > 0 && (
+                <div className="mt-4">
+                    <div className="text-xs text-on-surface-variant mb-1 flex items-center justify-between">
+                        <span>დებატის სიცხელე</span>
+                        <span className="inline-flex items-center gap-1 font-medium text-on-surface">
+                            <TbFlame className="w-3.5 h-3.5 text-orange-500" />
+                            {heatLabel}
+                        </span>
+                    </div>
+                    <div className="h-2.5 rounded-full bg-muted overflow-hidden">
+                        <div
+                            className="h-full rounded-full bg-linear-to-r from-sky-400 via-orange-400 to-red-500"
+                            style={{ width: `${Math.max(6, heat)}%` }}
+                        />
                     </div>
                 </div>
             )}

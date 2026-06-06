@@ -8,6 +8,7 @@ import { ForumService } from '@/services/forum.service';
 import { ForumTopicCard, type ForumTopicCardData } from '@/components/forum/ForumTopicCard';
 import { ForumDisclaimer } from '@/components/forum/ForumDisclaimer';
 import { ForumAskCouncil } from '@/components/forum/ForumAskCouncil';
+import { HotQuote, type HotQuoteData } from '@/components/forum/HotQuote';
 import { cn } from '@/lib/utils';
 
 const DESC = 'საქართველოს ისტორიული პირები განიხილავენ დღევანდელ ამბებს — AI-წარმოსახული დებატი.';
@@ -37,6 +38,7 @@ export default async function ForumPage({
         sort: hot ? 'hot' : 'new',
     });
     const serialized = JSON.parse(JSON.stringify(topics)) as ForumTopicCardData[];
+    const hotQuote = JSON.parse(JSON.stringify((await ForumService.getHotQuote()) ?? null)) as HotQuoteData | null;
 
     return (
         <main className="min-h-screen bg-background">
@@ -55,6 +57,12 @@ export default async function ForumPage({
                 <div className="max-w-2xl mx-auto mb-8">
                     <ForumAskCouncil />
                 </div>
+
+                {hotQuote && (
+                    <div className="max-w-2xl mx-auto mb-8">
+                        <HotQuote quote={hotQuote} />
+                    </div>
+                )}
 
                 {/* Controls: sort toggle + section nav */}
                 <div className="flex items-center justify-between gap-3 flex-wrap mb-6">

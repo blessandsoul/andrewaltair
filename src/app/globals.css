@@ -994,6 +994,19 @@
   animation: lookAround 6s ease-in-out infinite;
 }
 
+/* ========== Forum debate reveal (staggered fade-in) ========== */
+@keyframes forum-reveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.forum-reveal {
+  opacity: 0;
+  animation: forum-reveal 0.5s ease-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .forum-reveal { animation: none; opacity: 1; }
+}
+
 /* ========== Floating Particles Animation ========== */
 @keyframes floatParticle {
   0% {

@@ -4,6 +4,7 @@ import * as React from "react"
 import { TbThumbUp, TbThumbDown } from "react-icons/tb"
 
 import { cn } from "@/lib/utils"
+import { playPop } from "@/lib/forum-sound"
 
 /**
  * Agree / disagree buttons for a forum opinion (the "who's right" signal).
@@ -33,6 +34,7 @@ export function ForumReactions({
 
     const react = async (type: "agree" | "disagree") => {
         if (voted) return
+        playPop()
         setVoted(type)
         if (type === "agree") setA((x) => x + 1)
         else setD((x) => x + 1)
