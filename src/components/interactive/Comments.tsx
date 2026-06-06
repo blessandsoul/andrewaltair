@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/toast"
-import { TbMessage, TbHeart, TbArrowBackUp, TbSend, TbClock, TbStar, TbRobot, TbMoodSmile, TbAlien, TbCat, TbCrown, TbMask, TbPaw, TbMoodCrazyHappy, TbMoodWink, TbUserCircle, TbGhost } from "react-icons/tb"
+import { TbMessage, TbHeart, TbArrowBackUp, TbSend, TbClock, TbStar, TbRobot, TbLoader2, TbMoodSmile, TbAlien, TbCat, TbCrown, TbMask, TbPaw, TbMoodCrazyHappy, TbMoodWink, TbUserCircle, TbGhost } from "react-icons/tb"
 import type { IconType } from "react-icons"
 import { cn } from "@/lib/utils"
 import { useVisitorTracking } from "@/hooks/useVisitorTracking"
@@ -68,15 +68,27 @@ function timeAgo(dateString: string): string {
 function CommentItem({
     comment,
     isReply = false,
-    onLike
+    onLike,
+    onReply,
 }: {
     comment: Comment
     isReply?: boolean
     onLike?: (commentId: string) => void
+    onReply?: (parentId: string, text: string) => Promise<boolean>
 }) {
     const [liked, setLiked] = React.useState(false)
     const [likeCount, setLikeCount] = React.useState(comment.likes)
     const [showReplyForm, setShowReplyForm] = React.useState(false)
+    const [replyText, setReplyText] = React.useState("")
+    const [sendingReply, setSendingReply] = React.useState(false)
+
+    const submitReply = async () => {
+        if (!replyText.trim() || sendingReply || !onReply) return
+        setSendingReply(true)
+        const ok = await onReply(comment.id, replyText.trim())
+        setSendingReply(false)
+        if (ok) { setReplyText(""); setShowReplyForm(false) }
+    }
 
     const handleLike = () => {
         if (liked) {
@@ -154,15 +166,21 @@ function CommentItem({
 
                     {showReplyForm && (
                         <div className="mt-4 flex gap-2">
-                            <Input placeholder="დაწერე პასუხი..." className="flex-1" />
-                            <Button size="sm">
-                                <TbSend className="w-4 h-4" />
+                            <Input
+                                value={replyText}
+                                onChange={(e) => setReplyText(e.target.value)}
+                                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); submitReply() } }}
+                                placeholder="დაწერე პასუხი..."
+                                className="flex-1"
+                            />
+                            <Button size="sm" onClick={submitReply} disabled={sendingReply || !replyText.trim()}>
+                                {sendingReply ? <TbLoader2 className="w-4 h-4 animate-spin" /> : <TbSend className="w-4 h-4" />}
                             </Button>
                         </div>
                     )}
 
                     {comment.replies?.map((reply) => (
-                        <CommentItem key={reply.id} comment={reply} isReply onLike={onLike} />
+                        <CommentItem key={reply.id} comment={reply} isReply onLike={onLike} onReply={onReply} />
                     ))}
                 </div>
             </div>
@@ -234,55 +252,64 @@ export function Comments({ postId, postTitle, className, initialComments }: Comm
         })
     }, [recordActivity, postId, postTitle])
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!newComment.trim() || !authorName.trim() || isSubmitting) return
-
-        setIsSubmitting(true)
+    // Shared POST → /api/comments. Sends `text` + `parentId` (the API/service contract)
+    // and optimistically shows the comment so it appears instantly.
+    const postComment = React.useCallback(async (text: string, parentId?: string): Promise<boolean> => {
         try {
             const res = await fetch('/api/comments', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    postId,
-                    author: {
-                        name: authorName,
-                        avatar: user?.avatar || ""
-                    },
-                    content: newComment
-                })
+                body: JSON.stringify({ postId, text, parentId: parentId || null }),
             })
-
-            if (res.ok) {
-                // 🎯 TRACK COMMENT ACTIVITY
-                recordActivity('comment', {
-                    targetType: 'post',
-                    targetId: postId,
-                    targetTitle: postTitle,
-                    metadata: { authorName },
-                    isPublic: true // Comments are shown in social proof
-                })
-
-                setNewComment("")
-                if (!user) setAuthorName("") // Only reset name for guests
-                toast.success(
-                    'კომენტარი გაიგზავნა!',
-                    'მოდერაციის შემდეგ გამოჩნდება საიტზე'
-                )
-            } else {
-                toast.error(
-                    'შეცდომა',
-                    'კომენტარის გაგზავნა ვერ მოხერხდა'
-                )
+            if (!res.ok) return false
+            const json = await res.json().catch(() => null)
+            const created = json?.data
+            const node: Comment = {
+                id: created?.id || `tmp-${Date.now()}`,
+                author: { name: authorName, avatar: user?.avatar || "" },
+                content: text,
+                createdAt: created?.createdAt || new Date().toISOString(),
+                likes: 0,
+                isAI: false,
+                parentId: parentId || null,
+                replies: [],
             }
-        } catch (error) {
-            toast.error(
-                'შეცდომა',
-                'კომენტარის გაგზავნა ვერ მოხერხდა'
+            setComments((prev) =>
+                parentId
+                    ? prev.map((r) => (r.id === parentId ? { ...r, replies: [...(r.replies || []), node] } : r))
+                    : [node, ...prev],
             )
-        } finally {
-            setIsSubmitting(false)
+            recordActivity('comment', {
+                targetType: 'post',
+                targetId: postId,
+                targetTitle: postTitle,
+                metadata: { authorName },
+                isPublic: true,
+            })
+            return true
+        } catch {
+            return false
         }
+    }, [postId, authorName, user, recordActivity, postTitle])
+
+    const handleReply = React.useCallback(
+        (parentId: string, text: string) => postComment(text, parentId),
+        [postComment],
+    )
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!newComment.trim() || !authorName.trim() || isSubmitting) return
+        setIsSubmitting(true)
+        const ok = await postComment(newComment.trim())
+        if (ok) {
+            setNewComment("")
+            if (!user) setAuthorName("") // Only reset name for guests
+            toast.success('კომენტარი დაემატა!', 'მადლობა')
+        } else {
+            toast.error('შეცდომა', 'კომენტარის გაგზავნა ვერ მოხერხდა')
+        }
+        setIsSubmitting(false)
     }
 
     if (isLoading) {
@@ -339,6 +366,7 @@ export function Comments({ postId, postTitle, className, initialComments }: Comm
                         key={comment.id}
                         comment={comment}
                         onLike={handleCommentLike}
+                        onReply={handleReply}
                     />
                 ))}
             </div>

@@ -33,7 +33,14 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json();
-        const comment = await CommunicationService.createComment(body, user);
+        // Client historically sends `content`; the service expects `text`. Normalize both
+        // + pass parentId so replies thread correctly.
+        const payload = {
+            postId: body?.postId,
+            text: body?.text ?? body?.content,
+            parentId: body?.parentId ?? null,
+        };
+        const comment = await CommunicationService.createComment(payload, user);
 
         return apiSuccess(comment, 'Comment created successfully', 201);
     } catch (error: unknown) {

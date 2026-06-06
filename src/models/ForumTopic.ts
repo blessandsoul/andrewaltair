@@ -30,7 +30,7 @@ const ForumTopicSchema = new Schema<IForumTopic>(
         slug: { type: String, required: true, unique: true, trim: true },
         titleKa: { type: String, required: true, trim: true },
         summaryKa: { type: String, default: '' },
-        sourceUrl: { type: String, required: true },
+        sourceUrl: { type: String, default: '' },
         sourceImage: { type: String, default: '' },
         sourceDomain: { type: String, default: '' },
         status: {

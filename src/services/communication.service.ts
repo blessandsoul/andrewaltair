@@ -116,6 +116,10 @@ export class CommunicationService {
         if (!postId || !text) throw new Error('postId და text აუცილებელია');
         if (text.length < 2 || text.length > 2000) throw new Error('კომენტარი უნდა იყოს 2-2000 სიმბოლო');
 
+        // Admin/owner comments go live instantly; everyone else waits for moderation.
+        const role = (user as { role?: string }).role;
+        const status = role === 'admin' || role === 'god' ? 'approved' : 'pending';
+
         const comment = new Comment({
             postId,
             content: text.trim(),
@@ -125,7 +129,7 @@ export class CommunicationService {
                 name: user.fullName || user.username, // Fallback if fullName missing
                 avatar: user.avatar,
             },
-            status: 'pending',
+            status,
         });
         await comment.save();
 
