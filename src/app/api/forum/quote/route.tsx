@@ -1,45 +1,44 @@
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
 import { getForumPersona } from '@/lib/georgian-forum-personas';
 
-export const runtime = 'edge';
+// Node runtime (NOT edge): we read the bundled font + portrait straight off disk, so the
+// card never depends on the container being able to fetch its own public URL (which fails
+// behind the proxy and was rendering tofu boxes + a blank portrait).
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-async function loadFont(origin: string, file: string): Promise<ArrayBuffer | null> {
+function publicFile(rel: string): Buffer | null {
     try {
-        const res = await fetch(new URL(`/fonts/${file}`, origin));
-        if (!res.ok) return null;
-        return await res.arrayBuffer();
+        return readFileSync(join(process.cwd(), 'public', rel));
     } catch {
         return null;
     }
 }
 
-/**
- * GET /api/forum/quote?persona=<id>&text=<quote>
- * Shareable 1080×1080 quote card: persona portrait + their line + ANDREWALTAIR.GE.
- * Edge + query-params only (no DB). Uses STATIC Noto Sans Georgian (satori can't parse
- * variable fonts); degrades to system font if the file can't be fetched (never 500s on font).
- */
+/** GET /api/forum/quote?persona=<id>&text=<quote> → 1080×1080 shareable card. */
 export async function GET(request: NextRequest) {
     try {
-        const { searchParams, origin } = new URL(request.url);
+        const { searchParams } = new URL(request.url);
         const personaId = searchParams.get('persona') || '';
         const text = (searchParams.get('text') || '').slice(0, 400).trim() || 'დიდებულთა საბჭო';
         const persona = getForumPersona(personaId);
         const name = persona?.name || 'დიდებულთა საბჭო';
         const era = persona?.era || '';
-        const portrait = persona ? `${origin}/forum-personas/${persona.id}.png` : '';
 
-        const [reg, bold] = await Promise.all([
-            loadFont(origin, 'NotoSansGeorgian-Regular.ttf'),
-            loadFont(origin, 'NotoSansGeorgian-Bold.ttf'),
-        ]);
-        const fonts: { name: string; data: ArrayBuffer; weight: 400 | 700; style: 'normal' }[] = [];
+        const pbuf = persona ? publicFile(`forum-personas/${persona.id}.png`) : null;
+        const portrait = pbuf ? `data:image/png;base64,${pbuf.toString('base64')}` : '';
+
+        const reg = publicFile('fonts/NotoSansGeorgian-Regular.ttf');
+        const bold = publicFile('fonts/NotoSansGeorgian-Bold.ttf');
+        const fonts: { name: string; data: Buffer; weight: 400 | 700; style: 'normal' }[] = [];
         if (reg) fonts.push({ name: 'NotoG', data: reg, weight: 400, style: 'normal' });
         if (bold) fonts.push({ name: 'NotoG', data: bold, weight: 700, style: 'normal' });
 
-        const fs = text.length > 240 ? 38 : text.length > 150 ? 46 : 56;
+        const fs2 = text.length > 240 ? 38 : text.length > 150 ? 46 : 56;
 
         return new ImageResponse(
             (
@@ -68,7 +67,7 @@ export async function GET(request: NextRequest) {
                         </div>
                     </div>
 
-                    <div style={{ display: 'flex', fontSize: fs, color: '#ffffff', lineHeight: 1.35 }}>„{text}"</div>
+                    <div style={{ display: 'flex', fontSize: fs2, color: '#ffffff', lineHeight: 1.35 }}>„{text}"</div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ fontSize: 30, color: '#e040fb', fontWeight: 700, letterSpacing: 2 }}>ANDREWALTAIR.GE</div>

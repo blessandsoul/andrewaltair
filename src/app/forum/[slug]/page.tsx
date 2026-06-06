@@ -15,6 +15,7 @@ import { ForumLikeStack, type ForumLiker } from '@/components/forum/ForumLikeSta
 import { ForumDisclaimer } from '@/components/forum/ForumDisclaimer';
 import { ForumSubscribeButton } from '@/components/forum/ForumSubscribeButton';
 import { ForumSoundToggle } from '@/components/forum/ForumSoundToggle';
+import { ForumTopicImage } from '@/components/forum/ForumTopicImage';
 import { ForumAskBox } from '@/components/forum/ForumAskBox';
 
 interface TopicView {
@@ -83,12 +84,7 @@ export default async function ForumTopicPage({ params }: { params: Promise<{ slu
 
                 <h1 className="mt-3 text-2xl sm:text-3xl font-bold text-on-surface">{topic.titleKa}</h1>
 
-                {img && (
-                    <div className="mt-4 rounded-2xl overflow-hidden border border-border/40">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={img} alt={topic.titleKa} className="w-full object-cover" />
-                    </div>
-                )}
+                {img && <ForumTopicImage src={img} alt={topic.titleKa} />}
 
                 <p className="mt-4 text-on-surface-variant leading-relaxed">{topic.summaryKa}</p>
 
