@@ -6,39 +6,28 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/toast"
-import { TbMessage, TbHeart, TbArrowBackUp, TbSend, TbClock } from "react-icons/tb"
+import { TbMessage, TbHeart, TbArrowBackUp, TbSend, TbClock, TbStar, TbRobot, TbMoodSmile, TbAlien, TbCat, TbCrown, TbMask, TbPaw, TbMoodCrazyHappy, TbMoodWink, TbUserCircle, TbGhost } from "react-icons/tb"
+import type { IconType } from "react-icons"
 import { cn } from "@/lib/utils"
 import { useVisitorTracking } from "@/hooks/useVisitorTracking"
 import { useAuth } from "@/lib/auth"
 import { PersonaAvatar } from "@/components/ai/PersonaAvatar"
 import { PersonaLikeStack } from "@/components/ai/PersonaLikeStack"
 
-// 🎭 სასაცილო ავატარები კომენტატორებისთვის
-const funnyAvatars = [
-    "🤡", "👽", "🤖", "👹", "👺", "💀", "👻", "🎃", "🤠", "🥸",
-    "🧐", "🤓", "😎", "🥳", "🤪", "😜", "🤑", "🤯", "🥴", "😵‍💫",
-    "🐸", "🦊", "🐵", "🐷", "🐻", "🐼", "🐨", "🦁", "🐯", "🦄",
-    "🐲", "🦖", "🦕", "🐙", "🦑", "🦞", "🦀", "🐡", "🐠", "🦈",
-    "🌚", "🌝", "🌞", "🔮", "🎩", "👑", "🎪", "🎭", "🃏", "🧙‍♂️",
-    "🧛", "🧟", "🧞", "🧜‍♂️", "🧝", "🦸", "🦹", "🥷", "🎅", "🤴",
-    "👨‍🎤", "👩‍🚀", "👨‍🔬", "👩‍🎨", "🕵️", "👷", "💂", "🤵", "👸", "🧑‍🎄"
+// Fallback avatars for non-AI commenters — react-icons, not emoji. Hashed by name so a
+// given commenter always gets the same icon.
+const AVATAR_ICONS: IconType[] = [
+    TbMoodSmile, TbAlien, TbCat, TbRobot, TbCrown, TbMask,
+    TbPaw, TbMoodCrazyHappy, TbMoodWink, TbUserCircle, TbGhost,
 ]
 
-// იღებს სტრიქონის ჰეშს და აბრუნებს შესაბამის ავატარს
-function getAvatarForName(name: string): string {
+function iconForName(name: string): IconType {
     let hash = 0
     for (let i = 0; i < name.length; i++) {
-        const char = name.charCodeAt(i)
-        hash = ((hash << 5) - hash) + char
+        hash = ((hash << 5) - hash) + name.charCodeAt(i)
         hash = hash & hash // Convert to 32bit integer
     }
-    const index = Math.abs(hash) % funnyAvatars.length
-    return funnyAvatars[index]
-}
-
-// რანდომული ავატარის არჩევა ახალი კომენტარებისთვის
-function getRandomAvatar(): string {
-    return funnyAvatars[Math.floor(Math.random() * funnyAvatars.length)]
+    return AVATAR_ICONS[Math.abs(hash) % AVATAR_ICONS.length]
 }
 
 interface Comment {
@@ -107,16 +96,16 @@ function CommentItem({
             <div className="flex gap-3">
                 {comment.isAI && comment.persona ? (
                     <PersonaAvatar personaId={comment.persona} size="md" title={authorName} />
+                ) : authorName === "Andrew Altair" ? (
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-linear-to-br from-primary to-accent text-white">
+                        <TbStar className="w-5 h-5" />
+                    </div>
+                ) : authorAvatar && authorAvatar.startsWith("http") ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={authorAvatar} alt={authorName} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
                 ) : (
-                    <div className={cn(
-                        "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-2xl",
-                        authorName === "Andrew Altair"
-                            ? "bg-gradient-to-br from-primary to-accent"
-                            : "bg-secondary/50 backdrop-blur-sm"
-                    )}>
-                        {authorName === "Andrew Altair"
-                            ? "⭐"
-                            : (authorAvatar || getAvatarForName(authorName))}
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-secondary/50 backdrop-blur-sm text-foreground">
+                        {(() => { const Icon = iconForName(authorName); return <Icon className="w-5 h-5" /> })()}
                     </div>
                 )}
 
@@ -127,7 +116,7 @@ function CommentItem({
                             <Badge variant="secondary" className="text-xs">ავტორი</Badge>
                         )}
                         {comment.isAI && (
-                            <Badge variant="secondary" className="text-xs gap-1">🤖 AI</Badge>
+                            <Badge variant="secondary" className="text-xs gap-1"><TbRobot className="w-3 h-3" /> AI</Badge>
                         )}
                         <span className="text-sm text-muted-foreground flex items-center gap-1">
                             <TbClock className="w-3 h-3" />
@@ -252,7 +241,7 @@ export function Comments({ postId, postTitle, className }: CommentsProps) {
                     postId,
                     author: {
                         name: authorName,
-                        avatar: user?.avatar || getRandomAvatar()
+                        avatar: user?.avatar || ""
                     },
                     content: newComment
                 })

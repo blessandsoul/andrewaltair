@@ -2,9 +2,10 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { TbSend, TbLoader2, TbMessageQuestion } from "react-icons/tb"
+import { TbSend, TbLoader2, TbMessageQuestion, TbMoodSmile } from "react-icons/tb"
 
 import { cn } from "@/lib/utils"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { FORUM_PERSONAS } from "@/lib/georgian-forum-personas"
 
 /** #5/#8 — ask a persona a question on this topic (serious or absurd mode). */
@@ -59,15 +60,16 @@ export function ForumAskBox({ topicId }: { topicId: string }) {
     return (
         <form onSubmit={submit} className="rounded-2xl border border-primary/30 bg-card p-4 space-y-3">
             <div className="flex flex-col sm:flex-row gap-2">
-                <select
-                    value={personaId}
-                    onChange={(e) => setPersonaId(e.target.value)}
-                    className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-                >
-                    {FORUM_PERSONAS.map((p) => (
-                        <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                </select>
+                <Select value={personaId} onValueChange={setPersonaId}>
+                    <SelectTrigger className="w-full sm:w-56">
+                        <SelectValue placeholder="აირჩიე პერსონა" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {FORUM_PERSONAS.map((p) => (
+                            <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
                 <div className="inline-flex rounded-lg border border-border p-0.5 text-sm">
                     <button
                         type="button"
@@ -79,9 +81,10 @@ export function ForumAskBox({ topicId }: { topicId: string }) {
                     <button
                         type="button"
                         onClick={() => setMode("absurd")}
-                        className={cn("rounded-md px-3 py-1.5", mode === "absurd" ? "bg-primary text-white" : "text-on-surface-variant")}
+                        className={cn("inline-flex items-center gap-1 rounded-md px-3 py-1.5", mode === "absurd" ? "bg-primary text-white" : "text-on-surface-variant")}
                     >
-                        😄 აბსურდი
+                        <TbMoodSmile className="w-4 h-4" />
+                        აბსურდი
                     </button>
                 </div>
             </div>

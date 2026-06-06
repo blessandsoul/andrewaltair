@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { TbArrowLeft, TbSearch, TbThumbUp } from 'react-icons/tb';
 
 import { ForumService } from '@/services/forum.service';
-import { FORUM_PERSONAS, getForumPersona } from '@/lib/georgian-forum-personas';
+import { getForumPersona } from '@/lib/georgian-forum-personas';
 import { ForumPersonaAvatar } from '@/components/forum/ForumPersonaAvatar';
+import { ForumPersonaFilter } from '@/components/forum/ForumPersonaFilter';
 
 export const metadata: Metadata = {
     title: 'ძებნა | ფორუმი',
@@ -43,16 +44,7 @@ export default async function ForumSearchPage({
                         placeholder="საკვანძო სიტყვა..."
                         className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
                     />
-                    <select
-                        name="persona"
-                        defaultValue={persona || ''}
-                        className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-                    >
-                        <option value="">ყველა პერსონა</option>
-                        {FORUM_PERSONAS.map((p) => (
-                            <option key={p.id} value={p.id}>{p.name}</option>
-                        ))}
-                    </select>
+                    <ForumPersonaFilter defaultValue={persona || ''} />
                     <button className="rounded-lg bg-primary text-white px-4 py-2 text-sm font-medium hover:opacity-90">
                         ძებნა
                     </button>

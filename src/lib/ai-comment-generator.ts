@@ -11,7 +11,7 @@
 import mongoose from 'mongoose';
 
 import { AIPersona, pickRandomPersonas, pickRandomLikers, AI_PERSONAS } from '@/lib/ai-personas';
-import { MODEL_CHAIN, chatRaw, extractGeorgian, isValidGeorgian } from '@/lib/openrouter-georgian';
+import { MODEL_CHAIN, chatRaw, extractGeorgian, isValidGeorgian, sanitizeForPrompt, polishGeorgian } from '@/lib/openrouter-georgian';
 import dbConnect from '@/lib/db';
 import Comment from '@/models/Comment';
 
@@ -35,10 +35,12 @@ async function callModel(
 ): Promise<string | null> {
     const sys =
         `You are ${persona.voice}\n` +
-        `Write ONE short blog comment in GEORGIAN (ქართული, Mkhedruli script), 20-30 words, in this persona's voice, reacting to the blog post.\n` +
-        `Rules: natural spoken Georgian; every word a real Georgian word; you MAY keep short well-known acronyms (AI, GPT) in Latin; NO Cyrillic letters; no hashtags, no quotation marks, no emojis.\n` +
-        `Think silently. Output ONLY the final comment text on a single line, nothing else.`;
-    const user = `Post title: ${post.title}\nPost excerpt: ${post.excerpt || ''}`;
+        `Leave ONE short blog comment in GEORGIAN (ქართული, Mkhedruli), 12-22 words, like a real person reacting to THIS specific story — not a philosopher.\n` +
+        `MUST react to a concrete detail of the actual story (name the real thing it is about). React like a normal reader: surprise, a clear opinion, a relatable joke, or a simple question. Only a light hint of who you are.\n` +
+        `Everyday spoken Georgian, simple words a teenager gets. BANNED: vague filler and life-lessons (e.g. "პერსპექტივა", "სიმარტივე", "პრინციპი", "არსი", "essence") and any comment generic enough to fit a different article.\n` +
+        `Rules: every word a real Georgian word; short acronyms (AI, GPT) ok; Georgian Mkhedruli ONLY — NO Chinese, Korean, Japanese, Arabic, Hebrew or Cyrillic characters; no hashtags, quotes or emojis.\n` +
+        `Think silently. Output ONLY the comment on a single line.`;
+    const user = `Story title: ${sanitizeForPrompt(post.title)}\nWhat it is about: ${sanitizeForPrompt(post.excerpt || '')}\nComment specifically about THIS story.`;
     const raw = await chatRaw(apiKey, model, sys, user);
     if (!raw) return null;
     const text = extractGeorgian(raw);
@@ -54,10 +56,11 @@ async function callReplyModel(
 ): Promise<string | null> {
     const sys =
         `You are ${persona.voice}\n` +
-        `Reply to another reader's Georgian comment under this blog post. 8-25 words, in your persona's voice — agree, gently push back, or add one thought.\n` +
-        `Rules: natural spoken Georgian; real Georgian words; you MAY keep short acronyms (AI, GPT); NO Cyrillic; no hashtags, quotes or emojis.\n` +
+        `Reply to another reader's Georgian comment under this story. 8-20 words, like a real person — agree, joke, gently disagree, or add ONE concrete point about the actual topic. Light hint of who you are, never a lecture.\n` +
+        `Everyday spoken Georgian, simple words. BANNED: vague filler ("პერსპექტივა"/"სიმარტივე"/"პრინციპი"/"არსი") and generic life-lessons.\n` +
+        `Rules: real Georgian words; short acronyms ok; Georgian Mkhedruli ONLY — NO Chinese, Korean, Japanese, Arabic, Hebrew or Cyrillic characters; no hashtags, quotes or emojis.\n` +
         `Output ONLY the reply on a single line.`;
-    const user = `Post title: ${post.title}\nThe comment you are replying to: ${parentText}`;
+    const user = `Story: ${sanitizeForPrompt(post.title)}\nThe comment you are replying to: ${sanitizeForPrompt(parentText)}`;
     const raw = await chatRaw(apiKey, model, sys, user);
     if (!raw) return null;
     const text = extractGeorgian(raw);
@@ -73,7 +76,8 @@ async function generateForPersona(
     for (const model of MODEL_CHAIN) {
         const content = await callModel(apiKey, model, persona, post);
         if (content) {
-            return { personaId: persona.id, name: persona.name, avatar: persona.avatar, content };
+            const polished = await polishGeorgian(apiKey, content, 10, 30);
+            return { personaId: persona.id, name: persona.name, avatar: persona.avatar, content: polished };
         }
     }
     return null;
@@ -88,7 +92,7 @@ async function generateReplyForPersona(
 ): Promise<string | null> {
     for (const model of MODEL_CHAIN) {
         const r = await callReplyModel(apiKey, model, persona, post, parentText);
-        if (r) return r;
+        if (r) return await polishGeorgian(apiKey, r, 6, 35);
     }
     return null;
 }

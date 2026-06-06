@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { TbCircleCheck, TbCircleX } from 'react-icons/tb'
 
 export default function VerifyEmailPage() {
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
@@ -78,7 +79,7 @@ export default function VerifyEmailPage() {
                         animate={{ scale: 1 }}
                         transition={{ type: "spring", stiffness: 200, damping: 10 }}
                     >
-                        <div className="text-6xl mb-4">✅</div>
+                        <TbCircleCheck className="w-16 h-16 mx-auto mb-4 text-green-400" />
                         <h1 className="text-2xl font-bold text-white mb-2">
                             წარმატებული!
                         </h1>
@@ -100,7 +101,7 @@ export default function VerifyEmailPage() {
                         animate={{ scale: 1 }}
                         transition={{ type: "spring", stiffness: 200, damping: 10 }}
                     >
-                        <div className="text-6xl mb-4">❌</div>
+                        <TbCircleX className="w-16 h-16 mx-auto mb-4 text-red-400" />
                         <h1 className="text-2xl font-bold text-white mb-2">
                             შეცდომა
                         </h1>

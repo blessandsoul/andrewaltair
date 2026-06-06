@@ -5,6 +5,7 @@ import Link from "next/link"
 import { TbArrowLeft, TbSwords, TbLoader2 } from "react-icons/tb"
 
 import { cn } from "@/lib/utils"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { FORUM_PERSONAS } from "@/lib/georgian-forum-personas"
 import { ForumPersonaAvatar } from "@/components/forum/ForumPersonaAvatar"
 import { ForumDisclaimer } from "@/components/forum/ForumDisclaimer"
@@ -71,27 +72,29 @@ export default function ForumDuelPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label className="text-xs text-muted-foreground">პირველი</label>
-                            <select
-                                value={a}
-                                onChange={(e) => setA(e.target.value)}
-                                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-                            >
-                                {FORUM_PERSONAS.map((p) => (
-                                    <option key={p.id} value={p.id}>{p.name}</option>
-                                ))}
-                            </select>
+                            <Select value={a} onValueChange={setA}>
+                                <SelectTrigger className="mt-1 w-full">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {FORUM_PERSONAS.map((p) => (
+                                        <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div>
                             <label className="text-xs text-muted-foreground">მეორე</label>
-                            <select
-                                value={b}
-                                onChange={(e) => setB(e.target.value)}
-                                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-                            >
-                                {FORUM_PERSONAS.map((p) => (
-                                    <option key={p.id} value={p.id}>{p.name}</option>
-                                ))}
-                            </select>
+                            <Select value={b} onValueChange={setB}>
+                                <SelectTrigger className="mt-1 w-full">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {FORUM_PERSONAS.map((p) => (
+                                        <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
                     <input
