@@ -242,6 +242,30 @@ export default function AdminForumPage() {
         alert(`+${generated} დაგენერირდა · ${skipped} გამოტოვდა · ${errored} შეცდომა`)
     }
 
+    // Fill gaps across ALL published topics in one go (missing opinions + predictions).
+    const backfillAll = async () => {
+        const targets = topics.filter((t) => t.status === "published")
+        if (targets.length === 0) { alert("გამოქვეყნებული თემა არ არის"); return }
+        if (!confirm(`ყველა გამოქვეყნებული თემის (${targets.length}) ნაკლულის შევსება? დაგენერირდება მხოლოდ ნაკლული მოსაზრებები/პროგნოზები.`)) return
+        setBulkBusy(true)
+        let added = 0, failed = 0
+        for (let i = 0; i < targets.length; i++) {
+            setBulkProgress(`${i + 1}/${targets.length}`)
+            try {
+                const res = await fetch(`/api/admin/forum/${targets[i].id}/backfill`, { method: "POST" })
+                const json = await res.json().catch(() => null)
+                if (res.ok && json?.data?.ok) added += (json.data.addedOpinions || 0) + (json.data.addedPredictions || 0)
+                else failed++
+            } catch {
+                failed++
+            }
+        }
+        setBulkBusy(false)
+        setBulkProgress("")
+        await load()
+        alert(`შევსება დასრულდა: +${added} პოსტი${failed ? ` · ${failed} შეცდომა` : ""}`)
+    }
+
     const handleDelete = async (id: string) => {
         setBusyId(id)
         try {
@@ -303,12 +327,20 @@ export default function AdminForumPage() {
                         ჩაწერე ამბავი — 20 ისტორიული პერსონა განიხილავს
                     </p>
                 </div>
-                {queuedCount > 0 && (
-                    <Button onClick={generateAllQueued} disabled={bulkBusy} variant="outline" className="gap-2">
-                        {bulkBusy ? <TbLoader2 className="w-4 h-4 animate-spin" /> : <TbRobot className="w-4 h-4" />}
-                        ყველა რიგში {bulkBusy ? bulkProgress : `(${queuedCount})`}
-                    </Button>
-                )}
+                <div className="flex items-center gap-2 flex-wrap">
+                    {queuedCount > 0 && (
+                        <Button onClick={generateAllQueued} disabled={bulkBusy} variant="outline" className="gap-2">
+                            {bulkBusy ? <TbLoader2 className="w-4 h-4 animate-spin" /> : <TbRobot className="w-4 h-4" />}
+                            ყველა რიგში {bulkBusy ? bulkProgress : `(${queuedCount})`}
+                        </Button>
+                    )}
+                    {topics.length > 0 && (
+                        <Button onClick={backfillAll} disabled={bulkBusy} variant="outline" className="gap-2" title="ყველა გამოქვეყნებული თემის ნაკლულის შევსება">
+                            {bulkBusy ? <TbLoader2 className="w-4 h-4 animate-spin" /> : <TbReload className="w-4 h-4" />}
+                            ყველას შევსება {bulkBusy ? bulkProgress : ""}
+                        </Button>
+                    )}
+                </div>
             </div>
 
             {/* HERO: paste → preview → publish */}
