@@ -141,9 +141,12 @@ interface GeneratedPost {
 }
 
 // Rich, first-person persona prompt + a rotating reaction angle for variety.
-function opinionSystem(p: ForumPersona, angle: string, tone: 'serious' | 'fun' = 'serious'): string {
+function opinionSystem(p: ForumPersona, angle: string, tone: 'serious' | 'fun' = 'serious', priorLines?: string[]): string {
     const fun = tone === 'fun'
         ? ' This topic is FUN/light — be witty and playful, apply your worldview with humor, but stay in character and ON this specific topic.'
+        : '';
+    const memory = priorLines && priorLines.length
+        ? `MEMORY — your earlier takes on OTHER news (for continuity): ${priorLines.map((l) => `"${l}"`).join(' ')} — you MAY briefly nod to one ("როგორც ადრე ვთქვი…") ONLY if it genuinely fits THIS news; never force it, never repeat it verbatim.\n`
         : '';
     return (
         `You ARE ${p.name} (${p.role}, ${p.era}). Speak in FIRST PERSON as this exact historical person — ${p.voice}\n` +
@@ -152,6 +155,7 @@ function opinionSystem(p: ForumPersona, angle: string, tone: 'serious' | 'fun' =
         `HOW YOU SPEAK: ${p.style}\n` +
         `EXAMPLE of your voice: "${p.sample}"\n` +
         `${SAFETY}\n` +
+        memory +
         `TASK: react to the news below in GEORGIAN (Mkhedruli), 45-80 words. ${angle}${fun}\n` +
         `ON-TOPIC IS THE RULE: your FIRST sentence must name or quote the SPECIFIC thing in THIS news (the actual event / person / place / number) and take a clear stance on it. React to THIS exact story, not to the theme in general.\n` +
         `GO DEEP, NOT WIDE: pick ONE concrete point, number or tension from the summary, name it, and actually argue it — give a reason, a consequence, or a concrete example from your own era. Develop the thought across 3-4 sentences; a single vague line is a failure.\n` +
@@ -188,8 +192,9 @@ async function generateOpinion(
     persona: ForumPersona,
     topic: TopicSeed,
     tone: 'serious' | 'fun' = 'serious',
+    priorLines?: string[],
 ): Promise<GeneratedPost | null> {
-    const sys = opinionSystem(persona, pickReactionAngle(), tone);
+    const sys = opinionSystem(persona, pickReactionAngle(), tone, priorLines);
     const user = `News title: ${sanitizeForPrompt(topic.titleKa)}\nNews summary: ${sanitizeForPrompt(topic.summaryKa)}`;
     const content = await chainGeorgian(
         (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 2000, temperature: 0.85 }),
@@ -314,6 +319,21 @@ function tallyPersonaVotes(opinionPersonaId: string): { agrees: number; disagree
     return { agrees, disagrees };
 }
 
+/** Last ≤2 opinions per persona from OTHER topics — feeds the cross-topic "memory". */
+async function recentOpinionsByPersona(excludeTopicId: unknown): Promise<Map<string, string[]>> {
+    const rows = await ForumPost.find({ isPrediction: { $ne: true }, isUser: { $ne: true }, parentId: null, topicId: { $ne: excludeTopicId } })
+        .sort({ createdAt: -1 })
+        .limit(300)
+        .select('personaId content')
+        .lean<Array<{ personaId: string; content: string }>>();
+    const map = new Map<string, string[]>();
+    for (const r of rows) {
+        const arr = map.get(r.personaId) || [];
+        if (arr.length < 2) { arr.push(r.content); map.set(r.personaId, arr); }
+    }
+    return map;
+}
+
 /**
  * Generate all opinions + debate replies for a topic and publish it. Idempotent: if the
  * topic already has posts it does nothing (so re-running cron / the button never dupes).
@@ -332,8 +352,9 @@ export async function generateAndSaveForumTopic(topicId: string): Promise<ForumG
     const seed: TopicSeed = { titleKa: topic.titleKa, summaryKa: topic.summaryKa };
 
     // 1. One opinion per persona, in batches of 5 to respect the free-tier rate limit.
+    const priorMap = await recentOpinionsByPersona(topic._id);
     const opinions = (
-        await inBatches(FORUM_PERSONAS, 6, (p) => generateOpinion(apiKey, p, seed, (topic.tone as 'serious' | 'fun') || 'serious'))
+        await inBatches(FORUM_PERSONAS, 6, (p) => generateOpinion(apiKey, p, seed, (topic.tone as 'serious' | 'fun') || 'serious', priorMap.get(p.id)))
     ).filter((x): x is GeneratedPost => x !== null);
 
     console.log(`[forum] opinions generated: ${opinions.length}/${FORUM_PERSONAS.length} for "${topic.slug}"`);
@@ -465,8 +486,9 @@ export async function backfillTopic(topicId: string): Promise<
 
     // 1. Every persona should have one top-level opinion — generate the missing ones.
     const missingOp = FORUM_PERSONAS.filter((p) => !hasOpinion.has(p.id));
+    const priorMap = await recentOpinionsByPersona(topic._id);
     const newOps = (
-        await inBatches(missingOp, 6, (p) => generateOpinion(apiKey, p, seed, (topic.tone as 'serious' | 'fun') || 'serious'))
+        await inBatches(missingOp, 6, (p) => generateOpinion(apiKey, p, seed, (topic.tone as 'serious' | 'fun') || 'serious', priorMap.get(p.id)))
     ).filter((x): x is GeneratedPost => x !== null);
     if (newOps.length) {
         await ForumPost.insertMany(

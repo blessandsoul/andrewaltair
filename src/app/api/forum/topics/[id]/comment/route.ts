@@ -9,6 +9,7 @@ import dbConnect from '@/lib/db';
 import ForumTopic from '@/models/ForumTopic';
 import ForumPost from '@/models/ForumPost';
 import { personaReplyToUser } from '@/lib/georgian-forum-generator';
+import { getForumPersona, FORUM_PERSONAS } from '@/lib/georgian-forum-personas';
 import { getClientIp, checkAiRateLimit, recordAiUse, rateLimitMessageKa } from '@/lib/forum-ratelimit';
 
 /**
@@ -47,22 +48,46 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
             return apiError(ERROR_CODES.VALIDATION_FAILED, 'parent must be a persona opinion in this topic', 400);
         }
 
-        const res = await personaReplyToUser(parent.personaId, { titleKa: topic.titleKa, summaryKa: topic.summaryKa }, content);
-        if (!res) return apiError(ERROR_CODES.FORUM_GENERATE_FAILED, 'No reply generated', 502);
+        const seed = { titleKa: topic.titleKa, summaryKa: topic.summaryKa };
+
+        // SWARM: the challenged persona + up to 2 others (its rivals/allies, else random)
+        // all reply to the reader — a pile-on instead of a lone answer.
+        const challenged = parent.personaId;
+        const cp = getForumPersona(challenged);
+        const related = [...new Set([...(cp?.rivals || []), ...(cp?.allies || [])])]
+            .filter((pid) => pid !== challenged && getForumPersona(pid))
+            .sort(() => Math.random() - 0.5);
+        const others = related.slice(0, 2);
+        if (others.length < 2) {
+            const pool = FORUM_PERSONAS.filter((p) => p.id !== challenged && !others.includes(p.id)).sort(() => Math.random() - 0.5);
+            for (const p of pool) {
+                if (others.length >= 2) break;
+                others.push(p.id);
+            }
+        }
+        const responders = [challenged, ...others];
+
+        const replies = await Promise.all(responders.map((pid) => personaReplyToUser(pid, seed, content)));
+        const okCount = replies.filter(Boolean).length;
+        if (okCount === 0) return apiError(ERROR_CODES.FORUM_GENERATE_FAILED, 'No reply generated', 502);
         recordAiUse(ip);
 
         const userPost = await ForumPost.create({
             topicId: id, personaId: 'reader', author: { name }, content,
             parentId, isUser: true, userName: name,
         });
-        await ForumPost.create({
-            topicId: id, personaId: parent.personaId, author: { name: res.name }, content: res.reply,
-            parentId: userPost._id, isUser: false,
-        });
-        await ForumTopic.updateOne({ _id: id }, { $inc: { postCount: 2, hotScore: 2 } });
+        for (let i = 0; i < responders.length; i++) {
+            const r = replies[i];
+            if (!r) continue;
+            await ForumPost.create({
+                topicId: id, personaId: responders[i], author: { name: r.name }, content: r.reply,
+                parentId: userPost._id, isUser: false,
+            });
+        }
+        await ForumTopic.updateOne({ _id: id }, { $inc: { postCount: 1 + okCount, hotScore: 1 + okCount } });
         revalidatePath(`/forum/${topic.slug}`);
 
-        return apiSuccess({ ok: true }, 'replied');
+        return apiSuccess({ ok: true, replies: okCount }, 'replied');
     } catch (error) {
         console.error('[API] forum comment error:', error);
         return apiError(ERROR_CODES.FORUM_GENERATE_FAILED, 'Failed to comment', 500);
