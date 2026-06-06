@@ -12,12 +12,13 @@
 
 const ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
 
-// Model chain: PRIMARY = Gemini 2.5 Flash Lite (clean Georgian, cheap, no free-tier
-// 429), FALLBACK = free Gemma (used only if Gemini fails → never returns empty).
-// Override with env OPENROUTER_MODELS="id1,id2,..." (no code change).
+// Model chain: PRIMARY = Gemini 2.5 Flash Lite (clean Georgian, cheap, no free-tier 429),
+// 2nd = Gemini 2.5 Flash (paid, reliable — catches the rare lite rejection WITHOUT hitting
+// a rate-limited free model), LAST = free Gemma (best-effort safety net; it 429s under load,
+// so it must never be the only fallback). Override with env OPENROUTER_MODELS="id1,id2,...".
 export const MODEL_CHAIN = (process.env.OPENROUTER_MODELS
     ? process.env.OPENROUTER_MODELS.split(',').map((s) => s.trim()).filter(Boolean)
-    : ['google/gemini-2.5-flash-lite', 'google/gemma-4-31b-it:free']);
+    : ['google/gemini-2.5-flash-lite', 'google/gemini-2.5-flash', 'google/gemma-4-31b-it:free']);
 
 export const GEORGIAN_RE = /[Ⴀ-ჿ]/g;
 export const CYRILLIC_RE = /[Ѐ-ӿ]/;
