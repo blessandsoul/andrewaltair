@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { TbUser, TbCrown, TbSwords, TbLoader2, TbSend } from "react-icons/tb"
+import { TbUser, TbCrown, TbSwords, TbLoader2, TbSend, TbShare3 } from "react-icons/tb"
 
 import { cn } from "@/lib/utils"
 import { getForumPersona } from "@/lib/georgian-forum-personas"
@@ -188,6 +188,15 @@ function PostCard({
                                 <ForumLikeStack likedBy={node.likedBy} size="xs" max={5} showCount={false} />
                             )}
                             {depth === 0 && <ChallengeBox topicId={topicId} parentId={node.id} />}
+                            <a
+                                href={`/api/forum/quote?persona=${node.personaId}&text=${encodeURIComponent(node.content)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-xs text-on-surface-variant hover:text-primary"
+                            >
+                                <TbShare3 className="w-3.5 h-3.5" />
+                                გააზიარე
+                            </a>
                         </div>
                     )}
                 </div>

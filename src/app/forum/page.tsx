@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { TbClock, TbFlame, TbTrophy, TbSwords, TbSearch } from 'react-icons/tb';
+import { TbClock, TbFlame, TbTrophy, TbSwords, TbSearch, TbUserQuestion, TbAffiliate } from 'react-icons/tb';
 
 import { ForumService } from '@/services/forum.service';
 import { ForumTopicCard, type ForumTopicCardData } from '@/components/forum/ForumTopicCard';
@@ -101,6 +101,14 @@ export default async function ForumPage({
                         <Link href="/forum/search" className="inline-flex items-center gap-1 text-on-surface-variant hover:text-primary">
                             <TbSearch className="w-4 h-4" />
                             <span className="hidden sm:inline">ძებნა</span>
+                        </Link>
+                        <Link href="/forum/quiz" className="inline-flex items-center gap-1 text-on-surface-variant hover:text-primary">
+                            <TbUserQuestion className="w-4 h-4" />
+                            <span className="hidden sm:inline">ტესტი</span>
+                        </Link>
+                        <Link href="/forum/map" className="inline-flex items-center gap-1 text-on-surface-variant hover:text-primary">
+                            <TbAffiliate className="w-4 h-4" />
+                            <span className="hidden sm:inline">რუკა</span>
                         </Link>
                     </div>
                 </div>
