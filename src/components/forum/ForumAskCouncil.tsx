@@ -70,7 +70,7 @@ export function ForumAskCouncil() {
                 ჰკითხე საბჭოს
             </div>
             <p className="mt-1 mb-3 text-sm text-on-surface-variant">
-                დაუსვი კითხვა — საქართველოს დიდები მაშინვე გიპასუხებენ.
+                დასვი კითხვა — საქართველოს დიდებული ადამიანები მაშინვე გიპასუხებენ.
             </p>
 
             <form onSubmit={ask} className="space-y-3">

@@ -412,6 +412,78 @@ export async function generateAndSaveForumTopic(topicId: string): Promise<ForumG
     return { ok: true, created: topLevel.length, replies, predictions };
 }
 
+/**
+ * BACKFILL — for an existing topic, find which personas have NO top-level opinion and
+ * which the prediction slate is short of, and generate ONLY the missing ones. Idempotent
+ * (safe to click repeatedly): it never duplicates, just fills gaps left by truncation /
+ * rate-limits during the first pass. Also rescues a topic stuck 'queued' after a failed run.
+ */
+export async function backfillTopic(topicId: string): Promise<
+    | { ok: true; addedOpinions: number; addedPredictions: number; totalOpinions: number }
+    | { ok: false; reason: 'no_key' | 'not_found' }
+> {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    if (!apiKey) return { ok: false, reason: 'no_key' };
+
+    await dbConnect();
+    const topic = await ForumTopic.findById(topicId);
+    if (!topic) return { ok: false, reason: 'not_found' };
+    const seed: TopicSeed = { titleKa: topic.titleKa, summaryKa: topic.summaryKa };
+
+    const posts = await ForumPost.find({ topicId: topic._id })
+        .select('personaId isPrediction parentId isUser')
+        .lean<Array<{ personaId: string; isPrediction?: boolean; parentId?: unknown; isUser?: boolean }>>();
+    const hasOpinion = new Set(posts.filter((p) => !p.isPrediction && !p.parentId && !p.isUser).map((p) => p.personaId));
+    const hasPrediction = new Set(posts.filter((p) => p.isPrediction).map((p) => p.personaId));
+
+    // 1. Every persona should have one top-level opinion — generate the missing ones.
+    const missingOp = FORUM_PERSONAS.filter((p) => !hasOpinion.has(p.id));
+    const newOps = (
+        await inBatches(missingOp, 6, (p) => generateOpinion(apiKey, p, seed, (topic.tone as 'serious' | 'fun') || 'serious'))
+    ).filter((x): x is GeneratedPost => x !== null);
+    if (newOps.length) {
+        await ForumPost.insertMany(
+            newOps.map((o) => {
+                const likedBy = pickRandomForumLikers(1, 6, o.personaId);
+                return { topicId: topic._id, personaId: o.personaId, author: { name: o.name }, content: o.content, parentId: null, likedBy, likes: likedBy.length };
+            }),
+        );
+    }
+
+    // 2. Top the prediction slate back up to 8 (from personas without one yet).
+    let addedPredictions = 0;
+    const need = Math.max(0, 8 - hasPrediction.size);
+    if (need > 0) {
+        const cand = FORUM_PERSONAS.filter((p) => !hasPrediction.has(p.id)).sort(() => Math.random() - 0.5).slice(0, need);
+        const newPreds = (await inBatches(cand, 6, (p) => generatePrediction(apiKey, p, seed))).filter(
+            (x): x is GeneratedPost => x !== null,
+        );
+        if (newPreds.length) {
+            await ForumPost.insertMany(
+                newPreds.map((o) => {
+                    const likedBy = pickRandomForumLikers(0, 4, o.personaId);
+                    return { topicId: topic._id, personaId: o.personaId, author: { name: o.name }, content: o.content, parentId: null, isPrediction: true, predictionVerdict: 'pending', likedBy, likes: likedBy.length };
+                }),
+            );
+            addedPredictions = newPreds.length;
+        }
+    }
+
+    // Recount the debate (opinions + replies, excluding predictions + reader posts) + publish.
+    const totalOpinions = await ForumPost.countDocuments({ topicId: topic._id, isPrediction: { $ne: true }, isUser: { $ne: true } });
+    topic.postCount = totalOpinions;
+    if (topic.status !== 'published' && totalOpinions > 0) {
+        topic.status = 'published';
+        if (!topic.publishedAt) topic.publishedAt = new Date();
+    }
+    await topic.save();
+
+    revalidatePath('/forum');
+    revalidatePath(`/forum/${topic.slug}`);
+    revalidatePath('/');
+    return { ok: true, addedOpinions: newOps.length, addedPredictions, totalOpinions };
+}
+
 interface ReplyTarget {
     parentId: unknown;
     parentContent: string;

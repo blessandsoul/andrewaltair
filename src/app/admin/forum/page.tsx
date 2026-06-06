@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
     TbMessages, TbPlus, TbRobot, TbTrash, TbExternalLink, TbLoader2,
-    TbClock, TbCheck, TbInfoCircle, TbEye, TbSend, TbX, TbPhoto, TbMoodSmile, TbTrendingUp, TbBulb,
+    TbClock, TbCheck, TbInfoCircle, TbEye, TbSend, TbX, TbPhoto, TbMoodSmile, TbTrendingUp, TbBulb, TbReload,
 } from "react-icons/tb"
 
 type PredictionRow = { id: string; personaId: string; name: string; content: string; verdict: "pending" | "right" | "wrong" }
@@ -44,6 +44,7 @@ export default function AdminForumPage() {
 
     // List ops
     const [busyId, setBusyId] = React.useState<string | null>(null)
+    const [backfillId, setBackfillId] = React.useState<string | null>(null)
     const [bulkBusy, setBulkBusy] = React.useState(false)
     const [bulkProgress, setBulkProgress] = React.useState("")
     const [deleteConfirm, setDeleteConfirm] = React.useState<string | null>(null)
@@ -201,6 +202,25 @@ export default function AdminForumPage() {
         const r = await handleGenerate(id)
         await load()
         if (r === "error") alert("გენერაცია ვერ მოხერხდა (იხ. OPENROUTER_API_KEY)")
+    }
+
+    // Fill the gaps: generate the missing persona opinions + top predictions up to 8.
+    const backfillOne = async (id: string) => {
+        setBackfillId(id)
+        try {
+            const res = await fetch(`/api/admin/forum/${id}/backfill`, { method: "POST" })
+            const json = await res.json().catch(() => null)
+            if (res.ok && json?.data?.ok) {
+                alert(`+${json.data.addedOpinions} მოსაზრება · +${json.data.addedPredictions} პროგნოზი (სულ ${json.data.totalOpinions}/20)`)
+            } else {
+                alert(json?.error?.message || "შევსება ვერ მოხერხდა")
+            }
+        } catch {
+            alert("შევსება ვერ მოხერხდა")
+        } finally {
+            setBackfillId(null)
+            await load()
+        }
     }
 
     const generateAllQueued = async () => {
@@ -525,6 +545,21 @@ export default function AdminForumPage() {
                                                 <TbRobot className="w-4 h-4" />
                                             )}
                                             <span className="hidden sm:inline">AI</span>
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => backfillOne(t.id)}
+                                            disabled={backfillId === t.id || busyId === t.id || bulkBusy}
+                                            className="gap-1.5"
+                                            title="ნაკლული მოსაზრებების და პროგნოზების შევსება"
+                                        >
+                                            {backfillId === t.id ? (
+                                                <TbLoader2 className="w-4 h-4 animate-spin" />
+                                            ) : (
+                                                <TbReload className="w-4 h-4" />
+                                            )}
+                                            <span className="hidden sm:inline">შევსება</span>
                                         </Button>
                                         {deleteConfirm === t.id ? (
                                             <>
