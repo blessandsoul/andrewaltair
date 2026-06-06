@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { TbMessage2, TbExternalLink } from "react-icons/tb"
+import { TbMessage2, TbExternalLink, TbEye } from "react-icons/tb"
 
 import { ForumLikeStack, type ForumLiker } from "@/components/forum/ForumLikeStack"
 
@@ -11,6 +11,7 @@ export interface ForumTopicCardData {
     sourceImage?: string
     sourceDomain?: string
     postCount?: number
+    views?: number
     likedBy?: ForumLiker[]
 }
 
@@ -47,6 +48,10 @@ export function ForumTopicCard({ topic }: { topic: ForumTopicCardData }) {
                     <span className="inline-flex items-center gap-1">
                         <TbMessage2 className="w-4 h-4" />
                         {topic.postCount || 0} მოსაზრება
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                        <TbEye className="w-4 h-4" />
+                        {topic.views || 0}
                     </span>
                     {topic.sourceDomain && (
                         <span className="inline-flex items-center gap-1 truncate">

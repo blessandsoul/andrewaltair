@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { TbExternalLink, TbArrowLeft } from 'react-icons/tb';
+import { TbExternalLink, TbArrowLeft, TbEye } from 'react-icons/tb';
 
 import { ForumService } from '@/services/forum.service';
 import { ForumThread, type ForumPostView } from '@/components/forum/ForumThread';
@@ -25,6 +25,7 @@ interface TopicView {
     sourceImage?: string;
     sourceDomain?: string;
     postCount?: number;
+    views?: number;
     verdictKa?: string;
     likedBy?: ForumLiker[];
 }
@@ -91,6 +92,10 @@ export default async function ForumTopicPage({ params }: { params: Promise<{ slu
                 <p className="mt-4 text-on-surface-variant leading-relaxed">{topic.summaryKa}</p>
 
                 <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
+                    <span className="inline-flex items-center gap-1 text-on-surface-variant">
+                        <TbEye className="w-4 h-4" />
+                        {topic.views || 0} ნახვა
+                    </span>
                     {topic.sourceUrl && (
                         <a
                             href={topic.sourceUrl}
