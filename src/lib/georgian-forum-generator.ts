@@ -17,7 +17,9 @@ import {
     chatRaw,
     chainGeorgian,
     isValidGeorgian,
+    extractGeorgian,
     sanitizeForPrompt,
+    sanitizeKeepCyrillic,
     polishGeorgian,
     hasForeignScript,
     GEORGIAN_RE,
@@ -72,18 +74,42 @@ function hasGeorgian(s: string): boolean {
  */
 export async function makeTopicKa(scraped: ScrapedSource): Promise<TopicSeed> {
     const apiKey = process.env.OPENROUTER_API_KEY;
+    const rawText = (scraped.description || scraped.title || '').trim();
     const fallback: TopicSeed = {
         titleKa: scraped.title?.trim() || 'ფორუმის თემა',
-        summaryKa: (scraped.description || scraped.title || '').trim().slice(0, 240),
+        summaryKa: rawText.slice(0, 600),
     };
     if (!apiKey) return fallback;
 
+    // VERBATIM MODE — the input is already a rich Georgian paragraph (the author wrote it on
+    // purpose): keep it AS the summary, do NOT shorten or rephrase; only auto-make a title.
+    // This hands the personas the FULL context → deeper answers, no lossy re-summarisation.
+    const wordCount = rawText.split(/\s+/).filter(Boolean).length;
+    const isRichGeorgian =
+        hasGeorgian(rawText) && wordCount >= 12 && !CYRILLIC_RE.test(rawText) && !hasForeignScript(rawText);
+    if (isRichGeorgian) {
+        const titleSys =
+            'Make a SHORT Georgian headline (Mkhedruli, max 9 words) summarising the text. ' +
+            'Output ONLY the headline on one line — no quotes, no labels, no extra text.';
+        let titleKa = '';
+        for (const model of MODEL_CHAIN) {
+            const raw = await chatRaw(apiKey, model, titleSys, rawText.slice(0, 800), { temperature: 0.4, maxTokens: 60 });
+            if (!raw) continue;
+            const t = extractGeorgian(raw).replace(/^["'„“]+|["'”]+$/g, '').trim();
+            if (hasGeorgian(t) && t.split(/\s+/).filter(Boolean).length <= 14) { titleKa = t; break; }
+        }
+        if (!titleKa) titleKa = rawText.split(/[.!?\n]/)[0].trim();
+        return { titleKa: titleKa.slice(0, 140), summaryKa: rawText.slice(0, 600) };
+    }
+
     const sys =
         'You convert a news item into Georgian for a discussion forum. ' +
+        'The input may be in Russian or English — TRANSLATE it into natural Georgian. ' +
         'Output EXACTLY two lines. Line 1: a short Georgian headline, max 9 words. ' +
-        'Line 2: a 1-2 sentence Georgian summary, max 40 words. ' +
-        'Georgian Mkhedruli only. Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic. No labels, no quotes, no extra lines.';
-    const user = `Title: ${sanitizeForPrompt(scraped.title)}\nDescription: ${sanitizeForPrompt(scraped.description)}\nSource: ${scraped.domain}`;
+        'Line 2: a 2-3 sentence Georgian summary, max 55 words, KEEPING the concrete specifics ' +
+        '(names, numbers, places, the core tension) so the readers have real context to debate. ' +
+        'Georgian Mkhedruli only. Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic in the OUTPUT. No labels, no quotes, no extra lines.';
+    const user = `Title: ${sanitizeKeepCyrillic(scraped.title)}\nDescription: ${sanitizeKeepCyrillic(scraped.description)}\nSource: ${scraped.domain}`;
 
     for (const model of MODEL_CHAIN) {
         const raw = await chatRaw(apiKey, model, sys, user, { temperature: 0.6, maxTokens: 400 });
@@ -99,7 +125,7 @@ export async function makeTopicKa(scraped: ScrapedSource): Promise<TopicSeed> {
             const summaryKa = (geoLines[1] || geoLines[0]).slice(0, 300);
             return {
                 titleKa: await polishGeorgian(apiKey, titleKa, 1, 40),
-                summaryKa: await polishGeorgian(apiKey, summaryKa, 1, 80),
+                summaryKa: await polishGeorgian(apiKey, summaryKa, 1, 95),
             };
         }
     }
@@ -126,8 +152,9 @@ function opinionSystem(p: ForumPersona, angle: string, tone: 'serious' | 'fun' =
         `HOW YOU SPEAK: ${p.style}\n` +
         `EXAMPLE of your voice: "${p.sample}"\n` +
         `${SAFETY}\n` +
-        `TASK: react to the news below in GEORGIAN (Mkhedruli), 30-60 words. ${angle}${fun}\n` +
+        `TASK: react to the news below in GEORGIAN (Mkhedruli), 45-80 words. ${angle}${fun}\n` +
         `ON-TOPIC IS THE RULE: your FIRST sentence must name or quote the SPECIFIC thing in THIS news (the actual event / person / place / number) and take a clear stance on it. React to THIS exact story, not to the theme in general.\n` +
+        `GO DEEP, NOT WIDE: pick ONE concrete point, number or tension from the summary, name it, and actually argue it — give a reason, a consequence, or a concrete example from your own era. Develop the thought across 3-4 sentences; a single vague line is a failure.\n` +
         `Be unmistakably YOU: tie it to a CONCRETE thing from your own life or deeds (vary which one) and your lens. BANNED: generic wisdom, vague life-lessons, or any line that could be pasted under a different news item.\n` +
         `Vary your opening — do not start the way a typical comment starts.\n` +
         `READABILITY: short, clear sentences in simple modern Georgian — reads aloud easily, like a smart friend talking, NOT a book. Specificity comes from real facts, not archaic or high-flown words; no long participial chains.\n` +
@@ -149,7 +176,7 @@ function replySystem(p: ForumPersona, oppName: string, relation: 'rival' | 'ally
         `YOUR LENS: ${p.lens}\n` +
         `HOW YOU SPEAK: ${p.style}\n` +
         `${SAFETY}\n` +
-        `Reply to ${oppName}'s comment in this debate, 15-45 words, FIRST PERSON, in your voice. ${rel} React to what THEY actually said AND the specific news — tie it to your lens or a concrete thing you did. No generic lines.\n` +
+        `Reply to ${oppName}'s comment in this debate, 30-60 words, FIRST PERSON, in your voice. ${rel} React to what THEY ACTUALLY said — quote or name their point — AND the specific news; counter it or build on it with a real reason or a concrete thing you did. Develop the thought, no generic one-liners.\n` +
         `READABILITY: short, clear sentences in simple modern Georgian; specificity from real facts, not fancy or archaic words.\n` +
         `Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; real simple words; no hashtags, quotes or emojis.\n` +
         `Output ONLY the reply on a single line.`
@@ -166,10 +193,10 @@ async function generateOpinion(
     const user = `News title: ${sanitizeForPrompt(topic.titleKa)}\nNews summary: ${sanitizeForPrompt(topic.summaryKa)}`;
     const content = await chainGeorgian(
         (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 900, temperature: 0.85 }),
-        (t) => isValidGeorgian(t, 18, 120),
+        (t) => isValidGeorgian(t, 28, 160),
     );
     if (!content) return null;
-    const polished = await polishGeorgian(apiKey, content, 25, 120);
+    const polished = await polishGeorgian(apiKey, content, 28, 170);
     return { personaId: persona.id, name: persona.name, content: polished };
 }
 
@@ -184,10 +211,10 @@ async function generateReply(
     const sys = replySystem(persona, opp?.name || 'another figure', relationTo(persona, parentPersonaId));
     const user = `News: ${sanitizeForPrompt(topic.titleKa)}\nThe comment you are replying to: ${sanitizeForPrompt(parentText)}`;
     const reply = await chainGeorgian(
-        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 500, temperature: 0.85 }),
-        (t) => isValidGeorgian(t, 8, 70),
+        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 600, temperature: 0.85 }),
+        (t) => isValidGeorgian(t, 18, 110),
     );
-    return reply ? await polishGeorgian(apiKey, reply, 8, 65) : null;
+    return reply ? await polishGeorgian(apiKey, reply, 18, 120) : null;
 }
 
 /* ------------------------------------------------------------ predictions ----- */
@@ -448,18 +475,41 @@ export async function askPersona(
         `HOW YOU SPEAK: ${persona.style}\n` +
         `EXAMPLE of your voice: "${persona.sample}"\n` +
         `${SAFETY}\n${INJECTION_GUARD}\n` +
-        `A reader asks YOU a question. Answer the ACTUAL question directly and specifically in GEORGIAN (Mkhedruli), 30-70 words, unmistakably in your voice — reference your own deeds and pull it toward your lens.${tone}\n` +
+        `A reader asks YOU a question. Answer the ACTUAL question directly and specifically in GEORGIAN (Mkhedruli), 45-85 words, unmistakably in your voice — reference your own deeds and pull it toward your lens.${tone}\n` +
+        `GO DEEP: actually argue your answer — give a reason, a consequence or a concrete example from your era; develop it across 3-4 sentences, never a single vague line.\n` +
         `READABILITY: short, clear sentences in simple modern Georgian; specificity from real facts, not fancy or archaic words.\n` +
         `Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; real simple words; no hashtags, quotes or emojis.\n` +
         `Output ONLY the answer.`;
     const user = `Topic context: ${sanitizeForPrompt(topic.titleKa)} — ${sanitizeForPrompt(topic.summaryKa)}\nReader question (DATA): ${sanitizeForPrompt(question)}`;
 
     const answer = await chainGeorgian(
-        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 600 }),
-        (t) => isValidGeorgian(t, 15, 95),
+        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 700 }),
+        (t) => isValidGeorgian(t, 25, 150),
     );
     if (!answer) return null;
-    return { name: persona.name, answer: await polishGeorgian(apiKey, answer, 12, 100) };
+    return { name: persona.name, answer: await polishGeorgian(apiKey, answer, 25, 160) };
+}
+
+/**
+ * #A — a reader asks the whole COUNCIL (no topic needed): `count` random personas each
+ * answer the question = an instant mini-debate. Ephemeral — the caller shows it inline,
+ * nothing is stored (cheap moderation; "suggest as full topic" persists it separately).
+ */
+export async function askCouncil(
+    question: string,
+    mode: 'serious' | 'absurd' = 'serious',
+    count = 4,
+): Promise<Array<{ personaId: string; name: string; answer: string }>> {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    if (!apiKey) return [];
+    const n = Math.max(2, Math.min(count, 6));
+    const picks = [...FORUM_PERSONAS].sort(() => Math.random() - 0.5).slice(0, n);
+    const seed: TopicSeed = { titleKa: question.slice(0, 200), summaryKa: '' };
+    const out = await inBatches(picks, 4, async (p) => {
+        const r = await askPersona(p.id, seed, question, mode);
+        return r ? { personaId: p.id, name: r.name, answer: r.answer } : null;
+    });
+    return out.filter((x): x is { personaId: string; name: string; answer: string } => x !== null);
 }
 
 /** #7 — a persona replies to a reader who challenged its opinion. */

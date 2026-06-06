@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import type { IconType } from "react-icons"
 import {
     TbBulb, TbBolt, TbAtom, TbFlask, TbCpu, TbBrandApple,
@@ -23,6 +24,9 @@ const PERSONA_ICONS: Record<string, { Icon: IconType; bg: string }> = {
     rustaveli: { Icon: TbFeather, bg: "bg-teal-600" },
 }
 
+// ids with an AI-painted portrait at public/ai-personas/<id>.png. Missing file → icon.
+const HAS_PORTRAIT = new Set(Object.keys(PERSONA_ICONS))
+
 export type PersonaAvatarSize = "xs" | "sm" | "md"
 
 const SIZE: Record<PersonaAvatarSize, { box: string; icon: string }> = {
@@ -30,6 +34,8 @@ const SIZE: Record<PersonaAvatarSize, { box: string; icon: string }> = {
     sm: { box: "w-7 h-7", icon: "w-4 h-4" },
     md: { box: "w-10 h-10", icon: "w-5 h-5" },
 }
+
+const PX: Record<PersonaAvatarSize, number> = { xs: 20, sm: 28, md: 40 }
 
 export function PersonaAvatar({
     personaId,
@@ -42,9 +48,27 @@ export function PersonaAvatar({
     title?: string
     className?: string
 }) {
+    const s = SIZE[size]
+
+    if (personaId && HAS_PORTRAIT.has(personaId)) {
+        return (
+            <span
+                title={title}
+                className={cn("relative inline-block rounded-full overflow-hidden shrink-0", s.box, className)}
+            >
+                <Image
+                    src={`/ai-personas/${personaId}.png`}
+                    alt={title || personaId}
+                    width={PX[size]}
+                    height={PX[size]}
+                    className="object-cover w-full h-full"
+                />
+            </span>
+        )
+    }
+
     const entry = (personaId && PERSONA_ICONS[personaId]) || { Icon: TbRobot, bg: "bg-primary" }
     const { Icon, bg } = entry
-    const s = SIZE[size]
     return (
         <span
             title={title}

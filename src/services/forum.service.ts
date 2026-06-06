@@ -81,7 +81,7 @@ export class ForumService {
      * Create a topic from a source URL: scrape OG → Georgian title+summary → save 'queued'.
      * Opinions are generated later by the cron or the admin "generate now" button.
      */
-    static async createTopic(input: { text: string; sourceUrl?: string; imageUrl?: string; tone?: 'serious' | 'fun' }) {
+    static async createTopic(input: { text: string; sourceUrl?: string; imageUrl?: string; tone?: 'serious' | 'fun'; suggestedBy?: string }) {
         await dbConnect();
 
         const text = (input.text || '').trim();
@@ -115,6 +115,7 @@ export class ForumService {
             sourceImage: (input.imageUrl || '').trim(),
             sourceDomain,
             status: 'queued',
+            suggestedBy: (input.suggestedBy || '').trim().slice(0, 40),
             numericId,
         });
 

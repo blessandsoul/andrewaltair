@@ -1,0 +1,9 @@
+einstein https://pikaso.cdnpk.net/private/production/4518357838/render.png?token=exp=1780963200~hmac=0e95fcd151482f5441c2ef5a8b626f985daccb5c95f3b9ef342a3ff80b57f49f
+tesla https://pikaso.cdnpk.net/private/production/4518358109/render.png?token=exp=1780963200~hmac=d2c4f44688ad6ddd9453c5531e21adf0efff8a8d51e079353164b7f099eb27f4
+feynman https://pikaso.cdnpk.net/private/production/4518358221/render.png?token=exp=1780963200~hmac=26cd5785dd1773b9dbbd9c207458460a2f1f346a49f3727a96ed4599028326a6
+curie https://pikaso.cdnpk.net/private/production/4518358457/render.jpg?token=exp=1780963200~hmac=e8a473c06d748f35decda0b6f25c0bd8bb88cd2c3eba2cec335dda367570b7b4
+turing https://pikaso.cdnpk.net/private/production/4518358504/render.png?token=exp=1780963200~hmac=9d2522c08f535a66c718b0e8049a3fe68fed8a2c9da4f3ba6409c130af3a0c20
+jobs https://pikaso.cdnpk.net/private/production/4518359727/render.png?token=exp=1780963200~hmac=8c922a4f37b276d5cc7cad6da16f3c63045b4b73d4a39cea1d2e1e47e6a941e7
+hawking https://pikaso.cdnpk.net/private/production/4518359850/render.png?token=exp=1780963200~hmac=7bcd00108d836d2b9dcfad5a9b81938884757e4454e4158959c9176b0e31e304
+davinci https://pikaso.cdnpk.net/private/production/4518360117/render.png?token=exp=1780963200~hmac=6d0165ee09207f117fd8f2bdb18f8e67d6b0fefbceb5f0bbbc58f14b3ed5f808
+nietzsche https://pikaso.cdnpk.net/private/production/4518359962/render.png?token=exp=1780963200~hmac=7030b55e69650a8abe065b618162f3351431ad89f8c4c22442997e836c821f1e

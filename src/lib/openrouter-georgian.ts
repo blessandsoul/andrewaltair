@@ -41,6 +41,16 @@ export function sanitizeForPrompt(text: string): string {
     return (text || '').replace(new RegExp(FOREIGN_SCRIPT_RE.source, 'g'), '').trim();
 }
 
+// Same as FOREIGN_SCRIPT_RE but WITHOUT the Cyrillic block — strips genuine mojibake
+// (Hebrew/Arabic/Thai/Hangul/Kana/CJK) while KEEPING Cyrillic + Latin + Georgian.
+const MOJIBAKE_KEEP_CYRILLIC_RE = /[֐-׿؀-ۿݐ-ݿ฀-๿ᄀ-ᇿ぀-ヿ㐀-䶿一-鿿가-힯豈-﫿]/g;
+
+/** Sanitize TRUSTED admin input that may be Russian/English — translate-to-Georgian sources.
+ *  Keeps Cyrillic + Latin (the model translates them); only drops real mojibake scripts. */
+export function sanitizeKeepCyrillic(text: string): string {
+    return (text || '').replace(MOJIBAKE_KEEP_CYRILLIC_RE, '').trim();
+}
+
 /** Strip <think> blocks / surrounding quotes; keep the last Georgian-heavy line. */
 export function extractGeorgian(raw: string): string {
     let text = (raw || '').replace(/<think>[\s\S]*?<\/think>/gi, '').trim();

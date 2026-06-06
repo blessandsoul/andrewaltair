@@ -7,6 +7,7 @@ import { TbClock, TbFlame, TbTrophy, TbSwords, TbSearch } from 'react-icons/tb';
 import { ForumService } from '@/services/forum.service';
 import { ForumTopicCard, type ForumTopicCardData } from '@/components/forum/ForumTopicCard';
 import { ForumDisclaimer } from '@/components/forum/ForumDisclaimer';
+import { ForumAskCouncil } from '@/components/forum/ForumAskCouncil';
 import { cn } from '@/lib/utils';
 
 const DESC = 'საქართველოს ისტორიული პირები განიხილავენ დღევანდელ ამბებს — AI-წარმოსახული დებატი.';
@@ -49,6 +50,10 @@ export default async function ForumPage({
 
                 <div className="max-w-2xl mx-auto mb-6">
                     <ForumDisclaimer />
+                </div>
+
+                <div className="max-w-2xl mx-auto mb-8">
+                    <ForumAskCouncil />
                 </div>
 
                 {/* Controls: sort toggle + section nav */}

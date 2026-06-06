@@ -15,6 +15,7 @@ export interface IForumTopic extends Document {
     sourceImage: string;
     sourceDomain: string;
     status: 'queued' | 'published';
+    suggestedBy?: string;   // visitor name who suggested it ('' = admin-created)
     postCount: number;      // number of persona posts generated
     views: number;
     hotScore: number;       // views + reactions, drives the "🔥 hot" sort
@@ -41,6 +42,7 @@ const ForumTopicSchema = new Schema<IForumTopic>(
             default: 'queued',
             index: true,
         },
+        suggestedBy: { type: String, default: '' },
         postCount: { type: Number, default: 0 },
         views: { type: Number, default: 0 },
         hotScore: { type: Number, default: 0 },

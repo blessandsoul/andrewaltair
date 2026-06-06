@@ -1,5 +1,42 @@
 export const TELEGRAM_API_URL = 'https://api.telegram.org/bot';
 
+/** Escape the 3 HTML-sensitive chars for Telegram parse_mode:HTML. */
+export function escapeTelegramHtml(text: string): string {
+    return (text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/**
+ * Send a plain admin notification to the PRIVATE admin chat (TELEGRAM_CHAT_ID) — distinct
+ * from sendTelegramPost (public channel). Best-effort: returns false on any failure, never
+ * throws. Pass already-escaped HTML or plain text.
+ */
+export async function notifyAdminTelegram(text: string): Promise<boolean> {
+    try {
+        const token = process.env.TELEGRAM_BOT_TOKEN;
+        const chatId = process.env.TELEGRAM_CHAT_ID;
+        if (!token || !chatId) {
+            console.error('[telegram] notifyAdmin: TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID not set');
+            return false;
+        }
+        const res = await fetch(`${TELEGRAM_API_URL}${token}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: chatId,
+                text,
+                parse_mode: 'HTML',
+                disable_web_page_preview: true,
+            }),
+        });
+        const j = await res.json().catch(() => null);
+        if (!j?.ok) console.error('[telegram] notifyAdmin error:', j?.description || 'unknown');
+        return !!j?.ok;
+    } catch (e) {
+        console.error('[telegram] notifyAdmin failed:', e instanceof Error ? e.message : e);
+        return false;
+    }
+}
+
 export interface TelegramPostData {
     title: string;
     telegramContent: string; // The formatted text for Telegram

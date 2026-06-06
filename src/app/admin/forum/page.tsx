@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
     TbMessages, TbPlus, TbRobot, TbTrash, TbExternalLink, TbLoader2,
-    TbClock, TbCheck, TbInfoCircle, TbEye, TbSend, TbX, TbPhoto, TbMoodSmile, TbTrendingUp,
+    TbClock, TbCheck, TbInfoCircle, TbEye, TbSend, TbX, TbPhoto, TbMoodSmile, TbTrendingUp, TbBulb,
 } from "react-icons/tb"
 
 type PredictionRow = { id: string; personaId: string; name: string; content: string; verdict: "pending" | "right" | "wrong" }
@@ -20,6 +20,7 @@ interface ForumTopicRow {
     sourceImage?: string
     sourceDomain?: string
     status: "queued" | "published"
+    suggestedBy?: string
     postCount?: number
     createdAt?: string
 }
@@ -478,6 +479,12 @@ export default function AdminForumPage() {
                                                 </Badge>
                                             )}
                                             <span className="text-xs text-muted-foreground">{t.postCount || 0} მოსაზრება</span>
+                                            {t.suggestedBy && (
+                                                <Badge variant="outline" className="text-xs h-5 gap-1">
+                                                    <TbBulb className="w-3 h-3" />
+                                                    შემოთავაზებული
+                                                </Badge>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-1 shrink-0">
