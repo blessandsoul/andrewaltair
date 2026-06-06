@@ -49,6 +49,10 @@ ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
 
 ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
 
+# Stable Server Actions encryption key — baked at BUILD so action IDs survive redeploys
+# (fixes "Failed to find Server Action"). Must equal the runner-stage value below.
+ENV NEXT_SERVER_ACTIONS_ENCRYPTION_KEY="QTTGbfAIhXP68dMB7BVnqmecivj7DoDTPru7hbpbtvc="
+
 # Increase Node.js memory for build (build traces can OOM in constrained containers)
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
@@ -61,6 +65,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+# Same key as the builder stage — runtime must decrypt with the key the build encrypted with.
+ENV NEXT_SERVER_ACTIONS_ENCRYPTION_KEY="QTTGbfAIhXP68dMB7BVnqmecivj7DoDTPru7hbpbtvc="
 
 # Create system group/user
 RUN addgroup --system --gid 1001 nodejs
