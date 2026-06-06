@@ -12,11 +12,12 @@
 
 const ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
 
-// Working default model chain. Optional env override OPENROUTER_MODELS="id1,id2,..."
-// (no code change needed) — default stays the original, proven models.
+// Model chain: PRIMARY = Gemini 2.5 Flash Lite (clean Georgian, cheap, no free-tier
+// 429), FALLBACK = free Gemma (used only if Gemini fails → never returns empty).
+// Override with env OPENROUTER_MODELS="id1,id2,..." (no code change).
 export const MODEL_CHAIN = (process.env.OPENROUTER_MODELS
     ? process.env.OPENROUTER_MODELS.split(',').map((s) => s.trim()).filter(Boolean)
-    : ['google/gemma-4-31b-it:free', 'google/gemma-4-26b-a4b-it:free']);
+    : ['google/gemini-2.5-flash-lite', 'google/gemma-4-31b-it:free']);
 
 export const GEORGIAN_RE = /[Ⴀ-ჿ]/g;
 export const CYRILLIC_RE = /[Ѐ-ӿ]/;
@@ -43,11 +44,13 @@ export function sanitizeForPrompt(text: string): string {
 export function extractGeorgian(raw: string): string {
     let text = (raw || '').replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
     // Reasoning-y models can emit drafts on multiple lines — keep the last Georgian-heavy line.
+    // Keep ALL Georgian-bearing lines (drop English preamble / <think>), JOIN them —
+    // previously we kept only the LAST line, which chopped multi-line answers mid-word.
     const geoLines = text
         .split('\n')
         .map((s) => s.trim())
-        .filter((s) => (s.match(GEORGIAN_RE) || []).length > 10);
-    if (geoLines.length) text = geoLines[geoLines.length - 1];
+        .filter((s) => (s.match(GEORGIAN_RE) || []).length > 4);
+    if (geoLines.length) text = geoLines.join(' ');
     return text.replace(/^["'„“]+|["'”]+$/g, '').trim();
 }
 

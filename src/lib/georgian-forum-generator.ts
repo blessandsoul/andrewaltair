@@ -54,8 +54,8 @@ async function inBatches<T, R>(items: T[], size: number, fn: (item: T) => Promis
         const chunk = items.slice(i, i + size);
         const settled = await Promise.allSettled(chunk.map(fn));
         for (const s of settled) if (s.status === 'fulfilled') out.push(s.value);
-        // Breathe between batches so the free Gemma tier doesn't 429 the whole run.
-        if (i + size < items.length) await new Promise((r) => setTimeout(r, 1500));
+        // Small breather between batches (paid Gemini has high limits; keep it gentle).
+        if (i + size < items.length) await new Promise((r) => setTimeout(r, 400));
     }
     return out;
 }
@@ -157,7 +157,7 @@ async function generateOpinion(
     const sys = opinionSystem(persona, pickReactionAngle());
     const user = `News title: ${sanitizeForPrompt(topic.titleKa)}\nNews summary: ${sanitizeForPrompt(topic.summaryKa)}`;
     const content = await chainGeorgian(
-        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 700, temperature: 0.95 }),
+        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 900, temperature: 0.95 }),
         (t) => isValidGeorgian(t, 18, 120),
     );
     if (!content) return null;
@@ -239,7 +239,7 @@ export async function generateAndSaveForumTopic(topicId: string): Promise<ForumG
 
     // 1. One opinion per persona, in batches of 5 to respect the free-tier rate limit.
     const opinions = (
-        await inBatches(FORUM_PERSONAS, 3, (p) => generateOpinion(apiKey, p, seed))
+        await inBatches(FORUM_PERSONAS, 6, (p) => generateOpinion(apiKey, p, seed))
     ).filter((x): x is GeneratedPost => x !== null);
 
     console.log(`[forum] opinions generated: ${opinions.length}/${FORUM_PERSONAS.length} for "${topic.slug}"`);
@@ -265,7 +265,7 @@ export async function generateAndSaveForumTopic(topicId: string): Promise<ForumG
 
     // 2. Debate: ~8 cross-replies — a different persona answers a random opinion.
     const replyTargets = pickReplyTargets(topLevel, 8);
-    const replyResults = await inBatches(replyTargets, 3, async (target) => {
+    const replyResults = await inBatches(replyTargets, 6, async (target) => {
         const persona = target.replier;
         const text = await generateReply(apiKey, persona, seed, target.parentContent, target.parentPersonaId);
         if (!text) return null;
