@@ -242,7 +242,11 @@ export async function generateAndSaveForumTopic(topicId: string): Promise<ForumG
         await inBatches(FORUM_PERSONAS, 3, (p) => generateOpinion(apiKey, p, seed))
     ).filter((x): x is GeneratedPost => x !== null);
 
-    if (opinions.length === 0) return { ok: false, reason: 'empty' };
+    console.log(`[forum] opinions generated: ${opinions.length}/${FORUM_PERSONAS.length} for "${topic.slug}"`);
+    if (opinions.length === 0) {
+        console.error('[forum] EMPTY — every persona failed. Check OpenRouter model id / API key / quota (see [openrouter] logs above).');
+        return { ok: false, reason: 'empty' };
+    }
 
     const topLevel = await ForumPost.insertMany(
         opinions.map((o) => {

@@ -12,10 +12,11 @@
 
 const ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
 
-export const MODEL_CHAIN = [
-    'google/gemma-4-31b-it:free',
-    'google/gemma-4-26b-a4b-it:free',
-];
+// Working default model chain. Optional env override OPENROUTER_MODELS="id1,id2,..."
+// (no code change needed) — default stays the original, proven models.
+export const MODEL_CHAIN = (process.env.OPENROUTER_MODELS
+    ? process.env.OPENROUTER_MODELS.split(',').map((s) => s.trim()).filter(Boolean)
+    : ['google/gemma-4-31b-it:free', 'google/gemma-4-26b-a4b-it:free']);
 
 export const GEORGIAN_RE = /[Ⴀ-ჿ]/g;
 export const CYRILLIC_RE = /[Ѐ-ӿ]/;
@@ -90,12 +91,19 @@ export async function chatRaw(
                 max_tokens: opts.maxTokens ?? 600,
             }),
         });
-    } catch {
+    } catch (e) {
+        console.error(`[openrouter] ${model} → network error:`, e instanceof Error ? e.message : e);
         return null; // network error → caller tries next model
     }
-    if (!res.ok) return null; // 429 / 5xx → next model in chain
+    if (!res.ok) {
+        const errBody = await res.text().catch(() => '');
+        console.error(`[openrouter] ${model} → HTTP ${res.status}: ${errBody.slice(0, 300)}`);
+        return null; // 404 (bad model) / 401 (bad key) / 429 (rate limit) → next model
+    }
     const json = await res.json().catch(() => null);
-    return json?.choices?.[0]?.message?.content ?? null;
+    const content = json?.choices?.[0]?.message?.content ?? null;
+    if (!content) console.error(`[openrouter] ${model} → no content:`, JSON.stringify(json).slice(0, 300));
+    return content;
 }
 
 /**
