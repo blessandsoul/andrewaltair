@@ -3,10 +3,10 @@
 import { useState, useEffect, useRef } from "react"
 import { SpeakerHigh, SpeakerSlash } from "@phosphor-icons/react"
 
-// Ambient sound URLs (using free sound effects or generate our own)
+// Locally-hosted ambient pad — generated (license-free), reliable: no CORS, no dead hotlink.
+// (The old mixkit preview URLs 404'd.) Swap public/audio/ambient.mp3 to change the track.
 const AMBIENT_SOUNDS = {
-    cosmic: "https://assets.mixkit.co/music/preview/mixkit-forest-ambience-1213.mp3",
-    wind: "https://assets.mixkit.co/music/preview/mixkit-forest-wind-with-birds-1214.mp3",
+    cosmic: "/audio/ambient.mp3",
 }
 
 export function MysticAmbience() {
