@@ -35,12 +35,16 @@ async function callModel(
     post: PostSeed,
 ): Promise<string | null> {
     const sys =
-        `You are ${persona.voice}\n` +
-        `Leave ONE short blog comment in GEORGIAN (ქართული, Mkhedruli), 12-22 words, like a real person reacting to THIS specific story — not a philosopher.\n` +
-        `MUST react to a concrete detail of the actual story (name the real thing it is about). React like a normal reader: surprise, a clear opinion, a relatable joke, or a simple question. Only a light hint of who you are.\n` +
-        `Everyday spoken Georgian, simple words a teenager gets. BANNED: vague filler and life-lessons (e.g. "პერსპექტივა", "სიმარტივე", "პრინციპი", "არსი", "essence") and any comment generic enough to fit a different article.\n` +
-        `Rules: every word a real Georgian word; short acronyms (AI, GPT) ok; Georgian Mkhedruli ONLY — NO Chinese, Korean, Japanese, Arabic, Hebrew or Cyrillic characters; no hashtags, quotes or emojis.\n` +
-        `Angle for THIS comment (vary it, don't repeat shapes): ${pickReactionAngle()}\n` +
+        `You ARE ${persona.name}. Speak in FIRST PERSON as this exact historical person — ${persona.voice}\n` +
+        `WHO YOU ARE: ${persona.bio}\n` +
+        `YOUR LENS (pull the topic here): ${persona.lens}\n` +
+        `HOW YOU SPEAK: ${persona.style}\n` +
+        `EXAMPLE of your voice: "${persona.sample}"\n` +
+        `Leave ONE short blog comment in GEORGIAN (Mkhedruli), 12-22 words, reacting to THIS specific story — like the real you, not a generic philosopher.\n` +
+        `React to a concrete detail of the actual story; be unmistakably YOU (a light hint of your deeds/lens). Angle for THIS comment (vary it): ${pickReactionAngle()}\n` +
+        `READABILITY: simple modern Georgian, short clear sentences, reads aloud easily like a smart friend — specificity comes from real facts, NOT fancy or archaic words.\n` +
+        `BANNED: vague filler/life-lessons ("პერსპექტივა"/"სიმარტივე"/"პრინციპი"/"არსი") and any comment generic enough for a different article.\n` +
+        `Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; short acronyms (AI, GPT) ok; no hashtags, quotes or emojis.\n` +
         `Think silently. Output ONLY the comment on a single line.`;
     const user = `Story title: ${sanitizeForPrompt(post.title)}\nWhat it is about: ${sanitizeForPrompt(post.excerpt || '')}\nComment specifically about THIS story.`;
     const raw = await chatRaw(apiKey, model, sys, user);
@@ -57,10 +61,13 @@ async function callReplyModel(
     parentText: string,
 ): Promise<string | null> {
     const sys =
-        `You are ${persona.voice}\n` +
-        `Reply to another reader's Georgian comment under this story. 8-20 words, like a real person — agree, joke, gently disagree, or add ONE concrete point about the actual topic. Light hint of who you are, never a lecture.\n` +
-        `Everyday spoken Georgian, simple words. BANNED: vague filler ("პერსპექტივა"/"სიმარტივე"/"პრინციპი"/"არსი") and generic life-lessons.\n` +
-        `Rules: real Georgian words; short acronyms ok; Georgian Mkhedruli ONLY — NO Chinese, Korean, Japanese, Arabic, Hebrew or Cyrillic characters; no hashtags, quotes or emojis.\n` +
+        `You ARE ${persona.name} — ${persona.voice}\n` +
+        `WHO YOU ARE: ${persona.bio}\n` +
+        `YOUR LENS: ${persona.lens}\n` +
+        `HOW YOU SPEAK: ${persona.style}\n` +
+        `Reply to another reader's Georgian comment under this story. 8-20 words, FIRST PERSON, like the real you — agree, joke, gently disagree, or add ONE concrete point. Tie it to your lens, never lecture.\n` +
+        `READABILITY: simple modern Georgian, short clear sentence; specificity from real facts, not fancy words.\n` +
+        `Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; short acronyms ok; no hashtags, quotes or emojis.\n` +
         `Output ONLY the reply on a single line.`;
     const user = `Story: ${sanitizeForPrompt(post.title)}\nThe comment you are replying to: ${sanitizeForPrompt(parentText)}`;
     const raw = await chatRaw(apiKey, model, sys, user);

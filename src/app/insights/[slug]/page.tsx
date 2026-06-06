@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { InsightPageClient } from '@/components/insights/InsightPageClient';
 import { InsightService } from '@/services/insight.service';
 import { parseInsightBody } from '@/lib/insight-content';
+import { getInitialComments, commentJsonLd } from '@/lib/server-comments';
 
 function safeEncodeURIComponent(str: string): string {
     try {
@@ -94,6 +95,9 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
             views: (rawInsight.views || 0) + 1,
         }));
 
+        // SSR-seed AI-persona comments (SEO: text in HTML + JSON-LD)
+        const initialComments = await getInitialComments(rawInsight._id.toString());
+
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge';
 
         let imageUrl = insight.sourceImage;
@@ -157,6 +161,7 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
                 '@type': 'WebPage',
                 '@id': `${siteUrl}/insights/${slug}`,
             },
+            ...commentJsonLd(initialComments),
         };
 
         const breadcrumbLd = {
@@ -185,6 +190,7 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
                     parsedBody={parsedBody}
                     relatedPosts={JSON.parse(JSON.stringify(relatedPosts))}
                     relatedInsights={JSON.parse(JSON.stringify(relatedInsights))}
+                    initialComments={initialComments}
                 />
             </article>
         );

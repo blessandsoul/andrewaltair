@@ -17,7 +17,8 @@ import {
     BookmarkButton,
     EditSuggestion,
     EnhancedContent,
-    TutorialStickyNav
+    TutorialStickyNav,
+    NewsletterForm
 } from "@/components/interactive"
 import { AuroraReactionBar } from "@/components/interactive/AuroraReactionBar"
 import { PersonaLikeStack } from "@/components/ai/PersonaLikeStack"
@@ -121,9 +122,10 @@ interface BlogPostClientProps {
     prevPost: { slug: string; title: string } | null
     nextPost: { slug: string; title: string } | null
     relatedPosts: RelatedPost[]
+    initialComments?: any[]
 }
 
-export default function BlogPostClient({ post, prevPost, nextPost, relatedPosts }: BlogPostClientProps) {
+export default function BlogPostClient({ post, prevPost, nextPost, relatedPosts, initialComments }: BlogPostClientProps) {
     const categoryStr = post.categories && post.categories.length > 0 ? post.categories[0] : ((post as any).category || 'ai')
     const categoryInfo = brand.categories.find(c => c.id === categoryStr) ||
         brand.categories.flatMap(c => c.subcategories || []).find(c => c.id === categoryStr)
@@ -596,7 +598,7 @@ console.log(data.result);
                                         />
 
                                         {/* Comments */}
-                                        <Comments postId={post.id} className="pt-8 border-t border-border" />
+                                        <Comments postId={post.id} initialComments={initialComments} className="pt-8 border-t border-border" />
                                     </div>
                                 </div>
 
@@ -735,10 +737,12 @@ console.log(data.result);
                                 <p className="text-white/80">
                                     გამოიწერე და მიიღე ახალი AI სტატიები პირველმა
                                 </p>
-                                <Button size="lg" className="bg-white text-primary hover:bg-white/90">
-                                    <TbSend className="w-4 h-4 mr-2" />
-                                    გამოწერა
-                                </Button>
+                                <NewsletterForm
+                                    variant="inline"
+                                    buttonText="გამოწერა"
+                                    placeholder="შენი ელფოსტა..."
+                                    className="max-w-md mx-auto text-left [&_input]:bg-white [&_input]:text-gray-900 [&_input]:placeholder:text-gray-500 [&_input]:border-transparent"
+                                />
                             </div>
                         </div>
                     </section>

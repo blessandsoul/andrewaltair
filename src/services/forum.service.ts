@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import dbConnect from '@/lib/db';
 import ForumTopic from '@/models/ForumTopic';
 import ForumPost from '@/models/ForumPost';
-import { parseSourceUrl } from '@/lib/og-parser';
 import { makeTopicKa } from '@/lib/georgian-forum-generator';
 import { titleToSlug } from '@/lib/slug';
 import { generateUniqueId } from '@/lib/id-system';
@@ -82,18 +81,21 @@ export class ForumService {
      * Create a topic from a source URL: scrape OG → Georgian title+summary → save 'queued'.
      * Opinions are generated later by the cron or the admin "generate now" button.
      */
-    static async createTopic(sourceUrl: string) {
+    static async createTopic(input: { text: string; sourceUrl?: string; imageUrl?: string }) {
         await dbConnect();
 
-        const scraped = await parseSourceUrl(sourceUrl);
-        const seed = await makeTopicKa({
-            title: scraped.title,
-            description: scraped.description,
-            domain: scraped.domain,
-        });
+        const text = (input.text || '').trim();
+        const sourceUrl = (input.sourceUrl || '').trim();
+        let sourceDomain = '';
+        if (sourceUrl) {
+            try { sourceDomain = new URL(sourceUrl).hostname.replace(/^www\./, ''); } catch { /* not a URL — keep empty */ }
+        }
 
-        // Slug from the (latin) source title; Georgian title is for display only.
-        const slugBase = titleToSlug(scraped.title, 60) || `forum-${Date.now()}`;
+        // Georgian title + summary from the USER-PROVIDED text. NO external fetch/parse
+        // (the URL is kept only as an attribution link, the image is uploaded manually).
+        const seed = await makeTopicKa({ title: text.slice(0, 200), description: text, domain: sourceDomain });
+
+        const slugBase = titleToSlug(text, 60) || `forum-${Date.now()}`;
         let slug = slugBase;
         let counter = 2;
         while (await ForumTopic.findOne({ slug }).select('_id').lean()) {
@@ -109,8 +111,8 @@ export class ForumService {
             titleKa: seed.titleKa,
             summaryKa: seed.summaryKa,
             sourceUrl,
-            sourceImage: scraped.image,
-            sourceDomain: scraped.domain,
+            sourceImage: (input.imageUrl || '').trim(),
+            sourceDomain,
             status: 'queued',
             numericId,
         });

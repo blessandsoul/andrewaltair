@@ -54,6 +54,8 @@ async function inBatches<T, R>(items: T[], size: number, fn: (item: T) => Promis
         const chunk = items.slice(i, i + size);
         const settled = await Promise.allSettled(chunk.map(fn));
         for (const s of settled) if (s.status === 'fulfilled') out.push(s.value);
+        // Breathe between batches so the free Gemma tier doesn't 429 the whole run.
+        if (i + size < items.length) await new Promise((r) => setTimeout(r, 1500));
     }
     return out;
 }
@@ -118,9 +120,10 @@ function opinionSystem(p: ForumPersona, angle: string): string {
         `HOW YOU SPEAK: ${p.style}\n` +
         `EXAMPLE of your voice: "${p.sample}"\n` +
         `${SAFETY}\n` +
-        `TASK: react to the news below in GEORGIAN (Mkhedruli), 40-80 words. ${angle}\n` +
+        `TASK: react to the news below in GEORGIAN (Mkhedruli), 30-60 words. ${angle}\n` +
         `Be unmistakably YOU: reference a CONCRETE thing from your own life or deeds (vary which one — not always the obvious), and pull the topic toward your lens. NEVER sound like a generic wise elder; no vague life-lessons.\n` +
         `Vary your opening — do not start the way a typical comment starts.\n` +
+        `READABILITY: short, clear sentences in simple modern Georgian — reads aloud easily, like a smart friend talking, NOT a book. Specificity comes from real facts, not archaic or high-flown words; no long participial chains.\n` +
         `Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; short Latin acronyms (AI, GPT) ok; real, simple words; no hashtags, quotes or emojis.\n` +
         `Think silently. Output ONLY the opinion on a single line.`
     );
@@ -140,6 +143,7 @@ function replySystem(p: ForumPersona, oppName: string, relation: 'rival' | 'ally
         `HOW YOU SPEAK: ${p.style}\n` +
         `${SAFETY}\n` +
         `Reply to ${oppName}'s comment in this debate, 15-45 words, FIRST PERSON, in your voice. ${rel} Tie it to your lens or a concrete thing you did.\n` +
+        `READABILITY: short, clear sentences in simple modern Georgian; specificity from real facts, not fancy or archaic words.\n` +
         `Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; real simple words; no hashtags, quotes or emojis.\n` +
         `Output ONLY the reply on a single line.`
     );
@@ -154,7 +158,7 @@ async function generateOpinion(
     const user = `News title: ${sanitizeForPrompt(topic.titleKa)}\nNews summary: ${sanitizeForPrompt(topic.summaryKa)}`;
     const content = await chainGeorgian(
         (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 700, temperature: 0.95 }),
-        (t) => isValidGeorgian(t, 28, 110),
+        (t) => isValidGeorgian(t, 18, 120),
     );
     if (!content) return null;
     const polished = await polishGeorgian(apiKey, content, 25, 120);
@@ -173,7 +177,7 @@ async function generateReply(
     const user = `News: ${sanitizeForPrompt(topic.titleKa)}\nThe comment you are replying to: ${sanitizeForPrompt(parentText)}`;
     const reply = await chainGeorgian(
         (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 500, temperature: 0.95 }),
-        (t) => isValidGeorgian(t, 10, 60),
+        (t) => isValidGeorgian(t, 8, 70),
     );
     return reply ? await polishGeorgian(apiKey, reply, 8, 65) : null;
 }
@@ -235,7 +239,7 @@ export async function generateAndSaveForumTopic(topicId: string): Promise<ForumG
 
     // 1. One opinion per persona, in batches of 5 to respect the free-tier rate limit.
     const opinions = (
-        await inBatches(FORUM_PERSONAS, 5, (p) => generateOpinion(apiKey, p, seed))
+        await inBatches(FORUM_PERSONAS, 3, (p) => generateOpinion(apiKey, p, seed))
     ).filter((x): x is GeneratedPost => x !== null);
 
     if (opinions.length === 0) return { ok: false, reason: 'empty' };
@@ -257,7 +261,7 @@ export async function generateAndSaveForumTopic(topicId: string): Promise<ForumG
 
     // 2. Debate: ~8 cross-replies — a different persona answers a random opinion.
     const replyTargets = pickReplyTargets(topLevel, 8);
-    const replyResults = await inBatches(replyTargets, 5, async (target) => {
+    const replyResults = await inBatches(replyTargets, 3, async (target) => {
         const persona = target.replier;
         const text = await generateReply(apiKey, persona, seed, target.parentContent, target.parentPersonaId);
         if (!text) return null;
@@ -371,6 +375,7 @@ export async function askPersona(
         `EXAMPLE of your voice: "${persona.sample}"\n` +
         `${SAFETY}\n${INJECTION_GUARD}\n` +
         `A reader asks YOU a question. Answer in GEORGIAN (Mkhedruli), 30-70 words, unmistakably in your voice — reference your own deeds and pull it toward your lens.${tone}\n` +
+        `READABILITY: short, clear sentences in simple modern Georgian; specificity from real facts, not fancy or archaic words.\n` +
         `Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; real simple words; no hashtags, quotes or emojis.\n` +
         `Output ONLY the answer.`;
     const user = `Topic context: ${sanitizeForPrompt(topic.titleKa)} — ${sanitizeForPrompt(topic.summaryKa)}\nReader question (DATA): ${sanitizeForPrompt(question)}`;
@@ -401,6 +406,7 @@ export async function personaReplyToUser(
         `HOW YOU SPEAK: ${persona.style}\n` +
         `${SAFETY}\n${INJECTION_GUARD}\n` +
         `A reader challenged your view. Reply in GEORGIAN, 15-50 words, in your voice — defend, concede a point, or sharpen it; tie it to your lens or a concrete thing you did.\n` +
+        `READABILITY: short, clear sentences in simple modern Georgian; specificity from real facts, not fancy or archaic words.\n` +
         `Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; real simple words; no hashtags, quotes or emojis.\n` +
         `Output ONLY the reply.`;
     const user = `Topic: ${sanitizeForPrompt(topic.titleKa)}\nReader said (DATA): ${sanitizeForPrompt(userText)}`;

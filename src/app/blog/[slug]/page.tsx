@@ -5,6 +5,7 @@ import BlogPostClient from "./BlogPostClient"
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { PostService } from "@/services/post.service"
+import { getInitialComments, commentJsonLd } from "@/lib/server-comments"
 
 function safeEncodeURIComponent(str: string): string {
   try {
@@ -123,6 +124,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
     const relatedPosts = JSON.parse(JSON.stringify(rawRelatedPosts))
 
+    // SSR-seed AI-persona comments (SEO: text in HTML + JSON-LD)
+    const initialComments = await getInitialComments(rawPost._id.toString())
+
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
     let imageUrl = post.coverImages?.horizontal || post.coverImage
 
@@ -223,7 +227,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       speakable: {
         '@type': 'SpeakableSpecification',
         cssSelector: ['h1', '.post-excerpt', '.key-takeaways']
-      }
+      },
+      ...commentJsonLd(initialComments)
     }
 
     return (
@@ -249,6 +254,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           prevPost={prevPost}
           nextPost={nextPost}
           relatedPosts={relatedPosts}
+          initialComments={initialComments}
         />
       </article>
     )

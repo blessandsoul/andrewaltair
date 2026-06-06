@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { TbArrowLeft, TbEye, TbCalendar, TbClock, TbThumbUp, TbShare, TbSparkles, TbPlayerPlay } from "react-icons/tb"
 import { Comments } from "@/components/interactive/Comments"
+import { getInitialComments, commentJsonLd } from "@/lib/server-comments"
 import { ShareButtons } from "@/components/interactive/ShareButtons"
 import { ReactionBar } from "@/components/interactive/ReactionBar"
 import { PersonaLikeStack } from "@/components/ai/PersonaLikeStack"
@@ -170,6 +171,7 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
     }
 
     const relatedVideos = await getRelatedVideos(id)
+    const initialComments = await getInitialComments(video.id)
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
 
     // Sample reactions
@@ -204,7 +206,8 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
             '@type': 'Person',
             name: 'Andrew Altair',
             url: siteUrl
-        }
+        },
+        ...commentJsonLd(initialComments)
     }
 
     // Breadcrumb Schema
@@ -349,7 +352,7 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
                             )}
 
                             {/* Comments */}
-                            <Comments postId={video.id} className="pt-8 border-t border-border" />
+                            <Comments postId={video.id} initialComments={initialComments as never} className="pt-8 border-t border-border" />
                         </div>
 
                         {/* Sidebar - Related Videos */}

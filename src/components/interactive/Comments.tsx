@@ -50,6 +50,7 @@ interface CommentsProps {
     postId: string
     postTitle?: string
     className?: string
+    initialComments?: Comment[] // server-rendered seed (SSR/SEO) — a flat list from the page
 }
 
 function timeAgo(dateString: string): string {
@@ -169,11 +170,26 @@ function CommentItem({
     )
 }
 
-export function Comments({ postId, postTitle, className }: CommentsProps) {
-    const [comments, setComments] = React.useState<Comment[]>([])
+/** Build a one-level reply tree from a flat comment list (shared by SSR seed + client fetch). */
+function buildTree(flat: Comment[]): Comment[] {
+    const childrenByParent = new Map<string, Comment[]>()
+    flat.forEach((c) => {
+        if (c.parentId) {
+            const arr = childrenByParent.get(c.parentId) ?? []
+            arr.push(c)
+            childrenByParent.set(c.parentId, arr)
+        }
+    })
+    const roots = flat.filter((c) => !c.parentId)
+    roots.forEach((r) => { r.replies = childrenByParent.get(r.id) ?? [] })
+    return roots
+}
+
+export function Comments({ postId, postTitle, className, initialComments }: CommentsProps) {
+    const [comments, setComments] = React.useState<Comment[]>(() => (initialComments ? buildTree(initialComments) : []))
     const [newComment, setNewComment] = React.useState("")
     const [authorName, setAuthorName] = React.useState("")
-    const [isLoading, setIsLoading] = React.useState(true)
+    const [isLoading, setIsLoading] = React.useState(!initialComments)
     const [isSubmitting, setIsSubmitting] = React.useState(false)
     const toast = useToast()
     const { recordActivity } = useVisitorTracking()
@@ -186,8 +202,9 @@ export function Comments({ postId, postTitle, className }: CommentsProps) {
         }
     }, [user])
 
-    // Load comments from API on mount
+    // Load comments from API on mount — SKIP when SSR-seeded (already in the HTML for SEO).
     React.useEffect(() => {
+        if (initialComments) return
         async function fetchComments() {
             try {
                 const res = await fetch(`/api/comments?postId=${postId}&status=approved`)
@@ -195,18 +212,7 @@ export function Comments({ postId, postTitle, className }: CommentsProps) {
                     const json = await res.json()
                     // API wraps payload as { data: { comments } }; tolerate both shapes
                     const flat: Comment[] = json?.data?.comments ?? json?.comments ?? []
-                    // Build a one-level reply tree from parentId
-                    const childrenByParent = new Map<string, Comment[]>()
-                    flat.forEach((c) => {
-                        if (c.parentId) {
-                            const arr = childrenByParent.get(c.parentId) ?? []
-                            arr.push(c)
-                            childrenByParent.set(c.parentId, arr)
-                        }
-                    })
-                    const roots = flat.filter((c) => !c.parentId)
-                    roots.forEach((r) => { r.replies = childrenByParent.get(r.id) ?? [] })
-                    setComments(roots)
+                    setComments(buildTree(flat))
                 }
             } catch (error) {
                 // Silently fail
@@ -215,7 +221,7 @@ export function Comments({ postId, postTitle, className }: CommentsProps) {
             }
         }
         fetchComments()
-    }, [postId])
+    }, [postId, initialComments])
 
     // Handle comment like - track activity
     const handleCommentLike = React.useCallback((commentId: string) => {

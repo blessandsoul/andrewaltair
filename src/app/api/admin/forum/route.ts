@@ -24,11 +24,13 @@ export async function POST(request: Request) {
     if (!verifyAdmin(request)) return unauthorizedResponse('Admin access required');
     try {
         const body = await request.json().catch(() => ({}));
+        const text = String(body?.text || '').trim();
         const sourceUrl = String(body?.sourceUrl || '').trim();
-        if (!sourceUrl) {
-            return apiError(ERROR_CODES.VALIDATION_FAILED, 'sourceUrl is required', 400);
+        const imageUrl = String(body?.imageUrl || '').trim();
+        if (text.length < 10) {
+            return apiError(ERROR_CODES.VALIDATION_FAILED, 'ტექსტი სავალდებულოა (მინ. 10 სიმბოლო)', 400);
         }
-        const topic = await ForumService.createTopic(sourceUrl);
+        const topic = await ForumService.createTopic({ text, sourceUrl, imageUrl });
         return apiSuccess(topic, 'Forum topic queued', 201);
     } catch (error) {
         console.error('[API] POST /api/admin/forum error:', error);

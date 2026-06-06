@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
     TbMessages, TbPlus, TbRobot, TbTrash, TbExternalLink, TbLoader2,
-    TbClock, TbCheck, TbInfoCircle, TbEye, TbSend, TbX,
+    TbClock, TbCheck, TbInfoCircle, TbEye, TbSend, TbX, TbPhoto,
 } from "react-icons/tb"
 
 interface ForumTopicRow {
@@ -26,8 +26,11 @@ export default function AdminForumPage() {
     const [topics, setTopics] = React.useState<ForumTopicRow[]>([])
     const [isLoading, setIsLoading] = React.useState(true)
 
-    // Hero (paste → preview → publish)
-    const [url, setUrl] = React.useState("")
+    // Hero (write text + optional photo + optional source link → preview → publish)
+    const [text, setText] = React.useState("")
+    const [sourceUrl, setSourceUrl] = React.useState("")
+    const [imageUrl, setImageUrl] = React.useState("")
+    const [uploading, setUploading] = React.useState(false)
     const [previewing, setPreviewing] = React.useState(false)
     const [preview, setPreview] = React.useState<ForumTopicRow | null>(null)
     const [editTitle, setEditTitle] = React.useState("")
@@ -61,33 +64,54 @@ export default function AdminForumPage() {
 
     /* ---------------------------------------------------------- hero flow ---- */
 
-    // Step 1: scrape + translate → preview (saved as queued, editable before publish)
+    // Upload a cover photo (manual — no scraping). Returns a local /api/files URL.
+    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+        setUploading(true)
+        try {
+            const fd = new FormData()
+            fd.append("file", file)
+            fd.append("title", "forum")
+            const res = await fetch("/api/upload", { method: "POST", body: fd })
+            const json = await res.json().catch(() => null)
+            if (res.ok && json?.data?.url) setImageUrl(json.data.url)
+            else alert("ფოტოს ატვირთვა ვერ მოხერხდა")
+        } catch {
+            alert("ფოტოს ატვირთვა ვერ მოხერხდა")
+        } finally {
+            setUploading(false)
+        }
+    }
+
+    // Step 1: build the Georgian topic from YOUR text (no URL parsing) → editable preview.
     const handlePreview = async (e: React.FormEvent) => {
         e.preventDefault()
-        const u = url.trim()
-        if (!u) return
+        const t = text.trim()
+        if (t.length < 10) return
         setPreviewing(true)
         try {
             const res = await fetch("/api/admin/forum", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sourceUrl: u }),
+                body: JSON.stringify({ text: t, sourceUrl: sourceUrl.trim(), imageUrl: imageUrl.trim() }),
             })
             if (res.ok) {
                 const json = await res.json()
-                const t: ForumTopicRow = json.data
-                setPreview(t)
-                setEditTitle(t.titleKa || "")
-                setEditSummary(t.summaryKa || "")
+                const tp: ForumTopicRow = json.data
+                setPreview(tp)
+                setEditTitle(tp.titleKa || "")
+                setEditSummary(tp.summaryKa || "")
                 setPubStage("")
                 setPublishedSlug("")
-                setUrl("")
+                setText(""); setSourceUrl(""); setImageUrl("")
             } else {
-                alert("ბმულის წაკითხვა ვერ მოხერხდა")
+                const j = await res.json().catch(() => null)
+                alert(j?.error?.message || "თემის შექმნა ვერ მოხერხდა")
             }
         } catch (error) {
-            console.error("Preview error:", error)
-            alert("ბმულის წაკითხვა ვერ მოხერხდა")
+            console.error("Create error:", error)
+            alert("თემის შექმნა ვერ მოხერხდა")
         } finally {
             setPreviewing(false)
         }
@@ -218,7 +242,7 @@ export default function AdminForumPage() {
                         ფორუმი
                     </h1>
                     <p className="text-sm text-muted-foreground mt-1">
-                        ჩასვი ახალი ამბის ბმული — 20 ისტორიული პერსონა განიხილავს
+                        ჩაწერე ამბავი — 20 ისტორიული პერსონა განიხილავს
                     </p>
                 </div>
                 {queuedCount > 0 && (
@@ -234,7 +258,7 @@ export default function AdminForumPage() {
                 <CardHeader className="pb-3">
                     <CardTitle className="text-lg flex items-center gap-2">
                         <TbSend className="w-5 h-5 text-primary" />
-                        ახალი დებატი — ჩასვი ბმული და გაუშვი ხალხთან
+                        ახალი დებატი — ჩაწერე ამბავი და გაუშვი ხალხთან
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -317,17 +341,35 @@ export default function AdminForumPage() {
                             </div>
                         </div>
                     ) : (
-                        /* URL input */
-                        <form onSubmit={handlePreview} className="flex gap-2">
-                            <Input
-                                type="url"
-                                value={url}
-                                onChange={(e) => setUrl(e.target.value)}
-                                placeholder="https://... ახალი ამბის ბმული"
-                                className="flex-1"
+                        /* Manual input: text + optional photo + optional source link (NO parsing) */
+                        <form onSubmit={handlePreview} className="space-y-3">
+                            <textarea
+                                value={text}
+                                onChange={(e) => setText(e.target.value)}
+                                rows={4}
+                                placeholder="ჩაწერე ან ჩასვი ამბავი / თემა, რასაც პერსონები განიხილავენ..."
+                                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary resize-none"
                                 required
                             />
-                            <Button type="submit" disabled={previewing} className="gap-2">
+                            <div className="flex flex-wrap items-center gap-3">
+                                <label className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm cursor-pointer hover:bg-muted">
+                                    {uploading ? <TbLoader2 className="w-4 h-4 animate-spin" /> : <TbPhoto className="w-4 h-4" />}
+                                    {imageUrl ? "ფოტო ატვირთულია" : "ფოტოს ატვირთვა"}
+                                    <input type="file" accept="image/*" onChange={handleUpload} className="hidden" />
+                                </label>
+                                {imageUrl && (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={imageUrl} alt="" className="w-12 h-9 rounded object-cover" />
+                                )}
+                                <Input
+                                    type="url"
+                                    value={sourceUrl}
+                                    onChange={(e) => setSourceUrl(e.target.value)}
+                                    placeholder="წყაროს ბმული (არასავალდებულო)"
+                                    className="flex-1 min-w-50"
+                                />
+                            </div>
+                            <Button type="submit" disabled={previewing || text.trim().length < 10} className="gap-2">
                                 {previewing ? <TbLoader2 className="w-4 h-4 animate-spin" /> : <TbEye className="w-4 h-4" />}
                                 გადახედვა
                             </Button>
@@ -336,7 +378,7 @@ export default function AdminForumPage() {
                     {!preview && pubStage !== "done" && (
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
                             <TbInfoCircle className="w-3.5 h-3.5" />
-                            ჯერ ნახავ ქართულ სათაურს+შინაარსს, შეგიძლია ჩაასწორო, მერე გამოაქვეყნო.
+                            ჩაწერე ამბავი, ატვირთე ფოტო — ბმული მხოლოდ წყაროდ ინახება (არ იპარსება). მერე ნახავ ქართულ სათაურს და გამოაქვეყნებ.
                         </p>
                     )}
                 </CardContent>

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { TbInfinity, TbLoader2, TbChevronUp, TbArrowLeft, TbClock, TbEye, TbCalendar, TbSparkles, TbSend, TbUser, TbMessage, TbShare, TbHeart } from "react-icons/tb"
+import { TbInfinity, TbLoader2, TbChevronUp, TbArrowLeft, TbClock, TbEye, TbCalendar, TbSparkles, TbUser, TbMessage, TbShare, TbHeart } from "react-icons/tb"
 import { cn } from "@/lib/utils"
 import { tagToSlug } from "@/lib/slug"
 import { Button } from "@/components/ui/button"
@@ -16,7 +16,8 @@ import {
     TableOfContents,
     BookmarkButton,
     EditSuggestion,
-    EnhancedContent
+    EnhancedContent,
+    NewsletterForm
 } from "@/components/interactive"
 import { ImageLightbox, useImageLightbox } from "@/components/interactive/ImageLightbox"
 import { PostNavigation } from "@/components/blog/PostNavigation"
@@ -466,10 +467,12 @@ function FullArticle({ post, index }: { post: Post; index: number }) {
                         <p className="text-white/80">
                             გამოიწერე და მიიღე ახალი AI სტატიები პირველმა
                         </p>
-                        <Button size="lg" className="bg-white text-primary hover:bg-white/90">
-                            <TbSend className="w-4 h-4 mr-2" />
-                            გამოწერა
-                        </Button>
+                        <NewsletterForm
+                            variant="inline"
+                            buttonText="გამოწერა"
+                            placeholder="შენი ელფოსტა..."
+                            className="max-w-md mx-auto text-left [&_input]:bg-white [&_input]:text-gray-900 [&_input]:placeholder:text-gray-500 [&_input]:border-transparent"
+                        />
                     </div>
                 </div>
             </section>
@@ -503,26 +506,28 @@ export function InfiniteScrollPosts({
             const response = await fetch(`/api/posts?afterSlug=${lastSlug}&limit=1&status=published`)
 
             if (response.ok) {
-                const data = await response.json()
-                if (data.posts && data.posts.length > 0) {
+                const json = await response.json()
+                // API wraps payload in the apiSuccess envelope: { success, message, data: { posts, pagination } }
+                const fetchedPosts: Post[] = json?.data?.posts ?? []
+                if (fetchedPosts.length > 0) {
                     // Filter out existing posts to prevent duplicates
-                    const newPosts = data.posts.filter((newPost: Post) =>
+                    const newPosts = fetchedPosts.filter((newPost: Post) =>
                         !posts.some(p => p.id === newPost.id) && newPost.id !== initialPost.id
                     )
 
                     if (newPosts.length > 0) {
                         setPosts(prev => [...prev, ...newPosts])
                     } else {
-                        // If we got posts but they were duplicates, try fetching more
-                        if (data.posts.length > 0) {
-                            // This is a simple retry mechanism - in production might need offset based pagination
-                            // But for now, if we get duplicates, we just assume end of stream to prevent loops
-                            // console.log("Duplicate posts found, stopping")
-                        }
+                        // Only duplicates came back — we've reached the end of the stream.
+                        // Stop here so the observer doesn't silently stall on a stuck trigger.
+                        setHasMore(false)
                     }
                 } else {
                     setHasMore(false)
                 }
+            } else {
+                // Non-OK response — stop rather than spin forever.
+                setHasMore(false)
             }
         } catch (error) {
             console.error("Failed to load more posts:", error)

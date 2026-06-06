@@ -77,6 +77,7 @@ interface InsightPageClientProps {
             insightful: number;
         };
     }[];
+    initialComments?: any[];
 }
 
 const REACTION_CONFIG = [
@@ -87,7 +88,7 @@ const REACTION_CONFIG = [
     { key: 'insightful', icon: TbBulb, label: 'Insightful' },
 ] as const;
 
-export function InsightPageClient({ insight, parsedBody, relatedPosts, relatedInsights }: InsightPageClientProps) {
+export function InsightPageClient({ insight, parsedBody, relatedPosts, relatedInsights, initialComments }: InsightPageClientProps) {
     const [reactions, setReactions] = useState(insight.reactions);
     const [isReacting, setIsReacting] = useState(false);
 
@@ -295,7 +296,7 @@ export function InsightPageClient({ insight, parsedBody, relatedPosts, relatedIn
                 )}
 
                 {/* Comments (incl. AI personas) */}
-                <Comments postId={insight.id} className="mt-10 pt-6 border-t border-border" />
+                <Comments postId={insight.id} initialComments={initialComments} className="mt-10 pt-6 border-t border-border" />
 
                 {/* Author */}
                 <div className="flex items-center gap-3 mt-10 pt-6 border-t border-border">

@@ -122,15 +122,21 @@ export async function chainGeorgian(
  * fails or the result is invalid, the ORIGINAL text is returned (never throws, never 429s
  * the whole pipeline). This is how the /lang discipline is applied at runtime.
  */
+/** 2nd-pass polish is OFF by default — on the free Gemma tier the extra call per item
+ *  doubles load and causes 429s (empty results). Enable with FORUM_POLISH=on. */
+export function polishEnabled(): boolean {
+    return (process.env.FORUM_POLISH ?? 'off').toLowerCase() === 'on';
+}
+
 export async function polishGeorgian(
     apiKey: string,
     text: string,
     minWords = 5,
     maxWords = 160,
 ): Promise<string> {
-    if (!apiKey || !text) return text;
+    if (!apiKey || !text || !polishEnabled()) return text;
     const sys =
-        'You are a Georgian proofreader. Fix ONLY what is broken: remove any non-Georgian characters (Chinese, Korean, Japanese, Arabic, Hebrew, Cyrillic) and repair awkward, unclear or wrong words into natural Georgian.\n' +
+        'You are a Georgian proofreader. Fix ONLY what is broken: remove any non-Georgian characters (Chinese, Korean, Japanese, Arabic, Hebrew, Cyrillic) and repair awkward, unclear or wrong words into natural, readable Georgian (short, clear sentences; simple words).\n' +
         'PRESERVE the author\'s voice, tone, personality, first-person stance and every concrete reference (names, deeds, places). Do NOT make it blander, more generic or more "wise"; do not flatten a vivid line into a neutral one. Keep the meaning, the character and roughly the same length.\n' +
         'You MAY keep short Latin acronyms (AI, GPT). No quotes, no notes, no emojis.\n' +
         'Output ONLY the corrected Georgian text on a single line.';
