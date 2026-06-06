@@ -52,10 +52,21 @@ export class AuthService {
     /**
      * Register User
      */
-    static async register(data: Pick<IUser, 'username' | 'email' | 'password' | 'fullName'>, userAgent: string = '') {
+    static async register(data: Pick<IUser, 'username' | 'email' | 'password' | 'fullName'>, userAgent: string = '', ip: string = 'unknown') {
         await dbConnect();
 
-        const { username, email, password, fullName } = data;
+        // Rate-limit registrations per IP (anti mass-signup / enumeration)
+        const rateCheck = this.checkRateLimit(ip);
+        if (!rateCheck.allowed) {
+            throw new Error(`RateLimit:locked:${rateCheck.lockoutRemaining}`);
+        }
+
+        // Normalize BEFORE the duplicate check + save so 'User@x.com' and 'user@x.com',
+        // 'Andrew' and 'andrew' can never become two accounts (login already lowercases).
+        const username = (data.username || '').toLowerCase().trim();
+        const email = (data.email || '').toLowerCase().trim();
+        const password = data.password || '';
+        const fullName = (data.fullName || '').trim();
 
         // Validation
         if (!username || !email || !password || !fullName) {
@@ -69,7 +80,10 @@ export class AuthService {
         const usernameRegex = /^[a-zA-Z0-9_]+$/;
         if (!usernameRegex.test(username)) throw new Error('მომხმარებლის სახელი უნდა შეიცავდეს მხოლოდ ლათინურ ასოებს, ციფრებს და _');
 
-        // Check duplicates
+        // Count this attempt toward the per-IP limit.
+        this.recordFailedAttempt(ip);
+
+        // Check duplicates (on normalized values)
         const existingUser = await User.findOne({
             $or: [{ email }, { username }]
         });
@@ -90,6 +104,9 @@ export class AuthService {
         });
 
         await user.save();
+
+        // Successful signup → clear the per-IP attempt counter.
+        this.clearAttempts(ip);
 
         // Track & Email (Async)
         trackSignup(fullName, user._id.toString()).catch(() => { });
@@ -120,13 +137,23 @@ export class AuthService {
             ]
         }).select('+password');
 
-        if (!user) throw new Error('მომხმარებელი ვერ მოიძებნა');
+        // Generic message for every credential failure → no account enumeration.
+        if (!user) {
+            this.recordFailedAttempt(ip);
+            throw new Error('ელფოსტა ან პაროლი არასწორია');
+        }
         if (user.isBlocked) throw new Error('თქვენი ანგარიში დაბლოკილია');
+
+        // Google-only account (no password set) can't log in via password.
+        if (!user.password) {
+            this.recordFailedAttempt(ip);
+            throw new Error('ელფოსტა ან პაროლი არასწორია');
+        }
 
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
             this.recordFailedAttempt(ip);
-            throw new Error('არასწორი პაროლი');
+            throw new Error('ელფოსტა ან პაროლი არასწორია');
         }
 
         // 2FA Check
@@ -150,6 +177,14 @@ export class AuthService {
         user.lastLogin = new Date();
         await user.save();
 
+        return this.createSession(user, userAgent);
+    }
+
+    /**
+     * Public session issuer — used by the Google OAuth callback to log a user in
+     * through the exact same Session/JWT path as register/login.
+     */
+    static async issueSession(user: IUser, userAgent: string = '') {
         return this.createSession(user, userAgent);
     }
 

@@ -7,6 +7,8 @@ import Post from "@/models/Post"
 import Video from "@/models/Video"
 import MarketplacePrompt from "@/models/MarketplacePrompt"
 import Insight from "@/models/Insight"
+import ForumTopic from "@/models/ForumTopic"
+import ForumPost from "@/models/ForumPost"
 import { HeroCarousel } from "@/components/home/HeroCarousel"
 import { HeroTags } from "@/components/home/HeroTags"
 import { QuickAccessGrid } from "@/components/home/QuickAccessGrid"
@@ -16,6 +18,7 @@ import { BotsSection } from "@/components/home/BotsSection"
 import { InsightsSection } from "@/components/home/InsightsSection"
 import { ServicesSection } from "@/components/home/ServicesSection"
 import { VideosSection } from "@/components/home/VideosSection"
+import { ForumTeaser } from "@/components/home/ForumTeaser"
 import { SocialProof } from "@/components/home/SocialProof"
 import { brand } from "@/lib/brand"
 
@@ -123,6 +126,47 @@ async function getLatestPrompts() {
   }
 }
 
+// Fetch the latest published forum topic + its debating personas for the home teaser
+async function getForumTeaser() {
+  try {
+    await dbConnect()
+
+    const topic = await ForumTopic.findOne({ status: 'published' })
+      .sort({ publishedAt: -1 })
+      .lean() as any
+
+    if (!topic) return null
+
+    const posts = await ForumPost.find({ topicId: topic._id })
+      .select('personaId')
+      .limit(12)
+      .lean() as any[]
+
+    const seen = new Set<string>()
+    const personaIds: string[] = []
+    for (const p of posts) {
+      if (p.personaId && !seen.has(p.personaId)) {
+        seen.add(p.personaId)
+        personaIds.push(p.personaId)
+      }
+    }
+
+    return {
+      topic: {
+        slug: topic.slug,
+        titleKa: topic.titleKa,
+        summaryKa: topic.summaryKa,
+        sourceImage: topic.sourceImage,
+        postCount: topic.postCount,
+      },
+      personaIds: personaIds.slice(0, 6),
+    }
+  } catch (error) {
+    console.error('Error fetching forum teaser:', error)
+    return null
+  }
+}
+
 // Fetch latest insights directly from MongoDB
 async function getInsights() {
   try {
@@ -146,11 +190,12 @@ async function getInsights() {
 }
 
 export default async function Home() {
-  const [postsData, videosData, promptsData, insightsData] = await Promise.all([
+  const [postsData, videosData, promptsData, insightsData, forumTeaser] = await Promise.all([
     getPosts(),
     getVideos(),
     getLatestPrompts(),
     getInsights(),
+    getForumTeaser(),
   ])
 
   const heroPosts = postsData.filter((p: any) => p.featured || p.trending).slice(0, 5)
@@ -243,6 +288,7 @@ export default async function Home() {
           <PromptsSection prompts={promptsData as any[]} />
           <ArticlesSection posts={postsData.slice(0, 3) as any[]} />
           <InsightsSection insights={insightsData as any[]} />
+          {forumTeaser && <ForumTeaser topic={forumTeaser.topic} personaIds={forumTeaser.personaIds} />}
           <BotsSection />
           <ServicesSection />
           <VideosSection videos={videosData} />

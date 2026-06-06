@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { TbLogin, TbMail, TbLock, TbEye, TbEyeOff, TbSparkles, TbArrowRight, TbBrandGithub, TbBrandChrome, TbUser, TbAlertCircle } from "react-icons/tb"
+import { TbLogin, TbMail, TbLock, TbEye, TbEyeOff, TbSparkles, TbArrowRight, TbBrandChrome, TbUser, TbAlertCircle } from "react-icons/tb"
 import { useAuth } from "@/lib/auth"
 
 export default function LoginPage() {
@@ -32,22 +32,15 @@ export default function LoginPage() {
         setError("")
         setIsLoading(true)
 
-        console.log("Submitting login form...", formData.username)
-
         try {
             const result = await login(formData.username, formData.password)
-            console.log("Login result:", result)
-
             if (result.success) {
-                console.log("Login successful, redirecting...")
                 router.push("/")
                 router.refresh() // Force refresh to update server components
             } else {
-                console.error("Login failed with error:", result.error)
                 setError(result.error || "შესვლა ვერ მოხერხდა")
             }
-        } catch (e) {
-            console.error("Login handle submit error:", e)
+        } catch {
             setError("განუსაზღვრელი შეცდომა")
         }
 
@@ -167,17 +160,13 @@ export default function LoginPage() {
                                 </div>
                             </div>
 
-                            {/* Social Login */}
-                            <div className="grid grid-cols-2 gap-3">
-                                <Button variant="outline" type="button" className="gap-2">
+                            {/* Google Sign-In */}
+                            <a href="/api/auth/google" className="block w-full">
+                                <Button variant="outline" type="button" className="w-full gap-2">
                                     <TbBrandChrome className="w-4 h-4" />
-                                    Google
+                                    Google-ით შესვლა
                                 </Button>
-                                <Button variant="outline" type="button" className="gap-2">
-                                    <TbBrandGithub className="w-4 h-4" />
-                                    GitHub
-                                </Button>
-                            </div>
+                            </a>
                         </form>
 
                         {/* Register Link */}

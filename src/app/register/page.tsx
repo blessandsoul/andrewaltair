@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { TbUserPlus, TbMail, TbLock, TbEye, TbEyeOff, TbSparkles, TbArrowRight, TbBrandGithub, TbBrandChrome, TbUser, TbCheck, TbId } from "react-icons/tb"
+import { TbUserPlus, TbMail, TbLock, TbEye, TbEyeOff, TbSparkles, TbArrowRight, TbBrandChrome, TbUser, TbCheck, TbId } from "react-icons/tb"
 import { toast } from "sonner" // Assuming sonner is used, if not we'll fallback to basic alerts or errors state
 
 export default function RegisterPage() {
@@ -80,24 +80,19 @@ export default function RegisterPage() {
                     throw new Error(result.error || 'რეგისტრაცია ვერ მოხერხდა');
                 }
 
-                // Success
+                // Success — redirect immediately; keep the button disabled (no isLoading
+                // reset) through navigation so a second submit can't fire.
                 toast.success("რეგისტრაცია წარმატებულია!", {
                     description: "გადამისამართება მთავარ გვერდზე..."
                 });
-
-                // Auto-login success set by server cookie, redirect to home
-                // Auth state is already updated by register() from useAuth
-                setTimeout(() => {
-                    router.push("/");
-                    router.refresh();
-                }, 1500);
+                router.push("/");
+                router.refresh();
 
             } catch (error: unknown) {
                 setErrors(prev => ({
                     ...prev,
                     submit: error instanceof Error ? error.message : "დაფიქსირდა შეცდომა, გთხოვთ სცადოთ თავიდან"
                 }));
-            } finally {
                 setIsLoading(false)
             }
         }
@@ -317,17 +312,13 @@ export default function RegisterPage() {
                                 </div>
                             </div>
 
-                            {/* Social Login */}
-                            <div className="grid grid-cols-2 gap-3">
-                                <Button variant="outline" type="button" className="gap-2">
+                            {/* Google Sign-Up */}
+                            <a href="/api/auth/google" className="block w-full">
+                                <Button variant="outline" type="button" className="w-full gap-2">
                                     <TbBrandChrome className="w-4 h-4" />
-                                    Google
+                                    Google-ით რეგისტრაცია
                                 </Button>
-                                <Button variant="outline" type="button" className="gap-2">
-                                    <TbBrandGithub className="w-4 h-4" />
-                                    GitHub
-                                </Button>
-                            </div>
+                            </a>
                         </form>
 
                         {/* Login Link */}

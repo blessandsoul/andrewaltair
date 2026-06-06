@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server';
 import { AuthService } from '@/services/auth.service';
 import { apiSuccess, apiError } from '@/lib/api-response';
 import { ERROR_CODES } from '@/lib/error-codes';
+import { setAuthCookie } from '@/lib/auth-cookie';
 
 // 🛡️ SECURITY: Require JWT_SECRET - no fallback allowed
 if (!process.env.JWT_SECRET) {
@@ -26,24 +27,7 @@ export async function POST(request: NextRequest) {
         const result = await AuthService.login(loginField, password, ip, userAgent, twoFactorCode);
 
         const response = apiSuccess({ user: result.user }, 'წარმატებით შეხვედით სისტემაში');
-
-        // ✅ Set httpOnly cookie with robust settings
-        // Determine secure flag based on environment and protocol
-        const isProduction = process.env.NODE_ENV === 'production';
-        // Check X-Forwarded-Proto header for headers behind proxy
-        const protocol = request.headers.get('x-forwarded-proto') || 'http';
-        const isSecure = isProduction && protocol === 'https';
-
-
-        response.cookies.set('auth_token', result.token, {
-            httpOnly: true,
-            secure: isSecure,
-            sameSite: 'lax',
-            maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
-            path: '/'
-        });
-
-
+        setAuthCookie(response, result.token);
         return response;
 
     } catch (error: unknown) {
@@ -58,7 +42,7 @@ export async function POST(request: NextRequest) {
             return apiError(ERROR_CODES.VALIDATION_FAILED, msg, 400);
         }
 
-        if (msg === 'მომხმარებელი ვერ მოიძებნა' || msg === 'არასწორი პაროლი' || msg === 'არასწორი 2FA კოდი') {
+        if (msg === 'ელფოსტა ან პაროლი არასწორია' || msg === 'არასწორი 2FA კოდი') {
             return apiError(ERROR_CODES.AUTH_INVALID_CREDENTIALS, msg, 401);
         }
 

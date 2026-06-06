@@ -31,6 +31,7 @@ import {
   TbShield,
   TbCrown,
   TbChartBar,
+  TbMessage2,
 } from "react-icons/tb"
 import { useState } from "react"
 import { ThemeToggle } from "./ThemeToggle"
@@ -43,6 +44,7 @@ import { cn } from "@/lib/utils"
 const mainNavItems = [
   { href: "/blog", label: "ბლოგი" },
   { href: "/insights", label: "ინსაითები" },
+  { href: "/forum", label: "ფორუმი" },
   { href: "/prompts", label: "პრომპტები" },
   { href: "/bots", label: "ბოტები" },
   { href: "/services", label: "სერვისები" },
@@ -64,6 +66,7 @@ const mobileNavSections = [
     items: [
       { href: "/blog", label: "ბლოგი", icon: TbBook },
       { href: "/insights", label: "ინსაითები", icon: TbBulb },
+      { href: "/forum", label: "ფორუმი", icon: TbMessage2 },
       { href: "/prompts", label: "პრომპტები", icon: TbShoppingBag },
       { href: "/bots", label: "ბოტები", icon: TbRobot },
       { href: "/services", label: "სერვისები", icon: TbBriefcase },

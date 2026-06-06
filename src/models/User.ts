@@ -5,7 +5,8 @@ export interface IUser extends Document {
     _id: mongoose.Types.ObjectId;
     username: string;
     email: string;
-    password: string;
+    password?: string;       // optional for Google-OAuth accounts
+    googleId?: string;       // set for accounts that signed in with Google
     fullName: string;
     bio?: string;
     avatar?: string;
@@ -81,9 +82,14 @@ const UserSchema = new Schema<IUser>(
         },
         password: {
             type: String,
-            required: [true, 'Password is required'],
-            minlength: [6, 'Password must be at least 6 characters'],
+            // Required only for password accounts; Google-OAuth users have no password.
+            required: [function (this: IUser) { return !this.googleId; }, 'Password is required'],
+            minlength: [8, 'Password must be at least 8 characters'],
             select: false, // Don't include password by default in queries
+        },
+        googleId: {
+            type: String,
+            select: false,
         },
         fullName: {
             type: String,
@@ -210,18 +216,20 @@ UserSchema.index({ role: 1 });
 UserSchema.index({ email: 1, username: 1 });
 UserSchema.index({ isBlocked: 1 });
 UserSchema.index({ lastLogin: -1 });
+UserSchema.index({ googleId: 1 }, { unique: true, sparse: true });
 
 
 // Hash password before saving
 UserSchema.pre('save', async function () {
-    if (!this.isModified('password')) return;
+    if (!this.isModified('password') || !this.password) return;
 
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Compare password method
+// Compare password method (Google-only accounts have no password → never match)
 UserSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+    if (!this.password) return false;
     return bcrypt.compare(candidatePassword, this.password);
 };
 

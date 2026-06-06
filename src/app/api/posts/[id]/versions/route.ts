@@ -1,29 +1,13 @@
 import { NextRequest } from 'next/server'
-import jwt from 'jsonwebtoken'
 import dbConnect from '@/lib/db'
 import Post from '@/models/Post'
 import PostVersion from '@/models/PostVersion'
 import { apiSuccess, apiError } from '@/lib/api-response'
 import { ERROR_CODES } from '@/lib/error-codes'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret'
+import { getUserFromRequest } from '@/lib/server-auth'
 
 interface RouteParams {
     params: Promise<{ id: string }>
-}
-
-// Helper to get user from token
-async function getUserFromToken(request: NextRequest) {
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader?.startsWith('Bearer ')) {
-        return null
-    }
-    try {
-        const token = authHeader.substring(7)
-        return jwt.verify(token, JWT_SECRET) as { userId: string; role: string }
-    } catch {
-        return null
-    }
 }
 
 // GET - List all versions for a post
@@ -59,7 +43,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         await dbConnect()
         const { id } = await params
 
-        const user = await getUserFromToken(request)
+        const user = await getUserFromRequest(request)
         if (!user) {
             return apiError(ERROR_CODES.AUTH_REQUIRED, 'Authentication required', 401)
         }
@@ -91,8 +75,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
             tags: post.tags,
             author: post.author,
             changedBy: {
-                id: user.userId,
-                name: 'User', // Would get from user lookup
+                id: String(user._id),
+                name: user.fullName || 'User',
             },
             changeReason,
         })
@@ -115,7 +99,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         await dbConnect()
         const { id } = await params
 
-        const user = await getUserFromToken(request)
+        const user = await getUserFromRequest(request)
         if (!user) {
             return apiError(ERROR_CODES.AUTH_REQUIRED, 'Authentication required', 401)
         }
@@ -146,8 +130,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
                 tags: post.tags,
                 author: post.author,
                 changedBy: {
-                    id: user.userId,
-                    name: 'User',
+                    id: String(user._id),
+                    name: user.fullName || 'User',
                 },
                 changeReason: `Auto-saved before restoring to v${version.version}`,
             })

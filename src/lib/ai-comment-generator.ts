@@ -11,15 +11,9 @@
 import mongoose from 'mongoose';
 
 import { AIPersona, pickRandomPersonas, pickRandomLikers, AI_PERSONAS } from '@/lib/ai-personas';
+import { MODEL_CHAIN, chatRaw, extractGeorgian, isValidGeorgian } from '@/lib/openrouter-georgian';
 import dbConnect from '@/lib/db';
 import Comment from '@/models/Comment';
-
-const ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
-
-const MODEL_CHAIN = [
-    'google/gemma-4-31b-it:free',
-    'google/gemma-4-26b-a4b-it:free',
-];
 
 export interface PostSeed {
     title: string;
@@ -31,57 +25,6 @@ export interface GeneratedComment {
     name: string;
     avatar: string;
     content: string;
-}
-
-const GEORGIAN_RE = /[Ⴀ-ჿ]/g;
-const CYRILLIC_RE = /[Ѐ-ӿ]/;
-const LONG_LATIN_WORD_RE = /[A-Za-z]{7,}/; // allow short acronyms (AI, GPT, API), reject English words
-
-function extractComment(raw: string): string {
-    let text = (raw || '').replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
-    // Reasoning-y models can emit drafts on multiple lines — keep the last Georgian-heavy line.
-    const geoLines = text
-        .split('\n')
-        .map((s) => s.trim())
-        .filter((s) => (s.match(GEORGIAN_RE) || []).length > 10);
-    if (geoLines.length) text = geoLines[geoLines.length - 1];
-    return text.replace(/^["'„“]+|["'”]+$/g, '').trim();
-}
-
-function isValidGeorgian(text: string, minWords = 12, maxWords = 45): boolean {
-    if (!text) return false;
-    const words = text.split(/\s+/).filter(Boolean).length;
-    const georgianChars = (text.match(GEORGIAN_RE) || []).length;
-    if (words < minWords || words > maxWords) return false;
-    if (georgianChars < 20) return false;
-    if (CYRILLIC_RE.test(text)) return false;       // absolute: no Cyrillic in Georgian
-    if (LONG_LATIN_WORD_RE.test(text)) return false; // no English words (acronyms ok)
-    return true;
-}
-
-/** Low-level OpenRouter chat call → raw message content (or null on any failure). */
-async function chatRaw(apiKey: string, model: string, sys: string, user: string): Promise<string | null> {
-    let res: Response;
-    try {
-        res = await fetch(ENDPOINT, {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                model,
-                messages: [
-                    { role: 'system', content: sys },
-                    { role: 'user', content: user },
-                ],
-                temperature: 0.85,
-                max_tokens: 600,
-            }),
-        });
-    } catch {
-        return null; // network error → caller tries next model
-    }
-    if (!res.ok) return null; // 429 / 5xx → next model in chain
-    const json = await res.json().catch(() => null);
-    return json?.choices?.[0]?.message?.content ?? null;
 }
 
 async function callModel(
@@ -98,7 +41,7 @@ async function callModel(
     const user = `Post title: ${post.title}\nPost excerpt: ${post.excerpt || ''}`;
     const raw = await chatRaw(apiKey, model, sys, user);
     if (!raw) return null;
-    const text = extractComment(raw);
+    const text = extractGeorgian(raw);
     return isValidGeorgian(text) ? text : null;
 }
 
@@ -117,7 +60,7 @@ async function callReplyModel(
     const user = `Post title: ${post.title}\nThe comment you are replying to: ${parentText}`;
     const raw = await chatRaw(apiKey, model, sys, user);
     if (!raw) return null;
-    const text = extractComment(raw);
+    const text = extractGeorgian(raw);
     return isValidGeorgian(text, 6, 30) ? text : null;
 }
 
