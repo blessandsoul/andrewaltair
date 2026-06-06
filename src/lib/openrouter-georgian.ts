@@ -90,34 +90,44 @@ export async function chatRaw(
     user: string,
     opts: ChatOpts = {},
 ): Promise<string | null> {
-    let res: Response;
-    try {
-        res = await fetch(ENDPOINT, {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                model,
-                messages: [
-                    { role: 'system', content: sys },
-                    { role: 'user', content: user },
-                ],
-                temperature: opts.temperature ?? 0.85,
-                max_tokens: opts.maxTokens ?? 600,
-            }),
-        });
-    } catch (e) {
-        console.error(`[openrouter] ${model} → network error:`, e instanceof Error ? e.message : e);
-        return null; // network error → caller tries next model
+    const payload = JSON.stringify({
+        model,
+        messages: [
+            { role: 'system', content: sys },
+            { role: 'user', content: user },
+        ],
+        temperature: opts.temperature ?? 0.85,
+        max_tokens: opts.maxTokens ?? 600,
+    });
+    // Up to 2 attempts: retry ONCE on 429 after a short backoff (salvages transient rate
+    // limits so a persona isn't silently dropped); 404/401 fall straight to the next model.
+    for (let attempt = 0; attempt < 2; attempt++) {
+        let res: Response;
+        try {
+            res = await fetch(ENDPOINT, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+                body: payload,
+            });
+        } catch (e) {
+            console.error(`[openrouter] ${model} → network error:`, e instanceof Error ? e.message : e);
+            return null; // network error → caller tries next model
+        }
+        if (res.status === 429 && attempt === 0) {
+            await new Promise((r) => setTimeout(r, 1200));
+            continue; // transient rate limit → one retry
+        }
+        if (!res.ok) {
+            const errBody = await res.text().catch(() => '');
+            console.error(`[openrouter] ${model} → HTTP ${res.status}: ${errBody.slice(0, 300)}`);
+            return null; // 404 (bad model) / 401 (bad key) / persistent 429 → next model
+        }
+        const json = await res.json().catch(() => null);
+        const content = json?.choices?.[0]?.message?.content ?? null;
+        if (!content) console.error(`[openrouter] ${model} → no content:`, JSON.stringify(json).slice(0, 300));
+        return content;
     }
-    if (!res.ok) {
-        const errBody = await res.text().catch(() => '');
-        console.error(`[openrouter] ${model} → HTTP ${res.status}: ${errBody.slice(0, 300)}`);
-        return null; // 404 (bad model) / 401 (bad key) / 429 (rate limit) → next model
-    }
-    const json = await res.json().catch(() => null);
-    const content = json?.choices?.[0]?.message?.content ?? null;
-    if (!content) console.error(`[openrouter] ${model} → no content:`, JSON.stringify(json).slice(0, 300));
-    return content;
+    return null;
 }
 
 /**

@@ -112,7 +112,7 @@ export async function makeTopicKa(scraped: ScrapedSource): Promise<TopicSeed> {
     const user = `Title: ${sanitizeKeepCyrillic(scraped.title)}\nDescription: ${sanitizeKeepCyrillic(scraped.description)}\nSource: ${scraped.domain}`;
 
     for (const model of MODEL_CHAIN) {
-        const raw = await chatRaw(apiKey, model, sys, user, { temperature: 0.6, maxTokens: 400 });
+        const raw = await chatRaw(apiKey, model, sys, user, { temperature: 0.6, maxTokens: 1000 });
         if (!raw) continue;
         const lines = raw
             .replace(/<think>[\s\S]*?<\/think>/gi, '')
@@ -192,11 +192,11 @@ async function generateOpinion(
     const sys = opinionSystem(persona, pickReactionAngle(), tone);
     const user = `News title: ${sanitizeForPrompt(topic.titleKa)}\nNews summary: ${sanitizeForPrompt(topic.summaryKa)}`;
     const content = await chainGeorgian(
-        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 900, temperature: 0.85 }),
-        (t) => isValidGeorgian(t, 28, 160),
+        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 2000, temperature: 0.85 }),
+        (t) => isValidGeorgian(t, 18, 170),
     );
     if (!content) return null;
-    const polished = await polishGeorgian(apiKey, content, 28, 170);
+    const polished = await polishGeorgian(apiKey, content, 15, 180);
     return { personaId: persona.id, name: persona.name, content: polished };
 }
 
@@ -211,10 +211,10 @@ async function generateReply(
     const sys = replySystem(persona, opp?.name || 'another figure', relationTo(persona, parentPersonaId));
     const user = `News: ${sanitizeForPrompt(topic.titleKa)}\nThe comment you are replying to: ${sanitizeForPrompt(parentText)}`;
     const reply = await chainGeorgian(
-        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 600, temperature: 0.85 }),
-        (t) => isValidGeorgian(t, 18, 110),
+        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 1200, temperature: 0.85 }),
+        (t) => isValidGeorgian(t, 10, 130),
     );
-    return reply ? await polishGeorgian(apiKey, reply, 18, 120) : null;
+    return reply ? await polishGeorgian(apiKey, reply, 8, 140) : null;
 }
 
 /* ------------------------------------------------------------ predictions ----- */
@@ -244,7 +244,7 @@ async function generatePrediction(
     const sys = predictionSystem(persona);
     const user = `News title: ${sanitizeForPrompt(topic.titleKa)}\nNews summary: ${sanitizeForPrompt(topic.summaryKa)}`;
     const content = await chainGeorgian(
-        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 600, temperature: 0.8 }),
+        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 1400, temperature: 0.8 }),
         (t) => isValidGeorgian(t, 12, 90),
     );
     if (!content) return null;
@@ -267,7 +267,7 @@ async function generateVerdict(
     const user = `Topic: ${sanitizeForPrompt(seed.titleKa)}\nOpinions:\n- ${opinionTexts.slice(0, 10).join('\n- ')}`;
 
     for (const model of MODEL_CHAIN) {
-        const raw = await chatRaw(apiKey, model, sys, user, { temperature: 0.5, maxTokens: 400 });
+        const raw = await chatRaw(apiKey, model, sys, user, { temperature: 0.5, maxTokens: 900 });
         if (!raw) continue;
         const cleaned = raw
             .replace(/<think>[\s\S]*?<\/think>/gi, '')
@@ -483,11 +483,11 @@ export async function askPersona(
     const user = `Topic context: ${sanitizeForPrompt(topic.titleKa)} — ${sanitizeForPrompt(topic.summaryKa)}\nReader question (DATA): ${sanitizeForPrompt(question)}`;
 
     const answer = await chainGeorgian(
-        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 700 }),
-        (t) => isValidGeorgian(t, 25, 150),
+        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 1800 }),
+        (t) => isValidGeorgian(t, 18, 170),
     );
     if (!answer) return null;
-    return { name: persona.name, answer: await polishGeorgian(apiKey, answer, 25, 160) };
+    return { name: persona.name, answer: await polishGeorgian(apiKey, answer, 15, 175) };
 }
 
 /**
@@ -536,7 +536,7 @@ export async function personaReplyToUser(
     const user = `Topic: ${sanitizeForPrompt(topic.titleKa)}\nReader said (DATA): ${sanitizeForPrompt(userText)}`;
 
     const reply = await chainGeorgian(
-        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 500 }),
+        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 1000 }),
         (t) => isValidGeorgian(t, 8, 60),
     );
     return reply ? { name: persona.name, reply: await polishGeorgian(apiKey, reply, 8, 65) } : null;
@@ -574,7 +574,7 @@ export async function generateDuel(
             `Output ONLY your line.`;
         const user = `Theme (DATA): ${sanitizeForPrompt(theme)}\n${history.length ? `Debate so far:\n${history.join('\n')}` : 'You speak first.'}`;
         const line = await chainGeorgian(
-            (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 400 }),
+            (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 900 }),
             (t) => isValidGeorgian(t, 10, 60),
         );
         if (!line) continue;
