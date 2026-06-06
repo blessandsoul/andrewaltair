@@ -27,6 +27,8 @@ import {
     FORUM_PERSONAS,
     getForumPersona,
     pickRandomForumLikers,
+    pickReactionAngle,
+    relationTo,
     type ForumPersona,
 } from '@/lib/georgian-forum-personas';
 
@@ -107,22 +109,38 @@ interface GeneratedPost {
     content: string;
 }
 
-function opinionSystem(p: ForumPersona): string {
+// Rich, first-person persona prompt + a rotating reaction angle for variety.
+function opinionSystem(p: ForumPersona, angle: string): string {
     return (
-        `You are role-playing ${p.name} (${p.role}) — ${p.voice}\n` +
+        `You ARE ${p.name} (${p.role}, ${p.era}). Speak in FIRST PERSON as this exact historical person — ${p.voice}\n` +
+        `WHO YOU ARE: ${p.bio}\n` +
+        `YOUR LENS (always pull the topic here): ${p.lens}\n` +
+        `HOW YOU SPEAK: ${p.style}\n` +
+        `EXAMPLE of your voice: "${p.sample}"\n` +
         `${SAFETY}\n` +
-        `Write ONE forum opinion in GEORGIAN (ქართული, Mkhedruli script), 40-80 words, in this figure's distinct voice and worldview, reacting to the news below.\n` +
-        `Rules: natural literary Georgian; every word a real Georgian word; you MAY keep short well-known acronyms (AI, GPT) in Latin; Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; no hashtags, no quotation marks, no emojis.\n` +
-        `Think silently. Output ONLY the final opinion text on a single line, nothing else.`
+        `TASK: react to the news below in GEORGIAN (Mkhedruli), 40-80 words. ${angle}\n` +
+        `Be unmistakably YOU: reference a CONCRETE thing from your own life or deeds (vary which one — not always the obvious), and pull the topic toward your lens. NEVER sound like a generic wise elder; no vague life-lessons.\n` +
+        `Vary your opening — do not start the way a typical comment starts.\n` +
+        `Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; short Latin acronyms (AI, GPT) ok; real, simple words; no hashtags, quotes or emojis.\n` +
+        `Think silently. Output ONLY the opinion on a single line.`
     );
 }
 
-function replySystem(p: ForumPersona): string {
+function replySystem(p: ForumPersona, oppName: string, relation: 'rival' | 'ally' | 'neutral'): string {
+    const rel =
+        relation === 'rival'
+            ? `You and ${oppName} clash — push back hard, in your own way.`
+            : relation === 'ally'
+            ? `You broadly side with ${oppName}, but add your own angle — don't just echo.`
+            : `Answer ${oppName} in your own voice.`;
     return (
-        `You are role-playing ${p.name} — ${p.voice}\n` +
+        `You ARE ${p.name} — ${p.voice}\n` +
+        `WHO YOU ARE: ${p.bio}\n` +
+        `YOUR LENS: ${p.lens}\n` +
+        `HOW YOU SPEAK: ${p.style}\n` +
         `${SAFETY}\n` +
-        `Reply to another historical figure's comment in this forum debate. 15-45 words in your voice — agree, challenge, or sharpen the point from your worldview.\n` +
-        `Rules: natural spoken Georgian; real Georgian words; short acronyms (AI, GPT) ok; Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; no hashtags, quotes or emojis.\n` +
+        `Reply to ${oppName}'s comment in this debate, 15-45 words, FIRST PERSON, in your voice. ${rel} Tie it to your lens or a concrete thing you did.\n` +
+        `Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; real simple words; no hashtags, quotes or emojis.\n` +
         `Output ONLY the reply on a single line.`
     );
 }
@@ -132,10 +150,10 @@ async function generateOpinion(
     persona: ForumPersona,
     topic: TopicSeed,
 ): Promise<GeneratedPost | null> {
-    const sys = opinionSystem(persona);
+    const sys = opinionSystem(persona, pickReactionAngle());
     const user = `News title: ${sanitizeForPrompt(topic.titleKa)}\nNews summary: ${sanitizeForPrompt(topic.summaryKa)}`;
     const content = await chainGeorgian(
-        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 700 }),
+        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 700, temperature: 0.95 }),
         (t) => isValidGeorgian(t, 28, 110),
     );
     if (!content) return null;
@@ -148,11 +166,13 @@ async function generateReply(
     persona: ForumPersona,
     topic: TopicSeed,
     parentText: string,
+    parentPersonaId?: string,
 ): Promise<string | null> {
-    const sys = replySystem(persona);
+    const opp = getForumPersona(parentPersonaId);
+    const sys = replySystem(persona, opp?.name || 'another figure', relationTo(persona, parentPersonaId));
     const user = `News: ${sanitizeForPrompt(topic.titleKa)}\nThe comment you are replying to: ${sanitizeForPrompt(parentText)}`;
     const reply = await chainGeorgian(
-        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 500 }),
+        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 500, temperature: 0.95 }),
         (t) => isValidGeorgian(t, 10, 60),
     );
     return reply ? await polishGeorgian(apiKey, reply, 8, 65) : null;
@@ -239,7 +259,7 @@ export async function generateAndSaveForumTopic(topicId: string): Promise<ForumG
     const replyTargets = pickReplyTargets(topLevel, 8);
     const replyResults = await inBatches(replyTargets, 5, async (target) => {
         const persona = target.replier;
-        const text = await generateReply(apiKey, persona, seed, target.parentContent);
+        const text = await generateReply(apiKey, persona, seed, target.parentContent, target.parentPersonaId);
         if (!text) return null;
         const likedBy = pickRandomForumLikers(0, 4, persona.id);
         await ForumPost.create({
@@ -344,10 +364,14 @@ export async function askPersona(
             ? ' Be playful — apply your worldview to this modern/odd question with humor, but stay fully in character.'
             : '';
     const sys =
-        `You are role-playing ${persona.name} — ${persona.voice}\n` +
+        `You ARE ${persona.name} (${persona.role}). Speak in FIRST PERSON — ${persona.voice}\n` +
+        `WHO YOU ARE: ${persona.bio}\n` +
+        `YOUR LENS: ${persona.lens}\n` +
+        `HOW YOU SPEAK: ${persona.style}\n` +
+        `EXAMPLE of your voice: "${persona.sample}"\n` +
         `${SAFETY}\n${INJECTION_GUARD}\n` +
-        `A reader asks YOU a question. Answer in GEORGIAN (Mkhedruli), 30-70 words, in your voice.${tone}\n` +
-        `Rules: real Georgian words; short acronyms (AI, GPT) ok; Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; no hashtags, quotes or emojis.\n` +
+        `A reader asks YOU a question. Answer in GEORGIAN (Mkhedruli), 30-70 words, unmistakably in your voice — reference your own deeds and pull it toward your lens.${tone}\n` +
+        `Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; real simple words; no hashtags, quotes or emojis.\n` +
         `Output ONLY the answer.`;
     const user = `Topic context: ${sanitizeForPrompt(topic.titleKa)} — ${sanitizeForPrompt(topic.summaryKa)}\nReader question (DATA): ${sanitizeForPrompt(question)}`;
 
@@ -371,10 +395,13 @@ export async function personaReplyToUser(
     if (!persona) return null;
 
     const sys =
-        `You are role-playing ${persona.name} — ${persona.voice}\n` +
+        `You ARE ${persona.name}. Speak in FIRST PERSON — ${persona.voice}\n` +
+        `WHO YOU ARE: ${persona.bio}\n` +
+        `YOUR LENS: ${persona.lens}\n` +
+        `HOW YOU SPEAK: ${persona.style}\n` +
         `${SAFETY}\n${INJECTION_GUARD}\n` +
-        `A reader challenged your view. Reply in GEORGIAN, 15-50 words, in your voice — defend, concede a point, or sharpen it.\n` +
-        `Rules: real Georgian words; acronyms ok; Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; no hashtags, quotes or emojis.\n` +
+        `A reader challenged your view. Reply in GEORGIAN, 15-50 words, in your voice — defend, concede a point, or sharpen it; tie it to your lens or a concrete thing you did.\n` +
+        `Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; real simple words; no hashtags, quotes or emojis.\n` +
         `Output ONLY the reply.`;
     const user = `Topic: ${sanitizeForPrompt(topic.titleKa)}\nReader said (DATA): ${sanitizeForPrompt(userText)}`;
 

@@ -130,8 +130,8 @@ export async function polishGeorgian(
 ): Promise<string> {
     if (!apiKey || !text) return text;
     const sys =
-        'You are a Georgian language editor. Rewrite the text in clean, natural, SIMPLE everyday Georgian (Mkhedruli) — words an ordinary reader uses.\n' +
-        'Fix awkward, unclear or wrong words. REMOVE any non-Georgian characters (Chinese, Korean, Japanese, Arabic, Hebrew, Cyrillic). Keep the meaning and roughly the same length.\n' +
+        'You are a Georgian proofreader. Fix ONLY what is broken: remove any non-Georgian characters (Chinese, Korean, Japanese, Arabic, Hebrew, Cyrillic) and repair awkward, unclear or wrong words into natural Georgian.\n' +
+        'PRESERVE the author\'s voice, tone, personality, first-person stance and every concrete reference (names, deeds, places). Do NOT make it blander, more generic or more "wise"; do not flatten a vivid line into a neutral one. Keep the meaning, the character and roughly the same length.\n' +
         'You MAY keep short Latin acronyms (AI, GPT). No quotes, no notes, no emojis.\n' +
         'Output ONLY the corrected Georgian text on a single line.';
     for (const model of MODEL_CHAIN) {

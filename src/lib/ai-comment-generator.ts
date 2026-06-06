@@ -11,6 +11,7 @@
 import mongoose from 'mongoose';
 
 import { AIPersona, pickRandomPersonas, pickRandomLikers, AI_PERSONAS } from '@/lib/ai-personas';
+import { pickReactionAngle } from '@/lib/georgian-forum-personas';
 import { MODEL_CHAIN, chatRaw, extractGeorgian, isValidGeorgian, sanitizeForPrompt, polishGeorgian } from '@/lib/openrouter-georgian';
 import dbConnect from '@/lib/db';
 import Comment from '@/models/Comment';
@@ -39,6 +40,7 @@ async function callModel(
         `MUST react to a concrete detail of the actual story (name the real thing it is about). React like a normal reader: surprise, a clear opinion, a relatable joke, or a simple question. Only a light hint of who you are.\n` +
         `Everyday spoken Georgian, simple words a teenager gets. BANNED: vague filler and life-lessons (e.g. "პერსპექტივა", "სიმარტივე", "პრინციპი", "არსი", "essence") and any comment generic enough to fit a different article.\n` +
         `Rules: every word a real Georgian word; short acronyms (AI, GPT) ok; Georgian Mkhedruli ONLY — NO Chinese, Korean, Japanese, Arabic, Hebrew or Cyrillic characters; no hashtags, quotes or emojis.\n` +
+        `Angle for THIS comment (vary it, don't repeat shapes): ${pickReactionAngle()}\n` +
         `Think silently. Output ONLY the comment on a single line.`;
     const user = `Story title: ${sanitizeForPrompt(post.title)}\nWhat it is about: ${sanitizeForPrompt(post.excerpt || '')}\nComment specifically about THIS story.`;
     const raw = await chatRaw(apiKey, model, sys, user);
