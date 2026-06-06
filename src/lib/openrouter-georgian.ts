@@ -133,29 +133,63 @@ export async function chainGeorgian(
  * fails or the result is invalid, the ORIGINAL text is returned (never throws, never 429s
  * the whole pipeline). This is how the /lang discipline is applied at runtime.
  */
-/** 2nd-pass polish is OFF by default — on the free Gemma tier the extra call per item
- *  doubles load and causes 429s (empty results). Enable with FORUM_POLISH=on. */
-export function polishEnabled(): boolean {
-    return (process.env.FORUM_POLISH ?? 'off').toLowerCase() === 'on';
+// Unambiguous Cyrillic look-alikes → Georgian, fixed deterministically (cheap, exact)
+// BEFORE the LLM proofread. Ambiguous т (→თ or ტ) is left for the LLM. Other Cyrillic
+// (no look-alike) is left as-is and gets caught by the validator / LLM.
+const CYRILLIC_FIX: Record<string, string> = {
+    'а': 'ა', 'А': 'ა', 'е': 'ე', 'Е': 'ე', 'о': 'ო', 'О': 'ო', 'с': 'ს', 'С': 'ს',
+    'у': 'უ', 'У': 'უ', 'х': 'ხ', 'Х': 'ხ', 'р': 'რ', 'Р': 'რ', 'и': 'ი', 'к': 'კ',
+    'К': 'კ', 'н': 'ნ', 'Н': 'ნ', 'п': 'პ', 'л': 'ლ', 'в': 'ვ', 'д': 'დ', 'ж': 'ჟ',
+};
+export function fixCyrillicLookalikes(text: string): string {
+    return (text || '').replace(/[Ѐ-ӿ]/g, (ch) => CYRILLIC_FIX[ch] ?? ch);
 }
 
+/** LANG corrector (2nd pass). ON by default; disable with FORUM_POLISH=off. */
+export function polishEnabled(): boolean {
+    return (process.env.FORUM_POLISH ?? 'on').toLowerCase() !== 'off';
+}
+
+/**
+ * Georgian proofreader carrying the /lang agent's rules. Fixes spelling (e.g. თ/ტ:
+ * "მთელი" not "მტელი"), Cyrillic injections, ergative, pronoun-drop, idioms — while
+ * PRESERVING meaning, voice, numbers, names and sentence count. Best-effort: on failure
+ * returns the (cyrillic-cleaned) original, never empty. Proofread model overridable via
+ * OPENROUTER_PROOFREAD_MODEL (else uses MODEL_CHAIN — Gemini-first).
+ */
 export async function polishGeorgian(
     apiKey: string,
     text: string,
     minWords = 5,
     maxWords = 160,
 ): Promise<string> {
-    if (!apiKey || !text || !polishEnabled()) return text;
+    if (!apiKey || !text || !polishEnabled()) return fixCyrillicLookalikes(text);
+    const input = fixCyrillicLookalikes(text);
     const sys =
-        'You are a Georgian proofreader. Fix ONLY what is broken: remove any non-Georgian characters (Chinese, Korean, Japanese, Arabic, Hebrew, Cyrillic) and repair awkward, unclear or wrong words into natural, readable Georgian (short, clear sentences; simple words).\n' +
-        'PRESERVE the author\'s voice, tone, personality, first-person stance and every concrete reference (names, deeds, places). Do NOT make it blander, more generic or more "wise"; do not flatten a vivid line into a neutral one. Keep the meaning, the character and roughly the same length.\n' +
-        'You MAY keep short Latin acronyms (AI, GPT). No quotes, no notes, no emojis.\n' +
-        'Output ONLY the corrected Georgian text on a single line.';
-    for (const model of MODEL_CHAIN) {
-        const raw = await chatRaw(apiKey, model, sys, text, { temperature: 0.3, maxTokens: 600 });
+        'You are a strict Georgian (ქართული) proofreader. Fix spelling, grammar and machine-translation artifacts. PRESERVE the exact meaning, facts, numbers, names, tone/voice and the SAME number of sentences. Do NOT add, remove or rephrase ideas. Output ONLY the corrected Georgian text on one line — no quotes, no notes.\n' +
+        'RULES (from the lang style guide):\n' +
+        '1. 100% Mkhedruli. Remove any non-Georgian character; replace Cyrillic look-alikes with the correct Georgian letter.\n' +
+        '2. Fix confusable consonants toward a REAL Georgian word: თ/ტ (correct "მთელი", NOT "მტელი"), ქ/კ, ჭ/ჩ, ფ/პ, ღ/გ/ხ, წ/ც/ძ, ხ/ჰ. If both spellings are valid words, leave it.\n' +
+        '3. Ergative: past-transitive subject takes -მა ("კომპანიამ შექმნა", not "კომპანია შექმნა").\n' +
+        '4. Emotion/sense verbs: experiencer is DATIVE ("ტექნოლოგია მიყვარს"; same for მინდა, მომწონს, მეშინია).\n' +
+        '5. Correct preverbs (გამოუშვა≠გაუშვა, მოიტანა≠მიიტანა).\n' +
+        '6. Inanimate plural → singular verb ("პროგრამები მუშაობს").\n' +
+        '7. Numeral → singular noun ("ხუთმა კომპანიამ", not "ხუთი კომპანიები").\n' +
+        '8. Drop redundant pronouns ის/მან/მას/მისი/მათ (the verb already carries person); if the actor becomes unclear, use the NAME instead of dropping.\n' +
+        '9. No articles — delete ის/ეს used as "the"/"a".\n' +
+        '10. Natural word order (verb near the end), active voice, max one რომელიც per sentence; split overly long clauses.\n' +
+        '11. No literal idioms/calques — native phrasing (swap the metaphor verb, keep the noun); fix russisms and false-friends.\n' +
+        'Keep short Latin acronyms (AI, GPT) and numbers as digits.';
+
+    const proofModels = process.env.OPENROUTER_PROOFREAD_MODEL
+        ? [process.env.OPENROUTER_PROOFREAD_MODEL, ...MODEL_CHAIN]
+        : MODEL_CHAIN;
+
+    for (const model of proofModels) {
+        const raw = await chatRaw(apiKey, model, sys, input, { temperature: 0.2, maxTokens: 700 });
         if (!raw) continue;
         const cleaned = extractGeorgian(raw);
         if (isValidGeorgian(cleaned, minWords, maxWords)) return cleaned;
     }
-    return text; // best-effort fallback
+    return input; // best-effort: at least the cyrillic-cleaned original
 }

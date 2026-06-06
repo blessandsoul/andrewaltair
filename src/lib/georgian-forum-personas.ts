@@ -311,6 +311,13 @@ export const FORUM_PERSONAS: ForumPersona[] = [
     },
 ];
 
+// Every persona has an AI-painted portrait at public/forum-personas/<id>.png
+// (classical oil/fresco style, generated via Nano Banana 2). Wired here so the avatar
+// component renders the portrait instead of the fallback icon. Drop a file → icon returns.
+for (const p of FORUM_PERSONAS) {
+    if (!p.portrait) p.portrait = `/forum-personas/${p.id}.png`;
+}
+
 /**
  * Reaction angles rotated per generation so a persona never repeats the same shape.
  * Picked at random in the generator and injected into the prompt.

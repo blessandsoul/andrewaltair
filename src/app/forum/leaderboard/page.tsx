@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { TbArrowLeft, TbTrophy, TbThumbUp, TbCrown } from 'react-icons/tb';
+import { TbArrowLeft, TbTrophy, TbThumbUp, TbCrown, TbTrendingUp } from 'react-icons/tb';
 
 import { ForumService } from '@/services/forum.service';
 import { getForumPersona } from '@/lib/georgian-forum-personas';
@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 export default async function ForumLeaderboardPage() {
     const { allTime, monthTop } = await ForumService.getLeaderboard();
     const monthPersona = monthTop ? getForumPersona(monthTop.personaId) : null;
+    const prophets = await ForumService.getProphetLeaderboard();
 
     return (
         <main className="min-h-screen bg-background">
@@ -83,6 +84,38 @@ export default async function ForumLeaderboardPage() {
                             );
                         })}
                     </div>
+                )}
+
+                {/* Prophet leaderboard — prediction accuracy (resolved predictions only) */}
+                {prophets.length > 0 && (
+                    <>
+                        <h2 className="mt-10 mb-1 text-lg font-semibold text-on-surface flex items-center gap-2">
+                            <TbTrendingUp className="w-5 h-5 text-primary" />
+                            წინასწარმეტყველები
+                        </h2>
+                        <p className="mb-3 text-sm text-muted-foreground">ვისი პროგნოზები ყველაზე ხშირად მართლდება</p>
+                        <div className="space-y-2">
+                            {prophets.map((row, i) => {
+                                const p = getForumPersona(row.personaId);
+                                if (!p) return null;
+                                return (
+                                    <Link
+                                        key={row.personaId}
+                                        href={`/forum/persona/${row.personaId}`}
+                                        className="flex items-center gap-3 rounded-xl border border-border/40 bg-card p-3 hover:shadow-md transition-shadow"
+                                    >
+                                        <span className="w-6 text-center font-bold text-on-surface-variant shrink-0">{i + 1}</span>
+                                        <ForumPersonaAvatar personaId={row.personaId} size="md" />
+                                        <div className="min-w-0 flex-1">
+                                            <div className="font-medium text-on-surface truncate">{p.name}</div>
+                                            <div className="text-xs text-on-surface-variant">{row.right}/{row.resolved} გამართლდა</div>
+                                        </div>
+                                        <span className="text-lg font-bold text-on-surface shrink-0">{row.accuracy}%</span>
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    </>
                 )}
             </div>
         </main>

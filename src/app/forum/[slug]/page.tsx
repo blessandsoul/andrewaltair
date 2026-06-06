@@ -7,6 +7,9 @@ import { TbExternalLink, TbArrowLeft } from 'react-icons/tb';
 
 import { ForumService } from '@/services/forum.service';
 import { ForumThread, type ForumPostView } from '@/components/forum/ForumThread';
+import { ForumCampSplit } from '@/components/forum/ForumCampSplit';
+import { ForumPredictions } from '@/components/forum/ForumPredictions';
+import { ForumCouncil } from '@/components/forum/ForumCouncil';
 import { ForumLikeStack, type ForumLiker } from '@/components/forum/ForumLikeStack';
 import { ForumDisclaimer } from '@/components/forum/ForumDisclaimer';
 import { ForumSubscribeButton } from '@/components/forum/ForumSubscribeButton';
@@ -61,7 +64,9 @@ export default async function ForumTopicPage({ params }: { params: Promise<{ slu
     ForumService.incrementViews((data.topic as unknown as TopicView).id).catch(() => {});
 
     const topic = JSON.parse(JSON.stringify(data.topic)) as TopicView;
-    const posts = JSON.parse(JSON.stringify(data.posts)) as ForumPostView[];
+    const allPosts = JSON.parse(JSON.stringify(data.posts)) as ForumPostView[];
+    const debate = allPosts.filter((p) => !p.isPrediction);
+    const predictions = allPosts.filter((p) => p.isPrediction);
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge';
     const img = resolveImage(topic.sourceImage, siteUrl);
 
@@ -106,6 +111,8 @@ export default async function ForumTopicPage({ params }: { params: Promise<{ slu
                     <ForumDisclaimer />
                 </div>
 
+                <ForumCouncil posts={debate} />
+
                 {topic.verdictKa && (
                     <div className="mb-6 rounded-2xl border border-primary/20 bg-primary/5 p-4">
                         <div className="text-xs font-semibold text-primary uppercase tracking-wide mb-1">
@@ -115,14 +122,18 @@ export default async function ForumTopicPage({ params }: { params: Promise<{ slu
                     </div>
                 )}
 
+                <ForumCampSplit posts={debate} />
+
+                <ForumPredictions posts={predictions} />
+
                 <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
                     <h2 className="text-lg font-semibold text-on-surface">
-                        {topic.postCount || posts.length} მოსაზრება
+                        {topic.postCount || debate.length} მოსაზრება
                     </h2>
                     <ForumAskBox topicId={topic.id} />
                 </div>
 
-                <ForumThread posts={posts} topicId={topic.id} />
+                <ForumThread posts={debate} topicId={topic.id} />
             </div>
         </main>
     );

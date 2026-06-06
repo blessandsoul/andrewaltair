@@ -81,7 +81,7 @@ export class ForumService {
      * Create a topic from a source URL: scrape OG → Georgian title+summary → save 'queued'.
      * Opinions are generated later by the cron or the admin "generate now" button.
      */
-    static async createTopic(input: { text: string; sourceUrl?: string; imageUrl?: string }) {
+    static async createTopic(input: { text: string; sourceUrl?: string; imageUrl?: string; tone?: 'serious' | 'fun' }) {
         await dbConnect();
 
         const text = (input.text || '').trim();
@@ -110,6 +110,7 @@ export class ForumService {
             slug,
             titleKa: seed.titleKa,
             summaryKa: seed.summaryKa,
+            tone: input.tone === 'fun' ? 'fun' : 'serious',
             sourceUrl,
             sourceImage: (input.imageUrl || '').trim(),
             sourceDomain,
@@ -243,5 +244,58 @@ export class ForumService {
         const withTopics = await this.attachTopics(posts);
         // re-attach personaId (attachTopics drops it)
         return withTopics.map((e, i) => ({ ...e, personaId: posts[i].personaId }));
+    }
+
+    /** Predictions for a topic (admin resolution panel). */
+    static async getPredictions(topicId: string) {
+        await dbConnect();
+        if (!mongoose.Types.ObjectId.isValid(topicId)) return [];
+        const posts = await ForumPost.find({ topicId, isPrediction: true })
+            .sort({ createdAt: 1 })
+            .lean<Array<{ _id: unknown; personaId: string; author: { name: string }; content: string; predictionVerdict?: string }>>();
+        return posts.map((p) => ({
+            id: String(p._id),
+            personaId: p.personaId,
+            name: p.author?.name || '',
+            content: p.content,
+            verdict: (p.predictionVerdict as 'pending' | 'right' | 'wrong') || 'pending',
+        }));
+    }
+
+    /** Admin resolves a prediction's outcome → feeds the prophet leaderboard. */
+    static async resolvePrediction(predictionId: string, verdict: 'pending' | 'right' | 'wrong') {
+        await dbConnect();
+        if (!mongoose.Types.ObjectId.isValid(predictionId)) return null;
+        const post = await ForumPost.findOneAndUpdate(
+            { _id: predictionId, isPrediction: true },
+            { $set: { predictionVerdict: verdict } },
+            { new: true },
+        ).lean<{ _id: unknown; topicId: unknown; predictionVerdict: string } | null>();
+        if (!post) return null;
+        return { id: String(post._id), topicId: String(post.topicId), verdict: post.predictionVerdict };
+    }
+
+    /** Prophet leaderboard: personas ranked by prediction accuracy (resolved only, ≥3). */
+    static async getProphetLeaderboard() {
+        await dbConnect();
+        const rows = await ForumPost.aggregate([
+            { $match: { isPrediction: true, predictionVerdict: { $in: ['right', 'wrong'] } } },
+            {
+                $group: {
+                    _id: '$personaId',
+                    right: { $sum: { $cond: [{ $eq: ['$predictionVerdict', 'right'] }, 1, 0] } },
+                    resolved: { $sum: 1 },
+                },
+            },
+            { $match: { resolved: { $gte: 3 } } },
+            { $project: { right: 1, resolved: 1, accuracy: { $divide: ['$right', '$resolved'] } } },
+            { $sort: { accuracy: -1, resolved: -1 } },
+        ]);
+        return rows.map((r: { _id: string; right: number; resolved: number; accuracy: number }) => ({
+            personaId: r._id,
+            right: r.right,
+            resolved: r.resolved,
+            accuracy: Math.round(r.accuracy * 100),
+        }));
     }
 }

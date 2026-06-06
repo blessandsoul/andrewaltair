@@ -10,6 +10,7 @@ export interface IForumTopic extends Document {
     slug: string;
     titleKa: string;        // Georgian topic title (generated from source)
     summaryKa: string;      // 1-2 sentence Georgian summary the personas react to
+    tone: 'serious' | 'fun'; // debate tone — 'fun' = playful/absurd takes
     sourceUrl: string;
     sourceImage: string;
     sourceDomain: string;
@@ -30,6 +31,7 @@ const ForumTopicSchema = new Schema<IForumTopic>(
         slug: { type: String, required: true, unique: true, trim: true },
         titleKa: { type: String, required: true, trim: true },
         summaryKa: { type: String, default: '' },
+        tone: { type: String, enum: ['serious', 'fun'], default: 'serious' },
         sourceUrl: { type: String, default: '' },
         sourceImage: { type: String, default: '' },
         sourceDomain: { type: String, default: '' },

@@ -22,6 +22,8 @@ export interface ForumPostView {
     disagrees?: number
     isUser?: boolean
     userName?: string
+    isPrediction?: boolean
+    predictionVerdict?: "pending" | "right" | "wrong"
 }
 
 interface Node extends ForumPostView {
@@ -204,7 +206,9 @@ function PostCard({
 
 /** Renders the full persona debate for a topic, with the most-agreed opinion crowned. */
 export function ForumThread({ posts, topicId }: { posts: ForumPostView[]; topicId: string }) {
-    const roots = React.useMemo(() => buildTree(posts), [posts])
+    // Predictions render in their own ForumPredictions block — keep them out of the debate.
+    const debate = React.useMemo(() => posts.filter((p) => !p.isPrediction), [posts])
+    const roots = React.useMemo(() => buildTree(debate), [debate])
 
     const leaderId = React.useMemo(() => {
         let best: { id: string; agrees: number } | null = null
@@ -216,7 +220,7 @@ export function ForumThread({ posts, topicId }: { posts: ForumPostView[]; topicI
         return best?.id ?? null
     }, [roots])
 
-    if (!posts.length) {
+    if (!debate.length) {
         return (
             <p className="text-sm text-on-surface-variant py-8 text-center">
                 მსჯელობა ჯერ არ დაწყებულა.

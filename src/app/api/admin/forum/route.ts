@@ -27,10 +27,11 @@ export async function POST(request: Request) {
         const text = String(body?.text || '').trim();
         const sourceUrl = String(body?.sourceUrl || '').trim();
         const imageUrl = String(body?.imageUrl || '').trim();
+        const tone = body?.tone === 'fun' ? 'fun' : 'serious';
         if (text.length < 10) {
             return apiError(ERROR_CODES.VALIDATION_FAILED, 'ტექსტი სავალდებულოა (მინ. 10 სიმბოლო)', 400);
         }
-        const topic = await ForumService.createTopic({ text, sourceUrl, imageUrl });
+        const topic = await ForumService.createTopic({ text, sourceUrl, imageUrl, tone });
         return apiSuccess(topic, 'Forum topic queued', 201);
     } catch (error) {
         console.error('[API] POST /api/admin/forum error:', error);

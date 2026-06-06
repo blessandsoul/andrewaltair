@@ -7,8 +7,10 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
     TbMessages, TbPlus, TbRobot, TbTrash, TbExternalLink, TbLoader2,
-    TbClock, TbCheck, TbInfoCircle, TbEye, TbSend, TbX, TbPhoto,
+    TbClock, TbCheck, TbInfoCircle, TbEye, TbSend, TbX, TbPhoto, TbMoodSmile, TbTrendingUp,
 } from "react-icons/tb"
+
+type PredictionRow = { id: string; personaId: string; name: string; content: string; verdict: "pending" | "right" | "wrong" }
 
 interface ForumTopicRow {
     id: string
@@ -30,6 +32,7 @@ export default function AdminForumPage() {
     const [text, setText] = React.useState("")
     const [sourceUrl, setSourceUrl] = React.useState("")
     const [imageUrl, setImageUrl] = React.useState("")
+    const [tone, setTone] = React.useState<"serious" | "fun">("serious")
     const [uploading, setUploading] = React.useState(false)
     const [previewing, setPreviewing] = React.useState(false)
     const [preview, setPreview] = React.useState<ForumTopicRow | null>(null)
@@ -43,6 +46,11 @@ export default function AdminForumPage() {
     const [bulkBusy, setBulkBusy] = React.useState(false)
     const [bulkProgress, setBulkProgress] = React.useState("")
     const [deleteConfirm, setDeleteConfirm] = React.useState<string | null>(null)
+
+    // Predictions resolve panel (per published topic)
+    const [resolveId, setResolveId] = React.useState<string | null>(null)
+    const [predictions, setPredictions] = React.useState<PredictionRow[]>([])
+    const [predLoading, setPredLoading] = React.useState(false)
 
     const load = React.useCallback(async () => {
         try {
@@ -94,7 +102,7 @@ export default function AdminForumPage() {
             const res = await fetch("/api/admin/forum", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text: t, sourceUrl: sourceUrl.trim(), imageUrl: imageUrl.trim() }),
+                body: JSON.stringify({ text: t, sourceUrl: sourceUrl.trim(), imageUrl: imageUrl.trim(), tone }),
             })
             if (res.ok) {
                 const json = await res.json()
@@ -225,6 +233,35 @@ export default function AdminForumPage() {
         } finally {
             setBusyId(null)
             setDeleteConfirm(null)
+        }
+    }
+
+    /* ----------------------------------------------------- predictions ------ */
+
+    const openPredictions = async (id: string) => {
+        if (resolveId === id) { setResolveId(null); return }
+        setResolveId(id); setPredictions([]); setPredLoading(true)
+        try {
+            const res = await fetch(`/api/admin/forum/${id}/resolve`)
+            const json = await res.json().catch(() => null)
+            if (res.ok) setPredictions(json.data?.predictions || [])
+        } catch (error) {
+            console.error("Predictions load error:", error)
+        } finally {
+            setPredLoading(false)
+        }
+    }
+
+    const resolvePrediction = async (topicId: string, predictionId: string, verdict: PredictionRow["verdict"]) => {
+        setPredictions((prev) => prev.map((p) => (p.id === predictionId ? { ...p, verdict } : p)))
+        try {
+            await fetch(`/api/admin/forum/${topicId}/resolve`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ predictionId, verdict }),
+            })
+        } catch (error) {
+            console.error("Resolve error:", error)
         }
     }
 
@@ -369,6 +406,23 @@ export default function AdminForumPage() {
                                     className="flex-1 min-w-50"
                                 />
                             </div>
+                            <div className="inline-flex rounded-lg border border-border p-0.5 text-sm w-fit">
+                                <button
+                                    type="button"
+                                    onClick={() => setTone("serious")}
+                                    className={`rounded-md px-3 py-1.5 ${tone === "serious" ? "bg-primary text-white" : "text-on-surface-variant"}`}
+                                >
+                                    სერიოზული
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setTone("fun")}
+                                    className={`inline-flex items-center gap-1 rounded-md px-3 py-1.5 ${tone === "fun" ? "bg-primary text-white" : "text-on-surface-variant"}`}
+                                >
+                                    <TbMoodSmile className="w-4 h-4" />
+                                    მხიარული
+                                </button>
+                            </div>
                             <Button type="submit" disabled={previewing || text.trim().length < 10} className="gap-2">
                                 {previewing ? <TbLoader2 className="w-4 h-4 animate-spin" /> : <TbEye className="w-4 h-4" />}
                                 გადახედვა
@@ -438,6 +492,18 @@ export default function AdminForumPage() {
                                                 <TbExternalLink className="w-4 h-4" />
                                             </a>
                                         )}
+                                        {t.status === "published" && (
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => openPredictions(t.id)}
+                                                className={`gap-1.5 ${resolveId === t.id ? "text-primary" : ""}`}
+                                                title="პროგნოზების შეფასება"
+                                            >
+                                                <TbTrendingUp className="w-4 h-4" />
+                                                <span className="hidden sm:inline">პროგნოზი</span>
+                                            </Button>
+                                        )}
                                         <Button
                                             variant="ghost"
                                             size="sm"
@@ -475,6 +541,52 @@ export default function AdminForumPage() {
                                         )}
                                     </div>
                                 </CardContent>
+
+                                {resolveId === t.id && (
+                                    <div className="border-t border-border/40 p-3 space-y-2">
+                                        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                                            <TbTrendingUp className="w-3.5 h-3.5" />
+                                            პროგნოზები — მონიშნე გამართლდა თუ არა
+                                        </div>
+                                        {predLoading ? (
+                                            <div className="text-center py-3"><TbLoader2 className="w-4 h-4 animate-spin mx-auto text-muted-foreground" /></div>
+                                        ) : predictions.length === 0 ? (
+                                            <div className="text-xs text-muted-foreground text-center py-3">პროგნოზები არ არის</div>
+                                        ) : (
+                                            predictions.map((p) => (
+                                                <div key={p.id} className="flex items-start gap-2 text-sm">
+                                                    <div className="min-w-0 flex-1">
+                                                        <span className="font-medium">{p.name}: </span>
+                                                        <span className="text-muted-foreground">{p.content}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1 shrink-0">
+                                                        <button
+                                                            onClick={() => resolvePrediction(t.id, p.id, "right")}
+                                                            title="გამართლდა"
+                                                            className={`p-1.5 rounded ${p.verdict === "right" ? "bg-green-500 text-white" : "hover:bg-muted text-green-600"}`}
+                                                        >
+                                                            <TbCheck className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => resolvePrediction(t.id, p.id, "wrong")}
+                                                            title="ვერ გამართლდა"
+                                                            className={`p-1.5 rounded ${p.verdict === "wrong" ? "bg-red-500 text-white" : "hover:bg-muted text-red-500"}`}
+                                                        >
+                                                            <TbX className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => resolvePrediction(t.id, p.id, "pending")}
+                                                            title="ელოდება"
+                                                            className={`p-1.5 rounded ${p.verdict === "pending" ? "bg-muted text-foreground" : "hover:bg-muted text-muted-foreground"}`}
+                                                        >
+                                                            <TbClock className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                )}
                             </Card>
                         ))}
                     </div>

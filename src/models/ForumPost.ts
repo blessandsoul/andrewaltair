@@ -19,6 +19,8 @@ export interface IForumPost extends Document {
     disagrees: number;      // 👎 "არ ვეთანხმები" tally
     isUser?: boolean;       // true = a real visitor's comment/question (not a persona)
     userName?: string;      // display name for user-submitted posts/questions
+    isPrediction?: boolean; // true = a persona's PREDICTION of the outcome (not an opinion)
+    predictionVerdict?: 'pending' | 'right' | 'wrong'; // admin-resolved outcome of the prediction
     createdAt: Date;
     updatedAt: Date;
 }
@@ -47,6 +49,8 @@ const ForumPostSchema = new Schema<IForumPost>(
         disagrees: { type: Number, default: 0 },
         isUser: { type: Boolean, default: false },
         userName: { type: String },
+        isPrediction: { type: Boolean, default: false },
+        predictionVerdict: { type: String, enum: ['pending', 'right', 'wrong'], default: 'pending' },
     },
     { timestamps: true }
 );
@@ -54,6 +58,7 @@ const ForumPostSchema = new Schema<IForumPost>(
 ForumPostSchema.index({ topicId: 1, createdAt: 1 });
 ForumPostSchema.index({ personaId: 1, createdAt: -1 }); // persona profile feed
 ForumPostSchema.index({ content: 'text' });             // opinion search
+ForumPostSchema.index({ isPrediction: 1, personaId: 1 }); // prophet leaderboard
 
 const ForumPost =
     mongoose.models.ForumPost || mongoose.model<IForumPost>('ForumPost', ForumPostSchema);

@@ -97,7 +97,10 @@ export async function makeTopicKa(scraped: ScrapedSource): Promise<TopicSeed> {
         if (geoLines.length >= 1) {
             const titleKa = geoLines[0].slice(0, 140);
             const summaryKa = (geoLines[1] || geoLines[0]).slice(0, 300);
-            return { titleKa, summaryKa };
+            return {
+                titleKa: await polishGeorgian(apiKey, titleKa, 1, 40),
+                summaryKa: await polishGeorgian(apiKey, summaryKa, 1, 80),
+            };
         }
     }
     return fallback;
@@ -112,7 +115,10 @@ interface GeneratedPost {
 }
 
 // Rich, first-person persona prompt + a rotating reaction angle for variety.
-function opinionSystem(p: ForumPersona, angle: string): string {
+function opinionSystem(p: ForumPersona, angle: string, tone: 'serious' | 'fun' = 'serious'): string {
+    const fun = tone === 'fun'
+        ? ' This topic is FUN/light — be witty and playful, apply your worldview with humor, but stay in character and ON this specific topic.'
+        : '';
     return (
         `You ARE ${p.name} (${p.role}, ${p.era}). Speak in FIRST PERSON as this exact historical person — ${p.voice}\n` +
         `WHO YOU ARE: ${p.bio}\n` +
@@ -120,8 +126,9 @@ function opinionSystem(p: ForumPersona, angle: string): string {
         `HOW YOU SPEAK: ${p.style}\n` +
         `EXAMPLE of your voice: "${p.sample}"\n` +
         `${SAFETY}\n` +
-        `TASK: react to the news below in GEORGIAN (Mkhedruli), 30-60 words. ${angle}\n` +
-        `Be unmistakably YOU: reference a CONCRETE thing from your own life or deeds (vary which one — not always the obvious), and pull the topic toward your lens. NEVER sound like a generic wise elder; no vague life-lessons.\n` +
+        `TASK: react to the news below in GEORGIAN (Mkhedruli), 30-60 words. ${angle}${fun}\n` +
+        `ON-TOPIC IS THE RULE: your FIRST sentence must name or quote the SPECIFIC thing in THIS news (the actual event / person / place / number) and take a clear stance on it. React to THIS exact story, not to the theme in general.\n` +
+        `Be unmistakably YOU: tie it to a CONCRETE thing from your own life or deeds (vary which one) and your lens. BANNED: generic wisdom, vague life-lessons, or any line that could be pasted under a different news item.\n` +
         `Vary your opening — do not start the way a typical comment starts.\n` +
         `READABILITY: short, clear sentences in simple modern Georgian — reads aloud easily, like a smart friend talking, NOT a book. Specificity comes from real facts, not archaic or high-flown words; no long participial chains.\n` +
         `Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; short Latin acronyms (AI, GPT) ok; real, simple words; no hashtags, quotes or emojis.\n` +
@@ -142,7 +149,7 @@ function replySystem(p: ForumPersona, oppName: string, relation: 'rival' | 'ally
         `YOUR LENS: ${p.lens}\n` +
         `HOW YOU SPEAK: ${p.style}\n` +
         `${SAFETY}\n` +
-        `Reply to ${oppName}'s comment in this debate, 15-45 words, FIRST PERSON, in your voice. ${rel} Tie it to your lens or a concrete thing you did.\n` +
+        `Reply to ${oppName}'s comment in this debate, 15-45 words, FIRST PERSON, in your voice. ${rel} React to what THEY actually said AND the specific news — tie it to your lens or a concrete thing you did. No generic lines.\n` +
         `READABILITY: short, clear sentences in simple modern Georgian; specificity from real facts, not fancy or archaic words.\n` +
         `Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; real simple words; no hashtags, quotes or emojis.\n` +
         `Output ONLY the reply on a single line.`
@@ -153,11 +160,12 @@ async function generateOpinion(
     apiKey: string,
     persona: ForumPersona,
     topic: TopicSeed,
+    tone: 'serious' | 'fun' = 'serious',
 ): Promise<GeneratedPost | null> {
-    const sys = opinionSystem(persona, pickReactionAngle());
+    const sys = opinionSystem(persona, pickReactionAngle(), tone);
     const user = `News title: ${sanitizeForPrompt(topic.titleKa)}\nNews summary: ${sanitizeForPrompt(topic.summaryKa)}`;
     const content = await chainGeorgian(
-        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 900, temperature: 0.95 }),
+        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 900, temperature: 0.85 }),
         (t) => isValidGeorgian(t, 18, 120),
     );
     if (!content) return null;
@@ -176,10 +184,45 @@ async function generateReply(
     const sys = replySystem(persona, opp?.name || 'another figure', relationTo(persona, parentPersonaId));
     const user = `News: ${sanitizeForPrompt(topic.titleKa)}\nThe comment you are replying to: ${sanitizeForPrompt(parentText)}`;
     const reply = await chainGeorgian(
-        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 500, temperature: 0.95 }),
+        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 500, temperature: 0.85 }),
         (t) => isValidGeorgian(t, 8, 70),
     );
     return reply ? await polishGeorgian(apiKey, reply, 8, 65) : null;
+}
+
+/* ------------------------------------------------------------ predictions ----- */
+
+// A persona FORECASTS the concrete outcome of the news (resolved later by the admin).
+function predictionSystem(p: ForumPersona): string {
+    return (
+        `You ARE ${p.name} (${p.role}, ${p.era}). Speak in FIRST PERSON as this exact historical person — ${p.voice}\n` +
+        `WHO YOU ARE: ${p.bio}\n` +
+        `YOUR LENS (always pull the topic here): ${p.lens}\n` +
+        `HOW YOU SPEAK: ${p.style}\n` +
+        `${SAFETY}\n` +
+        `TASK: make a PREDICTION about what will ACTUALLY happen as a result of THIS news, in GEORGIAN (Mkhedruli), 15-40 words, FIRST PERSON.\n` +
+        `Predict a SPECIFIC, checkable outcome (what happens next, who wins or loses, what changes, by when) — a confident forecast someone could later mark right or wrong. Name the specific thing in the news first, then your forecast, colored by your lens and a concrete thing you know.\n` +
+        `BANNED: vague hopes, "time will tell", non-falsifiable wisdom, or any line that could be pasted under a different news item.\n` +
+        `READABILITY: short, clear sentences in simple modern Georgian — reads aloud easily.\n` +
+        `Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; short Latin acronyms (AI, GPT) ok; no hashtags, quotes or emojis.\n` +
+        `Output ONLY the prediction on a single line.`
+    );
+}
+
+async function generatePrediction(
+    apiKey: string,
+    persona: ForumPersona,
+    topic: TopicSeed,
+): Promise<GeneratedPost | null> {
+    const sys = predictionSystem(persona);
+    const user = `News title: ${sanitizeForPrompt(topic.titleKa)}\nNews summary: ${sanitizeForPrompt(topic.summaryKa)}`;
+    const content = await chainGeorgian(
+        (model) => chatRaw(apiKey, model, sys, user, { maxTokens: 600, temperature: 0.8 }),
+        (t) => isValidGeorgian(t, 12, 90),
+    );
+    if (!content) return null;
+    const polished = await polishGeorgian(apiKey, content, 12, 95);
+    return { personaId: persona.id, name: persona.name, content: polished };
 }
 
 /** Neutral 2-sentence Georgian summary of the debate (verdict + main conflict). */
@@ -208,7 +251,7 @@ async function generateVerdict(
             .replace(/^["'„“]+|["'”]+$/g, '')
             .trim();
         if (hasGeorgian(cleaned) && cleaned.split(/\s+/).filter(Boolean).length >= 6) {
-            return cleaned.slice(0, 400);
+            return await polishGeorgian(apiKey, cleaned.slice(0, 400), 5, 90);
         }
     }
     return null;
@@ -217,7 +260,7 @@ async function generateVerdict(
 /* ----------------------------------------------------------- orchestrate ----- */
 
 export type ForumGenResult =
-    | { ok: true; created: number; replies: number }
+    | { ok: true; created: number; replies: number; predictions: number }
     | { ok: false; reason: 'not_found' | 'no_key' | 'already' | 'empty'; existing?: number };
 
 /**
@@ -239,7 +282,7 @@ export async function generateAndSaveForumTopic(topicId: string): Promise<ForumG
 
     // 1. One opinion per persona, in batches of 5 to respect the free-tier rate limit.
     const opinions = (
-        await inBatches(FORUM_PERSONAS, 6, (p) => generateOpinion(apiKey, p, seed))
+        await inBatches(FORUM_PERSONAS, 6, (p) => generateOpinion(apiKey, p, seed, (topic.tone as 'serious' | 'fun') || 'serious'))
     ).filter((x): x is GeneratedPost => x !== null);
 
     console.log(`[forum] opinions generated: ${opinions.length}/${FORUM_PERSONAS.length} for "${topic.slug}"`);
@@ -283,10 +326,37 @@ export async function generateAndSaveForumTopic(topicId: string): Promise<ForumG
     });
     const replies = replyResults.filter(Boolean).length;
 
+    // 2.5 Predictions: ~8 personas forecast the OUTCOME (admin resolves right/wrong later).
+    const prophets = [...FORUM_PERSONAS].sort(() => Math.random() - 0.5).slice(0, 8);
+    const predictionResults = (
+        await inBatches(prophets, 6, (p) => generatePrediction(apiKey, p, seed))
+    ).filter((x): x is GeneratedPost => x !== null);
+    if (predictionResults.length) {
+        await ForumPost.insertMany(
+            predictionResults.map((o) => {
+                const likedBy = pickRandomForumLikers(0, 4, o.personaId);
+                return {
+                    topicId: topic._id,
+                    personaId: o.personaId,
+                    author: { name: o.name },
+                    content: o.content,
+                    parentId: null,
+                    isPrediction: true,
+                    predictionVerdict: 'pending',
+                    likedBy,
+                    likes: likedBy.length,
+                };
+            }),
+        );
+    }
+    const predictions = predictionResults.length;
+    console.log(`[forum] predictions generated: ${predictions}/${prophets.length} for "${topic.slug}"`);
+
     // 3. AI verdict (2-line summary of the debate).
     const verdict = await generateVerdict(apiKey, seed, opinions.map((o) => o.content));
 
     // 4. Publish + seed topic likes + bust the static caches.
+    // postCount = the DEBATE (opinions + replies); predictions are counted/shown separately.
     const totalPosts = topLevel.length + replies;
     topic.status = 'published';
     topic.postCount = totalPosts;
@@ -312,7 +382,7 @@ export async function generateAndSaveForumTopic(topicId: string): Promise<ForumG
         /* non-fatal */
     }
 
-    return { ok: true, created: topLevel.length, replies };
+    return { ok: true, created: topLevel.length, replies, predictions };
 }
 
 interface ReplyTarget {
@@ -378,7 +448,7 @@ export async function askPersona(
         `HOW YOU SPEAK: ${persona.style}\n` +
         `EXAMPLE of your voice: "${persona.sample}"\n` +
         `${SAFETY}\n${INJECTION_GUARD}\n` +
-        `A reader asks YOU a question. Answer in GEORGIAN (Mkhedruli), 30-70 words, unmistakably in your voice — reference your own deeds and pull it toward your lens.${tone}\n` +
+        `A reader asks YOU a question. Answer the ACTUAL question directly and specifically in GEORGIAN (Mkhedruli), 30-70 words, unmistakably in your voice — reference your own deeds and pull it toward your lens.${tone}\n` +
         `READABILITY: short, clear sentences in simple modern Georgian; specificity from real facts, not fancy or archaic words.\n` +
         `Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; real simple words; no hashtags, quotes or emojis.\n` +
         `Output ONLY the answer.`;
