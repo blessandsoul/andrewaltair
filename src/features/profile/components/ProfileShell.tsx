@@ -113,72 +113,49 @@ export function ProfileShell() {
         router.push("/")
     }
 
-    // Handle file uploads
-    const handleAvatarUpload = async (file: File, onSuccess: (base64: string) => void) => {
+    // Handle file uploads — sent as FILES to /api/profile/avatar (stored as /api/files/... URL),
+    // never base64. Storing base64 inline in Mongo bloated list payloads to 10MB (slow /admin/users).
+    const uploadProfileMedia = async (
+        file: File,
+        field: "avatar" | "cover",
+        onSuccess: (url: string) => void
+    ) => {
         try {
-            // Convert to base64
-            const reader = new FileReader()
-            reader.readAsDataURL(file)
-            reader.onloadend = async () => {
-                const base64String = reader.result as string
+            const token = localStorage.getItem("auth_token")
+            if (!token) return
 
-                // Update UI immediately (optimistic update)
-                onSuccess(base64String)
+            // Instant local preview while the file uploads
+            const previewUrl = URL.createObjectURL(file)
+            onSuccess(previewUrl)
 
-                // Update via API
-                const token = localStorage.getItem("auth_token")
-                if (!token) return
+            const formData = new FormData()
+            formData.append("file", file)
+            formData.append("field", field)
 
-                const res = await fetch("/api/profile", {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({ avatar: base64String }),
-                })
+            const res = await fetch("/api/profile/avatar", {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` },
+                body: formData,
+            })
 
-                if (!res.ok) {
-                    console.error("Failed to upload avatar")
-                }
+            if (!res.ok) {
+                console.error(`Failed to upload ${field}`)
+                return
             }
+
+            const data = await res.json()
+            const url: string | undefined = data?.data?.url ?? data?.url
+            if (url) onSuccess(url)
         } catch (error) {
-            console.error("Avatar upload error:", error)
+            console.error(`${field} upload error:`, error)
         }
     }
 
-    const handleCoverUpload = async (file: File, onSuccess: (base64: string) => void) => {
-        try {
-            // Convert to base64
-            const reader = new FileReader()
-            reader.readAsDataURL(file)
-            reader.onloadend = async () => {
-                const base64String = reader.result as string
+    const handleAvatarUpload = (file: File, onSuccess: (url: string) => void) =>
+        uploadProfileMedia(file, "avatar", onSuccess)
 
-                // Update UI immediately (optimistic update)
-                onSuccess(base64String)
-
-                // Update via API
-                const token = localStorage.getItem("auth_token")
-                if (!token) return
-
-                const res = await fetch("/api/profile", {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({ coverImage: base64String }),
-                })
-
-                if (!res.ok) {
-                    console.error("Failed to upload cover")
-                }
-            }
-        } catch (error) {
-            console.error("Cover upload error:", error)
-        }
-    }
+    const handleCoverUpload = (file: File, onSuccess: (url: string) => void) =>
+        uploadProfileMedia(file, "cover", onSuccess)
 
     // Show loading state
     if (authLoading) {

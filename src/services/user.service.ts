@@ -136,6 +136,14 @@ export class UserService {
     static async updateProfile(userId: string, data: UpdateProfileData) {
         await dbConnect();
 
+        // Guard: avatar/coverImage must be URLs, never inline base64 (use POST /api/profile/avatar).
+        if (typeof data.avatar === 'string' && data.avatar.startsWith('data:')) {
+            throw new Error('Avatar must be uploaded as a file, not base64');
+        }
+        if (typeof data.coverImage === 'string' && data.coverImage.startsWith('data:')) {
+            throw new Error('Cover image must be uploaded as a file, not base64');
+        }
+
         const updateFields: Record<string, unknown> = {};
         if (data.fullName !== undefined) updateFields.fullName = data.fullName;
         if (data.avatar !== undefined) updateFields.avatar = data.avatar;
@@ -199,6 +207,8 @@ export class UserService {
 
         const transformedUsers = users.map((user) => ({
             ...user,
+            // Belt: never ship a base64 data-URI avatar to the client (would bloat the payload).
+            avatar: typeof user.avatar === 'string' && user.avatar.startsWith('data:') ? undefined : user.avatar,
             id: user._id.toString(),
             _id: undefined,
         }));

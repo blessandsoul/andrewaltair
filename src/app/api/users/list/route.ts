@@ -20,7 +20,8 @@ export async function GET() {
             username: user.username,
             fullName: user.fullName,
             bio: user.bio || '',
-            avatar: user.avatar || '/images/default-avatar.jpg',
+            // Drop base64 data-URI avatars (bloat); keep real URL avatars, else default.
+            avatar: (typeof user.avatar === 'string' && !user.avatar.startsWith('data:') && user.avatar) || '/images/default-avatar.jpg',
             verified: ['god', 'admin'].includes(user.role),
         }));
 

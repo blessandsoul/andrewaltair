@@ -103,10 +103,13 @@ const UserSchema = new Schema<IUser>(
         avatar: {
             type: String,
             default: undefined,
+            // URLs only — never base64. A data-URI here bloats list payloads (10MB → slow /admin/users).
+            maxlength: [1024, 'Avatar must be a URL, not embedded image data'],
         },
         coverImage: {
             type: String,
             default: undefined,
+            maxlength: [1024, 'Cover image must be a URL, not embedded image data'],
         },
         coverOffsetY: {
             type: Number,
