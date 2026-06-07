@@ -127,6 +127,8 @@ const nextConfig = {
   experimental: {
     cpus: 1,
     workerThreads: false,
+    // Tree-shake heavy icon barrels (react-icons/tb etc.) — smaller admin bundle, faster compile
+    optimizePackageImports: ['react-icons'],
   },
 };
 

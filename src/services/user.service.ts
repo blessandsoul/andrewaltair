@@ -184,8 +184,11 @@ export class UserService {
             ];
         }
 
+        // estimatedDocumentCount() reads collection metadata (instant); countDocuments({}) is a full scan.
+        // Only pay for an accurate filtered count when a filter is actually applied.
+        const hasFilter = Object.keys(query).length > 0;
         const [total, users] = await Promise.all([
-            User.countDocuments(query),
+            hasFilter ? User.countDocuments(query) : User.estimatedDocumentCount(),
             User.find(query)
                 .select('username email role status lastLogin createdAt sessions fullName avatar')
                 .sort({ _id: -1 })
