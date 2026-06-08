@@ -73,7 +73,7 @@ function hasGeorgian(s: string): boolean {
  * personas react to. Falls back to the scraped strings if the model output is unusable.
  */
 export async function makeTopicKa(scraped: ScrapedSource): Promise<TopicSeed> {
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     const rawText = (scraped.description || scraped.title || '').trim();
     const fallback: TopicSeed = {
         titleKa: scraped.title?.trim() || 'ფორუმის თემა',
@@ -339,7 +339,7 @@ async function recentOpinionsByPersona(excludeTopicId: unknown): Promise<Map<str
  * topic already has posts it does nothing (so re-running cron / the button never dupes).
  */
 export async function generateAndSaveForumTopic(topicId: string): Promise<ForumGenResult> {
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return { ok: false, reason: 'no_key' };
 
     await dbConnect();
@@ -470,7 +470,7 @@ export async function backfillTopic(topicId: string): Promise<
     | { ok: true; addedOpinions: number; addedPredictions: number; totalOpinions: number }
     | { ok: false; reason: 'no_key' | 'not_found' }
 > {
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return { ok: false, reason: 'no_key' };
 
     await dbConnect();
@@ -590,7 +590,7 @@ export async function askPersona(
     question: string,
     mode: 'serious' | 'absurd' = 'serious',
 ): Promise<{ name: string; answer: string } | null> {
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return null;
     const persona = getForumPersona(personaId);
     if (!persona) return null;
@@ -631,7 +631,7 @@ export async function askCouncil(
     mode: 'serious' | 'absurd' = 'serious',
     count = 4,
 ): Promise<Array<{ personaId: string; name: string; answer: string }>> {
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return [];
     const n = Math.max(2, Math.min(count, 6));
     const picks = [...FORUM_PERSONAS].sort(() => Math.random() - 0.5).slice(0, n);
@@ -649,7 +649,7 @@ export async function personaReplyToUser(
     topic: TopicSeed,
     userText: string,
 ): Promise<{ name: string; reply: string } | null> {
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return null;
     const persona = getForumPersona(personaId);
     if (!persona) return null;
@@ -685,7 +685,7 @@ export async function generateDuel(
     personaBId: string,
     theme: string,
 ): Promise<DuelTurn[] | null> {
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return null;
     const A = getForumPersona(personaAId);
     const B = getForumPersona(personaBId);

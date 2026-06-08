@@ -5,6 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { TbInfinity, TbLoader2, TbChevronUp, TbArrowLeft, TbClock, TbEye, TbCalendar, TbSparkles, TbUser, TbMessage, TbShare, TbHeart } from "react-icons/tb"
 import { cn } from "@/lib/utils"
+import { flagShallowNav } from "@/lib/inPageNav"
 import { tagToSlug } from "@/lib/slug"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -17,7 +18,7 @@ import {
     BookmarkButton,
     EditSuggestion,
     EnhancedContent,
-    NewsletterForm
+    PhoneSubscribeForm
 } from "@/components/interactive"
 import { ImageLightbox, useImageLightbox } from "@/components/interactive/ImageLightbox"
 import { PostNavigation } from "@/components/blog/PostNavigation"
@@ -465,12 +466,11 @@ function FullArticle({ post, index }: { post: Post; index: number }) {
                     <div className="space-y-6">
                         <h2 className="text-3xl font-bold">მოგეწონა სტატია?</h2>
                         <p className="text-white/80">
-                            გამოიწერე და მიიღე ახალი AI სტატიები პირველმა
+                            დატოვე ნომერი და დაგიკავშირდებით
                         </p>
-                        <NewsletterForm
-                            variant="inline"
+                        <PhoneSubscribeForm
                             buttonText="გამოწერა"
-                            placeholder="შენი ელფოსტა..."
+                            placeholder="შენი ტელეფონის ნომერი..."
                             className="max-w-md mx-auto text-left [&_input]:bg-white [&_input]:text-gray-900 [&_input]:placeholder:text-gray-500 [&_input]:border-transparent"
                         />
                     </div>
@@ -592,6 +592,7 @@ export function InfiniteScrollPosts({
 
         const updateUrl = (slug: string, title: string) => {
             const newUrl = `/blog/${slug}`
+            flagShallowNav() // tell PageTransition this is in-page: no scroll-to-top, no remount
             window.history.replaceState({ slug }, title, newUrl)
             document.title = `${title} | Blog`
         }

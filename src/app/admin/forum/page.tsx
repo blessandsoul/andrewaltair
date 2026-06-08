@@ -150,7 +150,7 @@ export default function AdminForumPage() {
                 alert(`გამოტოვდა: ${json.data.reason}`)
                 setPubStage("")
             } else {
-                alert("გამოქვეყნება ვერ მოხერხდა (იხ. OPENROUTER_API_KEY)")
+                alert("გამოქვეყნება ვერ მოხერხდა (იხ. GEMINI_API_KEY)")
                 setPubStage("")
             }
         } catch (error) {
@@ -201,7 +201,7 @@ export default function AdminForumPage() {
     const generateOne = async (id: string) => {
         const r = await handleGenerate(id)
         await load()
-        if (r === "error") alert("გენერაცია ვერ მოხერხდა (იხ. OPENROUTER_API_KEY)")
+        if (r === "error") alert("გენერაცია ვერ მოხერხდა (იხ. GEMINI_API_KEY)")
     }
 
     // Fill the gaps: generate the missing persona opinions + top predictions up to 8.

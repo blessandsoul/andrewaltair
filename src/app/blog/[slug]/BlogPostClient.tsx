@@ -18,7 +18,7 @@ import {
     EditSuggestion,
     EnhancedContent,
     TutorialStickyNav,
-    NewsletterForm
+    PhoneSubscribeForm
 } from "@/components/interactive"
 import { AuroraReactionBar } from "@/components/interactive/AuroraReactionBar"
 import { PersonaLikeStack } from "@/components/ai/PersonaLikeStack"
@@ -735,12 +735,11 @@ console.log(data.result);
                             <div className="space-y-6">
                                 <h2 className="text-3xl font-bold">მოგეწონა სტატია?</h2>
                                 <p className="text-white/80">
-                                    გამოიწერე და მიიღე ახალი AI სტატიები პირველმა
+                                    დატოვე ნომერი და დაგიკავშირდებით
                                 </p>
-                                <NewsletterForm
-                                    variant="inline"
+                                <PhoneSubscribeForm
                                     buttonText="გამოწერა"
-                                    placeholder="შენი ელფოსტა..."
+                                    placeholder="შენი ტელეფონის ნომერი..."
                                     className="max-w-md mx-auto text-left [&_input]:bg-white [&_input]:text-gray-900 [&_input]:placeholder:text-gray-500 [&_input]:border-transparent"
                                 />
                             </div>

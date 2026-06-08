@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react"
 import { TbTextIncrease, TbTextDecrease } from "react-icons/tb"
 
+// scale multiplies article font-size via the --article-font-scale CSS var (see globals.css).
 const FONT_SIZES = [
-    { label: "S", value: 16, class: "text-base" },
-    { label: "M", value: 18, class: "text-lg" },
-    { label: "L", value: 20, class: "text-xl" },
+    { label: "S", scale: 0.9 },
+    { label: "M", scale: 1 },
+    { label: "L", scale: 1.15 },
 ]
 
 export function FontSizeControl() {
@@ -24,12 +25,12 @@ export function FontSizeControl() {
 
     useEffect(() => {
         localStorage.setItem("articleFontSize", sizeIndex.toString())
-        // Apply to article content
-        const article = document.querySelector("[data-article-content]")
-        if (article) {
-            article.classList.remove("text-base", "text-lg", "text-xl")
-            article.classList.add(FONT_SIZES[sizeIndex].class)
-        }
+        // Set a root CSS var; globals.css scales every [id^="post-article-"] block.
+        // Using :root means infinitely-appended articles inherit the size for free.
+        document.documentElement.style.setProperty(
+            "--article-font-scale",
+            String(FONT_SIZES[sizeIndex].scale)
+        )
     }, [sizeIndex])
 
     const decrease = () => {

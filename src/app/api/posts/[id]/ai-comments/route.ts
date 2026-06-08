@@ -9,7 +9,7 @@ import dbConnect from '@/lib/db';
 import Post from '@/models/Post';
 import { revalidatePath } from 'next/cache';
 
-import { generateAndSaveComments, seedLikes } from '@/lib/ai-comment-generator';
+import { generateAndSaveComments, seedLikes, DEFAULT_COMMENT_TARGET, FULL_COMMENT_TARGET } from '@/lib/ai-comment-generator';
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -46,10 +46,12 @@ export async function POST(request: Request, { params }: RouteParams) {
         }
 
         const pid = post._id.toString();
+        // ?full=1 → top up to the FULL "greats" roster; default → light auto target.
+        const full = new URL(request.url).searchParams.get('full') === '1';
         const result = await generateAndSaveComments(pid, {
             title: post.title,
             excerpt: post.excerpt,
-        });
+        }, full ? FULL_COMMENT_TARGET : DEFAULT_COMMENT_TARGET);
         await seedLikes(Post, pid);
 
         // Refresh cached surfaces so the new comments/likes/liker-icons show

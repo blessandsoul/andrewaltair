@@ -1,9 +1,10 @@
 /**
- * Generates Georgian AI-persona comments for a blog post via OpenRouter.
+ * Generates Georgian AI-persona comments for a blog post via the Google Gemini API (direct).
  *
- * Model chain (free tier): Gemma 4 31b → Gemma 4 26b-a4b fallback on rate-limit /
- * bad output. Both were verified to produce clean, natural Georgian; the fallback
- * exists because the free tier returns 429 under load.
+ * Model chain (canonical: MODEL_CHAIN in openrouter-georgian.ts): PRIMARY = Gemini 2.5
+ * Flash-Lite (clean Georgian, cheap, free-tier eligible) → Gemini 2.5 Flash (catches the
+ * rare lite rejection). Thinking is forced OFF per call. Override with env GEMINI_MODELS.
+ * Auth = env GEMINI_API_KEY.
  *
  * Output is validated: must be Georgian Mkhedruli, no Cyrillic, ~12-40 words.
  */
@@ -106,6 +107,31 @@ async function generateReplyForPersona(
     return null;
 }
 
+/** Run async `fn` over `items` with a fixed concurrency limit (throttle to avoid 429s). */
+async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+    const out: R[] = new Array(items.length);
+    let next = 0;
+    async function worker(): Promise<void> {
+        for (let i = next++; i < items.length; i = next++) {
+            out[i] = await fn(items[i]);
+        }
+    }
+    await Promise.all(Array.from({ length: Math.min(limit, items.length) }, () => worker()));
+    return out;
+}
+
+/** Generate a comment for each given persona (throttled); returns only the survivors. */
+async function generateForPersonas(
+    apiKey: string,
+    personas: AIPersona[],
+    post: PostSeed,
+): Promise<GeneratedComment[]> {
+    const results = await mapLimit(personas, GEN_CONCURRENCY, (p) =>
+        generateForPersona(apiKey, p, post).catch(() => null),
+    );
+    return results.filter((c): c is GeneratedComment => c !== null);
+}
+
 /**
  * Generate `count` (default 3-5) AI-persona comments for a post.
  * Returns only the comments that passed validation — never throws on per-persona failure.
@@ -114,26 +140,30 @@ export async function generatePersonaComments(
     post: PostSeed,
     count?: number,
 ): Promise<GeneratedComment[]> {
-    const apiKey = process.env.OPENROUTER_API_KEY;
-    if (!apiKey) throw new Error('OPENROUTER_API_KEY is not set');
-
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error('GEMINI_API_KEY is not set');
     const n = count ?? 3 + Math.floor(Math.random() * 3); // 3-5
-    const personas = pickRandomPersonas(n);
-
-    const results = await Promise.allSettled(
-        personas.map((p) => generateForPersona(apiKey, p, post)),
-    );
-
-    return results
-        .filter((r): r is PromiseFulfilledResult<GeneratedComment | null> => r.status === 'fulfilled')
-        .map((r) => r.value)
-        .filter((c): c is GeneratedComment => c !== null);
+    return generateForPersonas(apiKey, pickRandomPersonas(n), post);
 }
 
-export type SaveCommentsResult =
-    | { created: number }
-    | { skipped: true; existing: number }
-    | { augmented: true; likedAdded: number; replyAdded: number; existing: number };
+export interface TopUpResult {
+    created: number;       // new top-level AI ("great") comments added this run
+    likedAdded: number;    // existing comments back-filled with likers
+    replyAdded: number;    // 1 if a reply was added this run
+    total: number;         // distinct great personas now present as top-level comments
+    target: number;        // how many greats we aim for
+    missing: number;       // greats still missing (0 = complete)
+    complete: boolean;     // total >= target
+}
+
+/** Normal/auto path (publish trigger) tops up to this many distinct personas. */
+export const DEFAULT_COMMENT_TARGET = 5;
+/** "Fill all greats" button tops up to the full persona roster. */
+export const FULL_COMMENT_TARGET = AI_PERSONAS.length;
+/** Cap personas generated per single invocation (bounds serverless time). Loop the route to finish. */
+const MAX_PER_CALL = 5;
+/** Concurrency for OpenRouter persona calls (avoids self-inflicted 429s). */
+const GEN_CONCURRENCY = 2;
 
 interface ExistingComment {
     _id: unknown;
@@ -156,7 +186,7 @@ async function buildReply(
     const candidates = pool.length ? pool : AI_PERSONAS;
     const replyPersona = candidates[Math.floor(Math.random() * candidates.length)];
     if (!replyPersona) return false;
-    const apiKey = process.env.OPENROUTER_API_KEY!;
+    const apiKey = process.env.GEMINI_API_KEY!;
     const replyText = await generateReplyForPersona(apiKey, replyPersona, seed, parentContent);
     if (!replyText) return false;
     const likedBy = pickRandomLikers(1, 5, replyPersona.id);
@@ -174,14 +204,41 @@ async function buildReply(
     return true;
 }
 
-/** Backfill likes + one reply onto comments that already exist (created before this logic). */
-async function augmentExistingComments(
+/** Shuffle a copy of an array (Fisher–Yates). */
+function shuffle<T>(arr: T[]): T[] {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+/**
+ * Ensure a content item has AI-persona ("great") comments up to `target` DISTINCT personas.
+ *
+ * Top-up semantics — counts which greats ALREADY commented and generates ONLY the missing
+ * ones (capped at MAX_PER_CALL per call). Also back-fills likes and guarantees one reply once
+ * the thread has >=2 top-level comments. Idempotent + repeatable: if some personas fail
+ * validation/rate-limit this run, call again and it fills the still-missing ones (never
+ * locks after the first comment like the old logic did).
+ */
+export async function topUpComments(
     commentKey: string,
     seed: PostSeed,
-    existingDocs: ExistingComment[],
-): Promise<SaveCommentsResult> {
+    target = DEFAULT_COMMENT_TARGET,
+): Promise<TopUpResult> {
+    await dbConnect();
+
+    const existing = await Comment.find({ postId: commentKey, isAI: true })
+        .sort({ createdAt: 1 })
+        .lean<ExistingComment[]>();
+    const topLevel = existing.filter((c) => !c.parentId);
+    const usedIds = new Set(topLevel.map((c) => c.persona).filter(Boolean) as string[]);
+
+    // Back-fill likes on any existing comment that has none.
     let likedAdded = 0;
-    for (const c of existingDocs) {
+    for (const c of existing) {
         if (!c.likedBy || c.likedBy.length === 0) {
             const likedBy = pickRandomLikers(1, 6, c.persona);
             await Comment.updateOne({ _id: c._id }, { $set: { likedBy, likes: likedBy.length } });
@@ -189,71 +246,85 @@ async function augmentExistingComments(
         }
     }
 
-    let replyAdded = 0;
-    const hasReply = existingDocs.some((c) => c.parentId);
-    const topLevel = existingDocs.filter((c) => !c.parentId);
-    if (!hasReply && topLevel.length >= 1) {
-        const parent = topLevel[0];
-        const usedIds = existingDocs.map((c) => c.persona).filter(Boolean) as string[];
-        if (await buildReply(commentKey, seed, usedIds, parent.content, parent._id)) replyAdded = 1;
+    // Which greats still need to comment — generate up to MAX_PER_CALL of them this run.
+    const need = Math.max(0, target - topLevel.length);
+    const missingPersonas = shuffle(AI_PERSONAS.filter((p) => !usedIds.has(p.id)))
+        .slice(0, Math.min(need, MAX_PER_CALL));
+
+    let created = 0;
+    let firstCreated: { id: unknown; content: string } | null = null;
+    const newPersonaIds: string[] = [];
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey && missingPersonas.length > 0) {
+        const generated = await generateForPersonas(apiKey, missingPersonas, seed);
+        if (generated.length > 0) {
+            const payload = generated.map((g) => {
+                const likedBy = pickRandomLikers(1, 6, g.personaId);
+                return {
+                    postId: commentKey,
+                    author: { name: g.name, avatar: g.avatar },
+                    content: g.content,
+                    isAI: true,
+                    persona: g.personaId,
+                    likedBy,
+                    likes: likedBy.length,
+                    status: 'approved',
+                };
+            });
+            // ordered:false so one bad doc never aborts the rest.
+            let docs: { _id: unknown }[] = [];
+            try {
+                docs = (await Comment.insertMany(payload, { ordered: false })) as unknown as { _id: unknown }[];
+            } catch (e: unknown) {
+                docs = (e as { insertedDocs?: { _id: unknown }[] })?.insertedDocs ?? [];
+            }
+            created = docs.length;
+            generated.forEach((g) => newPersonaIds.push(g.personaId));
+            if (docs[0]) firstCreated = { id: docs[0]._id, content: generated[0].content };
+        }
     }
 
-    // Nothing was missing → report as a clean skip (fully complete already)
-    if (likedAdded === 0 && replyAdded === 0) {
-        return { skipped: true, existing: existingDocs.length };
+    // Make the thread feel alive: one reply by an unused persona, once >=2 top-level exist.
+    let replyAdded = 0;
+    const totalTop = topLevel.length + created;
+    const hasReply = existing.some((c) => c.parentId);
+    if (!hasReply && totalTop >= 2) {
+        const parent = topLevel[0]
+            ? { id: topLevel[0]._id, content: topLevel[0].content }
+            : firstCreated;
+        if (parent) {
+            const usedForReply = [...usedIds, ...newPersonaIds];
+            if (await buildReply(commentKey, seed, usedForReply, parent.content, parent.id)) {
+                replyAdded = 1;
+            }
+        }
     }
-    return { augmented: true, likedAdded, replyAdded, existing: existingDocs.length };
+
+    return {
+        created,
+        likedAdded,
+        replyAdded,
+        total: totalTop,
+        target,
+        missing: Math.max(0, target - totalTop),
+        complete: totalTop >= target,
+    };
 }
 
 /**
  * Generate AND persist AI-persona comments for any content item, keyed by `commentKey`
  * (the value used as Comment.postId on the public page — bare _id for posts/insights/videos).
  *
- * Idempotent: if AI comments already exist for the key it skips, so re-publishing /
- * re-importing / clicking the backfill button twice never duplicates.
+ * Tops up to `target` distinct personas (default DEFAULT_COMMENT_TARGET). Re-running adds the
+ * still-missing personas instead of locking after the first comment.
  * Shared by the posts/insights/videos ai-comments routes.
  */
 export async function generateAndSaveComments(
     commentKey: string,
     seed: PostSeed,
-): Promise<SaveCommentsResult> {
-    await dbConnect();
-
-    // If AI comments already exist, backfill likes + a reply instead of skipping.
-    const existingDocs = await Comment.find({ postId: commentKey, isAI: true })
-        .sort({ createdAt: 1 })
-        .lean<ExistingComment[]>();
-    if (existingDocs.length > 0) {
-        return augmentExistingComments(commentKey, seed, existingDocs);
-    }
-
-    const generated = await generatePersonaComments(seed);
-    if (generated.length === 0) return { created: 0 };
-
-    const docs = await Comment.insertMany(
-        generated.map((g) => {
-            const likedBy = pickRandomLikers(1, 6, g.personaId);
-            return {
-                postId: commentKey,
-                author: { name: g.name, avatar: g.avatar },
-                content: g.content,
-                isAI: true,
-                persona: g.personaId,
-                likedBy,
-                likes: likedBy.length,
-                status: 'approved',
-            };
-        }),
-    );
-
-    // Make the thread feel alive: a different persona replies to the first comment.
-    let replies = 0;
-    if (docs.length >= 2) {
-        const usedIds = generated.map((g) => g.personaId);
-        if (await buildReply(commentKey, seed, usedIds, generated[0].content, docs[0]._id)) replies = 1;
-    }
-
-    return { created: docs.length + replies };
+    target = DEFAULT_COMMENT_TARGET,
+): Promise<TopUpResult> {
+    return topUpComments(commentKey, seed, target);
 }
 
 /**

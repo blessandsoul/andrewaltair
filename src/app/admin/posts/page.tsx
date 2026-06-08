@@ -496,9 +496,12 @@ export default function PostsPage() {
             const json = await res.json().catch(() => null)
             if (res.ok) {
                 const d = json?.data
-                if (d?.skipped) alert('უკვე სრულია — გამოტოვდა ✓')
-                else if (d?.augmented) alert(`განახლდა: +${d.likedAdded ?? 0} ლაიქი · +${d.replyAdded ?? 0} პასუხი 🤖`)
-                else alert(`დაემატა ${d?.created ?? 0} AI კომენტარი 🤖`)
+                const parts: string[] = []
+                if (d?.created) parts.push(`+${d.created} კომენტარი`)
+                if (d?.likedAdded) parts.push(`+${d.likedAdded} ლაიქი`)
+                if (d?.replyAdded) parts.push(`+${d.replyAdded} პასუხი`)
+                const status = `${d?.total ?? 0}/${d?.target ?? 0} დიდი`
+                alert(parts.length ? `${parts.join(' · ')} · ${status} 🤖` : `უკვე სრულია — ${status} ✓`)
             } else {
                 alert('AI კომენტარების გენერაცია ვერ მოხერხდა')
             }
@@ -516,9 +519,9 @@ export default function PostsPage() {
             ...posts.map((p) => ({ type: 'posts' as const, id: p.id })),
             ...insights.map((i: { id?: string; _id?: string }) => ({ type: 'insights' as const, id: (i.id || i._id) as string })),
         ]
-        if (!confirm(`შემოწმდება ${items.length} ერთეული (პოსტი + ინსაითი). დაემატება მხოლოდ იქ სადაც არ არის, დანარჩენი გამოტოვდება. შეიძლება დასჭირდეს რამდენიმე წუთი.`)) return
+        if (!confirm(`შემოწმდება ${items.length} ერთეული (პოსტი + ინსაითი). დაემატება მხოლოდ იქ სადაც აკლია. შეიძლება დასჭირდეს რამდენიმე წუთი.`)) return
         setBulkBusy(true)
-        let created = 0, augmented = 0, skipped = 0, failed = 0
+        let created = 0, liked = 0, failed = 0
         for (let i = 0; i < items.length; i++) {
             setBulkProgress(`${i + 1}/${items.length}`)
             try {
@@ -526,15 +529,66 @@ export default function PostsPage() {
                 const j = await res.json().catch(() => null)
                 if (res.ok) {
                     const d = j?.data
-                    if (d?.skipped) skipped++
-                    else if (d?.augmented) augmented++
-                    else created += (d?.created || 0)
+                    created += d?.created || 0
+                    liked += d?.likedAdded || 0
                 } else failed++
             } catch { failed++ }
         }
         setBulkBusy(false)
         setBulkProgress("")
-        alert(`დასრულდა: +${created} ახალი · ${augmented} განახლდა · ${skipped} გამოტოვდა · ${failed} შეცდომა`)
+        alert(`დასრულდა: +${created} კომენტარი · +${liked} ლაიქი · ${failed} შეცდომა`)
+    }
+
+    // Check whether ALL "greats" left a comment on ONE item; if not, fill the missing ones.
+    // Loops because each call generates a capped batch server-side (MAX_PER_CALL).
+    const fillGreats = async (type: 'posts' | 'insights', id: string) => {
+        if (aiBusyId) return
+        setAiBusyId(id)
+        try {
+            let total = 0, target = 0
+            for (let round = 0; round < 4; round++) {
+                const res = await fetch(`/api/${type}/${id}/ai-comments?full=1`, { method: 'POST' })
+                const j = await res.json().catch(() => null)
+                if (!res.ok) { alert('ვერ მოხერხდა'); return }
+                const d = j?.data
+                total = d?.total ?? total
+                target = d?.target ?? target
+                if (!d || d.missing <= 0 || d.created === 0) break // complete or no progress
+            }
+            alert(`${total}/${target} დიდმა დააკომენტარა ✓`)
+        } catch {
+            alert('ვერ მოხერხდა')
+        } finally {
+            setAiBusyId(null)
+        }
+    }
+
+    // Bulk: ensure every post + insight has the full roster of greats commenting.
+    const fillAllGreats = async () => {
+        if (bulkBusy) return
+        const items: { type: 'posts' | 'insights'; id: string }[] = [
+            ...posts.map((p) => ({ type: 'posts' as const, id: p.id })),
+            ...insights.map((i: { id?: string; _id?: string }) => ({ type: 'insights' as const, id: (i.id || i._id) as string })),
+        ]
+        if (!confirm(`${items.length} ერთეულზე ყველა დიდი დატოვებს კომენტარს იქ სადაც აკლია. შეიძლება რამდენიმე წუთი დასჭირდეს.`)) return
+        setBulkBusy(true)
+        let created = 0, failed = 0
+        for (let i = 0; i < items.length; i++) {
+            setBulkProgress(`${i + 1}/${items.length}`)
+            for (let round = 0; round < 4; round++) {
+                try {
+                    const res = await fetch(`/api/${items[i].type}/${items[i].id}/ai-comments?full=1`, { method: 'POST' })
+                    const j = await res.json().catch(() => null)
+                    if (!res.ok) { failed++; break }
+                    const d = j?.data
+                    created += d?.created || 0
+                    if (!d || d.missing <= 0 || d.created === 0) break
+                } catch { failed++; break }
+            }
+        }
+        setBulkBusy(false)
+        setBulkProgress("")
+        alert(`დასრულდა — დაემატა ${created} კომენტარი · ${failed} შეცდომა`)
     }
 
     // Drag & Drop handlers
@@ -673,6 +727,12 @@ export default function PostsPage() {
                         {bulkBusy ? `AI… ${bulkProgress}` : "AI ყველას"}
                     </Button>
 
+                    {/* Ensure ALL greats commented everywhere */}
+                    <Button variant="outline" size="sm" disabled={bulkBusy} onClick={fillAllGreats} title="ყველა დიდი დატოვებს კომენტარს იქ სადაც აკლია">
+                        <TbStar className={`w-4 h-4 mr-1 ${bulkBusy ? "animate-pulse" : ""}`} />
+                        {bulkBusy ? `… ${bulkProgress}` : "დიდები ყველგან"}
+                    </Button>
+
                     {/* Export Button */}
                     <Button variant="outline" size="sm" onClick={() => setShowExportModal(true)}>
                         <TbDownload className="w-4 h-4 mr-1" />
@@ -740,6 +800,15 @@ export default function PostsPage() {
                                             onClick={() => genAiComments('insights', insight.id || insight._id)}
                                         >
                                             <TbRobot className="w-4 h-4" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            title="შეამოწმე: ყველა დიდმა დააკომენტარა? თუ არა — შეავსე"
+                                            disabled={aiBusyId === (insight.id || insight._id)}
+                                            onClick={() => fillGreats('insights', insight.id || insight._id)}
+                                        >
+                                            <TbStar className="w-4 h-4" />
                                         </Button>
                                         <Button
                                             variant="ghost"
@@ -1077,6 +1146,15 @@ export default function PostsPage() {
                                                     onClick={() => genAiComments('posts', post.id)}
                                                 >
                                                     <TbRobot className={`w-4 h-4 ${aiBusyId === post.id ? 'animate-pulse text-primary' : ''}`} />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    title="შეამოწმე: ყველა დიდმა დააკომენტარა? თუ არა — შეავსე"
+                                                    disabled={aiBusyId === post.id}
+                                                    onClick={() => fillGreats('posts', post.id)}
+                                                >
+                                                    <TbStar className={`w-4 h-4 ${aiBusyId === post.id ? 'animate-pulse text-primary' : ''}`} />
                                                 </Button>
                                                 <Button
                                                     variant="ghost"

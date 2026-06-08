@@ -1353,3 +1353,18 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ========== Article reader font-size control (FontSizeControl.tsx) ========== */
+/* Driven by the --article-font-scale CSS var set on :root. Kept OUTSIDE @layer so
+   these rules beat Tailwind's utility layer (e.g. .text-lg) in the cascade. */
+[id^="post-article-"] {
+  font-size: calc(1rem * var(--article-font-scale, 1));
+}
+/* Leaf text in RichPostContent uses explicit text-lg/text-xl utilities; re-assert
+   them in em so they track the scaled root instead of overriding it. */
+[id^="post-article-"] .text-lg {
+  font-size: calc(1.125em * var(--article-font-scale, 1));
+}
+[id^="post-article-"] .text-xl {
+  font-size: calc(1.25em * var(--article-font-scale, 1));
+}

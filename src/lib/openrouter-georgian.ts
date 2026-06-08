@@ -1,24 +1,25 @@
 /**
- * Shared OpenRouter helpers for generating + validating GEORGIAN AI-persona text.
+ * Shared GEMINI helpers for generating + validating GEORGIAN AI-persona text.
  *
- * Extracted from ai-comment-generator.ts so both the blog-comment engine and the
- * /forum engine reuse the exact same OpenRouter call, model fallback chain and
- * Georgian-output validation. Behaviour is unchanged from the original.
+ * Calls the Google Generative Language API DIRECTLY (not OpenRouter) — the blog-comment
+ * engine and the /forum engine both reuse the same chatRaw call, model fallback chain and
+ * Georgian-output validation. Direct Google = free-tier eligible + no 5.5% credit surcharge.
+ * Auth = env GEMINI_API_KEY (get one free at https://aistudio.google.com/apikey).
  *
- * Model chain (free tier): Gemma 4 31b → Gemma 4 26b-a4b fallback on rate-limit /
- * bad output. Both verified to produce clean, natural Georgian; the fallback exists
- * because the free tier returns 429 under load.
+ * Thinking is forced OFF per call (thinkingBudget:0): these outputs are 12-22 word one-liners
+ * that need no reasoning. Leaving it on makes Gemini 2.5 burn the whole maxOutputTokens budget
+ * on hidden reasoning and return EMPTY content — that was the bug behind zero comments.
+ * (File name kept as openrouter-georgian.ts to avoid churning ~12 import sites.)
  */
 
-const ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
+const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
-// Model chain: PRIMARY = Gemini 2.5 Flash Lite (clean Georgian, cheap, no free-tier 429),
-// 2nd = Gemini 2.5 Flash (paid, reliable — catches the rare lite rejection WITHOUT hitting
-// a rate-limited free model), LAST = free Gemma (best-effort safety net; it 429s under load,
-// so it must never be the only fallback). Override with env OPENROUTER_MODELS="id1,id2,...".
-export const MODEL_CHAIN = (process.env.OPENROUTER_MODELS
-    ? process.env.OPENROUTER_MODELS.split(',').map((s) => s.trim()).filter(Boolean)
-    : ['google/gemini-2.5-flash-lite', 'google/gemini-2.5-flash', 'google/gemma-4-31b-it:free']);
+// Model chain (Google direct, free-tier eligible): PRIMARY = Gemini 2.5 Flash-Lite (cheapest,
+// clean Georgian) → 2.5 Flash (catches the rare lite rejection). Bare Google model IDs (no
+// "google/" prefix). Override with env GEMINI_MODELS="id1,id2,...".
+export const MODEL_CHAIN = (process.env.GEMINI_MODELS
+    ? process.env.GEMINI_MODELS.split(',').map((s) => s.trim()).filter(Boolean)
+    : ['gemini-2.5-flash-lite', 'gemini-2.5-flash']);
 
 export const GEORGIAN_RE = /[Ⴀ-ჿ]/g;
 export const CYRILLIC_RE = /[Ѐ-ӿ]/;
@@ -82,7 +83,10 @@ export interface ChatOpts {
     maxTokens?: number;
 }
 
-/** Low-level OpenRouter chat call → raw message content (or null on any failure). */
+/** Low-level Gemini generateContent call → raw text (or null on any failure).
+ *  `apiKey` is the GEMINI_API_KEY; `model` is a bare Google model id (e.g. gemini-2.5-flash-lite).
+ *  Thinking is disabled (thinkingBudget:0) so the model emits the short comment instead of
+ *  spending the token budget on hidden reasoning (the empty-content bug). */
 export async function chatRaw(
     apiKey: string,
     model: string,
@@ -90,27 +94,32 @@ export async function chatRaw(
     user: string,
     opts: ChatOpts = {},
 ): Promise<string | null> {
+    if (!apiKey) {
+        console.error('[gemini] GEMINI_API_KEY missing');
+        return null;
+    }
+    const url = `${GEMINI_BASE}/${model}:generateContent?key=${apiKey}`;
     const payload = JSON.stringify({
-        model,
-        messages: [
-            { role: 'system', content: sys },
-            { role: 'user', content: user },
-        ],
-        temperature: opts.temperature ?? 0.85,
-        max_tokens: opts.maxTokens ?? 600,
+        systemInstruction: { parts: [{ text: sys }] },
+        contents: [{ role: 'user', parts: [{ text: user }] }],
+        generationConfig: {
+            temperature: opts.temperature ?? 0.85,
+            maxOutputTokens: opts.maxTokens ?? 1024,
+            thinkingConfig: { thinkingBudget: 0 }, // OFF — short one-liners need no reasoning
+        },
     });
-    // Up to 2 attempts: retry ONCE on 429 after a short backoff (salvages transient rate
-    // limits so a persona isn't silently dropped); 404/401 fall straight to the next model.
+    // Up to 2 attempts: retry ONCE on 429 (free-tier rate limit) after a short backoff;
+    // any other non-OK status falls straight through to the next model in the chain.
     for (let attempt = 0; attempt < 2; attempt++) {
         let res: Response;
         try {
-            res = await fetch(ENDPOINT, {
+            res = await fetch(url, {
                 method: 'POST',
-                headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json' },
                 body: payload,
             });
         } catch (e) {
-            console.error(`[openrouter] ${model} → network error:`, e instanceof Error ? e.message : e);
+            console.error(`[gemini] ${model} → network error:`, e instanceof Error ? e.message : e);
             return null; // network error → caller tries next model
         }
         if (res.status === 429 && attempt === 0) {
@@ -119,13 +128,16 @@ export async function chatRaw(
         }
         if (!res.ok) {
             const errBody = await res.text().catch(() => '');
-            console.error(`[openrouter] ${model} → HTTP ${res.status}: ${errBody.slice(0, 300)}`);
-            return null; // 404 (bad model) / 401 (bad key) / persistent 429 → next model
+            console.error(`[gemini] ${model} → HTTP ${res.status}: ${errBody.slice(0, 300)}`);
+            return null; // 400 (bad key) / 404 (bad model) / persistent 429 → next model
         }
         const json = await res.json().catch(() => null);
-        const content = json?.choices?.[0]?.message?.content ?? null;
-        if (!content) console.error(`[openrouter] ${model} → no content:`, JSON.stringify(json).slice(0, 300));
-        return content;
+        const parts = json?.candidates?.[0]?.content?.parts;
+        const content = Array.isArray(parts)
+            ? parts.map((p: { text?: string }) => p?.text ?? '').join('').trim()
+            : '';
+        if (!content) console.error(`[gemini] ${model} → no content:`, JSON.stringify(json).slice(0, 300));
+        return content || null;
     }
     return null;
 }
@@ -176,7 +188,7 @@ export function polishEnabled(): boolean {
  * "მთელი" not "მტელი"), Cyrillic injections, ergative, pronoun-drop, idioms — while
  * PRESERVING meaning, voice, numbers, names and sentence count. Best-effort: on failure
  * returns the (cyrillic-cleaned) original, never empty. Proofread model overridable via
- * OPENROUTER_PROOFREAD_MODEL (else uses MODEL_CHAIN — Gemini-first).
+ * GEMINI_PROOFREAD_MODEL (else uses MODEL_CHAIN — Flash-Lite first).
  */
 export async function polishGeorgian(
     apiKey: string,
@@ -202,8 +214,8 @@ export async function polishGeorgian(
         '11. No literal idioms/calques — native phrasing (swap the metaphor verb, keep the noun); fix russisms and false-friends.\n' +
         'Keep short Latin acronyms (AI, GPT) and numbers as digits.';
 
-    const proofModels = process.env.OPENROUTER_PROOFREAD_MODEL
-        ? [process.env.OPENROUTER_PROOFREAD_MODEL, ...MODEL_CHAIN]
+    const proofModels = process.env.GEMINI_PROOFREAD_MODEL
+        ? [process.env.GEMINI_PROOFREAD_MODEL, ...MODEL_CHAIN]
         : MODEL_CHAIN;
 
     for (const model of proofModels) {
