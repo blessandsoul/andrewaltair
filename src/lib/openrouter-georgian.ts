@@ -15,11 +15,18 @@
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 // Model chain (Google direct, free-tier eligible): PRIMARY = Gemini 2.5 Flash-Lite (cheapest,
-// clean Georgian) → 2.5 Flash (catches the rare lite rejection). Bare Google model IDs (no
-// "google/" prefix). Override with env GEMINI_MODELS="id1,id2,...".
+// fastest, clean Georgian) → 2.5 Flash (rare lite rejection) → 3.1 Flash-Lite (SEPARATE capacity
+// pool — the escape hatch when both 2.5 models 503 "high demand" in a spike). Bare Google model
+// IDs (no "google/" prefix). NOTE: the 2.0 series 404s "no longer available" on generateContent
+// despite ListModels still listing it — do not use it. Override with env GEMINI_MODELS="id1,id2".
 export const MODEL_CHAIN = (process.env.GEMINI_MODELS
     ? process.env.GEMINI_MODELS.split(',').map((s) => s.trim()).filter(Boolean)
-    : ['gemini-2.5-flash-lite', 'gemini-2.5-flash']);
+    : ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-3.1-flash-lite']);
+
+/** Thinking is a 2.5+/3.x feature — 2.0 models reject `thinkingConfig` with a 400. */
+function supportsThinking(model: string): boolean {
+    return /gemini-(2\.5|3)/.test(model);
+}
 
 export const GEORGIAN_RE = /[Ⴀ-ჿ]/g;
 export const CYRILLIC_RE = /[Ѐ-ӿ]/;
@@ -99,18 +106,26 @@ export async function chatRaw(
         return null;
     }
     const url = `${GEMINI_BASE}/${model}:generateContent?key=${apiKey}`;
+    const generationConfig: Record<string, unknown> = {
+        temperature: opts.temperature ?? 0.85,
+        maxOutputTokens: opts.maxTokens ?? 1024,
+    };
+    // thinkingBudget:0 — OFF; short one-liners need no reasoning (leaving it on burns the whole
+    // token budget on hidden reasoning → empty content). Only for thinking-capable models.
+    if (supportsThinking(model)) generationConfig.thinkingConfig = { thinkingBudget: 0 };
     const payload = JSON.stringify({
         systemInstruction: { parts: [{ text: sys }] },
         contents: [{ role: 'user', parts: [{ text: user }] }],
-        generationConfig: {
-            temperature: opts.temperature ?? 0.85,
-            maxOutputTokens: opts.maxTokens ?? 1024,
-            thinkingConfig: { thinkingBudget: 0 }, // OFF — short one-liners need no reasoning
-        },
+        generationConfig,
     });
-    // Up to 2 attempts: retry ONCE on 429 (free-tier rate limit) after a short backoff;
-    // any other non-OK status falls straight through to the next model in the chain.
-    for (let attempt = 0; attempt < 2; attempt++) {
+    // Retry TRANSIENT failures — 429 (rate limit) AND 5xx (503 UNAVAILABLE / "high demand"
+    // capacity spikes) — with exponential backoff + jitter. 503 is a Google-side blip, so a
+    // couple of backed-off retries usually ride it out instead of dropping the persona. Hard
+    // errors (400 bad key, 404 bad model) fall straight through to the next model in the chain.
+    const MAX_ATTEMPTS = 3;
+    const backoff = (a: number) => new Promise((r) => setTimeout(r, 700 * 2 ** a + Math.random() * 300));
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+        const isLast = attempt === MAX_ATTEMPTS - 1;
         let res: Response;
         try {
             res = await fetch(url, {
@@ -120,16 +135,18 @@ export async function chatRaw(
             });
         } catch (e) {
             console.error(`[gemini] ${model} → network error:`, e instanceof Error ? e.message : e);
-            return null; // network error → caller tries next model
+            if (isLast) return null;
+            await backoff(attempt);
+            continue; // network blip → back off + retry
         }
-        if (res.status === 429 && attempt === 0) {
-            await new Promise((r) => setTimeout(r, 1200));
-            continue; // transient rate limit → one retry
+        if ((res.status === 429 || res.status >= 500) && !isLast) {
+            await backoff(attempt);
+            continue; // transient rate limit / capacity spike → back off + retry
         }
         if (!res.ok) {
             const errBody = await res.text().catch(() => '');
-            console.error(`[gemini] ${model} → HTTP ${res.status}: ${errBody.slice(0, 300)}`);
-            return null; // 400 (bad key) / 404 (bad model) / persistent 429 → next model
+            console.error(`[gemini] ${model} → HTTP ${res.status}: ${errBody.slice(0, 200)}`);
+            return null; // 400 / 404 / retries-exhausted 5xx → caller tries next model
         }
         const json = await res.json().catch(() => null);
         const parts = json?.candidates?.[0]?.content?.parts;
