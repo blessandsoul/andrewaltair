@@ -348,7 +348,7 @@ export class PostService {
                 author: {
                     name: meta.author?.name || 'Andrew Altair',
                     role: meta.author?.role || 'AI Innovator',
-                    avatar: meta.author?.name === 'ალფა' ? '/images/authors/alpha.png' : '/avatar.jpg'
+                    avatar: meta.author?.name === 'ალფა' ? '/images/authors/alpha.png' : '/images/avatar.jpg'
                 },
                 status: 'published',
                 readingTime: Math.max(5, Math.ceil((JSON.stringify(data.content || []).length) / 1000)),
@@ -374,7 +374,7 @@ export class PostService {
                 numericId: numericId, // Add the generated ID
                 excerpt: data.excerpt || data.title || 'პოსტი',
                 categories: data.categories || ['ai', 'articles'], // Default categories
-                author: data.author || { name: 'Andrew Altair', avatar: '/avatar.jpg', role: 'AI ინოვატორი' },
+                author: data.author || { name: 'Andrew Altair', avatar: '/images/avatar.jpg', role: 'AI ინოვატორი' },
                 status: data.status || 'published',
                 readingTime: data.readingTime || 5,
                 faq: (data.faq || []).map((item: FaqItem) => ({

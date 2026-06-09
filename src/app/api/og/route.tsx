@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
             style={{
               position: 'absolute',
               inset: 0,
-              backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px)',
+              backgroundImage: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px)',
               backgroundSize: '50px 50px',
               maskImage: 'radial-gradient(ellipse at center, black 40%, transparent 90%)',
             }}
@@ -156,6 +156,8 @@ export async function GET(request: NextRequest) {
                 <div
                   key={i}
                   style={{
+                    display: 'flex',
+                    alignItems: 'center',
                     backgroundColor: 'rgba(99, 102, 241, 0.1)',
                     border: '1px solid rgba(99, 102, 241, 0.2)',
                     color: '#818cf8', // Indigo 400

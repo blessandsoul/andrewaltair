@@ -19,7 +19,7 @@ export default function NewPostPage() {
                     categories: post.categories.length > 0 ? post.categories : ['ai', 'tech-insights'],
                     tags: post.tags,
                     status: post.status || 'published',
-                    author: post.author || { name: 'Andrew Altair', avatar: '/avatar.jpg', role: 'AI Innovator' },
+                    author: post.author || { name: 'Andrew Altair', avatar: '/images/avatar.jpg', role: 'AI Innovator' },
                 }
 
                 const res = await fetch('/api/insights', {

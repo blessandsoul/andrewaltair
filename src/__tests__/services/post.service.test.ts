@@ -787,7 +787,7 @@ describe('PostService', () => {
             expect(constructedPostData.categories).toEqual(['ai', 'articles']);
             expect(constructedPostData.author).toEqual({
                 name: 'Andrew Altair',
-                avatar: '/avatar.jpg',
+                avatar: '/images/avatar.jpg',
                 role: 'AI ინოვატორი',
             });
         });

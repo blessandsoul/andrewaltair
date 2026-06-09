@@ -178,7 +178,7 @@ export class InsightService {
             categories: data.categories || ['ai', 'tech-insights'],
             author: data.author || {
                 name: 'Andrew Altair',
-                avatar: '/avatar.jpg',
+                avatar: '/images/avatar.jpg',
                 role: 'AI Innovator',
             },
             status: data.status || 'published',

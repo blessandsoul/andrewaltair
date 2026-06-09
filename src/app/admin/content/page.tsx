@@ -121,7 +121,7 @@ export default function ContentEditorPage() {
                             "-" +
                             Date.now(),
                         status: "draft",
-                        author: { name: "Andrew Altair", avatar: "/avatar.jpg" },
+                        author: { name: "Andrew Altair", avatar: "/images/avatar.jpg" },
                         category: "Drafts",
                         tags: [],
                         readingTime: Math.ceil(content.split(" ").length / 200),
