@@ -126,6 +126,17 @@ export class InsightService {
     static async createInsight(data: InsightCreateData) {
         await dbConnect();
 
+        // Idempotency guard: the same source URL must never mint a second
+        // insight — retried ingests shipped live "-2" slug duplicates into the
+        // sitemap/index (SEO audit 2026-06-12). A retry returns the existing doc.
+        if (data.sourceUrl) {
+            const existing = await Insight.findOne({ sourceUrl: data.sourceUrl });
+            if (existing) {
+                const plain = JSON.parse(JSON.stringify(existing));
+                return { ...plain, id: plain._id?.toString?.() ?? String(plain._id) };
+            }
+        }
+
         // 1. Parse source URL
         const ogData = await parseSourceUrl(data.sourceUrl);
 

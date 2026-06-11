@@ -37,15 +37,19 @@ export default function ArticleSchema({
         "description": description,
         "author": {
             "@type": "Person",
+            "@id": "https://andrewaltair.ge/#person",
             "name": author.name,
             ...(author.url && { "url": author.url })
         },
         "publisher": {
             "@type": "Organization",
-            "name": "AndrewAltair.GE",
+            "@id": "https://andrewaltair.ge/#organization",
+            "name": "Andrew Altair",
             "logo": {
                 "@type": "ImageObject",
-                "url": "https://andrewaltair.ge/images/logo.png"
+                "url": "https://andrewaltair.ge/logo.png",
+                "width": 512,
+                "height": 512
             }
         },
         "datePublished": datePublished,
@@ -100,13 +104,14 @@ export function WebsiteSchema() {
     const schema = {
         "@context": "https://schema.org",
         "@type": "WebSite",
-        "name": "AndrewAltair.GE",
+        "@id": "https://andrewaltair.ge/#website",
+        "name": "Andrew Altair",
         "url": "https://andrewaltair.ge",
         "description": "AI ინოვაციები, ტექნოლოგიები და მომავალი",
         "inLanguage": "ka-GE",
         "potentialAction": {
             "@type": "SearchAction",
-            "target": "https://andrewaltair.ge/search?q={search_term_string}",
+            "target": "https://andrewaltair.ge/blog?search={search_term_string}",
             "query-input": "required name=search_term_string"
         }
     }

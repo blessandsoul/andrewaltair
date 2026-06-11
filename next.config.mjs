@@ -9,15 +9,15 @@ const nextConfig = {
 
 
   images: {
+    // Explicit allowlist — the old `hostname: '**'` wildcard let anyone use
+    // /_next/image as an open optimizer proxy for ANY https URL (CPU-DoS vector
+    // on a 1-CPU box). External news images (insight sourceImage) render with
+    // `unoptimized` and bypass the optimizer entirely.
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'img.youtube.com',
-      },
+      { protocol: 'https', hostname: 'andrewaltair.ge' },
+      { protocol: 'https', hostname: 'www.andrewaltair.ge' },
+      { protocol: 'https', hostname: 'img.youtube.com' },
+      { protocol: 'https', hostname: 'i.ytimg.com' },
     ],
   },
   typescript: {
@@ -108,10 +108,8 @@ const nextConfig = {
   },
   async rewrites() {
     return [
-      {
-        source: '/feed.xml',
-        destination: '/api/rss',
-      },
+      // NOTE: the old `/feed.xml → /api/rss` rewrite pointed at a route that
+      // does not exist; the real feed is served by src/app/feed.xml/route.ts.
       // Serve uploaded files statically for OG images (Facebook crawler compatibility)
       {
         source: '/uploads/:path*',
@@ -128,7 +126,9 @@ const nextConfig = {
     cpus: 1,
     workerThreads: false,
     // Tree-shake heavy icon barrels (react-icons/tb etc.) — smaller admin bundle, faster compile
-    optimizePackageImports: ['react-icons'],
+    optimizePackageImports: ['react-icons', 'lucide-react', '@phosphor-icons/react', 'recharts'],
+    // src/instrumentation.ts runs SEO data migrations once per container boot
+    instrumentationHook: true,
   },
 };
 

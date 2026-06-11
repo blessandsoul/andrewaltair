@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import MobileArticleList from './MobileArticleList';
 
 export const metadata: Metadata = {
-    title: 'Vibe Coding სტატიები - AI პროგრამირების ბიბლიოთეკა | Andrew Altair',
+    title: 'Vibe Coding სტატიები - AI პროგრამირების ბიბლიოთეკა',
     description: '12+ დეტალური სტატია Vibe Coding-ზე. ისწავლე AI-ასისტირებული პროგრამირება, Cursor, Claude, ChatGPT და მეტი.',
     keywords: ['vibe coding', 'AI პროგრამირება', 'cursor', 'claude', 'chatgpt', 'სტატიები'],
     alternates: { canonical: 'https://andrewaltair.ge/encyclopedia/vibe-coding/library' },

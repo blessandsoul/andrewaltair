@@ -13,7 +13,7 @@ import { PersonaLikeStack } from "@/components/ai/PersonaLikeStack"
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-    title: "AI ვიდეო ტუტორიალები | Andrew Altair",
+    title: "AI ვიდეო ტუტორიალები",
     description: "ხელოვნური ინტელექტის შესახებ ვიდეო გზამკვლევები, შედარებები და პრაქტიკული რჩევები. უყურე ChatGPT, Midjourney და სხვა AI ინსტრუმენტების ტუტორიალებს.",
     openGraph: {
         title: "AI ვიდეო ტუტორიალები | Andrew Altair",

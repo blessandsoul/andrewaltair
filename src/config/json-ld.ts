@@ -111,7 +111,8 @@ export const websiteSchema = {
             '@type': 'SearchAction',
             target: {
                 '@type': 'EntryPoint',
-                urlTemplate: 'https://andrewaltair.ge/search?q={search_term_string}'
+                // /search does not exist — /blog?search= is the real, crawlable search endpoint
+                urlTemplate: 'https://andrewaltair.ge/blog?search={search_term_string}'
             },
             'query-input': 'required name=search_term_string'
         }

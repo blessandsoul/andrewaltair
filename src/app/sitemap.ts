@@ -6,9 +6,17 @@ import Insight from '@/models/Insight'
 import Tutorial from '@/models/Tutorial'
 import MarketplacePrompt from '@/models/MarketplacePrompt'
 import Bot from '@/models/Bot'
-import Video from '@/models/Video'
+import { BLOG_SLUG_REDIRECTS } from '@/data/blogSlugRedirects'
+import { INSIGHT_SLUG_REDIRECTS } from '@/data/insightSlugRedirects'
 
-export const dynamic = 'force-dynamic';
+// Cached for an hour — force-dynamic ran 7 Mongo collection scans on EVERY
+// /sitemap.xml hit (and crawlers hit it constantly). Publish flow busts it
+// via revalidatePath('/sitemap.xml').
+export const revalidate = 3600;
+
+// lastModified for pages that only change on deploys — a hardcoded ancient
+// date ('2025-01-01') told Googlebot "nothing here changed in 18 months".
+const DEPLOY_DATE = new Date('2026-06-12')
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = 'https://andrewaltair.ge'
@@ -41,80 +49,80 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
         {
             url: `${baseUrl}/encyclopedia/vibe-coding`,
-            lastModified: new Date('2025-01-01'),
+            lastModified: DEPLOY_DATE,
             changeFrequency: 'daily',
             priority: 0.9,
         },
         {
             url: `${baseUrl}/bots/pricing`,
-            lastModified: new Date('2025-01-01'),
+            lastModified: DEPLOY_DATE,
             changeFrequency: 'weekly',
             priority: 0.8,
         },
         {
             url: `${baseUrl}/videos`,
-            lastModified: new Date('2025-01-01'),
+            lastModified: DEPLOY_DATE,
             changeFrequency: 'weekly',
             priority: 0.8,
         },
         {
             url: `${baseUrl}/tools`,
-            lastModified: new Date('2025-01-01'),
+            lastModified: DEPLOY_DATE,
             changeFrequency: 'weekly',
             priority: 0.8,
         },
         {
             url: `${baseUrl}/prompts`,
-            lastModified: new Date('2025-01-01'),
+            lastModified: DEPLOY_DATE,
             changeFrequency: 'daily',
             priority: 0.8,
         },
         {
             url: `${baseUrl}/bots`,
-            lastModified: new Date('2025-01-01'),
+            lastModified: DEPLOY_DATE,
             changeFrequency: 'weekly',
             priority: 0.8,
         },
         {
             url: `${baseUrl}/encyclopedia/ai-2026`,
-            lastModified: new Date('2025-01-01'),
+            lastModified: DEPLOY_DATE,
             changeFrequency: 'weekly',
             priority: 0.8,
         },
         {
             url: `${baseUrl}/services`,
-            lastModified: new Date('2025-01-01'),
+            lastModified: DEPLOY_DATE,
             changeFrequency: 'monthly',
             priority: 0.7,
         },
         {
             url: `${baseUrl}/tutorials`,
-            lastModified: new Date('2025-01-01'),
+            lastModified: DEPLOY_DATE,
             changeFrequency: 'weekly',
             priority: 0.7,
         },
         {
             url: `${baseUrl}/products`,
-            lastModified: new Date('2025-01-01'),
+            lastModified: DEPLOY_DATE,
             changeFrequency: 'weekly',
             priority: 0.7,
         },
         // /quiz, /bots/affiliate, /mystic intentionally excluded from sitemap (noindex pages — SEO cleanup 2026-05-27).
         {
             url: `${baseUrl}/about`,
-            lastModified: new Date('2025-01-01'),
+            lastModified: DEPLOY_DATE,
             changeFrequency: 'monthly',
             priority: 0.6,
         },
         {
             url: `${baseUrl}/privacy`,
-            lastModified: new Date('2025-01-01'),
+            lastModified: DEPLOY_DATE,
             changeFrequency: 'yearly',
             priority: 0.3,
         },
         {
             url: `${baseUrl}/terms`,
-            lastModified: new Date('2025-01-01'),
+            lastModified: DEPLOY_DATE,
             changeFrequency: 'yearly',
             priority: 0.3,
         },
@@ -124,7 +132,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const libraryArticles = getAllArticles()
     const libraryUrls: MetadataRoute.Sitemap = libraryArticles.map((article) => ({
         url: `${baseUrl}/encyclopedia/vibe-coding/${article.id}`,
-        lastModified: new Date('2025-01-01'),
+        lastModified: DEPLOY_DATE,
         changeFrequency: 'weekly' as const,
         priority: 0.8,
     }))
@@ -137,12 +145,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             .select('slug updatedAt createdAt')
             .lean()
 
-        blogUrls = posts.map((post) => ({
-            url: `${baseUrl}/blog/${post.slug}`,
-            lastModified: post.updatedAt || post.createdAt || new Date(),
-            changeFrequency: 'weekly' as const,
-            priority: 0.8,
-        }))
+        blogUrls = posts
+            // dead/duplicate slugs 301 away via middleware — never list them
+            .filter((post) => !(post.slug in BLOG_SLUG_REDIRECTS))
+            .map((post) => ({
+                url: `${baseUrl}/blog/${post.slug}`,
+                lastModified: post.updatedAt || post.createdAt || new Date(),
+                changeFrequency: 'weekly' as const,
+                priority: 0.8,
+            }))
     } catch (error) {
         console.error('Sitemap: Error fetching blog posts:', error)
     }
@@ -186,15 +197,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         console.error('Sitemap: Error fetching marketplace prompts:', error)
     }
 
-    // Bots (New Marketplace)
+    // Bots (New Marketplace) — human-readable slug/codename URLs; raw ObjectId
+    // URLs 301 to these via the bot detail server page
     let botEntries: MetadataRoute.Sitemap = []
     try {
         const bots = await Bot.find({ tier: { $ne: 'private' }, isActive: true })
-            .select('_id updatedAt createdAt')
+            .select('_id slug codename updatedAt createdAt')
             .lean()
 
         botEntries = bots.map((bot) => ({
-            url: `${baseUrl}/bots/${bot._id}`,
+            url: `${baseUrl}/bots/${(bot as { slug?: string }).slug || bot.codename || bot._id}`,
             lastModified: bot.updatedAt || bot.createdAt || new Date(),
             changeFrequency: 'weekly' as const,
             priority: 0.9,
@@ -203,22 +215,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         console.error('Sitemap: Error fetching bots:', error)
     }
 
-    // Videos
-    let videoUrls: MetadataRoute.Sitemap = []
-    try {
-        const videos = await Video.find({})
-            .select('_id updatedAt createdAt')
-            .lean()
-
-        videoUrls = videos.map((video) => ({
-            url: `${baseUrl}/videos/${video._id}`,
-            lastModified: video.updatedAt || video.createdAt || new Date(),
-            changeFrequency: 'weekly' as const,
-            priority: 0.8,
-        }))
-    } catch (error) {
-        console.error('Sitemap: Error fetching videos:', error)
-    }
+    // NOTE: /videos/{id} pages intentionally excluded — they were ~471 of 974
+    // URLs (half the sitemap, ObjectId URLs) and are already covered with real
+    // video metadata in /sitemap-videos.xml. Listing both wasted crawl budget.
 
     // Insights
     let insightUrls: MetadataRoute.Sitemap = []
@@ -227,15 +226,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             .select('slug updatedAt createdAt')
             .lean()
 
-        insightUrls = insights.map((insight) => ({
-            url: `${baseUrl}/insights/${insight.slug}`,
-            lastModified: insight.updatedAt || insight.createdAt || new Date(),
-            changeFrequency: 'weekly' as const,
-            priority: 0.8,
-        }))
+        insightUrls = insights
+            // dead/duplicate slugs 301 away via middleware — never list them
+            .filter((insight) => !(insight.slug in INSIGHT_SLUG_REDIRECTS))
+            .map((insight) => ({
+                url: `${baseUrl}/insights/${insight.slug}`,
+                lastModified: insight.updatedAt || insight.createdAt || new Date(),
+                changeFrequency: 'weekly' as const,
+                priority: 0.8,
+            }))
     } catch (error) {
         console.error('Sitemap: Error fetching insights:', error)
     }
 
-    return [...staticPages, ...libraryUrls, ...blogUrls, ...insightUrls, ...tutorialUrls, ...promptUrls, ...botEntries, ...videoUrls]
+    return [...staticPages, ...libraryUrls, ...blogUrls, ...insightUrls, ...tutorialUrls, ...promptUrls, ...botEntries]
 }

@@ -1,5 +1,5 @@
 export const dynamic = 'force-dynamic'
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { apiSuccess, apiError } from '@/lib/api-response';
 import { ERROR_CODES } from '@/lib/error-codes';
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
@@ -56,6 +56,7 @@ export async function POST(request: Request) {
         revalidatePath('/blog');
         revalidatePath('/');
         revalidatePath('/sitemap.xml');
+        revalidateTag('posts'); // busts unstable_cache on the /blog listing
 
         return apiSuccess(post, 'Post created successfully', 201);
     } catch (error: unknown) {

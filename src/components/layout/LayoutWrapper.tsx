@@ -4,13 +4,9 @@ import { Suspense } from "react"
 import { usePathname } from "next/navigation"
 import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/footer"
-import { EasterEgg } from "@/components/interactive/EasterEgg"
-import { SocialProofToast } from "@/components/interactive/SocialProofToast"
-import { LiveVisitorCounter } from "@/components/interactive/LiveVisitorCounter"
-import { AIChatAssistant } from "@/components/ai/AIChatAssistant"
 import { ScrollProgress, BackToTop } from "@/components/ui/scroll-progress"
 import { VisitorTracker } from "@/components/tracking"
-import { HeatmapOverlay } from "@/components/analytics/HeatmapOverlay"
+import { FloatingWidgets } from "@/components/layout/FloatingWidgets"
 import { PageTransition } from "@/components/layout/PageTransition"
 import { MobileNav } from "@/components/layout/MobileNav"
 import { TbSparkles } from "react-icons/tb"
@@ -83,8 +79,8 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
                     </div>
                 </footer>
 
-                {/* Floating elements */}
-                <AIChatAssistant />
+                {/* Floating elements — idle-mounted */}
+                <FloatingWidgets chatOnly />
             </div>
         )
     }
@@ -99,9 +95,6 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
             <ScrollProgress />
             {!isBlogPostPage && <BackToTop />}
 
-            {/* Global Effects */}
-            <EasterEgg />
-
             {/* Main Layout */}
             <Header />
             <main className="min-h-screen pb-24 lg:pb-0">
@@ -112,13 +105,9 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
             <Footer />
             <MobileNav />
 
-            {/* Floating Elements */}
-            <SocialProofToast enabled={true} />
-            <LiveVisitorCounter variant="floating" className="hidden lg:flex !bottom-auto !top-32 !right-4" />
-            <AIChatAssistant />
-            <Suspense fallback={null}>
-                <HeatmapOverlay />
-            </Suspense>
+            {/* Floating Elements — code-split + idle-mounted (EasterEgg,
+                SocialProofToast, LiveVisitorCounter, AIChatAssistant, HeatmapOverlay) */}
+            <FloatingWidgets />
         </>
     )
 }

@@ -10,7 +10,7 @@ import dbConnect from '@/lib/db'
 import MarketplacePrompt from '@/models/MarketplacePrompt'
 
 export const metadata: Metadata = {
-    title: 'AI Prompts Marketplace | Andrew Altair',
+    title: 'AI Prompts Marketplace',
     description: 'მაღალხარისხიანი AI პრომპტები ყველა მოდელისთვის. უფასო და პრემიუმ პრომპტები.',
     alternates: { canonical: '/prompts' },
     openGraph: {

@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-    title: 'მომსახურების პირობები | Andrew Altair',
+    title: 'მომსახურების პირობები',
     description: 'Andrew Altair-ის ვებგვერდის გამოყენების პირობები და წესები.',
     openGraph: {
         title: 'მომსახურების პირობები',

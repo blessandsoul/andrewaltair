@@ -575,8 +575,11 @@ describe('PostService', () => {
 
         it('should make slug unique by appending counter on duplicate', async () => {
             // Arrange
-            // First findOne: slug 'my-post' exists, second: 'my-post-2' is free
+            // Call order: title idempotency guard → slug 'my-post' exists → 'my-post-2' free
+            // mockReset purges once-queue leftovers from earlier (failing) tests
+            (Post.findOne as ReturnType<typeof vi.fn>).mockReset();
             (Post.findOne as ReturnType<typeof vi.fn>)
+                .mockResolvedValueOnce(null)                  // title guard: no existing post
                 .mockResolvedValueOnce({ slug: 'my-post' })  // 'my-post' taken
                 .mockResolvedValueOnce(null)                  // 'my-post-2' available
                 .mockResolvedValueOnce(null);                 // numericId check
@@ -586,6 +589,22 @@ describe('PostService', () => {
 
             // Assert
             expect(constructedPostData.slug).toBe('my-post-2');
+        });
+
+        it('should return the existing post instead of minting a duplicate on same title', async () => {
+            // Arrange — idempotency guard (SEO audit 2026-06-12): a retried
+            // publish of an already-existing title must NOT create a "-2" copy
+            const existing = { _id: 'existing-id', title: 'My Post', slug: 'my-post' };
+            (Post.findOne as ReturnType<typeof vi.fn>).mockReset();
+            (Post.findOne as ReturnType<typeof vi.fn>).mockResolvedValueOnce(existing);
+
+            // Act
+            const result = await PostService.createPost({ title: 'My Post' });
+
+            // Assert — existing doc returned, no new Post constructed
+            // (constructedPostData stays at its beforeEach reset value)
+            expect(result.slug).toBe('my-post');
+            expect(constructedPostData).toEqual({});
         });
 
         it('should generate numericId using generateUniqueId', async () => {

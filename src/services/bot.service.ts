@@ -153,13 +153,16 @@ export class BotService {
     static async getBotById(id: string, isAdmin = false) {
         await dbConnect();
 
-        // Support both MongoDB ObjectId and codename lookups
+        // Support MongoDB ObjectId, codename, and SEO slug lookups
         let bot;
         if (mongoose.Types.ObjectId.isValid(id)) {
             bot = await Bot.findById(id).lean();
         } else {
-            // Try lookup by codename
-            bot = await Bot.findOne({ codename: id, isActive: true }).lean();
+            // Try lookup by codename or slug (slug backfilled by seo-dedupe-apply)
+            bot = await Bot.findOne({
+                $or: [{ codename: id }, { slug: id.toLowerCase() }],
+                isActive: true,
+            }).lean();
         }
 
         if (!bot) return null;

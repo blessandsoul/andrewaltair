@@ -1,21 +1,60 @@
-export const dynamic = 'force-dynamic';
-
 import { Metadata } from 'next';
+import { unstable_cache } from 'next/cache';
 import { InsightsFeed } from '@/components/insights';
 import { InsightService } from '@/services/insight.service';
 import { slugToRawTag } from '@/lib/slug';
 
-export const metadata: Metadata = {
-    title: 'Insights | Andrew Altair',
-    description: 'მოკლე ანალიტიკა და კომენტარები ხელოვნური ინტელექტისა და ტექნოლოგიების სამყაროდან.',
-    alternates: { canonical: '/insights' },
-    openGraph: {
-        title: 'Insights | Andrew Altair',
-        description: 'მოკლე ანალიტიკა და კომენტარები ხელოვნური ინტელექტისა და ტექნოლოგიების სამყაროდან.',
-        type: 'website',
-        url: 'https://andrewaltair.ge/insights',
+// The page reads searchParams (request-dynamic), but the Mongo reads below are
+// memoized via unstable_cache — the old force-dynamic version ran TWO live
+// collection scans (100 docs for the tag map + the page query) on every hit,
+// including every crawler hit. Tag 'insights' is busted on publish.
+const getCachedTagCounts = unstable_cache(
+    async (): Promise<Record<string, number>> => {
+        const all = await InsightService.getAllInsights({ status: 'published', limit: 100 });
+        const tagCounts: Record<string, number> = {};
+        for (const insight of all.insights) {
+            for (const t of (insight.tags || [])) {
+                tagCounts[t] = (tagCounts[t] || 0) + 1;
+            }
+        }
+        return JSON.parse(JSON.stringify(tagCounts));
     },
-};
+    ['insights-tagmap'],
+    { revalidate: 600, tags: ['insights'] }
+);
+
+const getCachedInsightsPage = unstable_cache(
+    async (tag: string | null) => {
+        const { insights, pagination } = await InsightService.getAllInsights({
+            status: 'published',
+            limit: 10,
+            tag,
+        });
+        // serialize inside the cached fn — the cache stores plain JSON
+        return JSON.parse(JSON.stringify({ insights, pagination }));
+    },
+    ['insights-listing'],
+    { revalidate: 120, tags: ['insights'] }
+);
+
+export async function generateMetadata(props: {
+    searchParams: Promise<{ tag?: string }>;
+}): Promise<Metadata> {
+    const { tag } = await props.searchParams;
+    return {
+        title: 'AI ინსაითები — დღის სიახლეები',
+        description: 'მოკლე ანალიტიკა და კომენტარები ხელოვნური ინტელექტისა და ტექნოლოგიების სამყაროდან.',
+        // ?tag= variants flooded GSC as duplicates — noindex,follow collapses them
+        ...(tag ? { robots: { index: false, follow: true } } : {}),
+        alternates: { canonical: '/insights' },
+        openGraph: {
+            title: 'Insights | Andrew Altair',
+            description: 'მოკლე ანალიტიკა და კომენტარები ხელოვნური ინტელექტისა და ტექნოლოგიების სამყაროდან.',
+            type: 'website',
+            url: 'https://andrewaltair.ge/insights',
+        },
+    };
+}
 
 export default async function InsightsPage({
     searchParams,
@@ -24,19 +63,8 @@ export default async function InsightsPage({
 }) {
     const { tag } = await searchParams;
 
-    // Get all insights first to build the slug→raw-tag map for the filter URL param.
-    // Insights store tags as free-text strings — URLs are slugged, then resolved.
-    const allInsights = await InsightService.getAllInsights({
-        status: 'published',
-        limit: 100,
-    });
-
-    const tagCounts: Record<string, number> = {};
-    for (const insight of allInsights.insights) {
-        for (const t of (insight.tags || [])) {
-            tagCounts[t] = (tagCounts[t] || 0) + 1;
-        }
-    }
+    // Tag map for the filter URL param — cached, no per-request collection scan.
+    const tagCounts = await getCachedTagCounts();
 
     const popularTags = Object.entries(tagCounts)
         .sort((a, b) => b[1] - a[1])
@@ -47,13 +75,7 @@ export default async function InsightsPage({
     const allKnownTags = Object.keys(tagCounts);
     const resolvedTag = tag ? (slugToRawTag(tag, allKnownTags) ?? tag) : null;
 
-    const { insights, pagination } = await InsightService.getAllInsights({
-        status: 'published',
-        limit: 10,
-        tag: resolvedTag,
-    });
-
-    const serializedInsights = JSON.parse(JSON.stringify(insights));
+    const { insights: serializedInsights, pagination } = await getCachedInsightsPage(resolvedTag);
 
     const siteUrl = 'https://andrewaltair.ge';
     const collectionSchema = {

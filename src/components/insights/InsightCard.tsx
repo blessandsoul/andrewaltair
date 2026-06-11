@@ -87,6 +87,8 @@ export function InsightCard({ insight }: InsightCardProps) {
                             fill
                             className="object-cover transition-transform hover:scale-105"
                             sizes="(max-width: 768px) 100vw, 640px"
+                            // external news CDN — bypass the optimizer (remotePatterns is a strict allowlist now)
+                            unoptimized
                         />
                         {/* Domain badge */}
                         <div className="absolute bottom-3 left-3">

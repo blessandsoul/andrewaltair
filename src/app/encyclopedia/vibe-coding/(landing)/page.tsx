@@ -3,7 +3,7 @@ import VibeCodingLanding from '@/components/vibe-coding/VibeCodingLanding';
 import { getAllArticles } from '@/data/vibeCodingContent';
 
 export const metadata: Metadata = {
-    title: 'Vibe Coding ენციკლოპედია - AI პროგრამირების სრული გაიდი | Andrew Altair',
+    title: 'Vibe Coding ენციკლოპედია - AI პროგრამირების სრული გაიდი',
     description: 'სრული სახელმძღვანელო AI-ასისტირებულ პროგრამირებაზე. ისწავლე Cursor, Claude, ChatGPT პროფესიონალურად. 12+ პრემიუმ სტატია, ექსპერტების ანალიზი, რეალური case studies.',
     keywords: [
         'vibe coding',

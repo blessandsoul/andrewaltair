@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { TbArrowLeft, TbBrandChrome, TbInfoCircle } from "react-icons/tb"
 
 export const metadata = {
-    title: "პაროლის აღდგენა | Andrew Altair",
+    title: "პაროლის აღდგენა",
 }
 
 export default function ForgotPasswordPage() {

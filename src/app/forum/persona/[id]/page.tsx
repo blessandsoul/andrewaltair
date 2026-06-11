@@ -13,7 +13,7 @@ import { ForumSubscribeButton } from '@/components/forum/ForumSubscribeButton';
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
     const { id } = await params;
     const p = getForumPersona(id);
-    if (!p) return { title: 'პერსონა ვერ მოიძებნა | Andrew Altair' };
+    if (!p) notFound(); // real 404 status — body-level notFound() alone soft-404s under root loading.tsx
     return {
         title: `${p.name} | ფორუმი`,
         description: `${p.era} · ${p.role} — AI-წარმოსახული ისტორიული პერსონა`,

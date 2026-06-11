@@ -25,7 +25,9 @@ async function getTutorial(slug: string) {
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
     const tutorial = await getTutorial(params.slug)
-    if (!tutorial) return { title: 'ტუტორიალი არ მოიძებნა | Andrew Altair' }
+    // notFound() in generateMetadata fires BEFORE streaming commits a 200 —
+    // a body-level notFound() alone produces a soft-404 under the root loading.tsx
+    if (!tutorial) notFound()
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
     let coverImage = tutorial.coverImage
@@ -36,7 +38,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     }
 
     return {
-        title: `${tutorial.title} | Andrew Altair`,
+        title: tutorial.title,
         description: tutorial.intro,
         openGraph: {
             title: tutorial.title,

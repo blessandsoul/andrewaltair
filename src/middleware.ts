@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { INSIGHT_SLUG_REDIRECTS } from '@/data/insightSlugRedirects';
+import { BLOG_SLUG_REDIRECTS } from '@/data/blogSlugRedirects';
 
 /**
  * Edge middleware.
@@ -9,6 +10,8 @@ import { INSIGHT_SLUG_REDIRECTS } from '@/data/insightSlugRedirects';
  *   1. Admin route protection (admin_session cookie).
  *   2. 301 legacy /insights/* slugs that contained HTML-entity garbage
  *      (`-039-` / `-quot-`) to their clean equivalents.
+ *   3. 301 duplicate/dead /blog/* and /insights/* slugs to their canonical
+ *      (SEO audit 2026-06-12 — see src/data/*SlugRedirects.ts).
  */
 export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
@@ -20,6 +23,18 @@ export function middleware(request: NextRequest) {
         if (replacement && replacement !== slug) {
             const url = request.nextUrl.clone();
             url.pathname = `/insights/${replacement}`;
+            return NextResponse.redirect(url, 301);
+        }
+        return NextResponse.next();
+    }
+
+    // 1b. /blog/<oldSlug> → 301 → /blog/<newSlug>
+    if (pathname.startsWith('/blog/')) {
+        const slug = pathname.slice('/blog/'.length);
+        const replacement = BLOG_SLUG_REDIRECTS[slug];
+        if (replacement && replacement !== slug) {
+            const url = request.nextUrl.clone();
+            url.pathname = `/blog/${replacement}`;
             return NextResponse.redirect(url, 301);
         }
         return NextResponse.next();
@@ -43,5 +58,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/insights/:slug*'],
+    matcher: ['/admin/:path*', '/insights/:slug*', '/blog/:slug*'],
 };

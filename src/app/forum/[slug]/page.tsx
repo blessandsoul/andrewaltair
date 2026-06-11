@@ -40,7 +40,7 @@ function resolveImage(src: string | undefined, siteUrl: string): string | null {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
     const data = await ForumService.getTopicBySlug(slug);
-    if (!data) return { title: 'თემა ვერ მოიძებნა | Andrew Altair' };
+    if (!data) notFound(); // real 404 status — body-level notFound() alone soft-404s under root loading.tsx
 
     const t = data.topic as unknown as TopicView;
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge';

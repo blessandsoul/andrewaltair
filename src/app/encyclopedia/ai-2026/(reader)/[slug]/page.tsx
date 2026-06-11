@@ -34,12 +34,8 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const data = await getJsonData(params.slug);
 
-    if (!data) {
-        return {
-            title: 'Not Found',
-            description: 'The page you are looking for does not exist.'
-        };
-    }
+    // real 404 status (not a soft-404 shell with placeholder metadata)
+    if (!data) notFound();
 
     const imageUrl = 'https://andrewaltair.ge/og.png'
 
@@ -73,18 +69,39 @@ export default async function AI2026ArticlePage({ params }: PageProps) {
         notFound();
     }
 
-    // Add JSON-LD Schema
+    // Add JSON-LD Schema — full Article node wired into the site @id graph
+    // (matches the publisher/author entities in src/config/json-ld.ts)
+    const siteUrl = 'https://andrewaltair.ge';
     const jsonLd = {
         '@context': 'https://schema.org',
         '@type': 'Article',
         headline: data.meta.title,
         description: data.meta.description || data.seo?.excerpt,
+        image: [`${siteUrl}/og.png`],
         author: {
             '@type': 'Person',
-            name: data.meta.author?.name || 'Alpha Architect'
+            '@id': `${siteUrl}/#person`,
+            name: data.meta.author?.name || 'Andrew Altair',
+            url: `${siteUrl}/about`,
+        },
+        publisher: {
+            '@type': 'Organization',
+            '@id': `${siteUrl}/#organization`,
+            name: 'Andrew Altair',
+            logo: {
+                '@type': 'ImageObject',
+                url: `${siteUrl}/logo.png`,
+                width: 512,
+                height: 512,
+            },
         },
         datePublished: data.meta.last_updated,
-        // image: data.meta.image
+        dateModified: data.meta.last_updated,
+        inLanguage: 'ka-GE',
+        mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': `${siteUrl}/encyclopedia/ai-2026/${params.slug}`,
+        },
     };
 
     return (

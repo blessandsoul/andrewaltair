@@ -1,11 +1,18 @@
-export const dynamic = 'force-dynamic';
+// ISR: render on demand, serve cached for 2 min (insights publish 30-50/day).
+// force-dynamic made every crawler hit a live Mongo round-trip + view write.
+// View counting moved to the /api/views beacon so this page stays cacheable.
+export const revalidate = 120;
+export const dynamicParams = true;
 
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
+import { lookupRedirect } from '@/lib/seo-redirects';
 import { InsightPageClient } from '@/components/insights/InsightPageClient';
 import { InsightService } from '@/services/insight.service';
 import { parseInsightBody } from '@/lib/insight-content';
 import { getInitialComments, commentJsonLd } from '@/lib/server-comments';
+import { stripBrand } from '@/lib/seo-title';
+import ViewBeacon from '@/components/analytics/ViewBeacon';
 
 function safeEncodeURIComponent(str: string): string {
     try {
@@ -18,10 +25,25 @@ function safeEncodeURIComponent(str: string): string {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
 
+    // DB errors must surface as 500 (crawler retries later), only a truly
+    // missing insight may 404. notFound() here — before any streaming starts —
+    // guarantees a real 404 status instead of a soft-404 200 shell.
+    let insight;
     try {
-        const insight = await InsightService.getInsightBySlug(slug);
-        if (!insight) return { title: 'Insight Not Found | Andrew Altair' };
+        insight = await InsightService.getInsightBySlug(slug);
+    } catch (error) {
+        console.error(`[generateMetadata] Error for /insights/${slug}:`, error);
+        throw error;
+    }
 
+    if (!insight) {
+        // migration-generated rename? (Redirect collection: timestamp/hyphen reslugs)
+        const target = await lookupRedirect(`/insights/${slug}`);
+        if (target) permanentRedirect(target);
+        notFound();
+    }
+
+    {
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge';
 
         let imageUrl = insight.sourceImage;
@@ -42,7 +64,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         const modifiedIso = new Date(insight.updatedAt || insight.publishedAt).toISOString();
 
         return {
-            title: `${insight.seo?.metaTitle || insight.excerpt.slice(0, 60)} | Andrew Altair`,
+            // bare title — the root layout template appends "| Andrew Altair" once;
+            // the previous manual append produced "… | Andrew Altair | Andrew Altair"
+            title: stripBrand(insight.seo?.metaTitle || insight.excerpt.slice(0, 60)),
             description: insight.seo?.metaDescription || insight.excerpt,
             openGraph: {
                 title: insight.seo?.metaTitle || insight.excerpt.slice(0, 60),
@@ -68,35 +92,39 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
                 canonical: insight.seo?.canonicalUrl || `${siteUrl}/insights/${slug}`,
             },
         };
-    } catch (error) {
-        console.error(`[generateMetadata] Error for /insights/${slug}:`, error);
-        return { title: 'Andrew Altair | Insights' };
     }
 }
 
 export default async function InsightPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
 
+    // Existence check OUTSIDE any try/catch: a wrapping catch used to swallow
+    // NEXT_NOT_FOUND after streaming had flushed a 200 — soft-404 for dead slugs.
+    // DB errors rethrow as 500 so crawlers retry instead of deindexing.
+    let rawInsight;
     try {
-        const rawInsight = await InsightService.getInsightBySlug(slug);
-        if (!rawInsight) return notFound();
+        rawInsight = await InsightService.getInsightBySlug(slug);
+    } catch (error) {
+        console.error(`[InsightPage] DB error for /insights/${slug}:`, error);
+        throw error;
+    }
 
-        // Increment views
-        InsightService.incrementViews(rawInsight._id).catch(() => {});
+    if (!rawInsight) notFound();
 
-        // Get related content
+    {
+        // Get related content — non-critical, falls back to empty
         const [relatedPosts, relatedInsights] = await Promise.all([
-            InsightService.getRelatedPosts(rawInsight.relatedPosts || []),
-            InsightService.getRelatedInsights(rawInsight.relatedInsights || []),
+            InsightService.getRelatedPosts(rawInsight.relatedPosts || []).catch(() => []),
+            InsightService.getRelatedInsights(rawInsight.relatedInsights || []).catch(() => []),
         ]);
 
         const insight = JSON.parse(JSON.stringify({
             ...rawInsight,
-            views: (rawInsight.views || 0) + 1,
+            views: rawInsight.views || 0,
         }));
 
         // SSR-seed AI-persona comments (SEO: text in HTML + JSON-LD)
-        const initialComments = await getInitialComments(rawInsight._id.toString());
+        const initialComments = await getInitialComments(rawInsight._id.toString()).catch(() => []);
 
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge';
 
@@ -153,8 +181,8 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
                 logo: {
                     '@type': 'ImageObject',
                     url: `${siteUrl}/logo.png`,
-                    width: 600,
-                    height: 60,
+                    width: 512,
+                    height: 512,
                 },
             },
             mainEntityOfPage: {
@@ -185,6 +213,7 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
                     dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
                 />
 
+                <ViewBeacon type="insight" id={insight._id || insight.id} />
                 <InsightPageClient
                     insight={insight}
                     parsedBody={parsedBody}
@@ -194,8 +223,5 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
                 />
             </article>
         );
-    } catch (error) {
-        console.error(`[InsightPage] Error rendering /insights/${slug}:`, error);
-        return notFound();
     }
 }

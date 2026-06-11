@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const { slug } = await params
     const { post } = await getPost(slug)
 
-    if (!post) return { title: 'პროექტი არ მოიძებნა | Andrew Altair' }
+    if (!post) notFound() // real 404 status — body-level notFound() alone soft-404s under root loading.tsx
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
     let imageUrl = post.coverImages?.horizontal || post.coverImage

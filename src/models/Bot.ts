@@ -7,6 +7,7 @@ export interface IBot extends Document {
     _id: mongoose.Types.ObjectId;
     name: string;
     codename: string;
+    slug?: string;
     version: string;
     description: string;
     shortDescription: string;
@@ -82,6 +83,15 @@ const BotSchema = new Schema<IBot>(
             type: String,
             required: [true, 'Codename is required'],
             trim: true,
+        },
+        // SEO slug for /bots/<slug> URLs (Georgian-aware, backfilled by
+        // scripts/seo-dedupe-apply.ts). Optional: falls back to codename.
+        slug: {
+            type: String,
+            trim: true,
+            lowercase: true,
+            unique: true,
+            sparse: true,
         },
         version: {
             type: String,

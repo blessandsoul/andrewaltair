@@ -3,9 +3,18 @@ import { Button } from "@/components/ui/button"
 import { TbArrowLeft } from "react-icons/tb"
 import BlogPostClient from "./BlogPostClient"
 import { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
+import { lookupRedirect, legacySlugById } from '@/lib/seo-redirects'
 import { PostService } from "@/services/post.service"
 import { getInitialComments, commentJsonLd } from "@/lib/server-comments"
+import { stripBrand } from "@/lib/seo-title"
+import ViewBeacon from "@/components/analytics/ViewBeacon"
+
+// ISR: render on demand, serve cached for 5 min. No generateStaticParams on
+// purpose — pre-rendering ~200 posts at build OOMs the 1-CPU box. View counting
+// moved to the /api/views beacon so this page stays cacheable (no DB write here).
+export const revalidate = 300
+export const dynamicParams = true
 
 function safeEncodeURIComponent(str: string): string {
   try {
@@ -20,10 +29,26 @@ function safeEncodeURIComponent(str: string): string {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
 
+  // DB errors must surface as 500 (crawler retries later), only a truly
+  // missing post may 404. notFound() here — before any streaming starts —
+  // is what guarantees a real 404 status instead of a soft-404 200 shell.
+  let post
   try {
-    const post = await PostService.getPostBySlug(slug)
+    post = await PostService.getPostBySlug(slug)
+  } catch (error) {
+    console.error(`[generateMetadata] Error for /blog/${slug}:`, error)
+    throw error
+  }
 
-    if (!post) return { title: 'სტატია არ მოიძებნა | Andrew Altair' }
+  if (!post) {
+    // migration-generated rename? (Redirect collection: timestamp/hyphen reslugs)
+    const target = await lookupRedirect(`/blog/${slug}`)
+    if (target) permanentRedirect(target)
+    // legacy ObjectId URL still in Google's index → 301 to the canonical slug
+    const legacySlug = await legacySlugById('post', slug)
+    if (legacySlug) permanentRedirect(`/blog/${legacySlug}`)
+    notFound()
+  }
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
     // Use the new coverImages structure if available, fallback to coverImage, then default
@@ -57,7 +82,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       : post.tags
 
     return {
-      title: post.seo?.metaTitle || `${post.title} | Andrew Altair`,
+      // bare title — the root layout template appends "| Andrew Altair" once;
+      // stripBrand collapses legacy DB metaTitles that already baked the brand in
+      title: stripBrand(post.seo?.metaTitle || post.title),
       description: seoDescription,
       keywords: keywordList,
       authors: [{ name: post.author?.name || 'Andrew Altair', url: `${siteUrl}/about` }],
@@ -87,31 +114,33 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         canonical: post.seo?.canonicalUrl || `${siteUrl}/blog/${slug}`,
       },
     }
-  } catch (error) {
-    console.error(`[generateMetadata] Error for /blog/${slug}:`, error)
-    return { title: 'Andrew Altair | ბლოგი' }
-  }
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
 
+  // Existence check OUTSIDE any try/catch: notFound() throws NEXT_NOT_FOUND,
+  // and a wrapping catch used to swallow/re-trigger it after streaming had
+  // already flushed a 200 — producing soft-404s for every dead slug.
+  // DB errors rethrow as 500 so crawlers retry instead of deindexing.
+  let rawPost
   try {
-    // Fetch post
-    const rawPost = await PostService.getPostBySlug(slug)
+    rawPost = await PostService.getPostBySlug(slug)
+  } catch (error) {
+    console.error(`[BlogPostPage] DB error for /blog/${slug}:`, error)
+    throw error
+  }
 
-    if (!rawPost) {
-      return notFound()
-    }
+  if (!rawPost) {
+    notFound()
+  }
 
-    // Increment views (non-blocking, don't let it crash the page)
-    PostService.incrementViews(rawPost._id).catch(() => { })
+  // Enrichment is non-critical — each falls back to empty rather than failing the page
+  const { prevPost, nextPost } = await PostService.getAdjacentPosts(rawPost)
+    .catch(() => ({ prevPost: null, nextPost: null }))
 
-    // Get adjacent posts
-    const { prevPost, nextPost } = await PostService.getAdjacentPosts(rawPost)
-
-    // Get related posts
-    const rawRelatedPosts = await PostService.getRelatedPosts(slug, rawPost.categories || [])
+  const rawRelatedPosts = await PostService.getRelatedPosts(slug, rawPost.categories || [])
+    .catch(() => [])
 
     // ===== BULLETPROOF SERIALIZATION =====
     // JSON.parse(JSON.stringify()) guarantees all Date objects, ObjectIds, 
@@ -119,13 +148,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     // This prevents "Server Components render" errors in production.
     const post = JSON.parse(JSON.stringify({
       ...rawPost,
-      views: (rawPost.views || 0) + 1,
+      views: rawPost.views || 0,
     }))
 
     const relatedPosts = JSON.parse(JSON.stringify(rawRelatedPosts))
 
     // SSR-seed AI-persona comments (SEO: text in HTML + JSON-LD)
-    const initialComments = await getInitialComments(rawPost._id.toString())
+    const initialComments = await getInitialComments(rawPost._id.toString()).catch(() => [])
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
     let imageUrl = post.coverImages?.horizontal || post.coverImage
@@ -249,6 +278,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           />
         )}
 
+        <ViewBeacon type="post" id={post._id || post.id} />
         <BlogPostClient
           post={post}
           prevPost={prevPost}
@@ -258,8 +288,4 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         />
       </article>
     )
-  } catch (error) {
-    console.error(`[BlogPostPage] Error rendering /blog/${slug}:`, error)
-    return notFound()
-  }
 }

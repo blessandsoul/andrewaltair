@@ -15,7 +15,7 @@ import Post from "@/models/Post"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-    title: 'GitHub Repositories | Andrew Altair',
+    title: 'GitHub Repositories',
     description: 'AI პროექტები და კოდის რეპოზიტორიები - open source AI tools, automation scripts, Vibe Coding examples.',
     alternates: { canonical: '/repositories' },
     openGraph: {

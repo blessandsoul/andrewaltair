@@ -29,62 +29,60 @@ import dbConnect from "@/lib/db"
 import Post from "@/models/Post"
 import { slugToRawTag } from "@/lib/slug"
 import { Metadata } from "next"
+import { unstable_cache } from "next/cache"
 
-export const metadata: Metadata = {
-  title: "AI ბლოგი - სტატიები და ტუტორიალები | Andrew Altair",
-  description: "ხელოვნური ინტელექტის შესახებ პრაქტიკული სახელმძღვანელოები, რჩევები და სიახლეები. ChatGPT, Midjourney, Stable Diffusion და სხვა AI ინსტრუმენტების ტუტორიალები ქართულად.",
-  openGraph: {
-    title: "AI ბლოგი | Andrew Altair",
-    description: "ხელოვნური ინტელექტის შესახებ პრაქტიკული სახელმძღვანელოები და რჩევები.",
-    type: "website",
-    locale: "ka_GE",
-    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'AI ბლოგი' }],
-  },
-  twitter: {
-    card: "summary_large_image",
+export async function generateMetadata(props: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}): Promise<Metadata> {
+  const searchParams = await props.searchParams
+  // ?tag/?category/?search variants flooded GSC as duplicates (610 junk URLs in
+  // «alternate-canonical» + «crawled-not-indexed» classes, drilldown 2026-06-12).
+  // noindex,follow collapses them; ?page= stays indexable for crawl depth.
+  const hasFilterParams = Boolean(searchParams.tag || searchParams.category || searchParams.search)
+
+  return {
     title: "AI ბლოგი - სტატიები და ტუტორიალები",
-    description: "ხელოვნური ინტელექტის შესახებ პრაქტიკული სახელმძღვანელოები.",
-    images: ['/og.png'],
-  },
-  alternates: {
-    canonical: 'https://andrewaltair.ge/blog',
-  },
+    description: "ხელოვნური ინტელექტის შესახებ პრაქტიკული სახელმძღვანელოები, რჩევები და სიახლეები. ChatGPT, Midjourney, Stable Diffusion და სხვა AI ინსტრუმენტების ტუტორიალები ქართულად.",
+    ...(hasFilterParams ? { robots: { index: false, follow: true } } : {}),
+    openGraph: {
+      title: "AI ბლოგი | Andrew Altair",
+      description: "ხელოვნური ინტელექტის შესახებ პრაქტიკული სახელმძღვანელოები და რჩევები.",
+      type: "website",
+      locale: "ka_GE",
+      images: [{ url: '/og.png', width: 1200, height: 630, alt: 'AI ბლოგი' }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "AI ბლოგი - სტატიები და ტუტორიალები",
+      description: "ხელოვნური ინტელექტის შესახებ პრაქტიკული სახელმძღვანელოები.",
+      images: ['/og.png'],
+    },
+    alternates: {
+      canonical: 'https://andrewaltair.ge/blog',
+    },
+  }
 }
 
-// Fetch posts directly from MongoDB (more reliable for SSR)
-// Helpers removed as they are now handled inside the component logic or unused
+// Fetch posts directly from MongoDB — memoized via unstable_cache (tag 'posts',
+// busted on publish). The page stays request-dynamic because of searchParams,
+// but identical listing requests stop hitting Mongo for 5 minutes.
+const POSTS_PER_PAGE = 24
 
-export default async function BlogPage(props: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}) {
-  const searchParams = await props.searchParams
-  const tag = typeof searchParams.tag === 'string' ? searchParams.tag : undefined
-  const search = typeof searchParams.search === 'string' ? searchParams.search : undefined
-  const category = typeof searchParams.category === 'string' ? searchParams.category : undefined
-
-  // Build query
-  const query: any = { status: 'published' }
-
-  if (category) {
-    query.categories = category
-  }
-
-  if (search) {
-    query.$or = [
-      { title: { $regex: search, $options: 'i' } },
-      { description: { $regex: search, $options: 'i' } },
-      { "sections.content": { $regex: search, $options: 'i' } }
-    ]
-  }
-
-  // Fetch data
-  let allPosts: any[] = []
-  let featuredPosts: any[] = []
-  let totalPostsCount = 0
-  const displayLimit = 50
-
-  try {
+const getCachedBlogListing = unstable_cache(
+  async (category: string | undefined, search: string | undefined, tag: string | undefined, page: number) => {
     await dbConnect()
+
+    const query: any = { status: 'published' }
+    if (category) {
+      query.categories = category
+    }
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { "sections.content": { $regex: search, $options: 'i' } }
+      ]
+    }
 
     // Resolve tag slug → raw tag value. Posts store tags as free-text strings,
     // so URLs use slugs and we reverse-lookup against the live distinct set.
@@ -95,22 +93,59 @@ export default async function BlogPage(props: {
       query.tags = resolved ?? tag
     }
 
-    totalPostsCount = await Post.countDocuments(query)
+    const totalPostsCount = await Post.countDocuments(query)
 
     const postsData = await Post.find(query)
       .sort({ createdAt: -1 })
-      .limit(displayLimit)
+      .skip((page - 1) * POSTS_PER_PAGE)
+      .limit(POSTS_PER_PAGE)
       .lean()
 
-    allPosts = postsData.map((post) => ({
+    const allPosts = postsData.map((post) => ({
       ...post,
       id: post._id.toString(),
       _id: post._id.toString(),
     }))
 
-    featuredPosts = allPosts.filter((p: any) => p.featured)
+    // serialize inside the cached fn — the cache stores plain JSON
+    return JSON.parse(JSON.stringify({ allPosts, totalPostsCount }))
+  },
+  ['blog-listing'],
+  { revalidate: 300, tags: ['posts'] }
+)
+
+export default async function BlogPage(props: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const searchParams = await props.searchParams
+  const tag = typeof searchParams.tag === 'string' ? searchParams.tag : undefined
+  const search = typeof searchParams.search === 'string' ? searchParams.search : undefined
+  const category = typeof searchParams.category === 'string' ? searchParams.category : undefined
+  const pageParam = typeof searchParams.page === 'string' ? parseInt(searchParams.page, 10) : 1
+  const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1
+
+  let allPosts: any[] = []
+  let featuredPosts: any[] = []
+  let totalPostsCount = 0
+
+  try {
+    const listing = await getCachedBlogListing(category, search, tag, page)
+    allPosts = listing.allPosts
+    totalPostsCount = listing.totalPostsCount
+    featuredPosts = page === 1 ? allPosts.filter((p: any) => p.featured) : []
   } catch (error) {
     console.error('Error fetching blog posts:', error)
+  }
+
+  const totalPages = Math.max(1, Math.ceil(totalPostsCount / POSTS_PER_PAGE))
+  const buildPageHref = (p: number) => {
+    const params = new URLSearchParams()
+    if (category) params.set('category', category)
+    if (search) params.set('search', search)
+    if (tag) params.set('tag', tag)
+    if (p > 1) params.set('page', String(p))
+    const qs = params.toString()
+    return qs ? `/blog?${qs}` : '/blog'
   }
 
   // CollectionPage Schema for Blog
@@ -170,21 +205,23 @@ export default async function BlogPage(props: {
                 ხელოვნური ინტელექტის შესახებ პრაქტიკული სახელმძღვანელოები, რჩევები და სიახლეები
               </p>
 
-              {/* TbSearch Bar */}
-              <div className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto pt-4">
+              {/* Search — a real GET form: submits to crawlable /blog?search= URLs
+                  (the old input had no form/handler and went nowhere) */}
+              <form action="/blog" method="get" className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto pt-4">
                 <div className="relative flex-1">
                   <TbSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
+                    name="search"
                     placeholder="მოძებნე სტატია..."
                     className="pl-10 h-12 bg-card"
                     defaultValue={search}
                   />
                 </div>
-                <Button size="lg" variant="outline" className="h-12">
-                  <TbFilter className="w-4 h-4 mr-2" />
-                  ფილტრი
+                <Button type="submit" size="lg" variant="outline" className="h-12">
+                  <TbSearch className="w-4 h-4 mr-2" />
+                  ძებნა
                 </Button>
-              </div>
+              </form>
             </div>
           </div>
         </section>
@@ -274,7 +311,7 @@ export default async function BlogPage(props: {
               </div>
               <div className="text-sm text-muted-foreground">
                 სულ: {totalPostsCount} სტატია
-                {totalPostsCount > displayLimit && ` (ნაჩვენებია ${displayLimit})`}
+                {totalPages > 1 && ` · გვერდი ${page}/${totalPages}`}
               </div>
             </div>
 
@@ -310,13 +347,35 @@ export default async function BlogPage(props: {
               </div>
             )}
 
-            {/* Load More Link */}
-            {totalPostsCount > displayLimit && (
-              <div className="text-center mt-12">
-                <Button size="lg" variant="outline" disabled>
-                  მეტი სტატია ჩაიტვირთება სქროლისას...
-                </Button>
-              </div>
+            {/* Pagination — real crawlable links; posts beyond page 1 used to be
+                orphaned behind a permanently-disabled "load more" button */}
+            {totalPages > 1 && (
+              <nav aria-label="Pagination" className="flex items-center justify-center gap-2 mt-12 flex-wrap">
+                {page > 1 && (
+                  <Link href={buildPageHref(page - 1)} rel="prev">
+                    <Button variant="outline" size="sm">← წინა</Button>
+                  </Link>
+                )}
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
+                  .map((p, idx, arr) => (
+                    <span key={p} className="flex items-center gap-2">
+                      {idx > 0 && arr[idx - 1] !== p - 1 && (
+                        <span className="text-muted-foreground">…</span>
+                      )}
+                      <Link href={buildPageHref(p)}>
+                        <Button variant={p === page ? "default" : "outline"} size="sm">
+                          {p}
+                        </Button>
+                      </Link>
+                    </span>
+                  ))}
+                {page < totalPages && (
+                  <Link href={buildPageHref(page + 1)} rel="next">
+                    <Button variant="outline" size="sm">შემდეგი →</Button>
+                  </Link>
+                )}
+              </nav>
             )}
           </div>
         </section>

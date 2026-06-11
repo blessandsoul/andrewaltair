@@ -161,6 +161,8 @@ export function InsightPageClient({ insight, parsedBody, relatedPosts, relatedIn
                             className="object-cover"
                             sizes="(max-width: 768px) 100vw, 640px"
                             priority
+                            // external news CDN — bypass the optimizer (remotePatterns is a strict allowlist now)
+                            unoptimized
                         />
                         <div className="absolute bottom-3 left-3">
                             <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm">

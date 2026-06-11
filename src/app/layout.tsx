@@ -65,8 +65,9 @@ export default function RootLayout({
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema) }} />
+        {/* /feed.xml emits RSS 2.0 — advertising it as application/atom+xml was a
+            feed-validator error; a single correctly-typed link is enough */}
         <link rel="alternate" type="application/rss+xml" title="Andrew Altair RSS" href="https://andrewaltair.ge/feed.xml" />
-        <link rel="alternate" type="application/atom+xml" title="Andrew Altair Atom" href="https://andrewaltair.ge/feed.xml" />
         <link rel="sitemap" type="application/xml" title="Sitemap" href="https://andrewaltair.ge/sitemap.xml" />
       </head>
       <body
@@ -83,7 +84,10 @@ export default function RootLayout({
           </ToastProvider>
         </AuthProvider>
 
-        {/* Google Analytics (gtag.js) */}
+        {/* Google Analytics (gtag.js) — single analytics loader.
+            GTM-P4T74Z4G was loading IN ADDITION to gtag (double-tagging, double
+            main-thread cost). If GTM is ever needed for extra pixels, route GA4
+            through the container and remove this gtag block instead. */}
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-7YH89CPYF7" strategy="afterInteractive" />
         <Script id="google-analytics">
           {`
@@ -94,25 +98,6 @@ export default function RootLayout({
             gtag('config', 'G-7YH89CPYF7');
           `}
         </Script>
-
-        {/* Google Tag Manager */}
-        <Script id="google-tag-manager" strategy="afterInteractive">
-          {`
-            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-            })(window,document,'script','dataLayer','GTM-P4T74Z4G');
-          `}
-        </Script>
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-P4T74Z4G"
-            height="0"
-            width="0"
-            style={{ display: 'none', visibility: 'hidden' }}
-          />
-        </noscript>
       </body>
     </html>
   );

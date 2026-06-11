@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { TbArrowLeft, TbShield, TbLock, TbFileText, TbEye, TbDatabase, TbServer, TbCookie } from "react-icons/tb"
 
 export const metadata: Metadata = {
-    title: 'კონფიდენციალურობის პოლიტიკა | Andrew Altair',
+    title: 'კონფიდენციალურობის პოლიტიკა',
     description: 'Andrew Altair-ის კონფიდენციალურობის პოლიტიკა და მომხმარებლის მონაცემების დაცვის პირობები.',
     openGraph: {
         title: 'კონფიდენციალურობის პოლიტიკა',

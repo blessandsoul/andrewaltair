@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { apiSuccess, apiError, apiPaginated } from '@/lib/api-response';
 import { ERROR_CODES } from '@/lib/error-codes';
 import { verifyAdmin, unauthorizedResponse } from '@/lib/admin-auth';
@@ -53,6 +53,8 @@ export async function POST(request: Request) {
         // Revalidate pages that show insights
         revalidatePath('/');
         revalidatePath('/insights');
+        revalidatePath('/sitemap.xml');
+        revalidateTag('insights'); // busts unstable_cache on the /insights listing
 
         return apiSuccess(insight, 'Insight created', 201);
     } catch (error) {

@@ -97,13 +97,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     const { id } = await params
     const video = await getVideoData(id)
 
-    if (!video) {
-        return {
-            title: 'ვიდეო არ მოიძებნა | Andrew Altair',
-        }
-    }
+    // notFound() in generateMetadata fires BEFORE streaming commits a 200 —
+    // a body-level notFound() alone produces a soft-404 under the root loading.tsx
+    if (!video) notFound()
 
-    const title = `${video.title} | Andrew Altair Videos`
+    const title = `${video.title} — ვიდეო`
     const description = video.description.substring(0, 160)
     const imageUrl = `https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`
 

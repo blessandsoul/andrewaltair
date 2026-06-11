@@ -1,9 +1,10 @@
 import { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import PromptDetailClient from './PromptDetailClient'
 import dbConnect from '@/lib/db'
 import MarketplacePrompt from '@/models/MarketplacePrompt'
 import { generateUniqueId } from '@/lib/id-system'
+import { lookupRedirect, legacySlugById } from '@/lib/seo-redirects'
 
 interface Props {
     params: { slug: string }
@@ -110,8 +111,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = params
     const prompt = await getPrompt(slug)
 
+    // real 404 status — body-level notFound() alone soft-404s under root loading.tsx
     if (!prompt) {
-        return { title: 'Prompt Not Found' }
+        // legacy /prompts/<ObjectId> URLs = 9 of 15 official GSC soft-404s → 301 to slug
+        const legacySlug = await legacySlugById('prompt', slug)
+        if (legacySlug) permanentRedirect(`/prompts/${legacySlug}`)
+        const target = await lookupRedirect(`/prompts/${slug}`)
+        if (target) permanentRedirect(target)
+        notFound()
     }
 
     const title = safeRender(prompt.title)

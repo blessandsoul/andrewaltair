@@ -2,13 +2,17 @@ import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
     const baseUrl = 'https://andrewaltair.ge'
+    // NOTE: `/*?_rsc=` is deliberately NOT disallowed. Blocking it in robots
+    // prevented Google from fetching those URLs at all — so it never saw the
+    // `X-Robots-Tag: noindex` header (next.config.mjs) and ~116 ?_rsc= payload
+    // URLs sat stuck in the index (GSC drilldown 2026-06-12). Letting the
+    // crawler in lets noindex actually deindex them.
     const commonDisallow = [
         '/admin/', '/api/', '/private/', '/_next/',
         '/login', '/register', '/forgot-password', '/verify-email',
         '/profile', '/demo-features', '/bots/add', '/link/',
         '/encyclopedia/progress',
         '/quiz', '/mystic', '/mystic/', '/bots/affiliate',
-        '/*?_rsc=',
     ]
 
     return {
@@ -85,6 +89,34 @@ export default function robots(): MetadataRoute.Robots {
             },
             {
                 userAgent: 'PerplexityBot',
+                allow: '/',
+                disallow: ['/admin/', '/api/', '/private/'],
+            },
+            {
+                // Perplexity's on-demand user-request fetcher (distinct from PerplexityBot)
+                userAgent: 'Perplexity-User',
+                allow: '/',
+                disallow: ['/admin/', '/api/', '/private/'],
+            },
+            {
+                // OpenAI search crawler (distinct from GPTBot training crawler)
+                userAgent: 'OAI-SearchBot',
+                allow: '/',
+                disallow: ['/admin/', '/api/', '/private/'],
+            },
+            {
+                userAgent: 'Amazonbot',
+                allow: '/',
+                disallow: ['/admin/', '/api/', '/private/'],
+            },
+            {
+                // xAI / Grok
+                userAgent: 'GrokBot',
+                allow: '/',
+                disallow: ['/admin/', '/api/', '/private/'],
+            },
+            {
+                userAgent: 'MistralAI-User',
                 allow: '/',
                 disallow: ['/admin/', '/api/', '/private/'],
             },

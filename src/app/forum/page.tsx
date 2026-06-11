@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 const DESC = 'საქართველოს ისტორიული პირები განიხილავენ დღევანდელ ამბებს — AI-წარმოსახული დებატი.';
 
 export const metadata: Metadata = {
-    title: 'ფორუმი | Andrew Altair',
+    title: 'ფორუმი',
     description: DESC,
     alternates: { canonical: '/forum' },
     openGraph: {

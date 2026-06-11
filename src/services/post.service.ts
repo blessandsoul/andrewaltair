@@ -278,6 +278,18 @@ export class PostService {
     static async createPost(data: PostCreateData) {
         await dbConnect();
 
+        // Idempotency guard: a retried/duplicate publish of the same title must
+        // not mint a "-2" slug copy — live duplicates shipped to the index
+        // (SEO audit 2026-06-12). Passing an explicit data.slug bypasses the guard.
+        const incomingTitle = (data.meta?.title || data.title || '').trim();
+        if (!data.slug && incomingTitle) {
+            const existing = await Post.findOne({ title: incomingTitle });
+            if (existing) {
+                const plain = JSON.parse(JSON.stringify(existing));
+                return { ...plain, id: plain._id?.toString?.() ?? String(plain._id) };
+            }
+        }
+
         // Generate slug if not provided (Clean, no random suffix)
         if (!data.slug) {
             data.slug = (data.title || 'post')

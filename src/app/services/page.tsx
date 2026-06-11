@@ -10,7 +10,7 @@ import { AnimatedCounter } from "@/components/ui/AnimatedCounter"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-    title: "AI კონსულტაცია საქართველოში — 50+ კლიენტი | Andrew Altair",
+    title: "AI კონსულტაცია საქართველოში — 50+ კლიენტი",
     description: "AI კონსულტაცია, ავტომატიზაცია, ლექციები და ტრენინგი ბიზნესისთვის. 8+ წლის გამოცდილება, 50+ კლიენტი, 4.9/5 რეიტინგი. დაიწყეთ პროექტი დღესვე.",
     openGraph: {
         title: "AI კონსულტაცია საქართველოში — Andrew Altair",

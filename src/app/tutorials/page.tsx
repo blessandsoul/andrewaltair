@@ -7,7 +7,7 @@ import { TbBook } from "react-icons/tb"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-    title: "Blueprints | Andrew Altair",
+    title: "Blueprints — AI ტუტორიალები",
     description: "Systematic tutorials and life algorithms.",
     alternates: { canonical: '/tutorials' },
     openGraph: {

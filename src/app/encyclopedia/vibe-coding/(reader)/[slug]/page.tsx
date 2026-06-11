@@ -31,18 +31,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const article = getArticleById(slug);
     const jsonData = await getJsonData(slug);
 
-    if (!article && !jsonData) {
-        return {
-            title: "Article Not Found",
-        };
-    }
+    // real 404 status — body-level notFound() alone soft-404s under root loading.tsx
+    if (!article && !jsonData) notFound();
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge'
 
     // Prefer jsonData for metadata if available
     const title = jsonData
-        ? `${jsonData.meta.title} | Andrew Altair Encyclopedia`
-        : `${article?.title} | Andrew Altair Encyclopedia`;
+        ? `${jsonData.meta.title} — ენციკლოპედია`
+        : `${article?.title} — ენციკლოპედია`;
 
     const description = jsonData
         ? jsonData.meta.description
