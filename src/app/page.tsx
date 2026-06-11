@@ -9,6 +9,7 @@ import MarketplacePrompt from "@/models/MarketplacePrompt"
 import Insight from "@/models/Insight"
 import ForumTopic from "@/models/ForumTopic"
 import ForumPost from "@/models/ForumPost"
+import { HeroIntro } from "@/components/home/HeroIntro"
 import { HeroCarousel } from "@/components/home/HeroCarousel"
 import { HeroTags } from "@/components/home/HeroTags"
 import { QuickAccessGrid } from "@/components/home/QuickAccessGrid"
@@ -20,7 +21,6 @@ import { ServicesSection } from "@/components/home/ServicesSection"
 import { VideosSection } from "@/components/home/VideosSection"
 import { ForumTeaser } from "@/components/home/ForumTeaser"
 import { SocialProof } from "@/components/home/SocialProof"
-import { brand } from "@/lib/brand"
 
 export const metadata: Metadata = {
   title: "Andrew Altair — AI ექსპერტი, ბლოგი და ინსტრუმენტები ქართულად",
@@ -261,19 +261,23 @@ export default async function Home() {
       />
 
       <main className="pb-20 space-y-16 max-w-400 mx-auto">
-        <h1 className="sr-only">
-          Andrew Altair — საქართველოს AI ექსპერტი | AI Innovator and Tech Consultant in Georgia
-        </h1>
-        {/* Section 1: Hero (8/12) + Quick Access (4/12) */}
-        <section className="grid grid-cols-12 gap-6 px-4 sm:px-6 lg:px-8 pt-8">
+        {/* Section order = expert → product → content-as-proof.
+            The old order opened with a random-article carousel and buried the
+            consulting/courses CTAs at position 8 and trust metrics in the footer. */}
+
+        {/* 1. Who Andrew is + CTAs + trust strip (visible H1 lives here) */}
+        <HeroIntro />
+
+        <div className="px-4 sm:px-6 lg:px-8 space-y-16">
+          {/* 2. The product — consulting + courses, second screen */}
+          <ServicesSection />
+        </div>
+
+        {/* 3. What's hot now: featured carousel (8/12) + quick access (4/12) */}
+        <section className="grid grid-cols-12 gap-6 px-4 sm:px-6 lg:px-8">
           <div className="col-span-12 lg:col-span-8 space-y-6">
             {heroPosts.length > 0 && <HeroCarousel posts={heroPosts} />}
-
-            {/* Description + Tags below carousel */}
-            <div className="space-y-3 px-1">
-              <p className="text-on-surface-variant text-sm leading-relaxed max-w-2xl">
-                {brand.bio.short}
-              </p>
+            <div className="px-1">
               <HeroTags />
             </div>
           </div>
@@ -283,15 +287,14 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Section 2-7: Content sections */}
+        {/* 4-7. Content core → marketplace → videos → community */}
         <div className="px-4 sm:px-6 lg:px-8 space-y-16">
-          <PromptsSection prompts={promptsData as any[]} />
           <ArticlesSection posts={postsData.slice(0, 3) as any[]} />
           <InsightsSection insights={insightsData as any[]} />
-          {forumTeaser && <ForumTeaser topic={forumTeaser.topic} personaIds={forumTeaser.personaIds} />}
           <BotsSection />
-          <ServicesSection />
+          <PromptsSection prompts={promptsData as any[]} />
           <VideosSection videos={videosData} />
+          {forumTeaser && <ForumTeaser topic={forumTeaser.topic} personaIds={forumTeaser.personaIds} />}
           <SocialProof />
         </div>
       </main>
