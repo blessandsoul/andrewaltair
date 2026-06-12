@@ -1,9 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { MessagesSquare, Monitor } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { PenLine, MessagesSquare, RotateCcw, Monitor, Hourglass } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import type { StudentRound, StudentState } from '@/types/workshop.types'
 import CountdownRing from '@/components/workshop/CountdownRing'
+import ProgressDots from '@/components/workshop/ProgressDots'
 import TextRoundInput from './inputs/TextRoundInput'
 import ChoiceRoundInput from './inputs/ChoiceRoundInput'
 import NumberRoundInput from './inputs/NumberRoundInput'
@@ -17,12 +20,13 @@ interface CurrentRoundProps {
     serverNow: string
 }
 
-const PHASE_LABELS: Record<string, string> = {
-    open: 'უპასუხეთ',
-    discuss: 'დისკუსია',
-    revote: 'ხელახალი ხმა',
-    revealed: 'შედეგები',
-    closed: 'მოემზადეთ',
+// Neuro-cue: one colored banner = the ONE thing to do right now
+const PHASE_BANNERS: Record<string, { icon: LucideIcon; label: string; cls: string }> = {
+    open: { icon: PenLine, label: 'ახლა თქვენი ჯერია — უპასუხეთ', cls: 'bg-violet-600 text-white shadow-lg shadow-violet-600/30' },
+    revote: { icon: RotateCcw, label: 'ხელახლა მიეცით ხმა', cls: 'bg-pink-600 text-white shadow-lg shadow-pink-600/30' },
+    discuss: { icon: MessagesSquare, label: 'განიხილეთ Meet-ის ჩატში', cls: 'bg-sky-600 text-white shadow-lg shadow-sky-600/30' },
+    revealed: { icon: Monitor, label: 'შეხედეთ წამყვანის ეკრანს', cls: 'bg-white text-[#262738] border border-[#0E0F1F]/10 shadow-sm' },
+    closed: { icon: Hourglass, label: 'მოემზადეთ...', cls: 'bg-white text-[#262738] border border-[#0E0F1F]/10 shadow-sm' },
 }
 
 export default function CurrentRound({ code, clientId, round, myAnswer, serverNow }: CurrentRoundProps) {
@@ -68,78 +72,90 @@ export default function CurrentRound({ code, clientId, round, myAnswer, serverNo
         !!round.durationSec &&
         !!round.phaseStartedAt
 
+    const banner = PHASE_BANNERS[round.phase]
+    const BannerIcon = banner.icon
+
     const header = (
-        <div className="text-center space-y-2 mb-6">
-            <p className="text-xs uppercase tracking-widest text-violet-600 font-semibold">
-                რაუნდი {round.index + 1} / {round.total} · {PHASE_LABELS[round.phase]}
-            </p>
-            <h2 className="text-2xl font-bold leading-snug">{round.prompt}</h2>
-            {showRing && (
-                <div className="flex justify-center pt-2">
-                    <CountdownRing
-                        phaseStartedAt={round.phaseStartedAt!}
-                        durationSec={round.durationSec!}
-                        serverNow={serverNow}
-                        size={52}
-                    />
-                </div>
-            )}
+        <div className="space-y-4 mb-6">
+            <ProgressDots current={round.index} total={round.total} />
+            <motion.div
+                key={round.phase}
+                initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+                className={`flex items-center justify-center gap-2.5 rounded-2xl px-4 py-3 font-bold text-[15px] ${banner.cls}`}
+            >
+                <BannerIcon size={19} />
+                {banner.label}
+            </motion.div>
+            <div className="text-center space-y-2">
+                <h2 className="text-2xl font-bold leading-snug">{round.prompt}</h2>
+                {showRing && (
+                    <div className="flex justify-center pt-1">
+                        <CountdownRing
+                            phaseStartedAt={round.phaseStartedAt!}
+                            durationSec={round.durationSec!}
+                            serverNow={serverNow}
+                            size={52}
+                        />
+                    </div>
+                )}
+            </div>
         </div>
     )
 
+    // body per phase — wrapped in AnimatePresence for smooth phase transitions
+    let body: React.ReactNode
     if (round.phase === 'closed') {
-        return (
-            <div>
-                {header}
-                <p className="text-center text-[#6E7186]">დაელოდეთ წამყვანს...</p>
+        body = <p className="text-center text-[#6E7186]">დაელოდეთ წამყვანს...</p>
+    } else if (round.phase === 'discuss') {
+        body = (
+            <div className="rounded-2xl bg-white border border-[#0E0F1F]/8 shadow-sm p-6 text-center space-y-3">
+                <motion.div
+                    animate={{ rotate: [0, -6, 6, 0] }}
+                    transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+                    className="inline-block"
+                >
+                    <MessagesSquare size={44} className="text-sky-600" />
+                </motion.div>
+                <p className="text-lg font-semibold">რატომ აირჩიეთ თქვენი პასუხი?</p>
+                <p className="text-[#6E7186]">დაწერეთ არგუმენტი ჩატში და წაიკითხეთ სხვების მოსაზრებები — შემდეგ ხელახლა მისცემთ ხმას.</p>
             </div>
         )
-    }
-
-    if (round.phase === 'discuss') {
-        return (
-            <div>
-                {header}
-                <div className="rounded-2xl bg-white border border-[#0E0F1F]/8 shadow-sm p-6 text-center space-y-3">
-                    <MessagesSquare size={44} className="text-violet-600 mx-auto" />
-                    <p className="text-lg font-semibold">განიხილეთ!</p>
-                    <p className="text-[#6E7186]">დაწერეთ Meet-ის ჩატში: რატომ აირჩიეთ თქვენი პასუხი? წაიკითხეთ სხვების არგუმენტები.</p>
-                </div>
-            </div>
-        )
-    }
-
-    if (round.phase === 'revealed') {
-        return (
-            <div>
-                {header}
-                <p className="inline-flex items-center justify-center gap-2 w-full text-[#6E7186]">
-                    <Monitor size={16} /> შედეგები წამყვანის ეკრანზეა
-                </p>
-            </div>
-        )
-    }
-
-    // open / revote — show input (or submitted state; optimistic before poll confirms)
-    const optimisticHit = justSubmitted === `${round.key}:${round.phase}`
-    if ((myAnswer || optimisticHit) && !editing) {
-        return (
-            <div>
-                {header}
-                <SubmittedState onEdit={() => setEditing(true)} />
-            </div>
-        )
+    } else if (round.phase === 'revealed') {
+        body = null
+    } else {
+        const optimisticHit = justSubmitted === `${round.key}:${round.phase}`
+        if ((myAnswer || optimisticHit) && !editing) {
+            body = <SubmittedState onEdit={() => setEditing(true)} />
+        } else {
+            body = (
+                <>
+                    {round.type === 'text' && <TextRoundInput round={round} onSubmit={submit} />}
+                    {(round.type === 'choice' || round.type === 'choice_revote' || round.type === 'quiz') && (
+                        <ChoiceRoundInput round={round} onSubmit={submit} />
+                    )}
+                    {round.type === 'number' && <NumberRoundInput round={round} onSubmit={submit} />}
+                    {submitError && <p className="mt-4 text-center text-red-500">{submitError}</p>}
+                </>
+            )
+        }
     }
 
     return (
         <div>
             {header}
-            {round.type === 'text' && <TextRoundInput round={round} onSubmit={submit} />}
-            {(round.type === 'choice' || round.type === 'choice_revote' || round.type === 'quiz') && (
-                <ChoiceRoundInput round={round} onSubmit={submit} />
-            )}
-            {round.type === 'number' && <NumberRoundInput round={round} onSubmit={submit} />}
-            {submitError && <p className="mt-4 text-center text-red-500">{submitError}</p>}
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={`${round.key}:${round.phase}:${editing}:${justSubmitted}`}
+                    initial={{ opacity: 0, x: 28 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -28 }}
+                    transition={{ duration: 0.28, ease: 'easeOut' }}
+                >
+                    {body}
+                </motion.div>
+            </AnimatePresence>
         </div>
     )
 }

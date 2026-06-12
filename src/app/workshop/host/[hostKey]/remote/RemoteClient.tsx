@@ -6,6 +6,7 @@ import { useRoomPoll } from '@/hooks/useRoomPoll'
 import type { HostState } from '@/types/workshop.types'
 import CountdownRing from '@/components/workshop/CountdownRing'
 import NameAvatar from '@/components/workshop/NameAvatar'
+import PhaseStepper from '@/components/workshop/PhaseStepper'
 import HostControls, { primaryActionFor } from '../components/HostControls'
 
 /**
@@ -139,9 +140,12 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                     )}
                 </div>
                 {state.round && (
-                    <p className="text-sm text-[#262738] bg-white border border-[#0E0F1F]/8 rounded-xl px-4 py-2.5 shadow-sm">
-                        {state.round.prompt}
-                    </p>
+                    <div className="space-y-2">
+                        <PhaseStepper type={state.round.type} phase={state.round.phase} />
+                        <p className="text-sm text-[#262738] bg-white border border-[#0E0F1F]/8 rounded-xl px-4 py-2.5 shadow-sm">
+                            {state.round.prompt}
+                        </p>
+                    </div>
                 )}
             </header>
 
