@@ -4,7 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { TbLayoutDashboard, TbFileText, TbVideo, TbMessage, TbChevronLeft, TbMenu2, TbX, TbSparkles, TbSun, TbMoon, TbSearch, TbSettings, TbDownload, TbChartBar, TbActivity, TbTag, TbFolderOpen, TbPhoto, TbUsers, TbWorld, TbTool, TbPencil, TbKeyboard, TbCommand, TbBook, TbBrandGithub, TbLink, TbMessages } from "react-icons/tb"
+import { TbLayoutDashboard, TbFileText, TbVideo, TbMessage, TbChevronLeft, TbMenu2, TbX, TbSparkles, TbSun, TbMoon, TbSearch, TbSettings, TbDownload, TbChartBar, TbActivity, TbTag, TbFolderOpen, TbPhoto, TbUsers, TbWorld, TbTool, TbPencil, TbKeyboard, TbCommand, TbBook, TbBrandGithub, TbLink, TbMessages, TbPresentation } from "react-icons/tb"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { NotificationBell } from "./NotificationBell"
@@ -36,6 +36,7 @@ const organizationItems: NavItem[] = [
 ]
 
 const systemItems: NavItem[] = [
+    { href: "/admin/workshop", label: "ვორქშოპი", icon: <TbPresentation className="w-5 h-5" /> },
     { href: "/admin/links", label: "ბმულები", icon: <TbLink className="w-5 h-5" /> },
     { href: "/admin/analytics", label: "ანალიტიკა", icon: <TbChartBar className="w-5 h-5" /> },
     { href: "/admin/users", label: "მომხმარებლები", icon: <TbUsers className="w-5 h-5" /> },
@@ -225,6 +226,7 @@ export function AdminHeader({
         { type: "page", label: "ენციკლოპედია", href: "/admin/encyclopedia", icon: TbBook },
         { type: "page", label: "ვიდეოები", href: "/admin/videos", icon: TbVideo },
         { type: "page", label: "კომენტარები", href: "/admin/comments", icon: TbMessage },
+        { type: "page", label: "ვორქშოპი", href: "/admin/workshop", icon: TbPresentation },
         { type: "page", label: "ბმულები", href: "/admin/links", icon: TbLink },
         { type: "page", label: "ანალიტიკა", href: "/admin/analytics", icon: TbChartBar },
         { type: "page", label: "პარამეტრები", href: "/admin/settings", icon: TbSettings },

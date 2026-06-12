@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Star } from 'lucide-react'
 import type { TextResultItem } from '@/types/workshop.types'
+import NameAvatar from '@/components/workshop/NameAvatar'
 
 interface TextWallProps {
     items: TextResultItem[]
@@ -23,17 +24,20 @@ export default function TextWall({ items, onPin, readonly = false }: TextWallPro
                         initial={{ opacity: 0, y: 14, scale: 0.97 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         transition={{ duration: 0.35, ease: 'easeOut' }}
-                        className="group mb-4 rounded-2xl bg-white border border-[#0E0F1F]/8 shadow-sm p-4 relative"
+                        className="group mb-4 rounded-2xl bg-white border border-[#0E0F1F]/8 shadow-[0_2px_12px_rgba(14,15,31,0.06)] hover:shadow-[0_6px_24px_rgba(124,58,237,0.12)] hover:-translate-y-0.5 p-4 relative transition-all duration-300"
                     >
-                        <div className="flex items-center justify-between mb-2">
-                            <p className="text-xs uppercase tracking-widest text-violet-600 font-semibold">
-                                {item.name}
-                            </p>
+                        <div className="flex items-center justify-between mb-2.5">
+                            <span className="inline-flex items-center gap-2 min-w-0">
+                                <NameAvatar name={item.name} size={26} />
+                                <span className="text-sm font-semibold text-[#262738] truncate">
+                                    {item.name}
+                                </span>
+                            </span>
                             {!readonly && (
                                 <button
                                     onClick={() => onPin('pinResponse', item.id)}
                                     title="დაამაგრე ეკრანზე"
-                                    className="opacity-0 group-hover:opacity-100 text-[#6E7186] hover:text-amber-500 transition-opacity"
+                                    className="opacity-0 group-hover:opacity-100 text-[#6E7186] hover:text-amber-500 transition-opacity shrink-0"
                                 >
                                     <Star size={16} />
                                 </button>

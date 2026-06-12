@@ -5,6 +5,7 @@ import { PenLine, Users, StickyNote, ChevronDown, ChevronRight, Star, OctagonX, 
 import { useRoomPoll } from '@/hooks/useRoomPoll'
 import type { HostState } from '@/types/workshop.types'
 import CountdownRing from '@/components/workshop/CountdownRing'
+import NameAvatar from '@/components/workshop/NameAvatar'
 import HostControls, { primaryActionFor } from '../components/HostControls'
 
 /**
@@ -182,15 +183,18 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                             {textItems.map((item) => (
                                 <div
                                     key={item.id}
-                                    className="flex items-start justify-between gap-3 rounded-xl bg-white border border-[#0E0F1F]/8 shadow-sm px-4 py-2.5"
+                                    className="flex items-center justify-between gap-3 rounded-xl bg-white border border-[#0E0F1F]/8 shadow-sm px-3.5 py-2.5"
                                 >
-                                    <div className="min-w-0">
-                                        <p className="text-xs text-violet-600 font-semibold">{item.name}</p>
-                                        <p className="text-sm text-[#262738] truncate">{item.textValue}</p>
+                                    <div className="flex items-center gap-2.5 min-w-0">
+                                        <NameAvatar name={item.name} size={30} />
+                                        <div className="min-w-0">
+                                            <p className="text-xs text-[#6E7186] font-semibold">{item.name}</p>
+                                            <p className="text-sm text-[#262738] truncate">{item.textValue}</p>
+                                        </div>
                                     </div>
                                     <button
                                         onClick={() => act('pinResponse', item.id)}
-                                        className="shrink-0 text-[#6E7186] hover:text-amber-500 transition-colors p-1"
+                                        className="shrink-0 text-[#6E7186] hover:text-amber-500 transition-colors p-1.5 rounded-lg hover:bg-amber-50"
                                         title="ეკრანზე გატანა"
                                     >
                                         <Star size={18} />

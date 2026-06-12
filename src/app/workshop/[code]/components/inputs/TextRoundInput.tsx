@@ -59,7 +59,7 @@ export default function TextRoundInput({ round, onSubmit }: TextRoundInputProps)
             <button
                 onClick={send}
                 disabled={!canSend || busy}
-                className="w-full rounded-2xl bg-violet-600 active:bg-violet-700 disabled:opacity-40 py-4 text-lg font-bold text-white shadow-lg shadow-violet-600/25 transition-colors"
+                className="w-full rounded-2xl bg-linear-to-r from-violet-600 to-pink-600 active:opacity-90 disabled:opacity-40 py-4 text-lg font-bold text-white shadow-lg shadow-violet-600/30 transition-opacity"
             >
                 {busy ? 'იგზავნება...' : 'გაგზავნა'}
             </button>

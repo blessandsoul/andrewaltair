@@ -88,6 +88,19 @@ export class WorkshopService {
         return WorkshopRoom.find({}).sort({ createdAt: -1 }).limit(limit).lean<IWorkshopRoom[]>()
     }
 
+    /** Admin: delete a room with all its participants and responses. */
+    static async deleteRoom(code: string): Promise<boolean> {
+        await dbConnect()
+        const room = await WorkshopRoom.findOne({ code: code.toUpperCase() }).lean<IWorkshopRoom>()
+        if (!room) return false
+        await Promise.all([
+            WorkshopResponse.deleteMany({ roomId: room._id }),
+            WorkshopParticipant.deleteMany({ roomId: room._id }),
+        ])
+        await WorkshopRoom.deleteOne({ _id: room._id })
+        return true
+    }
+
     static async joinRoom(roomId: mongoose.Types.ObjectId, name: string, clientId: string): Promise<void> {
         await dbConnect()
         await WorkshopParticipant.findOneAndUpdate(

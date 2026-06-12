@@ -125,7 +125,7 @@ export default function HostControls({
                                 b.primary
                                     ? gated
                                         ? 'bg-amber-500 hover:bg-amber-400 text-white shadow-md shadow-amber-500/25'
-                                        : 'bg-violet-600 hover:bg-violet-500 text-white shadow-md shadow-violet-600/25'
+                                        : 'bg-linear-to-r from-violet-600 to-pink-600 hover:opacity-90 text-white shadow-md shadow-violet-600/30'
                                     : 'bg-white border border-[#0E0F1F]/10 hover:bg-[#0E0F1F]/3 text-[#262738] shadow-sm'
                             }`}
                         >

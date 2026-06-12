@@ -5,6 +5,7 @@ import { PenLine, Users, Volume2, VolumeX } from 'lucide-react'
 import { useRoomPoll } from '@/hooks/useRoomPoll'
 import type { HostState } from '@/types/workshop.types'
 import CountdownRing from '@/components/workshop/CountdownRing'
+import NameAvatar from '@/components/workshop/NameAvatar'
 import ResultsBoard from './components/ResultsBoard'
 
 /**
@@ -234,8 +235,9 @@ function LobbyView({
                     {roster.map((name, i) => (
                         <span
                             key={`${name}-${i}`}
-                            className="rounded-full bg-white border border-[#0E0F1F]/10 shadow-sm px-4 py-1.5 text-sm"
+                            className="inline-flex items-center gap-2 rounded-full bg-white border border-[#0E0F1F]/10 shadow-sm pl-1.5 pr-4 py-1.5 text-sm font-medium"
                         >
+                            <NameAvatar name={name} size={24} />
                             {name}
                         </span>
                     ))}
