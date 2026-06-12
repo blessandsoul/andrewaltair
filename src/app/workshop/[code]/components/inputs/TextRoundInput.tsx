@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { StudentRound } from '@/types/workshop.types'
+import { STR } from '@/data/workshop-strings'
 
 interface TextRoundInputProps {
     round: StudentRound
@@ -51,7 +52,7 @@ export default function TextRoundInput({ round, onSubmit }: TextRoundInputProps)
                     maxLength={2000}
                     rows={4}
                     autoFocus
-                    placeholder="თქვენი პასუხი..."
+                    placeholder={STR.inputs.textPlaceholder}
                     onChange={(e) => setAt(0, e.target.value)}
                     className="w-full rounded-xl bg-white border border-[#0E0F1F]/10 shadow-sm px-4 py-3 text-base outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all resize-none"
                 />
@@ -61,7 +62,7 @@ export default function TextRoundInput({ round, onSubmit }: TextRoundInputProps)
                 disabled={!canSend || busy}
                 className="w-full rounded-2xl bg-linear-to-r from-violet-600 to-pink-600 active:opacity-90 disabled:opacity-40 py-4 text-lg font-bold text-white shadow-lg shadow-violet-600/30 transition-opacity"
             >
-                {busy ? 'იგზავნება...' : 'გაგზავნა'}
+                {busy ? STR.inputs.sending : STR.inputs.send}
             </button>
         </div>
     )

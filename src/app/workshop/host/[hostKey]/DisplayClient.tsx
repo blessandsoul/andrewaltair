@@ -9,6 +9,7 @@ import CountdownRing from '@/components/workshop/CountdownRing'
 import NameAvatar from '@/components/workshop/NameAvatar'
 import ProgressDots from '@/components/workshop/ProgressDots'
 import ResultsBoard from './components/ResultsBoard'
+import { STR } from '@/data/workshop-strings'
 
 /**
  * PROJECTED display — the screen shared in Meet.
@@ -100,14 +101,14 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
     if (error === 403) {
         return (
             <main className="min-h-dvh flex items-center justify-center">
-                <p className="text-2xl">არასწორი ბმული</p>
+                <p className="text-2xl">{STR.display.badLink}</p>
             </main>
         )
     }
     if (isLoading || !state) {
         return (
             <main className="min-h-dvh flex items-center justify-center">
-                <p className="text-2xl text-[#6E7186]">იტვირთება...</p>
+                <p className="text-2xl text-[#6E7186]">{STR.common.loading}</p>
             </main>
         )
     }
@@ -125,7 +126,7 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
         <main className="min-h-dvh flex flex-col">
             {connectionLost && (
                 <div className="fixed top-0 inset-x-0 z-50 bg-amber-400 text-[#0E0F1F] text-center text-sm font-semibold py-2">
-                    კავშირი წყდება — ვცდილობთ აღდგენას...
+                    {STR.common.reconnecting}
                 </div>
             )}
 
@@ -135,8 +136,8 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                     <h1 className="text-xl font-bold">{state.title}</h1>
                     <span className="text-[#6E7186] text-sm">
                         {state.currentRoundIndex >= 0
-                            ? `რაუნდი ${state.currentRoundIndex + 1} / ${state.roundsTotal}`
-                            : 'ლობი'}
+                            ? STR.display.roundOf(state.currentRoundIndex + 1, state.roundsTotal)
+                            : STR.display.lobby}
                     </span>
                 </div>
                 <div className="flex items-center gap-5">
@@ -177,7 +178,7 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                     </span>
                     <button
                         onClick={toggleSound}
-                        title={soundOn ? 'ხმის გამორთვა' : 'ხმის ჩართვა'}
+                        title={soundOn ? STR.display.soundOff : STR.display.soundOn}
                         className={`rounded-full p-2.5 border transition-colors ${
                             soundOn
                                 ? 'bg-violet-600 border-violet-600 text-white'
@@ -227,9 +228,9 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                                     transition={{ type: 'spring', stiffness: 200, damping: 16 }}
                                     className="text-4xl font-bold"
                                 >
-                                    სემინარი დასრულდა
+                                    {STR.common.ended}
                                 </motion.p>
-                                <p className="text-[#6E7186] text-lg">დიდი მადლობა მონაწილეობისთვის!</p>
+                                <p className="text-[#6E7186] text-lg">{STR.common.endedThanks}</p>
                             </div>
                         ) : inLobby ? (
                             <LobbyView qr={qr} code={state.code} roster={state.roster.map((r) => r.name)} />
@@ -277,13 +278,13 @@ function LobbyView({
                         </p>
                     )}
                 </motion.div>
-                <p className="mt-5 text-[#6E7186] text-xl">დაასკანერეთ ტელეფონით</p>
+                <p className="mt-5 text-[#6E7186] text-xl">{STR.display.scanQr}</p>
             </div>
 
             {/* Roster — each newcomer pops in with a spring */}
             <div className="max-w-md w-full">
                 <p className="text-sm uppercase tracking-widest text-[#6E7186] font-semibold mb-3">
-                    შემოვიდა ·{' '}
+                    {STR.display.joined} ·{' '}
                     <motion.span
                         key={roster.length}
                         initial={{ scale: 1.4 }}
@@ -309,7 +310,7 @@ function LobbyView({
                             </motion.span>
                         ))}
                     </AnimatePresence>
-                    {roster.length === 0 && <p className="text-[#6E7186]/60">ველოდებით...</p>}
+                    {roster.length === 0 && <p className="text-[#6E7186]/60">{STR.display.waiting}</p>}
                 </div>
             </div>
         </div>

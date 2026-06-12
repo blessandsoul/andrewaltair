@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { MessagesSquare, TrendingUp, TrendingDown } from 'lucide-react'
 import type { RevoteOptionResult } from '@/types/workshop.types'
+import { STR } from '@/data/workshop-strings'
 
 interface RevoteResultsProps {
     options: RevoteOptionResult[]
@@ -37,10 +38,10 @@ export default function RevoteResults({
                     <p className="inline-flex items-center justify-center gap-3 text-[clamp(18px,2.2vw,32px)] font-bold">
                         <MessagesSquare size={26} className="text-violet-600 shrink-0" />
                         <span>
-                            დისკუსიამ გადააადგილა <span className="text-violet-600">{movedCount}</span> მონაწილე
+                            {STR.results.shiftMoved(movedCount)}
                         </span>
                     </p>
-                    <p className="text-[#6E7186] text-sm mt-1">Peer Instruction მუშაობს — აზრის შეცვლა სწავლის ნიშანია</p>
+                    <p className="text-[#6E7186] text-sm mt-1">{STR.results.shiftSub}</p>
                 </motion.div>
             )}
 
@@ -71,7 +72,7 @@ export default function RevoteResults({
                         </div>
                         {/* Phase 1 */}
                         <div className="flex items-center gap-3 mb-1.5">
-                            <span className="w-16 text-xs uppercase text-[#6E7186] font-semibold shrink-0">ხმა 1</span>
+                            <span className="w-16 text-xs uppercase text-[#6E7186] font-semibold shrink-0">{STR.results.vote1}</span>
                             <div className="flex-1 h-6 rounded-md bg-[#0E0F1F]/4 border border-[#0E0F1F]/8 overflow-hidden">
                                 <motion.div
                                     className="h-full bg-[#0E0F1F]/30"
@@ -85,7 +86,7 @@ export default function RevoteResults({
                         </div>
                         {/* Phase 2 */}
                         <div className="flex items-center gap-3">
-                            <span className="w-16 text-xs uppercase text-violet-600 font-semibold shrink-0">ხმა 2</span>
+                            <span className="w-16 text-xs uppercase text-violet-600 font-semibold shrink-0">{STR.results.vote2}</span>
                             <div className="flex-1 h-6 rounded-md bg-[#0E0F1F]/4 border border-[#0E0F1F]/8 overflow-hidden">
                                 <motion.div
                                     className="h-full bg-violet-600"
@@ -101,7 +102,7 @@ export default function RevoteResults({
                 )
             })}
             <p className="text-center text-[#6E7186] text-sm">
-                ხმა 1: {totalOpen} {showRevote && `· ხმა 2: ${totalRevote}`}
+                {STR.results.vote1}: {totalOpen} {showRevote && `· ${STR.results.vote2}: ${totalRevote}`}
             </p>
         </div>
     )

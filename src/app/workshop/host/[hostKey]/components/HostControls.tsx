@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Play, MessagesSquare, BarChart3, RotateCcw, SkipForward, Dices } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { StudentRound } from '@/types/workshop.types'
+import { STR } from '@/data/workshop-strings'
 
 interface HostControlsProps {
     round: StudentRound | null
@@ -44,26 +45,26 @@ export function primaryActionFor(round: StudentRound | null, inLobby: boolean, i
 
 function buttonsFor(round: StudentRound | null, inLobby: boolean, isLastRound: boolean): ControlButton[] {
     if (inLobby || !round) {
-        return [{ action: 'openRound', label: 'პირველი რაუნდი', icon: Play, primary: true }]
+        return [{ action: 'openRound', label: STR.controls.firstRound, icon: Play, primary: true }]
     }
     const next: ControlButton[] = isLastRound
         ? []
-        : [{ action: 'nextRound', label: 'შემდეგი რაუნდი', icon: SkipForward }]
+        : [{ action: 'nextRound', label: STR.controls.nextRound, icon: SkipForward }]
     switch (round.phase) {
         case 'closed':
-            return [{ action: 'openRound', label: 'რაუნდის გახსნა', icon: Play, primary: true }, ...next]
+            return [{ action: 'openRound', label: STR.controls.openRound, icon: Play, primary: true }, ...next]
         case 'open':
             if (round.type === 'choice_revote') {
                 return [
-                    { action: 'advancePhase', label: 'დისკუსია', icon: MessagesSquare, primary: true },
-                    { action: 'reveal', label: 'შედეგები', icon: BarChart3 },
+                    { action: 'advancePhase', label: STR.controls.discuss, icon: MessagesSquare, primary: true },
+                    { action: 'reveal', label: STR.controls.reveal, icon: BarChart3 },
                 ]
             }
-            return [{ action: 'reveal', label: 'შედეგები', icon: BarChart3, primary: true }, ...next]
+            return [{ action: 'reveal', label: STR.controls.reveal, icon: BarChart3, primary: true }, ...next]
         case 'discuss':
-            return [{ action: 'advancePhase', label: 'ხელახალი ხმა', icon: RotateCcw, primary: true }]
+            return [{ action: 'advancePhase', label: STR.controls.revote, icon: RotateCcw, primary: true }]
         case 'revote':
-            return [{ action: 'reveal', label: 'შედეგები (შედარება)', icon: BarChart3, primary: true }]
+            return [{ action: 'reveal', label: STR.controls.revealCompare, icon: BarChart3, primary: true }]
         case 'revealed':
             return next.length ? [{ ...next[0], primary: true }] : []
         default:
@@ -109,7 +110,7 @@ export default function HostControls({
         <section className="px-5 py-3">
             {gateConfirm && (
                 <div className="mb-2 rounded-xl bg-amber-50 border border-amber-300 px-4 py-2.5 text-amber-700 text-sm font-semibold">
-                    ჯერ მხოლოდ {responsesCount}/{participantCount}-მა უპასუხა — დააჭირეთ კიდევ ერთხელ, თუ მაინც გადახვალთ
+                    {STR.controls.gateWarn(responsesCount, participantCount)}
                 </div>
             )}
             <div className="flex flex-wrap gap-2.5 items-center">
@@ -143,7 +144,7 @@ export default function HostControls({
                     <button
                         onClick={() => onAction('seedFake')}
                         disabled={busy}
-                        title="Demo: фейковые ответы для репетиции"
+                        title={STR.controls.seedTitle}
                         className="rounded-xl px-3.5 py-3.5 text-[#6E7186]/50 hover:text-[#6E7186] border border-[#0E0F1F]/8 hover:border-[#0E0F1F]/15 bg-white transition-colors disabled:opacity-40"
                     >
                         <Dices size={18} />
@@ -151,7 +152,7 @@ export default function HostControls({
                 )}
             </div>
             <p className="hidden lg:block mt-2 text-[11px] text-[#6E7186]/60">
-                Space=შემდეგი · R=შედეგები · →=რაუნდი · E=დასრულება
+                {STR.controls.hotkeys}
             </p>
         </section>
     )

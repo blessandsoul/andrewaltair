@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { STR } from '@/data/workshop-strings'
 
 interface SubmittedStateProps {
     onEdit: () => void
@@ -34,13 +35,13 @@ export default function SubmittedState({ onEdit }: SubmittedStateProps) {
                     />
                 </svg>
             </motion.div>
-            <p className="text-xl font-bold">პასუხი მიღებულია</p>
-            <p className="text-[#6E7186] text-sm">დაელოდეთ შემდეგ რაუნდს</p>
+            <p className="text-xl font-bold">{STR.submitted.title}</p>
+            <p className="text-[#6E7186] text-sm">{STR.submitted.sub}</p>
             <button
                 onClick={onEdit}
                 className="text-violet-600 underline underline-offset-4 text-sm active:text-violet-500"
             >
-                პასუხის შეცვლა
+                {STR.submitted.edit}
             </button>
         </motion.div>
     )

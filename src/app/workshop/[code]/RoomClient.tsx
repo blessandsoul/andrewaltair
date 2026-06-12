@@ -5,6 +5,7 @@ import { useRoomPoll } from '@/hooks/useRoomPoll'
 import type { StudentState } from '@/types/workshop.types'
 import NameGate from './components/NameGate'
 import CurrentRound from './components/CurrentRound'
+import { STR } from '@/data/workshop-strings'
 
 const CLIENT_ID_KEY = 'w_client_id'
 const NAME_KEY = 'w_name'
@@ -46,7 +47,7 @@ export default function RoomClient({ code }: { code: string }) {
             : null
     const { data: state, error, isLoading, connectionLost } = useRoomPoll<StudentState>(pollUrl)
 
-    if (!clientId) return <ScreenShell><CenterNote title="იტვირთება..." /></ScreenShell>
+    if (!clientId) return <ScreenShell><CenterNote title={STR.common.loading} /></ScreenShell>
 
     if (!name) {
         return (
@@ -64,23 +65,23 @@ export default function RoomClient({ code }: { code: string }) {
     }
 
     if (error === 404) {
-        return <ScreenShell><CenterNote title="ოთახი ვერ მოიძებნა" sub={`კოდი: ${code}`} /></ScreenShell>
+        return <ScreenShell><CenterNote title={STR.student.roomNotFound} sub={STR.student.codeLabel(code)} /></ScreenShell>
     }
     if (isLoading || !state) {
-        return <ScreenShell><CenterNote title="იტვირთება..." /></ScreenShell>
+        return <ScreenShell><CenterNote title={STR.common.loading} /></ScreenShell>
     }
     if (state.status === 'ended') {
-        return <ScreenShell><CenterNote title="სემინარი დასრულდა" sub="დიდი მადლობა მონაწილეობისთვის!" /></ScreenShell>
+        return <ScreenShell><CenterNote title={STR.common.ended} sub={STR.common.endedThanks} /></ScreenShell>
     }
     if (state.status === 'lobby' || !state.round) {
         return (
             <ScreenShell>
                 <CenterNote
                     title={state.title}
-                    sub={`მალე დავიწყებთ · შემოვიდა ${state.participantCount}`}
+                    sub={STR.student.lobbySub(state.participantCount)}
                 />
                 <p className="mt-6 text-center text-[#6E7186]/70 text-sm">
-                    გამარჯობა, {name}! დაელოდეთ წამყვანს.
+                    {STR.student.lobbyHello(name)}
                 </p>
             </ScreenShell>
         )
@@ -90,7 +91,7 @@ export default function RoomClient({ code }: { code: string }) {
         <ScreenShell>
             {connectionLost && (
                 <div className="fixed top-0 inset-x-0 z-50 bg-amber-400 text-[#0E0F1F] text-center text-sm font-semibold py-2">
-                    კავშირი წყდება — ვცდილობთ აღდგენას...
+                    {STR.common.reconnecting}
                 </div>
             )}
             <CurrentRound

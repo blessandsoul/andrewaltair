@@ -7,6 +7,7 @@ import TextWall from './results/TextWall'
 import BarResults from './results/BarResults'
 import RevoteResults from './results/RevoteResults'
 import Histogram from './results/Histogram'
+import { STR } from '@/data/workshop-strings'
 
 interface ResultsBoardProps {
     round: StudentRound | null
@@ -17,11 +18,11 @@ interface ResultsBoardProps {
 }
 
 const PHASE_BADGES: Record<string, { icon: LucideIcon | null; label: string; live?: boolean }> = {
-    closed: { icon: Lock, label: 'დახურულია' },
-    open: { icon: null, label: 'ღიაა — პასუხები მოდის', live: true },
-    discuss: { icon: MessagesSquare, label: 'დისკუსიის ფაზა' },
-    revote: { icon: RotateCcw, label: 'ხელახალი ხმის მიცემა' },
-    revealed: { icon: BarChart3, label: 'შედეგები' },
+    closed: { icon: Lock, label: STR.phaseBadge.closed },
+    open: { icon: null, label: STR.phaseBadge.open, live: true },
+    discuss: { icon: MessagesSquare, label: STR.phaseBadge.discuss },
+    revote: { icon: RotateCcw, label: STR.phaseBadge.revote },
+    revealed: { icon: BarChart3, label: STR.phaseBadge.revealed },
 }
 
 function PhaseBadge({ phase }: { phase: string }) {
@@ -55,7 +56,7 @@ export default function ResultsBoard({ round, results, onPin, readonly = false }
                         onClick={() => onPin('unpin')}
                         className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm text-[#6E7186] hover:text-[#0E0F1F] border border-[#0E0F1F]/10 hover:border-[#0E0F1F]/25 bg-white shadow-sm transition-colors"
                     >
-                        <X size={16} /> მოხსნა
+                        <X size={16} /> {STR.results.unpin}
                     </button>
                 )}
             </div>
@@ -70,7 +71,7 @@ export default function ResultsBoard({ round, results, onPin, readonly = false }
                 <h2 className="text-[clamp(26px,3.2vw,52px)] font-bold leading-snug">{round.prompt}</h2>
             </div>
 
-            {!results && <p className="text-center text-[#6E7186]">პასუხები ჯერ არ არის</p>}
+            {!results && <p className="text-center text-[#6E7186]">{STR.results.noAnswers}</p>}
 
             {results?.type === 'text' && <TextWall items={results.items} onPin={onPin} readonly={readonly} />}
             {results?.type === 'choice' && (

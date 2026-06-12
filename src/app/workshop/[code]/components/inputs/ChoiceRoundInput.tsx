@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import type { StudentRound } from '@/types/workshop.types'
+import { STR } from '@/data/workshop-strings'
 
 interface ChoiceRoundInputProps {
     round: StudentRound
@@ -50,13 +51,13 @@ export default function ChoiceRoundInput({ round, onSubmit }: ChoiceRoundInputPr
                         {LETTERS[i] ?? '•'}
                     </span>
                     <span className="text-lg font-semibold leading-snug">
-                        {busy === o.id ? 'იგზავნება...' : cleanLabel(o.label)}
+                        {busy === o.id ? STR.inputs.sending : cleanLabel(o.label)}
                     </span>
                 </motion.button>
             ))}
             {round.phase === 'revote' && (
                 <p className="text-center text-[#6E7186] text-sm pt-1">
-                    მეორე რაუნდი — შეგიძლიათ იგივე ან ახალი პასუხი
+                    {STR.inputs.revoteHint}
                 </p>
             )}
         </div>

@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { Check } from 'lucide-react'
 import type { RoundPhase, RoundType } from '@/types/workshop.types'
+import { STR } from '@/data/workshop-strings'
 
 interface PhaseStepperProps {
     type: RoundType
@@ -10,15 +11,15 @@ interface PhaseStepperProps {
 }
 
 const REVOTE_STEPS = [
-    { key: 'open', label: 'ხმა 1' },
-    { key: 'discuss', label: 'დისკუსია' },
-    { key: 'revote', label: 'ხმა 2' },
-    { key: 'revealed', label: 'შედეგი' },
+    { key: 'open', label: STR.stepper.vote1 },
+    { key: 'discuss', label: STR.stepper.discuss },
+    { key: 'revote', label: STR.stepper.vote2 },
+    { key: 'revealed', label: STR.stepper.result },
 ] as const
 
 const SIMPLE_STEPS = [
-    { key: 'open', label: 'პასუხები' },
-    { key: 'revealed', label: 'შედეგი' },
+    { key: 'open', label: STR.stepper.answers },
+    { key: 'revealed', label: STR.stepper.result },
 ] as const
 
 /** Host neuro-cue: where the round is in its lifecycle (Mazur cycle made visible). */

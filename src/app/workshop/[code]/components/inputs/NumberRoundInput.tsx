@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { StudentRound } from '@/types/workshop.types'
+import { STR } from '@/data/workshop-strings'
 
 interface NumberRoundInputProps {
     round: StudentRound
@@ -25,7 +26,7 @@ export default function NumberRoundInput({ round, onSubmit }: NumberRoundInputPr
         <div className="space-y-6">
             <div className="text-center">
                 <span className="text-6xl font-bold tabular-nums">{value}</span>
-                <span className="text-[#6E7186] text-xl ml-2">წამი</span>
+                <span className="text-[#6E7186] text-xl ml-2">{STR.inputs.seconds}</span>
             </div>
             <input
                 type="range"
@@ -45,7 +46,7 @@ export default function NumberRoundInput({ round, onSubmit }: NumberRoundInputPr
                 disabled={busy}
                 className="w-full rounded-2xl bg-linear-to-r from-violet-600 to-pink-600 active:opacity-90 disabled:opacity-40 py-4 text-lg font-bold text-white shadow-lg shadow-violet-600/30 transition-opacity"
             >
-                {busy ? 'იგზავნება...' : 'გაგზავნა'}
+                {busy ? STR.inputs.sending : STR.inputs.send}
             </button>
         </div>
     )

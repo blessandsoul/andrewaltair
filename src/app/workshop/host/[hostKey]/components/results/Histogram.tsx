@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import type { NumberBucket } from '@/types/workshop.types'
+import { STR } from '@/data/workshop-strings'
 
 interface HistogramProps {
     buckets: NumberBucket[]
@@ -37,14 +38,14 @@ export default function Histogram({ buckets, total, avg }: HistogramProps) {
                 })}
             </div>
             <p className="text-center text-[#6E7186] mt-5">
-                სულ: {total} · საშუალო:{' '}
+                {STR.results.histTotal(total)} · {STR.results.histAvg}{' '}
                 <motion.span
                     key={avg}
                     initial={{ scale: 1.25 }}
                     animate={{ scale: 1 }}
                     className="inline-block text-violet-600 font-bold"
                 >
-                    {avg} წამი
+                    {STR.results.histSeconds(avg)}
                 </motion.span>
             </p>
         </div>

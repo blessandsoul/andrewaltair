@@ -8,6 +8,7 @@ import CountdownRing from '@/components/workshop/CountdownRing'
 import NameAvatar from '@/components/workshop/NameAvatar'
 import PhaseStepper from '@/components/workshop/PhaseStepper'
 import HostControls, { primaryActionFor } from '../components/HostControls'
+import { STR } from '@/data/workshop-strings'
 
 /**
  * HOST REMOTE — control surface (laptop second window or the host's phone).
@@ -62,14 +63,14 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
     if (error === 403) {
         return (
             <main className="min-h-dvh flex items-center justify-center">
-                <p className="text-2xl">არასწორი ბმული</p>
+                <p className="text-2xl">{STR.display.badLink}</p>
             </main>
         )
     }
     if (isLoading || !state) {
         return (
             <main className="min-h-dvh flex items-center justify-center">
-                <p className="text-2xl text-[#6E7186]">იტვირთება...</p>
+                <p className="text-2xl text-[#6E7186]">{STR.common.loading}</p>
             </main>
         )
     }
@@ -87,7 +88,7 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
         <main className="min-h-dvh flex flex-col max-w-3xl mx-auto">
             {connectionLost && (
                 <div className="fixed top-0 inset-x-0 z-50 bg-amber-400 text-[#0E0F1F] text-center text-sm font-semibold py-2">
-                    კავშირი წყდება...
+                    {STR.common.reconnecting}
                 </div>
             )}
 
@@ -95,7 +96,7 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
             <header className="px-5 pt-5 pb-3 space-y-3">
                 <div className="flex items-center justify-between">
                     <div>
-                        <p className="text-xs uppercase tracking-widest text-[#6E7186] font-semibold">პულტი</p>
+                        <p className="text-xs uppercase tracking-widest text-[#6E7186] font-semibold">{STR.remote.title}</p>
                         <h1 className="text-lg font-bold leading-tight">{state.title}</h1>
                     </div>
                     <span className="text-xl font-bold tracking-[0.2em] bg-white border border-[#0E0F1F]/10 shadow-sm rounded-xl px-3 py-1">
@@ -117,8 +118,8 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                     </span>
                     <span className="text-[#6E7186]">
                         {state.currentRoundIndex >= 0
-                            ? `რაუნდი ${state.currentRoundIndex + 1}/${state.roundsTotal}`
-                            : 'ლობი'}
+                            ? STR.display.roundOf(state.currentRoundIndex + 1, state.roundsTotal)
+                            : STR.display.lobby}
                     </span>
                     {answering && (
                         <span className="inline-flex items-center gap-1.5 tabular-nums">
@@ -156,7 +157,7 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                         onClick={() => setNotesOpen((v) => !v)}
                         className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-violet-700 font-semibold"
                     >
-                        <StickyNote size={13} /> ჩემი ნოუთები{' '}
+                        <StickyNote size={13} /> {STR.remote.notes}{' '}
                         {notesOpen ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
                     </button>
                     {notesOpen && (
@@ -182,7 +183,7 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                     {textItems.length > 0 && (
                         <div className="px-5 pb-3 space-y-2">
                             <p className="text-xs uppercase tracking-widest text-[#6E7186] font-semibold">
-                                პასუხები — დააჭირეთ ვარსკვლავს ეკრანზე გასატანად
+                                {STR.remote.pinListHeader}
                             </p>
                             {textItems.map((item) => (
                                 <div
@@ -199,7 +200,7 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                                     <button
                                         onClick={() => act('pinResponse', item.id)}
                                         className="shrink-0 text-[#6E7186] hover:text-amber-500 transition-colors p-1.5 rounded-lg hover:bg-amber-50"
-                                        title="ეკრანზე გატანა"
+                                        title={STR.results.pinTitle}
                                     >
                                         <Star size={18} />
                                     </button>
@@ -210,7 +211,7 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                                     onClick={() => act('unpin')}
                                     className="text-sm text-violet-600 underline underline-offset-4"
                                 >
-                                    დამაგრების მოხსნა
+                                    {STR.remote.unpin}
                                 </button>
                             )}
                         </div>
@@ -223,7 +224,7 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                             target="_blank"
                             className="inline-flex items-center gap-2 text-sm text-[#6E7186] hover:text-violet-600 transition-colors"
                         >
-                            <MonitorPlay size={15} /> ეკრანის გახსნა (გასაშეარებლად)
+                            <MonitorPlay size={15} /> {STR.remote.openDisplay}
                         </a>
                         {stopConfirm ? (
                             <div className="flex gap-3">
@@ -235,13 +236,13 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                                     disabled={actionBusy}
                                     className="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl bg-red-600 hover:bg-red-500 text-white py-4 text-lg font-bold transition-colors disabled:opacity-40"
                                 >
-                                    <OctagonX size={20} /> დიახ, დასრულება
+                                    <OctagonX size={20} /> {STR.remote.stopConfirm}
                                 </button>
                                 <button
                                     onClick={() => setStopConfirm(false)}
                                     className="rounded-2xl border border-[#0E0F1F]/15 px-6 font-semibold text-[#6E7186]"
                                 >
-                                    არა
+                                    {STR.remote.stopCancel}
                                 </button>
                             </div>
                         ) : (
@@ -250,14 +251,14 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                                 disabled={actionBusy}
                                 className="w-full inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-red-300 bg-red-50 text-red-600 hover:bg-red-100 py-4 text-lg font-bold transition-colors disabled:opacity-40"
                             >
-                                <OctagonX size={20} /> სემინარის დასრულება
+                                <OctagonX size={20} /> {STR.remote.stop}
                             </button>
                         )}
                     </div>
                 </>
             ) : (
                 <div className="flex-1 flex items-center justify-center">
-                    <p className="text-2xl text-[#6E7186]">სემინარი დასრულდა</p>
+                    <p className="text-2xl text-[#6E7186]">{STR.common.ended}</p>
                 </div>
             )}
         </main>

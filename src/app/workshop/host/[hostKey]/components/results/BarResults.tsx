@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Check } from 'lucide-react'
 import type { ChoiceCount } from '@/types/workshop.types'
+import { STR } from '@/data/workshop-strings'
 
 interface BarResultsProps {
     counts: ChoiceCount[]
@@ -86,7 +87,7 @@ export default function BarResults({ counts, total, revealed, correctOptionId }:
                     revealed={revealed}
                 />
             ))}
-            <p className="text-center text-[#6E7186] text-sm pt-1">სულ ხმა: {total}</p>
+            <p className="text-center text-[#6E7186] text-sm pt-1">{STR.results.totalVotes(total)}</p>
         </div>
     )
 }

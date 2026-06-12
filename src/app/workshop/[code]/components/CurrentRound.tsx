@@ -11,6 +11,7 @@ import TextRoundInput from './inputs/TextRoundInput'
 import ChoiceRoundInput from './inputs/ChoiceRoundInput'
 import NumberRoundInput from './inputs/NumberRoundInput'
 import SubmittedState from './SubmittedState'
+import { STR } from '@/data/workshop-strings'
 
 interface CurrentRoundProps {
     code: string
@@ -22,11 +23,11 @@ interface CurrentRoundProps {
 
 // Neuro-cue: one colored banner = the ONE thing to do right now
 const PHASE_BANNERS: Record<string, { icon: LucideIcon; label: string; cls: string }> = {
-    open: { icon: PenLine, label: 'ახლა თქვენი ჯერია — უპასუხეთ', cls: 'bg-violet-600 text-white shadow-lg shadow-violet-600/30' },
-    revote: { icon: RotateCcw, label: 'ხელახლა მიეცით ხმა', cls: 'bg-pink-600 text-white shadow-lg shadow-pink-600/30' },
-    discuss: { icon: MessagesSquare, label: 'განიხილეთ Meet-ის ჩატში', cls: 'bg-sky-600 text-white shadow-lg shadow-sky-600/30' },
-    revealed: { icon: Monitor, label: 'შეხედეთ წამყვანის ეკრანს', cls: 'bg-white text-[#262738] border border-[#0E0F1F]/10 shadow-sm' },
-    closed: { icon: Hourglass, label: 'მოემზადეთ...', cls: 'bg-white text-[#262738] border border-[#0E0F1F]/10 shadow-sm' },
+    open: { icon: PenLine, label: STR.phaseBanner.open, cls: 'bg-violet-600 text-white shadow-lg shadow-violet-600/30' },
+    revote: { icon: RotateCcw, label: STR.phaseBanner.revote, cls: 'bg-pink-600 text-white shadow-lg shadow-pink-600/30' },
+    discuss: { icon: MessagesSquare, label: STR.phaseBanner.discuss, cls: 'bg-sky-600 text-white shadow-lg shadow-sky-600/30' },
+    revealed: { icon: Monitor, label: STR.phaseBanner.revealed, cls: 'bg-white text-[#262738] border border-[#0E0F1F]/10 shadow-sm' },
+    closed: { icon: Hourglass, label: STR.phaseBanner.closed, cls: 'bg-white text-[#262738] border border-[#0E0F1F]/10 shadow-sm' },
 }
 
 export default function CurrentRound({ code, clientId, round, myAnswer, serverNow }: CurrentRoundProps) {
@@ -58,11 +59,11 @@ export default function CurrentRound({ code, clientId, round, myAnswer, serverNo
                 if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(15)
                 return true
             }
-            if (res.status === 409) setSubmitError('რაუნდი დაიხურა')
-            else setSubmitError('ვერ გაიგზავნა — სცადეთ თავიდან')
+            if (res.status === 409) setSubmitError(STR.round.errClosed)
+            else setSubmitError(STR.round.errSend)
             return false
         } catch {
-            setSubmitError('კავშირის შეცდომა')
+            setSubmitError(STR.round.errNetwork)
             return false
         }
     }
@@ -107,7 +108,7 @@ export default function CurrentRound({ code, clientId, round, myAnswer, serverNo
     // body per phase — wrapped in AnimatePresence for smooth phase transitions
     let body: React.ReactNode
     if (round.phase === 'closed') {
-        body = <p className="text-center text-[#6E7186]">დაელოდეთ წამყვანს...</p>
+        body = <p className="text-center text-[#6E7186]">{STR.round.waitHost}</p>
     } else if (round.phase === 'discuss') {
         body = (
             <div className="rounded-2xl bg-white border border-[#0E0F1F]/8 shadow-sm p-6 text-center space-y-3">
@@ -118,8 +119,8 @@ export default function CurrentRound({ code, clientId, round, myAnswer, serverNo
                 >
                     <MessagesSquare size={44} className="text-sky-600" />
                 </motion.div>
-                <p className="text-lg font-semibold">რატომ აირჩიეთ თქვენი პასუხი?</p>
-                <p className="text-[#6E7186]">დაწერეთ არგუმენტი ჩატში და წაიკითხეთ სხვების მოსაზრებები — შემდეგ ხელახლა მისცემთ ხმას.</p>
+                <p className="text-lg font-semibold">{STR.round.discussTitle}</p>
+                <p className="text-[#6E7186]">{STR.round.discussBody}</p>
             </div>
         )
     } else if (round.phase === 'revealed') {
