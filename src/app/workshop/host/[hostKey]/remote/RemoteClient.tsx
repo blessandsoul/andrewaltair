@@ -7,6 +7,7 @@ import type { HostState } from '@/types/workshop.types'
 import CountdownRing from '@/components/workshop/CountdownRing'
 import NameAvatar from '@/components/workshop/NameAvatar'
 import PhaseStepper from '@/components/workshop/PhaseStepper'
+import { answerPreview } from '@/components/workshop/parseAnswer'
 import HostControls, { primaryActionFor } from '../components/HostControls'
 import { STR } from '@/data/workshop-strings'
 
@@ -194,7 +195,7 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                                         <NameAvatar name={item.name} size={30} />
                                         <div className="min-w-0">
                                             <p className="text-xs text-[#6E7186] font-semibold">{item.name}</p>
-                                            <p className="text-sm text-[#262738] truncate">{item.textValue}</p>
+                                            <p className="text-sm text-[#262738] truncate">{answerPreview(item.textValue)}</p>
                                         </div>
                                     </div>
                                     <button

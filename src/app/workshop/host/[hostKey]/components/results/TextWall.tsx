@@ -4,12 +4,39 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Star } from 'lucide-react'
 import type { TextResultItem } from '@/types/workshop.types'
 import NameAvatar, { nameAccent } from '@/components/workshop/NameAvatar'
+import { parseStructuredAnswer } from '@/components/workshop/parseAnswer'
 import { STR } from '@/data/workshop-strings'
 
 interface TextWallProps {
     items: TextResultItem[]
     onPin: (action: string, responseId?: string) => void
     readonly?: boolean
+}
+
+/** Multi-field answers («label: value» lines) render as structured rows, not a text blob. */
+function AnswerBody({ text }: { text: string }) {
+    const rows = parseStructuredAnswer(text)
+    if (!rows) {
+        return (
+            <p className="text-[clamp(15px,1.45vw,21px)] leading-relaxed whitespace-pre-wrap text-[#1c1d2e]">
+                {text}
+            </p>
+        )
+    }
+    return (
+        <div className="divide-y divide-[#0E0F1F]/6">
+            {rows.map((r, i) => (
+                <div key={i} className="py-2 first:pt-0 last:pb-0">
+                    <p className="text-[11px] uppercase tracking-wider text-[#6E7186] font-semibold mb-0.5">
+                        {r.label}
+                    </p>
+                    <p className="text-[clamp(15px,1.4vw,20px)] font-semibold text-[#1c1d2e] leading-snug">
+                        {r.value}
+                    </p>
+                </div>
+            ))}
+        </div>
+    )
 }
 
 export default function TextWall({ items, onPin, readonly = false }: TextWallProps) {
@@ -65,9 +92,7 @@ export default function TextWall({ items, onPin, readonly = false }: TextWallPro
                                         </button>
                                     )}
                                 </div>
-                                <p className="text-[clamp(15px,1.45vw,21px)] leading-relaxed whitespace-pre-wrap text-[#1c1d2e]">
-                                    {item.textValue}
-                                </p>
+                                <AnswerBody text={item.textValue} />
                             </div>
                         </motion.div>
                     )
