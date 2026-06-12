@@ -13,6 +13,7 @@ import mongoose from 'mongoose';
 
 import { AIPersona, pickRandomPersonas, pickRandomLikers, AI_PERSONAS } from '@/lib/ai-personas';
 import { pickReactionAngle } from '@/lib/georgian-forum-personas';
+import { brainBlock } from '@/lib/brains/brainBlock';
 import { MODEL_CHAIN, chatRaw, extractGeorgian, isValidGeorgian, sanitizeForPrompt, polishGeorgian } from '@/lib/openrouter-georgian';
 import dbConnect from '@/lib/db';
 import Comment from '@/models/Comment';
@@ -41,6 +42,7 @@ async function callModel(
         `YOUR LENS (pull the topic here): ${persona.lens}\n` +
         `HOW YOU SPEAK: ${persona.style}\n` +
         `EXAMPLE of your voice: "${persona.sample}"\n` +
+        brainBlock(persona.id, 'trim') +
         `Leave ONE short blog comment in GEORGIAN (Mkhedruli), 12-22 words, reacting to THIS specific story — like the real you, not a generic philosopher.\n` +
         `React to a concrete detail of the actual story; be unmistakably YOU (a light hint of your deeds/lens). Angle for THIS comment (vary it): ${pickReactionAngle()}\n` +
         `READABILITY: simple modern Georgian, short clear sentences, reads aloud easily like a smart friend — specificity comes from real facts, NOT fancy or archaic words.\n` +
@@ -66,6 +68,7 @@ async function callReplyModel(
         `WHO YOU ARE: ${persona.bio}\n` +
         `YOUR LENS: ${persona.lens}\n` +
         `HOW YOU SPEAK: ${persona.style}\n` +
+        brainBlock(persona.id, 'trim') +
         `Reply to another reader's Georgian comment under this story. 8-20 words, FIRST PERSON, like the real you — agree, joke, gently disagree, or add ONE concrete point. Tie it to your lens, never lecture.\n` +
         `READABILITY: simple modern Georgian, short clear sentence; specificity from real facts, not fancy words.\n` +
         `Georgian Mkhedruli ONLY — NO Chinese/Korean/Japanese/Arabic/Hebrew/Cyrillic; short acronyms ok; no hashtags, quotes or emojis.\n` +
