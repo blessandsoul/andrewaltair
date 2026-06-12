@@ -16,3 +16,6 @@ export { default as CronJob } from './CronJob';
 export { default as ErrorLog } from './ErrorLog';
 export { default as Folder } from './Folder';
 export { default as Tool, type ITool } from './Tool';
+export { default as WorkshopRoom, type IWorkshopRoom, type IWorkshopRound } from './WorkshopRoom';
+export { default as WorkshopParticipant, type IWorkshopParticipant } from './WorkshopParticipant';
+export { default as WorkshopResponse, type IWorkshopResponse } from './WorkshopResponse';

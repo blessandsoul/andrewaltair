@@ -1,0 +1,139 @@
+// Workshop Room — seeded round templates.
+// Rounds are deep-copied into a WorkshopRoom document at creation time;
+// editing this file affects only NEW rooms.
+
+import type { RoundType, RoundOption, RoundConfig } from '@/types/workshop.types';
+
+export interface WorkshopTemplateRound {
+    key: string;
+    type: RoundType;
+    prompt: string;
+    options?: RoundOption[];
+    correctOptionId?: string;
+    config?: RoundConfig;
+    durationSec?: number;
+    hostNotes?: string;
+}
+
+export interface WorkshopTemplate {
+    title: string;
+    rounds: WorkshopTemplateRound[];
+}
+
+export const WORKSHOP_TEMPLATES: Record<'adi-workshop', WorkshopTemplate> = {
+    'adi-workshop': {
+        title: 'ერთი ფოტო → მზა ვიდეო',
+        rounds: [
+            {
+                key: 'r1',
+                durationSec: 120,
+                hostNotes: 'ჩატის სნიპეტი ჩასვი · წაიკითხე 3-4 პასუხი ხმამაღლა სახელებით · ჩაინიშნე 2-3 ვიდეო-ოცნება (სლაიდ 18/28-თვის)',
+                type: 'text',
+                prompt: 'გაცნობა — სამი რამ',
+                config: {
+                    fields: [
+                        'თქვენი სფერო (1-2 სიტყვა)',
+                        'AI-ინსტრუმენტი, რომელიც გიცდიათ (ან «ნული»)',
+                        'ვიდეო-ოცნება (მაქს. 5 სიტყვა)',
+                    ],
+                },
+            },
+            {
+                key: 'r2',
+                durationSec: 45,
+                hostNotes: 'აჩვენე 3 ფოტო ეკრანზე · ხმები ხმამაღლა დაითვალე · გამარჯვებული ფოტო ღია დარჩეს',
+                type: 'choice',
+                prompt: 'რომელ ფოტოს გავაცოცხლებთ დღეს?',
+                options: [
+                    { id: 'a', label: 'A · ძველი თბილისის ეზო' },
+                    { id: 'b', label: 'B · პროდუქტი მაგიდაზე' },
+                    { id: 'c', label: 'C · პორტრეტი ფანჯარასთან' },
+                ],
+            },
+            {
+                key: 'r3',
+                durationSec: 60,
+                hostNotes: 'Predict-ფაზა: ნუ იტყვი ვინ მართალია — ინტრიგა რენდერამდე · ჩაინიშნე პროგნოზები სლაიდ 21-თვის',
+                type: 'text',
+                prompt: 'პროგნოზი: რა შეიძლება გაცოცხლდეს ამ კადრში? დაწერეთ 1-2 რამ',
+            },
+            {
+                key: 'r4',
+                durationSec: 45,
+                hostNotes: 'MAZUR: ხმა → დისკუსია (Meet-ჩატში არგუმენტები) → რეგოლოსვა → შედეგები. სწორი = B (static)',
+                type: 'choice_revote',
+                prompt: 'რომელი გამოიყურება უფრო ძვირად?',
+                options: [
+                    { id: 'a', label: 'A · კამერა მოძრაობს' },
+                    { id: 'b', label: 'B · კამერა გაჩერებულია' },
+                ],
+            },
+            {
+                key: 'r5',
+                durationSec: 40,
+                hostNotes: 'აჩვენე მოსაწყენი კლიპი ბოლომდე · შედეგი = მტკიცებულება წესისთვის 1-3-7',
+                type: 'number',
+                prompt: 'რომელ წამზე გადაატრიალებდით ამ ვიდეოს? (გულახდილად)',
+                config: { minNumber: 1, maxNumber: 15 },
+            },
+            {
+                key: 'r6',
+                durationSec: 60,
+                hostNotes: '3 ჩადებული შეცდომა: ცენტრი / კიდეების ხმაური / მზერა კედელში. მესამეს იშვიათად პოულობენ — მინიშნება',
+                type: 'text',
+                prompt: 'დეტექტივი: რა არის არასწორი ამ კადრში? დაწერეთ რას შეცვლიდით',
+            },
+            {
+                key: 'r7',
+                durationSec: 60,
+                hostNotes: 'შეაგროვე და შემდეგ სლაიდზე დაამთხვიე 5-ველიან სქემას — სახელებით',
+                type: 'text',
+                prompt: 'რა კომპონენტები უნდა ეწეროს კარგ text-to-video პრომპტში? ჩამოთვალეთ 2-3',
+            },
+            {
+                key: 'r8',
+                durationSec: 90,
+                hostNotes: '90 წამი · ტაიმერი ხმამაღლა · აღნიშნე 2-3 საინტერესო დეტალი · 1 საუკეთესო დაიმახსოვრე ფინალისთვის',
+                type: 'text',
+                prompt: 'თქვენი ვერსია: 5 ველი (ობიექტი / მოქმედება / გარემო / კამერა / სტილი) — შეცვალეთ მინ. 2 ველი',
+            },
+            {
+                key: 'r9',
+                durationSec: 120,
+                hostNotes: 'კონკურსი: საუკეთესო პრომპტი ცოცხლად გაეშვება ავტორის სახელით · კრიტერიუმები: მხოლოდ მოძრაობა / ფიზიკა / slow',
+                type: 'text',
+                prompt: 'გააცოცხლეთ ფოტო: მოძრაობის პრომპტი — მხოლოდ მოძრაობა, ფიზიკურად ლოგიკური, კამერა static',
+            },
+            {
+                key: 'r10',
+                durationSec: 45,
+                hostNotes: 'ხმები გაიყოფა — კარგია · წაიკითხე არგუმენტები ორივე მხრიდან · სწორი retention-ისთვის = შედეგით დაწყება',
+                type: 'choice',
+                prompt: 'როგორ დავალაგოთ 3 კადრი, რომ მაყურებელი ბოლომდე დარჩეს?',
+                options: [
+                    { id: 'a', label: '1→2→3 · ქრონოლოგია' },
+                    { id: 'b', label: 'შედეგით დაწყება — მერე ისტორია' },
+                ],
+            },
+            {
+                key: 'r11',
+                durationSec: 30,
+                hostNotes: 'ბლიცი — ტემპი მაღალი · სწორი: TikTok · შემდეგ ცხრილი სლაიდ 27-ზე',
+                type: 'quiz',
+                prompt: 'ბლიცი: სად ითვლება «ნახვად» მხოლოდ 3+ წამი ყურება?',
+                options: [
+                    { id: 'a', label: 'TikTok' },
+                    { id: 'b', label: 'Instagram Reels' },
+                    { id: 'c', label: 'YouTube Shorts' },
+                ],
+                correctOptionId: 'a',
+            },
+        ],
+    },
+};
+
+export type WorkshopTemplateId = keyof typeof WORKSHOP_TEMPLATES;
+
+export function isWorkshopTemplateId(id: string): id is WorkshopTemplateId {
+    return id in WORKSHOP_TEMPLATES;
+}
