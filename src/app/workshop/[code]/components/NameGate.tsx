@@ -43,9 +43,9 @@ export default function NameGate({ code, clientId, onJoined }: NameGateProps) {
     return (
         <div className="space-y-5">
             <div className="text-center space-y-2">
-                <p className="text-sm font-mono uppercase tracking-widest text-white/40">ოთახი {code}</p>
+                <p className="text-sm uppercase tracking-widest text-[#6E7186] font-semibold">ოთახი {code}</p>
                 <h1 className="text-3xl font-bold">მოგესალმებით!</h1>
-                <p className="text-white/60">დაწერეთ თქვენი სახელი და შემოგვიერთდით</p>
+                <p className="text-[#6E7186]">დაწერეთ თქვენი სახელი და შემოგვიერთდით</p>
             </div>
             <input
                 type="text"
@@ -55,16 +55,16 @@ export default function NameGate({ code, clientId, onJoined }: NameGateProps) {
                 placeholder="თქვენი სახელი"
                 onChange={(e) => setValue(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && !busy && join()}
-                className="w-full rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md px-5 py-4 text-xl text-center outline-none focus:border-violet-500 transition-colors"
+                className="w-full rounded-2xl bg-white border border-[#0E0F1F]/10 shadow-sm px-5 py-4 text-xl text-center outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all"
             />
             <button
                 onClick={join}
                 disabled={busy || !value.trim()}
-                className="w-full rounded-2xl bg-violet-600 active:bg-violet-700 disabled:opacity-40 py-4 text-xl font-bold transition-colors"
+                className="w-full rounded-2xl bg-violet-600 active:bg-violet-700 disabled:opacity-40 py-4 text-xl font-bold text-white shadow-lg shadow-violet-600/25 transition-colors"
             >
                 {busy ? 'შესვლა...' : 'შესვლა'}
             </button>
-            {error && <p className="text-center text-red-400">{error}</p>}
+            {error && <p className="text-center text-red-500">{error}</p>}
         </div>
     )
 }

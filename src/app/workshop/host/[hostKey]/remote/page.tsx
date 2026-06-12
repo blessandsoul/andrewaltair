@@ -1,16 +1,16 @@
 import type { Metadata } from 'next'
-import HostClient from './HostClient'
+import RemoteClient from './RemoteClient'
 
 export const metadata: Metadata = {
-    title: 'Workshop Host · Andrew Altair',
+    title: 'Workshop · პულტი · Andrew Altair',
     robots: { index: false, follow: false },
 }
 
-export default async function WorkshopHostPage({
+export default async function WorkshopRemotePage({
     params,
 }: {
     params: Promise<{ hostKey: string }>
 }) {
     const { hostKey } = await params
-    return <HostClient hostKey={hostKey} />
+    return <RemoteClient hostKey={hostKey} />
 }

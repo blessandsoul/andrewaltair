@@ -11,7 +11,7 @@ const NAME_KEY = 'w_name'
 
 function ScreenShell({ children }: { children: React.ReactNode }) {
     return (
-        <main className="min-h-dvh bg-[#0a0a12] text-white flex flex-col items-center justify-center px-5 py-8">
+        <main className="min-h-dvh flex flex-col items-center justify-center px-5 py-8">
             <div className="w-full max-w-md">{children}</div>
         </main>
     )
@@ -21,7 +21,7 @@ function CenterNote({ title, sub }: { title: string; sub?: string }) {
     return (
         <div className="text-center space-y-3">
             <p className="text-2xl font-bold">{title}</p>
-            {sub && <p className="text-white/60">{sub}</p>}
+            {sub && <p className="text-[#6E7186]">{sub}</p>}
         </div>
     )
 }
@@ -79,7 +79,7 @@ export default function RoomClient({ code }: { code: string }) {
                     title={state.title}
                     sub={`მალე დავიწყებთ · შემოვიდა ${state.participantCount}`}
                 />
-                <p className="mt-6 text-center text-white/40 text-sm">
+                <p className="mt-6 text-center text-[#6E7186]/70 text-sm">
                     გამარჯობა, {name}! დაელოდეთ წამყვანს.
                 </p>
             </ScreenShell>
@@ -89,7 +89,7 @@ export default function RoomClient({ code }: { code: string }) {
     return (
         <ScreenShell>
             {connectionLost && (
-                <div className="fixed top-0 inset-x-0 z-50 bg-amber-500/90 text-black text-center text-sm font-semibold py-2">
+                <div className="fixed top-0 inset-x-0 z-50 bg-amber-400 text-[#0E0F1F] text-center text-sm font-semibold py-2">
                     კავშირი წყდება — ვცდილობთ აღდგენას...
                 </div>
             )}

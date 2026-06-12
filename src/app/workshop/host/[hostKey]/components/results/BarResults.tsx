@@ -53,16 +53,16 @@ function Bar({ c, total, isCorrect, index, revealed }: {
             <div className="flex justify-between items-baseline mb-1.5">
                 <span
                     className={`inline-flex items-center gap-2 font-semibold text-[clamp(16px,1.8vw,26px)] ${
-                        isCorrect ? 'text-emerald-400' : ''
+                        isCorrect ? 'text-emerald-600' : 'text-[#0E0F1F]'
                     }`}
                 >
                     {c.label} {isCorrect && <Check size={20} strokeWidth={2.5} />}
                 </span>
-                <span className="text-white/60 font-mono text-[clamp(13px,1.4vw,20px)] tabular-nums">
+                <span className="text-[#6E7186] text-[clamp(13px,1.4vw,20px)] tabular-nums">
                     {count} · {shownPct}%
                 </span>
             </div>
-            <div className="h-9 rounded-lg bg-white/5 border border-white/10 overflow-hidden">
+            <div className="h-9 rounded-lg bg-[#0E0F1F]/4 border border-[#0E0F1F]/8 overflow-hidden">
                 <motion.div
                     className={`h-full ${isCorrect ? 'bg-emerald-500' : 'bg-violet-600'}`}
                     animate={{ width: `${pct}%` }}
@@ -86,7 +86,7 @@ export default function BarResults({ counts, total, revealed, correctOptionId }:
                     revealed={revealed}
                 />
             ))}
-            <p className="text-center text-white/40 text-sm pt-1">სულ ხმა: {total}</p>
+            <p className="text-center text-[#6E7186] text-sm pt-1">სულ ხმა: {total}</p>
         </div>
     )
 }

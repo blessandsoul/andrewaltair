@@ -16,11 +16,13 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
     const isAdminRoute = pathname?.startsWith("/admin")
     const isMysticRoute = pathname === "/mystic"
+    // Workshop Room tool: full-screen projected/phone surfaces — no site chrome at all
+    const isWorkshopRoute = pathname?.startsWith("/workshop")
     // Check if on blog post detail page (has slug after /blog/) OR tutorial page
     const isBlogPostPage = (pathname?.startsWith("/blog/") && pathname !== "/blog/") || pathname?.startsWith("/tutorials/")
 
     // Don't show main layout elements on admin pages
-    if (isAdminRoute) {
+    if (isAdminRoute || isWorkshopRoute) {
         return (
             <>
                 <Suspense fallback={null}>

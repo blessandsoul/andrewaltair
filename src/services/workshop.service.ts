@@ -475,9 +475,10 @@ export class WorkshopService {
 
     static async generateQR(url: string): Promise<string> {
         return QRCode.toDataURL(url, {
-            width: 512,
-            margin: 2,
-            color: { dark: '#0a0a12', light: '#FFFFFF' },
+            width: 640,
+            margin: 1,
+            errorCorrectionLevel: 'M',
+            color: { dark: '#5B21B6', light: '#FFFFFF' },
         })
     }
 

@@ -70,7 +70,7 @@ export default function CurrentRound({ code, clientId, round, myAnswer, serverNo
 
     const header = (
         <div className="text-center space-y-2 mb-6">
-            <p className="text-xs font-mono uppercase tracking-widest text-violet-400">
+            <p className="text-xs uppercase tracking-widest text-violet-600 font-semibold">
                 რაუნდი {round.index + 1} / {round.total} · {PHASE_LABELS[round.phase]}
             </p>
             <h2 className="text-2xl font-bold leading-snug">{round.prompt}</h2>
@@ -91,7 +91,7 @@ export default function CurrentRound({ code, clientId, round, myAnswer, serverNo
         return (
             <div>
                 {header}
-                <p className="text-center text-white/50">დაელოდეთ წამყვანს...</p>
+                <p className="text-center text-[#6E7186]">დაელოდეთ წამყვანს...</p>
             </div>
         )
     }
@@ -100,10 +100,10 @@ export default function CurrentRound({ code, clientId, round, myAnswer, serverNo
         return (
             <div>
                 {header}
-                <div className="rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-6 text-center space-y-3">
-                    <MessagesSquare size={44} className="text-violet-400 mx-auto" />
+                <div className="rounded-2xl bg-white border border-[#0E0F1F]/8 shadow-sm p-6 text-center space-y-3">
+                    <MessagesSquare size={44} className="text-violet-600 mx-auto" />
                     <p className="text-lg font-semibold">განიხილეთ!</p>
-                    <p className="text-white/60">დაწერეთ Meet-ის ჩატში: რატომ აირჩიეთ თქვენი პასუხი? წაიკითხეთ სხვების არგუმენტები.</p>
+                    <p className="text-[#6E7186]">დაწერეთ Meet-ის ჩატში: რატომ აირჩიეთ თქვენი პასუხი? წაიკითხეთ სხვების არგუმენტები.</p>
                 </div>
             </div>
         )
@@ -113,7 +113,7 @@ export default function CurrentRound({ code, clientId, round, myAnswer, serverNo
         return (
             <div>
                 {header}
-                <p className="inline-flex items-center justify-center gap-2 w-full text-white/60">
+                <p className="inline-flex items-center justify-center gap-2 w-full text-[#6E7186]">
                     <Monitor size={16} /> შედეგები წამყვანის ეკრანზეა
                 </p>
             </div>
@@ -139,7 +139,7 @@ export default function CurrentRound({ code, clientId, round, myAnswer, serverNo
                 <ChoiceRoundInput round={round} onSubmit={submit} />
             )}
             {round.type === 'number' && <NumberRoundInput round={round} onSubmit={submit} />}
-            {submitError && <p className="mt-4 text-center text-red-400">{submitError}</p>}
+            {submitError && <p className="mt-4 text-center text-red-500">{submitError}</p>}
         </div>
     )
 }

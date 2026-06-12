@@ -44,9 +44,9 @@ export async function GET(
             serverNow: new Date().toISOString(),
         }
 
-        // QR fetched once by HostClient on mount (?qr=1), not on every 2s poll
+        // QR fetched once by the display client on mount (?qr=1), not on every 2s poll
         if (request.nextUrl.searchParams.get('qr') === '1') {
-            const joinUrl = `${BASE_URL}/w/${room.code}`
+            const joinUrl = `${BASE_URL}/workshop/${room.code}`
             state.joinUrl = joinUrl
             state.qrDataUrl = await WorkshopService.generateQR(joinUrl)
         }

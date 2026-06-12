@@ -17,18 +17,18 @@ export default function Histogram({ buckets, total, avg }: HistogramProps) {
                     const hPct = (b.count / maxCount) * 100
                     return (
                         <div key={b.label} className="flex flex-col items-center gap-1.5 flex-1 max-w-16">
-                            <span className="text-white/60 font-mono text-sm">{b.count > 0 ? b.count : ''}</span>
+                            <span className="text-[#6E7186] text-sm tabular-nums">{b.count > 0 ? b.count : ''}</span>
                             <div
                                 className="w-full rounded-t-lg bg-violet-600 transition-all duration-700"
                                 style={{ height: `${Math.max(hPct, b.count > 0 ? 6 : 0)}%` }}
                             />
-                            <span className="text-white/40 font-mono text-xs">{b.label}</span>
+                            <span className="text-[#6E7186]/70 text-xs tabular-nums">{b.label}</span>
                         </div>
                     )
                 })}
             </div>
-            <p className="text-center text-white/60 mt-5">
-                სულ: {total} · საშუალო: <span className="text-violet-400 font-bold">{avg} წამი</span>
+            <p className="text-center text-[#6E7186] mt-5">
+                სულ: {total} · საშუალო: <span className="text-violet-600 font-bold">{avg} წამი</span>
             </p>
         </div>
     )

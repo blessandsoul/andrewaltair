@@ -116,14 +116,21 @@ export default function CreateRoomPanel() {
                         </div>
                         <div className="flex flex-wrap gap-4 text-sm">
                             <a
-                                href={`/w-host/${r.hostKey}`}
+                                href={`/workshop/host/${r.hostKey}`}
                                 target="_blank"
                                 className="inline-flex items-center gap-1.5 text-violet-400 underline underline-offset-4"
                             >
-                                Открыть host-экран <ExternalLink size={14} />
+                                Экран (шарить в Meet) <ExternalLink size={14} />
+                            </a>
+                            <a
+                                href={`/workshop/host/${r.hostKey}/remote`}
+                                target="_blank"
+                                className="inline-flex items-center gap-1.5 text-emerald-400 underline underline-offset-4"
+                            >
+                                Пульт (кнопки) <ExternalLink size={14} />
                             </a>
                             <span className="text-white/40">
-                                студенты: andrewaltair.ge/w/{r.code}
+                                студенты: andrewaltair.ge/workshop/{r.code}
                             </span>
                         </div>
                     </div>

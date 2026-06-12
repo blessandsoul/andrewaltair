@@ -48,7 +48,7 @@ export default function CountdownRing({
             <svg width={size} height={size} className="-rotate-90">
                 <circle
                     cx={size / 2} cy={size / 2} r={r}
-                    fill="none" stroke="rgba(255,255,255,.1)" strokeWidth="4"
+                    fill="none" stroke="rgba(14,15,31,.1)" strokeWidth="4"
                 />
                 <circle
                     cx={size / 2} cy={size / 2} r={r}
@@ -62,8 +62,8 @@ export default function CountdownRing({
                 />
             </svg>
             <span
-                className={`absolute font-mono font-bold tabular-nums ${
-                    urgent ? 'text-red-400 animate-pulse' : 'text-white'
+                className={`absolute font-bold tabular-nums ${
+                    urgent ? 'text-red-500 animate-pulse' : 'text-[#0E0F1F]'
                 }`}
                 style={{ fontSize: size * 0.3 }}
             >

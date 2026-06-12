@@ -15,7 +15,7 @@ interface RevoteResultsProps {
 
 /**
  * Mazur peer-instruction shift view: phase-1 vs phase-2 paired bars per option
- * + the shift score line («дискуссия передвинула N участников»).
+ * + the shift score line.
  */
 export default function RevoteResults({
     options,
@@ -32,15 +32,15 @@ export default function RevoteResults({
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5, ease: 'easeOut' }}
-                    className="text-center rounded-2xl bg-violet-600/15 border border-violet-500/30 py-4 px-6"
+                    className="text-center rounded-2xl bg-violet-50 border border-violet-200 py-4 px-6"
                 >
                     <p className="inline-flex items-center justify-center gap-3 text-[clamp(18px,2.2vw,32px)] font-bold">
-                        <MessagesSquare size={26} className="text-violet-400 shrink-0" />
+                        <MessagesSquare size={26} className="text-violet-600 shrink-0" />
                         <span>
-                            დისკუსიამ გადააადგილა <span className="text-violet-400">{movedCount}</span> მონაწილე
+                            დისკუსიამ გადააადგილა <span className="text-violet-600">{movedCount}</span> მონაწილე
                         </span>
                     </p>
-                    <p className="text-white/50 text-sm mt-1">Peer Instruction მუშაობს — აზრის შეცვლა სწავლის ნიშანია</p>
+                    <p className="text-[#6E7186] text-sm mt-1">Peer Instruction მუშაობს — აზრის შეცვლა სწავლის ნიშანია</p>
                 </motion.div>
             )}
 
@@ -59,8 +59,8 @@ export default function RevoteResults({
                             <span className="font-semibold text-[clamp(16px,1.8vw,26px)]">{o.label}</span>
                             {showRevote && totalRevote > 0 && (
                                 <span
-                                    className={`inline-flex items-center gap-1 font-mono text-sm ${
-                                        delta > 0 ? 'text-emerald-400' : delta < 0 ? 'text-red-400' : 'text-white/40'
+                                    className={`inline-flex items-center gap-1 text-sm tabular-nums ${
+                                        delta > 0 ? 'text-emerald-600' : delta < 0 ? 'text-red-500' : 'text-[#6E7186]'
                                     }`}
                                 >
                                     {delta > 0 && <TrendingUp size={14} />}
@@ -71,36 +71,36 @@ export default function RevoteResults({
                         </div>
                         {/* Phase 1 */}
                         <div className="flex items-center gap-3 mb-1.5">
-                            <span className="w-16 text-xs font-mono uppercase text-white/40 shrink-0">ხმა 1</span>
-                            <div className="flex-1 h-6 rounded-md bg-white/5 border border-white/10 overflow-hidden">
+                            <span className="w-16 text-xs uppercase text-[#6E7186] font-semibold shrink-0">ხმა 1</span>
+                            <div className="flex-1 h-6 rounded-md bg-[#0E0F1F]/4 border border-[#0E0F1F]/8 overflow-hidden">
                                 <motion.div
-                                    className="h-full bg-white/30"
+                                    className="h-full bg-[#0E0F1F]/30"
                                     animate={{ width: `${pctOpen}%` }}
                                     transition={{ type: 'spring', stiffness: 120, damping: 20 }}
                                 />
                             </div>
-                            <span className="w-20 text-right font-mono text-white/60 text-sm shrink-0">
+                            <span className="w-20 text-right text-[#6E7186] text-sm tabular-nums shrink-0">
                                 {o.open} · {pctOpen}%
                             </span>
                         </div>
                         {/* Phase 2 */}
                         <div className="flex items-center gap-3">
-                            <span className="w-16 text-xs font-mono uppercase text-violet-400 shrink-0">ხმა 2</span>
-                            <div className="flex-1 h-6 rounded-md bg-white/5 border border-white/10 overflow-hidden">
+                            <span className="w-16 text-xs uppercase text-violet-600 font-semibold shrink-0">ხმა 2</span>
+                            <div className="flex-1 h-6 rounded-md bg-[#0E0F1F]/4 border border-[#0E0F1F]/8 overflow-hidden">
                                 <motion.div
-                                    className="h-full bg-violet-500"
+                                    className="h-full bg-violet-600"
                                     animate={{ width: `${showRevote ? pctRevote : 0}%` }}
                                     transition={{ type: 'spring', stiffness: 120, damping: 20 }}
                                 />
                             </div>
-                            <span className="w-20 text-right font-mono text-white/60 text-sm shrink-0">
+                            <span className="w-20 text-right text-[#6E7186] text-sm tabular-nums shrink-0">
                                 {showRevote ? `${o.revote} · ${pctRevote}%` : '...'}
                             </span>
                         </div>
                     </motion.div>
                 )
             })}
-            <p className="text-center text-white/40 text-sm">
+            <p className="text-center text-[#6E7186] text-sm">
                 ხმა 1: {totalOpen} {showRevote && `· ხმა 2: ${totalRevote}`}
             </p>
         </div>

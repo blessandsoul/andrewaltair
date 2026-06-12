@@ -1,0 +1,247 @@
+'use client'
+
+import { useEffect, useRef, useState } from 'react'
+import { PenLine, Users, Volume2, VolumeX } from 'lucide-react'
+import { useRoomPoll } from '@/hooks/useRoomPoll'
+import type { HostState } from '@/types/workshop.types'
+import CountdownRing from '@/components/workshop/CountdownRing'
+import ResultsBoard from './components/ResultsBoard'
+
+/**
+ * PROJECTED display — the screen shared in Meet.
+ * No controls here: the host drives rounds from /remote.
+ */
+export default function DisplayClient({ hostKey }: { hostKey: string }) {
+    const { data: state, error, isLoading, connectionLost } = useRoomPoll<HostState>(`/api/workshop/host/${hostKey}`)
+    const [qr, setQr] = useState<{ qrDataUrl: string; joinUrl: string } | null>(null)
+    const [soundOn, setSoundOn] = useState(false)
+    const audioRef = useRef<AudioContext | null>(null)
+    const prevPhaseRef = useRef<string | null>(null)
+    const prevResponsesRef = useRef(0)
+    const prevParticipantsRef = useRef(0)
+
+    // QR fetched once on mount
+    useEffect(() => {
+        fetch(`/api/workshop/host/${hostKey}?qr=1`, { cache: 'no-store' })
+            .then((r) => r.json())
+            .then((j) => {
+                if (j.success && j.data.qrDataUrl) {
+                    setQr({ qrDataUrl: j.data.qrDataUrl, joinUrl: j.data.joinUrl })
+                }
+            })
+            .catch(() => {})
+    }, [hostKey])
+
+    // Web Audio blip — short two-tone pop, no audio assets needed
+    const blip = (freqA: number, freqB: number, gainPeak = 0.08) => {
+        const ctx = audioRef.current
+        if (!ctx || ctx.state !== 'running') return
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.type = 'sine'
+        osc.frequency.setValueAtTime(freqA, ctx.currentTime)
+        osc.frequency.exponentialRampToValueAtTime(freqB, ctx.currentTime + 0.09)
+        gain.gain.setValueAtTime(gainPeak, ctx.currentTime)
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12)
+        osc.connect(gain).connect(ctx.destination)
+        osc.start()
+        osc.stop(ctx.currentTime + 0.13)
+    }
+
+    const toggleSound = async () => {
+        if (!audioRef.current) {
+            audioRef.current = new AudioContext()
+        }
+        if (audioRef.current.state === 'suspended') await audioRef.current.resume()
+        setSoundOn((v) => {
+            const next = !v
+            if (next) blip(660, 880, 0.06) // confirmation chirp
+            return next
+        })
+    }
+
+    // Answer arrived → blip (only while a round is accepting answers)
+    useEffect(() => {
+        const count = state?.responsesCount ?? 0
+        const phase = state?.round?.phase
+        if (soundOn && count > prevResponsesRef.current && (phase === 'open' || phase === 'revote')) {
+            blip(880, 1320)
+        }
+        prevResponsesRef.current = count
+    }, [state?.responsesCount, state?.round?.phase, soundOn])
+
+    // Someone joined the lobby → softer pop
+    useEffect(() => {
+        const count = state?.participantCount ?? 0
+        if (soundOn && count > prevParticipantsRef.current && state?.status === 'lobby') {
+            blip(440, 660, 0.05)
+        }
+        prevParticipantsRef.current = count
+    }, [state?.participantCount, state?.status, soundOn])
+
+    // Confetti on quiz / revote reveal
+    useEffect(() => {
+        const phase = state?.round?.phase ?? null
+        if (
+            phase === 'revealed' &&
+            prevPhaseRef.current !== 'revealed' &&
+            (state?.round?.type === 'quiz' || state?.round?.type === 'choice_revote')
+        ) {
+            import('canvas-confetti').then((m) => {
+                m.default({ particleCount: 140, spread: 80, origin: { y: 0.6 } })
+            })
+        }
+        prevPhaseRef.current = phase
+    }, [state?.round?.phase, state?.round?.type])
+
+    if (error === 403) {
+        return (
+            <main className="min-h-dvh flex items-center justify-center">
+                <p className="text-2xl">არასწორი ბმული</p>
+            </main>
+        )
+    }
+    if (isLoading || !state) {
+        return (
+            <main className="min-h-dvh flex items-center justify-center">
+                <p className="text-2xl text-[#6E7186]">იტვირთება...</p>
+            </main>
+        )
+    }
+
+    const inLobby = state.status === 'lobby' || (state.currentRoundIndex < 0 && state.status !== 'ended')
+    const showRing =
+        state.round &&
+        (state.round.phase === 'open' || state.round.phase === 'revote') &&
+        !!state.round.durationSec &&
+        !!state.round.phaseStartedAt
+    const answering = state.round && (state.round.phase === 'open' || state.round.phase === 'revote')
+    const shortUrl = qr ? qr.joinUrl.replace(/^https?:\/\//, '') : `andrewaltair.ge/workshop/${state.code}`
+
+    return (
+        <main className="min-h-dvh flex flex-col">
+            {connectionLost && (
+                <div className="fixed top-0 inset-x-0 z-50 bg-amber-400 text-[#0E0F1F] text-center text-sm font-semibold py-2">
+                    კავშირი წყდება — ვცდილობთ აღდგენას...
+                </div>
+            )}
+
+            {/* Header */}
+            <header className="flex items-center justify-between px-8 py-4 border-b border-[#0E0F1F]/8 bg-white/60 backdrop-blur-sm">
+                <div className="flex items-baseline gap-4">
+                    <h1 className="text-xl font-bold">{state.title}</h1>
+                    <span className="text-[#6E7186] text-sm">
+                        {state.currentRoundIndex >= 0
+                            ? `რაუნდი ${state.currentRoundIndex + 1} / ${state.roundsTotal}`
+                            : 'ლობი'}
+                    </span>
+                </div>
+                <div className="flex items-center gap-5">
+                    {answering && (
+                        <span className="inline-flex items-center gap-2 text-lg tabular-nums">
+                            <PenLine size={18} className="text-violet-600" />
+                            <b className="text-violet-600">{state.responsesCount}</b>
+                            <span className="text-[#6E7186]">/{state.participantCount}</span>
+                        </span>
+                    )}
+                    {showRing && (
+                        <CountdownRing
+                            phaseStartedAt={state.round!.phaseStartedAt!}
+                            durationSec={state.round!.durationSec!}
+                            serverNow={state.serverNow}
+                            size={48}
+                        />
+                    )}
+                    <span className="inline-flex items-center gap-1.5 text-[#6E7186]">
+                        <Users size={18} /> {state.participantCount}
+                    </span>
+                    <span className="hidden md:inline-flex items-center rounded-full bg-violet-50 border border-violet-200 px-4 py-1.5 text-sm text-violet-700 font-semibold">
+                        {shortUrl}
+                    </span>
+                    <span className="text-2xl font-bold tracking-[0.2em] bg-white border border-[#0E0F1F]/10 shadow-sm rounded-xl px-4 py-1.5">
+                        {state.code}
+                    </span>
+                    <button
+                        onClick={toggleSound}
+                        title={soundOn ? 'ხმის გამორთვა' : 'ხმის ჩართვა'}
+                        className={`rounded-full p-2.5 border transition-colors ${
+                            soundOn
+                                ? 'bg-violet-600 border-violet-600 text-white'
+                                : 'bg-white border-[#0E0F1F]/10 text-[#6E7186] hover:text-[#0E0F1F]'
+                        }`}
+                    >
+                        {soundOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
+                    </button>
+                </div>
+            </header>
+
+            {/* Main area */}
+            <div className="flex-1 overflow-y-auto px-8 py-6">
+                {state.status === 'ended' ? (
+                    <div className="h-full flex flex-col items-center justify-center gap-4">
+                        <p className="text-4xl font-bold">სემინარი დასრულდა</p>
+                        <p className="text-[#6E7186] text-lg">დიდი მადლობა მონაწილეობისთვის!</p>
+                    </div>
+                ) : inLobby ? (
+                    <LobbyView qr={qr} code={state.code} roster={state.roster.map((r) => r.name)} />
+                ) : (
+                    <ResultsBoard round={state.round} results={state.results} onPin={() => {}} readonly />
+                )}
+            </div>
+        </main>
+    )
+}
+
+function LobbyView({
+    qr,
+    code,
+    roster,
+}: {
+    qr: { qrDataUrl: string; joinUrl: string } | null
+    code: string
+    roster: string[]
+}) {
+    return (
+        <div className="h-full flex flex-col lg:flex-row items-center justify-center gap-14">
+            {/* QR card */}
+            <div className="text-center">
+                <div className="inline-block rounded-[28px] bg-white p-7 shadow-2xl shadow-violet-600/15 border border-[#0E0F1F]/6">
+                    {qr ? (
+                        <img
+                            src={qr.qrDataUrl}
+                            alt={`QR · ${code}`}
+                            className="w-80 h-80 rounded-2xl"
+                        />
+                    ) : (
+                        <div className="w-80 h-80 rounded-2xl bg-[#F7F5EE]" />
+                    )}
+                    <p className="mt-5 text-5xl font-bold tracking-[0.25em] text-violet-700">{code}</p>
+                    {qr && (
+                        <p className="mt-2 text-[#6E7186] text-lg">
+                            {qr.joinUrl.replace(/^https?:\/\//, '')}
+                        </p>
+                    )}
+                </div>
+                <p className="mt-5 text-[#6E7186] text-xl">დაასკანერეთ ტელეფონით</p>
+            </div>
+
+            {/* Roster */}
+            <div className="max-w-md w-full">
+                <p className="text-sm uppercase tracking-widest text-[#6E7186] font-semibold mb-3">
+                    შემოვიდა · {roster.length}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                    {roster.map((name, i) => (
+                        <span
+                            key={`${name}-${i}`}
+                            className="rounded-full bg-white border border-[#0E0F1F]/10 shadow-sm px-4 py-1.5 text-sm"
+                        >
+                            {name}
+                        </span>
+                    ))}
+                    {roster.length === 0 && <p className="text-[#6E7186]/60">ველოდებით...</p>}
+                </div>
+            </div>
+        </div>
+    )
+}

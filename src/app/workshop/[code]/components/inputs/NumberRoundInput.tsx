@@ -25,7 +25,7 @@ export default function NumberRoundInput({ round, onSubmit }: NumberRoundInputPr
         <div className="space-y-6">
             <div className="text-center">
                 <span className="text-6xl font-bold tabular-nums">{value}</span>
-                <span className="text-white/50 text-xl ml-2">წამი</span>
+                <span className="text-[#6E7186] text-xl ml-2">წამი</span>
             </div>
             <input
                 type="range"
@@ -34,16 +34,16 @@ export default function NumberRoundInput({ round, onSubmit }: NumberRoundInputPr
                 step={1}
                 value={value}
                 onChange={(e) => setValue(Number(e.target.value))}
-                className="w-full h-3 accent-violet-500 cursor-pointer"
+                className="w-full h-3 accent-violet-600 cursor-pointer"
             />
-            <div className="flex justify-between text-white/40 text-sm font-mono">
+            <div className="flex justify-between text-[#6E7186] text-sm tabular-nums">
                 <span>{min}</span>
                 <span>{max}</span>
             </div>
             <button
                 onClick={send}
                 disabled={busy}
-                className="w-full rounded-2xl bg-violet-600 active:bg-violet-700 disabled:opacity-40 py-4 text-lg font-bold transition-colors"
+                className="w-full rounded-2xl bg-violet-600 active:bg-violet-700 disabled:opacity-40 py-4 text-lg font-bold text-white shadow-lg shadow-violet-600/25 transition-colors"
             >
                 {busy ? 'იგზავნება...' : 'გაგზავნა'}
             </button>

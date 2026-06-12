@@ -12,6 +12,8 @@ interface ResultsBoardProps {
     round: StudentRound | null
     results: RoundResults | null
     onPin: (action: string, responseId?: string) => void
+    /** projected display: hide pin/unpin controls (managed from the remote) */
+    readonly?: boolean
 }
 
 const PHASE_BADGES: Record<string, { icon: LucideIcon | null; label: string; live?: boolean }> = {
@@ -27,15 +29,15 @@ function PhaseBadge({ phase }: { phase: string }) {
     if (!badge) return null
     const Icon = badge.icon
     return (
-        <p className="inline-flex items-center justify-center gap-2 text-[clamp(12px,1.2vw,18px)] font-mono uppercase tracking-widest text-violet-400">
-            {badge.live && <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />}
+        <p className="inline-flex items-center justify-center gap-2 text-[clamp(12px,1.2vw,18px)] uppercase tracking-widest text-violet-600 font-semibold">
+            {badge.live && <span className="w-2 h-2 rounded-full bg-violet-500 animate-pulse" />}
             {Icon && <Icon size={15} />}
             {badge.label}
         </p>
     )
 }
 
-export default function ResultsBoard({ round, results, onPin }: ResultsBoardProps) {
+export default function ResultsBoard({ round, results, onPin, readonly = false }: ResultsBoardProps) {
     if (!round) return null
 
     // Pinned quote takes over the projected area (spotlight a student's thinking)
@@ -45,15 +47,17 @@ export default function ResultsBoard({ round, results, onPin }: ResultsBoardProp
                 <p className="text-[clamp(28px,4.5vw,64px)] font-bold leading-snug">
                     «{round.pinned.textValue}»
                 </p>
-                <p className="text-[clamp(16px,2vw,28px)] font-mono uppercase tracking-widest text-violet-400">
+                <p className="text-[clamp(16px,2vw,28px)] uppercase tracking-widest text-violet-600 font-semibold">
                     — {round.pinned.name}
                 </p>
-                <button
-                    onClick={() => onPin('unpin')}
-                    className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm text-white/40 hover:text-white border border-white/10 hover:border-white/30 transition-colors"
-                >
-                    <X size={16} /> მოხსნა
-                </button>
+                {!readonly && (
+                    <button
+                        onClick={() => onPin('unpin')}
+                        className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm text-[#6E7186] hover:text-[#0E0F1F] border border-[#0E0F1F]/10 hover:border-[#0E0F1F]/25 bg-white shadow-sm transition-colors"
+                    >
+                        <X size={16} /> მოხსნა
+                    </button>
+                )}
             </div>
         )
     }
@@ -66,9 +70,9 @@ export default function ResultsBoard({ round, results, onPin }: ResultsBoardProp
                 <h2 className="text-[clamp(26px,3.2vw,52px)] font-bold leading-snug">{round.prompt}</h2>
             </div>
 
-            {!results && <p className="text-center text-white/40">პასუხები ჯერ არ არის</p>}
+            {!results && <p className="text-center text-[#6E7186]">პასუხები ჯერ არ არის</p>}
 
-            {results?.type === 'text' && <TextWall items={results.items} onPin={onPin} />}
+            {results?.type === 'text' && <TextWall items={results.items} onPin={onPin} readonly={readonly} />}
             {results?.type === 'choice' && (
                 <BarResults
                     counts={results.counts}

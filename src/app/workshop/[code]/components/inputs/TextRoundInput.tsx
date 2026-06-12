@@ -35,13 +35,13 @@ export default function TextRoundInput({ round, onSubmit }: TextRoundInputProps)
             {isMulti ? (
                 fields.map((label, i) => (
                     <div key={label}>
-                        <label className="block text-sm text-white/60 mb-1.5">{label}</label>
+                        <label className="block text-sm text-[#6E7186] mb-1.5">{label}</label>
                         <input
                             type="text"
                             value={values[i]}
                             maxLength={200}
                             onChange={(e) => setAt(i, e.target.value)}
-                            className="w-full rounded-xl bg-white/5 border border-white/10 backdrop-blur-md px-4 py-3 text-base outline-none focus:border-violet-500 transition-colors"
+                            className="w-full rounded-xl bg-white border border-[#0E0F1F]/10 shadow-sm px-4 py-3 text-base outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all"
                         />
                     </div>
                 ))
@@ -53,13 +53,13 @@ export default function TextRoundInput({ round, onSubmit }: TextRoundInputProps)
                     autoFocus
                     placeholder="თქვენი პასუხი..."
                     onChange={(e) => setAt(0, e.target.value)}
-                    className="w-full rounded-xl bg-white/5 border border-white/10 backdrop-blur-md px-4 py-3 text-base outline-none focus:border-violet-500 transition-colors resize-none"
+                    className="w-full rounded-xl bg-white border border-[#0E0F1F]/10 shadow-sm px-4 py-3 text-base outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all resize-none"
                 />
             )}
             <button
                 onClick={send}
                 disabled={!canSend || busy}
-                className="w-full rounded-2xl bg-violet-600 active:bg-violet-700 disabled:opacity-40 py-4 text-lg font-bold transition-colors"
+                className="w-full rounded-2xl bg-violet-600 active:bg-violet-700 disabled:opacity-40 py-4 text-lg font-bold text-white shadow-lg shadow-violet-600/25 transition-colors"
             >
                 {busy ? 'იგზავნება...' : 'გაგზავნა'}
             </button>

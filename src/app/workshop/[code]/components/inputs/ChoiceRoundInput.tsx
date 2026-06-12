@@ -25,13 +25,13 @@ export default function ChoiceRoundInput({ round, onSubmit }: ChoiceRoundInputPr
                     key={o.id}
                     onClick={() => pick(o.id)}
                     disabled={busy !== null}
-                    className="w-full rounded-2xl bg-white/5 border-2 border-white/10 backdrop-blur-md px-5 py-5 text-lg font-semibold text-left active:border-violet-500 active:bg-violet-600/20 disabled:opacity-50 transition-colors"
+                    className="w-full rounded-2xl bg-white border-2 border-[#0E0F1F]/10 shadow-sm px-5 py-5 text-lg font-semibold text-left active:border-violet-500 active:bg-violet-50 disabled:opacity-50 transition-colors"
                 >
                     {busy === o.id ? 'იგზავნება...' : o.label}
                 </button>
             ))}
             {round.phase === 'revote' && (
-                <p className="text-center text-white/50 text-sm pt-1">
+                <p className="text-center text-[#6E7186] text-sm pt-1">
                     მეორე რაუნდი — შეგიძლიათ იგივე ან ახალი პასუხი
                 </p>
             )}
