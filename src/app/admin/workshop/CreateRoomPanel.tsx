@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { MonitorPlay, Gamepad2, Trash2, Plus, Users } from 'lucide-react'
+import { MonitorPlay, Gamepad2, Trash2, Plus, Users, FlaskConical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -53,14 +53,14 @@ export default function CreateRoomPanel() {
         load()
     }, [])
 
-    const create = async (templateId: string) => {
+    const create = async (templateId: string, demo = false) => {
         setBusy(true)
         setError(null)
         try {
             const res = await fetch('/api/workshop/rooms', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ templateId }),
+                body: JSON.stringify({ templateId, demo }),
             })
             const json = await res.json()
             if (json.success) await load()
@@ -106,9 +106,20 @@ export default function CreateRoomPanel() {
                                     {t.id} · {t.roundsTotal} раундов
                                 </p>
                             </div>
-                            <Button onClick={() => create(t.id)} disabled={busy} className="shrink-0 gap-2">
-                                <Plus size={16} /> Создать
-                            </Button>
+                            <div className="flex gap-2 shrink-0">
+                                <Button onClick={() => create(t.id)} disabled={busy} className="gap-2">
+                                    <Plus size={16} /> Создать
+                                </Button>
+                                <Button
+                                    onClick={() => create(t.id, true)}
+                                    disabled={busy}
+                                    variant="secondary"
+                                    className="gap-2"
+                                    title="Комната с 8 фейковыми участниками и готовыми ответами на все раунды — чтобы посмотреть как всё работает"
+                                >
+                                    <FlaskConical size={16} /> Демо
+                                </Button>
+                            </div>
                         </div>
                     ))}
                     {error && <p className="text-destructive text-sm">{error}</p>}

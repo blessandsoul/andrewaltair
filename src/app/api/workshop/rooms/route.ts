@@ -10,6 +10,7 @@ export const dynamic = 'force-dynamic'
 
 const createSchema = z.object({
     templateId: z.string().min(1),
+    demo: z.boolean().optional(),
 })
 
 export async function POST(request: NextRequest) {
@@ -22,7 +23,9 @@ export async function POST(request: NextRequest) {
         if (!parsed.success) {
             return apiError(ERROR_CODES.VALIDATION_FAILED, 'Invalid input', 400)
         }
-        const room = await WorkshopService.createRoomFromTemplate(parsed.data.templateId)
+        const room = parsed.data.demo
+            ? await WorkshopService.createDemoRoom(parsed.data.templateId)
+            : await WorkshopService.createRoomFromTemplate(parsed.data.templateId)
         return apiSuccess(
             {
                 roomId: String(room._id),

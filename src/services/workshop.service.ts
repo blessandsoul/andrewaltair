@@ -5,7 +5,7 @@ import dbConnect from '@/lib/db'
 import WorkshopRoom, { type IWorkshopRoom, type IWorkshopRound } from '@/models/WorkshopRoom'
 import WorkshopParticipant from '@/models/WorkshopParticipant'
 import WorkshopResponse, { type IWorkshopResponse } from '@/models/WorkshopResponse'
-import { WORKSHOP_TEMPLATES, isWorkshopTemplateId } from '@/data/workshop-templates'
+import { WORKSHOP_TEMPLATES, DEMO_RESPONSES, DEMO_NAMES, isWorkshopTemplateId } from '@/data/workshop-templates'
 import type { HostAction, RoundResults, StudentRound, StudentState, RosterEntry } from '@/types/workshop.types'
 
 // Unambiguous alphabet — no 0/O/1/I/L
@@ -86,6 +86,67 @@ export class WorkshopService {
     static async listRecentRooms(limit = 10): Promise<IWorkshopRoom[]> {
         await dbConnect()
         return WorkshopRoom.find({}).sort({ createdAt: -1 }).limit(limit).lean<IWorkshopRoom[]>()
+    }
+
+    /**
+     * Demo room: full template + 8 fake participants + realistic answers
+     * pre-seeded for EVERY round (both Mazur phases included). The host just
+     * walks the rounds and sees every visualization alive — no typing needed.
+     */
+    static async createDemoRoom(templateId: string): Promise<IWorkshopRoom> {
+        const room = await this.createDemoRoomBase(templateId)
+        const demo = DEMO_RESPONSES[templateId]
+        if (!demo) return room
+
+        // participants → roster + counters work
+        await WorkshopParticipant.bulkWrite(
+            DEMO_NAMES.map((name, i) => ({
+                updateOne: {
+                    filter: { roomId: room._id, clientId: `fake-${i}` },
+                    update: {
+                        $set: { name, lastSeenAt: new Date() },
+                        $setOnInsert: { joinedAt: new Date(Date.now() - (DEMO_NAMES.length - i) * 7000) },
+                    },
+                    upsert: true,
+                },
+            }))
+        )
+
+        // answers for every round, both phases where present
+        const ops: Parameters<typeof WorkshopResponse.bulkWrite>[0] = []
+        for (const round of room.rounds) {
+            const answers = demo[round.key]
+            if (!answers) continue
+            const phases: Array<{ phase: 'open' | 'revote'; values: (string | number)[] }> = [
+                { phase: 'open', values: answers.open },
+            ]
+            if (answers.revote) phases.push({ phase: 'revote', values: answers.revote })
+
+            for (const { phase, values } of phases) {
+                values.forEach((value, i) => {
+                    const set: Record<string, unknown> = { name: DEMO_NAMES[i % DEMO_NAMES.length] }
+                    if (round.type === 'number') set.numberValue = value as number
+                    else if (round.type === 'text') set.textValue = value as string
+                    else set.optionId = value as string
+                    ops.push({
+                        updateOne: {
+                            filter: { roomId: room._id, roundKey: round.key, phase, clientId: `fake-${i}` },
+                            update: {
+                                $set: set,
+                                $setOnInsert: { createdAt: new Date(Date.now() - (values.length - i) * 4000) },
+                            },
+                            upsert: true,
+                        },
+                    })
+                })
+            }
+        }
+        if (ops.length) await WorkshopResponse.bulkWrite(ops)
+        return room
+    }
+
+    private static async createDemoRoomBase(templateId: string): Promise<IWorkshopRoom> {
+        return this.createRoomFromTemplate(templateId)
     }
 
     /** Admin: delete a room with all its participants and responses. */
@@ -464,6 +525,16 @@ export class WorkshopService {
     /** Demo/rehearsal: insert fake responses for the round's current phase. */
     private static async seedFakeResponses(roomId: mongoose.Types.ObjectId, round: IWorkshopRound): Promise<void> {
         await dbConnect()
+        // fake participants join the roster too — counters stay consistent (8/8, not 8/0)
+        await WorkshopParticipant.bulkWrite(
+            FAKE_NAMES.map((name, i) => ({
+                updateOne: {
+                    filter: { roomId, clientId: `fake-${i}` },
+                    update: { $set: { name, lastSeenAt: new Date() }, $setOnInsert: { joinedAt: new Date() } },
+                    upsert: true,
+                },
+            }))
+        )
         const phase = round.phase === 'revote' ? 'revote' : 'open'
         const { minNumber = 0, maxNumber = 100 } = round.config ?? {}
         const ops = FAKE_NAMES.map((name, i) => {
