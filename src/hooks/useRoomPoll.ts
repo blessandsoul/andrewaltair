@@ -55,11 +55,21 @@ export function useRoomPoll<T>(url: string | null, intervalMs = 2000): UseRoomPo
             }
         }
 
+        // self-scheduling with ±15% jitter so N phones don't align into synchronized
+        // request bursts (smoother server load at 30 concurrent clients)
+        let timer: ReturnType<typeof setTimeout>
+        const schedule = () => {
+            const delay = intervalMs * (0.85 + Math.random() * 0.3)
+            timer = setTimeout(async () => {
+                await tick()
+                if (alive) schedule()
+            }, delay)
+        }
         tick()
-        const id = setInterval(tick, intervalMs)
+        schedule()
         return () => {
             alive = false
-            clearInterval(id)
+            clearTimeout(timer)
         }
     }, [url, intervalMs])
 

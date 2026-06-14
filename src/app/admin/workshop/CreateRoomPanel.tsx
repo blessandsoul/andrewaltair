@@ -1,10 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { MonitorPlay, Gamepad2, Trash2, Plus, Users, FlaskConical } from 'lucide-react'
+import { MonitorPlay, Gamepad2, Trash2, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { RoomSettingsForm } from './RoomSettingsForm'
+import type { IWorkshopRoomSettings } from '@/types/workshop.types'
 
 interface TemplateInfo {
     id: string
@@ -22,8 +24,8 @@ interface RoomInfo {
 }
 
 const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
-    lobby: { label: 'LOBBY', cls: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30' },
-    live: { label: '● LIVE', cls: 'bg-red-500/15 text-red-600 border-red-500/30' },
+    lobby: { label: 'LOBBY', cls: 'bg-success/15 text-success border-success/30' },
+    live: { label: '● LIVE', cls: 'bg-destructive/15 text-destructive border-destructive/30' },
     ended: { label: 'ENDED', cls: 'bg-muted text-muted-foreground border-border' },
 }
 
@@ -53,14 +55,14 @@ export default function CreateRoomPanel() {
         load()
     }, [])
 
-    const create = async (templateId: string, demo = false) => {
+    const create = async (templateId: string, demo = false, settings?: IWorkshopRoomSettings) => {
         setBusy(true)
         setError(null)
         try {
             const res = await fetch('/api/workshop/rooms', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ templateId, demo }),
+                body: JSON.stringify({ templateId, demo, ...(settings ? { settings } : {}) }),
             })
             const json = await res.json()
             if (json.success) await load()
@@ -87,6 +89,9 @@ export default function CreateRoomPanel() {
         }
     }
 
+    const [selectedId, setSelectedId] = useState<string | null>(null)
+    const activeId = selectedId ?? templates[0]?.id
+
     return (
         <div className="space-y-6">
             {/* Templates */}
@@ -95,33 +100,41 @@ export default function CreateRoomPanel() {
                     <CardTitle className="text-base">ახალი ოთახი</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                    {templates.map((t) => (
-                        <div
-                            key={t.id}
-                            className="flex items-center justify-between gap-4 rounded-xl border border-border bg-card px-4 py-3"
-                        >
-                            <div className="min-w-0">
-                                <p className="font-semibold text-foreground truncate">{t.title}</p>
-                                <p className="text-muted-foreground text-sm">
-                                    {t.id} · {t.roundsTotal} раундов
-                                </p>
-                            </div>
-                            <div className="flex gap-2 shrink-0">
-                                <Button onClick={() => create(t.id)} disabled={busy} className="gap-2">
-                                    <Plus size={16} /> Создать
-                                </Button>
-                                <Button
-                                    onClick={() => create(t.id, true)}
-                                    disabled={busy}
-                                    variant="secondary"
-                                    className="gap-2"
-                                    title="Комната с 8 фейковыми участниками и готовыми ответами на все раунды — чтобы посмотреть как всё работает"
+                    {templates.length > 1 && (
+                        <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">
+                            Выберите воркшоп
+                        </p>
+                    )}
+                    <div role="radiogroup" className="space-y-2">
+                        {templates.map((t) => {
+                            const active = t.id === activeId
+                            return (
+                                <button
+                                    key={t.id}
+                                    type="button"
+                                    role="radio"
+                                    aria-checked={active}
+                                    onClick={() => setSelectedId(t.id)}
+                                    className={`w-full rounded-xl border px-4 py-3 text-left transition ${
+                                        active
+                                            ? 'border-primary ring-2 ring-primary/40 bg-primary/5'
+                                            : 'border-border bg-card hover:bg-accent'
+                                    }`}
                                 >
-                                    <FlaskConical size={16} /> Демо
-                                </Button>
-                            </div>
-                        </div>
-                    ))}
+                                    <p className="font-semibold text-foreground truncate">{t.title}</p>
+                                    <p className="text-muted-foreground text-sm">
+                                        {t.id} · {t.roundsTotal} раундов
+                                    </p>
+                                </button>
+                            )
+                        })}
+                    </div>
+                    {activeId && (
+                        <RoomSettingsForm
+                            busy={busy}
+                            onCreate={(demo, settings) => create(activeId, demo, settings)}
+                        />
+                    )}
                     {error && <p className="text-destructive text-sm">{error}</p>}
                 </CardContent>
             </Card>
@@ -182,9 +195,11 @@ export default function CreateRoomPanel() {
                                             <Gamepad2 size={15} /> პულტი
                                         </a>
                                     </Button>
-                                    <Badge variant="secondary" className="gap-1.5 font-normal">
-                                        <Users size={13} /> andrewaltair.ge/workshop/{r.code}
-                                    </Badge>
+                                    <Button asChild variant="outline" size="sm" className="gap-1.5">
+                                        <a href={`/workshop/${r.code}`} target="_blank">
+                                            <Users size={15} /> მონაწილედ შესვლა
+                                        </a>
+                                    </Button>
                                 </div>
                             </div>
                         )

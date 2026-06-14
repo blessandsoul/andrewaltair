@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 
+import { cn } from '@/lib/utils'
+
 interface CountdownRingProps {
     phaseStartedAt: string
     durationSec: number
@@ -48,12 +50,12 @@ export default function CountdownRing({
             <svg width={size} height={size} className="-rotate-90">
                 <circle
                     cx={size / 2} cy={size / 2} r={r}
-                    fill="none" stroke="rgba(14,15,31,.1)" strokeWidth="4"
+                    fill="none" stroke="color-mix(in srgb, var(--foreground) 10%, transparent)" strokeWidth="4"
                 />
                 <circle
                     cx={size / 2} cy={size / 2} r={r}
                     fill="none"
-                    stroke={urgent ? '#f87171' : '#7c3aed'}
+                    stroke={urgent ? 'var(--destructive)' : 'var(--primary)'}
                     strokeWidth="4"
                     strokeLinecap="round"
                     strokeDasharray={circumference}
@@ -62,9 +64,10 @@ export default function CountdownRing({
                 />
             </svg>
             <span
-                className={`absolute font-bold tabular-nums ${
-                    urgent ? 'text-red-500 animate-pulse' : 'text-[#0E0F1F]'
-                }`}
+                className={cn(
+                    'absolute font-bold tabular-nums',
+                    urgent ? 'text-destructive animate-pulse' : 'text-foreground'
+                )}
                 style={{ fontSize: size * 0.3 }}
             >
                 {remaining}

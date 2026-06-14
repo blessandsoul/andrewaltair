@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import type { StudentRound } from '@/types/workshop.types'
 import { STR } from '@/data/workshop-strings'
+import { cn } from '@/lib/utils'
 
 interface ChoiceRoundInputProps {
     round: StudentRound
@@ -35,28 +36,30 @@ export default function ChoiceRoundInput({ round, onSubmit }: ChoiceRoundInputPr
                     whileTap={{ scale: 0.97 }}
                     onClick={() => pick(o.id)}
                     disabled={busy !== null}
-                    className={`w-full flex items-center gap-4 rounded-2xl bg-white border-2 px-4 py-4 text-left shadow-sm transition-all disabled:opacity-60 ${
+                    className={cn(
+                        'hover-lift w-full flex items-center gap-4 rounded-2xl bg-card border-2 px-4 py-4 text-left shadow-sm disabled:opacity-60',
                         busy === o.id
-                            ? 'border-violet-500 ring-4 ring-violet-500/15'
-                            : 'border-[#0E0F1F]/8 active:border-violet-400 hover:border-violet-300 hover:shadow-md'
-                    }`}
+                            ? 'border-primary ring-2 ring-primary/40 bg-primary/5'
+                            : 'border-border hover:border-primary/40 hover:shadow-md',
+                    )}
                 >
                     <span
-                        className={`flex items-center justify-center w-11 h-11 rounded-xl text-lg font-bold shrink-0 transition-colors ${
+                        className={cn(
+                            'flex items-center justify-center w-11 h-11 rounded-xl text-lg font-bold shrink-0 transition-colors',
                             busy === o.id
-                                ? 'bg-linear-to-br from-violet-600 to-pink-600 text-white'
-                                : 'bg-violet-50 text-violet-700 border border-violet-200'
-                        }`}
+                                ? 'bg-[image:var(--ws-cta)] text-primary-foreground'
+                                : 'bg-primary/10 text-primary border border-primary/30',
+                        )}
                     >
                         {LETTERS[i] ?? '•'}
                     </span>
-                    <span className="text-lg font-semibold leading-snug">
+                    <span className="text-lg font-semibold leading-snug text-foreground">
                         {busy === o.id ? STR.inputs.sending : cleanLabel(o.label)}
                     </span>
                 </motion.button>
             ))}
             {round.phase === 'revote' && (
-                <p className="text-center text-[#6E7186] text-sm pt-1">
+                <p className="text-center text-muted-foreground text-sm pt-1">
                     {STR.inputs.revoteHint}
                 </p>
             )}

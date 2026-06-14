@@ -1,6 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import type { StudentRound } from '@/types/workshop.types'
 import { STR } from '@/data/workshop-strings'
 
@@ -36,34 +39,35 @@ export default function TextRoundInput({ round, onSubmit }: TextRoundInputProps)
             {isMulti ? (
                 fields.map((label, i) => (
                     <div key={label}>
-                        <label className="block text-sm text-[#6E7186] mb-1.5">{label}</label>
-                        <input
+                        <label className="block text-sm text-muted-foreground mb-1.5">{label}</label>
+                        <Input
                             type="text"
                             value={values[i]}
                             maxLength={200}
                             onChange={(e) => setAt(i, e.target.value)}
-                            className="w-full rounded-xl bg-white border border-[#0E0F1F]/10 shadow-sm px-4 py-3 text-base outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all"
+                            className="h-auto rounded-xl bg-card px-4 py-3 shadow-sm focus-visible:ring-ring/40"
                         />
                     </div>
                 ))
             ) : (
-                <textarea
+                <Textarea
                     value={values[0]}
                     maxLength={2000}
                     rows={4}
                     autoFocus
                     placeholder={STR.inputs.textPlaceholder}
                     onChange={(e) => setAt(0, e.target.value)}
-                    className="w-full rounded-xl bg-white border border-[#0E0F1F]/10 shadow-sm px-4 py-3 text-base outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all resize-none"
+                    className="rounded-xl bg-card px-4 py-3 shadow-sm resize-none focus-visible:ring-ring/40"
                 />
             )}
-            <button
+            <Button
                 onClick={send}
                 disabled={!canSend || busy}
-                className="w-full rounded-2xl bg-linear-to-r from-violet-600 to-pink-600 active:opacity-90 disabled:opacity-40 py-4 text-lg font-bold text-white shadow-lg shadow-violet-600/30 transition-opacity"
+                variant="gradient"
+                className="glow-primary h-auto w-full rounded-2xl py-4 text-lg font-bold"
             >
                 {busy ? STR.inputs.sending : STR.inputs.send}
-            </button>
+            </Button>
         </div>
     )
 }

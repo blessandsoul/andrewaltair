@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { usePathname } from "next/navigation"
 import { AdminSidebar, AdminHeader } from "@/components/admin/AdminSidebar"
 import { AdminAuth, useAdminAuth } from "@/components/admin/AdminAuth"
 import { OnboardingTour, useOnboarding } from "@/components/admin/OnboardingTour"
@@ -10,6 +11,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = React.useState(false)
     const [theme, setTheme] = React.useState<"light" | "dark">("light")
     const { showTour, endTour } = useOnboarding()
+    const pathname = usePathname()
 
     // Initialize theme from localStorage or system preference
     React.useEffect(() => {
@@ -59,8 +61,9 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
                 </main>
             </div>
 
-            {/* Onboarding Tour */}
-            <OnboardingTour isOpen={showTour} onComplete={endTour} />
+            {/* Onboarding Tour — dashboard root only. Its 5 steps target dashboard
+                widgets, so it must not auto-pop over sub-tools like /admin/workshop. */}
+            <OnboardingTour isOpen={showTour && pathname === "/admin"} onComplete={endTour} />
         </div>
     )
 }

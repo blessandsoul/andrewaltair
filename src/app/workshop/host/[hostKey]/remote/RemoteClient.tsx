@@ -1,14 +1,26 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { PenLine, Users, StickyNote, ChevronDown, ChevronRight, Star, OctagonX, MonitorPlay } from 'lucide-react'
+import {
+    PenLine,
+    Users,
+    ScrollText,
+    ChevronDown,
+    ChevronRight,
+    OctagonX,
+    MonitorPlay,
+} from 'lucide-react'
 import { useRoomPoll } from '@/hooks/useRoomPoll'
 import type { HostState } from '@/types/workshop.types'
 import CountdownRing from '@/components/workshop/CountdownRing'
-import NameAvatar from '@/components/workshop/NameAvatar'
 import PhaseStepper from '@/components/workshop/PhaseStepper'
-import { answerPreview } from '@/components/workshop/parseAnswer'
+import { ReconnectBanner } from '@/components/workshop/ReconnectBanner'
+import { Button } from '@/components/ui/button'
 import HostControls, { primaryActionFor } from '../components/HostControls'
+import { ScriptBody } from './ScriptBody'
+import { Roster } from './Roster'
+import { PinList } from './PinList'
+import { StatusPill } from './StatusPill'
 import { STR } from '@/data/workshop-strings'
 
 /**
@@ -22,14 +34,18 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
     const [stopConfirm, setStopConfirm] = useState(false)
 
     const act = useCallback(
-        async (action: string, responseId?: string) => {
+        async (action: string, responseId?: string, targetClientId?: string) => {
             if (actionBusy) return
             setActionBusy(true)
             try {
                 await fetch(`/api/workshop/host/${hostKey}/control`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action, ...(responseId ? { responseId } : {}) }),
+                    body: JSON.stringify({
+                        action,
+                        ...(responseId ? { responseId } : {}),
+                        ...(targetClientId ? { targetClientId } : {}),
+                    }),
                 })
             } finally {
                 setActionBusy(false)
@@ -71,7 +87,7 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
     if (isLoading || !state) {
         return (
             <main className="min-h-dvh flex items-center justify-center">
-                <p className="text-2xl text-[#6E7186]">{STR.common.loading}</p>
+                <p className="text-2xl text-muted-foreground">{STR.common.loading}</p>
             </main>
         )
     }
@@ -87,49 +103,34 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
 
     return (
         <main className="min-h-dvh flex flex-col max-w-3xl mx-auto">
-            {connectionLost && (
-                <div className="fixed top-0 inset-x-0 z-50 bg-amber-400 text-[#0E0F1F] text-center text-sm font-semibold py-2">
-                    {STR.common.reconnecting}
-                </div>
-            )}
+            {connectionLost && <ReconnectBanner />}
 
             {/* Status row */}
             <header className="px-5 pt-5 pb-3 space-y-3">
                 <div className="flex items-center justify-between">
                     <div>
-                        <p className="text-xs uppercase tracking-widest text-[#6E7186] font-semibold">{STR.remote.title}</p>
+                        <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">{STR.remote.title}</p>
                         <h1 className="text-lg font-bold leading-tight">{state.title}</h1>
                     </div>
-                    <span className="text-xl font-bold tracking-[0.2em] bg-white border border-[#0E0F1F]/10 shadow-sm rounded-xl px-3 py-1">
+                    <span className="text-xl font-bold tracking-[0.2em] bg-card border border-border shadow-sm rounded-xl px-3 py-1">
                         {state.code}
                     </span>
                 </div>
                 <div className="flex items-center gap-4 text-sm">
-                    <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-semibold uppercase tracking-wider ${
-                            state.status === 'live'
-                                ? 'border-red-300 bg-red-50 text-red-600'
-                                : state.status === 'ended'
-                                ? 'border-[#0E0F1F]/15 text-[#6E7186]'
-                                : 'border-emerald-300 bg-emerald-50 text-emerald-600'
-                        }`}
-                    >
-                        {state.status === 'live' && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />}
-                        {state.status === 'live' ? 'LIVE' : state.status === 'ended' ? 'ENDED' : 'LOBBY'}
-                    </span>
-                    <span className="text-[#6E7186]">
+                    <StatusPill status={state.status} />
+                    <span className="text-muted-foreground">
                         {state.currentRoundIndex >= 0
                             ? STR.display.roundOf(state.currentRoundIndex + 1, state.roundsTotal)
                             : STR.display.lobby}
                     </span>
                     {answering && (
                         <span className="inline-flex items-center gap-1.5 tabular-nums">
-                            <PenLine size={15} className="text-violet-600" />
-                            <b className="text-violet-600">{state.responsesCount}</b>
-                            <span className="text-[#6E7186]">/{state.participantCount}</span>
+                            <PenLine size={15} className="text-primary" />
+                            <b className="text-primary">{state.responsesCount}</b>
+                            <span className="text-muted-foreground">/{state.participantCount}</span>
                         </span>
                     )}
-                    <span className="inline-flex items-center gap-1.5 text-[#6E7186]">
+                    <span className="inline-flex items-center gap-1.5 text-muted-foreground">
                         <Users size={15} /> {state.participantCount}
                     </span>
                     {showRing && (
@@ -144,25 +145,36 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                 {state.round && (
                     <div className="space-y-2">
                         <PhaseStepper type={state.round.type} phase={state.round.phase} />
-                        <p className="text-sm text-[#262738] bg-white border border-[#0E0F1F]/8 rounded-xl px-4 py-2.5 shadow-sm">
+                        <p className="text-sm text-card-foreground bg-card border border-border rounded-xl px-4 py-2.5 shadow-sm">
                             {state.round.prompt}
                         </p>
                     </div>
                 )}
             </header>
 
-            {/* Host notes */}
-            {state.round?.hostNotes && state.status !== 'ended' && (
-                <div className="mx-5 mb-3 rounded-xl bg-violet-50 border border-violet-200 px-4 py-2.5">
+            {/* Speaker script — what you SAY at this step (host-only) */}
+            {state.status !== 'ended' && (state.round?.script || state.round?.hostNotes) && (
+                <div className="mx-5 mb-3 rounded-2xl bg-card border border-border shadow-sm overflow-hidden">
                     <button
                         onClick={() => setNotesOpen((v) => !v)}
-                        className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-violet-700 font-semibold"
+                        className="w-full flex items-center justify-between gap-2 px-4 py-3 bg-primary/5 border-b border-primary/15"
                     >
-                        <StickyNote size={13} /> {STR.remote.notes}{' '}
-                        {notesOpen ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+                        <span className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-primary font-bold">
+                            <ScrollText size={15} /> {STR.remote.scriptTitle}
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-xs text-primary">
+                            {notesOpen ? STR.remote.scriptCollapse : STR.remote.scriptExpand}
+                            {notesOpen ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+                        </span>
                     </button>
                     {notesOpen && (
-                        <p className="text-sm text-[#262738] mt-1.5 leading-relaxed">{state.round.hostNotes}</p>
+                        <div className="px-4 py-3">
+                            {state.round?.script ? (
+                                <ScriptBody script={state.round.script} />
+                            ) : (
+                                <p className="text-[15px] text-card-foreground leading-relaxed">{state.round?.hostNotes}</p>
+                            )}
+                        </div>
                     )}
                 </div>
             )}
@@ -177,89 +189,77 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                         isLastRound={state.currentRoundIndex >= state.roundsTotal - 1}
                         responsesCount={state.responsesCount}
                         participantCount={state.participantCount}
+                        gateRatio={state.settings?.gateRatio}
                         onAction={act}
                     />
 
+                    {/* Roster + kick (private to the host; gated by allowKick) */}
+                    {state.settings?.allowKick && state.roster.length > 0 && (
+                        <Roster
+                            roster={state.roster}
+                            busy={actionBusy}
+                            onKick={(clientId) => act('kickParticipant', undefined, clientId)}
+                        />
+                    )}
+
                     {/* Quick pin list for text rounds */}
                     {textItems.length > 0 && (
-                        <div className="px-5 pb-3 space-y-2">
-                            <p className="text-xs uppercase tracking-widest text-[#6E7186] font-semibold">
-                                {STR.remote.pinListHeader}
-                            </p>
-                            {textItems.map((item) => (
-                                <div
-                                    key={item.id}
-                                    className="flex items-center justify-between gap-3 rounded-xl bg-white border border-[#0E0F1F]/8 shadow-sm px-3.5 py-2.5"
-                                >
-                                    <div className="flex items-center gap-2.5 min-w-0">
-                                        <NameAvatar name={item.name} size={30} />
-                                        <div className="min-w-0">
-                                            <p className="text-xs text-[#6E7186] font-semibold">{item.name}</p>
-                                            <p className="text-sm text-[#262738] truncate">{answerPreview(item.textValue)}</p>
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={() => act('pinResponse', item.id)}
-                                        className="shrink-0 text-[#6E7186] hover:text-amber-500 transition-colors p-1.5 rounded-lg hover:bg-amber-50"
-                                        title={STR.results.pinTitle}
-                                    >
-                                        <Star size={18} />
-                                    </button>
-                                </div>
-                            ))}
-                            {state.round?.pinned && (
-                                <button
-                                    onClick={() => act('unpin')}
-                                    className="text-sm text-violet-600 underline underline-offset-4"
-                                >
-                                    {STR.remote.unpin}
-                                </button>
-                            )}
-                        </div>
+                        <PinList
+                            items={textItems}
+                            isPinned={!!state.round?.pinned}
+                            onPin={(id) => act('pinResponse', id)}
+                            onUnpin={() => act('unpin')}
+                        />
                     )}
 
                     {/* STOP */}
                     <div className="mt-auto px-5 pb-6 pt-3 space-y-3">
-                        <a
-                            href={`/workshop/host/${hostKey}`}
-                            target="_blank"
-                            className="inline-flex items-center gap-2 text-sm text-[#6E7186] hover:text-violet-600 transition-colors"
+                        <Button
+                            asChild
+                            variant="outline"
+                            size="sm"
+                            className="w-fit text-muted-foreground hover:text-primary"
                         >
-                            <MonitorPlay size={15} /> {STR.remote.openDisplay}
-                        </a>
+                            <a href={`/workshop/host/${hostKey}`} target="_blank">
+                                <MonitorPlay size={15} /> {STR.remote.openDisplay}
+                            </a>
+                        </Button>
                         {stopConfirm ? (
                             <div className="flex gap-3">
-                                <button
+                                <Button
                                     onClick={() => {
                                         act('endRoom')
                                         setStopConfirm(false)
                                     }}
                                     disabled={actionBusy}
-                                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl bg-red-600 hover:bg-red-500 text-white py-4 text-lg font-bold transition-colors disabled:opacity-40"
+                                    variant="destructive"
+                                    className="flex-1 h-auto rounded-2xl py-4 text-lg font-bold"
                                 >
                                     <OctagonX size={20} /> {STR.remote.stopConfirm}
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     onClick={() => setStopConfirm(false)}
-                                    className="rounded-2xl border border-[#0E0F1F]/15 px-6 font-semibold text-[#6E7186]"
+                                    variant="outline"
+                                    className="h-auto rounded-2xl px-6 font-semibold text-muted-foreground"
                                 >
                                     {STR.remote.stopCancel}
-                                </button>
+                                </Button>
                             </div>
                         ) : (
-                            <button
+                            <Button
                                 onClick={() => setStopConfirm(true)}
                                 disabled={actionBusy}
-                                className="w-full inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-red-300 bg-red-50 text-red-600 hover:bg-red-100 py-4 text-lg font-bold transition-colors disabled:opacity-40"
+                                variant="outline"
+                                className="w-full h-auto rounded-2xl border-2 border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/20 py-4 text-lg font-bold"
                             >
                                 <OctagonX size={20} /> {STR.remote.stop}
-                            </button>
+                            </Button>
                         )}
                     </div>
                 </>
             ) : (
                 <div className="flex-1 flex items-center justify-center">
-                    <p className="text-2xl text-[#6E7186]">{STR.common.ended}</p>
+                    <p className="text-2xl text-muted-foreground">{STR.common.ended}</p>
                 </div>
             )}
         </main>

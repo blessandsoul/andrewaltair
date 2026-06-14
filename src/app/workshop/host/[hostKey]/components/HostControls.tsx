@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react'
 import { Play, MessagesSquare, BarChart3, RotateCcw, SkipForward, Dices } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import type { StudentRound } from '@/types/workshop.types'
 import { STR } from '@/data/workshop-strings'
+import { cn } from '@/lib/utils'
 
 interface HostControlsProps {
     round: StudentRound | null
@@ -13,6 +15,7 @@ interface HostControlsProps {
     isLastRound: boolean
     responsesCount: number
     participantCount: number
+    gateRatio?: number // elicit-before-reveal soft gate (per-room; default 0.6)
     onAction: (action: string) => void
 }
 
@@ -22,8 +25,6 @@ interface ControlButton {
     icon: LucideIcon
     primary?: boolean
 }
-
-const GATE_RATIO = 0.6 // elicit-before-reveal: soft-block reveal until 60% answered
 
 export function primaryActionFor(round: StudentRound | null, inLobby: boolean, isLastRound: boolean): string | null {
     if (inLobby || !round) return 'openRound'
@@ -79,6 +80,7 @@ export default function HostControls({
     isLastRound,
     responsesCount,
     participantCount,
+    gateRatio = 0.6,
     onAction,
 }: HostControlsProps) {
     const buttons = buttonsFor(round, inLobby, isLastRound)
@@ -94,7 +96,7 @@ export default function HostControls({
     const gateActive =
         !!answering &&
         participantCount > 0 &&
-        responsesCount < Math.ceil(participantCount * GATE_RATIO)
+        responsesCount < Math.ceil(participantCount * gateRatio)
 
     const click = (b: ControlButton) => {
         const isAdvanceOut = b.action === 'reveal' || b.action === 'advancePhase'
@@ -109,7 +111,7 @@ export default function HostControls({
     return (
         <section className="px-5 py-3">
             {gateConfirm && (
-                <div className="mb-2 rounded-xl bg-amber-50 border border-amber-300 px-4 py-2.5 text-amber-700 text-sm font-semibold">
+                <div className="mb-2 rounded-xl bg-warning/15 border border-warning/40 px-4 py-2.5 text-warning text-sm font-semibold">
                     {STR.controls.gateWarn(responsesCount, participantCount)}
                 </div>
             )}
@@ -118,17 +120,16 @@ export default function HostControls({
                     const gated = gateActive && (b.action === 'reveal' || b.action === 'advancePhase')
                     const Icon = b.icon
                     return (
-                        <button
+                        <Button
                             key={b.action + b.label}
                             onClick={() => click(b)}
                             disabled={busy}
-                            className={`inline-flex items-center gap-2 rounded-xl px-5 py-3.5 font-semibold transition-colors disabled:opacity-40 ${
-                                b.primary
-                                    ? gated
-                                        ? 'bg-amber-500 hover:bg-amber-400 text-white shadow-md shadow-amber-500/25'
-                                        : 'bg-linear-to-r from-violet-600 to-pink-600 hover:opacity-90 text-white shadow-md shadow-violet-600/30'
-                                    : 'bg-white border border-[#0E0F1F]/10 hover:bg-[#0E0F1F]/3 text-[#262738] shadow-sm'
-                            }`}
+                            variant={b.primary ? 'gradient' : 'outline'}
+                            size="lg"
+                            className={cn(
+                                'h-auto px-5 py-3.5 text-base font-semibold',
+                                b.primary && gated && 'bg-none bg-warning text-primary-foreground shadow-md shadow-warning/25 hover:bg-warning/90'
+                            )}
                         >
                             <Icon size={18} />
                             {b.label}
@@ -137,21 +138,23 @@ export default function HostControls({
                                     {responsesCount}/{participantCount}
                                 </span>
                             )}
-                        </button>
+                        </Button>
                     )
                 })}
                 {answering && (
-                    <button
+                    <Button
                         onClick={() => onAction('seedFake')}
                         disabled={busy}
                         title={STR.controls.seedTitle}
-                        className="rounded-xl px-3.5 py-3.5 text-[#6E7186]/50 hover:text-[#6E7186] border border-[#0E0F1F]/8 hover:border-[#0E0F1F]/15 bg-white transition-colors disabled:opacity-40"
+                        variant="outline"
+                        size="icon-lg"
+                        className="h-auto px-3.5 py-3.5 text-muted-foreground/60 hover:text-muted-foreground"
                     >
                         <Dices size={18} />
-                    </button>
+                    </Button>
                 )}
             </div>
-            <p className="hidden lg:block mt-2 text-[11px] text-[#6E7186]/60">
+            <p className="hidden lg:block mt-2 text-[11px] text-muted-foreground/60">
                 {STR.controls.hotkeys}
             </p>
         </section>

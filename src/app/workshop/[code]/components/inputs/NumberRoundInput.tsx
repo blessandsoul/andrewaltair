@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Button } from '@/components/ui/button'
 import type { StudentRound } from '@/types/workshop.types'
 import { STR } from '@/data/workshop-strings'
 
@@ -25,8 +26,8 @@ export default function NumberRoundInput({ round, onSubmit }: NumberRoundInputPr
     return (
         <div className="space-y-6">
             <div className="text-center">
-                <span className="text-6xl font-bold tabular-nums">{value}</span>
-                <span className="text-[#6E7186] text-xl ml-2">{STR.inputs.seconds}</span>
+                <span className="text-6xl font-bold tabular-nums text-foreground">{value}</span>
+                <span className="text-muted-foreground text-xl ml-2">{STR.inputs.seconds}</span>
             </div>
             <input
                 type="range"
@@ -35,19 +36,20 @@ export default function NumberRoundInput({ round, onSubmit }: NumberRoundInputPr
                 step={1}
                 value={value}
                 onChange={(e) => setValue(Number(e.target.value))}
-                className="w-full h-3 accent-violet-600 cursor-pointer"
+                className="w-full h-3 accent-primary cursor-pointer"
             />
-            <div className="flex justify-between text-[#6E7186] text-sm tabular-nums">
+            <div className="flex justify-between text-muted-foreground text-sm tabular-nums">
                 <span>{min}</span>
                 <span>{max}</span>
             </div>
-            <button
+            <Button
                 onClick={send}
                 disabled={busy}
-                className="w-full rounded-2xl bg-linear-to-r from-violet-600 to-pink-600 active:opacity-90 disabled:opacity-40 py-4 text-lg font-bold text-white shadow-lg shadow-violet-600/30 transition-opacity"
+                variant="gradient"
+                className="glow-primary h-auto w-full rounded-2xl py-4 text-lg font-bold"
             >
                 {busy ? STR.inputs.sending : STR.inputs.send}
-            </button>
+            </Button>
         </div>
     )
 }

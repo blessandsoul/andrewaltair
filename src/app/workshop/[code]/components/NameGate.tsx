@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { STR } from '@/data/workshop-strings'
 
 interface NameGateProps {
@@ -31,6 +33,10 @@ export default function NameGate({ code, clientId, onJoined }: NameGateProps) {
                 setError(STR.nameGate.errNotFound)
             } else if (res.status === 410) {
                 setError(STR.nameGate.errEnded)
+            } else if (res.status === 409) {
+                setError(STR.nameGate.errFull)
+            } else if (res.status === 400) {
+                setError(STR.nameGate.errName)
             } else {
                 setError(STR.nameGate.errGeneric)
             }
@@ -44,11 +50,11 @@ export default function NameGate({ code, clientId, onJoined }: NameGateProps) {
     return (
         <div className="space-y-5">
             <div className="text-center space-y-2">
-                <p className="text-sm uppercase tracking-widest text-[#6E7186] font-semibold">{STR.nameGate.roomLabel(code)}</p>
-                <h1 className="text-3xl font-bold">{STR.nameGate.title}</h1>
-                <p className="text-[#6E7186]">{STR.nameGate.sub}</p>
+                <p className="text-sm uppercase tracking-widest text-muted-foreground font-semibold">{STR.nameGate.roomLabel(code)}</p>
+                <h1 className="text-3xl font-bold text-foreground">{STR.nameGate.title}</h1>
+                <p className="text-muted-foreground">{STR.nameGate.sub}</p>
             </div>
-            <input
+            <Input
                 type="text"
                 value={value}
                 maxLength={24}
@@ -56,16 +62,17 @@ export default function NameGate({ code, clientId, onJoined }: NameGateProps) {
                 placeholder={STR.nameGate.placeholder}
                 onChange={(e) => setValue(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && !busy && join()}
-                className="w-full rounded-2xl bg-white border border-[#0E0F1F]/10 shadow-sm px-5 py-4 text-xl text-center outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all"
+                className="h-auto rounded-2xl bg-card px-5 py-4 text-center text-xl shadow-sm focus-visible:ring-ring/40"
             />
-            <button
+            <Button
                 onClick={join}
                 disabled={busy || !value.trim()}
-                className="w-full rounded-2xl bg-linear-to-r from-violet-600 to-pink-600 active:opacity-90 disabled:opacity-40 py-4 text-xl font-bold text-white shadow-lg shadow-violet-600/30 transition-opacity"
+                variant="gradient"
+                className="glow-primary h-auto w-full rounded-2xl py-4 text-xl font-bold"
             >
                 {busy ? STR.nameGate.joining : STR.nameGate.join}
-            </button>
-            {error && <p className="text-center text-red-500">{error}</p>}
+            </Button>
+            {error && <p className="text-center text-destructive">{error}</p>}
         </div>
     )
 }

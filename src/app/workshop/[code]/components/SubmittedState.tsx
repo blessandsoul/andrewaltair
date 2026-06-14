@@ -1,6 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { Button } from '@/components/ui/button'
+import { popIn, springPop } from '@/components/workshop/motion'
 import { STR } from '@/data/workshop-strings'
 
 interface SubmittedStateProps {
@@ -10,22 +12,23 @@ interface SubmittedStateProps {
 export default function SubmittedState({ onEdit }: SubmittedStateProps) {
     return (
         <motion.div
-            initial={{ scale: 0.94, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-            className="rounded-2xl bg-white border border-[#0E0F1F]/8 shadow-sm p-8 text-center space-y-4"
+            variants={popIn}
+            initial="initial"
+            animate="animate"
+            transition={springPop}
+            className="rounded-2xl bg-card border border-border shadow-sm p-8 text-center space-y-4"
         >
             <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 16, delay: 0.05 }}
-                className="mx-auto w-16 h-16 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center"
+                transition={{ ...springPop, delay: 0.05 }}
+                className="mx-auto w-16 h-16 rounded-full bg-success/15 border border-success/30 flex items-center justify-center"
             >
                 {/* check draws itself */}
                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
                     <motion.path
                         d="M4 12.5 L9.5 18 L20 6.5"
-                        stroke="#059669"
+                        stroke="var(--success)"
                         strokeWidth="3"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -35,14 +38,11 @@ export default function SubmittedState({ onEdit }: SubmittedStateProps) {
                     />
                 </svg>
             </motion.div>
-            <p className="text-xl font-bold">{STR.submitted.title}</p>
-            <p className="text-[#6E7186] text-sm">{STR.submitted.sub}</p>
-            <button
-                onClick={onEdit}
-                className="text-violet-600 underline underline-offset-4 text-sm active:text-violet-500"
-            >
+            <p className="text-xl font-bold text-foreground">{STR.submitted.title}</p>
+            <p className="text-muted-foreground text-sm">{STR.submitted.sub}</p>
+            <Button onClick={onEdit} variant="link" className="text-sm">
                 {STR.submitted.edit}
-            </button>
+            </Button>
         </motion.div>
     )
 }

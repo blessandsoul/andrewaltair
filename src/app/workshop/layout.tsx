@@ -11,9 +11,10 @@ export const metadata: Metadata = {
 export default function WorkshopLayout({ children }: { children: React.ReactNode }) {
     return (
         <div
-            className="min-h-dvh bg-[#F7F5EE] text-[#0E0F1F] font-georgian"
+            className="workshop-theme min-h-dvh bg-background text-foreground font-georgian"
             style={{
-                backgroundImage: 'radial-gradient(circle, rgba(14,15,31,.05) 1px, transparent 1px)',
+                backgroundImage:
+                    'radial-gradient(circle, color-mix(in srgb, var(--foreground) 5%, transparent) 1px, transparent 1px)',
                 backgroundSize: '28px 28px',
             }}
         >

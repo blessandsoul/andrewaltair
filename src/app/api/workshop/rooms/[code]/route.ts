@@ -12,11 +12,14 @@ export async function GET(
 ) {
     try {
         const { code } = await params
-        let room = await WorkshopService.getRoomByCode(code)
+        // light projection: student never needs per-round content/script blobs
+        const room = await WorkshopService.getRoomByCodeForStudent(code)
         if (!room) {
             return apiError(ERROR_CODES.WORKSHOP_NOT_FOUND, 'Room not found', 404)
         }
-        room = await WorkshopService.maybeAutoAdvance(room)
+        // Perf: auto-advance (F2 reveal, revote→discuss) runs ONLY on the host poll —
+        // the display + remote always poll every 2s. Keeping it off the student path
+        // saves ~2 countDocuments + a full-room read/write per student per poll (×30).
         const clientId = request.nextUrl.searchParams.get('clientId')
         if (clientId) {
             // presence heartbeat — powers the host roster "online" dots

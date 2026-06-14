@@ -21,13 +21,12 @@ const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
                 />
                 <div
                     className={cn(
-                        "w-11 h-6 bg-gray-200 rounded-full peer",
-                        "dark:bg-gray-700",
-                        "peer-checked:bg-primary",
-                        "peer-focus:ring-2 peer-focus:ring-primary/30",
+                        "w-11 h-6 bg-input border border-border rounded-full peer transition-colors",
+                        "peer-checked:bg-primary peer-checked:border-primary",
+                        "peer-focus-visible:ring-2 peer-focus-visible:ring-ring/40",
                         "after:content-['']",
-                        "after:absolute after:top-0.5 after:left-[2px]",
-                        "after:bg-white after:rounded-full",
+                        "after:absolute after:top-0.5 after:left-0.5",
+                        "after:bg-background after:rounded-full after:shadow-sm",
                         "after:h-5 after:w-5",
                         "after:transition-all after:duration-200",
                         "peer-checked:after:translate-x-full",

@@ -2,8 +2,10 @@
 
 import { motion } from 'framer-motion'
 import { Check } from 'lucide-react'
+import { PHASE_THEME } from '@/components/workshop/phaseTheme'
 import type { RoundPhase, RoundType } from '@/types/workshop.types'
 import { STR } from '@/data/workshop-strings'
+import { cn } from '@/lib/utils'
 
 interface PhaseStepperProps {
     type: RoundType
@@ -24,6 +26,7 @@ const SIMPLE_STEPS = [
 
 /** Host neuro-cue: where the round is in its lifecycle (Mazur cycle made visible). */
 export default function PhaseStepper({ type, phase }: PhaseStepperProps) {
+    if (type === 'teach') return null // teach slides have no answer/reveal lifecycle
     const steps = type === 'choice_revote' ? REVOTE_STEPS : SIMPLE_STEPS
     const currentIdx = Math.max(0, steps.findIndex((s) => s.key === phase))
     if (phase === 'closed') return null
@@ -37,21 +40,23 @@ export default function PhaseStepper({ type, phase }: PhaseStepperProps) {
                     <div key={s.key} className="flex items-center gap-1">
                         {i > 0 && (
                             <div
-                                className={`w-5 h-0.5 rounded-full transition-colors duration-500 ${
-                                    i <= currentIdx ? 'bg-violet-400' : 'bg-[#0E0F1F]/10'
-                                }`}
+                                className={cn(
+                                    'w-5 h-0.5 rounded-full transition-colors duration-500',
+                                    i <= currentIdx ? 'bg-primary/40' : 'bg-border'
+                                )}
                             />
                         )}
                         <motion.span
                             animate={active ? { scale: [1, 1.06, 1] } : { scale: 1 }}
                             transition={active ? { duration: 1.6, repeat: Infinity, ease: 'easeInOut' } : {}}
-                            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors duration-300 ${
+                            className={cn(
+                                'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors duration-300',
                                 active
-                                    ? 'bg-violet-600 text-white'
+                                    ? PHASE_THEME[phase].banner
                                     : done
-                                    ? 'bg-violet-100 text-violet-700'
-                                    : 'bg-[#0E0F1F]/5 text-[#6E7186]'
-                            }`}
+                                    ? PHASE_THEME[phase].badge
+                                    : 'bg-muted text-muted-foreground'
+                            )}
                         >
                             {done && <Check size={11} strokeWidth={3} />}
                             {s.label}

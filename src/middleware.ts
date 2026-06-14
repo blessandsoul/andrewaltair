@@ -45,6 +45,18 @@ export function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
+    // LOCAL-DEV ONLY bypass — inert in production by two independent locks:
+    //   (a) NODE_ENV must be 'development' (Coolify prod build sets 'production'),
+    //   (b) ADMIN_DEV_BYPASS must be '1' (lives only in gitignored .env.local,
+    //       never present in the prod env). Either lock alone blocks prod.
+    if (
+        process.env.NODE_ENV === 'development' &&
+        process.env.ADMIN_DEV_BYPASS === '1' &&
+        pathname.startsWith('/admin')
+    ) {
+        return NextResponse.next();
+    }
+
     const adminSession = request.cookies.get('admin_session');
     if (!adminSession?.value) {
         if (pathname.startsWith('/admin') && pathname !== '/admin/login') {

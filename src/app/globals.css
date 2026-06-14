@@ -122,6 +122,7 @@
   --border: rgba(199, 196, 216, 0.15);
   --input: #eff4ff;
   --ring: #3525cd;
+  --ws-cta: linear-gradient(to right, var(--primary), var(--secondary));
 
   /* Charts */
   --chart-1: #3525cd;
@@ -185,6 +186,45 @@
 }
 
 /* Dark Theme - The Digital Curator Dark */
+/* Workshop "deck" theme — warm cream + violet→pink. Scoped to the live-workshop
+   subtree (applied via .workshop-theme on src/app/workshop/layout.tsx) so that
+   bg-background / text-foreground / bg-primary / text-muted-foreground etc. render
+   the deck look WITHOUT recoloring the rest of the indigo site. Like .dark, this is
+   a theme scope: it only overrides the semantic tokens for its descendants. */
+.workshop-theme {
+  --background: #f7f5ee;
+  --foreground: #0e0f1f;
+  --card: #ffffff;
+  --card-foreground: #1c1d2e;
+  --popover: #ffffff;
+  --popover-foreground: #1c1d2e;
+  --primary: #7c3aed;
+  --primary-foreground: #ffffff;
+  --secondary: #db2777;
+  --secondary-foreground: #ffffff;
+  --muted: #ece9df;
+  --muted-foreground: #6e7186;
+  --accent: #f3e8ff;
+  --accent-foreground: #0e0f1f;
+  --destructive: #f43f5e;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+  --border: rgba(14, 15, 31, 0.08);
+  --input: rgba(14, 15, 31, 0.1);
+  --ring: #7c3aed;
+  /* deck gradient for the signature primary CTA (used via bg-[image:var(--ws-cta)]) */
+  --ws-cta: linear-gradient(to right, #7c3aed, #db2777);
+  /* on-brand glow/gradient so .glow-primary / .text-gradient render violet→pink here,
+     not the site's indigo (these vars are otherwise only set in :root / .dark). */
+  --glow-primary: rgba(124, 58, 237, 0.4);
+  --glow-accent: rgba(219, 39, 119, 0.35);
+  --gradient-primary: linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
+  --gradient-accent: linear-gradient(135deg, #db2777 0%, #7c3aed 100%);
+  --primary-rgb: 124, 58, 237;
+  --accent-rgb: 219, 39, 119;
+}
+
 .dark {
   --background: #0f1729;
   --foreground: #e2e8f0;

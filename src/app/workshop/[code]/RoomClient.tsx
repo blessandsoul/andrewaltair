@@ -1,8 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRoomPoll } from '@/hooks/useRoomPoll'
+import { useStudentSound } from '@/hooks/useStudentSound'
 import type { StudentState } from '@/types/workshop.types'
+import { Button } from '@/components/ui/button'
+import { ReconnectBanner } from '@/components/workshop/ReconnectBanner'
 import NameGate from './components/NameGate'
 import CurrentRound from './components/CurrentRound'
 import { STR } from '@/data/workshop-strings'
@@ -22,7 +25,7 @@ function CenterNote({ title, sub }: { title: string; sub?: string }) {
     return (
         <div className="text-center space-y-3">
             <p className="text-2xl font-bold">{title}</p>
-            {sub && <p className="text-[#6E7186]">{sub}</p>}
+            {sub && <p className="text-muted-foreground">{sub}</p>}
         </div>
     )
 }
@@ -30,6 +33,8 @@ function CenterNote({ title, sub }: { title: string; sub?: string }) {
 export default function RoomClient({ code }: { code: string }) {
     const [clientId, setClientId] = useState<string | null>(null)
     const [name, setName] = useState<string | null>(null)
+    const [pollMs, setPollMs] = useState(3000)
+    const [soundDismissed, setSoundDismissed] = useState(false)
 
     useEffect(() => {
         let id = localStorage.getItem(CLIENT_ID_KEY)
@@ -45,7 +50,62 @@ export default function RoomClient({ code }: { code: string }) {
         clientId && name
             ? `/api/workshop/rooms/${code}?clientId=${encodeURIComponent(clientId)}`
             : null
-    const { data: state, error, isLoading, connectionLost } = useRoomPoll<StudentState>(pollUrl)
+    // students poll a touch slower than the host (default 3s, per-room configurable);
+    // 30 phones at 3s + jitter cut server load ~33% vs the 2s host display.
+    const { data: state, error, isLoading, connectionLost } = useRoomPoll<StudentState>(pollUrl, pollMs)
+
+    // adopt the room's configured student poll interval once it arrives (one re-subscribe)
+    useEffect(() => {
+        const ms = state?.settings?.studentPollMs
+        if (ms && ms !== pollMs) setPollMs(ms)
+    }, [state?.settings?.studentPollMs, pollMs])
+
+    // Online mode only: sound on the student's own phone.
+    const soundOn = state?.settings?.audience === 'online' && !!state?.settings?.studentSound
+    const { unlocked, enable, chime, confirm, reveal } = useStudentSound(state?.settings?.studentVolume ?? 70)
+    const cueRef = useRef<{ key: string | null; phase: string | null; answered: boolean }>({
+        key: null,
+        phase: null,
+        answered: false,
+    })
+
+    useEffect(() => {
+        const key = state?.round?.key ?? null
+        const phase = state?.round?.phase ?? null
+        const answered = !!state?.myAnswer
+        const prev = cueRef.current
+        cueRef.current = { key, phase, answered }
+        // keep prev synced while muted so enabling sound mid-round doesn't fire a burst
+        if (!soundOn || !unlocked) return
+        if (key && (phase === 'open' || phase === 'revote') && (key !== prev.key || (prev.phase !== 'open' && prev.phase !== 'revote'))) {
+            chime()
+        }
+        if (answered && !prev.answered) confirm()
+        if (phase === 'revealed' && prev.phase !== 'revealed') reveal()
+    }, [state?.round?.key, state?.round?.phase, state?.myAnswer, soundOn, unlocked, chime, confirm, reveal])
+
+    const soundGate =
+        soundOn && !unlocked && !soundDismissed ? (
+            <div className="fixed inset-0 z-60 flex flex-col items-center justify-center gap-4 bg-background/95 px-6 text-center backdrop-blur">
+                <Button
+                    type="button"
+                    onClick={() => void enable()}
+                    variant="gradient"
+                    className="glow-primary h-auto rounded-2xl px-8 py-5 text-xl font-bold"
+                >
+                    {STR.studentSound.enable}
+                </Button>
+                <p className="max-w-xs text-sm text-muted-foreground">{STR.studentSound.hint}</p>
+                <Button
+                    type="button"
+                    onClick={() => setSoundDismissed(true)}
+                    variant="link"
+                    className="text-sm text-muted-foreground"
+                >
+                    {STR.studentSound.skip}
+                </Button>
+            </div>
+        ) : null
 
     if (!clientId) return <ScreenShell><CenterNote title={STR.common.loading} /></ScreenShell>
 
@@ -76,29 +136,23 @@ export default function RoomClient({ code }: { code: string }) {
     if (state.status === 'lobby' || !state.round) {
         return (
             <ScreenShell>
-                <CenterNote
-                    title={state.title}
-                    sub={STR.student.lobbySub(state.participantCount)}
-                />
-                <p className="mt-6 text-center text-[#6E7186]/70 text-sm">
-                    {STR.student.lobbyHello(name)}
-                </p>
+                {soundGate}
+                <CenterNote title={state.title} sub={STR.student.lobbySub(state.participantCount)} />
+                <p className="mt-6 text-center text-muted-foreground/70 text-sm">{STR.student.lobbyHello(name)}</p>
             </ScreenShell>
         )
     }
 
     return (
         <ScreenShell>
-            {connectionLost && (
-                <div className="fixed top-0 inset-x-0 z-50 bg-amber-400 text-[#0E0F1F] text-center text-sm font-semibold py-2">
-                    {STR.common.reconnecting}
-                </div>
-            )}
+            {soundGate}
+            {connectionLost && <ReconnectBanner />}
             <CurrentRound
                 code={code}
                 clientId={clientId}
                 round={state.round}
                 myAnswer={state.myAnswer}
+                results={state.results}
                 serverNow={state.serverNow}
             />
         </ScreenShell>

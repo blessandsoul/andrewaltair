@@ -28,7 +28,15 @@ const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
  * Use this at the TOP of every admin API route
  * Checks both Authorization header AND cookies
  */
+// LOCAL-DEV ONLY admin bypass — inert in production by two independent locks:
+// NODE_ENV must be 'development' AND ADMIN_DEV_BYPASS must be '1' (the flag lives
+// only in gitignored .env.local, never in the prod env). See src/middleware.ts.
+function devAdminBypass(): boolean {
+    return process.env.NODE_ENV === 'development' && process.env.ADMIN_DEV_BYPASS === '1';
+}
+
 export function verifyAdmin(request: Request): boolean {
+    if (devAdminBypass()) return true;
     try {
         // Method 1: Check Authorization header (Bearer token)
         const authHeader = request.headers.get('authorization');
@@ -60,6 +68,7 @@ export function verifyAdmin(request: Request): boolean {
  * Verify admin session from cookies (for server components)
  */
 export async function verifyAdminSession(): Promise<boolean> {
+    if (devAdminBypass()) return true;
     try {
         const headersList = await headers();
         const cookie = headersList.get('cookie') || '';

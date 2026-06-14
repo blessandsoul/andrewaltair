@@ -5,6 +5,9 @@ import { Star } from 'lucide-react'
 import type { TextResultItem } from '@/types/workshop.types'
 import NameAvatar, { nameAccent } from '@/components/workshop/NameAvatar'
 import { parseStructuredAnswer } from '@/components/workshop/parseAnswer'
+import { Button } from '@/components/ui/button'
+import { springPop } from '@/components/workshop/motion'
+import { cn } from '@/lib/utils'
 import { STR } from '@/data/workshop-strings'
 
 interface TextWallProps {
@@ -18,85 +21,83 @@ function AnswerBody({ text }: { text: string }) {
     const rows = parseStructuredAnswer(text)
     if (!rows) {
         return (
-            <p className="text-[clamp(15px,1.45vw,21px)] leading-relaxed whitespace-pre-wrap text-[#1c1d2e]">
-                {text}
-            </p>
+            <p className="whitespace-pre-wrap text-[clamp(15px,1.45vw,21px)] leading-relaxed text-card-foreground">{text}</p>
         )
     }
     return (
-        <div className="divide-y divide-[#0E0F1F]/6">
+        <div className="divide-y divide-border">
             {rows.map((r, i) => (
                 <div key={i} className="py-2 first:pt-0 last:pb-0">
-                    <p className="text-[11px] uppercase tracking-wider text-[#6E7186] font-semibold mb-0.5">
-                        {r.label}
-                    </p>
-                    <p className="text-[clamp(15px,1.4vw,20px)] font-semibold text-[#1c1d2e] leading-snug">
-                        {r.value}
-                    </p>
+                    <p className="mb-0.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{r.label}</p>
+                    <p className="text-[clamp(15px,1.4vw,20px)] font-semibold leading-snug text-card-foreground">{r.value}</p>
                 </div>
             ))}
         </div>
     )
 }
 
+function AnswerCard({
+    item,
+    onPin,
+    readonly,
+}: {
+    item: TextResultItem
+    onPin: (action: string, responseId?: string) => void
+    readonly: boolean
+}) {
+    const accent = nameAccent(item.name)
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 18, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={springPop}
+            className="group glass relative mb-5 overflow-hidden rounded-2xl border border-border bg-card shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/15"
+        >
+            {/* accent stripe in the participant's color */}
+            <span className={cn('absolute inset-y-0 left-0 w-1.5', accent.solid)} />
+
+            {/* oversized decorative quote glyph */}
+            <span aria-hidden className="absolute -top-3 right-3 select-none text-[72px] font-bold leading-none text-foreground/5">
+                „
+            </span>
+
+            <div className="py-4 pl-5 pr-4">
+                <div className="mb-3 flex items-center justify-between gap-2">
+                    <span className="inline-flex min-w-0 items-center gap-2.5">
+                        <NameAvatar name={item.name} size={32} />
+                        <span className={cn('truncate rounded-full px-3 py-1 text-[13px] font-bold', accent.soft, accent.text)}>
+                            {item.name}
+                        </span>
+                    </span>
+                    {!readonly && (
+                        <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => onPin('pinResponse', item.id)}
+                            title={STR.results.pinTitle}
+                            aria-label={STR.results.pinTitle}
+                            className="shrink-0 text-muted-foreground opacity-0 transition-all hover:text-warning group-hover:opacity-100"
+                        >
+                            <Star size={17} />
+                        </Button>
+                    )}
+                </div>
+                <AnswerBody text={item.textValue} />
+            </div>
+        </motion.div>
+    )
+}
+
 export default function TextWall({ items, onPin, readonly = false }: TextWallProps) {
     if (items.length === 0) {
-        return <p className="text-center text-[#6E7186]">{STR.results.noAnswersWaiting}</p>
+        return <p className="text-center text-muted-foreground">{STR.results.noAnswersWaiting}</p>
     }
     return (
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-5 *:break-inside-avoid">
+        <div className="columns-1 gap-5 *:break-inside-avoid md:columns-2 lg:columns-3">
             <AnimatePresence initial={false}>
-                {items.map((item) => {
-                    const accent = nameAccent(item.name)
-                    return (
-                        <motion.div
-                            key={item.id}
-                            initial={{ opacity: 0, y: 18, scale: 0.96 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            transition={{ type: 'spring', stiffness: 260, damping: 24 }}
-                            className="group relative mb-5 rounded-2xl bg-white overflow-hidden
-                                       border border-[#0E0F1F]/6
-                                       shadow-[0_1px_2px_rgba(14,15,31,0.04),0_8px_24px_rgba(14,15,31,0.07)]
-                                       hover:shadow-[0_2px_4px_rgba(14,15,31,0.05),0_16px_40px_rgba(124,58,237,0.16)]
-                                       hover:-translate-y-1 transition-all duration-300"
-                        >
-                            {/* accent stripe in the participant's color */}
-                            <span className={`absolute left-0 top-0 bottom-0 w-1.5 ${accent.solid}`} />
-
-                            {/* oversized decorative quote glyph */}
-                            <span
-                                aria-hidden
-                                className="absolute -top-3 right-3 text-[72px] leading-none font-bold text-[#0E0F1F]/4.5 select-none"
-                            >
-                                „
-                            </span>
-
-                            <div className="pl-5 pr-4 py-4">
-                                <div className="flex items-center justify-between gap-2 mb-3">
-                                    <span className="inline-flex items-center gap-2.5 min-w-0">
-                                        <NameAvatar name={item.name} size={32} />
-                                        <span
-                                            className={`rounded-full px-3 py-1 text-[13px] font-bold truncate ${accent.soft} ${accent.text}`}
-                                        >
-                                            {item.name}
-                                        </span>
-                                    </span>
-                                    {!readonly && (
-                                        <button
-                                            onClick={() => onPin('pinResponse', item.id)}
-                                            title={STR.results.pinTitle}
-                                            className="opacity-0 group-hover:opacity-100 text-[#6E7186] hover:text-amber-500
-                                                       hover:bg-amber-50 rounded-lg p-1.5 transition-all shrink-0"
-                                        >
-                                            <Star size={17} />
-                                        </button>
-                                    )}
-                                </div>
-                                <AnswerBody text={item.textValue} />
-                            </div>
-                        </motion.div>
-                    )
-                })}
+                {items.map((item) => (
+                    <AnswerCard key={item.id} item={item} onPin={onPin} readonly={readonly} />
+                ))}
             </AnimatePresence>
         </div>
     )

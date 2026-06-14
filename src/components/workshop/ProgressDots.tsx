@@ -19,7 +19,11 @@ export default function ProgressDots({ current, total }: ProgressDotsProps) {
                         key={i}
                         animate={{
                             width: active ? 22 : 7,
-                            backgroundColor: active ? '#7c3aed' : done ? '#c4b5fd' : 'rgba(14,15,31,0.12)',
+                            backgroundColor: active
+                                ? 'var(--primary)'
+                                : done
+                                ? 'color-mix(in srgb, var(--primary) 45%, transparent)'
+                                : 'color-mix(in srgb, var(--foreground) 12%, transparent)',
                         }}
                         transition={{ type: 'spring', stiffness: 300, damping: 26 }}
                         className="h-[7px] rounded-full"

@@ -29,7 +29,12 @@ export async function POST(
         if (!parsed.success) {
             return apiError(ERROR_CODES.VALIDATION_FAILED, 'Invalid name', 400)
         }
-        await WorkshopService.joinRoom(room._id, parsed.data.name, parsed.data.clientId)
+        const result = await WorkshopService.joinRoom(room._id, parsed.data.name, parsed.data.clientId)
+        if (!result.ok) {
+            return result.reason === 'full'
+                ? apiError(ERROR_CODES.WORKSHOP_JOIN_FAILED, 'Room is full', 409)
+                : apiError(ERROR_CODES.VALIDATION_FAILED, 'Name not allowed', 400)
+        }
         return apiSuccess({ joined: true, title: room.title })
     } catch {
         return apiError(ERROR_CODES.WORKSHOP_JOIN_FAILED, 'Failed to join', 500)

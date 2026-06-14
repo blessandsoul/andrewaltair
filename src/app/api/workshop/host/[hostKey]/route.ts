@@ -19,10 +19,14 @@ export async function GET(
             return apiError(ERROR_CODES.WORKSHOP_FORBIDDEN, 'Invalid host key', 403)
         }
         room = await WorkshopService.maybeAutoAdvance(room)
+        await WorkshopService.maybeDripDemo(room) // demo rooms: one answer trickles in per poll
 
         const [results, roster, responsesCount, pinned] = await Promise.all([
             WorkshopService.getResults(room),
-            WorkshopService.getRoster(room._id),
+            WorkshopService.getRoster(room._id, {
+                anonymous: room.settings?.anonymousNames,
+                onlineWindowMs: (room.settings?.onlineWindowSec ?? 10) * 1000,
+            }),
             WorkshopService.getResponsesCount(room),
             WorkshopService.getPinned(room),
         ])
@@ -41,7 +45,9 @@ export async function GET(
             roster,
             participantCount: roster.length,
             responsesCount,
+            selectedPhoto: room.selectedPhoto ?? null,
             serverNow: new Date().toISOString(),
+            settings: WorkshopService.pickClientSettings(room),
         }
 
         // QR fetched once by the display client on mount (?qr=1), not on every 2s poll

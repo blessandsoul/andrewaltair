@@ -9,8 +9,8 @@
 export const STR = {
     common: {
         loading: 'იტვირთება...',
-        reconnecting: 'კავშირი წყდება — ვცდილობთ აღდგენას...',
-        ended: 'სემინარი დასრულდა',
+        reconnecting: 'კავშირი დაიკარგა — ვცდილობთ აღდგენას...',
+        ended: 'ვორქშოპი დასრულდა',
         endedThanks: 'დიდი მადლობა მონაწილეობისთვის!',
     },
 
@@ -21,6 +21,13 @@ export const STR = {
         lobbyHello: (name: string) => `გამარჯობა, ${name}! დაელოდეთ წამყვანს.`,
     },
 
+    // Online mode: a one-time "tap to enable sound" gate on the student's phone.
+    studentSound: {
+        enable: '🔊 ხმის ჩართვა',
+        hint: 'ჩართე ხმა — გაიგებ როცა ახალი კითხვა გამოჩნდება',
+        skip: 'ხმის გარეშე',
+    },
+
     nameGate: {
         roomLabel: (code: string) => `ოთახი ${code}`,
         title: 'მოგესალმებით!',
@@ -29,9 +36,11 @@ export const STR = {
         join: 'შესვლა',
         joining: 'შესვლა...',
         errNotFound: 'ოთახი ვერ მოიძებნა',
-        errEnded: 'სემინარი უკვე დასრულდა',
+        errEnded: 'ვორქშოპი უკვე დასრულდა',
         errGeneric: 'შეცდომა მოხდა — სცადეთ თავიდან',
         errNetwork: 'კავშირის შეცდომა — სცადეთ თავიდან',
+        errFull: 'ოთახი სავსეა',
+        errName: 'სახელი არ დაიშვება — სცადეთ სხვა',
     },
 
     // Цветной баннер «что делать сейчас» на телефоне
@@ -46,7 +55,9 @@ export const STR = {
     round: {
         waitHost: 'დაელოდეთ წამყვანს...',
         discussTitle: 'რატომ აირჩიეთ თქვენი პასუხი?',
-        discussBody: 'დაწერეთ არგუმენტი ჩატში და წაიკითხეთ სხვების მოსაზრებები — შემდეგ ხელახლა მისცემთ ხმას.',
+        discussBody: 'აირჩიეთ მიზეზი ქვემოთ ან დაწერეთ თქვენი — შემდეგ ხელახლა მისცემთ ხმას.',
+        reasonOwnPlaceholder: 'თქვენი მიზეზი...',
+        reasonSubmitted: 'თქვენი მიზეზი მიღებულია',
         errClosed: 'რაუნდი დაიხურა',
         errSend: 'ვერ გაიგზავნა — სცადეთ თავიდან',
         errNetwork: 'კავშირის შეცდომა',
@@ -62,7 +73,7 @@ export const STR = {
         textPlaceholder: 'თქვენი პასუხი...',
         send: 'გაგზავნა',
         sending: 'იგზავნება...',
-        revoteHint: 'მეორე რაუნდი — შეგიძლიათ იგივე ან ახალი პასუხი',
+        revoteHint: 'მე-2 რაუნდი — შეგიძლიათ იგივე პასუხი დატოვოთ ან ახალი გაგზავნოთ',
         seconds: 'წამი',
     },
 
@@ -75,6 +86,9 @@ export const STR = {
         scanQr: 'დაასკანერეთ QR კოდი',
         joined: 'შემოვიდა',
         waiting: 'ველოდებით...',
+        enableSound: '🔊 ჩართეთ ხმა',
+        enableSoundHint: 'პასუხების ხმოვანი სიგნალისთვის — დააჭირეთ ერთხელ სანამ დაიწყებთ',
+        enableSoundSkip: 'ხმის გარეშე გაგრძელება',
     },
 
     // Бейдж фазы над вопросом на проекторе
@@ -89,16 +103,26 @@ export const STR = {
     results: {
         noAnswers: 'პასუხები ჯერ არ არის',
         noAnswersWaiting: 'პასუხები ჯერ არ არის — ველოდებით...',
-        pinTitle: 'დაამაგრე ეკრანზე',
-        unpin: 'მოხსნა',
+        pinTitle: 'ეკრანზე დამაგრება',
+        unpin: 'დამაგრების მოხსნა',
         totalVotes: (n: number) => `სულ ხმა: ${n}`,
-        shiftMoved: (n: number) => `დისკუსიამ აზრი შეაცვლევინა ${n} მონაწილეს`,
+        shiftMoved: (n: number) => `დისკუსიამ ${n} მონაწილეს აზრი შეაცვლევინა`,
         shiftSub: 'Peer Instruction მუშაობს — აზრის შეცვლა სწავლის ნიშანია',
         vote1: 'ხმა 1',
         vote2: 'ხმა 2',
         histTotal: (n: number) => `სულ: ${n}`,
         histAvg: 'საშუალო:',
         histSeconds: (n: number) => `${n} წამი`,
+        yourAnswer: 'თქვენი პასუხი',
+        answersCount: (n: number) => `${n} პასუხი`,
+        liveHint: 'პასუხები ცოცხლად ახლდება',
+        winner: 'არჩეულია',
+        winnerVotes: (n: number) => `${n} ხმა`,
+        // F4: «кто поменял мнение и почему»
+        movesTitle: 'ვინ შეიცვალა აზრი',
+        moveChanged: 'შეიცვალა',
+        moveKept: 'დარჩა',
+        noReason: '—',
     },
 
     controls: {
@@ -110,7 +134,7 @@ export const STR = {
         revealCompare: 'შედეგები (შედარება)',
         nextRound: 'შემდეგი რაუნდი',
         gateWarn: (a: number, b: number) =>
-            `ჯერ მხოლოდ ${a}/${b}-მა უპასუხა — დააჭირეთ კიდევ ერთხელ, თუ მაინც გადახვალთ`,
+            `ჯერ მხოლოდ ${a}/${b}-მა უპასუხა — თუ მაინც გადასვლა გსურთ, კიდევ ერთხელ დააჭირეთ`,
         hotkeys: 'Space=შემდეგი · R=შედეგები · →=რაუნდი · E=დასრულება',
         seedTitle: 'Demo: სატესტო პასუხები რეპეტიციისთვის',
     },
@@ -121,9 +145,21 @@ export const STR = {
         pinListHeader: 'პასუხები — დააჭირეთ ვარსკვლავს ეკრანზე გამოსატანად',
         unpin: 'დამაგრების მოხსნა',
         openDisplay: 'ეკრანის გახსნა (გასაზიარებლად)',
-        stop: 'სემინარის დასრულება',
+        stop: 'ვორქშოპის დასრულება',
         stopConfirm: 'დიახ, დასრულება',
         stopCancel: 'არა',
+        // секции спикер-скрипта на пульте
+        scriptTitle: 'სცენარი',
+        scriptCollapse: 'ჩაკეცვა',
+        scriptExpand: 'გაშლა',
+        script: {
+            say: 'სათქმელი',
+            example: 'მაგალითი',
+            show: 'ჩვენება',
+            ask: 'კითხვა აუდიტორიას',
+            after: 'პასუხების შემდეგ',
+            meta: 'შენიშვნა (არ წარმოთქვა)',
+        },
     },
 
     stepper: {

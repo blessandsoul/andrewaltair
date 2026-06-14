@@ -28,6 +28,11 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+# secret backups — never commit (GitHub push-protection)
+.env*
+!.env.example
+*.bak
+*.bak_*
 
 # vercel
 .vercel

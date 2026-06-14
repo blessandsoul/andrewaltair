@@ -4,7 +4,7 @@ export interface IWorkshopResponse extends Document {
     _id: mongoose.Types.ObjectId;
     roomId: mongoose.Types.ObjectId;
     roundKey: string;
-    phase: 'open' | 'revote';
+    phase: 'open' | 'revote' | 'discuss'; // discuss = the Mazur "why" reason (F4)
     clientId: string;
     name: string;
     textValue?: string;
@@ -27,7 +27,7 @@ const WorkshopResponseSchema = new Schema<IWorkshopResponse>(
         },
         phase: {
             type: String,
-            enum: ['open', 'revote'],
+            enum: ['open', 'revote', 'discuss'],
             default: 'open',
         },
         clientId: {

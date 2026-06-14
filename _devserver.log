@@ -1,0 +1,669 @@
+
+> andrewaltair.ge@0.1.0 dev
+> next dev --turbo
+
+  ▲ Next.js 14.2.35 (turbo)
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+  - Experiments (use with caution):
+    · cpus
+    · instrumentationHook
+
+ ✓ Starting...
+ ✓ Compiled in 836ms
+ ✓ Ready in 2.5s
+[seo-migrations] skipped 2026-06-12-dedupe-archive (applied 2026-06-13T07:55:17.766Z)
+[seo-migrations] skipped 2026-06-12-timestamp-reslug (applied 2026-06-13T07:55:17.801Z)
+[seo-migrations] skipped 2026-06-12-hyphen-reslug (applied 2026-06-13T07:55:17.813Z)
+[seo-migrations] skipped 2026-06-12-bot-slugs (applied 2026-06-13T07:55:17.821Z)
+[seo-migrations] skipped 2026-06-12-nsfw-archive (applied 2026-06-13T07:55:17.833Z)
+[seo-migrations] skipped 2026-06-12-meta-rescue (applied 2026-06-13T07:55:17.856Z)
+[seo-migrations] FAILED 2026-06-12-grok-pillar-post (will retry next boot): ValidationError: Post validation failed: sections.7.type: `tutorial-step` is not a valid enum value for path `type`., sections.8.type: `tutorial-step` is not a valid enum value for path `type`., sections.9.type: `tutorial-step` is not a valid enum value for path `type`., sources.0.outlet: Path `outlet` is required., sources.0.index: Path `index` is required., sources.1.outlet: Path `outlet` is required., sources.1.index: Path `index` is required.
+    at module.exports.[project]/node_modules/mongoose/lib/document.js [instrumentation] (ecmascript).Document.invalidate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2919:36)
+    at module.exports.[project]/node_modules/mongoose/lib/types/subdocument.js [instrumentation] (ecmascript).Subdocument.invalidate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_5c313b._.js:2700:16)
+    at validatePath (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2725:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Promise.all (index 2)
+    at async EmbeddedDocument.$__validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2679:5)
+    at async Promise.all (index 7)
+    at async SchemaDocumentArray.doValidate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_schema_319d6d._.js:3356:5)
+    at async validatePath (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2719:13)
+    at async Promise.all (index 3)
+    at async model.$__validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2679:5)
+    at async model.validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2315:9)
+    at async model.validateBeforeSave (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_5c313b._.js:11201:13)
+    at async Kareem.execPre (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_85697d._.js:1508:32)
+    at async model.$__save (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_model_b341ed.js:314:9)
+    at async model.save (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_model_b341ed.js:522:9)
+    at async PostService.createPost (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_44eab0._.js:1602:9)
+    at async Object.run (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_a0dec2._.js:524:26)
+    at async runSeoMigrations (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_a0dec2._.js:562:29) {
+  errors: {
+    'sections.7.type': ValidatorError: `tutorial-step` is not a valid enum value for path `type`.
+        at SchemaString.doValidate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_5c313b._.js:10027:19)
+        at validatePath (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2719:30)
+        at EmbeddedDocument.$__validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2676:27)
+        at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+        at async Promise.all (index 7)
+        at async SchemaDocumentArray.doValidate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_schema_319d6d._.js:3356:5)
+        at async validatePath (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2719:13)
+        at async Promise.all (index 3)
+        at async model.$__validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2679:5)
+        at async model.validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2315:9)
+        at async model.validateBeforeSave (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_5c313b._.js:11201:13)
+        at async Kareem.execPre (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_85697d._.js:1508:32)
+        at async model.$__save (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_model_b341ed.js:314:9)
+        at async model.save (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_model_b341ed.js:522:9)
+        at async PostService.createPost (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_44eab0._.js:1602:9)
+        at async Object.run (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_a0dec2._.js:524:26)
+        at async runSeoMigrations (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_a0dec2._.js:562:29) {
+      properties: [Object],
+      kind: 'enum',
+      path: 'type',
+      value: 'tutorial-step',
+      reason: undefined,
+      Symbol(mongoose#validatorError): true
+    },
+    'sections.8.type': ValidatorError: `tutorial-step` is not a valid enum value for path `type`.
+        at SchemaString.doValidate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_5c313b._.js:10027:19)
+        at validatePath (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2719:30)
+        at EmbeddedDocument.$__validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2676:27)
+        at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+        at async Promise.all (index 8)
+        at async SchemaDocumentArray.doValidate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_schema_319d6d._.js:3356:5)
+        at async validatePath (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2719:13)
+        at async Promise.all (index 3)
+        at async model.$__validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2679:5)
+        at async model.validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2315:9)
+        at async model.validateBeforeSave (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_5c313b._.js:11201:13)
+        at async Kareem.execPre (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_85697d._.js:1508:32)
+        at async model.$__save (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_model_b341ed.js:314:9)
+        at async model.save (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_model_b341ed.js:522:9)
+        at async PostService.createPost (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_44eab0._.js:1602:9)
+        at async Object.run (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_a0dec2._.js:524:26)
+        at async runSeoMigrations (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_a0dec2._.js:562:29) {
+      properties: [Object],
+      kind: 'enum',
+      path: 'type',
+      value: 'tutorial-step',
+      reason: undefined,
+      Symbol(mongoose#validatorError): true
+    },
+    'sections.9.type': ValidatorError: `tutorial-step` is not a valid enum value for path `type`.
+        at SchemaString.doValidate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_5c313b._.js:10027:19)
+        at validatePath (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2719:30)
+        at EmbeddedDocument.$__validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2676:27)
+        at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+        at async Promise.all (index 9)
+        at async SchemaDocumentArray.doValidate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_schema_319d6d._.js:3356:5)
+        at async validatePath (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2719:13)
+        at async Promise.all (index 3)
+        at async model.$__validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2679:5)
+        at async model.validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2315:9)
+        at async model.validateBeforeSave (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_5c313b._.js:11201:13)
+        at async Kareem.execPre (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_85697d._.js:1508:32)
+        at async model.$__save (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_model_b341ed.js:314:9)
+        at async model.save (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_model_b341ed.js:522:9)
+        at async PostService.createPost (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_44eab0._.js:1602:9)
+        at async Object.run (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_a0dec2._.js:524:26)
+        at async runSeoMigrations (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_a0dec2._.js:562:29) {
+      properties: [Object],
+      kind: 'enum',
+      path: 'type',
+      value: 'tutorial-step',
+      reason: undefined,
+      Symbol(mongoose#validatorError): true
+    },
+    'sources.0.outlet': ValidatorError: Path `outlet` is required.
+        at SchemaString.doValidate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_5c313b._.js:10027:19)
+        at validatePath (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2719:30)
+        at EmbeddedDocument.$__validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2676:27)
+        at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+        at async Promise.all (index 0)
+        at async SchemaDocumentArray.doValidate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_schema_319d6d._.js:3356:5)
+        at async validatePath (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2719:13)
+        at async Promise.all (index 7)
+        at async model.$__validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2679:5)
+        at async model.validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2315:9)
+        at async model.validateBeforeSave (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_5c313b._.js:11201:13)
+        at async Kareem.execPre (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_85697d._.js:1508:32)
+        at async model.$__save (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_model_b341ed.js:314:9)
+        at async model.save (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_model_b341ed.js:522:9)
+        at async PostService.createPost (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_44eab0._.js:1602:9)
+        at async Object.run (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_a0dec2._.js:524:26)
+        at async runSeoMigrations (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_a0dec2._.js:562:29) {
+      properties: [Object],
+      kind: 'required',
+      path: 'outlet',
+      value: undefined,
+      reason: undefined,
+      Symbol(mongoose#validatorError): true
+    },
+    'sources.0.index': ValidatorError: Path `index` is required.
+        at SchemaNumber.doValidate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_5c313b._.js:10027:19)
+        at validatePath (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2719:30)
+        at EmbeddedDocument.$__validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2676:27)
+        at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+        at async Promise.all (index 0)
+        at async SchemaDocumentArray.doValidate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_schema_319d6d._.js:3356:5)
+        at async validatePath (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2719:13)
+        at async Promise.all (index 7)
+        at async model.$__validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2679:5)
+        at async model.validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2315:9)
+        at async model.validateBeforeSave (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_5c313b._.js:11201:13)
+        at async Kareem.execPre (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_85697d._.js:1508:32)
+        at async model.$__save (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_model_b341ed.js:314:9)
+        at async model.save (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_model_b341ed.js:522:9)
+        at async PostService.createPost (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_44eab0._.js:1602:9)
+        at async Object.run (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_a0dec2._.js:524:26)
+        at async runSeoMigrations (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_a0dec2._.js:562:29) {
+      properties: [Object],
+      kind: 'required',
+      path: 'index',
+      value: undefined,
+      reason: undefined,
+      Symbol(mongoose#validatorError): true
+    },
+    'sources.1.outlet': ValidatorError: Path `outlet` is required.
+        at SchemaString.doValidate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_5c313b._.js:10027:19)
+        at validatePath (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2719:30)
+        at EmbeddedDocument.$__validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2676:27)
+        at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+        at async Promise.all (index 1)
+        at async SchemaDocumentArray.doValidate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_schema_319d6d._.js:3356:5)
+        at async validatePath (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2719:13)
+        at async Promise.all (index 7)
+        at async model.$__validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2679:5)
+        at async model.validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2315:9)
+        at async model.validateBeforeSave (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_5c313b._.js:11201:13)
+        at async Kareem.execPre (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_85697d._.js:1508:32)
+        at async model.$__save (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_model_b341ed.js:314:9)
+        at async model.save (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_model_b341ed.js:522:9)
+        at async PostService.createPost (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_44eab0._.js:1602:9)
+        at async Object.run (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_a0dec2._.js:524:26)
+        at async runSeoMigrations (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_a0dec2._.js:562:29) {
+      properties: [Object],
+      kind: 'required',
+      path: 'outlet',
+      value: undefined,
+      reason: undefined,
+      Symbol(mongoose#validatorError): true
+    },
+    'sources.1.index': ValidatorError: Path `index` is required.
+        at SchemaNumber.doValidate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_5c313b._.js:10027:19)
+        at validatePath (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2719:30)
+        at EmbeddedDocument.$__validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2676:27)
+        at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+        at async Promise.all (index 1)
+        at async SchemaDocumentArray.doValidate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_schema_319d6d._.js:3356:5)
+        at async validatePath (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2719:13)
+        at async Promise.all (index 7)
+        at async model.$__validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2679:5)
+        at async model.validate (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_document_f44dcb.js:2315:9)
+        at async model.validateBeforeSave (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_5c313b._.js:11201:13)
+        at async Kareem.execPre (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_85697d._.js:1508:32)
+        at async model.$__save (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_model_b341ed.js:314:9)
+        at async model.save (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\node_modules_mongoose_lib_model_b341ed.js:522:9)
+        at async PostService.createPost (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_44eab0._.js:1602:9)
+        at async Object.run (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_a0dec2._.js:524:26)
+        at async runSeoMigrations (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\src_a0dec2._.js:562:29) {
+      properties: [Object],
+      kind: 'required',
+      path: 'index',
+      value: undefined,
+      reason: undefined,
+      Symbol(mongoose#validatorError): true
+    }
+  },
+  _message: 'Post validation failed'
+}
+ ○ Compiling /admin/workshop ...
+ ✓ Compiled /admin/workshop in 11.6s
+ GET /admin/workshop 200 in 12677ms
+ ○ Compiling /api/tracking/visitors ...
+ ✓ Compiled /api/tracking/visitors in 525ms
+ GET /api/notifications 200 in 1720ms
+ POST /api/tracking/visitors 200 in 1736ms
+ POST /api/tracking/visitors 200 in 256ms
+ GET /api/notifications 200 in 267ms
+ POST /api/tracking/visitors 200 in 241ms
+ GET /api/notifications 200 in 233ms
+ POST /api/tracking/visitors 200 in 122ms
+ GET /api/notifications 200 in 121ms
+ POST /api/tracking/visitors 200 in 225ms
+ GET /api/notifications 200 in 218ms
+ POST /api/tracking/visitors 200 in 206ms
+ GET /api/notifications 200 in 214ms
+ POST /api/tracking/visitors 200 in 198ms
+ GET /api/notifications 200 in 203ms
+ POST /api/tracking/visitors 200 in 203ms
+ GET /api/notifications 200 in 193ms
+ POST /api/tracking/visitors 200 in 136ms
+ GET /api/notifications 200 in 163ms
+ POST /api/tracking/visitors 200 in 147ms
+ POST /api/tracking/visitors 200 in 190ms
+ GET /api/notifications 200 in 192ms
+ POST /api/tracking/visitors 200 in 200ms
+ GET /api/notifications 200 in 207ms
+ POST /api/tracking/visitors 200 in 186ms
+ GET /api/notifications 200 in 195ms
+ POST /api/tracking/visitors 200 in 216ms
+ GET /api/notifications 200 in 218ms
+ POST /api/tracking/visitors 200 in 222ms
+ GET /api/notifications 200 in 223ms
+ POST /api/tracking/visitors 200 in 194ms
+ GET /api/notifications 200 in 199ms
+ GET /api/notifications 200 in 215ms
+ POST /api/tracking/visitors 200 in 221ms
+ GET /api/notifications 200 in 183ms
+ POST /api/tracking/visitors 200 in 199ms
+ POST /api/tracking/visitors 200 in 712ms
+ GET /api/notifications 200 in 705ms
+ POST /api/tracking/visitors 200 in 221ms
+ GET /api/notifications 200 in 219ms
+ POST /api/tracking/visitors 200 in 192ms
+ GET /api/notifications 200 in 196ms
+ POST /api/tracking/visitors 200 in 193ms
+ GET /api/notifications 200 in 190ms
+ POST /api/tracking/visitors 200 in 194ms
+ GET /api/notifications 200 in 197ms
+ POST /api/tracking/visitors 200 in 196ms
+ GET /api/notifications 200 in 197ms
+ POST /api/tracking/visitors 200 in 210ms
+ GET /api/notifications 200 in 201ms
+ POST /api/tracking/visitors 200 in 198ms
+ GET /api/notifications 200 in 198ms
+ POST /api/tracking/visitors 200 in 192ms
+ GET /api/notifications 200 in 185ms
+ POST /api/tracking/visitors 200 in 194ms
+ GET /api/notifications 200 in 186ms
+ POST /api/tracking/visitors 200 in 193ms
+ GET /api/notifications 200 in 193ms
+ POST /api/tracking/visitors 200 in 211ms
+ GET /api/notifications 200 in 202ms
+ POST /api/tracking/visitors 200 in 212ms
+ GET /api/notifications 200 in 223ms
+ POST /api/tracking/visitors 200 in 202ms
+ GET /api/notifications 200 in 188ms
+ POST /api/tracking/visitors 200 in 191ms
+ GET /api/notifications 200 in 176ms
+ POST /api/tracking/visitors 200 in 202ms
+ GET /api/notifications 200 in 185ms
+ POST /api/tracking/visitors 200 in 194ms
+ GET /api/notifications 200 in 177ms
+ POST /api/tracking/visitors 200 in 202ms
+ GET /api/notifications 200 in 209ms
+ POST /api/tracking/visitors 200 in 192ms
+ GET /api/notifications 200 in 187ms
+ POST /api/tracking/visitors 200 in 202ms
+ GET /api/notifications 200 in 199ms
+ POST /api/tracking/visitors 200 in 193ms
+ GET /api/notifications 200 in 178ms
+ GET /api/notifications 200 in 178ms
+ POST /api/tracking/visitors 200 in 200ms
+ POST /api/tracking/visitors 200 in 209ms
+ GET /api/notifications 200 in 192ms
+ POST /api/tracking/visitors 200 in 224ms
+ GET /api/notifications 200 in 225ms
+ POST /api/tracking/visitors 200 in 204ms
+ GET /api/notifications 200 in 202ms
+ POST /api/tracking/visitors 200 in 204ms
+ GET /api/notifications 200 in 204ms
+ POST /api/tracking/visitors 200 in 180ms
+ GET /api/notifications 200 in 183ms
+ POST /api/tracking/visitors 200 in 175ms
+ GET /admin/workshop 200 in 291ms
+ ✓ Compiled /manifest.webmanifest in 221ms
+ GET /manifest.webmanifest 200 in 338ms
+ ○ Compiling /icon.png ...
+ GET /icon.png?icon.4738ea6a.png 200 in 739ms
+ GET /api/csrf 200 in 737ms
+ POST /api/tracking/visitors 200 in 732ms
+ POST /api/tracking/visitors 200 in 766ms
+ GET /api/admin/verify 200 in 1160ms
+ ✓ Compiled /icon.png in 1221ms
+ GET /api/auth/me 401 in 810ms
+ POST /api/tracking/activities 200 in 952ms
+ POST /api/tracking/activities 200 in 1060ms
+ ○ Compiling /api/workshop/rooms ...
+ GET /api/admin/verify 200 in 770ms
+ GET /api/notifications 200 in 753ms
+ ✓ Compiled /api/workshop/rooms in 637ms
+ GET /manifest.webmanifest 200 in 287ms
+ GET /api/workshop/rooms 200 in 803ms
+ GET /api/workshop/rooms 200 in 980ms
+ GET /api/notifications 200 in 398ms
+ ✓ Compiled /api/workshop/rooms/[code] in 297ms
+ DELETE /api/workshop/rooms/X9V7M 200 in 1177ms
+ GET /api/workshop/rooms 200 in 122ms
+ DELETE /api/workshop/rooms/66ENR 200 in 151ms
+ GET /api/workshop/rooms 200 in 121ms
+ DELETE /api/workshop/rooms/2T7DS 200 in 210ms
+ GET /api/workshop/rooms 200 in 120ms
+ ✓ Compiled /api/tracking/clicks in 83ms
+ POST /api/tracking/clicks 200 in 189ms
+ POST /api/tracking/visitors 200 in 81ms
+ POST /api/tracking/visitors 200 in 80ms
+ GET /api/notifications 200 in 77ms
+ POST /api/tracking/clicks 200 in 159ms
+ POST /api/tracking/visitors 200 in 152ms
+ POST /api/tracking/visitors 200 in 141ms
+ GET /api/notifications 200 in 124ms
+ POST /api/tracking/visitors 200 in 73ms
+ POST /api/tracking/visitors 200 in 139ms
+ GET /api/notifications 200 in 123ms
+ POST /api/tracking/visitors 200 in 180ms
+ GET /api/notifications 200 in 141ms
+ POST /api/tracking/visitors 200 in 151ms
+ GET /api/notifications 200 in 161ms
+ POST /api/tracking/visitors 200 in 149ms
+ GET /api/notifications 200 in 153ms
+ POST /api/tracking/visitors 200 in 138ms
+ POST /api/tracking/visitors 200 in 201ms
+ GET /api/notifications 200 in 213ms
+ POST /api/tracking/visitors 200 in 204ms
+ GET /api/notifications 200 in 205ms
+ POST /api/tracking/visitors 200 in 225ms
+ GET /api/notifications 200 in 249ms
+ POST /api/tracking/visitors 200 in 219ms
+ GET /api/notifications 200 in 217ms
+ ✓ Compiled in 1877ms
+ ✓ Compiled /admin/workshop in 58ms
+ POST /api/tracking/visitors 200 in 181ms
+ GET /api/notifications 200 in 181ms
+ POST /api/tracking/visitors 200 in 204ms
+ GET /api/notifications 200 in 186ms
+ POST /api/tracking/visitors 200 in 183ms
+ GET /api/notifications 200 in 182ms
+ POST /api/tracking/visitors 200 in 208ms
+ GET /api/notifications 200 in 206ms
+ POST /api/tracking/visitors 200 in 240ms
+ GET /api/notifications 200 in 216ms
+ POST /api/tracking/visitors 200 in 217ms
+ GET /api/notifications 200 in 212ms
+ POST /api/tracking/visitors 200 in 197ms
+ GET /api/notifications 200 in 193ms
+ POST /api/tracking/visitors 200 in 214ms
+ GET /api/notifications 200 in 197ms
+ POST /api/tracking/visitors 200 in 237ms
+ GET /api/notifications 200 in 236ms
+ POST /api/tracking/visitors 200 in 207ms
+ GET /api/notifications 200 in 228ms
+ POST /api/tracking/visitors 200 in 187ms
+ GET /api/notifications 200 in 189ms
+ POST /api/tracking/visitors 200 in 160ms
+ POST /api/tracking/visitors 200 in 131ms
+ GET /api/notifications 200 in 115ms
+ POST /api/tracking/visitors 200 in 159ms
+ POST /api/tracking/visitors 200 in 204ms
+ GET /api/notifications 200 in 204ms
+ POST /api/tracking/visitors 200 in 184ms
+ GET /api/notifications 200 in 187ms
+ POST /api/tracking/visitors 200 in 260ms
+ GET /api/notifications 200 in 263ms
+ POST /api/tracking/visitors 200 in 225ms
+ GET /api/notifications 200 in 224ms
+ POST /api/tracking/visitors 200 in 204ms
+ GET /api/notifications 200 in 194ms
+ POST /api/tracking/visitors 200 in 270ms
+ GET /api/notifications 200 in 310ms
+ POST /api/tracking/visitors 200 in 188ms
+ GET /api/notifications 200 in 189ms
+ POST /api/tracking/visitors 200 in 235ms
+ GET /api/notifications 200 in 236ms
+ POST /api/tracking/visitors 200 in 221ms
+ GET /api/notifications 200 in 238ms
+ POST /api/tracking/visitors 200 in 251ms
+ GET /api/notifications 200 in 252ms
+ POST /api/tracking/visitors 200 in 1010ms
+ GET /api/notifications 200 in 1007ms
+ POST /api/tracking/visitors 200 in 244ms
+ GET /api/notifications 200 in 242ms
+ POST /api/tracking/visitors 200 in 231ms
+ GET /api/notifications 200 in 225ms
+ POST /api/tracking/visitors 200 in 179ms
+ GET /api/notifications 200 in 185ms
+ POST /api/tracking/visitors 200 in 191ms
+ GET /api/notifications 200 in 190ms
+ POST /api/tracking/visitors 200 in 241ms
+ GET /api/notifications 200 in 239ms
+ POST /api/tracking/visitors 200 in 216ms
+ GET /api/notifications 200 in 194ms
+ GET /api/notifications 200 in 194ms
+ POST /api/tracking/visitors 200 in 212ms
+ POST /api/tracking/visitors 200 in 236ms
+ GET /api/notifications 200 in 244ms
+ POST /api/tracking/visitors 200 in 241ms
+ GET /api/notifications 200 in 239ms
+ POST /api/tracking/visitors 200 in 239ms
+ GET /api/notifications 200 in 237ms
+ POST /api/tracking/visitors 200 in 267ms
+ GET /api/notifications 200 in 256ms
+ POST /api/tracking/visitors 200 in 243ms
+ GET /api/notifications 200 in 248ms
+ POST /api/tracking/visitors 200 in 232ms
+ GET /api/notifications 200 in 232ms
+ POST /api/tracking/visitors 200 in 188ms
+ GET /api/notifications 200 in 188ms
+ POST /api/tracking/visitors 200 in 192ms
+ GET /api/notifications 200 in 198ms
+ POST /api/tracking/visitors 200 in 237ms
+ GET /api/notifications 200 in 220ms
+ POST /api/tracking/visitors 200 in 217ms
+ GET /api/notifications 200 in 208ms
+ POST /api/tracking/visitors 200 in 219ms
+ GET /api/notifications 200 in 160ms
+ POST /api/tracking/visitors 200 in 241ms
+ GET /api/notifications 200 in 231ms
+ POST /api/tracking/visitors 200 in 216ms
+ GET /api/notifications 200 in 212ms
+ POST /api/tracking/visitors 200 in 206ms
+ GET /api/notifications 200 in 205ms
+ POST /api/tracking/visitors 200 in 214ms
+ GET /api/notifications 200 in 206ms
+ POST /api/tracking/visitors 200 in 233ms
+ GET /api/notifications 200 in 239ms
+ POST /api/tracking/visitors 200 in 208ms
+ GET /api/notifications 200 in 207ms
+ POST /api/tracking/visitors 200 in 235ms
+ GET /api/notifications 200 in 230ms
+ POST /api/tracking/visitors 200 in 227ms
+ GET /api/notifications 200 in 218ms
+ POST /api/tracking/visitors 200 in 301ms
+ GET /api/notifications 200 in 299ms
+ POST /api/tracking/visitors 200 in 156ms
+ POST /api/tracking/visitors 200 in 149ms
+ GET /api/notifications 200 in 144ms
+ POST /api/tracking/visitors 200 in 139ms
+ POST /api/tracking/visitors 200 in 198ms
+ GET /api/notifications 200 in 202ms
+ POST /api/tracking/visitors 200 in 200ms
+ GET /api/notifications 200 in 206ms
+ POST /api/tracking/visitors 200 in 215ms
+ GET /api/notifications 200 in 211ms
+ POST /api/tracking/visitors 200 in 261ms
+ GET /api/notifications 200 in 251ms
+ POST /api/tracking/visitors 200 in 200ms
+ GET /api/notifications 200 in 205ms
+ POST /api/tracking/visitors 200 in 251ms
+ GET /api/notifications 200 in 247ms
+ POST /api/tracking/visitors 200 in 226ms
+ GET /api/notifications 200 in 218ms
+ POST /api/tracking/visitors 200 in 228ms
+ GET /api/notifications 200 in 220ms
+ POST /api/tracking/visitors 200 in 253ms
+ GET /api/notifications 200 in 248ms
+ POST /api/tracking/visitors 200 in 229ms
+ GET /api/notifications 200 in 226ms
+ POST /api/tracking/visitors 200 in 185ms
+ GET /api/notifications 200 in 190ms
+ POST /api/tracking/visitors 200 in 245ms
+ GET /api/notifications 200 in 242ms
+ POST /api/tracking/visitors 200 in 183ms
+ GET /api/notifications 200 in 186ms
+ POST /api/tracking/visitors 200 in 228ms
+ GET /api/notifications 200 in 229ms
+ POST /api/tracking/visitors 200 in 247ms
+ GET /api/notifications 200 in 244ms
+ POST /api/tracking/visitors 200 in 230ms
+ GET /api/notifications 200 in 220ms
+ POST /api/tracking/visitors 200 in 235ms
+ GET /api/notifications 200 in 232ms
+ POST /api/tracking/visitors 200 in 210ms
+ GET /api/notifications 200 in 215ms
+ POST /api/tracking/visitors 200 in 218ms
+ GET /api/notifications 200 in 217ms
+ POST /api/tracking/visitors 200 in 229ms
+ GET /api/notifications 200 in 235ms
+ POST /api/tracking/visitors 200 in 198ms
+ GET /api/notifications 200 in 200ms
+ POST /api/tracking/visitors 200 in 224ms
+ GET /api/notifications 200 in 225ms
+ POST /api/tracking/visitors 200 in 179ms
+ GET /api/notifications 200 in 184ms
+ POST /api/tracking/visitors 200 in 202ms
+ GET /api/notifications 200 in 203ms
+ POST /api/tracking/visitors 200 in 215ms
+ GET /api/notifications 200 in 220ms
+ POST /api/tracking/visitors 200 in 207ms
+ GET /api/notifications 200 in 208ms
+ POST /api/tracking/visitors 200 in 213ms
+ GET /api/notifications 200 in 203ms
+ POST /api/tracking/visitors 200 in 216ms
+ GET /api/notifications 200 in 215ms
+ GET /api/notifications 200 in 185ms
+ POST /api/tracking/visitors 200 in 200ms
+ POST /api/tracking/visitors 200 in 215ms
+ GET /api/notifications 200 in 202ms
+ POST /api/tracking/visitors 200 in 284ms
+ GET /api/notifications 200 in 277ms
+ POST /api/tracking/visitors 200 in 428ms
+ GET /api/notifications 200 in 432ms
+ POST /api/tracking/visitors 200 in 217ms
+ GET /api/notifications 200 in 220ms
+ POST /api/tracking/visitors 200 in 219ms
+ GET /api/notifications 200 in 217ms
+ POST /api/tracking/visitors 200 in 208ms
+ GET /api/notifications 200 in 206ms
+ POST /api/tracking/visitors 200 in 201ms
+ GET /api/notifications 200 in 206ms
+ POST /api/tracking/visitors 200 in 243ms
+ GET /api/notifications 200 in 247ms
+ POST /api/tracking/visitors 200 in 197ms
+ GET /api/notifications 200 in 197ms
+ POST /api/tracking/visitors 200 in 232ms
+ GET /api/notifications 200 in 230ms
+ POST /api/tracking/visitors 200 in 197ms
+ GET /api/notifications 200 in 201ms
+ POST /api/tracking/visitors 200 in 218ms
+ GET /api/notifications 200 in 223ms
+ GET /api/notifications 200 in 201ms
+ POST /api/tracking/visitors 200 in 214ms
+ POST /api/tracking/visitors 200 in 223ms
+ GET /api/notifications 200 in 220ms
+ POST /api/tracking/visitors 200 in 268ms
+ GET /api/notifications 200 in 270ms
+ POST /api/tracking/visitors 200 in 201ms
+ GET /api/notifications 200 in 204ms
+ POST /api/tracking/visitors 200 in 227ms
+ GET /api/notifications 200 in 222ms
+ POST /api/tracking/visitors 200 in 210ms
+ GET /api/notifications 200 in 207ms
+ POST /api/tracking/visitors 200 in 192ms
+ GET /api/notifications 200 in 192ms
+ POST /api/tracking/visitors 200 in 220ms
+ GET /api/notifications 200 in 210ms
+ POST /api/tracking/visitors 200 in 214ms
+ GET /api/notifications 200 in 218ms
+ POST /api/tracking/visitors 200 in 232ms
+ GET /api/notifications 200 in 233ms
+ POST /api/tracking/visitors 200 in 227ms
+ GET /api/notifications 200 in 233ms
+ POST /api/tracking/visitors 200 in 203ms
+ GET /api/notifications 200 in 210ms
+ POST /api/tracking/visitors 200 in 200ms
+ GET /api/notifications 200 in 198ms
+ POST /api/tracking/visitors 200 in 220ms
+ GET /api/notifications 200 in 218ms
+ POST /api/tracking/visitors 200 in 247ms
+ GET /api/notifications 200 in 259ms
+ POST /api/tracking/visitors 200 in 217ms
+ GET /api/notifications 200 in 211ms
+ POST /api/tracking/visitors 200 in 207ms
+ GET /api/notifications 200 in 204ms
+ POST /api/tracking/visitors 200 in 236ms
+ GET /api/notifications 200 in 223ms
+ POST /api/tracking/visitors 200 in 207ms
+ GET /api/notifications 200 in 200ms
+ POST /api/tracking/visitors 200 in 201ms
+ GET /api/notifications 200 in 204ms
+ POST /api/tracking/visitors 200 in 208ms
+ GET /api/notifications 200 in 210ms
+ POST /api/tracking/visitors 200 in 254ms
+ GET /api/notifications 200 in 244ms
+ POST /api/tracking/visitors 200 in 204ms
+ GET /api/notifications 200 in 198ms
+ POST /api/tracking/visitors 200 in 191ms
+ GET /api/notifications 200 in 193ms
+ POST /api/tracking/visitors 200 in 216ms
+ GET /api/notifications 200 in 214ms
+ POST /api/tracking/visitors 200 in 222ms
+ GET /api/notifications 200 in 222ms
+ POST /api/tracking/visitors 200 in 226ms
+ GET /api/notifications 200 in 235ms
+ POST /api/tracking/visitors 200 in 218ms
+ GET /api/notifications 200 in 217ms
+ POST /api/tracking/visitors 200 in 221ms
+ GET /api/notifications 200 in 211ms
+ POST /api/tracking/visitors 200 in 240ms
+ GET /api/notifications 200 in 230ms
+ POST /api/tracking/visitors 200 in 212ms
+ GET /api/notifications 200 in 215ms
+ GET /api/notifications 200 in 203ms
+ POST /api/tracking/visitors 200 in 214ms
+ POST /api/tracking/visitors 200 in 237ms
+ GET /api/notifications 200 in 242ms
+ POST /api/tracking/visitors 200 in 218ms
+ GET /api/notifications 200 in 218ms
+ POST /api/tracking/visitors 200 in 236ms
+ GET /api/notifications 200 in 235ms
+ POST /api/tracking/visitors 200 in 214ms
+ GET /api/notifications 200 in 207ms
+ POST /api/tracking/visitors 200 in 198ms
+ GET /api/notifications 200 in 193ms
+ POST /api/tracking/visitors 200 in 222ms
+ GET /api/notifications 200 in 218ms
+ POST /api/tracking/visitors 200 in 238ms
+ GET /api/notifications 200 in 244ms
+ POST /api/tracking/visitors 200 in 223ms
+ GET /api/notifications 200 in 226ms
+ POST /api/tracking/visitors 200 in 238ms
+ GET /api/notifications 200 in 237ms
+ POST /api/tracking/visitors 200 in 192ms
+ GET /api/notifications 200 in 197ms
+ POST /api/tracking/visitors 200 in 188ms
+ GET /api/notifications 200 in 189ms
+ POST /api/tracking/visitors 200 in 190ms
+ GET /api/notifications 200 in 194ms
+ POST /api/tracking/visitors 200 in 207ms
+ GET /api/notifications 200 in 206ms
+ POST /api/tracking/visitors 200 in 246ms
+ GET /api/notifications 200 in 254ms
+ POST /api/tracking/visitors 200 in 195ms
+ GET /api/notifications 200 in 193ms
+ POST /api/tracking/visitors 200 in 224ms
+ GET /api/notifications 200 in 216ms
+ POST /api/tracking/visitors 200 in 236ms
+ GET /api/notifications 200 in 231ms
+ POST /api/tracking/visitors 200 in 241ms
+ GET /api/notifications 200 in 238ms
+ POST /api/tracking/visitors 200 in 511ms
+ GET /api/notifications 200 in 507ms
+ POST /api/tracking/visitors 200 in 263ms
+ GET /api/notifications 200 in 261ms
+ POST /api/tracking/visitors 200 in 207ms
+ GET /api/notifications 200 in 205ms
+ POST /api/tracking/visitors 200 in 242ms
+ GET /api/notifications 200 in 238ms
+ POST /api/tracking/visitors 200 in 3781ms
+ GET /api/notifications 200 in 3758ms
