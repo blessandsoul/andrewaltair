@@ -12,7 +12,7 @@ import { DisplayHeader } from './DisplayHeader'
 import { LobbyView } from './LobbyView'
 import { EnableSoundOverlay } from './EnableSoundOverlay'
 import { EndStats } from './EndStats'
-import { ReactionsOverlay, WheelOverlay } from './GameOverlays'
+import { PanelOverlay, ReactionsOverlay, WheelOverlay } from './GameOverlays'
 import { Leaderboard } from './Leaderboard'
 import { useDisplayAudio } from './useDisplayAudio'
 import { STR } from '@/data/workshop-strings'
@@ -27,6 +27,7 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
     const { soundOn, audioPrompted, dismissPrompt, enableSound, toggleSound } = useDisplayAudio(state)
     const prevPhaseRef = useRef<string | null>(null)
     const [wheelDismissed, setWheelDismissed] = useState(0) // hide the wheel until the next spin (newer spotlightAt)
+    const [panelDismissed, setPanelDismissed] = useState(0) // hide the winners/top-answers panel until the next trigger
 
     // QR fetched once on mount
     useEffect(() => {
@@ -83,8 +84,21 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
     const heroLabel = state.selectedPhoto ? state.selectedPhoto.label.replace(/^[A-Z0-9]\s*·\s*/, '').trim() : ''
 
     return (
-        <main className="flex h-dvh flex-col overflow-hidden">
+        <main className="relative flex h-dvh flex-col overflow-hidden">
             {connectionLost && <ReconnectBanner />}
+
+            {/* Room answering progress — pinned to the very top edge of the screen, like a loading bar */}
+            {answering && (
+                <div className="absolute inset-x-0 top-0 z-50 h-1.5 bg-muted/70">
+                    <motion.div
+                        className="h-full bg-[image:var(--ws-cta)]"
+                        animate={{
+                            width: `${state.participantCount > 0 ? Math.min(100, Math.round((state.responsesCount / state.participantCount) * 100)) : 0}%`,
+                        }}
+                        transition={{ type: 'spring', stiffness: 90, damping: 22 }}
+                    />
+                </div>
+            )}
 
             <DisplayHeader
                 state={state}
@@ -108,19 +122,6 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                     <span className="text-xs font-bold tabular-nums text-muted-foreground">
                         {Math.round((state.progress ?? 0) * 100)}%
                     </span>
-                </div>
-            )}
-
-            {/* Room answering progress — thin bar, the whole room sees momentum */}
-            {answering && (
-                <div className="h-1.5 bg-muted">
-                    <motion.div
-                        className="h-full bg-[image:var(--ws-cta)]"
-                        animate={{
-                            width: `${state.participantCount > 0 ? Math.min(100, Math.round((state.responsesCount / state.participantCount) * 100)) : 0}%`,
-                        }}
-                        transition={{ type: 'spring', stiffness: 90, damping: 22 }}
-                    />
                 </div>
             )}
 
@@ -199,6 +200,17 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                         key={state.spotlightAt ?? state.spotlightName}
                         name={state.spotlightName}
                         onClose={() => setWheelDismissed(state.spotlightAt ?? Date.now())}
+                    />
+                )}
+            </AnimatePresence>
+
+            {/* Winners / top-answers reveal — popped onto the projector from the remote */}
+            <AnimatePresence>
+                {state.settings?.gamification && state.spotlightPanel && state.spotlightPanel.at > panelDismissed && (
+                    <PanelOverlay
+                        key={state.spotlightPanel.at}
+                        panel={state.spotlightPanel}
+                        onClose={() => setPanelDismissed(state.spotlightPanel?.at ?? Date.now())}
                     />
                 )}
             </AnimatePresence>

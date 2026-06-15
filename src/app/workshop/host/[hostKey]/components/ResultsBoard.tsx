@@ -6,6 +6,7 @@ import type { LucideIcon } from 'lucide-react'
 import type { StudentRound, RoundResults, ChoiceCount, RoundPhase } from '@/types/workshop.types'
 import TextWall from './results/TextWall'
 import BarResults from './results/BarResults'
+import MultiResults from './results/MultiResults'
 import RevoteResults from './results/RevoteResults'
 import Histogram from './results/Histogram'
 import OrderResults from './results/OrderResults'
@@ -150,24 +151,39 @@ export default function ResultsBoard({ round, results, onPin, readonly = false }
     }
 
     return (
-        <div className="mx-auto max-w-5xl space-y-6">
-            <div className="space-y-2 text-center">
+        <div className="mx-auto flex h-full max-w-5xl flex-col gap-5">
+            <div className="shrink-0 space-y-2 text-center">
                 <PhaseBadge phase={round.phase} />
                 {/* projected typography: scales with viewport so the back of the room reads it */}
-                <h2 className="text-gradient text-[clamp(26px,3.2vw,52px)] font-bold leading-snug">{round.prompt}</h2>
+                <h2 className="text-gradient text-[clamp(24px,2.8vw,46px)] font-bold leading-snug">{round.prompt}</h2>
             </div>
 
             {!results && <p className="text-center text-muted-foreground">{STR.results.noAnswers}</p>}
 
-            {results?.type === 'text' && <TextWall items={results.items} onPin={onPin} readonly={readonly} />}
+            {/* text answers fill the remaining height as a self-paging 3-row wall (never scrolls) */}
+            {results?.type === 'text' && (
+                <div className="min-h-0 flex-1">
+                    <TextWall items={results.items} onPin={onPin} readonly={readonly} />
+                </div>
+            )}
             {results?.type === 'choice' && (
-                <div className="space-y-6">
+                <div className="shrink-0 space-y-6">
                     {round.phase === 'revealed' && <WinnerCard counts={results.counts} options={round.options} />}
                     <BarResults
                         counts={results.counts}
                         total={results.total}
                         revealed={round.phase === 'revealed'}
                         correctOptionId={round.phase === 'revealed' ? results.correctOptionId : undefined}
+                    />
+                </div>
+            )}
+            {results?.type === 'multi' && (
+                <div className="shrink-0">
+                    <MultiResults
+                        counts={results.counts}
+                        total={results.total}
+                        revealed={round.phase === 'revealed'}
+                        correctOptionIds={round.phase === 'revealed' ? results.correctOptionIds : undefined}
                     />
                 </div>
             )}

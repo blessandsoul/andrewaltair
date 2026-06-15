@@ -166,6 +166,7 @@ export default function RoomClient({ code }: { code: string }) {
                 gamified={!!state.settings?.gamification}
                 me={state.me ?? null}
                 name={name}
+                myPrediction={state.myPrediction}
             />
         </ScreenShell>
     )

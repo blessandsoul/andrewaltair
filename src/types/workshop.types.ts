@@ -4,6 +4,7 @@ export const ROUND_TYPES = {
     TEXT: 'text',
     CHOICE: 'choice',
     CHOICE_REVOTE: 'choice_revote',
+    MULTI: 'multi', // checkbox — pick several; several can be correct
     NUMBER: 'number',
     QUIZ: 'quiz',
     ORDER: 'order', // drag-and-drop: reorder the option images into the right sequence
@@ -27,7 +28,9 @@ export type TeachBlock =
           src?: string; // omit → use the room's chosen hero photo (selectedPhoto)
           pins: { n: string; label: string; text?: string; x: number; y: number }[];
       }
-    | { kind: 'table'; headers: string[]; rows: string[][] };
+    | { kind: 'table'; headers: string[]; rows: string[][] }
+    // pick-a-question list (t_close fortune round) — numbered pills, «toRoom» tossed to the audience
+    | { kind: 'questions'; items: { n: number; text: string; toRoom?: boolean }[] };
 
 export interface TeachContent {
     accent?: string;
@@ -87,6 +90,7 @@ export interface StudentRound {
     phase: RoundPhase;
     config: RoundConfig;
     correctOptionId?: string;
+    correctOptionIds?: string[]; // multi round — host-only, present after reveal
     correctOrder?: string[]; // order round — host-only, present after reveal
     index: number;
     total: number;
@@ -178,7 +182,7 @@ export interface StudentState {
     title: string;
     participantCount: number;
     round: StudentRound | null;
-    myAnswer: { phase: string; optionId?: string; textValue?: string; numberValue?: number } | null;
+    myAnswer: { phase: string; optionId?: string; optionIds?: string[]; textValue?: string; numberValue?: number } | null;
     // live tally shown on the student's phone once they've answered (or at reveal).
     // Suppressed for Mazur choice_revote until reveal so it doesn't spoil the re-vote.
     results: RoundResults | null;
@@ -191,6 +195,7 @@ export interface StudentState {
     progress?: number; // 0..1 — interactive rounds completed ("video assembling")
     spotlightName?: string | null; // wheel-of-names result
     spotlightAt?: number | null; // nonce — re-fires the wheel even on a repeat pick
+    myPrediction?: string | null; // 🎯 ფსონი — the option this student bet on (for the reveal outcome)
 }
 
 export interface TextResultItem {
@@ -238,6 +243,7 @@ export interface OrderSequence {
 export type RoundResults =
     | { type: 'text'; items: TextResultItem[] }
     | { type: 'choice'; counts: ChoiceCount[]; total: number; correctOptionId?: string }
+    | { type: 'multi'; counts: ChoiceCount[]; total: number; correctOptionIds?: string[] }
     | {
           type: 'choice_revote';
           options: RevoteOptionResult[];
@@ -342,6 +348,14 @@ export interface DiplomaData {
     team?: number; // only when teamMode
 }
 
+// Projector reveal panel — winners (most correct answers) or top-N answers, triggered by the host.
+export interface SpotlightPanel {
+    kind: 'winners' | 'topAnswers';
+    at: number; // nonce — re-fires the overlay on each trigger
+    title?: string;
+    rows: { name: string; sub?: string }[];
+}
+
 export interface HostState {
     code: string;
     title: string;
@@ -365,6 +379,7 @@ export interface HostState {
     progress?: number; // 0..1
     spotlightName?: string | null;
     spotlightAt?: number | null;
+    spotlightPanel?: SpotlightPanel | null; // winners / top-answers projector reveal
     fastest?: string[]; // speed-spotlight: first-N answerer names of the current open round
 }
 
@@ -381,5 +396,7 @@ export const HOST_ACTIONS = {
     UNPIN: 'unpin',
     KICK_PARTICIPANT: 'kickParticipant',
     SPIN_WHEEL: 'spinWheel',
+    SHOW_WINNERS: 'showWinners',
+    SHOW_TOP_ANSWERS: 'showTopAnswers',
 } as const;
 export type HostAction = (typeof HOST_ACTIONS)[keyof typeof HOST_ACTIONS];

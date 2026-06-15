@@ -20,9 +20,12 @@ const controlSchema = z.object({
         'unpin',
         'kickParticipant',
         'spinWheel',
+        'showWinners',
+        'showTopAnswers',
     ]),
     responseId: z.string().max(32).optional(),
     targetClientId: z.string().max(64).optional(),
+    count: z.number().int().min(1).max(50).optional(), // spinWheel: how many random names to draw
 })
 
 export async function PATCH(
@@ -44,7 +47,8 @@ export async function PATCH(
             room,
             parsed.data.action,
             parsed.data.responseId,
-            parsed.data.targetClientId
+            parsed.data.targetClientId,
+            parsed.data.count
         )
         if (!result.ok) {
             return apiError(ERROR_CODES.WORKSHOP_UPDATE_FAILED, result.message ?? 'Action failed', 409)

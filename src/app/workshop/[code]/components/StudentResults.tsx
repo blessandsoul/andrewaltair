@@ -11,11 +11,35 @@ import { STR } from '@/data/workshop-strings'
 export default function StudentResults({
     results,
     myOptionId,
+    myOptionIds,
 }: {
     results: RoundResults | null
     myOptionId?: string
+    myOptionIds?: string[]
 }) {
     if (!results) return null
+
+    if (results.type === 'multi') {
+        const mine = new Set(myOptionIds ?? [])
+        const correct = new Set(results.correctOptionIds ?? [])
+        return (
+            <div className="space-y-3">
+                {results.counts.map((c) => (
+                    <ChoiceBar
+                        key={c.optionId}
+                        size="sm"
+                        label={cleanLabel(c.label)}
+                        count={c.count}
+                        total={results.total}
+                        correct={correct.has(c.optionId)}
+                        mine={mine.has(c.optionId)}
+                        note={mine.has(c.optionId) ? STR.results.yourAnswer : undefined}
+                    />
+                ))}
+                <p className="text-center text-xs text-muted-foreground pt-1">{STR.results.totalVotes(results.total)}</p>
+            </div>
+        )
+    }
 
     if (results.type === 'choice') {
         return (

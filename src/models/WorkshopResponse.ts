@@ -9,6 +9,7 @@ export interface IWorkshopResponse extends Document {
     name: string;
     textValue?: string;
     optionId?: string;
+    optionIds?: string[]; // multi round — the set of selected option ids
     numberValue?: number;
     createdAt: Date;
 }
@@ -46,6 +47,10 @@ const WorkshopResponseSchema = new Schema<IWorkshopResponse>(
         },
         optionId: {
             type: String,
+        },
+        optionIds: {
+            type: [String],
+            default: undefined,
         },
         numberValue: {
             type: Number,

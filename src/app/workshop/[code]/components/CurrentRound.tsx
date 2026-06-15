@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { PenLine, MessagesSquare, RotateCcw, Monitor, Hourglass, Check, Pencil, Flame } from 'lucide-react'
+import { PenLine, MessagesSquare, RotateCcw, Monitor, Hourglass, Check, Pencil, Flame, Target } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { RoundPhase, StudentRound, StudentState, RoundResults, MyGame } from '@/types/workshop.types'
 import { Button } from '@/components/ui/button'
@@ -15,6 +15,7 @@ import { ReactionBar } from './ReactionBar'
 import { PredictionInput } from './inputs/PredictionInput'
 import TextRoundInput from './inputs/TextRoundInput'
 import ChoiceRoundInput from './inputs/ChoiceRoundInput'
+import MultiChoiceInput from './inputs/MultiChoiceInput'
 import NumberRoundInput from './inputs/NumberRoundInput'
 import OrderRoundInput from './inputs/OrderRoundInput'
 import ReasonInput from './inputs/ReasonInput'
@@ -33,6 +34,7 @@ interface CurrentRoundProps {
     gamified: boolean
     me: MyGame | null
     name?: string
+    myPrediction?: string | null
 }
 
 // Neuro-cue: one colored banner = the ONE thing to do right now.
@@ -55,6 +57,7 @@ export default function CurrentRound({
     gamified,
     me,
     name,
+    myPrediction,
 }: CurrentRoundProps) {
     const [editing, setEditing] = useState(false)
     const [submitError, setSubmitError] = useState<string | null>(null)
@@ -72,6 +75,7 @@ export default function CurrentRound({
 
     const submit = async (payload: {
         optionId?: string
+        optionIds?: string[]
         textValue?: string
         numberValue?: number
         orderValue?: string[]
@@ -193,8 +197,33 @@ export default function CurrentRound({
             </>
         )
     } else if (round.phase === 'revealed') {
-        // host locked the round → everyone sees the final tally on their phone too
-        body = <StudentResults results={results} myOptionId={myAnswer?.optionId} />
+        // host locked the round → everyone sees the final tally on their phone too.
+        // 🎯 if this student placed a bet, show whether it hit the crowd-winner (+15).
+        const betWon =
+            gamified && myPrediction && results?.type === 'choice'
+                ? results.counts.reduce<{ id: string; n: number }>(
+                      (best, c) => (c.count > best.n ? { id: c.optionId, n: c.count } : best),
+                      { id: '', n: -1 },
+                  ).id === myPrediction
+                : null
+        body = (
+            <div className="space-y-4">
+                {betWon !== null && (
+                    <div
+                        className={cn(
+                            'flex items-center justify-center gap-1.5 rounded-xl border px-4 py-2.5 text-sm font-bold',
+                            betWon
+                                ? 'border-success/40 bg-success/10 text-success'
+                                : 'border-border bg-muted/40 text-muted-foreground',
+                        )}
+                    >
+                        <Target size={16} />
+                        {betWon ? STR.predict.win : STR.predict.miss}
+                    </div>
+                )}
+                <StudentResults results={results} myOptionId={myAnswer?.optionId} myOptionIds={myAnswer?.optionIds} />
+            </div>
+        )
     } else {
         const optimisticHit = justSubmitted === `${round.key}:${round.phase}`
         if ((myAnswer || optimisticHit) && !editing) {
@@ -221,7 +250,7 @@ export default function CurrentRound({
                             <Pencil size={14} /> {STR.submitted.edit}
                         </Button>
                     </div>
-                    <StudentResults results={results} myOptionId={myAnswer?.optionId} />
+                    <StudentResults results={results} myOptionId={myAnswer?.optionId} myOptionIds={myAnswer?.optionIds} />
                     {gamified && (round.type === 'choice' || round.type === 'quiz') && round.phase === 'open' && (
                         <PredictionInput round={round} onSubmit={submit} />
                     )}
@@ -242,6 +271,7 @@ export default function CurrentRound({
                     {(round.type === 'choice' || round.type === 'choice_revote' || round.type === 'quiz') && (
                         <ChoiceRoundInput round={round} onSubmit={submit} />
                     )}
+                    {round.type === 'multi' && <MultiChoiceInput round={round} onSubmit={submit} />}
                     {round.type === 'number' && <NumberRoundInput round={round} onSubmit={submit} />}
                     {round.type === 'order' && <OrderRoundInput round={round} onSubmit={submit} />}
                     {submitError && <p className="mt-4 text-center text-destructive">{submitError}</p>}

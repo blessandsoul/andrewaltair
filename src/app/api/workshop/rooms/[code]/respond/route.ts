@@ -10,6 +10,7 @@ const respondSchema = z.object({
     clientId: z.string().min(8).max(64),
     roundKey: z.string().min(1).max(16),
     optionId: z.string().max(16).optional(),
+    optionIds: z.array(z.string().max(16)).max(20).optional(), // multi round — selected set
     textValue: z.string().max(2000).optional(),
     numberValue: z.number().optional(),
     orderValue: z.array(z.string().max(16)).max(10).optional(),

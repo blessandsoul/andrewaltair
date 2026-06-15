@@ -8,10 +8,11 @@ export { DEFAULT_ROOM_SETTINGS } from '@/types/workshop.types';
 
 export interface IWorkshopRound {
     key: string;
-    type: 'text' | 'choice' | 'choice_revote' | 'number' | 'quiz' | 'order' | 'teach';
+    type: 'text' | 'choice' | 'choice_revote' | 'multi' | 'number' | 'quiz' | 'order' | 'teach';
     prompt: string;
     options: { id: string; label: string; src?: string }[]; // src = optional image (photo vote)
     correctOptionId?: string;
+    correctOptionIds?: string[]; // multi round — the correct option ids
     correctOrder?: string[]; // order round — the right sequence of option ids
     phase: 'closed' | 'open' | 'discuss' | 'revote' | 'revealed';
     phaseStartedAt?: Date;
@@ -45,6 +46,8 @@ export interface IWorkshopRoom extends Document {
     selectedPhoto?: { src: string; label: string }; // F3: the photo voted as winner (persists)
     spotlightName?: string; // wheel-of-names result (transient; cleared on next round action)
     spotlightAt?: number; // nonce — bumped on every spin so a repeat pick of the same name re-fires the overlay
+    // winners / top-answers projector reveal (transient; cleared on next non-panel action)
+    spotlightPanel?: { kind: string; at: number; title?: string; rows: { name: string; sub?: string }[] };
     settings: IWorkshopRoomSettings; // per-room config chosen at creation
     createdAt: Date;
     updatedAt: Date;
@@ -55,7 +58,7 @@ const WorkshopRoundSchema = new Schema<IWorkshopRound>(
         key: { type: String, required: true },
         type: {
             type: String,
-            enum: ['text', 'choice', 'choice_revote', 'number', 'quiz', 'order', 'teach'],
+            enum: ['text', 'choice', 'choice_revote', 'multi', 'number', 'quiz', 'order', 'teach'],
             required: true,
         },
         prompt: { type: String, required: true },
@@ -68,6 +71,7 @@ const WorkshopRoundSchema = new Schema<IWorkshopRound>(
             },
         ],
         correctOptionId: { type: String },
+        correctOptionIds: { type: [String], default: undefined },
         correctOrder: { type: [String], default: undefined },
         phase: {
             type: String,
@@ -179,6 +183,10 @@ const WorkshopRoomSchema = new Schema<IWorkshopRoom>(
         },
         spotlightAt: {
             type: Number,
+        },
+        spotlightPanel: {
+            type: Schema.Types.Mixed,
+            default: undefined,
         },
         settings: {
             type: WorkshopSettingsSchema,

@@ -37,7 +37,7 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
     const [historyOpen, setHistoryOpen] = useState(false)
 
     const act = useCallback(
-        async (action: string, responseId?: string, targetClientId?: string) => {
+        async (action: string, responseId?: string, targetClientId?: string, count?: number) => {
             if (actionBusy) return
             setActionBusy(true)
             try {
@@ -48,6 +48,7 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                         action,
                         ...(responseId ? { responseId } : {}),
                         ...(targetClientId ? { targetClientId } : {}),
+                        ...(count ? { count } : {}),
                     }),
                 })
                 refresh() // reflect the change immediately instead of waiting for the next ~2s poll

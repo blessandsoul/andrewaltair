@@ -36,7 +36,8 @@ export type TeachBlockL =
       src?: string; // omit → use the room's chosen hero photo
       pins: { n: string; label: LText; text?: LText; x: number; y: number }[];
     }
-  | { kind: "table"; headers: LText[]; rows: LText[][] };
+  | { kind: "table"; headers: LText[]; rows: LText[][] }
+  | { kind: "questions"; items: { n: number; text: LText; toRoom?: boolean }[] };
 
 export interface TeachContentL {
   accent?: string;
@@ -57,6 +58,7 @@ export interface WorkshopTemplateRound {
   prompt: LText;
   options?: TemplateOption[];
   correctOptionId?: string;
+  correctOptionIds?: string[]; // multi round — the correct option ids
   correctOrder?: string[]; // order round — the right sequence of option ids
   config?: { minNumber?: number; maxNumber?: number; fields?: LText[] };
   durationSec?: number;

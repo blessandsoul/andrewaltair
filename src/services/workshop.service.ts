@@ -42,6 +42,7 @@ interface ResolvedTemplateRound {
     prompt: string
     options?: { id: string; label: string; src?: string }[]
     correctOptionId?: string
+    correctOptionIds?: string[]
     correctOrder?: string[]
     durationSec?: number
     hostNotes?: string
@@ -182,6 +183,7 @@ export class WorkshopService {
                 prompt: r.prompt,
                 options,
                 correctOptionId: r.correctOptionId,
+                ...(r.correctOptionIds?.length ? { correctOptionIds: r.correctOptionIds } : {}),
                 ...(r.correctOrder ? { correctOrder: r.correctOrder } : {}),
                 phase: 'closed' as const,
                 durationSec,
@@ -314,6 +316,7 @@ export class WorkshopService {
         const set: Record<string, unknown> = { name: DEMO_NAMES[i % DEMO_NAMES.length] }
         if (r.type === 'number') set.numberValue = value as number
         else if (r.type === 'text' || r.type === 'order') set.textValue = value as string
+        else if (r.type === 'multi') set.optionIds = (value as string).split(',').filter(Boolean)
         else set.optionId = value as string
 
         await WorkshopResponse.updateOne(
@@ -400,6 +403,7 @@ export class WorkshopService {
             phase: r.phase,
             config: r.config ?? {},
             ...(revealCorrect && r.correctOptionId ? { correctOptionId: r.correctOptionId } : {}),
+            ...(revealCorrect && r.correctOptionIds?.length ? { correctOptionIds: r.correctOptionIds } : {}),
             ...(revealCorrect && r.correctOrder?.length ? { correctOrder: r.correctOrder } : {}),
             ...(forHost && r.hostNotes ? { hostNotes: r.hostNotes } : {}),
             ...(forHost && r.script ? { script: r.script } : {}),
@@ -568,6 +572,7 @@ export class WorkshopService {
                 myAnswer = {
                     phase,
                     optionId: resp.optionId,
+                    ...(resp.optionIds ? { optionIds: resp.optionIds } : {}),
                     textValue: resp.textValue,
                     numberValue: resp.numberValue,
                 }
@@ -575,6 +580,15 @@ export class WorkshopService {
         }
         if (round) {
             round.pinned = await this.getPinned(room)
+        }
+
+        // 🎯 the bet this student placed (phase='predict') — surfaced at reveal as a +15 outcome
+        let myPrediction: string | null = null
+        if (clientId && round && (round.type === 'choice' || round.type === 'quiz')) {
+            const pred = await WorkshopResponse.findOne({
+                roomId: room._id, roundKey: round.key, phase: 'predict', clientId,
+            }).lean<IWorkshopResponse>()
+            myPrediction = pred?.optionId ?? null
         }
 
         // Show the live tally on the student's phone once they've answered (or at
@@ -613,6 +627,7 @@ export class WorkshopService {
                       progress: this.progressOf(room),
                       spotlightName: room.spotlightName ?? null,
                       spotlightAt: room.spotlightAt ?? null,
+                      myPrediction,
                   }
                 : {}),
         }
@@ -633,6 +648,7 @@ export class WorkshopService {
         clientId: string
         roundKey: string
         optionId?: string
+        optionIds?: string[]
         textValue?: string
         numberValue?: number
         orderValue?: string[]
@@ -691,6 +707,11 @@ export class WorkshopService {
                 new Set(ids).size === ids.length
             if (!valid) return { ok: false, reason: 'invalid' }
             set.textValue = ids.join(',')
+        } else if (round.type === 'multi') {
+            // checkbox — keep only valid, de-duped ids; at least one required
+            const ids = [...new Set((params.optionIds ?? []).filter((id) => round.options.some((o) => o.id === id)))]
+            if (!ids.length) return { ok: false, reason: 'invalid' }
+            set.optionIds = ids
         } else {
             if (!params.optionId || !round.options.some((o) => o.id === params.optionId)) {
                 return { ok: false, reason: 'invalid' }
@@ -878,6 +899,14 @@ export class WorkshopService {
                 let correct = false
                 if ((r.type === 'choice' || r.type === 'quiz') && r.correctOptionId) correct = d.optionId === r.correctOptionId
                 else if (r.type === 'order' && r.correctOrder?.length) correct = (d.textValue ?? '') === r.correctOrder.join(',')
+                else if (r.type === 'multi' && r.correctOptionIds?.length) {
+                    // partial credit: +5 per correct selection; full clean set also earns the +20 below
+                    const cset = new Set(r.correctOptionIds)
+                    const picks = d.optionIds ?? []
+                    const hits = picks.filter((id) => cset.has(id)).length
+                    if (hits > 0) a.points += hits * 5
+                    if (hits === cset.size && picks.length === cset.size) correct = true
+                }
                 if (correct) { a.points += 20; if (r.type === 'order') a.orderCorrect = true }
                 if (pinnedIds.has(String(d._id))) { a.points += 15; a.pinned = true }
             })
@@ -1115,6 +1144,24 @@ export class WorkshopService {
             }
         }
 
+        if (round.type === 'multi') {
+            // each response carries an array of picked ids → per-option selection counts
+            const agg = await WorkshopResponse.aggregate([
+                { $match: { roomId: room._id, roundKey: round.key, phase: 'open' } },
+                { $unwind: '$optionIds' },
+                { $group: { _id: '$optionIds', count: { $sum: 1 } } },
+            ])
+            const countMap = new Map<string, number>(agg.map((a) => [a._id as string, a.count as number]))
+            const counts = round.options.map((o) => ({ optionId: o.id, label: o.label, count: countMap.get(o.id) ?? 0 }))
+            const total = await WorkshopResponse.countDocuments({ roomId: room._id, roundKey: round.key, phase: 'open' })
+            return {
+                type: 'multi',
+                counts,
+                total, // responders, not selections
+                ...(round.correctOptionIds?.length ? { correctOptionIds: round.correctOptionIds } : {}),
+            }
+        }
+
         if (round.type === 'choice_revote') {
             const agg = await WorkshopResponse.aggregate([
                 { $match: { roomId: room._id, roundKey: round.key } },
@@ -1249,7 +1296,8 @@ export class WorkshopService {
         room: IWorkshopRoom,
         action: HostAction,
         responseId?: string,
-        targetClientId?: string
+        targetClientId?: string,
+        count?: number
     ): Promise<{ ok: boolean; message?: string }> {
         await dbConnect()
         const doc = await WorkshopRoom.findById(room._id)
@@ -1268,6 +1316,10 @@ export class WorkshopService {
         if (action !== 'spinWheel' && doc.spotlightName) {
             doc.spotlightName = undefined
             doc.spotlightAt = undefined
+        }
+        // Panel reveals (winners / top-answers) clear on any other action.
+        if (action !== 'showWinners' && action !== 'showTopAnswers' && doc.spotlightPanel) {
+            doc.spotlightPanel = undefined
         }
 
         switch (action) {
@@ -1373,25 +1425,125 @@ export class WorkshopService {
                 return { ok: true } // no round mutation — already persisted
             }
             case 'spinWheel': {
-                // Pick a random real participant to put on the spot — only on question rounds.
-                if (!round || round.type === 'teach') return { ok: false, message: 'Not a question round' }
+                // Pick N random real participants — on question rounds + the t_close fortune slide.
+                if (!round || (round.type === 'teach' && round.key !== 't_close'))
+                    return { ok: false, message: 'Not a question round' }
                 const parts = await WorkshopParticipant.find({ roomId: doc._id }, { name: 1, clientId: 1 }).lean<
                     { name: string; clientId: string }[]
                 >()
                 const real = parts.filter((p) => !p.clientId.startsWith('fake-'))
                 const pool = real.length ? real : parts
                 if (!pool.length) return { ok: false, message: 'No participants' }
-                const pick = pool[Math.floor(Math.random() * pool.length)]
-                doc.spotlightName = pick?.name ?? pool[0]!.name
+                const n = Math.max(1, Math.min(count ?? 1, pool.length))
+                // draw n UNIQUE names without replacement
+                const avail = pool.map((p) => p.name)
+                const picks: string[] = []
+                for (let k = 0; k < n && avail.length; k++) {
+                    const j = Math.floor(Math.random() * avail.length)
+                    picks.push(avail.splice(j, 1)[0]!)
+                }
+                doc.spotlightName = picks.join('\n') // multi-pick joined; overlay splits on newline
                 doc.spotlightAt = Date.now() // nonce so a repeat pick still re-fires the overlay
+                break
+            }
+            case 'showWinners': {
+                // Reveal the people with the MOST correct answers this session (even 1 correct shows).
+                const n = Math.max(1, Math.min(count ?? 5, 50))
+                const rows = await this.computeWinners(doc, n)
+                if (!rows.length) return { ok: false, message: 'No correct answers yet' }
+                doc.spotlightPanel = { kind: 'winners', at: Date.now(), rows }
+                break
+            }
+            case 'showTopAnswers': {
+                // Reveal the top-N most common answers of the CURRENT round.
+                if (!round || round.type === 'teach') return { ok: false, message: 'Not a question round' }
+                const n = Math.max(1, Math.min(count ?? 3, 20))
+                const rows = await this.computeTopAnswers(doc, round, n)
+                if (!rows.length) return { ok: false, message: 'No answers yet' }
+                doc.spotlightPanel = { kind: 'topAnswers', at: Date.now(), rows }
                 break
             }
             default:
                 return { ok: false, message: 'Unknown action' }
         }
         doc.markModified('rounds')
+        doc.markModified('spotlightPanel') // Mixed field — Mongoose needs an explicit dirty flag
         await doc.save()
         return { ok: true }
+    }
+
+    /** Per-participant correct-answer ranking for the «winners» projector reveal (even 1 correct shows). */
+    private static async computeWinners(doc: IWorkshopRoom, n: number): Promise<{ name: string; sub: string }[]> {
+        await dbConnect()
+        const responses = await WorkshopResponse.find({ roomId: doc._id, phase: 'open' }).lean<IWorkshopResponse[]>()
+        const roundByKey = new Map(doc.rounds.map((r) => [r.key, r]))
+        const correct = new Map<string, { name: string; n: number }>()
+        for (const d of responses) {
+            const r = roundByKey.get(d.roundKey)
+            if (!r) continue
+            let ok = false
+            if ((r.type === 'choice' || r.type === 'quiz') && r.correctOptionId) ok = d.optionId === r.correctOptionId
+            else if (r.type === 'order' && r.correctOrder?.length) ok = (d.textValue ?? '') === r.correctOrder.join(',')
+            else if (r.type === 'multi' && r.correctOptionIds?.length) {
+                const cset = new Set(r.correctOptionIds)
+                const picks = d.optionIds ?? []
+                ok = picks.length === cset.size && picks.every((id) => cset.has(id))
+            }
+            if (!ok) continue
+            const e = correct.get(d.clientId) ?? { name: d.name ?? '—', n: 0 }
+            e.n++
+            if (d.name) e.name = d.name
+            correct.set(d.clientId, e)
+        }
+        return [...correct.values()]
+            .sort((a, b) => b.n - a.n)
+            .slice(0, n)
+            .map((e) => ({ name: e.name, sub: String(e.n) }))
+    }
+
+    /** Top-N most common answers of one round for the «top answers» projector reveal. */
+    private static async computeTopAnswers(
+        doc: IWorkshopRoom,
+        round: IWorkshopRound,
+        n: number
+    ): Promise<{ name: string; sub: string }[]> {
+        await dbConnect()
+        const responses = await WorkshopResponse.find({ roomId: doc._id, roundKey: round.key, phase: 'open' }).lean<
+            IWorkshopResponse[]
+        >()
+        const strip = (s: string) => s.replace(/^[A-Z0-9]\s*·\s*/, '').trim()
+        const labelOf = (id: string) => round.options.find((o) => o.id === id)?.label ?? id
+        if (round.type === 'multi') {
+            // each response carries an array of picked ids → rank options by selection count
+            const tally = new Map<string, number>()
+            for (const d of responses) for (const id of d.optionIds ?? []) tally.set(id, (tally.get(id) ?? 0) + 1)
+            return [...tally.entries()]
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, n)
+                .map(([id, c]) => ({ name: strip(String(labelOf(id))), sub: `×${c}` }))
+        }
+        if (round.type === 'choice' || round.type === 'quiz' || round.type === 'choice_revote') {
+            const tally = new Map<string, number>()
+            for (const d of responses) if (d.optionId) tally.set(d.optionId, (tally.get(d.optionId) ?? 0) + 1)
+            return [...tally.entries()]
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, n)
+                .map(([id, c]) => ({ name: strip(String(labelOf(id))), sub: `×${c}` }))
+        }
+        // text / order — cluster by normalized text
+        const tally = new Map<string, { text: string; n: number }>()
+        for (const d of responses) {
+            const t = (d.textValue ?? '').trim()
+            if (!t) continue
+            const k = t.toLowerCase().replace(/\s+/g, ' ')
+            const e = tally.get(k) ?? { text: t, n: 0 }
+            e.n++
+            tally.set(k, e)
+        }
+        return [...tally.values()]
+            .sort((a, b) => b.n - a.n)
+            .slice(0, n)
+            .map((e) => ({ name: e.text, sub: `×${e.n}` }))
     }
 
     /** Demo/rehearsal: insert fake responses for the round's current phase. */
@@ -1413,6 +1565,11 @@ export class WorkshopService {
             const set: Record<string, unknown> = { name }
             if (round.type === 'text') {
                 set.textValue = FAKE_TEXTS[i % FAKE_TEXTS.length]
+            } else if (round.type === 'multi') {
+                // pick a rotating subset (1..min(3,N)) of the options
+                const ids = round.options.map((o) => o.id)
+                const take = 1 + (i % Math.min(3, Math.max(ids.length, 1)))
+                set.optionIds = [...ids.slice(i % Math.max(ids.length, 1)), ...ids].slice(0, take)
             } else if (round.type === 'number') {
                 set.numberValue = minNumber + ((i * 7919) % (maxNumber - minNumber + 1))
             } else if (round.type === 'order') {

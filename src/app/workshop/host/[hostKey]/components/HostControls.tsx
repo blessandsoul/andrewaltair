@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Play, MessagesSquare, BarChart3, RotateCcw, SkipForward, Dices, ChevronLeft, Disc3 } from 'lucide-react'
+import { Play, MessagesSquare, BarChart3, RotateCcw, SkipForward, Dices, ChevronLeft, Disc3, Trophy, ListOrdered } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { StudentRound } from '@/types/workshop.types'
@@ -18,7 +18,7 @@ interface HostControlsProps {
     responsesCount: number
     participantCount: number
     gateRatio?: number // elicit-before-reveal soft gate (per-room; default 0.6)
-    onAction: (action: string) => void
+    onAction: (action: string, responseId?: string, targetClientId?: string, count?: number) => void
 }
 
 interface ControlButton {
@@ -173,17 +173,68 @@ export default function HostControls({
                         <Dices size={18} />
                     </Button>
                 )}
-                {gamified && !inLobby && round && round.type !== 'teach' && (
-                    <Button
-                        onClick={() => onAction('spinWheel')}
-                        disabled={busy}
+                {gamified && !inLobby && round && (round.type !== 'teach' || round.key === 't_close') && (
+                    <div
+                        className="flex items-center gap-0.5 rounded-xl border border-border px-1.5 py-1"
                         title={STR.controls.wheel}
-                        variant="outline"
-                        size="icon-lg"
-                        className="h-auto px-3.5 py-3.5 text-primary hover:bg-primary/10"
                     >
-                        <Disc3 size={18} />
-                    </Button>
+                        <Disc3 size={18} className="mx-1 shrink-0 text-primary" />
+                        {[1, 3, 5, 15].map((n) => (
+                            <Button
+                                key={n}
+                                onClick={() => onAction('spinWheel', undefined, undefined, n)}
+                                disabled={busy}
+                                title={`${STR.controls.wheel} ×${n}`}
+                                variant="ghost"
+                                size="sm"
+                                className="h-9 min-w-9 px-2 text-base font-bold tabular-nums text-primary hover:bg-primary/10"
+                            >
+                                {n}
+                            </Button>
+                        ))}
+                    </div>
+                )}
+                {gamified && !inLobby && (
+                    <div
+                        className="flex items-center gap-0.5 rounded-xl border border-border px-1.5 py-1"
+                        title={STR.controls.winners}
+                    >
+                        <Trophy size={18} className="mx-1 shrink-0 text-warning" />
+                        {[1, 5].map((n) => (
+                            <Button
+                                key={n}
+                                onClick={() => onAction('showWinners', undefined, undefined, n)}
+                                disabled={busy}
+                                title={`${STR.controls.winners} ×${n}`}
+                                variant="ghost"
+                                size="sm"
+                                className="h-9 min-w-9 px-2 text-base font-bold tabular-nums text-warning hover:bg-warning/10"
+                            >
+                                {n}
+                            </Button>
+                        ))}
+                    </div>
+                )}
+                {gamified && !inLobby && round && round.type !== 'teach' && (
+                    <div
+                        className="flex items-center gap-0.5 rounded-xl border border-border px-1.5 py-1"
+                        title={STR.controls.topAnswers}
+                    >
+                        <ListOrdered size={18} className="mx-1 shrink-0 text-primary" />
+                        {[3, 5, 10].map((n) => (
+                            <Button
+                                key={n}
+                                onClick={() => onAction('showTopAnswers', undefined, undefined, n)}
+                                disabled={busy}
+                                title={`${STR.controls.topAnswers} ×${n}`}
+                                variant="ghost"
+                                size="sm"
+                                className="h-9 min-w-9 px-2 text-base font-bold tabular-nums text-primary hover:bg-primary/10"
+                            >
+                                {n}
+                            </Button>
+                        ))}
+                    </div>
                 )}
             </div>
             <p className="hidden lg:block mt-2 text-[11px] text-muted-foreground/60">

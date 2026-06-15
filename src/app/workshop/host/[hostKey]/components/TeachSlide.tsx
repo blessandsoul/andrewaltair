@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
+import { Users } from 'lucide-react'
 import type { TeachContent, TeachBlock } from '@/types/workshop.types'
 import { cn } from '@/lib/utils'
 
@@ -57,19 +58,21 @@ function BlockView({ block, heroPhoto }: { block: TeachBlock; heroPhoto?: string
 
         case 'cards':
             return (
-                <div className="grid w-full max-w-[1100px] gap-5 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
+                <div className="grid w-full max-w-[1100px] gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
                     {block.cards.map((c, i) => {
-                        // titles authored as "N · Заголовок" → split the number into a top-right badge
+                        // titles authored as "N · Заголовок" → split the number into the card's number chip
                         const m = c.title.match(/^(\d+)\s*·\s*(.+)$/)
                         const num = m?.[1]
                         const rest = m?.[2]
                         if (num && rest) return <NumberedCard key={i} n={num} title={rest} text={c.text} />
                         return (
-                            <div key={i} className="glass hover-lift rounded-2xl border border-border bg-card p-5 text-left shadow-sm">
-                                <p className="mb-2 text-[clamp(13px,1.7vh,19px)] font-bold uppercase tracking-wide text-primary">
-                                    {c.title}
-                                </p>
+                            <div
+                                key={i}
+                                className="glass hover-lift relative overflow-hidden rounded-2xl border border-border bg-card p-4 text-left shadow-sm"
+                            >
+                                <p className="mb-1 text-[clamp(13px,1.7vh,18px)] font-bold text-primary">{c.title}</p>
                                 <p className="text-[clamp(13px,1.6vh,18px)] leading-snug text-card-foreground">{c.text}</p>
+                                <span aria-hidden className="absolute inset-x-0 bottom-0 h-0.5 bg-[image:var(--ws-cta)] opacity-50" />
                             </div>
                         )
                     })}
@@ -90,7 +93,7 @@ function BlockView({ block, heroPhoto }: { block: TeachBlock; heroPhoto?: string
 
         case 'media':
             return (
-                <div className="flex w-full max-w-[1100px] flex-wrap items-stretch justify-center gap-6">
+                <div className="flex w-full max-w-[1280px] flex-wrap items-start justify-center gap-4">
                     {block.items.map((m, i) => (
                         <MediaCard key={i} item={m} />
                     ))}
@@ -99,18 +102,12 @@ function BlockView({ block, heroPhoto }: { block: TeachBlock; heroPhoto?: string
 
         case 'table':
             return (
-                <div className="w-full max-w-[1080px] overflow-x-auto">
+                <div className="w-full max-w-[1080px] overflow-hidden rounded-2xl border border-border shadow-sm">
                     <table className="w-full border-collapse text-[clamp(13px,1.8vh,19px)]">
                         <thead>
-                            <tr>
+                            <tr className="bg-[image:var(--ws-cta)] text-primary-foreground">
                                 {block.headers.map((h, i) => (
-                                    <th
-                                        key={i}
-                                        className={cn(
-                                            'border-b-2 border-foreground px-3 py-3 font-bold',
-                                            i === 0 ? 'text-left' : 'text-center text-primary',
-                                        )}
-                                    >
+                                    <th key={i} className={cn('px-4 py-3 font-bold', i === 0 ? 'text-left' : 'text-center')}>
                                         {h}
                                     </th>
                                 ))}
@@ -118,12 +115,12 @@ function BlockView({ block, heroPhoto }: { block: TeachBlock; heroPhoto?: string
                         </thead>
                         <tbody>
                             {block.rows.map((row, r) => (
-                                <tr key={r}>
+                                <tr key={r} className={cn('border-t border-border', r % 2 === 1 ? 'bg-card/40' : 'bg-card/70')}>
                                     {row.map((cell, c) => (
                                         <td
                                             key={c}
                                             className={cn(
-                                                'border-b border-border bg-card/40 px-3 py-2.5',
+                                                'px-4 py-2.5',
                                                 c === 0 ? 'text-left font-semibold text-foreground' : 'text-center text-card-foreground',
                                             )}
                                         >
@@ -137,22 +134,46 @@ function BlockView({ block, heroPhoto }: { block: TeachBlock; heroPhoto?: string
                 </div>
             )
 
+        case 'questions':
+            return (
+                <div className="grid w-full max-w-[1120px] gap-2.5 sm:grid-cols-2">
+                    {block.items.map((q) => (
+                        <div
+                            key={q.n}
+                            className={cn(
+                                'glass flex items-center gap-3 rounded-xl border border-border bg-card px-3.5 py-2 text-left shadow-sm',
+                                q.toRoom && 'ring-1 ring-primary/40',
+                            )}
+                        >
+                            <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[image:var(--ws-cta)] text-sm font-extrabold text-primary-foreground">
+                                {q.n}
+                            </span>
+                            <span className="min-w-0 flex-1 text-[clamp(12px,1.5vh,17px)] font-medium leading-snug text-card-foreground">
+                                {q.text}
+                            </span>
+                            {q.toRoom && <Users size={16} className="shrink-0 text-primary" />}
+                        </div>
+                    ))}
+                </div>
+            )
+
         default:
             return null
     }
 }
 
-// Numbered card — number badge top-RIGHT corner, text top-LEFT (used by keypoints + numbered cards).
+// Numbered card — number chip on the LEFT (inline reading), compact, with a gradient base accent.
 function NumberedCard({ n, title, text }: { n: string; title?: string; text: string }) {
     return (
-        <div className="glass hover-lift relative rounded-3xl border border-border bg-card p-6 pr-16 text-left shadow-sm">
-            <span className="glow-primary absolute right-4 top-4 flex size-12 items-center justify-center rounded-2xl bg-[image:var(--ws-cta)] text-xl font-extrabold text-primary-foreground shadow-lg">
+        <div className="group glass hover-lift relative flex gap-3.5 overflow-hidden rounded-2xl border border-border bg-card p-4 text-left shadow-sm">
+            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[image:var(--ws-cta)] text-base font-extrabold text-primary-foreground shadow-md">
                 {n}
             </span>
-            {title && (
-                <p className="mb-1.5 text-[clamp(13px,1.7vh,19px)] font-bold uppercase tracking-wide text-primary">{title}</p>
-            )}
-            <p className="text-[clamp(14px,1.9vh,21px)] font-medium leading-snug text-card-foreground">{text}</p>
+            <div className="min-w-0">
+                {title && <p className="mb-0.5 text-[clamp(13px,1.7vh,18px)] font-bold text-foreground">{title}</p>}
+                <p className="text-[clamp(13px,1.7vh,19px)] font-medium leading-snug text-card-foreground">{text}</p>
+            </div>
+            <span aria-hidden className="absolute inset-x-0 bottom-0 h-0.5 bg-[image:var(--ws-cta)] opacity-60" />
         </div>
     )
 }
@@ -206,7 +227,7 @@ function MediaCard({
     }, [isVideo, item.src])
 
     return (
-        <div className="flex w-full min-w-0 max-w-[320px] flex-col gap-2">
+        <div className="flex min-w-0 flex-col items-center gap-2">
             {item.letter && (
                 <span className="text-gradient text-center text-[clamp(22px,3.4vh,40px)] font-bold leading-none">
                     {item.letter}
@@ -215,25 +236,38 @@ function MediaCard({
             {item.title && (
                 <span className="text-center text-[clamp(13px,1.8vh,20px)] font-bold text-foreground">{item.title}</span>
             )}
-            {/* 9:16 portrait box — images cover, videos contain (fills when portrait, safe-letterbox otherwise) */}
-            <div className="relative aspect-[9/16] max-h-[52vh] w-full overflow-hidden rounded-2xl border border-border bg-foreground shadow-xl">
+            {/* Height-driven 9:16 box → always true aspect, so 3 frames fit one row without distortion.
+                Video sits whole on a blurred copy of itself — never any black bars on the 16:9 wall. */}
+            <div className="relative aspect-[9/16] h-[clamp(280px,46vh,540px)] w-auto max-w-full overflow-hidden rounded-2xl border border-border bg-foreground shadow-xl">
                 {failed ? (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-3 text-center font-mono text-xs text-primary-foreground/50">
                         <span className="size-11 rounded-full border-2 border-dashed border-primary-foreground/35" />
                         {item.src}
                     </div>
                 ) : isVideo ? (
-                    <video
-                        ref={videoRef}
-                        src={item.src}
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        preload="auto"
-                        onError={() => setFailed(true)}
-                        className="absolute inset-0 size-full object-contain"
-                    />
+                    <>
+                        {/* blurred bed — fills the box so a non-9:16 clip never shows black bars */}
+                        <video
+                            src={item.src}
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            aria-hidden
+                            className="absolute inset-0 size-full scale-110 object-cover blur-2xl brightness-[0.7]"
+                        />
+                        <video
+                            ref={videoRef}
+                            src={item.src}
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            preload="auto"
+                            onError={() => setFailed(true)}
+                            className="absolute inset-0 size-full object-contain"
+                        />
+                    </>
                 ) : (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img

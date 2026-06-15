@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { apiSuccess, apiError } from '@/lib/api-response'
 import { ERROR_CODES } from '@/lib/error-codes'
 import { WorkshopService } from '@/services/workshop.service'
-import type { HostState } from '@/types/workshop.types'
+import type { HostState, SpotlightPanel } from '@/types/workshop.types'
 
 export const dynamic = 'force-dynamic'
 
@@ -61,6 +61,7 @@ export async function GET(
                       progress: WorkshopService.progressOf(room),
                       spotlightName: room.spotlightName ?? null,
                       spotlightAt: room.spotlightAt ?? null,
+                      spotlightPanel: (room.spotlightPanel ?? null) as SpotlightPanel | null,
                       fastest,
                   }
                 : {}),
