@@ -123,7 +123,7 @@ export default function StudentResults({
             <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">
                 {STR.results.answersCount(results.items.length)}
             </p>
-            <div className="space-y-2 max-h-[46dvh] overflow-y-auto pr-1">
+            <div className="hide-scrollbar space-y-2 max-h-[46dvh] overflow-y-auto pr-1">
                 {results.items.map((it) => {
                     const accent = nameAccent(it.name)
                     return (

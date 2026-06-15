@@ -6,6 +6,7 @@ import { Users, Clock, CheckCircle2 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { RoomHistory, LeaderboardEntry } from '@/types/workshop.types'
 import NameAvatar from '@/components/workshop/NameAvatar'
+import { BadgeIcon, MedalIcon } from '@/components/workshop/badgeIcons'
 import { springPop } from '@/components/workshop/motion'
 import { STR } from '@/data/workshop-strings'
 
@@ -64,7 +65,9 @@ export function EndStats({
     ]
 
     return (
-        <div className="flex h-full flex-col items-center justify-center gap-8 px-8 py-4">
+        // justify-start (not center): on a short projector a full podium + dreams must pin to the top
+        // and scroll, never overflow past the unreachable top edge of the hidden-scrollbar frame.
+        <div className="flex min-h-full flex-col items-center justify-start gap-8 px-8 py-6">
             <motion.h2
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -107,7 +110,6 @@ export function EndStats({
                     {[1, 0, 2].map((slot) => {
                         const e = podium[slot]
                         if (!e) return null
-                        const medal = ['🥇', '🥈', '🥉'][slot]
                         const h = slot === 0 ? 'pt-2' : 'pt-6'
                         return (
                             <motion.div
@@ -117,11 +119,11 @@ export function EndStats({
                                 transition={{ ...springPop, delay: 0.1 * slot }}
                                 className={`flex w-[150px] flex-col items-center gap-2 ${h}`}
                             >
-                                <span className="text-4xl">{medal}</span>
+                                <MedalIcon rank={slot + 1} size={44} />
                                 <NameAvatar name={e.name} size={48} />
                                 <span className="text-center text-lg font-bold text-foreground">{e.name}</span>
                                 <span className="text-gradient text-2xl font-extrabold tabular-nums">{e.points}</span>
-                                <span className="flex gap-0.5">{e.badges.slice(0, 4).map((b) => <span key={b.id}>{b.emoji}</span>)}</span>
+                                <span className="flex gap-1">{e.badges.slice(0, 4).map((b) => <BadgeIcon key={b.id} id={b.id} size={20} />)}</span>
                             </motion.div>
                         )
                     })}
@@ -132,7 +134,7 @@ export function EndStats({
                 <div className="flex w-full max-w-[1100px] flex-col items-center gap-3">
                     <p className="text-sm font-bold uppercase tracking-widest text-primary">{STR.stats.dreams}</p>
                     <div className="flex flex-wrap justify-center gap-2.5">
-                        {dreams.map((d) => (
+                        {dreams.slice(0, 12).map((d) => (
                             <motion.span
                                 key={d.id}
                                 initial={{ opacity: 0, y: 8 }}
@@ -142,6 +144,11 @@ export function EndStats({
                                 {dreamOf(d.textValue)}
                             </motion.span>
                         ))}
+                        {dreams.length > 12 && (
+                            <span className="rounded-full border border-border bg-muted px-4 py-2 text-[clamp(14px,1.8vh,20px)] font-bold text-muted-foreground">
+                                +{dreams.length - 12}
+                            </span>
+                        )}
                     </div>
                 </div>
             )}

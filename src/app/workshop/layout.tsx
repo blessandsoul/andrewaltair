@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function WorkshopLayout({ children }: { children: React.ReactNode }) {
     return (
         <div
-            className="workshop-theme min-h-dvh bg-background text-foreground font-georgian"
+            className="workshop-theme hide-scrollbar h-dvh overflow-y-auto bg-background text-foreground font-georgian"
             style={{
                 backgroundImage:
                     'radial-gradient(circle, color-mix(in srgb, var(--foreground) 5%, transparent) 1px, transparent 1px)',

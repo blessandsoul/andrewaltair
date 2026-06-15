@@ -21,6 +21,9 @@ export default function ReasonInput({
     onSubmit: (p: { textValue: string }) => Promise<boolean>
 }) {
     const reasons = round.reasons ?? []
+    // A plain text round reuses this chip UI as "pick a ready answer or write your own";
+    // the Mazur discuss phase keeps its "why did you vote" wording.
+    const isPick = round.type === 'text'
     const [busy, setBusy] = useState(false)
     const [custom, setCustom] = useState('')
 
@@ -36,8 +39,12 @@ export default function ReasonInput({
 
     return (
         <div className="space-y-4">
-            <p className="text-center text-[15px] font-semibold text-card-foreground">{STR.round.discussTitle}</p>
-            <p className="text-center text-sm text-muted-foreground">{STR.round.discussBody}</p>
+            <p className="text-center text-[15px] font-semibold text-card-foreground">
+                {isPick ? STR.round.pickTitle : STR.round.discussTitle}
+            </p>
+            <p className="text-center text-sm text-muted-foreground">
+                {isPick ? STR.round.pickBody : STR.round.discussBody}
+            </p>
 
             <div className="space-y-2.5">
                 {reasons.map((r) => (
@@ -58,7 +65,7 @@ export default function ReasonInput({
                 <Textarea
                     value={custom}
                     onChange={(e) => setCustom(e.target.value)}
-                    placeholder={STR.round.reasonOwnPlaceholder}
+                    placeholder={isPick ? STR.inputs.textPlaceholder : STR.round.reasonOwnPlaceholder}
                     maxLength={500}
                     rows={2}
                     className="min-h-0 resize-none border-0 bg-transparent px-0 py-0 text-[15px] text-card-foreground shadow-none focus-visible:ring-0"

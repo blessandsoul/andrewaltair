@@ -1,8 +1,7 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Play } from 'lucide-react'
 import type { TeachContent, TeachBlock } from '@/types/workshop.types'
 import { cn } from '@/lib/utils'
 
@@ -196,18 +195,15 @@ function MediaCard({
     item: { letter?: string; title?: string; src: string; mediaType: 'image' | 'video'; caption?: string }
 }) {
     const [failed, setFailed] = useState(false)
-    const [started, setStarted] = useState(false)
     const videoRef = useRef<HTMLVideoElement>(null)
     const isVideo = item.mediaType === 'video'
 
-    // Click-to-play, then loop non-stop (no hover dependency).
-    const play = (): void => {
+    // Autoplay + loop, muted (browsers allow muted autoplay); the .play() nudge covers iOS/Safari.
+    useEffect(() => {
+        if (!isVideo) return
         const el = videoRef.current
-        if (!el) return
-        el.loop = true
-        void el.play().catch(() => {})
-        setStarted(true)
-    }
+        if (el) void el.play().catch(() => {})
+    }, [isVideo, item.src])
 
     return (
         <div className="flex w-full min-w-0 max-w-[320px] flex-col gap-2">
@@ -227,31 +223,17 @@ function MediaCard({
                         {item.src}
                     </div>
                 ) : isVideo ? (
-                    <>
-                        <video
-                            ref={videoRef}
-                            src={item.src}
-                            loop
-                            muted
-                            playsInline
-                            preload="metadata"
-                            controls={started}
-                            onError={() => setFailed(true)}
-                            className="absolute inset-0 size-full object-contain"
-                        />
-                        {!started && (
-                            <button
-                                type="button"
-                                onClick={play}
-                                aria-label="Play"
-                                className="absolute inset-0 flex items-center justify-center bg-foreground/30 transition hover:bg-foreground/20"
-                            >
-                                <span className="glow-primary flex size-16 items-center justify-center rounded-full bg-[image:var(--ws-cta)] shadow-xl">
-                                    <Play className="size-7 text-primary-foreground" fill="currentColor" />
-                                </span>
-                            </button>
-                        )}
-                    </>
+                    <video
+                        ref={videoRef}
+                        src={item.src}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        preload="auto"
+                        onError={() => setFailed(true)}
+                        className="absolute inset-0 size-full object-contain"
+                    />
                 ) : (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img

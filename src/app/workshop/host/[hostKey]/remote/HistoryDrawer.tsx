@@ -57,7 +57,7 @@ export function HistoryDrawer({ hostKey, onClose }: { hostKey: string; onClose: 
                     <X size={20} />
                 </Button>
             </header>
-            <div className="flex-1 overflow-y-auto px-4 py-4">
+            <div className="hide-scrollbar flex-1 overflow-y-auto px-4 py-4">
                 {err && <p className="py-10 text-center text-destructive">{STR.remote.historyError}</p>}
                 {!data && !err && <p className="py-10 text-center text-muted-foreground">{STR.remote.historyLoading}</p>}
                 {data && tab === 'names' && <NamesView data={data} />}

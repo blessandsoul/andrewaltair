@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { PenLine, MessagesSquare, RotateCcw, Monitor, Hourglass, Check, Pencil } from 'lucide-react'
+import { PenLine, MessagesSquare, RotateCcw, Monitor, Hourglass, Check, Pencil, Flame } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { RoundPhase, StudentRound, StudentState, RoundResults, MyGame } from '@/types/workshop.types'
 import { Button } from '@/components/ui/button'
 import CountdownRing from '@/components/workshop/CountdownRing'
 import ProgressDots from '@/components/workshop/ProgressDots'
+import { BadgeIcon } from '@/components/workshop/badgeIcons'
 import { PHASE_THEME } from '@/components/workshop/phaseTheme'
 import { popIn, springPop } from '@/components/workshop/motion'
 import { ReactionBar } from './ReactionBar'
@@ -31,6 +32,7 @@ interface CurrentRoundProps {
     serverNow: string
     gamified: boolean
     me: MyGame | null
+    name?: string
 }
 
 // Neuro-cue: one colored banner = the ONE thing to do right now.
@@ -52,6 +54,7 @@ export default function CurrentRound({
     serverNow,
     gamified,
     me,
+    name,
 }: CurrentRoundProps) {
     const [editing, setEditing] = useState(false)
     const [submitError, setSubmitError] = useState<string | null>(null)
@@ -116,11 +119,14 @@ export default function CurrentRound({
                         {me.points}
                     </span>
                     {me.streak >= 2 && (
-                        <span className="rounded-full bg-warning/15 px-2 py-1 font-bold text-warning">🔥{me.streak}</span>
+                        <span className="inline-flex items-center gap-0.5 rounded-full bg-warning/15 px-2 py-1 font-bold text-warning">
+                            <Flame size={14} />
+                            {me.streak}
+                        </span>
                     )}
                     {me.badges.slice(0, 4).map((b) => (
-                        <span key={b.id} title={b.label} className="text-base leading-none">
-                            {b.emoji}
+                        <span key={b.id} title={b.label} className="inline-flex items-center leading-none">
+                            <BadgeIcon id={b.id} size={18} />
                         </span>
                     ))}
                 </div>
@@ -258,7 +264,7 @@ export default function CurrentRound({
                     {body}
                 </motion.div>
             </AnimatePresence>
-            {gamified && <ReactionBar code={code} clientId={clientId} />}
+            {gamified && <ReactionBar code={code} clientId={clientId} name={name} />}
         </div>
     )
 }

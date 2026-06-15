@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Clapperboard, Zap } from 'lucide-react'
 import { useRoomPoll } from '@/hooks/useRoomPoll'
 import type { HostState } from '@/types/workshop.types'
 import { ReconnectBanner } from '@/components/workshop/ReconnectBanner'
@@ -25,6 +26,7 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
     const [qr, setQr] = useState<{ qrDataUrl: string; joinUrl: string } | null>(null)
     const { soundOn, audioPrompted, dismissPrompt, enableSound, toggleSound } = useDisplayAudio(state)
     const prevPhaseRef = useRef<string | null>(null)
+    const [wheelDismissed, setWheelDismissed] = useState(0) // hide the wheel until the next spin (newer spotlightAt)
 
     // QR fetched once on mount
     useEffect(() => {
@@ -95,7 +97,7 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
             {/* "Video assembling" — overall workshop progress (gamified narrative) */}
             {state.settings?.gamification && !inLobby && state.status !== 'ended' && typeof state.progress === 'number' && (
                 <div className="flex items-center gap-3 px-8 py-1.5">
-                    <span className="text-sm">🎬</span>
+                    <Clapperboard size={16} className="shrink-0 text-primary" />
                     <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
                         <motion.div
                             className="h-full rounded-full bg-[image:var(--ws-cta)]"
@@ -125,7 +127,7 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
             {/* Speed-spotlight — first to answer this round */}
             {answering && state.settings?.gamification && (state.fastest?.length ?? 0) > 0 && (
                 <div className="flex items-center justify-center gap-2 py-1 text-sm font-semibold text-muted-foreground">
-                    <span className="text-base">⚡</span>
+                    <Zap size={16} className="text-warning" />
                     <span className="uppercase tracking-wide text-primary">{STR.display.fastest}:</span>
                     {state.fastest!.map((n, i) => (
                         <motion.span
@@ -152,7 +154,7 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                         {heroLabel && <p className="text-center text-sm font-semibold text-muted-foreground">{heroLabel}</p>}
                     </aside>
                 )}
-                <div className="flex-1 overflow-y-auto px-8 py-6">
+                <div className="hide-scrollbar flex-1 overflow-y-auto px-8 py-6">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={
@@ -192,8 +194,12 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
             {/* Gamification overlays — floating reactions + wheel-of-names spin */}
             {state.settings?.gamification && <ReactionsOverlay reactions={state.reactions} />}
             <AnimatePresence>
-                {state.settings?.gamification && state.spotlightName && (
-                    <WheelOverlay key={state.spotlightName} name={state.spotlightName} />
+                {state.settings?.gamification && state.spotlightName && (state.spotlightAt ?? 0) > wheelDismissed && (
+                    <WheelOverlay
+                        key={state.spotlightAt ?? state.spotlightName}
+                        name={state.spotlightName}
+                        onClose={() => setWheelDismissed(state.spotlightAt ?? Date.now())}
+                    />
                 )}
             </AnimatePresence>
 

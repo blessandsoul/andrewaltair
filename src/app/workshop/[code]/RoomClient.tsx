@@ -165,6 +165,7 @@ export default function RoomClient({ code }: { code: string }) {
                 serverNow={state.serverNow}
                 gamified={!!state.settings?.gamification}
                 me={state.me ?? null}
+                name={name}
             />
         </ScreenShell>
     )

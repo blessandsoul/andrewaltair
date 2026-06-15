@@ -190,6 +190,7 @@ export interface StudentState {
     reactions?: Reaction[];
     progress?: number; // 0..1 — interactive rounds completed ("video assembling")
     spotlightName?: string | null; // wheel-of-names result
+    spotlightAt?: number | null; // nonce — re-fires the wheel even on a repeat pick
 }
 
 export interface TextResultItem {
@@ -305,9 +306,12 @@ export interface ScoreSummary {
     leaderboard: LeaderboardEntry[]; // sorted by points desc, ranked
     teams: TeamScore[]; // empty unless teamMode
 }
+export const REACTION_KINDS = ['clap', 'fire', 'love', 'haha', 'wow', 'party'] as const;
+export type ReactionKind = (typeof REACTION_KINDS)[number];
 export interface Reaction {
-    emoji: string;
-    at: number; // epoch ms
+    id: number; // unique sequence — stable dedupe key for the floating overlay
+    kind: string; // ReactionKind — which icon to draw
+    name: string; // sender label (blank when anonymousNames)
 }
 // Per-student gamification slice (on StudentState)
 export interface MyGame {
@@ -360,6 +364,7 @@ export interface HostState {
     reactions?: Reaction[];
     progress?: number; // 0..1
     spotlightName?: string | null;
+    spotlightAt?: number | null;
     fastest?: string[]; // speed-spotlight: first-N answerer names of the current open round
 }
 

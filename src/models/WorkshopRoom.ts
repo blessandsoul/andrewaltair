@@ -44,6 +44,7 @@ export interface IWorkshopRoom extends Document {
     isDemo: boolean; // demo room → answers drip in one-by-one on open rounds (poll-driven)
     selectedPhoto?: { src: string; label: string }; // F3: the photo voted as winner (persists)
     spotlightName?: string; // wheel-of-names result (transient; cleared on next round action)
+    spotlightAt?: number; // nonce — bumped on every spin so a repeat pick of the same name re-fires the overlay
     settings: IWorkshopRoomSettings; // per-room config chosen at creation
     createdAt: Date;
     updatedAt: Date;
@@ -175,6 +176,9 @@ const WorkshopRoomSchema = new Schema<IWorkshopRoom>(
         },
         spotlightName: {
             type: String,
+        },
+        spotlightAt: {
+            type: Number,
         },
         settings: {
             type: WorkshopSettingsSchema,

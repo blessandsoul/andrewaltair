@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { PlatformIcon, isPlatform } from '@/components/workshop/PlatformIcon'
 import { cn } from '@/lib/utils'
 import { springSoft } from './motion'
 
@@ -26,6 +27,7 @@ export function ChoiceBar({ label, count, total, correct, mine, size = 'lg', not
             <div className="flex items-center justify-between gap-3">
                 <span className={cn('flex items-center gap-2 font-medium', correct ? 'text-success' : 'text-foreground')}>
                     {mine && <span className="size-2 shrink-0 rounded-full bg-primary" aria-hidden />}
+                    {isPlatform(label) && <PlatformIcon label={label} size={size === 'lg' ? 22 : 18} className="shrink-0 text-primary" />}
                     <span className="truncate">{label}</span>
                     {note && <span className="text-xs font-normal text-muted-foreground">{note}</span>}
                 </span>

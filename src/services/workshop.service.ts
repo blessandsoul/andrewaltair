@@ -33,6 +33,7 @@ import type {
     MyGame,
     DiplomaData,
 } from '@/types/workshop.types'
+import { REACTION_KINDS } from '@/types/workshop.types'
 
 // Resolved (all-strings) shape of a template round after resolveDeep flattens every L.
 interface ResolvedTemplateRound {
@@ -60,10 +61,12 @@ const resultsCache = new Map<string, { value: RoundResults | null; exp: number }
 const SCORES_TTL_MS = 2000
 const scoresCache = new Map<string, { value: ScoreSummary; exp: number }>()
 
-// Ephemeral emoji-reaction buffer (per room, ~5s window) — in-memory, no DB, resets on redeploy (fine for confetti-class fluff).
+// Ephemeral reaction buffer (per room, ~5s window) — in-memory, no DB, resets on redeploy (fine for confetti-class fluff).
 const REACTION_TTL_MS = 5000
-const reactionsBuffer = new Map<string, Reaction[]>()
-const REACTION_EMOJIS = new Set(['👏', '🔥', '😮', '❤️', '😂', '🤯', '👍', '🎉'])
+type ReactionBuf = { id: number; kind: string; name: string; at: number }
+const reactionsBuffer = new Map<string, ReactionBuf[]>()
+const REACTION_KIND_SET = new Set<string>(REACTION_KINDS)
+let reactionSeq = 0
 
 // Badge catalog — awarded from real signals in computeScores.
 const BADGE: Record<string, Badge> = {
@@ -609,6 +612,7 @@ export class WorkshopService {
                       reactions: this.getRecentReactions(room._id),
                       progress: this.progressOf(room),
                       spotlightName: room.spotlightName ?? null,
+                      spotlightAt: room.spotlightAt ?? null,
                   }
                 : {}),
         }
@@ -1037,13 +1041,14 @@ export class WorkshopService {
         return Math.min(1, done / interactive.length)
     }
 
-    /** Ephemeral emoji reaction — appended to the in-memory buffer (no DB). */
-    static pushReaction(roomId: mongoose.Types.ObjectId, emoji: string): void {
-        if (!REACTION_EMOJIS.has(emoji)) return
+    /** Ephemeral reaction — appended to the in-memory buffer (no DB). Each gets a unique id
+     *  (so same-millisecond bursts never collide) + the sender's name for the projector label. */
+    static pushReaction(roomId: mongoose.Types.ObjectId, kind: string, name: string): void {
+        if (!REACTION_KIND_SET.has(kind)) return
         const key = String(roomId)
         const now = Date.now()
         const arr = (reactionsBuffer.get(key) ?? []).filter((x) => x.at > now - REACTION_TTL_MS)
-        arr.push({ emoji, at: now })
+        arr.push({ id: ++reactionSeq, kind, name: name.slice(0, 24), at: now })
         if (arr.length > 60) arr.splice(0, arr.length - 60)
         reactionsBuffer.set(key, arr)
     }
@@ -1055,7 +1060,7 @@ export class WorkshopService {
         const arr = (reactionsBuffer.get(key) ?? []).filter((x) => x.at > now - REACTION_TTL_MS)
         if (arr.length) reactionsBuffer.set(key, arr)
         else reactionsBuffer.delete(key)
-        return arr
+        return arr.map((r) => ({ id: r.id, kind: r.kind, name: r.name }))
     }
 
     /** Drop cached tallies for a round (all phases) — call after a (re)answer. */
@@ -1260,7 +1265,10 @@ export class WorkshopService {
         const openPhaseFor = (r: IWorkshopRound) => (r.type === 'teach' ? 'revealed' : 'open')
 
         // Any host action except the wheel itself dismisses a prior wheel result.
-        if (action !== 'spinWheel' && doc.spotlightName) doc.spotlightName = undefined
+        if (action !== 'spinWheel' && doc.spotlightName) {
+            doc.spotlightName = undefined
+            doc.spotlightAt = undefined
+        }
 
         switch (action) {
             case 'openRound': {
@@ -1375,6 +1383,7 @@ export class WorkshopService {
                 if (!pool.length) return { ok: false, message: 'No participants' }
                 const pick = pool[Math.floor(Math.random() * pool.length)]
                 doc.spotlightName = pick?.name ?? pool[0]!.name
+                doc.spotlightAt = Date.now() // nonce so a repeat pick still re-fires the overlay
                 break
             }
             default:

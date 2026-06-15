@@ -88,17 +88,24 @@ function AnswerCard({
     )
 }
 
+const WALL_CAP = 15 // keep the projector wall on one screen — show the freshest, tally the rest
+
 export default function TextWall({ items, onPin, readonly = false }: TextWallProps) {
     if (items.length === 0) {
         return <p className="text-center text-muted-foreground">{STR.results.noAnswersWaiting}</p>
     }
+    const shown = items.slice(0, WALL_CAP)
+    const extra = items.length - shown.length
     return (
-        <div className="columns-1 gap-5 *:break-inside-avoid md:columns-2 lg:columns-3">
-            <AnimatePresence initial={false}>
-                {items.map((item) => (
-                    <AnswerCard key={item.id} item={item} onPin={onPin} readonly={readonly} />
-                ))}
-            </AnimatePresence>
+        <div>
+            <div className="columns-1 gap-5 *:break-inside-avoid md:columns-2 lg:columns-3">
+                <AnimatePresence initial={false}>
+                    {shown.map((item) => (
+                        <AnswerCard key={item.id} item={item} onPin={onPin} readonly={readonly} />
+                    ))}
+                </AnimatePresence>
+            </div>
+            {extra > 0 && <p className="pt-1 text-center text-sm font-semibold text-muted-foreground">+{extra}</p>}
         </div>
     )
 }

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { PlatformIcon, isPlatform } from '@/components/workshop/PlatformIcon'
 import type { StudentRound } from '@/types/workshop.types'
 import { STR } from '@/data/workshop-strings'
 import { cn } from '@/lib/utils'
@@ -51,7 +52,7 @@ export default function ChoiceRoundInput({ round, onSubmit }: ChoiceRoundInputPr
                                 : 'bg-primary/10 text-primary border border-primary/30',
                         )}
                     >
-                        {LETTERS[i] ?? '•'}
+                        {isPlatform(o.label) ? <PlatformIcon label={o.label} size={24} /> : (LETTERS[i] ?? '•')}
                     </span>
                     <span className="text-lg font-semibold leading-snug text-foreground">
                         {busy === o.id ? STR.inputs.sending : cleanLabel(o.label)}

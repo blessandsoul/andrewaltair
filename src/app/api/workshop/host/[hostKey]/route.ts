@@ -60,6 +60,7 @@ export async function GET(
                       reactions: WorkshopService.getRecentReactions(room._id),
                       progress: WorkshopService.progressOf(room),
                       spotlightName: room.spotlightName ?? null,
+                      spotlightAt: room.spotlightAt ?? null,
                       fastest,
                   }
                 : {}),
