@@ -4,6 +4,7 @@ export const siteViewport: Viewport = {
     width: 'device-width',
     initialScale: 1,
     maximumScale: 5,
+    viewportFit: 'cover', // makes env(safe-area-inset-*) resolve on iOS (notch / home indicator)
 };
 
 export const siteMetadata: Metadata = {

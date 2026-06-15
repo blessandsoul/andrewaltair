@@ -14,6 +14,24 @@ export const STR = {
         endedThanks: 'დიდი მადლობა მონაწილეობისთვის!',
     },
 
+    // order (drag-and-drop) round results
+    orderResults: {
+        correct: 'სწორი თანმიმდევრობა',
+        pct: (p: number, total: number) => `${p}% გამოიცნო · ${total} პასუხი`,
+        yours: 'თქვენი თანმიმდევრობა',
+    },
+
+    // Projector end-of-workshop summary («Итоги»)
+    stats: {
+        title: 'შეჯამება',
+        participants: 'მონაწილე',
+        chosenPhoto: 'ჩვენი ფოტო',
+        avgSecond: 'საშუალო წამი',
+        avgSecondUnit: (v: number) => `${v} წმ`,
+        quizCorrect: 'სწორი პასუხი',
+        dreams: 'თქვენი ვიდეო-ოცნებები',
+    },
+
     student: {
         roomNotFound: 'ოთახი ვერ მოიძებნა',
         codeLabel: (code: string) => `კოდი: ${code}`,
@@ -69,12 +87,26 @@ export const STR = {
         edit: 'პასუხის შეცვლა',
     },
 
+    predict: {
+        title: '🎯 ფსონი: ვინ მოიგებს?',
+        done: 'ფსონი მიღებულია',
+    },
+
+    diploma: {
+        ready: 'შენი დიპლომი მზადაა! 🎉',
+        share: 'გაზიარება',
+        shareTitle: 'ჩემი AI ვორქშოპის დიპლომი',
+        square: '1:1',
+        story: '9:16',
+    },
+
     inputs: {
         textPlaceholder: 'თქვენი პასუხი...',
         send: 'გაგზავნა',
         sending: 'იგზავნება...',
         revoteHint: 'მე-2 რაუნდი — შეგიძლიათ იგივე პასუხი დატოვოთ ან ახალი გაგზავნოთ',
         seconds: 'წამი',
+        orderHint: 'გადაათრიეთ კადრები სწორი თანმიმდევრობით',
     },
 
     display: {
@@ -89,6 +121,10 @@ export const STR = {
         enableSound: '🔊 ჩართეთ ხმა',
         enableSoundHint: 'პასუხების ხმოვანი სიგნალისთვის — დააჭირეთ ერთხელ სანამ დაიწყებთ',
         enableSoundSkip: 'ხმის გარეშე გაგრძელება',
+        wheelPicked: 'არჩეულია',
+        fastest: 'ყველაზე სწრაფი',
+        leaderboard: 'ლიდერბორდი',
+        teamboard: 'გუნდები',
     },
 
     // Бейдж фазы над вопросом на проекторе
@@ -133,6 +169,9 @@ export const STR = {
         revote: 'ხელახალი ხმის მიცემა',
         revealCompare: 'შედეგები (შედარება)',
         nextRound: 'შემდეგი რაუნდი',
+        back: 'წინა სლაიდი',
+        reopen: 'ხელახლა გახსნა',
+        wheel: 'ბორბალი — შემთხვევითი მონაწილე',
         gateWarn: (a: number, b: number) =>
             `ჯერ მხოლოდ ${a}/${b}-მა უპასუხა — თუ მაინც გადასვლა გსურთ, კიდევ ერთხელ დააჭირეთ`,
         hotkeys: 'Space=შემდეგი · R=შედეგები · →=რაუნდი · E=დასრულება',
@@ -148,6 +187,14 @@ export const STR = {
         stop: 'ვორქშოპის დასრულება',
         stopConfirm: 'დიახ, დასრულება',
         stopCancel: 'არა',
+        // история ответов (приватная панель ведущего)
+        history: 'პასუხების ისტორია',
+        historyByName: 'სახელების მიხედვით',
+        historyByRound: 'რაუნდების მიხედვით',
+        historyEmpty: 'ჯერ პასუხები არ არის',
+        historyLoading: 'იტვირთება…',
+        historyError: 'ჩატვირთვა ვერ მოხერხდა',
+        historyClose: 'დახურვა',
         // секции спикер-скрипта на пульте
         scriptTitle: 'სცენარი',
         scriptCollapse: 'ჩაკეცვა',

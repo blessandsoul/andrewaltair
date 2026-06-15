@@ -40,7 +40,7 @@ export function Roster({ roster, busy, onKick }: RosterProps) {
                             title={`Удалить ${p.name}`}
                             aria-label={`Удалить ${p.name}`}
                             className={cn(
-                                'ml-0.5 rounded-full p-0.5 text-muted-foreground/40 transition-colors',
+                                'ml-0.5 inline-flex items-center justify-center rounded-full p-0.5 text-muted-foreground/40 transition-colors',
                                 'hover:text-destructive disabled:opacity-40'
                             )}
                         >

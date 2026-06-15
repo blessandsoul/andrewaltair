@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface UseRoomPollResult<T> {
     data: T | null
@@ -8,6 +8,8 @@ interface UseRoomPollResult<T> {
     isLoading: boolean
     /** true after 2+ consecutive failed ticks — show a reconnect banner */
     connectionLost: boolean
+    /** force an immediate refetch (e.g. right after a host control action) — no waiting for the next tick */
+    refresh: () => void
 }
 
 /**
@@ -21,6 +23,7 @@ export function useRoomPoll<T>(url: string | null, intervalMs = 2000): UseRoomPo
     const [connectionLost, setConnectionLost] = useState(false)
     const busyRef = useRef(false)
     const failsRef = useRef(0)
+    const tickRef = useRef<() => Promise<void>>(async () => {})
 
     useEffect(() => {
         if (!url) return
@@ -55,6 +58,8 @@ export function useRoomPoll<T>(url: string | null, intervalMs = 2000): UseRoomPo
             }
         }
 
+        tickRef.current = tick
+
         // self-scheduling with ±15% jitter so N phones don't align into synchronized
         // request bursts (smoother server load at 30 concurrent clients)
         let timer: ReturnType<typeof setTimeout>
@@ -73,5 +78,9 @@ export function useRoomPoll<T>(url: string | null, intervalMs = 2000): UseRoomPo
         }
     }, [url, intervalMs])
 
-    return { data, error, isLoading, connectionLost }
+    const refresh = useCallback(() => {
+        void tickRef.current()
+    }, [])
+
+    return { data, error, isLoading, connectionLost, refresh }
 }

@@ -4,15 +4,18 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PenLine, MessagesSquare, RotateCcw, Monitor, Hourglass, Check, Pencil } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import type { RoundPhase, StudentRound, StudentState, RoundResults } from '@/types/workshop.types'
+import type { RoundPhase, StudentRound, StudentState, RoundResults, MyGame } from '@/types/workshop.types'
 import { Button } from '@/components/ui/button'
 import CountdownRing from '@/components/workshop/CountdownRing'
 import ProgressDots from '@/components/workshop/ProgressDots'
 import { PHASE_THEME } from '@/components/workshop/phaseTheme'
 import { popIn, springPop } from '@/components/workshop/motion'
+import { ReactionBar } from './ReactionBar'
+import { PredictionInput } from './inputs/PredictionInput'
 import TextRoundInput from './inputs/TextRoundInput'
 import ChoiceRoundInput from './inputs/ChoiceRoundInput'
 import NumberRoundInput from './inputs/NumberRoundInput'
+import OrderRoundInput from './inputs/OrderRoundInput'
 import ReasonInput from './inputs/ReasonInput'
 import SubmittedState from './SubmittedState'
 import StudentResults from './StudentResults'
@@ -26,6 +29,8 @@ interface CurrentRoundProps {
     myAnswer: StudentState['myAnswer']
     results: RoundResults | null
     serverNow: string
+    gamified: boolean
+    me: MyGame | null
 }
 
 // Neuro-cue: one colored banner = the ONE thing to do right now.
@@ -38,7 +43,16 @@ const PHASE_META: Record<RoundPhase, { icon: LucideIcon; label: string }> = {
     closed: { icon: Hourglass, label: STR.phaseBanner.closed },
 }
 
-export default function CurrentRound({ code, clientId, round, myAnswer, results, serverNow }: CurrentRoundProps) {
+export default function CurrentRound({
+    code,
+    clientId,
+    round,
+    myAnswer,
+    results,
+    serverNow,
+    gamified,
+    me,
+}: CurrentRoundProps) {
     const [editing, setEditing] = useState(false)
     const [submitError, setSubmitError] = useState<string | null>(null)
     // optimistic: show SubmittedState the instant POST succeeds, before the next poll confirms
@@ -53,7 +67,13 @@ export default function CurrentRound({ code, clientId, round, myAnswer, results,
         }
     }, [round.key, round.phase])
 
-    const submit = async (payload: { optionId?: string; textValue?: string; numberValue?: number }) => {
+    const submit = async (payload: {
+        optionId?: string
+        textValue?: string
+        numberValue?: number
+        orderValue?: string[]
+        predictedOptionId?: string
+    }) => {
         setSubmitError(null)
         try {
             const res = await fetch(`/api/workshop/rooms/${code}/respond`, {
@@ -87,6 +107,24 @@ export default function CurrentRound({ code, clientId, round, myAnswer, results,
     const header = (
         <div className="space-y-4 mb-6">
             <ProgressDots current={round.index} total={round.total} />
+            {gamified && me && (
+                <div className="flex flex-wrap items-center justify-center gap-1 text-sm">
+                    <span className="rounded-full bg-[image:var(--ws-cta)] px-2.5 py-1 font-bold text-primary-foreground">
+                        #{me.rank}
+                    </span>
+                    <span className="rounded-full border border-border bg-card px-2.5 py-1 font-semibold tabular-nums text-foreground">
+                        {me.points}
+                    </span>
+                    {me.streak >= 2 && (
+                        <span className="rounded-full bg-warning/15 px-2 py-1 font-bold text-warning">🔥{me.streak}</span>
+                    )}
+                    {me.badges.slice(0, 4).map((b) => (
+                        <span key={b.id} title={b.label} className="text-base leading-none">
+                            {b.emoji}
+                        </span>
+                    ))}
+                </div>
+            )}
             <motion.div
                 key={round.phase}
                 initial={{ opacity: 0, y: -8, scale: 0.96 }}
@@ -178,6 +216,9 @@ export default function CurrentRound({ code, clientId, round, myAnswer, results,
                         </Button>
                     </div>
                     <StudentResults results={results} myOptionId={myAnswer?.optionId} />
+                    {gamified && (round.type === 'choice' || round.type === 'quiz') && round.phase === 'open' && (
+                        <PredictionInput round={round} onSubmit={submit} />
+                    )}
                 </motion.div>
             ) : (
                 <SubmittedState onEdit={() => setEditing(true)} />
@@ -185,11 +226,18 @@ export default function CurrentRound({ code, clientId, round, myAnswer, results,
         } else {
             body = (
                 <>
-                    {round.type === 'text' && <TextRoundInput round={round} onSubmit={submit} />}
+                    {round.type === 'text' &&
+                        (round.reasons?.length ? (
+                            // text round carrying preset chips → pick a reason or write your own
+                            <ReasonInput round={round} onSubmit={submit} />
+                        ) : (
+                            <TextRoundInput round={round} onSubmit={submit} />
+                        ))}
                     {(round.type === 'choice' || round.type === 'choice_revote' || round.type === 'quiz') && (
                         <ChoiceRoundInput round={round} onSubmit={submit} />
                     )}
                     {round.type === 'number' && <NumberRoundInput round={round} onSubmit={submit} />}
+                    {round.type === 'order' && <OrderRoundInput round={round} onSubmit={submit} />}
                     {submitError && <p className="mt-4 text-center text-destructive">{submitError}</p>}
                 </>
             )
@@ -210,6 +258,7 @@ export default function CurrentRound({ code, clientId, round, myAnswer, results,
                     {body}
                 </motion.div>
             </AnimatePresence>
+            {gamified && <ReactionBar code={code} clientId={clientId} />}
         </div>
     )
 }

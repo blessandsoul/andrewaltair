@@ -31,6 +31,11 @@ export type TeachBlockL =
         caption?: LText;
       }[];
     }
+  | {
+      kind: "annotated";
+      src?: string; // omit → use the room's chosen hero photo
+      pins: { n: string; label: LText; text?: LText; x: number; y: number }[];
+    }
   | { kind: "table"; headers: LText[]; rows: LText[][] };
 
 export interface TeachContentL {
@@ -52,6 +57,7 @@ export interface WorkshopTemplateRound {
   prompt: LText;
   options?: TemplateOption[];
   correctOptionId?: string;
+  correctOrder?: string[]; // order round — the right sequence of option ids
   config?: { minNumber?: number; maxNumber?: number; fields?: LText[] };
   durationSec?: number;
   hostNotes?: LText;

@@ -59,6 +59,11 @@ async function dbConnect(): Promise<typeof mongoose> {
             // Optimization for local development to avoid IPv6 delays
             family: 4,
             serverSelectionTimeoutMS: 5000,
+            // A slow/stuck op must not pin a pooled connection forever (was unbounded → pool
+            // starvation under bursty tracking writes). Cap the socket + size the pool explicitly.
+            socketTimeoutMS: 10000,
+            maxPoolSize: 50,
+            waitQueueTimeoutMS: 8000,
         };
 
         cached.promise = mongoose.connect(MONGODB_URI, opts);

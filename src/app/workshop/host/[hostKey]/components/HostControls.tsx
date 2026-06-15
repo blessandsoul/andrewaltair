@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Play, MessagesSquare, BarChart3, RotateCcw, SkipForward, Dices } from 'lucide-react'
+import { Play, MessagesSquare, BarChart3, RotateCcw, SkipForward, Dices, ChevronLeft, Disc3 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { StudentRound } from '@/types/workshop.types'
@@ -13,6 +13,8 @@ interface HostControlsProps {
     inLobby: boolean
     busy: boolean
     isLastRound: boolean
+    canGoBack: boolean
+    gamified: boolean
     responsesCount: number
     participantCount: number
     gateRatio?: number // elicit-before-reveal soft gate (per-room; default 0.6)
@@ -66,8 +68,12 @@ function buttonsFor(round: StudentRound | null, inLobby: boolean, isLastRound: b
             return [{ action: 'advancePhase', label: STR.controls.revote, icon: RotateCcw, primary: true }]
         case 'revote':
             return [{ action: 'reveal', label: STR.controls.revealCompare, icon: BarChart3, primary: true }]
-        case 'revealed':
-            return next.length ? [{ ...next[0], primary: true }] : []
+        case 'revealed': {
+            const primaryNext: ControlButton[] = next.length ? [{ ...next[0], primary: true }] : []
+            // After reveal, let the host re-open voting (someone mis-answered). Not for teach slides.
+            if (round.type === 'teach') return primaryNext
+            return [...primaryNext, { action: 'reopenRound', label: STR.controls.reopen, icon: RotateCcw }]
+        }
         default:
             return next
     }
@@ -78,6 +84,8 @@ export default function HostControls({
     inLobby,
     busy,
     isLastRound,
+    canGoBack,
+    gamified,
     responsesCount,
     participantCount,
     gateRatio = 0.6,
@@ -116,6 +124,18 @@ export default function HostControls({
                 </div>
             )}
             <div className="flex flex-wrap gap-2.5 items-center">
+                {canGoBack && !inLobby && (
+                    <Button
+                        onClick={() => onAction('prevRound')}
+                        disabled={busy}
+                        variant="outline"
+                        size="lg"
+                        title={STR.controls.back}
+                        className="h-auto px-3.5 py-3.5 text-muted-foreground hover:text-primary"
+                    >
+                        <ChevronLeft size={18} />
+                    </Button>
+                )}
                 {buttons.map((b) => {
                     const gated = gateActive && (b.action === 'reveal' || b.action === 'advancePhase')
                     const Icon = b.icon
@@ -151,6 +171,18 @@ export default function HostControls({
                         className="h-auto px-3.5 py-3.5 text-muted-foreground/60 hover:text-muted-foreground"
                     >
                         <Dices size={18} />
+                    </Button>
+                )}
+                {gamified && !inLobby && round && round.type !== 'teach' && (
+                    <Button
+                        onClick={() => onAction('spinWheel')}
+                        disabled={busy}
+                        title={STR.controls.wheel}
+                        variant="outline"
+                        size="icon-lg"
+                        className="h-auto px-3.5 py-3.5 text-primary hover:bg-primary/10"
+                    >
+                        <Disc3 size={18} />
                     </Button>
                 )}
             </div>

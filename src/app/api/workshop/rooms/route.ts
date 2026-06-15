@@ -33,6 +33,9 @@ const settingsSchema = z
         studentPollMs: z.number().int().min(1000).max(10000),
         language: z.enum(['ka', 'ru']),
         confetti: z.boolean(),
+        gamification: z.boolean(),
+        teamMode: z.boolean(),
+        teamCount: z.number().int().min(2).max(6),
     })
     .partial()
 

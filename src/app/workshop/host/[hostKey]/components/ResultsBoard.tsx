@@ -8,6 +8,7 @@ import TextWall from './results/TextWall'
 import BarResults from './results/BarResults'
 import RevoteResults from './results/RevoteResults'
 import Histogram from './results/Histogram'
+import OrderResults from './results/OrderResults'
 import NameAvatar, { nameAccent } from '@/components/workshop/NameAvatar'
 import { Button } from '@/components/ui/button'
 import { PHASE_THEME } from '@/components/workshop/phaseTheme'
@@ -86,47 +87,64 @@ function PhaseBadge({ phase }: { phase: string }) {
 export default function ResultsBoard({ round, results, onPin, readonly = false }: ResultsBoardProps) {
     if (!round) return null
 
-    // Pinned answer → ONE compact spotlight card (same size as a normal answer card)
-    if (round.pinned) {
-        const accent = nameAccent(round.pinned.name)
+    // Pinned answers → spotlight card(s) replacing the normal results view (multi-select)
+    if (round.pinned && round.pinned.length > 0) {
+        const pins = round.pinned
         return (
             <div className="flex h-full items-center justify-center">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.96, y: 12 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={springPop}
-                    className="glass-strong relative w-full max-w-2xl overflow-hidden rounded-2xl border border-border bg-card ring-2 ring-primary/40 shadow-xl"
+                <div
+                    className={cn(
+                        'grid w-full gap-5',
+                        pins.length === 1
+                            ? 'max-w-2xl'
+                            : pins.length === 2
+                              ? 'max-w-5xl md:grid-cols-2'
+                              : 'max-w-6xl md:grid-cols-2 lg:grid-cols-3',
+                    )}
                 >
-                    <span className={cn('absolute inset-y-0 left-0 w-1.5', accent.solid)} />
-                    <span aria-hidden className="absolute -top-3 right-4 select-none text-[72px] font-bold leading-none text-foreground/5">
-                        „
-                    </span>
-                    <div className="py-5 pl-6 pr-5">
-                        <div className="mb-3 flex items-center justify-between gap-2">
-                            <span className="inline-flex min-w-0 items-center gap-2.5">
-                                <NameAvatar name={round.pinned.name} size={34} />
-                                <span className={cn('truncate rounded-full px-3 py-1 text-sm font-bold', accent.soft, accent.text)}>
-                                    {round.pinned.name}
+                    {pins.map((pin) => {
+                        const accent = nameAccent(pin.name)
+                        return (
+                            <motion.div
+                                key={pin.id}
+                                initial={{ opacity: 0, scale: 0.96, y: 12 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                transition={springPop}
+                                className="glass-strong relative overflow-hidden rounded-2xl border border-border bg-card shadow-xl ring-2 ring-primary/40"
+                            >
+                                <span className={cn('absolute inset-y-0 left-0 w-1.5', accent.solid)} />
+                                <span aria-hidden className="absolute -top-3 right-4 select-none text-[72px] font-bold leading-none text-foreground/5">
+                                    „
                                 </span>
-                            </span>
-                            {!readonly && (
-                                <Button
-                                    variant="ghost"
-                                    size="icon-sm"
-                                    onClick={() => onPin('unpin')}
-                                    title={STR.results.unpin}
-                                    aria-label={STR.results.unpin}
-                                    className="shrink-0 text-muted-foreground"
-                                >
-                                    <X size={18} />
-                                </Button>
-                            )}
-                        </div>
-                        <p className="whitespace-pre-wrap text-[clamp(16px,1.5vw,22px)] leading-relaxed text-card-foreground">
-                            {round.pinned.textValue}
-                        </p>
-                    </div>
-                </motion.div>
+                                <div className="py-5 pl-6 pr-5">
+                                    <div className="mb-3 flex items-center justify-between gap-2">
+                                        <span className="inline-flex min-w-0 items-center gap-2.5">
+                                            <NameAvatar name={pin.name} size={34} />
+                                            <span className={cn('truncate rounded-full px-3 py-1 text-sm font-bold', accent.soft, accent.text)}>
+                                                {pin.name}
+                                            </span>
+                                        </span>
+                                        {!readonly && (
+                                            <Button
+                                                variant="ghost"
+                                                size="icon-sm"
+                                                onClick={() => onPin('unpin', pin.id)}
+                                                title={STR.results.unpin}
+                                                aria-label={STR.results.unpin}
+                                                className="shrink-0 text-muted-foreground"
+                                            >
+                                                <X size={18} />
+                                            </Button>
+                                        )}
+                                    </div>
+                                    <p className="whitespace-pre-wrap text-[clamp(15px,1.3vw,21px)] leading-relaxed text-card-foreground">
+                                        {pin.textValue}
+                                    </p>
+                                </div>
+                            </motion.div>
+                        )
+                    })}
+                </div>
             </div>
         )
     }
@@ -166,6 +184,9 @@ export default function ResultsBoard({ round, results, onPin, readonly = false }
             )}
             {results?.type === 'number' && (
                 <Histogram buckets={results.buckets} total={results.total} avg={results.avg} />
+            )}
+            {results?.type === 'order' && (
+                <OrderResults results={results} options={round.options} revealed={round.phase === 'revealed'} />
             )}
         </div>
     )

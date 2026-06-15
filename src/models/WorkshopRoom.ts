@@ -8,16 +8,17 @@ export { DEFAULT_ROOM_SETTINGS } from '@/types/workshop.types';
 
 export interface IWorkshopRound {
     key: string;
-    type: 'text' | 'choice' | 'choice_revote' | 'number' | 'quiz' | 'teach';
+    type: 'text' | 'choice' | 'choice_revote' | 'number' | 'quiz' | 'order' | 'teach';
     prompt: string;
     options: { id: string; label: string; src?: string }[]; // src = optional image (photo vote)
     correctOptionId?: string;
+    correctOrder?: string[]; // order round — the right sequence of option ids
     phase: 'closed' | 'open' | 'discuss' | 'revote' | 'revealed';
     phaseStartedAt?: Date;
     allAnsweredAt?: Date; // F2: stamped when everyone has answered → 5s grace → auto-reveal
     durationSec?: number;
     hostNotes?: string;
-    pinnedResponseId?: string;
+    pinnedResponseIds?: string[]; // answers spotlighted on the projector (multi-select)
     showsHeroPhoto?: boolean; // F3: keep the chosen photo visible during this round
     reasons?: { id: string; label: string }[]; // F4: preset "why" chips for the discuss phase
     config: {
@@ -42,6 +43,7 @@ export interface IWorkshopRoom extends Document {
     currentRoundIndex: number;
     isDemo: boolean; // demo room → answers drip in one-by-one on open rounds (poll-driven)
     selectedPhoto?: { src: string; label: string }; // F3: the photo voted as winner (persists)
+    spotlightName?: string; // wheel-of-names result (transient; cleared on next round action)
     settings: IWorkshopRoomSettings; // per-room config chosen at creation
     createdAt: Date;
     updatedAt: Date;
@@ -52,7 +54,7 @@ const WorkshopRoundSchema = new Schema<IWorkshopRound>(
         key: { type: String, required: true },
         type: {
             type: String,
-            enum: ['text', 'choice', 'choice_revote', 'number', 'quiz', 'teach'],
+            enum: ['text', 'choice', 'choice_revote', 'number', 'quiz', 'order', 'teach'],
             required: true,
         },
         prompt: { type: String, required: true },
@@ -65,6 +67,7 @@ const WorkshopRoundSchema = new Schema<IWorkshopRound>(
             },
         ],
         correctOptionId: { type: String },
+        correctOrder: { type: [String], default: undefined },
         phase: {
             type: String,
             enum: ['closed', 'open', 'discuss', 'revote', 'revealed'],
@@ -74,7 +77,7 @@ const WorkshopRoundSchema = new Schema<IWorkshopRound>(
         allAnsweredAt: { type: Date },
         durationSec: { type: Number },
         hostNotes: { type: String },
-        pinnedResponseId: { type: String },
+        pinnedResponseIds: { type: [String], default: undefined },
         showsHeroPhoto: { type: Boolean },
         reasons: [
             {
@@ -119,6 +122,9 @@ const WorkshopSettingsSchema = new Schema<IWorkshopRoomSettings>(
         studentPollMs: { type: Number, default: 3000 },
         language: { type: String, enum: ['ka', 'ru'], default: 'ka' },
         confetti: { type: Boolean, default: true },
+        gamification: { type: Boolean, default: true },
+        teamMode: { type: Boolean, default: false },
+        teamCount: { type: Number, default: 2 },
     },
     { _id: false }
 );
@@ -166,6 +172,9 @@ const WorkshopRoomSchema = new Schema<IWorkshopRoom>(
             type: { src: String, label: String },
             default: undefined,
             _id: false,
+        },
+        spotlightName: {
+            type: String,
         },
         settings: {
             type: WorkshopSettingsSchema,

@@ -7,6 +7,8 @@ import { AnalyticsService } from '@/services/analytics.service'
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json()
+        // Guard up front so a missing id is a fast no-op — not a 500 that still cost a DB connection.
+        if (!body?.visitorId) return apiSuccess(null, 'skipped')
         const userAgent = request.headers.get('user-agent') || ''
         const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
 

@@ -4,7 +4,7 @@ export interface IWorkshopResponse extends Document {
     _id: mongoose.Types.ObjectId;
     roomId: mongoose.Types.ObjectId;
     roundKey: string;
-    phase: 'open' | 'revote' | 'discuss'; // discuss = the Mazur "why" reason (F4)
+    phase: 'open' | 'revote' | 'discuss' | 'predict'; // discuss = Mazur "why"; predict = gamified outcome bet
     clientId: string;
     name: string;
     textValue?: string;
@@ -27,7 +27,7 @@ const WorkshopResponseSchema = new Schema<IWorkshopResponse>(
         },
         phase: {
             type: String,
-            enum: ['open', 'revote', 'discuss'],
+            enum: ['open', 'revote', 'discuss', 'predict'],
             default: 'open',
         },
         clientId: {

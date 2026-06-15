@@ -9,6 +9,7 @@ import {
     ChevronRight,
     OctagonX,
     MonitorPlay,
+    History as HistoryIcon,
 } from 'lucide-react'
 import { useRoomPoll } from '@/hooks/useRoomPoll'
 import type { HostState } from '@/types/workshop.types'
@@ -21,6 +22,7 @@ import { ScriptBody } from './ScriptBody'
 import { Roster } from './Roster'
 import { PinList } from './PinList'
 import { StatusPill } from './StatusPill'
+import { HistoryDrawer } from './HistoryDrawer'
 import { STR } from '@/data/workshop-strings'
 
 /**
@@ -28,10 +30,11 @@ import { STR } from '@/data/workshop-strings'
  * The projected display lives at /workshop/host/[hostKey] and has no controls.
  */
 export default function RemoteClient({ hostKey }: { hostKey: string }) {
-    const { data: state, error, isLoading, connectionLost } = useRoomPoll<HostState>(`/api/workshop/host/${hostKey}`)
+    const { data: state, error, isLoading, connectionLost, refresh } = useRoomPoll<HostState>(`/api/workshop/host/${hostKey}`)
     const [actionBusy, setActionBusy] = useState(false)
     const [notesOpen, setNotesOpen] = useState(true)
     const [stopConfirm, setStopConfirm] = useState(false)
+    const [historyOpen, setHistoryOpen] = useState(false)
 
     const act = useCallback(
         async (action: string, responseId?: string, targetClientId?: string) => {
@@ -47,11 +50,12 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                         ...(targetClientId ? { targetClientId } : {}),
                     }),
                 })
+                refresh() // reflect the change immediately instead of waiting for the next ~2s poll
             } finally {
                 setActionBusy(false)
             }
         },
-        [hostKey, actionBusy]
+        [hostKey, actionBusy, refresh]
     )
 
     // Hotkeys: Space=primary, R=reveal, ArrowRight=next, E=end
@@ -69,6 +73,8 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                 if (state.round && state.round.phase !== 'revealed') act('reveal')
             } else if (e.key === 'ArrowRight') {
                 act('nextRound')
+            } else if (e.key === 'ArrowLeft') {
+                if (state.currentRoundIndex > 0) act('prevRound')
             } else if (e.key === 'e' || e.key === 'E') {
                 act('endRoom')
             }
@@ -104,6 +110,7 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
     return (
         <main className="min-h-dvh flex flex-col max-w-3xl mx-auto">
             {connectionLost && <ReconnectBanner />}
+            {historyOpen && <HistoryDrawer hostKey={hostKey} onClose={() => setHistoryOpen(false)} />}
 
             {/* Status row */}
             <header className="px-5 pt-5 pb-3 space-y-3">
@@ -112,11 +119,23 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                         <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">{STR.remote.title}</p>
                         <h1 className="text-lg font-bold leading-tight">{state.title}</h1>
                     </div>
-                    <span className="text-xl font-bold tracking-[0.2em] bg-card border border-border shadow-sm rounded-xl px-3 py-1">
-                        {state.code}
-                    </span>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => setHistoryOpen(true)}
+                            title={STR.remote.history}
+                            aria-label={STR.remote.history}
+                            className="min-h-11 min-w-11 shrink-0 text-muted-foreground hover:text-primary"
+                        >
+                            <HistoryIcon size={18} />
+                        </Button>
+                        <span className="rounded-xl border border-border bg-card px-3 py-1 text-xl font-bold tracking-[0.2em] shadow-sm">
+                            {state.code}
+                        </span>
+                    </div>
                 </div>
-                <div className="flex items-center gap-4 text-sm">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
                     <StatusPill status={state.status} />
                     <span className="text-muted-foreground">
                         {state.currentRoundIndex >= 0
@@ -187,6 +206,8 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                         inLobby={inLobby}
                         busy={actionBusy}
                         isLastRound={state.currentRoundIndex >= state.roundsTotal - 1}
+                        canGoBack={state.currentRoundIndex > 0}
+                        gamified={state.settings?.gamification ?? false}
                         responsesCount={state.responsesCount}
                         participantCount={state.participantCount}
                         gateRatio={state.settings?.gateRatio}
@@ -202,23 +223,23 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                         />
                     )}
 
-                    {/* Quick pin list for text rounds */}
+                    {/* Quick pin list for text rounds — multi-select spotlight */}
                     {textItems.length > 0 && (
                         <PinList
                             items={textItems}
-                            isPinned={!!state.round?.pinned}
-                            onPin={(id) => act('pinResponse', id)}
-                            onUnpin={() => act('unpin')}
+                            pinnedIds={(state.round?.pinned ?? []).map((p) => p.id)}
+                            onToggle={(id) => act('pinResponse', id)}
+                            onClearAll={() => act('unpin')}
                         />
                     )}
 
                     {/* STOP */}
-                    <div className="mt-auto px-5 pb-6 pt-3 space-y-3">
+                    <div className="mt-auto px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-3 space-y-3">
                         <Button
                             asChild
                             variant="outline"
                             size="sm"
-                            className="w-fit text-muted-foreground hover:text-primary"
+                            className="min-h-11 w-fit text-muted-foreground hover:text-primary"
                         >
                             <a href={`/workshop/host/${hostKey}`} target="_blank">
                                 <MonitorPlay size={15} /> {STR.remote.openDisplay}

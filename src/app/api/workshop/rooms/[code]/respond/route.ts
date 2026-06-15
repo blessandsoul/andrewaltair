@@ -12,6 +12,8 @@ const respondSchema = z.object({
     optionId: z.string().max(16).optional(),
     textValue: z.string().max(2000).optional(),
     numberValue: z.number().optional(),
+    orderValue: z.array(z.string().max(16)).max(10).optional(),
+    predictedOptionId: z.string().max(16).optional(),
 })
 
 export async function POST(

@@ -31,6 +31,8 @@ const BOOL_FIELDS: { key: BoolKey; label: string }[] = [
     { key: 'nameFilter', label: 'Фильтр имён (мат / пустые)' },
     { key: 'allowKick', label: 'Можно кикнуть участника' },
     { key: 'confetti', label: 'Конфетти при показе' },
+    { key: 'gamification', label: '🎮 Геймификация (очки, бейджи, реакции)' },
+    { key: 'teamMode', label: '🎨 Командный режим' },
 ]
 
 const NUM_FIELDS: { key: NumKey; label: string; min: number; max: number; step: number; fmt: (v: number) => string }[] = [
@@ -44,6 +46,7 @@ const NUM_FIELDS: { key: NumKey; label: string; min: number; max: number; step: 
     { key: 'onlineWindowSec', label: 'Окно «онлайн»', min: 5, max: 60, step: 1, fmt: (v) => `${v} сек` },
     { key: 'hostVolume', label: 'Громкость проектора', min: 0, max: 100, step: 5, fmt: (v) => `${v}` },
     { key: 'studentVolume', label: 'Громкость телефона', min: 0, max: 100, step: 5, fmt: (v) => `${v}` },
+    { key: 'teamCount', label: 'Команд', min: 2, max: 6, step: 1, fmt: (v) => `${v}` },
 ]
 
 export function RoomSettingsForm({ busy, onCreate }: RoomSettingsFormProps) {

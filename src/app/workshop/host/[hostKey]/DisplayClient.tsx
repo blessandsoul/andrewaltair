@@ -5,12 +5,14 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useRoomPoll } from '@/hooks/useRoomPoll'
 import type { HostState } from '@/types/workshop.types'
 import { ReconnectBanner } from '@/components/workshop/ReconnectBanner'
-import { springPop } from '@/components/workshop/motion'
 import ResultsBoard from './components/ResultsBoard'
 import TeachSlide from './components/TeachSlide'
 import { DisplayHeader } from './DisplayHeader'
 import { LobbyView } from './LobbyView'
 import { EnableSoundOverlay } from './EnableSoundOverlay'
+import { EndStats } from './EndStats'
+import { ReactionsOverlay, WheelOverlay } from './GameOverlays'
+import { Leaderboard } from './Leaderboard'
 import { useDisplayAudio } from './useDisplayAudio'
 import { STR } from '@/data/workshop-strings'
 
@@ -79,7 +81,7 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
     const heroLabel = state.selectedPhoto ? state.selectedPhoto.label.replace(/^[A-Z0-9]\s*·\s*/, '').trim() : ''
 
     return (
-        <main className="flex min-h-dvh flex-col">
+        <main className="flex h-dvh flex-col overflow-hidden">
             {connectionLost && <ReconnectBanner />}
 
             <DisplayHeader
@@ -89,6 +91,23 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                 soundOn={soundOn}
                 onToggleSound={toggleSound}
             />
+
+            {/* "Video assembling" — overall workshop progress (gamified narrative) */}
+            {state.settings?.gamification && !inLobby && state.status !== 'ended' && typeof state.progress === 'number' && (
+                <div className="flex items-center gap-3 px-8 py-1.5">
+                    <span className="text-sm">🎬</span>
+                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+                        <motion.div
+                            className="h-full rounded-full bg-[image:var(--ws-cta)]"
+                            animate={{ width: `${Math.round((state.progress ?? 0) * 100)}%` }}
+                            transition={{ type: 'spring', stiffness: 80, damping: 20 }}
+                        />
+                    </div>
+                    <span className="text-xs font-bold tabular-nums text-muted-foreground">
+                        {Math.round((state.progress ?? 0) * 100)}%
+                    </span>
+                </div>
+            )}
 
             {/* Room answering progress — thin bar, the whole room sees momentum */}
             {answering && (
@@ -100,6 +119,24 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                         }}
                         transition={{ type: 'spring', stiffness: 90, damping: 22 }}
                     />
+                </div>
+            )}
+
+            {/* Speed-spotlight — first to answer this round */}
+            {answering && state.settings?.gamification && (state.fastest?.length ?? 0) > 0 && (
+                <div className="flex items-center justify-center gap-2 py-1 text-sm font-semibold text-muted-foreground">
+                    <span className="text-base">⚡</span>
+                    <span className="uppercase tracking-wide text-primary">{STR.display.fastest}:</span>
+                    {state.fastest!.map((n, i) => (
+                        <motion.span
+                            key={n + i}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="rounded-full bg-primary/10 px-2.5 py-0.5 text-foreground"
+                        >
+                            {n}
+                        </motion.span>
+                    ))}
                 </div>
             )}
 
@@ -132,28 +169,33 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                             className="h-full"
                         >
                             {state.status === 'ended' ? (
-                                <div className="flex h-full flex-col items-center justify-center gap-4">
-                                    <motion.p
-                                        initial={{ scale: 0.85 }}
-                                        animate={{ scale: 1 }}
-                                        transition={springPop}
-                                        className="text-gradient text-5xl font-bold"
-                                    >
-                                        {STR.common.ended}
-                                    </motion.p>
-                                    <p className="text-lg text-muted-foreground">{STR.common.endedThanks}</p>
-                                </div>
+                                <EndStats hostKey={hostKey} photo={state.selectedPhoto} leaderboard={state.leaderboard} />
                             ) : inLobby ? (
                                 <LobbyView qr={qr} code={state.code} roster={state.roster.map((r) => r.name)} />
                             ) : state.round?.type === 'teach' ? (
-                                <TeachSlide heading={state.round.prompt} content={state.round.content} />
+                                <TeachSlide
+                                    heading={state.round.prompt}
+                                    content={state.round.content}
+                                    heroPhoto={state.selectedPhoto?.src}
+                                />
                             ) : (
                                 <ResultsBoard round={state.round} results={state.results} onPin={() => {}} readonly />
                             )}
                         </motion.div>
                     </AnimatePresence>
                 </div>
+                {state.settings?.gamification && !inLobby && state.status !== 'ended' && (state.leaderboard?.length ?? 0) > 0 && (
+                    <Leaderboard entries={state.leaderboard!} teams={state.teams} />
+                )}
             </div>
+
+            {/* Gamification overlays — floating reactions + wheel-of-names spin */}
+            {state.settings?.gamification && <ReactionsOverlay reactions={state.reactions} />}
+            <AnimatePresence>
+                {state.settings?.gamification && state.spotlightName && (
+                    <WheelOverlay key={state.spotlightName} name={state.spotlightName} />
+                )}
+            </AnimatePresence>
 
             {/* One-time enable-sound gate — the browser needs a click to unlock audio */}
             <AnimatePresence>

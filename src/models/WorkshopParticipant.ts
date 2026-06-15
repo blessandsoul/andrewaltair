@@ -5,6 +5,7 @@ export interface IWorkshopParticipant extends Document {
     roomId: mongoose.Types.ObjectId;
     name: string;
     clientId: string;
+    team?: number; // 1..teamCount — assigned at first join when teamMode is on
     joinedAt: Date;
     lastSeenAt: Date;
 }
@@ -27,6 +28,9 @@ const WorkshopParticipantSchema = new Schema<IWorkshopParticipant>(
         clientId: {
             type: String,
             required: true,
+        },
+        team: {
+            type: Number,
         },
         joinedAt: {
             type: Date,

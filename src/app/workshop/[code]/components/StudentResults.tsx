@@ -89,13 +89,41 @@ export default function StudentResults({
         )
     }
 
+    if (results.type === 'order') {
+        const pctCorrect = results.total ? Math.round((results.correctCount / results.total) * 100) : 0
+        return (
+            <div className="space-y-3">
+                {results.correctLabels.length > 0 && (
+                    <div className="rounded-xl border border-success/30 bg-success/10 p-3">
+                        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-success">
+                            {STR.orderResults.correct}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                            {results.correctLabels.map((l, i) => (
+                                <span key={i} className="flex items-center gap-1.5">
+                                    {i > 0 && <span className="text-xs text-muted-foreground">→</span>}
+                                    <span className="rounded-lg bg-card px-2.5 py-1 text-sm font-semibold text-card-foreground">
+                                        {cleanLabel(l)}
+                                    </span>
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
+                <p className="text-center text-sm text-muted-foreground">
+                    {STR.orderResults.pct(pctCorrect, results.total)}
+                </p>
+            </div>
+        )
+    }
+
     // text — scrollable compact list of everyone's answers
     return (
         <div>
             <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">
                 {STR.results.answersCount(results.items.length)}
             </p>
-            <div className="space-y-2 max-h-[46vh] overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-[46dvh] overflow-y-auto pr-1">
                 {results.items.map((it) => {
                     const accent = nameAccent(it.name)
                     return (

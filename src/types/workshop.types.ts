@@ -6,6 +6,7 @@ export const ROUND_TYPES = {
     CHOICE_REVOTE: 'choice_revote',
     NUMBER: 'number',
     QUIZ: 'quiz',
+    ORDER: 'order', // drag-and-drop: reorder the option images into the right sequence
     TEACH: 'teach',
 } as const;
 export type RoundType = (typeof ROUND_TYPES)[keyof typeof ROUND_TYPES];
@@ -19,6 +20,12 @@ export type TeachBlock =
     | {
           kind: 'media';
           items: { letter?: string; title?: string; src: string; mediaType: 'image' | 'video'; caption?: string }[];
+      }
+    // annotated photo — numbered pins (x/y are % of the frame) map concepts onto a real image
+    | {
+          kind: 'annotated';
+          src?: string; // omit → use the room's chosen hero photo (selectedPhoto)
+          pins: { n: string; label: string; text?: string; x: number; y: number }[];
       }
     | { kind: 'table'; headers: string[]; rows: string[][] };
 
@@ -80,11 +87,12 @@ export interface StudentRound {
     phase: RoundPhase;
     config: RoundConfig;
     correctOptionId?: string;
+    correctOrder?: string[]; // order round — host-only, present after reveal
     index: number;
     total: number;
     phaseStartedAt?: string;
     durationSec?: number;
-    pinned?: { name: string; textValue: string } | null;
+    pinned?: { id: string; name: string; textValue: string }[] | null;
     content?: TeachContent;
     script?: RoundScript; // host-only (forHost) — deep speaker script for the remote
     showsHeroPhoto?: boolean; // F3: chosen photo stays visible during this round
@@ -115,6 +123,9 @@ export interface IWorkshopRoomSettings {
     studentPollMs: number;
     language: 'ka' | 'ru';
     confetti: boolean;
+    gamification: boolean; // points / leaderboard / streaks / badges / reactions / wheel
+    teamMode: boolean; // opt-in — split the room into teams (off by default)
+    teamCount: number;
 }
 
 export const DEFAULT_ROOM_SETTINGS: IWorkshopRoomSettings = {
@@ -139,6 +150,9 @@ export const DEFAULT_ROOM_SETTINGS: IWorkshopRoomSettings = {
     studentPollMs: 3000,
     language: 'ka',
     confetti: true,
+    gamification: true,
+    teamMode: false,
+    teamCount: 2,
 };
 
 // Client-readable subset of room settings. Server-only flags (autoReveal, graceSec,
@@ -155,6 +169,8 @@ export interface RoomSettingsDTO {
     confetti: boolean;
     allowKick: boolean;
     language: 'ka' | 'ru';
+    gamification: boolean; // phone needs to know whether to render points/streak/reactions
+    teamMode: boolean;
 }
 
 export interface StudentState {
@@ -169,6 +185,11 @@ export interface StudentState {
     selectedPhoto: SelectedPhoto | null; // F3: photo voted as winner (shown as hero)
     serverNow: string;
     settings: RoomSettingsDTO; // per-room config (audience / sound / poll / etc.)
+    // gamification (present only when settings.gamification)
+    me?: MyGame | null;
+    reactions?: Reaction[];
+    progress?: number; // 0..1 — interactive rounds completed ("video assembling")
+    spotlightName?: string | null; // wheel-of-names result
 }
 
 export interface TextResultItem {
@@ -205,6 +226,14 @@ export interface NumberBucket {
     count: number;
 }
 
+// order round — a submitted sequence (option ids in order) + how many submitted it
+export interface OrderSequence {
+    order: string[];
+    labels: string[];
+    count: number;
+    correct: boolean;
+}
+
 export type RoundResults =
     | { type: 'text'; items: TextResultItem[] }
     | { type: 'choice'; counts: ChoiceCount[]; total: number; correctOptionId?: string }
@@ -216,13 +245,97 @@ export type RoundResults =
           movedCount: number;
           moves: RevoteMove[];
       }
-    | { type: 'number'; buckets: NumberBucket[]; total: number; avg: number };
+    | { type: 'number'; buckets: NumberBucket[]; total: number; avg: number }
+    | {
+          type: 'order';
+          sequences: OrderSequence[]; // sorted by count desc
+          correctOrder: string[];
+          correctLabels: string[];
+          correctCount: number;
+          total: number;
+      };
 
 export interface RosterEntry {
     name: string;
     clientId: string; // host-only — used to kick a participant
     joinedAt: string;
     online: boolean;
+}
+
+// Host-only: full per-round results + per-participant answer grid (history panel + end stats)
+export interface HistoryRound {
+    key: string;
+    index: number;
+    prompt: string;
+    type: RoundType;
+    results: RoundResults | null;
+}
+export interface HistoryParticipant {
+    clientId: string;
+    name: string;
+    answers: { roundKey: string; prompt: string; value: string }[];
+}
+export interface RoomHistory {
+    rounds: HistoryRound[];
+    participants: HistoryParticipant[];
+    participantCount: number;
+}
+
+// ── Gamification ──────────────────────────────────────────────────────────────
+export interface Badge {
+    id: string;
+    emoji: string;
+    label: string;
+}
+export interface LeaderboardEntry {
+    clientId: string;
+    name: string;
+    team?: number;
+    points: number;
+    streak: number;
+    badges: Badge[];
+    rank: number;
+}
+export interface TeamScore {
+    team: number;
+    points: number;
+    members: number;
+}
+export interface ScoreSummary {
+    leaderboard: LeaderboardEntry[]; // sorted by points desc, ranked
+    teams: TeamScore[]; // empty unless teamMode
+}
+export interface Reaction {
+    emoji: string;
+    at: number; // epoch ms
+}
+// Per-student gamification slice (on StudentState)
+export interface MyGame {
+    points: number;
+    streak: number;
+    rank: number;
+    badges: Badge[];
+    team?: number;
+}
+// Shareable end-of-workshop diploma (per participant)
+export interface DiplomaData {
+    name: string;
+    dream: string; // their r1 «видео-мечта»
+    points: number;
+    rank: number;
+    total: number;
+    streak: number;
+    badges: Badge[];
+    photo: string | null; // the chosen hero photo
+    title: string; // workshop title (room.title)
+    dateISO: string; // room.createdAt — formatted ka-GE at render
+    percentile: number; // 1..100, "top N%" (100 = #1)
+    answeredCount: number; // interactive rounds answered
+    roundsTotal: number; // interactive rounds total
+    correctCount: number; // quiz/order/choice correct answers
+    accuracyPct: number; // 0..100 over scorable rounds answered
+    code: string; // room code (verify token)
+    team?: number; // only when teamMode
 }
 
 export interface HostState {
@@ -241,6 +354,13 @@ export interface HostState {
     settings: RoomSettingsDTO; // per-room config (audience / sound / poll / etc.)
     qrDataUrl?: string;
     joinUrl?: string;
+    // gamification (present only when settings.gamification)
+    leaderboard?: LeaderboardEntry[];
+    teams?: TeamScore[];
+    reactions?: Reaction[];
+    progress?: number; // 0..1
+    spotlightName?: string | null;
+    fastest?: string[]; // speed-spotlight: first-N answerer names of the current open round
 }
 
 export const HOST_ACTIONS = {
@@ -248,10 +368,13 @@ export const HOST_ACTIONS = {
     ADVANCE_PHASE: 'advancePhase',
     REVEAL: 'reveal',
     NEXT_ROUND: 'nextRound',
+    PREV_ROUND: 'prevRound',
+    REOPEN_ROUND: 'reopenRound',
     END_ROOM: 'endRoom',
     SEED_FAKE: 'seedFake',
     PIN_RESPONSE: 'pinResponse',
     UNPIN: 'unpin',
     KICK_PARTICIPANT: 'kickParticipant',
+    SPIN_WHEEL: 'spinWheel',
 } as const;
 export type HostAction = (typeof HOST_ACTIONS)[keyof typeof HOST_ACTIONS];

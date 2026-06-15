@@ -22,6 +22,16 @@ import type {
     RevoteMove,
     TeachContent,
     RoundScript,
+    RoomHistory,
+    HistoryRound,
+    HistoryParticipant,
+    Badge,
+    LeaderboardEntry,
+    TeamScore,
+    ScoreSummary,
+    Reaction,
+    MyGame,
+    DiplomaData,
 } from '@/types/workshop.types'
 
 // Resolved (all-strings) shape of a template round after resolveDeep flattens every L.
@@ -31,6 +41,7 @@ interface ResolvedTemplateRound {
     prompt: string
     options?: { id: string; label: string; src?: string }[]
     correctOptionId?: string
+    correctOrder?: string[]
     durationSec?: number
     hostNotes?: string
     showsHeroPhoto?: boolean
@@ -44,6 +55,52 @@ interface ResolvedTemplateRound {
 // briefly so 30 students polling don't each re-run the same aggregation every 2s.
 const RESULTS_TTL_MS = 1500
 const resultsCache = new Map<string, { value: RoundResults | null; exp: number }>()
+
+// Gamification: scores are identical for all pollers — cache briefly (shared by host + every student poll).
+const SCORES_TTL_MS = 2000
+const scoresCache = new Map<string, { value: ScoreSummary; exp: number }>()
+
+// Ephemeral emoji-reaction buffer (per room, ~5s window) — in-memory, no DB, resets on redeploy (fine for confetti-class fluff).
+const REACTION_TTL_MS = 5000
+const reactionsBuffer = new Map<string, Reaction[]>()
+const REACTION_EMOJIS = new Set(['👏', '🔥', '😮', '❤️', '😂', '🤯', '👍', '🎉'])
+
+// Badge catalog — awarded from real signals in computeScores.
+const BADGE: Record<string, Badge> = {
+    lightning: { id: 'lightning', emoji: '⚡', label: 'Молния' }, // first to answer ≥1×
+    streak: { id: 'streak', emoji: '🔥', label: 'Серия' }, // streak ≥3
+    mindchange: { id: 'mindchange', emoji: '🧠', label: 'Сменил мнение' }, // Mazur revote change
+    director: { id: 'director', emoji: '🎬', label: 'Режиссёр' }, // order round correct
+    oracle: { id: 'oracle', emoji: '🎯', label: 'Оракул' }, // ≥2 predictions right
+    onair: { id: 'onair', emoji: '⭐', label: 'В эфире' }, // answer pinned by host
+    champion: { id: 'champion', emoji: '🏆', label: 'Чемпион' }, // leaderboard #1
+}
+
+// Pull the «видео-мечта» line out of an r1 multi-field answer (falls back to last line).
+function extractDream(text: string): string {
+    const lines = text.split('\n').filter(Boolean)
+    const dreamLine = lines.find((l) => /меч|ოცნ/i.test(l)) ?? lines[lines.length - 1] ?? text
+    const colon = dreamLine.indexOf(':')
+    return (colon >= 0 ? dreamLine.slice(colon + 1) : dreamLine).trim()
+}
+
+function badgesFor(a: {
+    firstCount: number
+    streak: number
+    mindChange: boolean
+    orderCorrect: boolean
+    predictRight: number
+    pinned: boolean
+}): Badge[] {
+    const b: Badge[] = []
+    if (a.firstCount > 0) b.push(BADGE.lightning)
+    if (a.streak >= 3) b.push(BADGE.streak)
+    if (a.mindChange) b.push(BADGE.mindchange)
+    if (a.orderCorrect) b.push(BADGE.director)
+    if (a.predictRight >= 2) b.push(BADGE.oracle)
+    if (a.pinned) b.push(BADGE.onair)
+    return b
+}
 
 // Unambiguous alphabet — no 0/O/1/I/L
 const CODE_ALPHABET = '23456789ABCDEFGHJKMNPQRSTUVWXYZ'
@@ -122,6 +179,7 @@ export class WorkshopService {
                 prompt: r.prompt,
                 options,
                 correctOptionId: r.correctOptionId,
+                ...(r.correctOrder ? { correctOrder: r.correctOrder } : {}),
                 phase: 'closed' as const,
                 durationSec,
                 hostNotes: r.hostNotes,
@@ -252,7 +310,7 @@ export class WorkshopService {
         const value = values[i]
         const set: Record<string, unknown> = { name: DEMO_NAMES[i % DEMO_NAMES.length] }
         if (r.type === 'number') set.numberValue = value as number
-        else if (r.type === 'text') set.textValue = value as string
+        else if (r.type === 'text' || r.type === 'order') set.textValue = value as string
         else set.optionId = value as string
 
         await WorkshopResponse.updateOne(
@@ -285,17 +343,25 @@ export class WorkshopService {
         const room = await WorkshopRoom.findById(roomId, { settings: 1 }).lean<{ settings?: IWorkshopRoomSettings }>()
         const max = room?.settings?.maxParticipants ?? DEFAULT_ROOM_SETTINGS.maxParticipants
         const filter = room?.settings?.nameFilter ?? DEFAULT_ROOM_SETTINGS.nameFilter
+        const teamMode = room?.settings?.teamMode ?? DEFAULT_ROOM_SETTINGS.teamMode
+        const teamCount = room?.settings?.teamCount ?? DEFAULT_ROOM_SETTINGS.teamCount
         const clean = (name ?? '').trim()
         if (filter && (clean.length < 1 || isBlockedName(clean))) return { ok: false, reason: 'name' }
 
         const existing = await WorkshopParticipant.findOne({ roomId, clientId }).lean<{ _id: unknown }>()
-        if (!existing && max > 0) {
+        let team: number | undefined
+        if (!existing && (max > 0 || teamMode)) {
             const count = await WorkshopParticipant.countDocuments({ roomId })
-            if (count >= max) return { ok: false, reason: 'full' }
+            if (max > 0 && count >= max) return { ok: false, reason: 'full' }
+            // round-robin team balance, sticky (only on first join)
+            if (teamMode) team = (count % Math.max(teamCount, 1)) + 1
         }
         await WorkshopParticipant.findOneAndUpdate(
             { roomId, clientId },
-            { $set: { name: clean || name, lastSeenAt: new Date() }, $setOnInsert: { joinedAt: new Date() } },
+            {
+                $set: { name: clean || name, lastSeenAt: new Date() },
+                $setOnInsert: { joinedAt: new Date(), ...(team ? { team } : {}) },
+            },
             { upsert: true }
         )
         return { ok: true }
@@ -331,6 +397,7 @@ export class WorkshopService {
             phase: r.phase,
             config: r.config ?? {},
             ...(revealCorrect && r.correctOptionId ? { correctOptionId: r.correctOptionId } : {}),
+            ...(revealCorrect && r.correctOrder?.length ? { correctOrder: r.correctOrder } : {}),
             ...(forHost && r.hostNotes ? { hostNotes: r.hostNotes } : {}),
             ...(forHost && r.script ? { script: r.script } : {}),
             ...(r.phaseStartedAt ? { phaseStartedAt: r.phaseStartedAt.toISOString() } : {}),
@@ -343,15 +410,22 @@ export class WorkshopService {
         }
     }
 
-    /** Pinned response content for projector display (one extra query only when set). */
-    static async getPinned(room: IWorkshopRoom): Promise<{ name: string; textValue: string } | null> {
+    /** Pinned responses for projector display (multi-select; one extra query only when set, pin order preserved). */
+    static async getPinned(
+        room: IWorkshopRoom
+    ): Promise<{ id: string; name: string; textValue: string }[] | null> {
         const idx = room.currentRoundIndex
         const r = idx >= 0 ? room.rounds[idx] : null
-        if (!r?.pinnedResponseId || !mongoose.Types.ObjectId.isValid(r.pinnedResponseId)) return null
+        const ids = (r?.pinnedResponseIds ?? []).filter((id) => mongoose.Types.ObjectId.isValid(id))
+        if (!ids.length) return null
         await dbConnect()
-        const doc = await WorkshopResponse.findById(r.pinnedResponseId).lean<IWorkshopResponse>()
-        if (!doc) return null
-        return { name: doc.name, textValue: doc.textValue ?? '' }
+        const docs = await WorkshopResponse.find({ _id: { $in: ids } }).lean<IWorkshopResponse[]>()
+        const byId = new Map(docs.map((d) => [String(d._id), d]))
+        const out = ids
+            .map((id) => byId.get(id))
+            .filter((d): d is IWorkshopResponse => !!d)
+            .map((d) => ({ id: String(d._id), name: d.name, textValue: d.textValue ?? '' }))
+        return out.length ? out : null
     }
 
     /** Timer expiry: true when an open/revote phase ran out of durationSec. */
@@ -363,6 +437,9 @@ export class WorkshopService {
 
     /** F3: when revealing a photo-vote round (options carry images), record the winner. */
     private static async stampSelectedPhoto(doc: IWorkshopRoom, round: IWorkshopRound): Promise<void> {
+        // Only the photo VOTE sets the hero photo — never the order round (its option
+        // images are story frames, not the chosen hero) or any non-choice round.
+        if (round.type !== 'choice' && round.type !== 'quiz') return
         if (!round.options?.some((o) => o.src)) return
         const agg = await WorkshopResponse.aggregate([
             { $match: { roomId: doc._id, roundKey: round.key, phase: 'open' } },
@@ -468,6 +545,8 @@ export class WorkshopService {
             confetti: s?.confetti ?? d.confetti,
             allowKick: s?.allowKick ?? d.allowKick,
             language: s?.language ?? d.language,
+            gamification: s?.gamification ?? d.gamification,
+            teamMode: s?.teamMode ?? d.teamMode,
         }
     }
 
@@ -507,6 +586,13 @@ export class WorkshopService {
             }
         }
 
+        const gamified = room.settings?.gamification ?? DEFAULT_ROOM_SETTINGS.gamification
+        let me: MyGame | null = null
+        if (gamified) {
+            const scores = await this.getScores(room)
+            me = this.myGame(scores, clientId)
+        }
+
         return {
             status: room.status,
             title: room.title,
@@ -517,6 +603,14 @@ export class WorkshopService {
             selectedPhoto: room.selectedPhoto ?? null,
             serverNow: new Date().toISOString(),
             settings: this.pickClientSettings(room),
+            ...(gamified
+                ? {
+                      me,
+                      reactions: this.getRecentReactions(room._id),
+                      progress: this.progressOf(room),
+                      spotlightName: room.spotlightName ?? null,
+                  }
+                : {}),
         }
     }
 
@@ -537,12 +631,29 @@ export class WorkshopService {
         optionId?: string
         textValue?: string
         numberValue?: number
+        orderValue?: string[]
+        predictedOptionId?: string
     }): Promise<{ ok: true } | { ok: false; reason: 'closed' | 'invalid' }> {
         await dbConnect()
         const { room, clientId, roundKey } = params
         const idx = room.currentRoundIndex
         const round = idx >= 0 ? room.rounds[idx] : null
         if (!round || round.key !== roundKey) return { ok: false, reason: 'closed' }
+
+        // Gamified prediction bet — a separate phase='predict' row (doesn't touch the vote),
+        // accepted only while the round is open. Scored on reveal in computeScores.
+        if (params.predictedOptionId && (round.type === 'choice' || round.type === 'quiz')) {
+            if (round.phase !== 'open') return { ok: false, reason: 'closed' }
+            if (!round.options.some((o) => o.id === params.predictedOptionId)) return { ok: false, reason: 'invalid' }
+            const p = await WorkshopParticipant.findOne({ roomId: room._id, clientId }).lean<{ name: string }>()
+            await WorkshopResponse.findOneAndUpdate(
+                { roomId: room._id, roundKey, phase: 'predict', clientId },
+                { $set: { optionId: params.predictedOptionId, name: p?.name ?? 'ანონიმი' }, $setOnInsert: { createdAt: new Date() } },
+                { upsert: true }
+            )
+            this.bustResultsCache(room._id, roundKey)
+            return { ok: true }
+        }
 
         // F4: during the Mazur discuss phase, students submit a REASON (text) for why
         // they voted — stored as a separate phase='discuss' row (doesn't touch the vote).
@@ -567,6 +678,15 @@ export class WorkshopService {
                 return { ok: false, reason: 'invalid' }
             }
             set.numberValue = params.numberValue
+        } else if (round.type === 'order') {
+            // a full permutation of the option ids — packed as a comma-joined string
+            const ids = params.orderValue ?? []
+            const valid =
+                ids.length === round.options.length &&
+                ids.every((id) => round.options.some((o) => o.id === id)) &&
+                new Set(ids).size === ids.length
+            if (!valid) return { ok: false, reason: 'invalid' }
+            set.textValue = ids.join(',')
         } else {
             if (!params.optionId || !round.options.some((o) => o.id === params.optionId)) {
                 return { ok: false, reason: 'invalid' }
@@ -605,12 +725,337 @@ export class WorkshopService {
         const now = Date.now()
         const hit = resultsCache.get(key)
         if (hit && hit.exp > now) return hit.value
-        const value = await this.computeResults(room)
+        const value = await this.computeResults(room, round)
         resultsCache.set(key, { value, exp: now + RESULTS_TTL_MS })
         if (resultsCache.size > 300) {
             for (const [k, v] of resultsCache) if (v.exp <= now) resultsCache.delete(k)
         }
         return value
+    }
+
+    /**
+     * Full per-round results + per-participant answer grid — powers the host's
+     * private "answer history" panel (recall any past round by name) and the end-stats
+     * screen. All answers persist in WorkshopResponse keyed by roundKey; this is the
+     * only place that reads across ALL rounds at once.
+     */
+    static async getRoomHistory(room: IWorkshopRoom): Promise<RoomHistory> {
+        await dbConnect()
+        const anon = room.settings?.anonymousNames ?? DEFAULT_ROOM_SETTINGS.anonymousNames
+
+        const rounds: HistoryRound[] = []
+        for (let i = 0; i < room.rounds.length; i++) {
+            const r = room.rounds[i]
+            if (r.type === 'teach') continue
+            rounds.push({
+                key: r.key,
+                index: i,
+                prompt: r.prompt,
+                type: r.type,
+                results: await this.computeResults(room, r),
+            })
+        }
+
+        // per-participant answer grid — one query, grouped client-side, values resolved to labels
+        const all = await WorkshopResponse.find({ roomId: room._id, phase: 'open' })
+            .sort({ createdAt: 1 })
+            .lean<IWorkshopResponse[]>()
+        const roundByKey = new Map(room.rounds.map((r) => [r.key, r]))
+        const labelOf = (r: IWorkshopRound, optionId?: string) =>
+            optionId ? r.options.find((o) => o.id === optionId)?.label ?? optionId : ''
+        const valueOf = (r: IWorkshopRound, doc: IWorkshopResponse): string => {
+            if (r.type === 'number') return doc.numberValue != null ? String(doc.numberValue) : ''
+            if (r.type === 'order')
+                return (doc.textValue ?? '')
+                    .split(',')
+                    .filter(Boolean)
+                    .map((id) => labelOf(r, id))
+                    .join(' → ')
+            if (r.type === 'choice' || r.type === 'quiz' || r.type === 'choice_revote') return labelOf(r, doc.optionId)
+            return doc.textValue ?? ''
+        }
+        const byClient = new Map<string, HistoryParticipant>()
+        for (const doc of all) {
+            const r = roundByKey.get(doc.roundKey)
+            if (!r || r.type === 'teach') continue
+            let p = byClient.get(doc.clientId)
+            if (!p) {
+                p = { clientId: doc.clientId, name: doc.name, answers: [] }
+                byClient.set(doc.clientId, p)
+            }
+            p.answers.push({ roundKey: doc.roundKey, prompt: r.prompt, value: valueOf(r, doc) })
+        }
+        let participants = [...byClient.values()].sort((a, b) => b.answers.length - a.answers.length)
+        if (anon) participants = participants.map((p, n) => ({ ...p, name: `${ANON_LABEL} ${n + 1}` }))
+
+        const participantCount = await WorkshopParticipant.countDocuments({ roomId: room._id })
+        return { rounds, participants, participantCount }
+    }
+
+    /**
+     * Gamification scoring — derived from WorkshopResponse rows (no score stored).
+     * Cached briefly (shared by the host poll + every student poll).
+     */
+    static async getScores(room: IWorkshopRoom): Promise<ScoreSummary> {
+        const key = `${room._id}:${room.currentRoundIndex}:${room.status}`
+        const now = Date.now()
+        const hit = scoresCache.get(key)
+        if (hit && hit.exp > now) return hit.value
+        const value = await this.computeScores(room)
+        scoresCache.set(key, { value, exp: now + SCORES_TTL_MS })
+        if (scoresCache.size > 200) for (const [k, v] of scoresCache) if (v.exp <= now) scoresCache.delete(k)
+        return value
+    }
+
+    private static async computeScores(room: IWorkshopRoom): Promise<ScoreSummary> {
+        await dbConnect()
+        const anon = room.settings?.anonymousNames ?? DEFAULT_ROOM_SETTINGS.anonymousNames
+        const teamMode = room.settings?.teamMode ?? DEFAULT_ROOM_SETTINGS.teamMode
+
+        const all = await WorkshopResponse.find({ roomId: room._id }).sort({ createdAt: 1 }).lean<IWorkshopResponse[]>()
+        const roundByKey = new Map(room.rounds.map((r) => [r.key, r]))
+        const pinnedIds = new Set<string>()
+        for (const r of room.rounds) for (const id of r.pinnedResponseIds ?? []) pinnedIds.add(id)
+
+        type Acc = {
+            clientId: string; name: string; points: number; answered: Set<string>
+            firstCount: number; mindChange: boolean; orderCorrect: boolean; predictRight: number; pinned: boolean; streak: number
+        }
+        const acc = new Map<string, Acc>()
+        const get = (clientId: string, name: string): Acc => {
+            let a = acc.get(clientId)
+            if (!a) {
+                a = { clientId, name, points: 0, answered: new Set(), firstCount: 0, mindChange: false, orderCorrect: false, predictRight: 0, pinned: false, streak: 0 }
+                acc.set(clientId, a)
+            }
+            a.name = name
+            return a
+        }
+
+        const openByRound = new Map<string, IWorkshopResponse[]>()
+        const revoteByRound = new Map<string, Map<string, string>>()
+        const predictByRound = new Map<string, IWorkshopResponse[]>()
+        for (const d of all) {
+            const r = roundByKey.get(d.roundKey)
+            if (!r || r.type === 'teach') continue
+            if (d.phase === 'open') {
+                const arr = openByRound.get(d.roundKey) ?? []
+                arr.push(d)
+                openByRound.set(d.roundKey, arr)
+            } else if (d.phase === 'revote' && d.optionId) {
+                const m = revoteByRound.get(d.roundKey) ?? new Map<string, string>()
+                m.set(d.clientId, d.optionId)
+                revoteByRound.set(d.roundKey, m)
+            } else if (d.phase === 'predict') {
+                const arr = predictByRound.get(d.roundKey) ?? []
+                arr.push(d)
+                predictByRound.set(d.roundKey, arr)
+            }
+        }
+
+        const winnerByRound = new Map<string, string>()
+        for (const r of room.rounds) {
+            if (r.type === 'teach') continue
+            const opens = openByRound.get(r.key) ?? [] // createdAt-asc (global sort preserved)
+            if (r.type === 'choice' || r.type === 'quiz' || r.type === 'choice_revote') {
+                const tally = new Map<string, number>()
+                for (const d of opens) if (d.optionId) tally.set(d.optionId, (tally.get(d.optionId) ?? 0) + 1)
+                let best: string | undefined
+                let bestN = -1
+                for (const [k, n] of tally) if (n > bestN) { best = k; bestN = n }
+                if (best) winnerByRound.set(r.key, best)
+            }
+            opens.forEach((d, i) => {
+                const a = get(d.clientId, d.name)
+                a.points += 10
+                a.answered.add(r.key)
+                if (i === 0) { a.points += 5; a.firstCount++ } else if (i === 1) a.points += 3
+                else if (i === 2) a.points += 2
+                let correct = false
+                if ((r.type === 'choice' || r.type === 'quiz') && r.correctOptionId) correct = d.optionId === r.correctOptionId
+                else if (r.type === 'order' && r.correctOrder?.length) correct = (d.textValue ?? '') === r.correctOrder.join(',')
+                if (correct) { a.points += 20; if (r.type === 'order') a.orderCorrect = true }
+                if (pinnedIds.has(String(d._id))) { a.points += 15; a.pinned = true }
+            })
+            if (r.type === 'choice_revote') {
+                const rev = revoteByRound.get(r.key)
+                if (rev) {
+                    const openOpt = new Map(opens.map((d) => [d.clientId, d.optionId]))
+                    for (const [cid, to] of rev) {
+                        const from = openOpt.get(cid)
+                        if (from && to && from !== to) { const a = acc.get(cid); if (a) { a.points += 5; a.mindChange = true } }
+                    }
+                }
+            }
+        }
+
+        for (const [roundKey, preds] of predictByRound) {
+            const winner = winnerByRound.get(roundKey)
+            if (!winner) continue
+            for (const d of preds) if (d.optionId === winner) { const a = get(d.clientId, d.name); a.points += 15; a.predictRight++ }
+        }
+
+        const interactive = room.rounds.filter((r) => r.type !== 'teach')
+        for (const a of acc.values()) {
+            let cur = 0
+            let best = 0
+            for (const r of interactive) { if (a.answered.has(r.key)) { cur++; best = Math.max(best, cur) } else cur = 0 }
+            a.streak = best
+        }
+
+        const teamOf = new Map<string, number | undefined>()
+        if (teamMode) {
+            const parts = await WorkshopParticipant.find({ roomId: room._id }, { clientId: 1, team: 1 }).lean<{ clientId: string; team?: number }[]>()
+            for (const p of parts) teamOf.set(p.clientId, p.team)
+        }
+
+        const ranked = [...acc.values()]
+            .map((a) => ({ clientId: a.clientId, rawName: a.name, team: teamOf.get(a.clientId), points: a.points, streak: a.streak, badges: badgesFor(a) }))
+            .sort((x, y) => y.points - x.points || y.streak - x.streak)
+        if (ranked[0] && ranked[0].points > 0) ranked[0].badges = [...ranked[0].badges, BADGE.champion]
+
+        const leaderboard: LeaderboardEntry[] = ranked.map((e, i) => ({
+            clientId: e.clientId,
+            name: anon ? `${ANON_LABEL} ${i + 1}` : e.rawName,
+            team: e.team,
+            points: e.points,
+            streak: e.streak,
+            badges: e.badges,
+            rank: i + 1,
+        }))
+
+        let teams: TeamScore[] = []
+        if (teamMode) {
+            const tmap = new Map<number, { points: number; members: number }>()
+            for (const e of ranked) {
+                if (e.team == null) continue
+                const t = tmap.get(e.team) ?? { points: 0, members: 0 }
+                t.points += e.points
+                t.members++
+                tmap.set(e.team, t)
+            }
+            teams = [...tmap.entries()]
+                .map(([team, v]) => ({ team, points: v.points, members: v.members }))
+                .sort((a, b) => b.points - a.points)
+        }
+
+        return { leaderboard, teams }
+    }
+
+    /** Per-participant shareable diploma data (real name even if anon, their dream, rank, badges). */
+    static async getDiplomaData(room: IWorkshopRoom, clientId: string): Promise<DiplomaData | null> {
+        await dbConnect()
+        const scores = await this.getScores(room)
+        const me = scores.leaderboard.find((e) => e.clientId === clientId)
+        const docs = await WorkshopResponse.find({ roomId: room._id, clientId, phase: 'open' })
+            .lean<IWorkshopResponse[]>()
+        const part = await WorkshopParticipant.findOne({ roomId: room._id, clientId }, { name: 1 }).lean<{ name: string }>()
+        const name = part?.name ?? docs.find((d) => d.name)?.name ?? 'Гость'
+        if (!me && !docs.length) return null // never participated
+        // dream = their first text round answer (key r1 preferred)
+        const r1 = room.rounds.find((r) => r.key === 'r1') ?? room.rounds.find((r) => r.type === 'text')
+        const r1doc = r1 ? docs.find((d) => d.roundKey === r1.key) : undefined
+        const dream = r1doc?.textValue ? extractDream(r1doc.textValue) : ''
+
+        // per-student stats over their own open responses (mirrors computeScores correctness logic)
+        const roundByKey = new Map(room.rounds.map((r) => [r.key, r]))
+        const interactiveKeys = new Set(room.rounds.filter((r) => r.type !== 'teach').map((r) => r.key))
+        const answeredKeys = new Set<string>()
+        let correctCount = 0
+        let scorable = 0 // rounds answered that HAVE a correct answer (accuracy denominator)
+        for (const d of docs) {
+            const r = roundByKey.get(d.roundKey)
+            if (!r || r.type === 'teach') continue
+            answeredKeys.add(d.roundKey)
+            const hasKey = ((r.type === 'choice' || r.type === 'quiz') && !!r.correctOptionId) || (r.type === 'order' && !!r.correctOrder?.length)
+            if (!hasKey) continue
+            scorable++
+            const correct =
+                (r.type === 'choice' || r.type === 'quiz') && r.correctOptionId
+                    ? d.optionId === r.correctOptionId
+                    : r.type === 'order' && r.correctOrder?.length
+                      ? (d.textValue ?? '') === r.correctOrder.join(',')
+                      : false
+            if (correct) correctCount++
+        }
+        const total = scores.leaderboard.length
+        const rank = me?.rank ?? total + 1
+        const roundsTotal = interactiveKeys.size
+        return {
+            name,
+            dream,
+            points: me?.points ?? 0,
+            rank,
+            total,
+            streak: me?.streak ?? 0,
+            badges: me?.badges ?? [],
+            photo: room.selectedPhoto?.src ?? null,
+            title: room.title,
+            dateISO: (room.createdAt instanceof Date ? room.createdAt : new Date()).toISOString(),
+            percentile: total > 0 ? Math.max(1, Math.round((1 - (rank - 1) / total) * 100)) : 100,
+            answeredCount: answeredKeys.size,
+            roundsTotal,
+            correctCount,
+            accuracyPct: scorable > 0 ? Math.round((correctCount / scorable) * 100) : 0,
+            code: room.code,
+            team: me?.team,
+        }
+    }
+
+    /** The current student's gamification slice (rank/points/streak/badges/team). */
+    static myGame(scores: ScoreSummary, clientId: string | null): MyGame | null {
+        if (!clientId) return null
+        const e = scores.leaderboard.find((x) => x.clientId === clientId)
+        if (!e) return null
+        return { points: e.points, streak: e.streak, rank: e.rank, badges: e.badges, team: e.team }
+    }
+
+    /** Speed-spotlight: first-N names of the current open round (createdAt order). */
+    static async getFastest(room: IWorkshopRoom, limit = 3): Promise<string[]> {
+        const idx = room.currentRoundIndex
+        const r = idx >= 0 ? room.rounds[idx] : null
+        if (!r || r.type === 'teach' || (r.phase !== 'open' && r.phase !== 'revote')) return []
+        await dbConnect()
+        const docs = await WorkshopResponse.find({ roomId: room._id, roundKey: r.key, phase: 'open' }, { name: 1 })
+            .sort({ createdAt: 1 })
+            .limit(limit)
+            .lean<{ name: string }[]>()
+        return docs.map((d) => d.name)
+    }
+
+    /** Progress 0..1 — interactive rounds finished (for the "video assembling" bar). */
+    static progressOf(room: IWorkshopRoom): number {
+        const interactive = room.rounds.filter((r) => r.type !== 'teach')
+        if (!interactive.length) return 0
+        if (room.status === 'ended') return 1
+        const idx = room.currentRoundIndex
+        let done = 0
+        for (const r of interactive) {
+            const ri = room.rounds.indexOf(r)
+            if (ri < idx || (ri === idx && r.phase === 'revealed')) done++
+        }
+        return Math.min(1, done / interactive.length)
+    }
+
+    /** Ephemeral emoji reaction — appended to the in-memory buffer (no DB). */
+    static pushReaction(roomId: mongoose.Types.ObjectId, emoji: string): void {
+        if (!REACTION_EMOJIS.has(emoji)) return
+        const key = String(roomId)
+        const now = Date.now()
+        const arr = (reactionsBuffer.get(key) ?? []).filter((x) => x.at > now - REACTION_TTL_MS)
+        arr.push({ emoji, at: now })
+        if (arr.length > 60) arr.splice(0, arr.length - 60)
+        reactionsBuffer.set(key, arr)
+    }
+
+    /** Reactions from the last ~5s (pruned on read). */
+    static getRecentReactions(roomId: mongoose.Types.ObjectId): Reaction[] {
+        const key = String(roomId)
+        const now = Date.now()
+        const arr = (reactionsBuffer.get(key) ?? []).filter((x) => x.at > now - REACTION_TTL_MS)
+        if (arr.length) reactionsBuffer.set(key, arr)
+        else reactionsBuffer.delete(key)
+        return arr
     }
 
     /** Drop cached tallies for a round (all phases) — call after a (re)answer. */
@@ -619,10 +1064,11 @@ export class WorkshopService {
         for (const k of resultsCache.keys()) if (k.startsWith(prefix)) resultsCache.delete(k)
     }
 
-    private static async computeResults(room: IWorkshopRoom): Promise<RoundResults | null> {
+    private static async computeResults(
+        room: IWorkshopRoom,
+        round: IWorkshopRound | null,
+    ): Promise<RoundResults | null> {
         await dbConnect()
-        const idx = room.currentRoundIndex
-        const round = idx >= 0 ? room.rounds[idx] : null
         if (!round) return null
 
         // Teach slides are display-only — no answers, no results tally.
@@ -721,6 +1167,39 @@ export class WorkshopService {
             }
         }
 
+        if (round.type === 'order') {
+            const ordered = await WorkshopResponse.find({ roomId: room._id, roundKey: round.key, phase: 'open' })
+                .lean<IWorkshopResponse[]>()
+            const correctOrder = round.correctOrder ?? []
+            const labelOf = (id: string) => round.options.find((o) => o.id === id)?.label ?? id
+            const tally = new Map<string, { order: string[]; count: number }>()
+            for (const d of ordered) {
+                const order = (d.textValue ?? '').split(',').filter(Boolean)
+                if (!order.length) continue
+                const k = order.join(',')
+                const hit = tally.get(k)
+                if (hit) hit.count++
+                else tally.set(k, { order, count: 1 })
+            }
+            const correctKey = correctOrder.join(',')
+            const sequences = [...tally.values()]
+                .sort((a, b) => b.count - a.count)
+                .map((s) => ({
+                    order: s.order,
+                    labels: s.order.map(labelOf),
+                    count: s.count,
+                    correct: s.order.join(',') === correctKey,
+                }))
+            return {
+                type: 'order',
+                sequences,
+                correctOrder,
+                correctLabels: correctOrder.map(labelOf),
+                correctCount: tally.get(correctKey)?.count ?? 0,
+                total: ordered.length,
+            }
+        }
+
         // number → histogram
         const docs = await WorkshopResponse.find({ roomId: room._id, roundKey: round.key, phase: 'open' })
             .lean<IWorkshopResponse[]>()
@@ -780,6 +1259,9 @@ export class WorkshopService {
         // (students see the "look at the screen" banner, projector shows the content).
         const openPhaseFor = (r: IWorkshopRound) => (r.type === 'teach' ? 'revealed' : 'open')
 
+        // Any host action except the wheel itself dismisses a prior wheel result.
+        if (action !== 'spinWheel' && doc.spotlightName) doc.spotlightName = undefined
+
         switch (action) {
             case 'openRound': {
                 // From lobby (or after reveal): open the NEXT closed round, or re-open current closed one
@@ -822,6 +1304,30 @@ export class WorkshopService {
                 doc.status = 'live'
                 break
             }
+            case 'prevRound': {
+                // Go back to re-work an earlier slide. Non-destructive: the previous
+                // round shows in 'revealed' state (its stored answers stay). Use
+                // reopenRound after to re-collect. From lobby/ended it just goes live.
+                const prevIdx = idx - 1
+                if (prevIdx < 0) return { ok: false, message: 'Already at the first round' }
+                doc.currentRoundIndex = prevIdx
+                doc.rounds[prevIdx].phase = 'revealed'
+                stamp(doc.rounds[prevIdx])
+                doc.status = 'live'
+                break
+            }
+            case 'reopenRound': {
+                // Re-open the current round for answering (e.g. someone mis-answered).
+                // Non-destructive: phase back to 'open' lets them re-submit/overwrite; others keep theirs.
+                if (!round) return { ok: false, message: 'No active round' }
+                if (round.type === 'teach') return { ok: false, message: 'Teach slide has no vote' }
+                round.phase = 'open'
+                round.allAnsweredAt = undefined
+                round.pinnedResponseIds = undefined
+                stamp(round)
+                doc.status = 'live'
+                break
+            }
             case 'endRoom': {
                 doc.status = 'ended'
                 break
@@ -834,14 +1340,21 @@ export class WorkshopService {
                 break
             }
             case 'pinResponse': {
+                // Toggle: tap to spotlight, tap again to remove (multi-select on the projector).
                 if (!round) return { ok: false, message: 'No active round' }
                 if (!responseId) return { ok: false, message: 'responseId required' }
-                round.pinnedResponseId = responseId
+                const ids = round.pinnedResponseIds ?? []
+                round.pinnedResponseIds = ids.includes(responseId)
+                    ? ids.filter((x) => x !== responseId)
+                    : [...ids, responseId]
                 break
             }
             case 'unpin': {
+                // With responseId → remove that one; without → clear all pins.
                 if (!round) return { ok: false, message: 'No active round' }
-                round.pinnedResponseId = undefined
+                round.pinnedResponseIds = responseId
+                    ? (round.pinnedResponseIds ?? []).filter((x) => x !== responseId)
+                    : undefined
                 break
             }
             case 'kickParticipant': {
@@ -850,6 +1363,19 @@ export class WorkshopService {
                 if (!targetClientId) return { ok: false, message: 'targetClientId required' }
                 await this.kickParticipant(doc._id, targetClientId)
                 return { ok: true } // no round mutation — already persisted
+            }
+            case 'spinWheel': {
+                // Pick a random real participant to put on the spot — only on question rounds.
+                if (!round || round.type === 'teach') return { ok: false, message: 'Not a question round' }
+                const parts = await WorkshopParticipant.find({ roomId: doc._id }, { name: 1, clientId: 1 }).lean<
+                    { name: string; clientId: string }[]
+                >()
+                const real = parts.filter((p) => !p.clientId.startsWith('fake-'))
+                const pool = real.length ? real : parts
+                if (!pool.length) return { ok: false, message: 'No participants' }
+                const pick = pool[Math.floor(Math.random() * pool.length)]
+                doc.spotlightName = pick?.name ?? pool[0]!.name
+                break
             }
             default:
                 return { ok: false, message: 'Unknown action' }
@@ -880,6 +1406,11 @@ export class WorkshopService {
                 set.textValue = FAKE_TEXTS[i % FAKE_TEXTS.length]
             } else if (round.type === 'number') {
                 set.numberValue = minNumber + ((i * 7919) % (maxNumber - minNumber + 1))
+            } else if (round.type === 'order') {
+                // a rotated permutation of the option ids per fake participant
+                const ids = round.options.map((o) => o.id)
+                const rot = i % Math.max(ids.length, 1)
+                set.textValue = [...ids.slice(rot), ...ids.slice(0, rot)].join(',')
             } else {
                 set.optionId = round.options[(i * 31) % Math.max(round.options.length, 1)]?.id
             }

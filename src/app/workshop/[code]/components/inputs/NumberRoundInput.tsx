@@ -25,9 +25,9 @@ export default function NumberRoundInput({ round, onSubmit }: NumberRoundInputPr
 
     return (
         <div className="space-y-6">
-            <div className="text-center">
-                <span className="text-6xl font-bold tabular-nums text-foreground">{value}</span>
-                <span className="text-muted-foreground text-xl ml-2">{STR.inputs.seconds}</span>
+            <div className="flex items-baseline justify-center gap-2 whitespace-nowrap">
+                <span className="text-5xl sm:text-6xl font-bold tabular-nums text-foreground">{value}</span>
+                <span className="text-muted-foreground text-xl">{STR.inputs.seconds}</span>
             </div>
             <input
                 type="range"

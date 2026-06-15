@@ -21,13 +21,17 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
     // Check if on blog post detail page (has slug after /blog/) OR tutorial page
     const isBlogPostPage = (pathname?.startsWith("/blog/") && pathname !== "/blog/") || pathname?.startsWith("/tutorials/")
 
-    // Don't show main layout elements on admin pages
+    // Don't show main layout elements on admin pages.
+    // Workshop = live realtime tool: NO analytics tracker (its blocking writes starve the
+    // Mongo pool and lag the poll/host-control round-trips). Admin keeps tracking.
     if (isAdminRoute || isWorkshopRoute) {
         return (
             <>
-                <Suspense fallback={null}>
-                    <VisitorTracker />
-                </Suspense>
+                {!isWorkshopRoute && (
+                    <Suspense fallback={null}>
+                        <VisitorTracker />
+                    </Suspense>
+                )}
                 {children}
             </>
         )

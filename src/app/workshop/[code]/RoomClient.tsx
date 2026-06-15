@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { ReconnectBanner } from '@/components/workshop/ReconnectBanner'
 import NameGate from './components/NameGate'
 import CurrentRound from './components/CurrentRound'
+import { DiplomaView } from './components/DiplomaView'
 import { STR } from '@/data/workshop-strings'
 
 const CLIENT_ID_KEY = 'w_client_id'
@@ -15,7 +16,7 @@ const NAME_KEY = 'w_name'
 
 function ScreenShell({ children }: { children: React.ReactNode }) {
     return (
-        <main className="min-h-dvh flex flex-col items-center justify-center px-5 py-8">
+        <main className="min-h-dvh flex flex-col items-center justify-center px-5 pt-8 pb-[max(2rem,env(safe-area-inset-bottom))]">
             <div className="w-full max-w-md">{children}</div>
         </main>
     )
@@ -131,7 +132,15 @@ export default function RoomClient({ code }: { code: string }) {
         return <ScreenShell><CenterNote title={STR.common.loading} /></ScreenShell>
     }
     if (state.status === 'ended') {
-        return <ScreenShell><CenterNote title={STR.common.ended} sub={STR.common.endedThanks} /></ScreenShell>
+        return (
+            <ScreenShell>
+                {state.settings?.gamification && name ? (
+                    <DiplomaView code={code} clientId={clientId} name={name} />
+                ) : (
+                    <CenterNote title={STR.common.ended} sub={STR.common.endedThanks} />
+                )}
+            </ScreenShell>
+        )
     }
     if (state.status === 'lobby' || !state.round) {
         return (
@@ -154,6 +163,8 @@ export default function RoomClient({ code }: { code: string }) {
                 myAnswer={state.myAnswer}
                 results={state.results}
                 serverNow={state.serverNow}
+                gamified={!!state.settings?.gamification}
+                me={state.me ?? null}
             />
         </ScreenShell>
     )

@@ -34,6 +34,11 @@ export async function GET(
         const round = WorkshopService.getHostStateRound(room)
         if (round) round.pinned = pinned
 
+        const gamified = room.settings?.gamification ?? true
+        const [scores, fastest] = gamified
+            ? await Promise.all([WorkshopService.getScores(room), WorkshopService.getFastest(room)])
+            : [null, []]
+
         const state: HostState = {
             code: room.code,
             title: room.title,
@@ -48,6 +53,16 @@ export async function GET(
             selectedPhoto: room.selectedPhoto ?? null,
             serverNow: new Date().toISOString(),
             settings: WorkshopService.pickClientSettings(room),
+            ...(gamified
+                ? {
+                      leaderboard: scores!.leaderboard,
+                      teams: scores!.teams,
+                      reactions: WorkshopService.getRecentReactions(room._id),
+                      progress: WorkshopService.progressOf(room),
+                      spotlightName: room.spotlightName ?? null,
+                      fastest,
+                  }
+                : {}),
         }
 
         // QR fetched once by the display client on mount (?qr=1), not on every 2s poll
