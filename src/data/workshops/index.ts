@@ -20,14 +20,14 @@ export function isWorkshopTemplateId(id: string): id is WorkshopTemplateId {
 
 // Shared across all workshops — the demo room's fake-participant roster.
 export const DEMO_NAMES = [
-  "Гио",
-  "Нино",
-  "Дато",
-  "Мариам",
-  "Лука",
-  "Анна",
-  "Саба",
-  "Текла",
+  "გიო",
+  "ნინო",
+  "დათო",
+  "მარიამ",
+  "ლუკა",
+  "ანა",
+  "საბა",
+  "თეკლა",
 ] as const;
 
 // Per-workshop demo answers (optional; if a workshop is absent here the demo room

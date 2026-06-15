@@ -983,7 +983,7 @@ export class WorkshopService {
         const docs = await WorkshopResponse.find({ roomId: room._id, clientId, phase: 'open' })
             .lean<IWorkshopResponse[]>()
         const part = await WorkshopParticipant.findOne({ roomId: room._id, clientId }, { name: 1 }).lean<{ name: string }>()
-        const name = part?.name ?? docs.find((d) => d.name)?.name ?? 'Гость'
+        const name = part?.name ?? docs.find((d) => d.name)?.name ?? 'სტუმარი'
         if (!me && !docs.length) return null // never participated
         // dream = their first text round answer (key r1 preferred)
         const r1 = room.rounds.find((r) => r.key === 'r1') ?? room.rounds.find((r) => r.type === 'text')

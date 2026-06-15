@@ -93,7 +93,7 @@ export function WheelOverlay({ name, onClose }: { name: string; onClose: () => v
                 <button
                     type="button"
                     onClick={onClose}
-                    aria-label="Закрыть"
+                    aria-label="დახურვა"
                     className="absolute right-4 top-4 grid size-10 place-items-center rounded-full text-muted-foreground transition hover:bg-accent hover:text-foreground"
                 >
                     <X size={22} />
@@ -154,7 +154,7 @@ export function PanelOverlay({ panel, onClose }: { panel: SpotlightPanel; onClos
                 <button
                     type="button"
                     onClick={onClose}
-                    aria-label="Закрыть"
+                    aria-label="დახურვა"
                     className="absolute right-4 top-4 grid size-10 place-items-center rounded-full text-muted-foreground transition hover:bg-accent hover:text-foreground"
                 >
                     <X size={22} />
