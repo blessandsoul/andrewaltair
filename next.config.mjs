@@ -125,6 +125,8 @@ const nextConfig = {
   experimental: {
     cpus: 1,
     workerThreads: false,
+    // Native module — don't let the bundler try to inline its .node binding (diploma rasterizer)
+    serverComponentsExternalPackages: ['@resvg/resvg-js'],
     // Tree-shake heavy icon barrels (react-icons/tb etc.) — smaller admin bundle, faster compile
     optimizePackageImports: ['react-icons', 'lucide-react', '@phosphor-icons/react', 'recharts'],
     // src/instrumentation.ts runs SEO data migrations once per container boot

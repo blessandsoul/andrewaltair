@@ -1,15 +1,15 @@
-import { readFileSync } from 'fs'
+import { readFileSync, existsSync } from 'fs'
 import { join } from 'path'
 import { NextRequest } from 'next/server'
-import sharp from 'sharp'
+import { Resvg } from '@resvg/resvg-js'
 import { WorkshopService } from '@/services/workshop.service'
 
-// nodejs runtime: read fonts + the chosen photo off disk and rasterize an SVG with sharp.
+// nodejs runtime: read fonts + the chosen photo off disk and rasterize an SVG with @resvg/resvg-js.
 // (next/og is NOT used: its nodejs build crashes on Windows — `path.join(import.meta.url, …)`
-//  mangles the bundled-font file:// URL → ERR_INVALID_URL at module load. sharp+SVG with the
-//  fonts EMBEDDED as base64 @font-face renders every glyph — Georgian, Cyrillic, Latin — and
-//  needs no system fonts, so it works the same on the Windows dev box and Linux prod.
-//  librsvg has NO flexbox and renders emoji as tofu → layout is manual x/y, badges are vector <path>.)
+//  mangles the bundled-font file:// URL → ERR_INVALID_URL at module load. resvg-js takes the fonts
+//  as raw BUFFERS via `font.fontBuffers` — sharp/librsvg silently IGNORES SVG @font-face, which
+//  rendered every Georgian glyph as tofu. resvg needs no system fonts → same on Windows dev + Linux prod.
+//  resvg has NO flexbox and renders emoji as tofu → layout is manual x/y, badges are vector <path>.)
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +19,18 @@ function publicB64(rel: string): string | null {
     } catch {
         return null
     }
+}
+
+/** Absolute paths of the fonts resvg should load (filtered to those present on disk). */
+function fontFilePaths(): string[] {
+    return [
+        'fonts/NotoSansGeorgian-Regular.ttf',
+        'fonts/NotoSansGeorgian-Bold.ttf',
+        'fonts/NotoSans-Regular.ttf',
+        'fonts/NotoSans-Bold.ttf',
+    ]
+        .map((rel) => join(process.cwd(), 'public', rel))
+        .filter((p) => existsSync(p))
 }
 
 const esc = (s: string): string =>
@@ -74,18 +86,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         const d = await WorkshopService.getDiplomaData(room, clientId)
         if (!d) return new Response('no participation', { status: 404 })
 
-        const ngR = publicB64('fonts/NotoSansGeorgian-Regular.ttf')
-        const ngB = publicB64('fonts/NotoSansGeorgian-Bold.ttf')
-        const nsR = publicB64('fonts/NotoSans-Regular.ttf')
-        const nsB = publicB64('fonts/NotoSans-Bold.ttf')
-        const fontFaces = [
-            ngR && `@font-face{font-family:'NG';font-weight:400;src:url(data:font/ttf;base64,${ngR});}`,
-            ngB && `@font-face{font-family:'NG';font-weight:700;src:url(data:font/ttf;base64,${ngB});}`,
-            nsR && `@font-face{font-family:'NS';font-weight:400;src:url(data:font/ttf;base64,${nsR});}`,
-            nsB && `@font-face{font-family:'NS';font-weight:700;src:url(data:font/ttf;base64,${nsB});}`,
-        ]
-            .filter(Boolean)
-            .join('')
+        // resvg loads the Georgian+Latin fonts from disk (SVG @font-face base64 is ignored by rasterizers → tofu)
+        const fontFiles = fontFilePaths()
 
         let photoData = ''
         if (d.photo) {
@@ -208,7 +210,6 @@ ${spokes}
 
         const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
 <defs>
-<style>${fontFaces}</style>
 <radialGradient id="g1" cx="22%" cy="12%" r="60%"><stop offset="0%" stop-color="#7c3aed" stop-opacity="0.40"/><stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/></radialGradient>
 <radialGradient id="g2" cx="86%" cy="90%" r="60%"><stop offset="0%" stop-color="#db2777" stop-opacity="0.34"/><stop offset="100%" stop-color="#db2777" stop-opacity="0"/></radialGradient>
 <linearGradient id="med" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#db2777"/></linearGradient>
@@ -228,12 +229,20 @@ ${hero}
 ${pill}
 ${nameBlock}
 ${dream}
+<line x1="${cx - 170}" y1="${Y.stats - 8}" x2="${cx + 170}" y2="${Y.stats - 8}" stroke="#ffffff" stroke-opacity="0.10" stroke-width="1.5"/>
 ${statsSvg}
 ${chipsSvg}
 ${footer}
 </svg>`
 
-        const png = await sharp(Buffer.from(svg)).png().toBuffer()
+        // map the SVG's short family names to the loaded fonts' REAL family names so resvg resolves them
+        const finalSvg = svg
+            .replace(/font-family="NS,NG"/g, 'font-family="Noto Sans, Noto Sans Georgian"')
+            .replace(/font-family="NG,NS"/g, 'font-family="Noto Sans Georgian, Noto Sans"')
+        const resvg = new Resvg(finalSvg, {
+            font: { fontFiles, defaultFontFamily: 'Noto Sans Georgian', loadSystemFonts: false },
+        })
+        const png = resvg.render().asPng()
         return new Response(new Uint8Array(png), {
             headers: { 'Content-Type': 'image/png', 'Cache-Control': 'no-store' },
         })

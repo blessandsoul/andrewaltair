@@ -1432,9 +1432,13 @@ export class WorkshopService {
                     { name: string; clientId: string }[]
                 >()
                 const real = parts.filter((p) => !p.clientId.startsWith('fake-'))
-                const pool = real.length ? real : parts
+                const want = Math.max(1, Math.min(count ?? 1, parts.length))
+                // prefer real participants; if too few for the requested count (host testing solo,
+                // small room) top up from demo/fake so the wheel can still draw `want` distinct names
+                const pool =
+                    real.length >= want ? real : [...real, ...parts.filter((p) => p.clientId.startsWith('fake-'))]
                 if (!pool.length) return { ok: false, message: 'No participants' }
-                const n = Math.max(1, Math.min(count ?? 1, pool.length))
+                const n = Math.max(1, Math.min(want, pool.length))
                 // draw n UNIQUE names without replacement
                 const avail = pool.map((p) => p.name)
                 const picks: string[] = []
@@ -1449,8 +1453,13 @@ export class WorkshopService {
             case 'showWinners': {
                 // Reveal the people with the MOST correct answers this session (even 1 correct shows).
                 const n = Math.max(1, Math.min(count ?? 5, 50))
-                const rows = await this.computeWinners(doc, n)
-                if (!rows.length) return { ok: false, message: 'No correct answers yet' }
+                let rows = await this.computeWinners(doc, n)
+                if (!rows.length) {
+                    // No scorable correct answers yet → fall back to the points leaderboard so the panel always opens.
+                    const s = await this.getScores(doc)
+                    rows = s.leaderboard.slice(0, n).map((e) => ({ name: e.name, sub: String(e.points) }))
+                }
+                if (!rows.length) return { ok: false, message: 'No participants' }
                 doc.spotlightPanel = { kind: 'winners', at: Date.now(), rows }
                 break
             }
@@ -1501,49 +1510,55 @@ export class WorkshopService {
             .map((e) => ({ name: e.name, sub: String(e.n) }))
     }
 
-    /** Top-N most common answers of one round for the «top answers» projector reveal. */
+    /** Top-N most common answers of one round (+ WHO gave each) for the «top answers» reveal. */
     private static async computeTopAnswers(
         doc: IWorkshopRoom,
         round: IWorkshopRound,
         n: number
-    ): Promise<{ name: string; sub: string }[]> {
+    ): Promise<{ name: string; sub: string; who: string[] }[]> {
         await dbConnect()
         const responses = await WorkshopResponse.find({ roomId: doc._id, roundKey: round.key, phase: 'open' }).lean<
             IWorkshopResponse[]
         >()
         const strip = (s: string) => s.replace(/^[A-Z0-9]\s*·\s*/, '').trim()
         const labelOf = (id: string) => round.options.find((o) => o.id === id)?.label ?? id
-        if (round.type === 'multi') {
-            // each response carries an array of picked ids → rank options by selection count
-            const tally = new Map<string, number>()
-            for (const d of responses) for (const id of d.optionIds ?? []) tally.set(id, (tally.get(id) ?? 0) + 1)
-            return [...tally.entries()]
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, n)
-                .map(([id, c]) => ({ name: strip(String(labelOf(id))), sub: `×${c}` }))
+        const WHO_CAP = 12
+        const pushWho = (arr: string[], name?: string) => {
+            if (name && arr.length < WHO_CAP) arr.push(name)
         }
-        if (round.type === 'choice' || round.type === 'quiz' || round.type === 'choice_revote') {
-            const tally = new Map<string, number>()
-            for (const d of responses) if (d.optionId) tally.set(d.optionId, (tally.get(d.optionId) ?? 0) + 1)
+
+        // option-keyed rounds (choice/quiz/multi/revote): tally selections per option + who picked it
+        if (round.type === 'multi' || round.type === 'choice' || round.type === 'quiz' || round.type === 'choice_revote') {
+            const tally = new Map<string, { c: number; who: string[] }>()
+            for (const d of responses) {
+                const ids = round.type === 'multi' ? d.optionIds ?? [] : d.optionId ? [d.optionId] : []
+                for (const id of ids) {
+                    const e = tally.get(id) ?? { c: 0, who: [] }
+                    e.c++
+                    pushWho(e.who, d.name)
+                    tally.set(id, e)
+                }
+            }
             return [...tally.entries()]
-                .sort((a, b) => b[1] - a[1])
+                .sort((a, b) => b[1].c - a[1].c)
                 .slice(0, n)
-                .map(([id, c]) => ({ name: strip(String(labelOf(id))), sub: `×${c}` }))
+                .map(([id, e]) => ({ name: strip(String(labelOf(id))), sub: `×${e.c}`, who: e.who }))
         }
-        // text / order — cluster by normalized text
-        const tally = new Map<string, { text: string; n: number }>()
+        // text / order — cluster by normalized text + who wrote it
+        const tally = new Map<string, { text: string; n: number; who: string[] }>()
         for (const d of responses) {
             const t = (d.textValue ?? '').trim()
             if (!t) continue
             const k = t.toLowerCase().replace(/\s+/g, ' ')
-            const e = tally.get(k) ?? { text: t, n: 0 }
+            const e = tally.get(k) ?? { text: t, n: 0, who: [] }
             e.n++
+            pushWho(e.who, d.name)
             tally.set(k, e)
         }
         return [...tally.values()]
             .sort((a, b) => b.n - a.n)
             .slice(0, n)
-            .map((e) => ({ name: e.text, sub: `×${e.n}` }))
+            .map((e) => ({ name: e.text, sub: `×${e.n}`, who: e.who }))
     }
 
     /** Demo/rehearsal: insert fake responses for the round's current phase. */

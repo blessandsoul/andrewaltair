@@ -353,7 +353,7 @@ export interface SpotlightPanel {
     kind: 'winners' | 'topAnswers';
     at: number; // nonce — re-fires the overlay on each trigger
     title?: string;
-    rows: { name: string; sub?: string }[];
+    rows: { name: string; sub?: string; who?: string[] }[]; // who = participant names behind this row
 }
 
 export interface HostState {

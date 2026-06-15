@@ -172,17 +172,32 @@ export function PanelOverlay({ panel, onClose }: { panel: SpotlightPanel; onClos
                             initial={{ opacity: 0, x: -16 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.05 * i }}
-                            className="flex items-center gap-3 rounded-2xl border border-border bg-card/70 px-4 py-2.5"
+                            className="flex flex-col gap-2 rounded-2xl border border-border bg-card/70 px-4 py-2.5"
                         >
-                            <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-[image:var(--ws-cta)] text-base font-extrabold text-primary-foreground">
-                                {i + 1}
-                            </span>
-                            {isWinners && <NameAvatar name={r.name} size={36} />}
-                            <span className="min-w-0 flex-1 truncate text-xl font-bold text-foreground">{r.name}</span>
-                            {r.sub && (
-                                <span className="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-lg font-extrabold tabular-nums text-primary">
-                                    {isWinners ? `✓ ${r.sub}` : r.sub}
+                            <div className="flex items-center gap-3">
+                                <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-[image:var(--ws-cta)] text-base font-extrabold text-primary-foreground">
+                                    {i + 1}
                                 </span>
+                                {isWinners && <NameAvatar name={r.name} size={36} />}
+                                <span className="min-w-0 flex-1 truncate text-xl font-bold text-foreground">{r.name}</span>
+                                {r.sub && (
+                                    <span className="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-lg font-extrabold tabular-nums text-primary">
+                                        {isWinners ? `✓ ${r.sub}` : r.sub}
+                                    </span>
+                                )}
+                            </div>
+                            {/* who answered this — name chips (top-answers rounds) */}
+                            {r.who && r.who.length > 0 && (
+                                <div className="flex flex-wrap gap-1.5 pl-11">
+                                    {r.who.map((nm, k) => (
+                                        <span
+                                            key={nm + k}
+                                            className="rounded-full bg-muted px-2.5 py-0.5 text-sm font-semibold text-muted-foreground"
+                                        >
+                                            {nm}
+                                        </span>
+                                    ))}
+                                </div>
                             )}
                         </motion.div>
                     ))}
