@@ -71,7 +71,7 @@ export default function RevoteResults({
                                 >
                                     {delta > 0 && <TrendingUp size={14} />}
                                     {delta < 0 && <TrendingDown size={14} />}
-                                    {delta > 0 ? `+${delta}%` : delta < 0 ? `${delta}%` : '—'}
+                                    {delta > 0 ? `+${delta}%` : delta < 0 ? `${delta}%` : '-'}
                                 </span>
                             )}
                         </div>

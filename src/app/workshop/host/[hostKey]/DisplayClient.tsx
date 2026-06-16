@@ -190,9 +190,14 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                         </motion.div>
                     </AnimatePresence>
                 </div>
-                {state.settings?.gamification && !inLobby && state.status !== 'ended' && (state.leaderboard?.length ?? 0) > 0 && (
-                    <Leaderboard entries={state.leaderboard!} teams={state.teams} />
-                )}
+                {state.settings?.gamification &&
+                    !inLobby &&
+                    state.status !== 'ended' &&
+                    (state.leaderboard?.length ?? 0) > 0 &&
+                    // Hand the answer wall the full width while everyone's intros are on screen.
+                    !(state.round?.type === 'text' && state.round?.phase === 'revealed') && (
+                        <Leaderboard entries={state.leaderboard!} teams={state.teams} />
+                    )}
             </div>
 
             {/* Gamification overlays — floating reactions + wheel-of-names spin */}

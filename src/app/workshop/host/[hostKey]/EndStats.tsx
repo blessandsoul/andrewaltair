@@ -58,7 +58,7 @@ export function EndStats({
 
     type Stat = { icon?: LucideIcon; image?: string; value: string; label: string }
     const stats: Stat[] = [
-        { icon: Users, value: data ? String(data.participantCount) : '—', label: STR.stats.participants },
+        { icon: Users, value: data ? String(data.participantCount) : '-', label: STR.stats.participants },
         ...(photo ? [{ image: photo.src, value: '', label: STR.stats.chosenPhoto }] : []),
         ...(avgSecond != null ? [{ icon: Clock, value: STR.stats.avgSecondUnit(avgSecond), label: STR.stats.avgSecond }] : []),
         ...(quizPct != null ? [{ icon: CheckCircle2, value: `${quizPct}%`, label: STR.stats.quizCorrect }] : []),

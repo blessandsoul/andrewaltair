@@ -82,7 +82,7 @@ function NamesView({ data }: { data: RoomHistory }) {
                         {p.answers.map((a, i) => (
                             <div key={i} className="text-sm leading-snug">
                                 <span className="text-muted-foreground">{a.prompt}: </span>
-                                <span className="font-medium text-card-foreground">{a.value || '—'}</span>
+                                <span className="font-medium text-card-foreground">{a.value || '-'}</span>
                             </div>
                         ))}
                     </div>
@@ -109,7 +109,7 @@ function RoundsView({ data }: { data: RoomHistory }) {
                             {answers.map((a, i) => (
                                 <div key={i} className="text-sm leading-snug">
                                     <span className="text-muted-foreground">{a.name}: </span>
-                                    <span className="text-card-foreground">{a.value || '—'}</span>
+                                    <span className="text-card-foreground">{a.value || '-'}</span>
                                 </div>
                             ))}
                             {!answers.length && <p className="text-sm text-muted-foreground">{STR.remote.historyEmpty}</p>}

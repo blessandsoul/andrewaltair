@@ -1270,7 +1270,7 @@ export class WorkshopService {
             const step = Math.ceil(range / 6)
             for (let lo = minNumber; lo <= maxNumber; lo += step) {
                 const hi = Math.min(lo + step - 1, maxNumber)
-                buckets.push({ label: `${lo}–${hi}`, count: values.filter((x) => x >= lo && x <= hi).length })
+                buckets.push({ label: `${lo}-${hi}`, count: values.filter((x) => x >= lo && x <= hi).length })
             }
         }
         const avg = values.length ? values.reduce((s, v) => s + v, 0) / values.length : 0
@@ -1504,7 +1504,7 @@ export class WorkshopService {
                 score = Math.max(0, hits - (picks.length - hits))
             }
             if (score <= 0) continue
-            const e = correct.get(d.clientId) ?? { name: d.name ?? '—', n: 0 }
+            const e = correct.get(d.clientId) ?? { name: d.name ?? '-', n: 0 }
             e.n += score
             if (d.name) e.name = d.name
             correct.set(d.clientId, e)

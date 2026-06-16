@@ -152,7 +152,7 @@ export default function ResultsBoard({ round, results, onPin, readonly = false }
     }
 
     return (
-        <div className="mx-auto flex h-full max-w-5xl flex-col gap-5">
+        <div className={cn('mx-auto flex h-full w-full flex-col gap-5', round.type === 'text' ? 'max-w-[1240px]' : 'max-w-5xl')}>
             <div className="shrink-0 space-y-2 text-center">
                 <PhaseBadge phase={round.phase} />
                 {/* projected typography: scales with viewport so the back of the room reads it */}
