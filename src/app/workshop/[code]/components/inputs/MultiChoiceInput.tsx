@@ -2,15 +2,16 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Check } from 'lucide-react'
+import { Check, Send } from 'lucide-react'
 import type { StudentRound } from '@/types/workshop.types'
 import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
 import { STR } from '@/data/workshop-strings'
 import { cn } from '@/lib/utils'
 
 interface MultiChoiceInputProps {
     round: StudentRound
-    onSubmit: (payload: { optionIds: string[] }) => Promise<boolean>
+    onSubmit: (payload: { optionIds: string[]; textValue?: string }) => Promise<boolean>
 }
 
 /** Strip a leading «A · » style prefix — the checkbox already carries the state. */
@@ -21,6 +22,7 @@ function cleanLabel(label: string): string {
 /** Checkbox round — tick several options (several may be correct), then confirm. */
 export default function MultiChoiceInput({ round, onSubmit }: MultiChoiceInputProps) {
     const [picked, setPicked] = useState<Set<string>>(new Set())
+    const [custom, setCustom] = useState('')
     const [busy, setBusy] = useState(false)
 
     const toggle = (id: string) => {
@@ -34,9 +36,11 @@ export default function MultiChoiceInput({ round, onSubmit }: MultiChoiceInputPr
     }
 
     const send = async () => {
-        if (busy || picked.size === 0) return
+        const write = custom.trim()
+        if (busy || (picked.size === 0 && !write)) return
         setBusy(true)
-        await onSubmit({ optionIds: [...picked] })
+        const ok = await onSubmit({ optionIds: [...picked], ...(write ? { textValue: write } : {}) })
+        if (ok) setCustom('')
         setBusy(false)
     }
 
@@ -68,14 +72,33 @@ export default function MultiChoiceInput({ round, onSubmit }: MultiChoiceInputPr
                     </motion.button>
                 )
             })}
+            <div className="rounded-2xl border border-dashed border-border bg-card p-3">
+                <p className="mb-1.5 text-xs font-semibold text-muted-foreground">{STR.inputs.orWriteOwn}</p>
+                <Textarea
+                    value={custom}
+                    onChange={(e) => setCustom(e.target.value)}
+                    placeholder={STR.inputs.ownPlaceholder}
+                    maxLength={500}
+                    rows={2}
+                    disabled={busy}
+                    className="min-h-0 resize-none border-0 bg-transparent px-0 py-0 text-[15px] text-card-foreground shadow-none focus-visible:ring-0"
+                />
+            </div>
             <Button
                 onClick={send}
-                disabled={busy || picked.size === 0}
+                disabled={busy || (picked.size === 0 && !custom.trim())}
                 variant="gradient"
                 size="lg"
                 className="h-auto w-full py-3.5 text-base font-bold disabled:opacity-50"
             >
-                {busy ? STR.inputs.sending : `${STR.inputs.send}${picked.size > 0 ? ` · ${picked.size}` : ''}`}
+                {busy ? (
+                    STR.inputs.sending
+                ) : (
+                    <>
+                        <Send size={16} /> {STR.inputs.send}
+                        {picked.size > 0 ? ` · ${picked.size}` : ''}
+                    </>
+                )}
             </Button>
         </div>
     )

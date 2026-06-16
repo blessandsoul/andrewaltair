@@ -110,8 +110,10 @@ export function WheelOverlay({ name, onClose }: { name: string; onClose: () => v
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.9, type: 'spring', stiffness: 220, damping: 14 }}
                     className={cn(
-                        'max-w-[72vw]',
-                        multi ? 'grid grid-cols-2 gap-x-8 gap-y-3 md:grid-cols-3' : 'flex items-center gap-4',
+                        'mx-auto max-w-[72vw]',
+                        multi
+                            ? 'grid grid-cols-2 justify-items-center gap-x-8 gap-y-3 md:grid-cols-3'
+                            : 'flex items-center justify-center gap-4',
                     )}
                 >
                     {multi ? (
@@ -193,6 +195,40 @@ export function PanelOverlay({ panel, onClose }: { panel: SpotlightPanel; onClos
                         )
                     })}
                 </div>
+            </motion.div>
+        </motion.div>
+    )
+}
+
+/** Round 28 — the picked question, blown up full-screen on the projector. */
+export function QuestionOverlay({ n, text, onClose }: { n: number; text: string; onClose: () => void }) {
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/70 p-8 backdrop-blur-sm"
+        >
+            <motion.div
+                initial={{ scale: 0.7, y: 24 }}
+                animate={{ scale: 1, y: 0 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 18 }}
+                onClick={(e) => e.stopPropagation()}
+                className="relative flex w-full max-w-4xl flex-col items-center gap-6 rounded-3xl border-2 border-primary/40 bg-card px-14 py-16 shadow-2xl"
+            >
+                <button
+                    type="button"
+                    onClick={onClose}
+                    aria-label="დახურვა"
+                    className="absolute right-4 top-4 grid size-10 place-items-center rounded-full text-muted-foreground transition hover:bg-accent hover:text-foreground"
+                >
+                    <X size={22} />
+                </button>
+                <span className="grid size-16 shrink-0 place-items-center rounded-2xl bg-[image:var(--ws-cta)] text-3xl font-extrabold text-primary-foreground shadow-lg">
+                    {n}
+                </span>
+                <p className="text-gradient text-center text-[clamp(28px,5vh,56px)] font-bold leading-tight tracking-tight">{text}</p>
             </motion.div>
         </motion.div>
     )

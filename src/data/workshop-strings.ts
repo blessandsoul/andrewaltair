@@ -30,6 +30,8 @@ export const STR = {
         avgSecondUnit: (v: number) => `${v} წმ`,
         quizCorrect: 'სწორი პასუხი',
         dreams: 'თქვენი ვიდეო-ოცნებები',
+        created: (n: number) => `დღეს ${n} ვიდეო-იდეა დაიბადა`,
+        leaderboard: 'ლიდერბორდი',
     },
 
     student: {
@@ -37,6 +39,8 @@ export const STR = {
         codeLabel: (code: string) => `კოდი: ${code}`,
         lobbySub: (n: number) => `მალე დავიწყებთ · შემოვიდა ${n}`,
         lobbyHello: (name: string) => `გამარჯობა, ${name}! დაელოდეთ წამყვანს.`,
+        questionPick: 'შენი ჯერია, აირჩიე კითხვა',
+        questionWatch: 'უყურე ეკრანს',
     },
 
     // Online mode: a one-time "tap to enable sound" gate on the student's phone.
@@ -112,6 +116,8 @@ export const STR = {
         seconds: 'წამი',
         orderHint: 'გადაათრიეთ კადრები სწორი თანმიმდევრობით',
         multiHint: 'მონიშნეთ ყველა სწორი, შეიძლება რამდენიმე',
+        orWriteOwn: 'ან დაწერე შენი ვარიანტი',
+        ownPlaceholder: 'შენი ვარიანტი...',
     },
 
     display: {
@@ -127,7 +133,7 @@ export const STR = {
         enableSoundHint: 'პასუხების ხმოვანი სიგნალისთვის, დააჭირეთ ერთხელ სანამ დაიწყებთ',
         enableSoundSkip: 'ხმის გარეშე გაგრძელება',
         wheelPicked: 'არჩეულია',
-        winnersTitle: '🏆 გამარჯვებულები',
+        winnersTitle: '🏆 ლიდერბორდი',
         topAnswersTitle: '🔥 ტოპ პასუხები',
         fastest: 'ყველაზე სწრაფი',
         leaderboard: 'ლიდერბორდი',
@@ -148,6 +154,7 @@ export const STR = {
         noAnswersWaiting: 'პასუხები ჯერ არ არის, ველოდებით...',
         pinTitle: 'ეკრანზე დამაგრება',
         unpin: 'დამაგრების მოხსნა',
+        writeIns: 'თქვენი ვარიანტები',
         totalVotes: (n: number) => `სულ ხმა: ${n}`,
         shiftMoved: (n: number) => `დისკუსიამ ${n} მონაწილეს აზრი შეაცვლევინა`,
         shiftSub: 'Peer Instruction მუშაობს, აზრის შეცვლა სწავლის ნიშანია',
@@ -208,6 +215,8 @@ export const STR = {
         scriptTitle: 'სცენარი',
         scriptCollapse: 'ჩაკეცვა',
         scriptExpand: 'გაშლა',
+        questionsTitle: 'კითხვები, დააჭირე ეკრანზე გამოსატანად',
+        questionDone: 'ნაპასუხები',
         script: {
             say: 'სათქმელი',
             example: 'მაგალითი',

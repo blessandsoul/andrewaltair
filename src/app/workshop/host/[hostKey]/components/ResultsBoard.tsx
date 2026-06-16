@@ -7,6 +7,7 @@ import type { StudentRound, RoundResults, ChoiceCount, RoundPhase } from '@/type
 import TextWall from './results/TextWall'
 import BarResults from './results/BarResults'
 import MultiResults from './results/MultiResults'
+import WriteInList from './results/WriteInList'
 import FitScale from './FitScale'
 import RevoteResults from './results/RevoteResults'
 import Histogram from './results/Histogram'
@@ -177,18 +178,20 @@ export default function ResultsBoard({ round, results, onPin, readonly = false }
                             revealed={round.phase === 'revealed'}
                             correctOptionId={round.phase === 'revealed' ? results.correctOptionId : undefined}
                         />
+                        <WriteInList items={results.writeIns} />
                     </div>
                 </FitScale>
             )}
             {results?.type === 'multi' && (
                 <FitScale>
-                    <div className="w-full">
+                    <div className="w-full space-y-6">
                         <MultiResults
                             counts={results.counts}
                             total={results.total}
                             revealed={round.phase === 'revealed'}
                             correctOptionIds={round.phase === 'revealed' ? results.correctOptionIds : undefined}
                         />
+                        <WriteInList items={results.writeIns} />
                     </div>
                 </FitScale>
             )}

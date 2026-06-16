@@ -197,6 +197,11 @@ export interface StudentState {
     spotlightName?: string | null; // wheel-of-names result
     spotlightAt?: number | null; // nonce — re-fires the wheel even on a repeat pick
     myPrediction?: string | null; // 🎯 ფსონი — the option this student bet on (for the reveal outcome)
+    // round 28 Q&A (t_close): the question list + state, plus whether THIS phone may self-pick
+    questions?: WorkshopQuestion[];
+    usedQuestions?: number[];
+    activeQuestion?: ActiveQuestion | null;
+    canPickQuestion?: boolean; // this student was spun up and may tap a question
 }
 
 export interface TextResultItem {
@@ -241,10 +246,16 @@ export interface OrderSequence {
     correct: boolean;
 }
 
+// a student's own written-in answer on a choice/multi round (not one of the preset options)
+export interface WriteIn {
+    name: string;
+    text: string;
+}
+
 export type RoundResults =
     | { type: 'text'; items: TextResultItem[] }
-    | { type: 'choice'; counts: ChoiceCount[]; total: number; correctOptionId?: string }
-    | { type: 'multi'; counts: ChoiceCount[]; total: number; correctOptionIds?: string[] }
+    | { type: 'choice'; counts: ChoiceCount[]; total: number; correctOptionId?: string; writeIns?: WriteIn[] }
+    | { type: 'multi'; counts: ChoiceCount[]; total: number; correctOptionIds?: string[]; writeIns?: WriteIn[] }
     | {
           type: 'choice_revote';
           options: RevoteOptionResult[];
@@ -357,6 +368,17 @@ export interface SpotlightPanel {
     rows: { name: string; sub?: string; who?: string[] }[]; // who = participant names behind this row
 }
 
+// round 28 (t_close) Q&A fortune round
+export interface WorkshopQuestion {
+    n: number;
+    text: string;
+    toRoom?: boolean; // marked «toss to the room» (the host hands it to a student)
+}
+export interface ActiveQuestion {
+    n: number;
+    at: number; // nonce — re-pops the overlay on each pick
+}
+
 export interface HostState {
     code: string;
     title: string;
@@ -382,6 +404,10 @@ export interface HostState {
     spotlightAt?: number | null;
     spotlightPanel?: SpotlightPanel | null; // winners / top-answers projector reveal
     fastest?: string[]; // speed-spotlight: first-N answerer names of the current open round
+    // round 28 Q&A (t_close)
+    questions?: WorkshopQuestion[]; // the deck's question list (host pult)
+    usedQuestions?: number[]; // already-asked question numbers (greyed, not re-pickable)
+    activeQuestion?: ActiveQuestion | null; // the question popped on the projector
 }
 
 export const HOST_ACTIONS = {
@@ -399,5 +425,7 @@ export const HOST_ACTIONS = {
     SPIN_WHEEL: 'spinWheel',
     SHOW_WINNERS: 'showWinners',
     SHOW_TOP_ANSWERS: 'showTopAnswers',
+    PICK_QUESTION: 'pickQuestion', // round 28: pop question N onto the projector
+    CLOSE_QUESTION: 'closeQuestion', // round 28: mark question N answered (grey it, clear the popup)
 } as const;
 export type HostAction = (typeof HOST_ACTIONS)[keyof typeof HOST_ACTIONS];

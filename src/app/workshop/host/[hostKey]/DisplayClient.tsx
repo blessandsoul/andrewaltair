@@ -12,7 +12,7 @@ import { DisplayHeader } from './DisplayHeader'
 import { LobbyView } from './LobbyView'
 import { EnableSoundOverlay } from './EnableSoundOverlay'
 import { EndStats } from './EndStats'
-import { PanelOverlay, ReactionsOverlay, WheelOverlay } from './GameOverlays'
+import { PanelOverlay, QuestionOverlay, ReactionsOverlay, WheelOverlay } from './GameOverlays'
 import { Leaderboard } from './Leaderboard'
 import { useDisplayAudio } from './useDisplayAudio'
 import { STR } from '@/data/workshop-strings'
@@ -28,6 +28,7 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
     const prevPhaseRef = useRef<string | null>(null)
     const [wheelDismissed, setWheelDismissed] = useState(0) // hide the wheel until the next spin (newer spotlightAt)
     const [panelDismissed, setPanelDismissed] = useState(0) // hide the winners/top-answers panel until the next trigger
+    const [questionDismissed, setQuestionDismissed] = useState(0) // round 28: hide the popped question until the next pick
 
     // QR fetched once on mount
     useEffect(() => {
@@ -183,6 +184,8 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                                     heading={state.round.prompt}
                                     content={state.round.content}
                                     heroPhoto={state.selectedPhoto?.src}
+                                    usedQuestions={state.usedQuestions}
+                                    activeQuestionN={state.activeQuestion?.n}
                                 />
                             ) : (
                                 <ResultsBoard round={state.round} results={state.results} onPin={() => {}} readonly />
@@ -219,6 +222,18 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                         key={state.spotlightPanel.at}
                         panel={state.spotlightPanel}
                         onClose={() => setPanelDismissed(state.spotlightPanel?.at ?? Date.now())}
+                    />
+                )}
+            </AnimatePresence>
+
+            {/* Round 28 — the picked question blown up on the projector */}
+            <AnimatePresence>
+                {state.activeQuestion && state.activeQuestion.at > questionDismissed && (
+                    <QuestionOverlay
+                        key={state.activeQuestion.at}
+                        n={state.activeQuestion.n}
+                        text={state.questions?.find((q) => q.n === state.activeQuestion?.n)?.text ?? ''}
+                        onClose={() => setQuestionDismissed(state.activeQuestion?.at ?? Date.now())}
                     />
                 )}
             </AnimatePresence>

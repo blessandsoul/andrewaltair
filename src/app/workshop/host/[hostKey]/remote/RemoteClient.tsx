@@ -18,6 +18,7 @@ import PhaseStepper from '@/components/workshop/PhaseStepper'
 import { ReconnectBanner } from '@/components/workshop/ReconnectBanner'
 import { Button } from '@/components/ui/button'
 import HostControls, { primaryActionFor } from '../components/HostControls'
+import QuestionPanel from './QuestionPanel'
 import { ScriptBody } from './ScriptBody'
 import { Roster } from './Roster'
 import { PinList } from './PinList'
@@ -214,6 +215,18 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                         gateRatio={state.settings?.gateRatio}
                         onAction={act}
                     />
+
+                    {/* Round 28 — clickable Q&A list (host pops a question; «answered» greys it) */}
+                    {state.round?.key === 't_close' && (
+                        <QuestionPanel
+                            questions={state.questions ?? []}
+                            usedQuestions={state.usedQuestions ?? []}
+                            activeQuestion={state.activeQuestion ?? null}
+                            busy={actionBusy}
+                            onPick={(n) => act('pickQuestion', undefined, undefined, n)}
+                            onClose={(n) => act('closeQuestion', undefined, undefined, n)}
+                        />
+                    )}
 
                     {/* Roster + kick (private to the host; gated by allowKick) */}
                     {state.settings?.allowKick && state.roster.length > 0 && (

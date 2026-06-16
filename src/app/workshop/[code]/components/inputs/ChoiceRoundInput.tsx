@@ -2,14 +2,17 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { Send } from 'lucide-react'
 import { PlatformIcon, isPlatform } from '@/components/workshop/PlatformIcon'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
 import type { StudentRound } from '@/types/workshop.types'
 import { STR } from '@/data/workshop-strings'
 import { cn } from '@/lib/utils'
 
 interface ChoiceRoundInputProps {
     round: StudentRound
-    onSubmit: (payload: { optionId: string }) => Promise<boolean>
+    onSubmit: (payload: { optionId?: string; textValue?: string }) => Promise<boolean>
 }
 
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'] as const
@@ -21,11 +24,23 @@ function cleanLabel(label: string): string {
 
 export default function ChoiceRoundInput({ round, onSubmit }: ChoiceRoundInputProps) {
     const [busy, setBusy] = useState<string | null>(null)
+    const [custom, setCustom] = useState('')
+    // opinion single-select rounds let students add their own answer (quiz/revote stay strict)
+    const allowWrite = round.type === 'choice'
 
     const pick = async (optionId: string) => {
         if (busy) return
         setBusy(optionId)
         await onSubmit({ optionId })
+        setBusy(null)
+    }
+
+    const sendCustom = async () => {
+        const write = custom.trim()
+        if (busy || !write) return
+        setBusy('__custom__')
+        const ok = await onSubmit({ textValue: write })
+        if (ok) setCustom('')
         setBusy(null)
     }
 
@@ -59,6 +74,32 @@ export default function ChoiceRoundInput({ round, onSubmit }: ChoiceRoundInputPr
                     </span>
                 </motion.button>
             ))}
+            {allowWrite && (
+                <div className="rounded-2xl border border-dashed border-border bg-card p-3">
+                    <p className="mb-1.5 text-xs font-semibold text-muted-foreground">{STR.inputs.orWriteOwn}</p>
+                    <div className="flex items-end gap-2">
+                        <Textarea
+                            value={custom}
+                            onChange={(e) => setCustom(e.target.value)}
+                            placeholder={STR.inputs.ownPlaceholder}
+                            maxLength={500}
+                            rows={2}
+                            disabled={busy !== null}
+                            className="min-h-0 flex-1 resize-none border-0 bg-transparent px-0 py-0 text-[15px] text-card-foreground shadow-none focus-visible:ring-0"
+                        />
+                        <Button
+                            onClick={sendCustom}
+                            disabled={busy !== null || !custom.trim()}
+                            variant="gradient"
+                            size="icon"
+                            className="shrink-0 rounded-xl"
+                            aria-label={STR.inputs.send}
+                        >
+                            <Send size={16} />
+                        </Button>
+                    </div>
+                </div>
+            )}
             {round.phase === 'revote' && (
                 <p className="text-center text-muted-foreground text-sm pt-1">
                     {STR.inputs.revoteHint}

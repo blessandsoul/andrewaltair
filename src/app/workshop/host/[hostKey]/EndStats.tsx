@@ -2,30 +2,18 @@
 
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Users, Clock, CheckCircle2 } from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
 import type { RoomHistory, LeaderboardEntry } from '@/types/workshop.types'
 import NameAvatar from '@/components/workshop/NameAvatar'
 import { BadgeIcon, MedalIcon } from '@/components/workshop/badgeIcons'
 import { springPop } from '@/components/workshop/motion'
 import { STR } from '@/data/workshop-strings'
 
-/** Pull the «видео-мечта» line out of an r1 multi-field answer (falls back to last line). */
-function dreamOf(text: string): string {
-    const lines = text.split('\n').filter(Boolean)
-    const dreamLine = lines.find((l) => /меч|ოცნ/i.test(l)) ?? lines[lines.length - 1] ?? text
-    const colon = dreamLine.indexOf(':')
-    return (colon >= 0 ? dreamLine.slice(colon + 1) : dreamLine).trim()
-}
-
 /**
- * Projector end screen — a summary built from the full answer history: participants,
- * the chosen photo, the average swipe-second (proves the 1-3-7 rule), quiz accuracy,
- * and a wall of everyone's video-dreams (the callback payoff).
+ * Projector end screen — the leaderboard, and only the leaderboard: a top-3 podium plus a
+ * ranked list of everyone else, under one warm headline. No shame-y stat tiles, no dream wall.
  */
 export function EndStats({
     hostKey,
-    photo,
     leaderboard,
 }: {
     hostKey: string
@@ -33,7 +21,9 @@ export function EndStats({
     leaderboard?: LeaderboardEntry[]
 }) {
     const [data, setData] = useState<RoomHistory | null>(null)
-    const podium = (leaderboard ?? []).slice(0, 3)
+    const board = leaderboard ?? []
+    const podium = board.slice(0, 3)
+    const rest = board.slice(3)
 
     useEffect(() => {
         let alive = true
@@ -46,28 +36,11 @@ export function EndStats({
         }
     }, [hostKey])
 
-    const swipe = data?.rounds.find((r) => r.results?.type === 'number')?.results
-    const avgSecond = swipe?.type === 'number' ? swipe.avg : null
-    const quiz = data?.rounds.find((r) => r.type === 'quiz')?.results
-    const quizPct =
-        quiz?.type === 'choice' && quiz.total
-            ? Math.round(((quiz.counts.find((c) => c.optionId === quiz.correctOptionId)?.count ?? 0) / quiz.total) * 100)
-            : null
-    const dreamsRound = data?.rounds.find((r) => r.key === 'r1') ?? data?.rounds.find((r) => r.type === 'text')
-    const dreams = dreamsRound?.results?.type === 'text' ? dreamsRound.results.items : []
-
-    type Stat = { icon?: LucideIcon; image?: string; value: string; label: string }
-    const stats: Stat[] = [
-        { icon: Users, value: data ? String(data.participantCount) : '-', label: STR.stats.participants },
-        ...(photo ? [{ image: photo.src, value: '', label: STR.stats.chosenPhoto }] : []),
-        ...(avgSecond != null ? [{ icon: Clock, value: STR.stats.avgSecondUnit(avgSecond), label: STR.stats.avgSecond }] : []),
-        ...(quizPct != null ? [{ icon: CheckCircle2, value: `${quizPct}%`, label: STR.stats.quizCorrect }] : []),
-    ]
+    // warm headline: how many video-ideas the room created today (everyone who showed up has one)
+    const created = data?.participantCount ?? board.length
 
     return (
-        // justify-start (not center): on a short projector a full podium + dreams must pin to the top
-        // and scroll, never overflow past the unreachable top edge of the hidden-scrollbar frame.
-        <div className="flex min-h-full flex-col items-center justify-start gap-8 px-8 py-6">
+        <div className="flex min-h-full flex-col items-center justify-start gap-7 px-8 py-6">
             <motion.h2
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -76,34 +49,16 @@ export function EndStats({
                 {STR.stats.title}
             </motion.h2>
 
-            <div className="flex flex-wrap items-stretch justify-center gap-5">
-                {stats.map((s, i) => (
-                    <motion.div
-                        key={i}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ ...springPop, delay: 0.06 * i }}
-                        className="glass hover-lift flex w-[200px] flex-col items-center gap-3 rounded-3xl border border-border bg-card p-6 text-center shadow-sm"
-                    >
-                        {s.image ? (
-                            <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-foreground">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={s.image} alt="" className="absolute inset-0 size-full object-cover" />
-                            </div>
-                        ) : (
-                            <>
-                                {s.icon && (
-                                    <span className="glow-primary flex size-14 items-center justify-center rounded-2xl bg-[image:var(--ws-cta)] text-primary-foreground shadow-lg">
-                                        <s.icon size={26} />
-                                    </span>
-                                )}
-                                <span className="text-gradient text-5xl font-extrabold tabular-nums leading-none">{s.value}</span>
-                            </>
-                        )}
-                        <span className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{s.label}</span>
-                    </motion.div>
-                ))}
-            </div>
+            {created > 0 && (
+                <motion.p
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="text-center text-[clamp(18px,2.6vh,30px)] font-semibold text-card-foreground"
+                >
+                    {STR.stats.created(created)}
+                </motion.p>
+            )}
 
             {podium.length > 0 && (
                 <div className="flex items-end justify-center gap-4">
@@ -130,26 +85,23 @@ export function EndStats({
                 </div>
             )}
 
-            {dreams.length > 0 && (
-                <div className="flex w-full max-w-[1100px] flex-col items-center gap-3">
-                    <p className="text-sm font-bold uppercase tracking-widest text-primary">{STR.stats.dreams}</p>
-                    <div className="flex flex-wrap justify-center gap-2.5">
-                        {dreams.slice(0, 12).map((d) => (
-                            <motion.span
-                                key={d.id}
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="rounded-full border border-border bg-card px-4 py-2 text-[clamp(14px,1.8vh,20px)] text-card-foreground shadow-sm"
-                            >
-                                {dreamOf(d.textValue)}
-                            </motion.span>
-                        ))}
-                        {dreams.length > 12 && (
-                            <span className="rounded-full border border-border bg-muted px-4 py-2 text-[clamp(14px,1.8vh,20px)] font-bold text-muted-foreground">
-                                +{dreams.length - 12}
-                            </span>
-                        )}
-                    </div>
+            {rest.length > 0 && (
+                <div className="flex w-full max-w-160 flex-col gap-2">
+                    {rest.map((e, i) => (
+                        <motion.div
+                            key={e.clientId}
+                            initial={{ opacity: 0, x: -12 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.04 * i }}
+                            className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-2 shadow-sm"
+                        >
+                            <span className="w-7 shrink-0 text-center text-base font-bold tabular-nums text-muted-foreground">{e.rank}</span>
+                            <NameAvatar name={e.name} size={30} />
+                            <span className="min-w-0 flex-1 truncate text-base font-semibold text-foreground">{e.name}</span>
+                            <span className="flex gap-1">{e.badges.slice(0, 4).map((b) => <BadgeIcon key={b.id} id={b.id} size={16} />)}</span>
+                            <span className="text-gradient w-12 shrink-0 text-right text-lg font-extrabold tabular-nums">{e.points}</span>
+                        </motion.div>
+                    ))}
                 </div>
             )}
         </div>

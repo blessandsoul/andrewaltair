@@ -16,10 +16,14 @@ export default function TeachSlide({
     heading,
     content,
     heroPhoto,
+    usedQuestions,
+    activeQuestionN,
 }: {
     heading: string
     content?: TeachContent
     heroPhoto?: string
+    usedQuestions?: number[]
+    activeQuestionN?: number
 }) {
     const blocks = content?.blocks ?? []
     return (
@@ -44,7 +48,12 @@ export default function TeachSlide({
                             transition={{ duration: 0.3, delay: 0.06 * (i + 1) }}
                             className="flex w-full justify-center"
                         >
-                            <BlockView block={block} heroPhoto={heroPhoto} />
+                            <BlockView
+                                block={block}
+                                heroPhoto={heroPhoto}
+                                usedQuestions={usedQuestions}
+                                activeQuestionN={activeQuestionN}
+                            />
                         </motion.div>
                     ))}
                 </div>
@@ -53,7 +62,17 @@ export default function TeachSlide({
     )
 }
 
-function BlockView({ block, heroPhoto }: { block: TeachBlock; heroPhoto?: string }) {
+function BlockView({
+    block,
+    heroPhoto,
+    usedQuestions,
+    activeQuestionN,
+}: {
+    block: TeachBlock
+    heroPhoto?: string
+    usedQuestions?: number[]
+    activeQuestionN?: number
+}) {
     switch (block.kind) {
         case 'lead':
             return (
@@ -143,23 +162,39 @@ function BlockView({ block, heroPhoto }: { block: TeachBlock; heroPhoto?: string
         case 'questions':
             return (
                 <div className="grid w-full max-w-[1120px] gap-2.5 sm:grid-cols-2">
-                    {block.items.map((q) => (
-                        <div
-                            key={q.n}
-                            className={cn(
-                                'glass flex items-center gap-3 rounded-xl border border-border bg-card px-3.5 py-2 text-left shadow-sm',
-                                q.toRoom && 'ring-1 ring-primary/40',
-                            )}
-                        >
-                            <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[image:var(--ws-cta)] text-sm font-extrabold text-primary-foreground">
-                                {q.n}
-                            </span>
-                            <span className="min-w-0 flex-1 text-[clamp(12px,1.5vh,17px)] font-medium leading-snug text-card-foreground">
-                                {q.text}
-                            </span>
-                            {q.toRoom && <Users size={16} className="shrink-0 text-primary" />}
-                        </div>
-                    ))}
+                    {block.items.map((q) => {
+                        const used = usedQuestions?.includes(q.n)
+                        const active = activeQuestionN === q.n
+                        return (
+                            <div
+                                key={q.n}
+                                className={cn(
+                                    'glass flex items-center gap-3 rounded-xl border border-border bg-card px-3.5 py-2 text-left shadow-sm transition-all',
+                                    q.toRoom && !used && 'ring-1 ring-primary/40',
+                                    active && 'border-primary ring-2 ring-primary/60',
+                                    used && 'opacity-40 grayscale',
+                                )}
+                            >
+                                <span
+                                    className={cn(
+                                        'grid size-7 shrink-0 place-items-center rounded-lg text-sm font-extrabold text-primary-foreground',
+                                        used ? 'bg-muted-foreground' : 'bg-[image:var(--ws-cta)]',
+                                    )}
+                                >
+                                    {q.n}
+                                </span>
+                                <span
+                                    className={cn(
+                                        'min-w-0 flex-1 text-[clamp(12px,1.5vh,17px)] font-medium leading-snug text-card-foreground',
+                                        used && 'line-through',
+                                    )}
+                                >
+                                    {q.text}
+                                </span>
+                                {q.toRoom && !used && <Users size={16} className="shrink-0 text-primary" />}
+                            </div>
+                        )
+                    })}
                 </div>
             )
 

@@ -53,6 +53,7 @@ export async function GET(
             selectedPhoto: room.selectedPhoto ?? null,
             serverNow: new Date().toISOString(),
             settings: WorkshopService.pickClientSettings(room),
+            ...WorkshopService.questionStateFor(room), // round 28 Q&A (t_close only)
             ...(gamified
                 ? {
                       leaderboard: scores!.leaderboard,

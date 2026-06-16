@@ -22,10 +22,12 @@ const controlSchema = z.object({
         'spinWheel',
         'showWinners',
         'showTopAnswers',
+        'pickQuestion',
+        'closeQuestion',
     ]),
     responseId: z.string().max(32).optional(),
     targetClientId: z.string().max(64).optional(),
-    count: z.number().int().min(1).max(50).optional(), // spinWheel: how many random names to draw
+    count: z.number().int().min(1).max(50).optional(), // spinWheel: draw count · pick/closeQuestion: question number
 })
 
 export async function PATCH(

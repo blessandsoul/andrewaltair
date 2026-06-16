@@ -32,8 +32,16 @@ import type {
     Reaction,
     MyGame,
     DiplomaData,
+    WorkshopQuestion,
 } from '@/types/workshop.types'
 import { REACTION_KINDS } from '@/types/workshop.types'
+
+/** Round 28: pull the «questions» block items out of a t_close teach round (resolved strings). */
+function extractQuestions(round: IWorkshopRound): WorkshopQuestion[] {
+    const block = round.content?.blocks?.find((b) => b.kind === 'questions')
+    if (!block || block.kind !== 'questions') return []
+    return block.items.map((it) => ({ n: it.n, text: it.text, ...(it.toRoom ? { toRoom: true } : {}) }))
+}
 
 // Resolved (all-strings) shape of a template round after resolveDeep flattens every L.
 interface ResolvedTemplateRound {
@@ -613,6 +621,18 @@ export class WorkshopService {
             me = this.myGame(scores, clientId)
         }
 
+        // round 28 (t_close) Q&A: hand the phone the question list + state, and whether THIS student may pick
+        let q: Pick<StudentState, 'questions' | 'usedQuestions' | 'activeQuestion' | 'canPickQuestion'> = {}
+        const rawRound = room.currentRoundIndex >= 0 ? room.rounds[room.currentRoundIndex] : null
+        if (rawRound && rawRound.key === 't_close') {
+            q = {
+                questions: extractQuestions(rawRound),
+                usedQuestions: room.usedQuestions ?? [],
+                activeQuestion: room.activeQuestion ?? null,
+                canPickQuestion: !!(clientId && (room.questionPickerIds ?? []).includes(clientId)),
+            }
+        }
+
         return {
             status: room.status,
             title: room.title,
@@ -623,6 +643,7 @@ export class WorkshopService {
             selectedPhoto: room.selectedPhoto ?? null,
             serverNow: new Date().toISOString(),
             settings: this.pickClientSettings(room),
+            ...q,
             ...(gamified
                 ? {
                       me,
@@ -711,11 +732,21 @@ export class WorkshopService {
             if (!valid) return { ok: false, reason: 'invalid' }
             set.textValue = ids.join(',')
         } else if (round.type === 'multi') {
-            // checkbox — keep only valid, de-duped ids; at least one required
+            // checkbox — keep only valid, de-duped ids; a free write-in alone also counts
             const ids = [...new Set((params.optionIds ?? []).filter((id) => round.options.some((o) => o.id === id)))]
-            if (!ids.length) return { ok: false, reason: 'invalid' }
+            const write = params.textValue?.trim()
+            if (!ids.length && !write) return { ok: false, reason: 'invalid' }
             set.optionIds = ids
+            if (write) set.textValue = write.slice(0, 500)
+        } else if (round.type === 'choice') {
+            // single-select OPINION round — a preset pick and/or a free write-in
+            const picked = params.optionId && round.options.some((o) => o.id === params.optionId)
+            const write = params.textValue?.trim()
+            if (!picked && !write) return { ok: false, reason: 'invalid' }
+            if (picked) set.optionId = params.optionId
+            if (write) set.textValue = write.slice(0, 500)
         } else {
+            // quiz / choice_revote — strict, no write-in (a correct answer exists)
             if (!params.optionId || !round.options.some((o) => o.id === params.optionId)) {
                 return { ok: false, reason: 'invalid' }
             }
@@ -1101,6 +1132,26 @@ export class WorkshopService {
         for (const k of resultsCache.keys()) if (k.startsWith(prefix)) resultsCache.delete(k)
     }
 
+    /** Student write-in answers on an opinion choice/multi round (their own text, not a preset option). */
+    private static async collectWriteIns(
+        room: IWorkshopRoom,
+        round: IWorkshopRound,
+        anon: boolean,
+    ): Promise<{ name: string; text: string }[]> {
+        const docs = await WorkshopResponse.find({
+            roomId: room._id,
+            roundKey: round.key,
+            phase: 'open',
+            textValue: { $nin: [null, ''] },
+        })
+            .sort({ createdAt: -1 })
+            .limit(40)
+            .lean<IWorkshopResponse[]>()
+        return docs
+            .filter((d) => (d.textValue ?? '').trim())
+            .map((d, n) => ({ name: anon ? `${ANON_LABEL} ${n + 1}` : d.name, text: (d.textValue ?? '').trim() }))
+    }
+
     private static async computeResults(
         room: IWorkshopRoom,
         round: IWorkshopRound | null,
@@ -1139,11 +1190,14 @@ export class WorkshopService {
             const counts = round.options.map((o) => ({
                 optionId: o.id, label: o.label, count: countMap.get(o.id) ?? 0,
             }))
+            // opinion choice rounds may carry student write-ins (quiz never does)
+            const writeIns = round.type === 'choice' ? await this.collectWriteIns(room, round, anon) : []
             return {
                 type: 'choice',
                 counts,
                 total: counts.reduce((s, c) => s + c.count, 0),
                 ...(round.correctOptionId ? { correctOptionId: round.correctOptionId } : {}),
+                ...(writeIns.length ? { writeIns } : {}),
             }
         }
 
@@ -1157,11 +1211,13 @@ export class WorkshopService {
             const countMap = new Map<string, number>(agg.map((a) => [a._id as string, a.count as number]))
             const counts = round.options.map((o) => ({ optionId: o.id, label: o.label, count: countMap.get(o.id) ?? 0 }))
             const total = await WorkshopResponse.countDocuments({ roomId: room._id, roundKey: round.key, phase: 'open' })
+            const writeIns = await this.collectWriteIns(room, round, anon)
             return {
                 type: 'multi',
                 counts,
                 total, // responders, not selections
                 ...(round.correctOptionIds?.length ? { correctOptionIds: round.correctOptionIds } : {}),
+                ...(writeIns.length ? { writeIns } : {}),
             }
         }
 
@@ -1324,6 +1380,15 @@ export class WorkshopService {
         if (action !== 'showWinners' && action !== 'showTopAnswers' && doc.spotlightPanel) {
             doc.spotlightPanel = undefined
         }
+        // Round 28: the projected question clears on any action except (re)picking one.
+        if (action !== 'pickQuestion' && doc.activeQuestion) {
+            doc.activeQuestion = undefined
+        }
+        // (Re)entering or moving rounds wipes the Q&A used-set + the spun-up pickers.
+        if (action === 'openRound' || action === 'nextRound' || action === 'prevRound') {
+            doc.usedQuestions = undefined
+            doc.questionPickerIds = undefined
+        }
 
         switch (action) {
             case 'openRound': {
@@ -1442,15 +1507,22 @@ export class WorkshopService {
                     real.length >= want ? real : [...real, ...parts.filter((p) => p.clientId.startsWith('fake-'))]
                 if (!pool.length) return { ok: false, message: 'No participants' }
                 const n = Math.max(1, Math.min(want, pool.length))
-                // draw n UNIQUE names without replacement
-                const avail = pool.map((p) => p.name)
+                // draw n UNIQUE entries without replacement (keep clientId for the t_close picker hand-off)
+                const avail = [...pool]
                 const picks: string[] = []
+                const pickIds: string[] = []
                 for (let k = 0; k < n && avail.length; k++) {
                     const j = Math.floor(Math.random() * avail.length)
-                    picks.push(avail.splice(j, 1)[0]!)
+                    const e = avail.splice(j, 1)[0]!
+                    picks.push(e.name)
+                    pickIds.push(e.clientId)
                 }
                 doc.spotlightName = picks.join('\n') // multi-pick joined; overlay splits on newline
                 doc.spotlightAt = Date.now() // nonce so a repeat pick still re-fires the overlay
+                // Round 28: the spun-up REAL students may now self-pick a question on their phones.
+                if (round.key === 't_close') {
+                    doc.questionPickerIds = pickIds.filter((id) => !id.startsWith('fake-'))
+                }
                 break
             }
             case 'showWinners': {
@@ -1475,11 +1547,50 @@ export class WorkshopService {
                 doc.spotlightPanel = { kind: 'topAnswers', at: Date.now(), rows }
                 break
             }
+            case 'pickQuestion': {
+                // Round 28: host taps a question → pop it big on the projector.
+                if (!round || round.key !== 't_close') return { ok: false, message: 'Not the Q&A round' }
+                if (typeof count !== 'number') return { ok: false, message: 'Question number required' }
+                if ((doc.usedQuestions ?? []).includes(count)) return { ok: false, message: 'Already asked' }
+                doc.activeQuestion = { n: count, at: Date.now() }
+                break
+            }
+            case 'closeQuestion': {
+                // Round 28: mark a question answered → grey it everywhere, clear the popup + pickers.
+                if (!round || round.key !== 't_close') return { ok: false, message: 'Not the Q&A round' }
+                if (typeof count !== 'number') return { ok: false, message: 'Question number required' }
+                doc.usedQuestions = [...new Set([...(doc.usedQuestions ?? []), count])]
+                doc.questionPickerIds = undefined
+                // activeQuestion is already cleared above (action !== 'pickQuestion')
+                break
+            }
             default:
                 return { ok: false, message: 'Unknown action' }
         }
         doc.markModified('rounds')
         doc.markModified('spotlightPanel') // Mixed field — Mongoose needs an explicit dirty flag
+        doc.markModified('activeQuestion') // Mixed field — explicit dirty flag
+        await doc.save()
+        return { ok: true }
+    }
+
+    /** Round 28: a spun-up student taps a question on their phone → pop it on the projector. */
+    static async pickQuestionByStudent(
+        room: IWorkshopRoom,
+        clientId: string,
+        n: number,
+    ): Promise<{ ok: boolean; message?: string }> {
+        await dbConnect()
+        const doc = await WorkshopRoom.findById(room._id)
+        if (!doc) return { ok: false, message: 'Room not found' }
+        const idx = doc.currentRoundIndex
+        const round = idx >= 0 && idx < doc.rounds.length ? doc.rounds[idx] : null
+        if (!round || round.key !== 't_close') return { ok: false, message: 'Not the Q&A round' }
+        if (!(doc.questionPickerIds ?? []).includes(clientId)) return { ok: false, message: 'Not your turn' }
+        if ((doc.usedQuestions ?? []).includes(n)) return { ok: false, message: 'Already asked' }
+        doc.activeQuestion = { n, at: Date.now() }
+        doc.questionPickerIds = (doc.questionPickerIds ?? []).filter((id: string) => id !== clientId) // consumed
+        doc.markModified('activeQuestion')
         await doc.save()
         return { ok: true }
     }
@@ -1639,5 +1750,21 @@ export class WorkshopService {
 
     static getHostStateRound(room: IWorkshopRoom): StudentRound | null {
         return this.sanitizeRound(room, true)
+    }
+
+    /** Round 28 question state for the host/projector (empty unless the current round is t_close). */
+    static questionStateFor(room: IWorkshopRoom): {
+        questions?: WorkshopQuestion[]
+        usedQuestions?: number[]
+        activeQuestion?: { n: number; at: number } | null
+    } {
+        const idx = room.currentRoundIndex
+        const r = idx >= 0 && idx < room.rounds.length ? room.rounds[idx] : null
+        if (!r || r.key !== 't_close') return {}
+        return {
+            questions: extractQuestions(r),
+            usedQuestions: room.usedQuestions ?? [],
+            activeQuestion: room.activeQuestion ?? null,
+        }
     }
 }

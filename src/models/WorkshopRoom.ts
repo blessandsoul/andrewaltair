@@ -49,6 +49,10 @@ export interface IWorkshopRoom extends Document {
     spotlightAt?: number; // nonce — bumped on every spin so a repeat pick of the same name re-fires the overlay
     // winners / top-answers projector reveal (transient; cleared on next non-panel action)
     spotlightPanel?: { kind: string; at: number; title?: string; rows: { name: string; sub?: string }[] };
+    // round 28 Q&A (t_close)
+    usedQuestions?: number[]; // already-asked question numbers (greyed, not re-pickable)
+    activeQuestion?: { n: number; at: number }; // the question popped on the projector (transient)
+    questionPickerIds?: string[]; // clientIds the host spun up who may self-pick a question
     settings: IWorkshopRoomSettings; // per-room config chosen at creation
     createdAt: Date;
     updatedAt: Date;
@@ -190,6 +194,9 @@ const WorkshopRoomSchema = new Schema<IWorkshopRoom>(
             type: Schema.Types.Mixed,
             default: undefined,
         },
+        usedQuestions: { type: [Number], default: undefined },
+        activeQuestion: { type: Schema.Types.Mixed, default: undefined },
+        questionPickerIds: { type: [String], default: undefined },
         settings: {
             type: WorkshopSettingsSchema,
             default: () => ({}),

@@ -4,9 +4,48 @@ import { useEffect, useState } from 'react'
 import { Play, MessagesSquare, BarChart3, RotateCcw, SkipForward, Dices, ChevronLeft, Disc3, Trophy, ListOrdered } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type { StudentRound } from '@/types/workshop.types'
 import { STR } from '@/data/workshop-strings'
 import { cn } from '@/lib/utils'
+
+/** Compact count picker (shadcn Select) for the wheel / winners / top-answers controls. */
+function CountPicker({
+    value,
+    onChange,
+    max,
+    colorClass,
+    ariaLabel,
+    busy,
+}: {
+    value: number
+    onChange: (n: number) => void
+    max: number
+    colorClass: string
+    ariaLabel: string
+    busy: boolean
+}) {
+    return (
+        <Select value={String(value)} onValueChange={(v) => onChange(Number(v))} disabled={busy}>
+            <SelectTrigger
+                aria-label={ariaLabel}
+                className={cn(
+                    'h-9 w-[3.4rem] justify-center gap-1 rounded-lg border-0 bg-transparent px-1 text-base font-bold tabular-nums shadow-none focus:ring-0 focus:ring-offset-0',
+                    colorClass,
+                )}
+            >
+                <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="min-w-14">
+                {Array.from({ length: Math.max(1, max) }, (_, i) => i + 1).map((n) => (
+                    <SelectItem key={n} value={String(n)} className="font-bold tabular-nums">
+                        {n}
+                    </SelectItem>
+                ))}
+            </SelectContent>
+        </Select>
+    )
+}
 
 interface HostControlsProps {
     round: StudentRound | null
@@ -95,7 +134,6 @@ export default function HostControls({
     const [gateConfirm, setGateConfirm] = useState(false)
     // host-chosen counts for wheel / winners / top-answers (free dropdown, not fixed chips)
     const [counts, setCounts] = useState({ wheel: 3, winners: 5, top: 3 })
-    const range = (max: number) => Array.from({ length: Math.max(1, max) }, (_, i) => i + 1)
     const peopleMax = Math.max(1, Math.min(participantCount || 20, 30))
 
     // reset gate confirmation when phase changes
@@ -188,19 +226,14 @@ export default function HostControls({
                         >
                             <Disc3 size={18} />
                         </Button>
-                        <select
+                        <CountPicker
                             value={counts.wheel}
-                            onChange={(e) => setCounts((c) => ({ ...c, wheel: Number(e.target.value) }))}
-                            disabled={busy}
-                            aria-label={STR.controls.wheel}
-                            className="h-9 cursor-pointer rounded-lg bg-transparent pr-1 text-base font-bold tabular-nums text-primary outline-none"
-                        >
-                            {range(peopleMax).map((n) => (
-                                <option key={n} value={n}>
-                                    {n}
-                                </option>
-                            ))}
-                        </select>
+                            onChange={(n) => setCounts((c) => ({ ...c, wheel: n }))}
+                            max={peopleMax}
+                            colorClass="text-primary"
+                            ariaLabel={STR.controls.wheel}
+                            busy={busy}
+                        />
                     </div>
                 )}
                 {gamified && !inLobby && (
@@ -214,19 +247,14 @@ export default function HostControls({
                         >
                             <Trophy size={18} />
                         </Button>
-                        <select
+                        <CountPicker
                             value={counts.winners}
-                            onChange={(e) => setCounts((c) => ({ ...c, winners: Number(e.target.value) }))}
-                            disabled={busy}
-                            aria-label={STR.controls.winners}
-                            className="h-9 cursor-pointer rounded-lg bg-transparent pr-1 text-base font-bold tabular-nums text-warning outline-none"
-                        >
-                            {range(peopleMax).map((n) => (
-                                <option key={n} value={n}>
-                                    {n}
-                                </option>
-                            ))}
-                        </select>
+                            onChange={(n) => setCounts((c) => ({ ...c, winners: n }))}
+                            max={peopleMax}
+                            colorClass="text-warning"
+                            ariaLabel={STR.controls.winners}
+                            busy={busy}
+                        />
                     </div>
                 )}
                 {gamified && !inLobby && round && round.type !== 'teach' && (
@@ -240,19 +268,14 @@ export default function HostControls({
                         >
                             <ListOrdered size={18} />
                         </Button>
-                        <select
+                        <CountPicker
                             value={counts.top}
-                            onChange={(e) => setCounts((c) => ({ ...c, top: Number(e.target.value) }))}
-                            disabled={busy}
-                            aria-label={STR.controls.topAnswers}
-                            className="h-9 cursor-pointer rounded-lg bg-transparent pr-1 text-base font-bold tabular-nums text-primary outline-none"
-                        >
-                            {range(20).map((n) => (
-                                <option key={n} value={n}>
-                                    {n}
-                                </option>
-                            ))}
-                        </select>
+                            onChange={(n) => setCounts((c) => ({ ...c, top: n }))}
+                            max={20}
+                            colorClass="text-primary"
+                            ariaLabel={STR.controls.topAnswers}
+                            busy={busy}
+                        />
                     </div>
                 )}
             </div>

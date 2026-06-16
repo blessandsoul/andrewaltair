@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { ReconnectBanner } from '@/components/workshop/ReconnectBanner'
 import NameGate from './components/NameGate'
 import CurrentRound from './components/CurrentRound'
+import StudentQuestionPanel from './components/StudentQuestionPanel'
 import { DiplomaView } from './components/DiplomaView'
 import { STR } from '@/data/workshop-strings'
 
@@ -156,18 +157,30 @@ export default function RoomClient({ code }: { code: string }) {
         <ScreenShell>
             {soundGate}
             {connectionLost && <ReconnectBanner />}
-            <CurrentRound
-                code={code}
-                clientId={clientId}
-                round={state.round}
-                myAnswer={state.myAnswer}
-                results={state.results}
-                serverNow={state.serverNow}
-                gamified={!!state.settings?.gamification}
-                me={state.me ?? null}
-                name={name}
-                myPrediction={state.myPrediction}
-            />
+            {state.round?.key === 't_close' ? (
+                <StudentQuestionPanel
+                    code={code}
+                    clientId={clientId}
+                    title={state.round.prompt}
+                    questions={state.questions ?? []}
+                    usedQuestions={state.usedQuestions ?? []}
+                    activeQuestion={state.activeQuestion ?? null}
+                    canPick={!!state.canPickQuestion}
+                />
+            ) : (
+                <CurrentRound
+                    code={code}
+                    clientId={clientId}
+                    round={state.round}
+                    myAnswer={state.myAnswer}
+                    results={state.results}
+                    serverNow={state.serverNow}
+                    gamified={!!state.settings?.gamification}
+                    me={state.me ?? null}
+                    name={name}
+                    myPrediction={state.myPrediction}
+                />
+            )}
         </ScreenShell>
     )
 }

@@ -170,19 +170,19 @@ ${spokes}
 <text x="${cx}" y="${nameY}" text-anchor="middle" font-family="NG,NS" font-weight="700" font-size="${nameFs}" fill="#db2777" opacity="0.45" filter="url(#soft)">${name}</text>
 <text x="${cx}" y="${nameY}" text-anchor="middle" font-family="NG,NS" font-weight="700" font-size="${nameFs}" fill="url(#name)">${name}</text>`
 
-        // ---- dream ---- (single line; cap + font tiers keep it inside the 952px safe width)
+        // ---- dream ---- (the hero line: the student's own video-dream, the most personal datum)
         const dreamFull = (d.dream || '').trim()
         const dreamRaw = dreamFull.length > 52 ? dreamFull.slice(0, 51).trimEnd() + '…' : dreamFull
-        const dreamFs = dreamRaw.length > 40 ? 30 : dreamRaw.length > 28 ? 36 : 42
+        const dreamFs = dreamRaw.length > 40 ? 34 : dreamRaw.length > 28 ? 40 : 46
         const dream = dreamRaw
             ? `<text x="${cx}" y="${Y.dream}" text-anchor="middle" font-family="NG,NS" font-size="${dreamFs}" fill="#e6e4ee">„${esc(dreamRaw)}“</text>`
             : ''
 
-        // ---- stats row (hairline-separated columns) ----
+        // ---- stats row (hairline-separated columns) — only self-explanatory numbers ----
+        // (streak «ზედიზედ» dropped: «answered N in a row» carries no meaning to the student.)
         const stats: { v: string; l: string; c: string }[] = [{ v: String(d.points), l: 'ქულა', c: '#a78bfa' }]
-        if (d.answeredCount > 0) stats.push({ v: `${d.answeredCount}/${d.roundsTotal}`, l: 'რაუნდი', c: '#f0abfc' })
+        if (d.answeredCount > 0) stats.push({ v: String(d.answeredCount), l: 'პასუხი', c: '#f0abfc' })
         if (d.accuracyPct > 0) stats.push({ v: `${d.accuracyPct}%`, l: 'სიზუსტე', c: '#34d399' })
-        if (d.streak >= 2) stats.push({ v: String(d.streak), l: 'ზედიზედ', c: '#fb923c' })
         const colW = 196
         const rowW = stats.length * colW
         const rowX = cx - rowW / 2
@@ -201,7 +201,12 @@ ${spokes}
             .join('\n')
 
         // ---- badge chips (vector icon + ka label), centered, wrap to 2 rows ----
-        const chipsSvg = layoutChips(d.badges, cx, Y.chips)
+        // drop the two the owner flagged as meaningless: streak («ზედიზედ») + director («რეჟისორი»)
+        const chipsSvg = layoutChips(
+            d.badges.filter((b) => b.id !== 'streak' && b.id !== 'director'),
+            cx,
+            Y.chips,
+        )
 
         // ---- footer ----
         const verify = `#${d.code}`
