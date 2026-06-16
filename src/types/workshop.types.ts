@@ -252,10 +252,23 @@ export interface WriteIn {
     text: string;
 }
 
+// a single participant's picks on a multi round: name plus the options they selected, with correctness
+export interface MultiResponder {
+    name: string;
+    picks: { label: string; correct: boolean }[];
+}
+
 export type RoundResults =
     | { type: 'text'; items: TextResultItem[] }
     | { type: 'choice'; counts: ChoiceCount[]; total: number; correctOptionId?: string; writeIns?: WriteIn[] }
-    | { type: 'multi'; counts: ChoiceCount[]; total: number; correctOptionIds?: string[]; writeIns?: WriteIn[] }
+    | {
+          type: 'multi';
+          counts: ChoiceCount[];
+          total: number;
+          correctOptionIds?: string[];
+          writeIns?: WriteIn[];
+          responders?: MultiResponder[];
+      }
     | {
           type: 'choice_revote';
           options: RevoteOptionResult[];

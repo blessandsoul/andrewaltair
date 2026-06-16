@@ -16,6 +16,7 @@ import type {
     HostAction,
     RoomSettingsDTO,
     RoundResults,
+    MultiResponder,
     StudentRound,
     StudentState,
     RosterEntry,
@@ -836,6 +837,7 @@ export class WorkshopService {
                     .map((id) => labelOf(r, id))
                     .join(' → ')
             if (r.type === 'choice' || r.type === 'quiz' || r.type === 'choice_revote') return labelOf(r, doc.optionId)
+            if (r.type === 'multi') return (doc.optionIds ?? []).map((id) => labelOf(r, id)).join(', ')
             return doc.textValue ?? ''
         }
         const byClient = new Map<string, HistoryParticipant>()
@@ -1215,14 +1217,27 @@ export class WorkshopService {
             ])
             const countMap = new Map<string, number>(agg.map((a) => [a._id as string, a.count as number]))
             const counts = round.options.map((o) => ({ optionId: o.id, label: o.label, count: countMap.get(o.id) ?? 0 }))
-            const total = await WorkshopResponse.countDocuments({ roomId: room._id, roundKey: round.key, phase: 'open' })
+            // one find in answer-order → both the responder count and the per-name picks panel (host pult, multi)
+            const docs = await WorkshopResponse.find({ roomId: room._id, roundKey: round.key, phase: 'open' })
+                .sort({ createdAt: 1 })
+                .lean<IWorkshopResponse[]>()
+            const correctSet = new Set<string>(round.correctOptionIds ?? [])
+            const responders: MultiResponder[] = docs.map((d, n) => ({
+                name: anon ? `${ANON_LABEL} ${n + 1}` : d.name,
+                picks: (d.optionIds ?? []).map((id) => ({
+                    label: round.options.find((o) => o.id === id)?.label ?? id,
+                    correct: correctSet.has(id),
+                })),
+            }))
+            const total = docs.length // responders, not selections
             const writeIns = await this.collectWriteIns(room, round, anon)
             return {
                 type: 'multi',
                 counts,
-                total, // responders, not selections
+                total,
                 ...(round.correctOptionIds?.length ? { correctOptionIds: round.correctOptionIds } : {}),
                 ...(writeIns.length ? { writeIns } : {}),
+                ...(responders.length ? { responders } : {}),
             }
         }
 

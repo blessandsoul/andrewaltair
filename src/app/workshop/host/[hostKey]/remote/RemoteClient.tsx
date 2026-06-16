@@ -22,6 +22,7 @@ import QuestionPanel from './QuestionPanel'
 import { ScriptBody } from './ScriptBody'
 import { Roster } from './Roster'
 import { PinList } from './PinList'
+import { MultiResponders } from './MultiResponders'
 import { StatusPill } from './StatusPill'
 import { HistoryDrawer } from './HistoryDrawer'
 import { STR } from '@/data/workshop-strings'
@@ -108,6 +109,7 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
         !!state.round.phaseStartedAt
     const answering = state.round && (state.round.phase === 'open' || state.round.phase === 'revote')
     const textItems = state.results?.type === 'text' ? state.results.items.slice(0, 8) : []
+    const multiResponders = state.results?.type === 'multi' ? state.results.responders ?? [] : []
 
     return (
         <main className="min-h-dvh flex flex-col max-w-3xl mx-auto">
@@ -237,7 +239,7 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                         />
                     )}
 
-                    {/* Quick pin list for text rounds — multi-select spotlight */}
+                    {/* Quick pin list for text rounds, multi-select spotlight */}
                     {textItems.length > 0 && (
                         <PinList
                             items={textItems}
@@ -246,6 +248,9 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                             onClearAll={() => act('unpin')}
                         />
                     )}
+
+                    {/* Live per-name picks for find-the-mistake (multi) rounds, host reads finders aloud */}
+                    {multiResponders.length > 0 && <MultiResponders responders={multiResponders} />}
 
                     {/* STOP */}
                     <div className="mt-auto px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-3 space-y-3">
