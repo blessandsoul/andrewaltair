@@ -625,8 +625,13 @@ export class WorkshopService {
         let q: Pick<StudentState, 'questions' | 'usedQuestions' | 'activeQuestion' | 'canPickQuestion'> = {}
         const rawRound = room.currentRoundIndex >= 0 ? room.rounds[room.currentRoundIndex] : null
         if (rawRound && rawRound.key === 't_close') {
+            // the student room projection strips rounds.content → slice-fetch just this round (with its
+            // content) so the phone gets the real question list (runs only on the last round).
+            const idx = room.currentRoundIndex
+            const sliced = await WorkshopRoom.findById(room._id, { rounds: { $slice: [idx, 1] } }).lean<IWorkshopRoom>()
+            const qRound = sliced?.rounds?.[0]
             q = {
-                questions: extractQuestions(rawRound),
+                questions: qRound ? extractQuestions(qRound) : [],
                 usedQuestions: room.usedQuestions ?? [],
                 activeQuestion: room.activeQuestion ?? null,
                 canPickQuestion: !!(clientId && (room.questionPickerIds ?? []).includes(clientId)),
@@ -1570,6 +1575,8 @@ export class WorkshopService {
         doc.markModified('rounds')
         doc.markModified('spotlightPanel') // Mixed field — Mongoose needs an explicit dirty flag
         doc.markModified('activeQuestion') // Mixed field — explicit dirty flag
+        doc.markModified('usedQuestions') // harden the reset-to-undefined path (nav clears these)
+        doc.markModified('questionPickerIds')
         await doc.save()
         return { ok: true }
     }
