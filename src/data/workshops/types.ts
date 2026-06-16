@@ -64,6 +64,7 @@ export interface WorkshopTemplateRound {
   durationSec?: number;
   hostNotes?: LText;
   showsHeroPhoto?: boolean; // F3: keep the chosen photo visible during this round
+  roundImage?: string; // pin a specific image (e.g. broken.jpg) on-screen while this round is answered
   reasons?: TemplateReason[]; // F4: preset "why" chips for the discuss phase
   content?: TeachContentL;
   script?: RoundScriptL;

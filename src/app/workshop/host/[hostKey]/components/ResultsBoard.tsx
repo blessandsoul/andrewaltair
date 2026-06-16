@@ -7,6 +7,7 @@ import type { StudentRound, RoundResults, ChoiceCount, RoundPhase } from '@/type
 import TextWall from './results/TextWall'
 import BarResults from './results/BarResults'
 import MultiResults from './results/MultiResults'
+import FitScale from './FitScale'
 import RevoteResults from './results/RevoteResults'
 import Histogram from './results/Histogram'
 import OrderResults from './results/OrderResults'
@@ -92,10 +93,10 @@ export default function ResultsBoard({ round, results, onPin, readonly = false }
     if (round.pinned && round.pinned.length > 0) {
         const pins = round.pinned
         return (
-            <div className="flex h-full items-center justify-center">
+            <FitScale className="h-full">
                 <div
                     className={cn(
-                        'grid w-full gap-5',
+                        'mx-auto grid w-full gap-5',
                         pins.length === 1
                             ? 'max-w-2xl'
                             : pins.length === 2
@@ -146,7 +147,7 @@ export default function ResultsBoard({ round, results, onPin, readonly = false }
                         )
                     })}
                 </div>
-            </div>
+            </FitScale>
         )
     }
 
@@ -167,42 +168,58 @@ export default function ResultsBoard({ round, results, onPin, readonly = false }
                 </div>
             )}
             {results?.type === 'choice' && (
-                <div className="shrink-0 space-y-6">
-                    {round.phase === 'revealed' && <WinnerCard counts={results.counts} options={round.options} />}
-                    <BarResults
-                        counts={results.counts}
-                        total={results.total}
-                        revealed={round.phase === 'revealed'}
-                        correctOptionId={round.phase === 'revealed' ? results.correctOptionId : undefined}
-                    />
-                </div>
+                <FitScale>
+                    <div className="w-full space-y-6">
+                        {round.phase === 'revealed' && <WinnerCard counts={results.counts} options={round.options} />}
+                        <BarResults
+                            counts={results.counts}
+                            total={results.total}
+                            revealed={round.phase === 'revealed'}
+                            correctOptionId={round.phase === 'revealed' ? results.correctOptionId : undefined}
+                        />
+                    </div>
+                </FitScale>
             )}
             {results?.type === 'multi' && (
-                <div className="shrink-0">
-                    <MultiResults
-                        counts={results.counts}
-                        total={results.total}
-                        revealed={round.phase === 'revealed'}
-                        correctOptionIds={round.phase === 'revealed' ? results.correctOptionIds : undefined}
-                    />
-                </div>
+                <FitScale>
+                    <div className="w-full">
+                        <MultiResults
+                            counts={results.counts}
+                            total={results.total}
+                            revealed={round.phase === 'revealed'}
+                            correctOptionIds={round.phase === 'revealed' ? results.correctOptionIds : undefined}
+                        />
+                    </div>
+                </FitScale>
             )}
             {results?.type === 'choice_revote' && (
-                <RevoteResults
-                    options={results.options}
-                    totalOpen={results.totalOpen}
-                    totalRevote={results.totalRevote}
-                    movedCount={results.movedCount}
-                    moves={results.moves}
-                    showRevote={round.phase === 'revote' || round.phase === 'revealed'}
-                    revealed={round.phase === 'revealed'}
-                />
+                <FitScale>
+                    <div className="w-full">
+                        <RevoteResults
+                            options={results.options}
+                            totalOpen={results.totalOpen}
+                            totalRevote={results.totalRevote}
+                            movedCount={results.movedCount}
+                            moves={results.moves}
+                            showRevote={round.phase === 'revote' || round.phase === 'revealed'}
+                            revealed={round.phase === 'revealed'}
+                        />
+                    </div>
+                </FitScale>
             )}
             {results?.type === 'number' && (
-                <Histogram buckets={results.buckets} total={results.total} avg={results.avg} />
+                <FitScale>
+                    <div className="w-full">
+                        <Histogram buckets={results.buckets} total={results.total} avg={results.avg} />
+                    </div>
+                </FitScale>
             )}
             {results?.type === 'order' && (
-                <OrderResults results={results} options={round.options} revealed={round.phase === 'revealed'} />
+                <FitScale>
+                    <div className="w-full">
+                        <OrderResults results={results} options={round.options} revealed={round.phase === 'revealed'} />
+                    </div>
+                </FitScale>
             )}
         </div>
     )

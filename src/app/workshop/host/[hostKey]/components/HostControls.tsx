@@ -93,6 +93,10 @@ export default function HostControls({
 }: HostControlsProps) {
     const buttons = buttonsFor(round, inLobby, isLastRound)
     const [gateConfirm, setGateConfirm] = useState(false)
+    // host-chosen counts for wheel / winners / top-answers (free dropdown, not fixed chips)
+    const [counts, setCounts] = useState({ wheel: 3, winners: 5, top: 3 })
+    const range = (max: number) => Array.from({ length: Math.max(1, max) }, (_, i) => i + 1)
+    const peopleMax = Math.max(1, Math.min(participantCount || 20, 30))
 
     // reset gate confirmation when phase changes
     useEffect(() => {
@@ -174,66 +178,81 @@ export default function HostControls({
                     </Button>
                 )}
                 {gamified && !inLobby && round && (round.type !== 'teach' || round.key === 't_close') && (
-                    <div
-                        className="flex items-center gap-0.5 rounded-xl border border-border px-1.5 py-1"
-                        title={STR.controls.wheel}
-                    >
-                        <Disc3 size={18} className="mx-1 shrink-0 text-primary" />
-                        {[1, 3, 5, 15].map((n) => (
-                            <Button
-                                key={n}
-                                onClick={() => onAction('spinWheel', undefined, undefined, n)}
-                                disabled={busy}
-                                title={`${STR.controls.wheel} ×${n}`}
-                                variant="ghost"
-                                size="sm"
-                                className="h-9 min-w-9 px-2 text-base font-bold tabular-nums text-primary hover:bg-primary/10"
-                            >
-                                {n}
-                            </Button>
-                        ))}
+                    <div className="flex items-center gap-0.5 rounded-xl border border-border px-1 py-1" title={STR.controls.wheel}>
+                        <Button
+                            onClick={() => onAction('spinWheel', undefined, undefined, counts.wheel)}
+                            disabled={busy}
+                            variant="ghost"
+                            size="sm"
+                            className="h-9 px-2 text-primary hover:bg-primary/10"
+                        >
+                            <Disc3 size={18} />
+                        </Button>
+                        <select
+                            value={counts.wheel}
+                            onChange={(e) => setCounts((c) => ({ ...c, wheel: Number(e.target.value) }))}
+                            disabled={busy}
+                            aria-label={STR.controls.wheel}
+                            className="h-9 cursor-pointer rounded-lg bg-transparent pr-1 text-base font-bold tabular-nums text-primary outline-none"
+                        >
+                            {range(peopleMax).map((n) => (
+                                <option key={n} value={n}>
+                                    {n}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                 )}
                 {gamified && !inLobby && (
-                    <div
-                        className="flex items-center gap-0.5 rounded-xl border border-border px-1.5 py-1"
-                        title={STR.controls.winners}
-                    >
-                        <Trophy size={18} className="mx-1 shrink-0 text-warning" />
-                        {[1, 5].map((n) => (
-                            <Button
-                                key={n}
-                                onClick={() => onAction('showWinners', undefined, undefined, n)}
-                                disabled={busy}
-                                title={`${STR.controls.winners} ×${n}`}
-                                variant="ghost"
-                                size="sm"
-                                className="h-9 min-w-9 px-2 text-base font-bold tabular-nums text-warning hover:bg-warning/10"
-                            >
-                                {n}
-                            </Button>
-                        ))}
+                    <div className="flex items-center gap-0.5 rounded-xl border border-border px-1 py-1" title={STR.controls.winners}>
+                        <Button
+                            onClick={() => onAction('showWinners', undefined, undefined, counts.winners)}
+                            disabled={busy}
+                            variant="ghost"
+                            size="sm"
+                            className="h-9 px-2 text-warning hover:bg-warning/10"
+                        >
+                            <Trophy size={18} />
+                        </Button>
+                        <select
+                            value={counts.winners}
+                            onChange={(e) => setCounts((c) => ({ ...c, winners: Number(e.target.value) }))}
+                            disabled={busy}
+                            aria-label={STR.controls.winners}
+                            className="h-9 cursor-pointer rounded-lg bg-transparent pr-1 text-base font-bold tabular-nums text-warning outline-none"
+                        >
+                            {range(peopleMax).map((n) => (
+                                <option key={n} value={n}>
+                                    {n}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                 )}
                 {gamified && !inLobby && round && round.type !== 'teach' && (
-                    <div
-                        className="flex items-center gap-0.5 rounded-xl border border-border px-1.5 py-1"
-                        title={STR.controls.topAnswers}
-                    >
-                        <ListOrdered size={18} className="mx-1 shrink-0 text-primary" />
-                        {[3, 5, 10].map((n) => (
-                            <Button
-                                key={n}
-                                onClick={() => onAction('showTopAnswers', undefined, undefined, n)}
-                                disabled={busy}
-                                title={`${STR.controls.topAnswers} ×${n}`}
-                                variant="ghost"
-                                size="sm"
-                                className="h-9 min-w-9 px-2 text-base font-bold tabular-nums text-primary hover:bg-primary/10"
-                            >
-                                {n}
-                            </Button>
-                        ))}
+                    <div className="flex items-center gap-0.5 rounded-xl border border-border px-1 py-1" title={STR.controls.topAnswers}>
+                        <Button
+                            onClick={() => onAction('showTopAnswers', undefined, undefined, counts.top)}
+                            disabled={busy}
+                            variant="ghost"
+                            size="sm"
+                            className="h-9 px-2 text-primary hover:bg-primary/10"
+                        >
+                            <ListOrdered size={18} />
+                        </Button>
+                        <select
+                            value={counts.top}
+                            onChange={(e) => setCounts((c) => ({ ...c, top: Number(e.target.value) }))}
+                            disabled={busy}
+                            aria-label={STR.controls.topAnswers}
+                            className="h-9 cursor-pointer rounded-lg bg-transparent pr-1 text-base font-bold tabular-nums text-primary outline-none"
+                        >
+                            {range(20).map((n) => (
+                                <option key={n} value={n}>
+                                    {n}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                 )}
             </div>

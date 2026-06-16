@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Disc3, ListOrdered, Trophy, X } from 'lucide-react'
-import NameAvatar from '@/components/workshop/NameAvatar'
+import NameAvatar, { nameAccent } from '@/components/workshop/NameAvatar'
 import { REACTION_BY_KIND } from '@/components/workshop/reactionIcons'
 import type { Reaction, SpotlightPanel } from '@/types/workshop.types'
 import { cn } from '@/lib/utils'
@@ -166,41 +166,32 @@ export function PanelOverlay({ panel, onClose }: { panel: SpotlightPanel; onClos
                     </p>
                 </div>
                 <div className="hide-scrollbar flex min-h-0 flex-col gap-2 overflow-y-auto">
-                    {panel.rows.map((r, i) => (
-                        <motion.div
-                            key={r.name + i}
-                            initial={{ opacity: 0, x: -16 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.05 * i }}
-                            className="flex flex-col gap-2 rounded-2xl border border-border bg-card/70 px-4 py-2.5"
-                        >
-                            <div className="flex items-center gap-3">
+                    {/* who-voted detail is ADMIN-ONLY (host pult history) — never named on the public wall */}
+                    {panel.rows.map((r, i) => {
+                        const accent = isWinners ? nameAccent(r.name) : null
+                        return (
+                            <motion.div
+                                key={r.name + i}
+                                initial={{ opacity: 0, x: -16 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.05 * i }}
+                                className="flex items-center gap-3 rounded-2xl border border-border bg-card/70 px-4 py-2.5"
+                            >
                                 <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-[image:var(--ws-cta)] text-base font-extrabold text-primary-foreground">
                                     {i + 1}
                                 </span>
                                 {isWinners && <NameAvatar name={r.name} size={36} />}
-                                <span className="min-w-0 flex-1 truncate text-xl font-bold text-foreground">{r.name}</span>
+                                <span className={cn('min-w-0 flex-1 truncate text-xl font-bold', accent ? accent.text : 'text-foreground')}>
+                                    {r.name}
+                                </span>
                                 {r.sub && (
                                     <span className="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-lg font-extrabold tabular-nums text-primary">
                                         {isWinners ? `✓ ${r.sub}` : r.sub}
                                     </span>
                                 )}
-                            </div>
-                            {/* who answered this — name chips (top-answers rounds) */}
-                            {r.who && r.who.length > 0 && (
-                                <div className="flex flex-wrap gap-1.5 pl-11">
-                                    {r.who.map((nm, k) => (
-                                        <span
-                                            key={nm + k}
-                                            className="rounded-full bg-muted px-2.5 py-0.5 text-sm font-semibold text-muted-foreground"
-                                        >
-                                            {nm}
-                                        </span>
-                                    ))}
-                                </div>
-                            )}
-                        </motion.div>
-                    ))}
+                            </motion.div>
+                        )
+                    })}
                 </div>
             </motion.div>
         </motion.div>

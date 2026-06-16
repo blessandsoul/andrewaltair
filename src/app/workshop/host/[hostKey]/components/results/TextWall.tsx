@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Star } from 'lucide-react'
 import type { TextResultItem } from '@/types/workshop.types'
@@ -17,25 +17,26 @@ interface TextWallProps {
     readonly?: boolean
 }
 
-/** Multi-field answers («label: value» lines) render as compact stacked rows. */
+/** Multi-field answers («label: value») render as a compact 2-col definition grid — one line per value,
+ *  so the card height is deterministic and never clips inside a fixed wall row. */
 function AnswerBody({ text }: { text: string }) {
     const rows = parseStructuredAnswer(text)
     if (!rows) {
         return (
-            <p className="line-clamp-5 whitespace-pre-wrap text-[clamp(12px,1.45vh,17px)] leading-snug text-card-foreground">
+            <p className="line-clamp-4 whitespace-pre-wrap text-[clamp(12px,1.55vh,18px)] font-medium leading-snug text-card-foreground">
                 {text}
             </p>
         )
     }
     return (
-        <div className="space-y-1.5">
+        <div className="grid grid-cols-[auto_1fr] items-baseline gap-x-2.5 gap-y-1">
             {rows.slice(0, 3).map((r, i) => (
-                <div key={i}>
-                    <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">{r.label}</p>
-                    <p className="line-clamp-2 text-[clamp(12px,1.4vh,16px)] font-semibold leading-snug text-card-foreground">
-                        {r.value}
-                    </p>
-                </div>
+                <Fragment key={i}>
+                    <span className="whitespace-nowrap text-[9px] font-bold uppercase tracking-wider text-muted-foreground/70">
+                        {r.label}
+                    </span>
+                    <span className="truncate text-[clamp(12px,1.55vh,16px)] font-semibold text-card-foreground">{r.value}</span>
+                </Fragment>
             ))}
         </div>
     )

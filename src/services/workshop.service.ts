@@ -47,6 +47,7 @@ interface ResolvedTemplateRound {
     durationSec?: number
     hostNotes?: string
     showsHeroPhoto?: boolean
+    roundImage?: string
     reasons?: { id: string; label: string }[]
     config?: { minNumber?: number; maxNumber?: number; fields?: string[] }
     content?: TeachContent
@@ -189,6 +190,7 @@ export class WorkshopService {
                 durationSec,
                 hostNotes: r.hostNotes,
                 ...(r.showsHeroPhoto ? { showsHeroPhoto: true } : {}),
+                ...(r.roundImage ? { roundImage: r.roundImage } : {}),
                 ...(r.reasons && r.reasons.length
                     ? { reasons: r.reasons.map((x) => ({ id: x.id, label: x.label })) }
                     : {}),
@@ -411,6 +413,7 @@ export class WorkshopService {
             ...(typeof r.durationSec === 'number' ? { durationSec: r.durationSec } : {}),
             ...(r.content ? { content: r.content } : {}),
             ...(r.showsHeroPhoto ? { showsHeroPhoto: true } : {}),
+            ...(r.roundImage ? { roundImage: r.roundImage } : {}),
             ...(r.reasons && r.reasons.length ? { reasons: r.reasons.map((x) => ({ id: x.id, label: x.label })) } : {}),
             index: idx,
             total: room.rounds.length,
@@ -1490,17 +1493,19 @@ export class WorkshopService {
         for (const d of responses) {
             const r = roundByKey.get(d.roundKey)
             if (!r) continue
-            let ok = false
-            if ((r.type === 'choice' || r.type === 'quiz') && r.correctOptionId) ok = d.optionId === r.correctOptionId
-            else if (r.type === 'order' && r.correctOrder?.length) ok = (d.textValue ?? '') === r.correctOrder.join(',')
+            let score = 0
+            if ((r.type === 'choice' || r.type === 'quiz') && r.correctOptionId) score = d.optionId === r.correctOptionId ? 1 : 0
+            else if (r.type === 'order' && r.correctOrder?.length) score = (d.textValue ?? '') === r.correctOrder.join(',') ? 1 : 0
             else if (r.type === 'multi' && r.correctOptionIds?.length) {
+                // partial credit: +1 per correct pick, −1 per trap, floored at 0 → anyone with a net-correct pick ranks
                 const cset = new Set(r.correctOptionIds)
                 const picks = d.optionIds ?? []
-                ok = picks.length === cset.size && picks.every((id) => cset.has(id))
+                const hits = picks.filter((id) => cset.has(id)).length
+                score = Math.max(0, hits - (picks.length - hits))
             }
-            if (!ok) continue
+            if (score <= 0) continue
             const e = correct.get(d.clientId) ?? { name: d.name ?? '—', n: 0 }
-            e.n++
+            e.n += score
             if (d.name) e.name = d.name
             correct.set(d.clientId, e)
         }
@@ -1525,6 +1530,22 @@ export class WorkshopService {
         const WHO_CAP = 12
         const pushWho = (arr: string[], name?: string) => {
             if (name && arr.length < WHO_CAP) arr.push(name)
+        }
+
+        // number (slider) rounds — bucket identical values, rank by frequency
+        if (round.type === 'number') {
+            const tally = new Map<number, { c: number; who: string[] }>()
+            for (const d of responses) {
+                if (typeof d.numberValue !== 'number') continue
+                const e = tally.get(d.numberValue) ?? { c: 0, who: [] }
+                e.c++
+                pushWho(e.who, d.name)
+                tally.set(d.numberValue, e)
+            }
+            return [...tally.entries()]
+                .sort((a, b) => b[1].c - a[1].c)
+                .slice(0, n)
+                .map(([v, e]) => ({ name: String(v), sub: `×${e.c}`, who: e.who }))
         }
 
         // option-keyed rounds (choice/quiz/multi/revote): tally selections per option + who picked it

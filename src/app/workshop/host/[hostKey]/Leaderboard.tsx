@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import NameAvatar, { nameAccent } from '@/components/workshop/NameAvatar'
 import { BadgeIcon, MedalIcon } from '@/components/workshop/badgeIcons'
@@ -10,16 +10,30 @@ import { STR } from '@/data/workshop-strings'
 
 const TEAM_TONE =['bg-primary/15 text-primary', 'bg-secondary/15 text-secondary', 'bg-success/15 text-success', 'bg-warning/15 text-warning', 'bg-info/15 text-info', 'bg-destructive/15 text-destructive']
 
-const PER_PAGE = 8 // rail page size — everyone rotates through, nobody is hidden
+const ROW_PX = 44 // one entry row incl. its gap — used to compute how many fit the rail
 const ROTATE_MS = 5000
 
-/** Projector right rail — team scoreboard (if any) + ALL individuals, auto-paged so everyone is seen. */
+/** Projector right rail — team scoreboard (if any) + individuals. Fills the rail to its height;
+ *  paginates (auto-cycling) ONLY when more people than fit; if all fit, no pager, no empty gap. */
 export function Leaderboard({ entries, teams }: { entries: LeaderboardEntry[]; teams?: TeamScore[] }) {
-    const pageCount = Math.max(1, Math.ceil(entries.length / PER_PAGE))
+    const listRef = useRef<HTMLDivElement>(null)
+    const [perPage, setPerPage] = useState(8)
     const [page, setPage] = useState(0)
+
+    // measure how many rows fit the rail's list region
+    useEffect(() => {
+        const el = listRef.current
+        if (!el) return
+        const measure = () => setPerPage(Math.max(1, Math.floor(el.clientHeight / ROW_PX)))
+        measure()
+        const ro = new ResizeObserver(measure)
+        ro.observe(el)
+        return () => ro.disconnect()
+    }, [])
+
+    const pageCount = Math.max(1, Math.ceil(entries.length / perPage))
     const safePage = Math.min(page, pageCount - 1)
 
-    // auto-rotate the rail through every page so nobody stays off-screen
     useEffect(() => {
         if (pageCount <= 1) return
         const id = setInterval(() => setPage((p) => (p + 1) % pageCount), ROTATE_MS)
@@ -27,12 +41,12 @@ export function Leaderboard({ entries, teams }: { entries: LeaderboardEntry[]; t
     }, [pageCount])
 
     if (!entries.length) return null
-    const shown = entries.slice(safePage * PER_PAGE, safePage * PER_PAGE + PER_PAGE)
+    const shown = entries.slice(safePage * perPage, safePage * perPage + perPage)
 
     return (
-        <aside className="glass hide-scrollbar hidden w-[240px] shrink-0 flex-col gap-3 overflow-y-auto border-l border-border p-4 lg:flex">
+        <aside className="glass hidden w-[240px] shrink-0 flex-col gap-3 overflow-hidden border-l border-border p-4 lg:flex">
             {teams && teams.length > 0 && (
-                <div className="space-y-1.5">
+                <div className="shrink-0 space-y-1.5">
                     <p className="text-center text-xs font-bold uppercase tracking-widest text-primary">{STR.display.teamboard}</p>
                     {teams.map((t) => (
                         <motion.div
@@ -46,13 +60,13 @@ export function Leaderboard({ entries, teams }: { entries: LeaderboardEntry[]; t
                     ))}
                 </div>
             )}
-            <div className="flex min-h-0 flex-col gap-1.5">
-                <p className="text-center text-xs font-bold uppercase tracking-widest text-primary">
-                    {STR.display.leaderboard}
-                    {entries.length > PER_PAGE && (
-                        <span className="ml-1 font-bold tabular-nums text-muted-foreground">· {entries.length}</span>
-                    )}
-                </p>
+            <p className="shrink-0 text-center text-xs font-bold uppercase tracking-widest text-primary">
+                {STR.display.leaderboard}
+                {entries.length > perPage && (
+                    <span className="ml-1 font-bold tabular-nums text-muted-foreground">· {entries.length}</span>
+                )}
+            </p>
+            <div ref={listRef} className="min-h-0 flex-1 overflow-hidden">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={safePage}
@@ -81,20 +95,20 @@ export function Leaderboard({ entries, teams }: { entries: LeaderboardEntry[]; t
                         })}
                     </motion.div>
                 </AnimatePresence>
-                {pageCount > 1 && (
-                    <div className="flex items-center justify-center gap-1.5 pt-1">
-                        {Array.from({ length: pageCount }).map((_, i) => (
-                            <span
-                                key={i}
-                                className={cn(
-                                    'h-1.5 rounded-full transition-all',
-                                    i === safePage ? 'w-4 bg-[image:var(--ws-cta)]' : 'w-1.5 bg-muted',
-                                )}
-                            />
-                        ))}
-                    </div>
-                )}
             </div>
+            {pageCount > 1 && (
+                <div className="flex shrink-0 items-center justify-center gap-1.5">
+                    {Array.from({ length: pageCount }).map((_, i) => (
+                        <span
+                            key={i}
+                            className={cn(
+                                'h-1.5 rounded-full transition-all',
+                                i === safePage ? 'w-4 bg-[image:var(--ws-cta)]' : 'w-1.5 bg-muted',
+                            )}
+                        />
+                    ))}
+                </div>
+            )}
         </aside>
     )
 }

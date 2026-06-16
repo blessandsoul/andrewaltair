@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Users } from 'lucide-react'
 import type { TeachContent, TeachBlock } from '@/types/workshop.types'
 import { cn } from '@/lib/utils'
+import FitScale from './FitScale'
 
 /**
  * Non-interactive teaching slide rendered on the projected DISPLAY.
@@ -22,27 +23,32 @@ export default function TeachSlide({
 }) {
     const blocks = content?.blocks ?? []
     return (
-        <div className="flex h-full flex-col items-center justify-center gap-6 py-2">
+        <div className="flex h-full flex-col gap-4 py-2">
             <motion.h2
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="text-gradient max-w-[1100px] text-center text-[clamp(28px,4.4vh,56px)] font-bold leading-tight tracking-tight"
+                className="text-gradient mx-auto max-w-[1100px] shrink-0 text-center text-[clamp(26px,4vh,52px)] font-bold leading-tight tracking-tight"
             >
                 {heading}
             </motion.h2>
 
-            {blocks.map((block, i) => (
-                <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.06 * (i + 1) }}
-                    className="flex w-full justify-center"
-                >
-                    <BlockView block={block} heroPhoto={heroPhoto} />
-                </motion.div>
-            ))}
+            {/* FitScale shrinks the whole block stack to fit — projector never scrolls/clips */}
+            <FitScale>
+                <div className="flex w-full flex-col items-center gap-6">
+                    {blocks.map((block, i) => (
+                        <motion.div
+                            key={i}
+                            initial={{ opacity: 0, y: 16 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: 0.06 * (i + 1) }}
+                            className="flex w-full justify-center"
+                        >
+                            <BlockView block={block} heroPhoto={heroPhoto} />
+                        </motion.div>
+                    ))}
+                </div>
+            </FitScale>
         </div>
     )
 }
@@ -162,18 +168,22 @@ function BlockView({ block, heroPhoto }: { block: TeachBlock; heroPhoto?: string
     }
 }
 
-// Numbered card — number chip on the LEFT (inline reading), compact, with a gradient base accent.
+// Numbered card — gradient number tile on the LEFT + a soft corner glow. Body is NOT clamped:
+// FitScale shrinks the whole slide so rich explanations stay fully visible without scroll.
 function NumberedCard({ n, title, text }: { n: string; title?: string; text: string }) {
     return (
         <div className="group glass hover-lift relative flex gap-3.5 overflow-hidden rounded-2xl border border-border bg-card p-4 text-left shadow-sm">
-            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[image:var(--ws-cta)] text-base font-extrabold text-primary-foreground shadow-md">
+            <span
+                aria-hidden
+                className="pointer-events-none absolute -right-8 -top-8 size-20 rounded-full bg-[image:var(--ws-cta)] opacity-10 blur-2xl"
+            />
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[image:var(--ws-cta)] text-lg font-extrabold text-primary-foreground shadow-md">
                 {n}
             </span>
             <div className="min-w-0">
-                {title && <p className="mb-0.5 text-[clamp(13px,1.7vh,18px)] font-bold text-foreground">{title}</p>}
-                <p className="text-[clamp(13px,1.7vh,19px)] font-medium leading-snug text-card-foreground">{text}</p>
+                {title && <p className="mb-1 text-[clamp(14px,1.9vh,20px)] font-bold text-foreground">{title}</p>}
+                <p className="text-[clamp(13px,1.75vh,19px)] font-medium leading-snug text-card-foreground">{text}</p>
             </div>
-            <span aria-hidden className="absolute inset-x-0 bottom-0 h-0.5 bg-[image:var(--ws-cta)] opacity-60" />
         </div>
     )
 }

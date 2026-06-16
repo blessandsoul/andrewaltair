@@ -39,7 +39,7 @@ const esc = (s: string): string =>
 // Badge → Georgian label + brand color (emoji never rasterize in librsvg → drawn as vector icons).
 const BADGE_VIS: Record<string, { ka: string; color: string }> = {
     lightning: { ka: 'ელვა', color: '#fbbf24' },
-    streak: { ka: 'სერია', color: '#fb923c' },
+    streak: { ka: 'ზედიზედ', color: '#fb923c' },
     mindchange: { ka: 'აზრის ცვლა', color: '#a78bfa' },
     director: { ka: 'რეჟისორი', color: '#f472b6' },
     oracle: { ka: 'ორაკული', color: '#34d399' },
@@ -104,11 +104,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         const story = new URL(request.url).searchParams.get('format') === 'story'
         const H = story ? 1920 : 1080
         const Y = story
-            ? { eyebrow: 156, subtitle: 202, heroCy: 560, heroR: 172, badgeDx: 122, badgeDy: 122, badgeR: 76, heroMr: 154, pill: 838, name: 1028, dream: 1104, stats: 1294, chips: 1488, footer: 1858 }
-            : { eyebrow: 78, subtitle: 116, heroCy: 300, heroR: 132, badgeDx: 96, badgeDy: 92, badgeR: 60, heroMr: 116, pill: 474, name: 612, dream: 678, stats: 728, chips: 866, footer: 1024 }
+            ? { eyebrow: 156, subtitle: 202, heroCy: 560, heroR: 172, badgeDx: 122, badgeDy: 122, badgeR: 76, heroMr: 154, pill: 832, name: 1070, dream: 1146, stats: 1330, chips: 1500, footer: 1858 }
+            : { eyebrow: 78, subtitle: 116, heroCy: 300, heroR: 132, badgeDx: 96, badgeDy: 92, badgeR: 60, heroMr: 116, pill: 470, name: 648, dream: 712, stats: 756, chips: 884, footer: 1024 }
 
         // ---- header (eyebrow + workshop · date) ----
-        const title = esc((d.title || '').slice(0, 30))
+        // «→» (and other arrows) aren't in Noto → tofu; the middle-dot «·» renders fine
+        const title = esc((d.title || '').replace(/[→⟶➜➔➤]/g, '·').slice(0, 30))
         const subtitle = title ? `${title} · ${date}` : date
         const header = `
 <text x="${cx}" y="${Y.eyebrow}" text-anchor="middle" font-family="NS,NG" font-weight="700" font-size="25" fill="#e040fb" letter-spacing="4">AI VIDEO WORKSHOP</text>
@@ -181,7 +182,7 @@ ${spokes}
         const stats: { v: string; l: string; c: string }[] = [{ v: String(d.points), l: 'ქულა', c: '#a78bfa' }]
         if (d.answeredCount > 0) stats.push({ v: `${d.answeredCount}/${d.roundsTotal}`, l: 'რაუნდი', c: '#f0abfc' })
         if (d.accuracyPct > 0) stats.push({ v: `${d.accuracyPct}%`, l: 'სიზუსტე', c: '#34d399' })
-        if (d.streak >= 2) stats.push({ v: String(d.streak), l: 'სერია', c: '#fb923c' })
+        if (d.streak >= 2) stats.push({ v: String(d.streak), l: 'ზედიზედ', c: '#fb923c' })
         const colW = 196
         const rowW = stats.length * colW
         const rowX = cx - rowW / 2

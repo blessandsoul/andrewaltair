@@ -100,6 +100,7 @@ export interface StudentRound {
     content?: TeachContent;
     script?: RoundScript; // host-only (forHost) — deep speaker script for the remote
     showsHeroPhoto?: boolean; // F3: chosen photo stays visible during this round
+    roundImage?: string; // a round-specific image pinned on the projector while answering (e.g. broken.jpg)
     reasons?: RoundOption[]; // F4: preset "why" chips shown in the discuss phase
 }
 

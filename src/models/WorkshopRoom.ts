@@ -21,6 +21,7 @@ export interface IWorkshopRound {
     hostNotes?: string;
     pinnedResponseIds?: string[]; // answers spotlighted on the projector (multi-select)
     showsHeroPhoto?: boolean; // F3: keep the chosen photo visible during this round
+    roundImage?: string; // round-specific image pinned on the projector while answering
     reasons?: { id: string; label: string }[]; // F4: preset "why" chips for the discuss phase
     config: {
         minNumber?: number;
@@ -84,6 +85,7 @@ const WorkshopRoundSchema = new Schema<IWorkshopRound>(
         hostNotes: { type: String },
         pinnedResponseIds: { type: [String], default: undefined },
         showsHeroPhoto: { type: Boolean },
+        roundImage: { type: String },
         reasons: [
             {
                 id: { type: String, required: true },

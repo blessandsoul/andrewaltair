@@ -79,9 +79,12 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
         !!state.round.durationSec &&
         !!state.round.phaseStartedAt
     const answering = state.round && (state.round.phase === 'open' || state.round.phase === 'revote')
-    // F3: keep the chosen photo visible on photo-dependent rounds (lives OUTSIDE the keyed panel)
-    const showHero = !!(state.selectedPhoto && state.round?.showsHeroPhoto && !inLobby && state.status !== 'ended')
-    const heroLabel = state.selectedPhoto ? state.selectedPhoto.label.replace(/^[A-Z0-9]\s*·\s*/, '').trim() : ''
+    // F3: keep an image visible on photo-dependent rounds (lives OUTSIDE the keyed panel).
+    // A round-pinned image (e.g. broken.jpg on the detective round) wins over the voted photo.
+    const roundHeroSrc = !inLobby && state.status !== 'ended' ? state.round?.roundImage : undefined
+    const showHero = !!(((state.selectedPhoto && state.round?.showsHeroPhoto) || roundHeroSrc) && !inLobby && state.status !== 'ended')
+    const heroSrc = roundHeroSrc ?? state.selectedPhoto?.src
+    const heroLabel = roundHeroSrc ? '' : state.selectedPhoto ? state.selectedPhoto.label.replace(/^[A-Z0-9]\s*·\s*/, '').trim() : ''
 
     return (
         <main className="relative flex h-dvh flex-col overflow-hidden">
@@ -146,16 +149,16 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
             {/* Main area — phase transitions masked by enter/exit animation.
                 The chosen photo (F3) sits OUTSIDE the keyed panel so it never blinks on round/phase change. */}
             <div className="flex flex-1 overflow-hidden">
-                {showHero && state.selectedPhoto && (
+                {showHero && heroSrc && (
                     <aside className="glass hidden w-[32%] max-w-md shrink-0 flex-col items-center justify-center gap-3 border-r border-border p-5 md:flex">
                         <div className="relative aspect-9/16 max-h-full w-full overflow-hidden rounded-2xl border border-border bg-foreground shadow-xl">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={state.selectedPhoto.src} alt="" className="absolute inset-0 size-full object-cover" />
+                            <img src={heroSrc} alt="" className="absolute inset-0 size-full object-cover" />
                         </div>
                         {heroLabel && <p className="text-center text-sm font-semibold text-muted-foreground">{heroLabel}</p>}
                     </aside>
                 )}
-                <div className="hide-scrollbar flex-1 overflow-y-auto px-8 py-6">
+                <div className="flex min-w-0 flex-1 flex-col overflow-hidden px-8 py-6">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={
@@ -169,7 +172,7 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -14 }}
                             transition={{ duration: 0.3, ease: 'easeOut' }}
-                            className="h-full"
+                            className="flex min-h-0 w-full flex-1 flex-col"
                         >
                             {state.status === 'ended' ? (
                                 <EndStats hostKey={hostKey} photo={state.selectedPhoto} leaderboard={state.leaderboard} />
