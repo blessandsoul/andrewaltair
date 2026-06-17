@@ -21,8 +21,33 @@ const movies = [
     },
     {
         title: "Ex Machina",
-        src: "https://m.media-amazon.com/images/M/MV5BMTUxNzc0OTIxMV5BMl5BanBnXkFtZTgwNDI3NzU2NDE@._V1_.jpg",
+        src: "/inspiration/ex-machina.jpg",
         year: "2014",
+    },
+    {
+        title: "Her",
+        src: "/inspiration/her.jpg",
+        year: "2013",
+    },
+    {
+        title: "Blade Runner 2049",
+        src: "/inspiration/blade-runner-2049.jpg",
+        year: "2017",
+    },
+    {
+        title: "The Matrix",
+        src: "/inspiration/the-matrix.jpg",
+        year: "1999",
+    },
+    {
+        title: "2001: A Space Odyssey",
+        src: "/inspiration/2001-space-odyssey.jpg",
+        year: "1968",
+    },
+    {
+        title: "WALL-E",
+        src: "/inspiration/wall-e.jpg",
+        year: "2008",
     },
 ]
 
@@ -33,7 +58,7 @@ export function AboutInspiration() {
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
                     <div>
                         <h2 className="text-3xl font-bold tracking-tight mb-2">Cinematic DNA</h2>
-                        <p className="text-muted-foreground">ფილმები, რომლებმაც შეცვალეს ჩემი ხედვა AI-ზე.</p>
+                        <p className="text-muted-foreground">ფილმები, რომლებმაც შეცვალეს ჩემი შეხედულება ხელოვნურ ინტელექტზე (AI).</p>
                     </div>
                 </div>
 

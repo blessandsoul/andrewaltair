@@ -13,7 +13,7 @@ import { brand } from "@/lib/brand"
 
 export const metadata: Metadata = {
   title: "Andrew Altair — AI ექსპერტი საქართველოში | ფუტურისტი",
-  description: "AI არქიტექტორი, ლექტორი, კონტენტ კრეატორი — 8+ წლის გამოცდილება, 50+ კლიენტი. გაიგეთ ჩემი გზა აგენტური სისტემების, LLM-ების (GPT-5, Gemini 3, Claude) და Neuro-Aesthetic დიზაინის სამყაროში.",
+  description: "AI არქიტექტორი, ლექტორი, კონტენტის შემქმნელი — 8+ წლის გამოცდილება, 50+ კლიენტი. გაეცანით ჩემს გზას აგენტური AI სისტემების, LLM-ების (GPT-5, Gemini 3, Claude) და ნეირო-ესთეტიკური დიზაინის სამყაროში.",
   keywords: ["Andrew Altair", "AI ექსპერტი", "AI კონსულტანტი საქართველოში", "ხელოვნური ინტელექტი", "AI არქიტექტორი", "Georgian AI", "Next.js", "Neuro-Aesthetic"],
   openGraph: {
     type: "profile",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     username: "andr3waltair",
     gender: "male",
     title: "Andrew Altair — AI ექსპერტი საქართველოში",
-    description: "AI არქიტექტორი, ლექტორი, კონტენტ კრეატორი — 8+ წლის გამოცდილება, 50+ კლიენტი.",
+    description: "AI არქიტექტორი, ლექტორი, კონტენტის შემქმნელი — 8+ წლის გამოცდილება, 50+ კლიენტი.",
     images: [{ url: "/i.png", width: 1200, height: 630, alt: "Andrew Altair — AI ექსპერტი" }],
   },
   twitter: {
@@ -58,10 +58,10 @@ const jsonLd = {
 // Unified Expertise Data (Translated to Georgian)
 // Unified Expertise Data (Translated to Georgian)
 const expertise = [
-  { icon: TbBrain, title: "ნეირო-არქიტექტურა", desc: "LLM ინტეგრაცია & Reasoning მოდელები" },
-  { icon: TbCode, title: "თანამედროვე Fullstack", desc: "Next.js 15, Node.js, AI Agents Integration" },
-  { icon: TbAnalyze, title: "ბიზნეს ავტომატიზაცია", desc: "AI workflow-ების დანერგვა & ოპტიმიზაცია" },
-  { icon: TbCpu, title: "AI ტრენინგი", desc: "გუნდების გადამზადება & მენტორინგი" },
+  { icon: TbBrain, title: "ნეიროარქიტექტურა", desc: "LLM ინტეგრაცია და Reasoning მოდელები" },
+  { icon: TbCode, title: "თანამედროვე Fullstack", desc: "Next.js 15, Node.js, AI აგენტების ინტეგრაცია" },
+  { icon: TbAnalyze, title: "ბიზნესის ავტომატიზაცია", desc: "AI workflow-ების დანერგვა და ოპტიმიზაცია" },
+  { icon: TbCpu, title: "AI ტრენინგი", desc: "გუნდების გადამზადება და მენტორინგი" },
 ]
 
 export default function AboutPage() {
@@ -98,9 +98,9 @@ export default function AboutPage() {
               <h2 className="text-3xl font-bold tracking-tight"><span className="text-primary">ფილოსოფია</span></h2>
               <p className="text-xl text-muted-foreground leading-relaxed">
                 ჩვენ შევდივართ <span className="text-foreground font-medium">ჰიბრიდული ინტელექტის</span> ეპოქაში.
-                ჩემი მიზანია ბიზნესის და ადამიანების გაძლიერება AI-ს მეშვეობით.
+                ჩემი მიზანია ბიზნესისა და ადამიანების გაძლიერება ხელოვნური ინტელექტის (AI) მეშვეობით.
                 როგორც <span className="text-foreground font-medium">AI არქიტექტორი</span>, ვქმნი სისტემებს, რომლებიც აერთიანებს ბიოლოგიურ კრეატიულობასა და სინთეზურ გონებას,
-                რათა მივიღოთ მაქსიმალური შედეგი ისეთი მოდელებისგან, როგორიცაა GPT-5.2 და Gemini 3.
+                რათა მაქსიმალური შედეგი მივიღოთ ისეთი მოდელებისგან, როგორიცაა GPT-5.2 და Gemini 3.
               </p>
               <AboutOnlineStatus />
             </div>

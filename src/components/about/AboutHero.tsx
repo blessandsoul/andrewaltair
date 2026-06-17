@@ -35,7 +35,7 @@ export function AboutHero() {
                             </h1>
 
                             <p className="text-xl sm:text-2xl text-muted-foreground/80 max-w-2xl leading-relaxed font-light">
-                                <span className="text-foreground font-medium">AI ინოვატორი და ტრენერი.</span> ვნერგავ ხელოვნურ ინტელექტს ბიზნესში და ვასწავლი მის ეფექტურ გამოყენებას. გეხმარებით Reasoning Model-ების და ავტონომიური აგენტების დანერგვაში.
+                                <span className="text-foreground font-medium">AI ინოვატორი და ტრენერი.</span> ვნერგავ ხელოვნურ ინტელექტს ბიზნესში და ვასწავლი მის ეფექტურ გამოყენებას. გეხმარებით Reasoning მოდელებისა და ავტონომიური აგენტების დანერგვაში.
                             </p>
                         </motion.div>
 
@@ -52,7 +52,7 @@ export function AboutHero() {
                             </Button>
                             <Button size="lg" variant="ghost" className="h-14 px-8 text-base rounded-full border border-white/10 hover:bg-white/5" asChild>
                                 <Link href="/blog">
-                                    წაიკითხე მანიფესტი
+                                    წაიკითხეთ მანიფესტი
                                 </Link>
                             </Button>
                         </motion.div>

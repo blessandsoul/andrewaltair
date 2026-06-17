@@ -73,7 +73,7 @@ export function AboutContactWidget() {
                         </h2>
                         <p className="text-lg text-muted-foreground mb-12 max-w-lg leading-relaxed">
                             მზად ხართ AI-ს ინტეგრაციისთვის?
-                            შეავსეთ ფორმა ან მომწერეთ პირდაპირ მესენჯერებში.
+                            შეავსეთ ფორმა ან დამიკავშირდით პირდაპირ.
                         </p>
 
                         <div className="space-y-6">

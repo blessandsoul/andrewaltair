@@ -70,7 +70,7 @@ export function AboutBioDetail() {
                                     ტექნიკური არსენალი
                                 </h3>
                                 <p className="text-sm text-muted-foreground leading-relaxed">
-                                    როგორც <strong>Senior Frontend Architect</strong>, მე ვიყენებ უახლეს სტეკს მაღალი წარმადობის სისტემების შესაქმნელად.
+                                    როგორც <strong>Senior Frontend Architect</strong>, მე ვიყენებ თანამედროვე ტექნოლოგიურ სტეკს მაღალი წარმადობის სისტემების შესაქმნელად.
                                 </p>
                                 <ul className="space-y-3 text-sm text-muted-foreground/80">
                                     <li className="flex items-start gap-3">
@@ -102,15 +102,15 @@ export function AboutBioDetail() {
                             >
                                 <h3 className="text-xl font-bold text-foreground flex items-center gap-3">
                                     <TbBrain className="text-primary text-2xl" />
-                                    Neuro-Aesthetic
+                                    ნეირო-ესთეტიკა (Neuro-Aesthetics)
                                 </h3>
                                 <div className="space-y-4 text-sm text-muted-foreground leading-relaxed">
                                     <p>
-                                        მე არ ვქმნი უბრალოდ ვებ-გვერდებს. მე ვქმნი <strong>ციფრულ გამოცდილებას</strong>.
-                                        Neuro-Aesthetic დიზაინი გულისხმობს ინტერფეისების აგებას ადამიანის ტვინის აღქმის თავისებურებების გათვალისწინებით.
+                                        მე არ ვქმნი უბრალო ვებგვერდებს. მე ვქმნი <strong>ციფრულ გამოცდილებას</strong>.
+                                        ნეირო-ესთეტიკური დიზაინი გულისხმობს ინტერფეისების აგებას ადამიანის ტვინის აღქმის თავისებურებების გათვალისწინებით.
                                     </p>
                                     <p>
-                                        მინიმალისტური ფერები, მკაფიო ტიპოგრაფია და სოლიდური გეომეტრია — ეს არის "Dopamine-Driven" დიზაინის საფუძველი.
+                                        მინიმალისტური ფერები, მკაფიო ტიპოგრაფია და სოლიდური გეომეტრია — ეს არის დოპამინზე ორიენტირებული (Dopamine-Driven) დიზაინის საფუძველი.
                                     </p>
                                 </div>
                             </motion.div>

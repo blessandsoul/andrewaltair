@@ -1,0 +1,5 @@
+warning: in the working copy of 'src/app/api/workshop/host/[hostKey]/control/route.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/about/AboutCertificates.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/data/workshop-strings.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/services/workshop.service.ts', LF will be replaced by CRLF the next time Git touches it
+Saved working directory and index state On feat/workshop-multi-responders: wip-timer-liveresolve-park

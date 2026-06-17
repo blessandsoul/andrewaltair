@@ -4,12 +4,12 @@ import { motion } from "framer-motion"
 import { TbBulb, TbBrain, TbCode, TbRocket, TbUsers, TbWorld } from "react-icons/tb"
 
 const beliefs = [
-    { icon: TbBrain, text: "AI არ ჩაანაცვლებს ადამიანს. ის გააფართოებს მას." },
-    { icon: TbCode, text: "კოდი — მომავლის ლოგიკის ენაა." },
-    { icon: TbBulb, text: "კრეატიულობა — ახალი პროდუქტიულობაა." },
+    { icon: TbBrain, text: "AI არ ჩაანაცვლებს ადამიანს. ის გააფართოებს მის შესაძლებლობებს." },
+    { icon: TbCode, text: "კოდი მომავლის ლოგიკის ენაა." },
+    { icon: TbBulb, text: "კრეატიულობა ახალი პროდუქტიულობაა." },
     { icon: TbRocket, text: "ააშენე სწრაფად, დახვეწე უფრო სწრაფად." },
-    { icon: TbUsers, text: "კომუნა კონკურენციაზე მაღლა დგას." },
-    { icon: TbWorld, text: "მომავალი ღია კოდშია (Open Source)." }
+    { icon: TbUsers, text: "ერთობა კონკურენციაზე მაღლა დგას." },
+    { icon: TbWorld, text: "მომავალი ღია კოდისაა (Open Source)." }
 ]
 
 export function AboutManifest() {
@@ -18,7 +18,7 @@ export function AboutManifest() {
             <div className="container mx-auto px-4 sm:px-6 lg:px-12 max-w-[90rem]">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl font-bold tracking-tight mb-4">მანიფესტი</h2>
-                    <p className="text-muted-foreground">მთავარი პრინციპები, რომლითაც ვხელმძღვანელობ</p>
+                    <p className="text-muted-foreground">მთავარი პრინციპები, რომლებითაც ვხელმძღვანელობ</p>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">

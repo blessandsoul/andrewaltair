@@ -23,6 +23,7 @@ import { ScriptBody } from './ScriptBody'
 import { Roster } from './Roster'
 import { PinList } from './PinList'
 import { MultiResponders } from './MultiResponders'
+import { PromptVault } from './PromptVault'
 import { StatusPill } from './StatusPill'
 import { HistoryDrawer } from './HistoryDrawer'
 import { STR } from '@/data/workshop-strings'
@@ -124,6 +125,7 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                         <h1 className="text-lg font-bold leading-tight">{state.title}</h1>
                     </div>
                     <div className="flex items-center gap-2">
+                        <PromptVault />
                         <Button
                             variant="outline"
                             size="icon"
