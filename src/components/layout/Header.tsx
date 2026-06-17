@@ -212,7 +212,7 @@ export function Header() {
             </Link>
 
             {/* Desktop Navigation */}
-            <NavigationMenu className="hidden lg:flex">
+            <NavigationMenu viewport={false} className="hidden lg:flex">
               <NavigationMenuList>
                 {mainNavItems.map((item) => (
                   <NavigationMenuItem key={item.href}>
@@ -237,7 +237,7 @@ export function Header() {
                   <NavigationMenuTrigger className="h-10 px-4 text-sm font-medium text-on-surface-variant bg-transparent hover:text-primary">
                     მეტი
                   </NavigationMenuTrigger>
-                  <NavigationMenuContent>
+                  <NavigationMenuContent className="left-auto right-0">
                     <ul className="grid w-[280px] gap-1 p-3">
                       {exploreItems.map((item) => (
                         <li key={item.href}>
