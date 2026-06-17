@@ -98,6 +98,21 @@ export default function RootLayout({
             gtag('config', 'G-7YH89CPYF7');
           `}
         </Script>
+
+        {/* aiSTAFF.ge AI chat widget — third-party support chat (replaces the
+            removed in-app AIChatAssistant). MUST be a native, SYNCHRONOUS,
+            parser-inserted <script> — NOT next/script and NOT async. The widget's
+            first line reads document.currentScript to get its data-bot-id, and
+            currentScript is null for async scripts and for dynamically-injected
+            ones (next/script injects dynamically), so the widget hits its
+            `if (!script) return` guard and renders nothing. A plain sync tag at
+            the end of <body> — the vendor's intended embed — is the only form
+            where currentScript resolves. */}
+        {/* eslint-disable-next-line @next/next/no-sync-scripts -- intentional: the widget needs document.currentScript, which an async script would null out */}
+        <script
+          src="https://aistaff.ge/widget.js"
+          data-bot-id="40bb7900-0117-475d-a9de-1f645bf978c6"
+        ></script>
       </body>
     </html>
   );
