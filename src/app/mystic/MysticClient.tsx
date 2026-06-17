@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { MagicWand, Moon, Heart, Star, Warning, CaretLeft, Hash, Crown, ClockCounterClockwise, Trophy, Medal, ChatCircle, User, HeartStraight } from "@phosphor-icons/react"
+import { MagicWand, Moon, Heart, Star, Warning, CaretLeft, Hash, Crown, ClockCounterClockwise, Trophy, Medal, User, HeartStraight } from "@phosphor-icons/react"
 import { FortuneTeller } from "@/components/ai/FortuneTeller"
 import { LoveCalculator } from "@/components/ai/LoveCalculator"
 import { DreamInterpreter } from "@/components/ai/DreamInterpreter"
@@ -10,7 +10,6 @@ import { Horoscope } from "@/components/ai/Horoscope"
 import { TarotCards } from "@/components/ai/TarotCards"
 import { Numerology } from "@/components/ai/Numerology"
 import { MoonPhases } from "@/components/ai/MoonPhases"
-import { MysticChat } from "@/components/ai/MysticChat"
 import { MysticHistory } from "@/components/mystic/MysticHistory"
 import { MysticLeaderboard } from "@/components/mystic/MysticLeaderboard"
 import { MysticAchievements } from "@/components/mystic/MysticAchievements"
@@ -96,16 +95,6 @@ const TOOLS = [
         icon: Moon,
         color: "#64748b",
         component: MoonPhases,
-        isPremium: false
-    },
-    {
-        id: "chat",
-        name: "AI მისტიკოსი",
-        shortName: "ჩატი",
-        description: "პირადი მრჩეველი",
-        icon: ChatCircle,
-        color: "#d946ef",
-        component: MysticChat,
         isPremium: false
     },
 ]

@@ -123,9 +123,6 @@ export default function BotDetailClient({ initialBot }: { initialBot?: AIBot | n
     const [rating, setRating] = useState(5);
     const [hasPurchased, setHasPurchased] = useState(false);
     const [checkingPurchase, setCheckingPurchase] = useState(true);
-    const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'bot'; text: string }>>([]);
-    const [chatInput, setChatInput] = useState('');
-    const [isChatLoading, setIsChatLoading] = useState(false);
     const [isLiked, setIsLiked] = useState(false);
     const [isWishlisted, setIsWishlisted] = useState(false);
     const [versions, setVersions] = useState<BotVersion[]>([]);
@@ -240,30 +237,6 @@ export default function BotDetailClient({ initialBot }: { initialBot?: AIBot | n
             console.error('Error submitting comment:', error);
         }
     };
-
-    const handleSendMessage = async (message: string) => {
-        if (!message.trim() || chatMessages.length >= 10) return;
-        const userMessage = { role: 'user' as const, text: message };
-        setChatMessages(prev => [...prev, userMessage]);
-        setChatInput('');
-        setIsChatLoading(true);
-
-        try {
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message, botId: bot?.id || params.id, masterPrompt: bot?.masterPrompt })
-            });
-            const data = await response.json();
-            setChatMessages(prev => [...prev, { role: 'bot', text: data.response }]);
-        } catch (error) {
-            setChatMessages(prev => [...prev, { role: 'bot', text: 'შეცდომა. სცადეთ თავიდან.' }]);
-        } finally {
-            setIsChatLoading(false);
-        }
-    };
-
-    const suggestedMessages = ['როგორ მუშაობს?', 'რა შეუძლია?', 'მაჩვენე მაგალითი'];
 
     // ═══════════════════════════════════════════════════════════════════════
     // LOADING STATE
@@ -732,115 +705,6 @@ export default function BotDetailClient({ initialBot }: { initialBot?: AIBot | n
 
                     {/* RIGHT COLUMN - Sidebar */}
                     <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-                        {/* Live Demo Card */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            className="bg-card border border-border shadow-lg rounded-2xl overflow-hidden"
-                        >
-                            <div className={`h-2 bg-gradient-to-r ${bot.color}`} />
-                            <div className="p-5">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex items-center gap-2">
-                                        <span className="relative flex h-2 w-2">
-                                            <span className="animate-ping absolute h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                                            <span className="relative h-2 w-2 rounded-full bg-emerald-500" />
-                                        </span>
-                                        <span className="text-sm font-bold text-foreground">Live Demo</span>
-                                    </div>
-                                    <span className="text-xs px-2 py-1 bg-secondary rounded text-muted-foreground font-mono">
-                                        {Math.floor(chatMessages.length / 2)}/5
-                                    </span>
-                                </div>
-
-                                {/* Messages */}
-                                <div className="min-h-[160px] max-h-[200px] overflow-y-auto space-y-2 mb-4">
-                                    {chatMessages.length === 0 ? (
-                                        <div className="text-center py-6">
-                                            <div className={`w-12 h-12 mx-auto mb-3 rounded-xl bg-gradient-to-br ${bot.color} flex items-center justify-center opacity-50`}>
-                                                <TbMessage className="w-6 h-6 text-white" />
-                                            </div>
-                                            <p className="text-xs text-muted-foreground">სცადე ბოტი — 5 მესიჯი უფასოდ</p>
-                                        </div>
-                                    ) : (
-                                        chatMessages.map((msg, idx) => (
-                                            <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                                <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${msg.role === 'user'
-                                                    ? `bg-gradient-to-r ${bot.color} text-white rounded-br-none`
-                                                    : 'bg-secondary text-secondary-foreground rounded-bl-none'
-                                                    }`}>
-                                                    {msg.text}
-                                                </div>
-                                            </div>
-                                        ))
-                                    )}
-                                    {isChatLoading && (
-                                        <div className="flex justify-start">
-                                            <div className="bg-secondary rounded-2xl rounded-bl-none px-4 py-3">
-                                                <div className="flex gap-1">
-                                                    {[0, 1, 2].map((i) => (
-                                                        <motion.div
-                                                            key={i}
-                                                            animate={{ y: [0, -4, 0] }}
-                                                            transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.1 }}
-                                                            className="w-1.5 h-1.5 bg-muted-foreground/30 rounded-full"
-                                                        />
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Quick suggestions */}
-                                {chatMessages.length === 0 && (
-                                    <div className="space-y-2 mb-4">
-                                        {suggestedMessages.map((msg, idx) => (
-                                            <button
-                                                key={idx}
-                                                onClick={() => handleSendMessage(msg)}
-                                                className="w-full text-left text-xs px-3 py-2 bg-secondary/50 hover:bg-secondary border border-border rounded-lg text-muted-foreground hover:text-foreground transition-all"
-                                            >
-                                                {msg}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-
-                                {/* Input */}
-                                <div className="relative">
-                                    {chatMessages.length >= 10 && (
-                                        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex items-center justify-center rounded-xl">
-                                            <div className="text-center">
-                                                <TbLock className="w-5 h-5 text-amber-500 mx-auto mb-1" />
-                                                <p className="text-xs text-muted-foreground">ლიმიტი ამოიწურა</p>
-                                            </div>
-                                        </div>
-                                    )}
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="text"
-                                            value={chatInput}
-                                            onChange={(e) => setChatInput(e.target.value)}
-                                            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(chatInput)}
-                                            placeholder="მესიჯი..."
-                                            disabled={isChatLoading || chatMessages.length >= 10}
-                                            className="flex-1 bg-secondary/30 border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-violet-400 disabled:opacity-50 transition-colors"
-                                        />
-                                        <Button
-                                            onClick={() => handleSendMessage(chatInput)}
-                                            disabled={!chatInput.trim() || isChatLoading || chatMessages.length >= 10}
-                                            size="icon"
-                                            className={`w-10 h-10 rounded-xl transition-all ${chatInput.trim() ? `bg-gradient-to-r ${bot.color}` : 'bg-muted'}`}
-                                        >
-                                            <TbSend className={`w-4 h-4 ${chatInput.trim() ? 'text-white' : 'text-muted-foreground'}`} />
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-
                         {/* Price Card */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}

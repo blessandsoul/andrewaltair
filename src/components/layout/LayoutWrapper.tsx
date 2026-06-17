@@ -84,9 +84,6 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
                         </p>
                     </div>
                 </footer>
-
-                {/* Floating elements — idle-mounted */}
-                <FloatingWidgets chatOnly />
             </div>
         )
     }
@@ -112,7 +109,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
             <MobileNav />
 
             {/* Floating Elements — code-split + idle-mounted (EasterEgg,
-                SocialProofToast, LiveVisitorCounter, AIChatAssistant, HeatmapOverlay) */}
+                SocialProofToast, LiveVisitorCounter, HeatmapOverlay) */}
             <FloatingWidgets />
         </>
     )

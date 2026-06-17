@@ -17,7 +17,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { TbSparkles, TbCopy, TbCheck, TbBulb, TbWand, TbFileText, TbBolt, TbBrain, TbCode, TbBriefcase, TbHeart, TbLoader2, TbStars, TbRefresh, TbHistory, TbBook, TbWorld, TbDownload, TbShare, TbLanguage, TbStack2, TbTestPipe, TbTool, TbLibrary, TbPencil, TbRobot } from "react-icons/tb"
-import { PromptHistory, PromptTemplates, PromptGallery, PromptChat, TokenCounter, PromptQuality, PromptShare, PromptABTest, ModelSelector, ModelSettings, PromptAnalyticsDashboard, PromptVersions, OnboardingTour, promptBuilderTourSteps } from "@/components/prompt-builder"
+import { PromptHistory, PromptTemplates, PromptGallery, TokenCounter, PromptQuality, PromptShare, PromptABTest, ModelSelector, ModelSettings, PromptAnalyticsDashboard, PromptVersions, OnboardingTour, promptBuilderTourSteps } from "@/components/prompt-builder"
 import { useToast } from "@/components/ui/toast"
 
 // Role options
@@ -970,13 +970,6 @@ export default function PromptBuilderPage() {
                                                         }
                                                     }}
                                                 />
-                                            </CardContent>
-                                        </Card>
-
-                                        {/* Test Prompt */}
-                                        <Card className="border">
-                                            <CardContent className="p-4">
-                                                <PromptChat prompt={generatedPrompt} />
                                             </CardContent>
                                         </Card>
 

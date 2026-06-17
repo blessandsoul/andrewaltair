@@ -1,10 +1,8 @@
 import mongoose from 'mongoose';
 import dbConnect from '@/lib/db';
 import Bot from '@/models/Bot';
-import { callGemini } from '@/lib/gemini';
 
 import type { IBot, BotCategory, BotTier } from '@/models/Bot';
-import type { GeminiMessage } from '@/lib/gemini';
 
 interface GetAllBotsParams {
     page?: number;
@@ -35,11 +33,6 @@ interface CreateBotData {
     rating?: number;
     isRecentlyAdded?: boolean;
     isFeatured?: boolean;
-}
-
-interface ChatHistoryMessage {
-    role: 'user' | 'assistant';
-    content: string;
 }
 
 
@@ -223,39 +216,4 @@ export class BotService {
         return { ...bot.toObject(), id: bot._id.toString() };
     }
 
-    /**
-     * CHAT Logic
-     */
-    static async chat(message: string, history: ChatHistoryMessage[], masterPrompt?: string): Promise<string> {
-        let systemPrompt = "შენ ხარ AI ასისტენტი. პასუხობ ქართულად და ეხმარები მომხმარებელს.";
-        if (masterPrompt) {
-            if (masterPrompt.length > 2000) throw new Error("Master prompt ძალიან გრძელია");
-            systemPrompt = masterPrompt;
-        }
-
-        let geminiHistory: GeminiMessage[] = [];
-        if (history && Array.isArray(history)) {
-            for (const msg of history.slice(-10)) {
-                if ((msg.role === "user" || msg.role === "assistant") && msg.content?.trim()) {
-                    geminiHistory.push({
-                        role: msg.role === "assistant" ? "model" : "user",
-                        parts: [{ text: msg.content }],
-                    });
-                }
-            }
-        }
-
-        // Gemini requires the first message to have role 'user'
-        while (geminiHistory.length > 0 && geminiHistory[0].role === 'model') {
-            geminiHistory.shift();
-        }
-
-        return callGemini({
-            systemPrompt,
-            userMessage: message,
-            temperature: 0.7,
-            maxOutputTokens: 500,
-            history: geminiHistory,
-        });
-    }
 }

@@ -10,7 +10,6 @@ import { Horoscope } from "@/components/ai/Horoscope"
 import { TarotCards } from "@/components/ai/TarotCards"
 import { Numerology } from "@/components/ai/Numerology"
 import { MoonPhases } from "@/components/ai/MoonPhases"
-import { MysticChat } from "@/components/ai/MysticChat"
 import { SERVICE_3D_MODELS } from "@/components/mystic/3DModels"
 
 // Service definitions
@@ -56,12 +55,6 @@ const SERVICES = {
         description: "კოსმიური ენერგია",
         color: "#64748b",
         component: MoonPhases,
-    },
-    chat: {
-        name: "AI მისტიკოსი",
-        description: "პირადი მრჩეველი",
-        color: "#d946ef",
-        component: MysticChat,
     },
 }
 

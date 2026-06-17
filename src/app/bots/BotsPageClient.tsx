@@ -4,8 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useToast } from '@/components/ui/toast';
-import { TbRobot, TbCrown, TbLock, TbSparkles, TbSearch, TbEye, TbCopy, TbShoppingCart, TbStar, TbMessage, TbBolt, TbPencil, TbBrain, TbPalette, TbTrendingUp, TbShare, TbHeart, TbCheck, TbX, TbClock, TbShield, TbRocket, TbUsers, TbDownload, TbChevronDown, TbChevronUp, TbQuote, TbArrowRight, TbFlame, TbPlayerPlay, TbTrendingDown, TbCalculator, TbGift, TbBuilding, TbUserPlus, TbCreditCard, TbPercentage, TbTarget, TbChartBar, TbClick, TbMail, TbAward, TbStack2, TbCircleCheck, TbCircleX, TbExternalLink, TbBolt as ZapIcon, TbPlus } from "react-icons/tb";
-import { DemoChatModal } from '@/components/bots/DemoChatModal';
+import { TbRobot, TbCrown, TbLock, TbSparkles, TbSearch, TbEye, TbCopy, TbShoppingCart, TbStar, TbMessage, TbBolt, TbPencil, TbBrain, TbPalette, TbTrendingUp, TbShare, TbHeart, TbCheck, TbX, TbClock, TbShield, TbRocket, TbUsers, TbDownload, TbChevronDown, TbChevronUp, TbQuote, TbArrowRight, TbFlame, TbTrendingDown, TbCalculator, TbGift, TbBuilding, TbUserPlus, TbCreditCard, TbPercentage, TbTarget, TbChartBar, TbClick, TbMail, TbAward, TbStack2, TbCircleCheck, TbCircleX, TbExternalLink, TbBolt as ZapIcon, TbPlus } from "react-icons/tb";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // NEURO-DESIGN SYSTEM — Types & Interfaces
@@ -245,7 +244,6 @@ interface BotCardProps {
     onView: (bot: AIBot) => void;
     onLike: (id: string) => void;
     onCopy: (id: string) => void;
-    onDemo: (bot: AIBot) => void;
     copiedId: string | null;
     likedIds: Set<string>;
     onCompare?: (id: string) => void;
@@ -253,7 +251,7 @@ interface BotCardProps {
     onShare?: (bot: AIBot) => void;
 }
 
-function BotCard({ bot, onView, onLike, onCopy, onDemo, copiedId, likedIds, onCompare, isComparing, onShare }: BotCardProps) {
+function BotCard({ bot, onView, onLike, onCopy, copiedId, likedIds, onCompare, isComparing, onShare }: BotCardProps) {
     const isLiked = likedIds.has(bot.id);
 
     return (
@@ -663,20 +661,6 @@ function BotCard({ bot, onView, onLike, onCopy, onDemo, copiedId, likedIds, onCo
                                 </ActionTooltip>
                             </Link>
 
-                            {bot.tier !== 'private' && (
-                                <ActionTooltip content="სცადე ბოტი უფასოდ">
-                                    <motion.button
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() => onDemo(bot)}
-                                        className="w-full p-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 transition-colors border border-emerald-500/30 flex items-center justify-center"
-                                        aria-label="დემო"
-                                    >
-                                        <TbPlayerPlay className="w-3.5 h-3.5" />
-                                    </motion.button>
-                                </ActionTooltip>
-                            )}
-
                             <ActionTooltip content={isLiked ? "ამოშლა რჩეულებიდან" : "დაამატე რჩეულებში"}>
                                 <motion.button
                                     whileHover={{ scale: 1.05 }}
@@ -806,7 +790,6 @@ export default function BotsPageClient({ initialBots }: { initialBots?: AIBot[] 
     const [selectedBot, setSelectedBot] = useState<AIBot | null>(null);
     const [copiedId, setCopiedId] = useState<string | null>(null);
     const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
-    const [demoBot, setDemoBot] = useState<AIBot | null>(null);
 
     // New Sales Features State
     const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 45, seconds: 12 });
@@ -1572,7 +1555,6 @@ export default function BotsPageClient({ initialBots }: { initialBots?: AIBot[] 
                                     onView={handleView}
                                     onLike={handleLike}
                                     onCopy={handleCopy}
-                                    onDemo={setDemoBot}
                                     copiedId={copiedId}
                                     likedIds={likedIds}
                                     onCompare={toggleComparison}
@@ -2173,19 +2155,6 @@ export default function BotsPageClient({ initialBots }: { initialBots?: AIBot[] 
                     </motion.div>
                 </div>
             </section>
-
-            {/* ═══════════════════════════════════════════════════════════════════
-                DEMO CHAT MODAL
-            ═══════════════════════════════════════════════════════════════════ */}
-            <AnimatePresence>
-                {demoBot && (
-                    <DemoChatModal
-                        bot={demoBot}
-                        onClose={() => setDemoBot(null)}
-                        iconMap={iconMap}
-                    />
-                )}
-            </AnimatePresence>
 
             {/* ═══════════════════════════════════════════════════════════════════
                 BOT DETAIL MODAL
