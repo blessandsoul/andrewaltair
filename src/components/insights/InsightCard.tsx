@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { TbExternalLink, TbFlame, TbHeart, TbBrain, TbHandClick, TbBulb, TbEye, TbCalendar } from 'react-icons/tb';
 import { cn } from '@/lib/utils';
 import { tagToSlug } from '@/lib/slug';
-import { stripSourceLines, formatInsightDate } from '@/lib/insight-content';
+import { stripSourceLines, formatInsightDate, getHeadline } from '@/lib/insight-content';
 import { Badge } from '@/components/ui/badge';
 import { PersonaLikeStack } from '@/components/ai/PersonaLikeStack';
 
@@ -81,8 +81,11 @@ export function InsightCard({ insight, basePath = '/insights', dateLocale = 'ka-
     // empty and the card had no photo. Fall back to the site's generated OG
     // title-card so every insight shows an image. v=2 busts the stale tofu image
     // cached before the Georgian font was embedded in /api/og.
+    // Full untruncated headline (content line 1), NOT seo.metaTitle (capped at
+    // 70 -> cut mid-word in the OG card).
+    const ogTitle = (getHeadline(insight.content) || insight.seo?.metaTitle || insight.sourceTitle || insight.excerpt || 'Insight').slice(0, 160);
     const displayImage = insight.sourceImage
-        || `/api/og?title=${encodeURIComponent((insight.seo?.metaTitle || insight.sourceTitle || insight.excerpt || 'Insight').slice(0, 140))}&type=insight&v=2`;
+        || `/api/og?title=${encodeURIComponent(ogTitle)}&type=insight&v=3`;
 
     return (
         <article className="bg-card border border-border rounded-2xl overflow-hidden transition-all hover:border-primary/20 hover:shadow-lg">

@@ -93,6 +93,21 @@ export function stripSourceLines(content: string): string {
 // on server and client (no hydration drift). User directive 2026-06-18.
 const KA_MONTHS_SHORT = ['იან', 'თებ', 'მარ', 'აპრ', 'მაი', 'ივნ', 'ივლ', 'აგვ', 'სექ', 'ოქტ', 'ნოე', 'დეკ'];
 
+/**
+ * The full, untruncated headline = first non-empty content line (the bot emits
+ * the headline there). Use this for the OG title-card: seo.metaTitle is capped
+ * at 70 chars for the SEO <title>, so feeding it to /api/og cut the headline
+ * mid-word ("not fully visible"). The content line carries the whole thing.
+ */
+export function getHeadline(content: string): string {
+    if (!content) return '';
+    for (const line of content.split(/\r?\n/)) {
+        const t = line.trim();
+        if (t && !SOURCE_LINE_RE.test(t)) return t;
+    }
+    return '';
+}
+
 export function formatInsightDate(value: string | Date, locale: 'ka' | 'en' = 'ka'): string {
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return '';
