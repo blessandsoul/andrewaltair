@@ -33,6 +33,7 @@ export interface IInsight extends Document {
     tags: string[];
     autoTags: string[];
     categories: string[];
+    language: 'ka' | 'en';
     relatedInsights: string[];
     relatedPosts: string[];
     seo: IInsightSEO;
@@ -121,6 +122,15 @@ const InsightSchema = new Schema<IInsight>(
         categories: {
             type: [String],
             default: [],
+            index: true,
+        },
+        // Content language. Legacy docs predate this field — they have no
+        // `language` key at all, so KA-facing queries must filter with
+        // { $ne: 'en' } (matches missing + 'ka'), never { language: 'ka' }.
+        language: {
+            type: String,
+            enum: ['ka', 'en'],
+            default: 'ka',
             index: true,
         },
         relatedInsights: {

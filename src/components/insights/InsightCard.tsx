@@ -31,6 +31,10 @@ interface InsightCardProps {
         };
         likedBy?: { personaId: string; name: string }[];
     };
+    /** URL prefix for article + tag links. '/insights' (KA) or '/en/insights' (EN). */
+    basePath?: string;
+    /** Intl locale for the published date. 'ka-GE' (KA) or 'en-US' (EN). */
+    dateLocale?: string;
 }
 
 const REACTION_CONFIG = [
@@ -41,7 +45,7 @@ const REACTION_CONFIG = [
     { key: 'insightful', icon: TbBulb, label: 'Insightful' },
 ] as const;
 
-export function InsightCard({ insight }: InsightCardProps) {
+export function InsightCard({ insight, basePath = '/insights', dateLocale = 'ka-GE' }: InsightCardProps) {
     const [reactions, setReactions] = useState(insight.reactions);
     const [isReacting, setIsReacting] = useState(false);
 
@@ -69,7 +73,7 @@ export function InsightCard({ insight }: InsightCardProps) {
         }
     };
 
-    const publishedDate = new Date(insight.publishedAt).toLocaleDateString('ka-GE', {
+    const publishedDate = new Date(insight.publishedAt).toLocaleDateString(dateLocale, {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -79,7 +83,7 @@ export function InsightCard({ insight }: InsightCardProps) {
         <article className="bg-card border border-border rounded-2xl overflow-hidden transition-all hover:border-primary/20 hover:shadow-lg">
             {/* Source Image */}
             {insight.sourceImage && (
-                <Link href={`/insights/${insight.slug}`}>
+                <Link href={`${basePath}/${insight.slug}`}>
                     <div className="relative w-full aspect-[2/1] overflow-hidden">
                         <Image
                             src={insight.sourceImage}
@@ -108,7 +112,7 @@ export function InsightCard({ insight }: InsightCardProps) {
             {/* Content */}
             <div className="p-5 space-y-4">
                 {/* Full text */}
-                <Link href={`/insights/${insight.slug}`} className="block">
+                <Link href={`${basePath}/${insight.slug}`} className="block">
                     <div className="text-foreground whitespace-pre-line leading-relaxed text-[15px]">
                         {insight.content}
                     </div>
@@ -118,7 +122,7 @@ export function InsightCard({ insight }: InsightCardProps) {
                 {insight.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
                         {insight.tags.slice(0, 6).map((tag) => (
-                            <Link key={tag} href={`/insights?tag=${encodeURIComponent(tagToSlug(tag))}`}>
+                            <Link key={tag} href={`${basePath}?tag=${encodeURIComponent(tagToSlug(tag))}`}>
                                 <Badge
                                     variant="outline"
                                     className="text-xs hover:bg-primary/10 transition-colors cursor-pointer"

@@ -4,13 +4,12 @@ import { InsightsFeed } from '@/components/insights';
 import { InsightService } from '@/services/insight.service';
 import { slugToRawTag } from '@/lib/slug';
 
-// The page reads searchParams (request-dynamic), but the Mongo reads below are
-// memoized via unstable_cache — the old force-dynamic version ran TWO live
-// collection scans (100 docs for the tag map + the page query) on every hit,
-// including every crawler hit. Tag 'insights' is busted on publish.
+// English insights surface. Mirrors /insights but filters language:'en' and
+// renders English chrome. Separate unstable_cache keys from the KA listing so
+// the two feeds never collide. Tag 'insights' is busted on every publish.
 const getCachedTagCounts = unstable_cache(
     async (): Promise<Record<string, number>> => {
-        const all = await InsightService.getAllInsights({ status: 'published', limit: 100 });
+        const all = await InsightService.getAllInsights({ status: 'published', limit: 100, language: 'en' });
         const tagCounts: Record<string, number> = {};
         for (const insight of all.insights) {
             for (const t of (insight.tags || [])) {
@@ -19,7 +18,7 @@ const getCachedTagCounts = unstable_cache(
         }
         return JSON.parse(JSON.stringify(tagCounts));
     },
-    ['insights-tagmap'],
+    ['en-insights-tagmap'],
     { revalidate: 600, tags: ['insights'] }
 );
 
@@ -29,11 +28,11 @@ const getCachedInsightsPage = unstable_cache(
             status: 'published',
             limit: 10,
             tag,
+            language: 'en',
         });
-        // serialize inside the cached fn — the cache stores plain JSON
         return JSON.parse(JSON.stringify({ insights, pagination }));
     },
-    ['insights-listing'],
+    ['en-insights-listing'],
     { revalidate: 120, tags: ['insights'] }
 );
 
@@ -42,28 +41,28 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
     const { tag } = await props.searchParams;
     return {
-        title: 'AI ინსაითები — დღის სიახლეები',
-        description: 'მოკლე ანალიტიკა და კომენტარები ხელოვნური ინტელექტისა და ტექნოლოგიების სამყაროდან.',
-        // ?tag= variants flooded GSC as duplicates — noindex,follow collapses them
+        title: 'AI Insights — Daily News',
+        description: 'Short analysis and commentary from the world of artificial intelligence and technology.',
+        // ?tag= variants flood GSC as duplicates — noindex,follow collapses them
         ...(tag ? { robots: { index: false, follow: true } } : {}),
-        alternates: { canonical: '/insights' },
+        alternates: { canonical: '/en/insights' },
         openGraph: {
             title: 'Insights | Andrew Altair',
-            description: 'მოკლე ანალიტიკა და კომენტარები ხელოვნური ინტელექტისა და ტექნოლოგიების სამყაროდან.',
+            description: 'Short analysis and commentary from the world of artificial intelligence and technology.',
             type: 'website',
-            url: 'https://andrewaltair.ge/insights',
+            url: 'https://andrewaltair.ge/en/insights',
+            locale: 'en_US',
         },
     };
 }
 
-export default async function InsightsPage({
+export default async function EnInsightsPage({
     searchParams,
 }: {
     searchParams: Promise<{ tag?: string }>;
 }) {
     const { tag } = await searchParams;
 
-    // Tag map for the filter URL param — cached, no per-request collection scan.
     const tagCounts = await getCachedTagCounts();
 
     const popularTags = Object.entries(tagCounts)
@@ -71,7 +70,6 @@ export default async function InsightsPage({
         .slice(0, 15)
         .map(([t]) => t);
 
-    // Resolve tag slug → raw tag, or fall back to raw value (backward compat).
     const allKnownTags = Object.keys(tagCounts);
     const resolvedTag = tag ? (slugToRawTag(tag, allKnownTags) ?? tag) : null;
 
@@ -81,11 +79,11 @@ export default async function InsightsPage({
     const collectionSchema = {
         '@context': 'https://schema.org',
         '@type': 'CollectionPage',
-        '@id': `${siteUrl}/insights#collection`,
-        url: `${siteUrl}/insights`,
+        '@id': `${siteUrl}/en/insights#collection`,
+        url: `${siteUrl}/en/insights`,
         name: 'Insights | Andrew Altair',
-        description: 'მოკლე ანალიტიკა და კომენტარები ხელოვნური ინტელექტისა და ტექნოლოგიების სამყაროდან.',
-        inLanguage: 'ka',
+        description: 'Short analysis and commentary from the world of AI and technology.',
+        inLanguage: 'en',
         isPartOf: { '@id': `${siteUrl}/#website` },
         about: { '@id': `${siteUrl}/#person` },
         mainEntity: {
@@ -94,7 +92,7 @@ export default async function InsightsPage({
             itemListElement: serializedInsights.slice(0, 20).map((insight: any, i: number) => ({
                 '@type': 'ListItem',
                 position: i + 1,
-                url: `${siteUrl}/insights/${insight.slug}`,
+                url: `${siteUrl}/en/insights/${insight.slug}`,
                 name: insight.title,
             })),
         },
@@ -113,10 +111,10 @@ export default async function InsightsPage({
                         Insights
                     </h1>
                     <p className="text-muted-foreground">
-                        მოკლე ანალიტიკა და კომენტარები AI სამყაროდან
+                        Short analysis and commentary from the AI world
                     </p>
-                    <a href="/en/insights" className="inline-block mt-3 text-sm text-muted-foreground hover:text-primary transition-colors">
-                        English →
+                    <a href="/insights" className="inline-block mt-3 text-sm text-muted-foreground hover:text-primary transition-colors">
+                        ქართულად →
                     </a>
                 </div>
 
@@ -125,6 +123,8 @@ export default async function InsightsPage({
                     initialHasMore={pagination.page < pagination.pages}
                     activeTag={tag}
                     allTags={popularTags}
+                    basePath="/en/insights"
+                    language="en"
                 />
             </div>
         </main>

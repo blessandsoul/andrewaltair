@@ -15,6 +15,7 @@ export async function GET(request: Request) {
         const tag = searchParams.get('tag');
         const search = searchParams.get('search');
         const afterSlug = searchParams.get('afterSlug');
+        const language = searchParams.get('language') === 'en' ? 'en' : null;
 
         const { insights, pagination } = await InsightService.getAllInsights({
             page,
@@ -23,6 +24,7 @@ export async function GET(request: Request) {
             tag,
             search,
             afterSlug,
+            language,
         });
 
         return apiPaginated(insights, {
@@ -53,8 +55,9 @@ export async function POST(request: Request) {
         // Revalidate pages that show insights
         revalidatePath('/');
         revalidatePath('/insights');
+        revalidatePath('/en/insights');
         revalidatePath('/sitemap.xml');
-        revalidateTag('insights'); // busts unstable_cache on the /insights listing
+        revalidateTag('insights'); // busts unstable_cache on both /insights and /en/insights listings
 
         return apiSuccess(insight, 'Insight created', 201);
     } catch (error) {
