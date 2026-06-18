@@ -190,6 +190,7 @@ export const STR = {
         topAnswers: 'ტოპ პასუხები, ყველაზე გავრცელებული',
         gateWarn: (a: number, b: number) =>
             `ჯერ მხოლოდ ${a}/${b}-მა უპასუხა, თუ მაინც გადასვლა გსურთ, კიდევ ერთხელ დააჭირეთ`,
+        startTimer: 'ტაიმერის დაწყება',
         hotkeys: 'Space=შემდეგი · R=შედეგები · →=რაუნდი · E=დასრულება',
         seedTitle: 'Demo: სატესტო პასუხები რეპეტიციისთვის',
     },
@@ -198,6 +199,7 @@ export const STR = {
         title: 'პულტი',
         notes: 'ჩემი ჩანაწერები',
         pinListHeader: 'პასუხები, დააჭირეთ ვარსკვლავს ეკრანზე გამოსატანად',
+        findersHeader: 'ვინ რა მონიშნა',
         unpin: 'დამაგრების მოხსნა',
         openDisplay: 'ეკრანის გახსნა (გასაზიარებლად)',
         stop: 'ვორქშოპის დასრულება',
@@ -211,6 +213,11 @@ export const STR = {
         historyLoading: 'იტვირთება…',
         historyError: 'ჩატვირთვა ვერ მოხერხდა',
         historyClose: 'დახურვა',
+        // банк демо-промптов (кнопка-попап на пульте)
+        vaultTitle: 'კინო-პრომპტი',
+        vaultCopy: 'კოპირება',
+        vaultCopied: 'დაკოპირდა ✓',
+        vaultClose: 'დახურვა',
         // секции спикер-скрипта на пульте
         scriptTitle: 'სცენარი',
         scriptCollapse: 'ჩაკეცვა',

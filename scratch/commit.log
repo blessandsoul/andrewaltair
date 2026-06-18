@@ -1,0 +1,4 @@
+[feat/workshop-multi-responders eb06fad3] feat(workshop): live per-name multi answers on host pult
+ 6 files changed, 239 insertions(+), 4 deletions(-)
+ create mode 100644 src/__tests__/services/workshop.service.test.ts
+ create mode 100644 src/app/workshop/host/[hostKey]/remote/MultiResponders.tsx

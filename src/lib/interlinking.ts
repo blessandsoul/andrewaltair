@@ -56,10 +56,16 @@ export async function computeRelatedContent(insight: IInsight): Promise<RelatedC
         .slice(0, 3)
         .map((p) => p.slug);
 
-    // --- Find candidate Insights ---
+    // --- Find candidate Insights (same language only) ---
+    // KA and EN insights live on separate surfaces (/insights vs /en/insights) and
+    // their slugs are distinct ("-en" suffix). Cross-language related links would
+    // 404 under the wrong base path, and the bidirectional write below would
+    // pollute KA docs with EN slugs. Legacy docs have no `language` → treat as KA.
+    const langMatch = insight.language === 'en' ? 'en' : { $ne: 'en' };
     const candidateInsights = await Insight.find({
         status: 'published',
         slug: { $ne: insight.slug },
+        language: langMatch,
         $or: [
             { tags: { $in: insight.tags } },
             { categories: { $in: insight.categories } },

@@ -33,9 +33,14 @@ interface InsightsFeedProps {
     initialHasMore: boolean;
     activeTag?: string | null;
     allTags?: string[];
+    /** URL prefix for the feed's own links + the cards it renders. */
+    basePath?: string;
+    /** 'en' restricts infinite-scroll fetches to English insights. */
+    language?: 'ka' | 'en';
 }
 
-export function InsightsFeed({ initialInsights, initialHasMore, activeTag, allTags = [] }: InsightsFeedProps) {
+export function InsightsFeed({ initialInsights, initialHasMore, activeTag, allTags = [], basePath = '/insights', language }: InsightsFeedProps) {
+    const dateLocale = language === 'en' ? 'en-US' : 'ka-GE';
     const [insights, setInsights] = useState<Insight[]>(initialInsights);
     const [isLoading, setIsLoading] = useState(false);
     const [hasMore, setHasMore] = useState(initialHasMore);
@@ -53,6 +58,7 @@ export function InsightsFeed({ initialInsights, initialHasMore, activeTag, allTa
                 status: 'published',
             });
             if (activeTag) params.set('tag', activeTag);
+            if (language === 'en') params.set('language', 'en');
 
             const res = await fetch(`/api/insights?${params}`);
             const data = await res.json();
@@ -67,7 +73,7 @@ export function InsightsFeed({ initialInsights, initialHasMore, activeTag, allTa
         } finally {
             setIsLoading(false);
         }
-    }, [isLoading, hasMore, insights, activeTag]);
+    }, [isLoading, hasMore, insights, activeTag, language]);
 
     // Intersection observer for infinite scroll
     useEffect(() => {
@@ -92,7 +98,7 @@ export function InsightsFeed({ initialInsights, initialHasMore, activeTag, allTa
             {/* Tag filter */}
             {allTags.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                    <a href="/insights">
+                    <a href={basePath}>
                         <Badge
                             variant={!activeTag ? 'default' : 'outline'}
                             className="cursor-pointer"
@@ -101,7 +107,7 @@ export function InsightsFeed({ initialInsights, initialHasMore, activeTag, allTa
                         </Badge>
                     </a>
                     {allTags.map((tag) => (
-                        <a key={tag} href={`/insights?tag=${encodeURIComponent(tagToSlug(tag))}`}>
+                        <a key={tag} href={`${basePath}?tag=${encodeURIComponent(tagToSlug(tag))}`}>
                             <Badge
                                 variant={activeTag === tag ? 'default' : 'outline'}
                                 className="cursor-pointer"
@@ -116,7 +122,7 @@ export function InsightsFeed({ initialInsights, initialHasMore, activeTag, allTa
             {/* Feed */}
             <div className="flex flex-col gap-6 max-w-2xl mx-auto">
                 {insights.map((insight) => (
-                    <InsightCard key={insight.id} insight={insight} />
+                    <InsightCard key={insight.id} insight={insight} basePath={basePath} dateLocale={dateLocale} />
                 ))}
             </div>
 

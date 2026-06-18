@@ -1,0 +1,245 @@
+5:+++ b/src/__tests__/services/workshop.service.test.ts
+7:+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
+8:+
+9:+// --- Mocks ---
+10:+
+11:+vi.mock('@/lib/db', () => ({
+12:+    default: vi.fn().mockResolvedValue(undefined),
+13:+}));
+14:+
+15:+vi.mock('@/models/WorkshopRoom', () => ({
+16:+    default: {},
+17:+    DEFAULT_ROOM_SETTINGS: { anonymousNames: false, textWallLimit: 50 },
+18:+}));
+19:+
+20:+vi.mock('@/models/WorkshopParticipant', () => ({
+21:+    default: { countDocuments: vi.fn() },
+22:+}));
+23:+
+24:+vi.mock('@/models/WorkshopResponse', () => ({
+25:+    default: { find: vi.fn(), aggregate: vi.fn() },
+26:+}));
+27:+
+28:+// Chainable query builder: mirrors Mongoose's .sort().limit().lean() fluent shape.
+29:+function createChainableQuery(resolvedValue: unknown) {
+30:+    const chain: Record<string, ReturnType<typeof vi.fn>> = {};
+31:+    chain.sort = vi.fn().mockReturnValue(chain);
+32:+    chain.skip = vi.fn().mockReturnValue(chain);
+33:+    chain.limit = vi.fn().mockReturnValue(chain);
+34:+    chain.select = vi.fn().mockReturnValue(chain);
+35:+    chain.lean = vi.fn().mockResolvedValue(resolvedValue);
+36:+    return chain;
+37:+}
+38:+
+39:+import { WorkshopService } from '@/services/workshop.service';
+40:+import type { IWorkshopRoom } from '@/models/WorkshopRoom';
+41:+import WorkshopResponse from '@/models/WorkshopResponse';
+42:+import WorkshopParticipant from '@/models/WorkshopParticipant';
+43:+
+44:+const ANON_LABEL = 'ანონიმი';
+45:+
+46:+const findMock = WorkshopResponse.find as unknown as Mock;
+47:+const aggregateMock = WorkshopResponse.aggregate as unknown as Mock;
+48:+const countMock = WorkshopParticipant.countDocuments as unknown as Mock;
+49:+
+50:+// --- Fixtures ---
+51:+
+52:+// One find-the-mistake round: o1 + o3 are the planted mistakes (correct picks), o2 is a trap.
+53:+const MULTI_ROUND = {
+54:+    key: 'r6',
+55:+    type: 'multi',
+56:+    prompt: 'find the planted mistakes',
+57:+    options: [
+58:+        { id: 'o1', label: 'opt1' },
+59:+        { id: 'o2', label: 'opt2' },
+60:+        { id: 'o3', label: 'opt3' },
+61:+    ],
+62:+    correctOptionIds: ['o1', 'o3'],
+63:+};
+64:+
+65:+// Answer-order matters: Дато found first, so responders must keep createdAt-ascending order.
+66:+const MULTI_DOCS = [
+67:+    {
+68:+        _id: 'd1',
+69:+        clientId: 'c1',
+70:+        name: 'დათო',
+71:+        optionIds: ['o1', 'o3'],
+72:+        roundKey: 'r6',
+73:+        phase: 'open',
+74:+        createdAt: new Date('2026-06-16T10:00:00Z'),
+75:+    },
+76:+    {
+77:+        _id: 'd2',
+78:+        clientId: 'c2',
+79:+        name: 'ნინო',
+80:+        optionIds: ['o2'],
+81:+        roundKey: 'r6',
+82:+        phase: 'open',
+83:+        createdAt: new Date('2026-06-16T10:00:05Z'),
+84:+    },
+85:+];
+86:+
+87:+function makeRoom(anonymousNames: boolean): IWorkshopRoom {
+88:+    return {
+89:+        _id: 'room-1',
+90:+        currentRoundIndex: 0,
+91:+        status: 'live',
+92:+        rounds: [MULTI_ROUND],
+93:+        settings: { anonymousNames },
+94:+    } as unknown as IWorkshopRoom;
+95:+}
+96:+
+97:+// --- Tests ---
+98:+
+99:+describe('WorkshopService find-the-mistake (multi) per-name answers', () => {
+100:+    beforeEach(() => {
+101:+        vi.clearAllMocks();
+102:+        aggregateMock.mockResolvedValue([]);
+103:+        countMock.mockResolvedValue(2);
+104:+        // Route each WorkshopResponse.find by its query shape:
+105:+        // textValue → write-ins (none), roundKey → responders, else → cross-round grid.
+106:+        findMock.mockImplementation((query: unknown) => {
+107:+            const q = query as Record<string, unknown>;
+108:+            if (q.textValue) return createChainableQuery([]);
+109:+            if (q.roundKey) return createChainableQuery(MULTI_DOCS);
+110:+            return createChainableQuery(MULTI_DOCS);
+111:+        });
+112:+    });
+113:+
+114:+    it('should expose per-name responders with correct flags when results computed for a multi round', async () => {
+115:+        const room = makeRoom(false);
+116:+
+117:+        const history = await WorkshopService.getRoomHistory(room);
+118:+
+119:+        const results = history.rounds[0]?.results;
+120:+        const responders = results && results.type === 'multi' ? results.responders : undefined;
+121:+        expect(responders).toHaveLength(2);
+122:+        expect(responders?.[0]).toEqual({
+123:+            name: 'დათო',
+124:+            picks: [
+125:+                { label: 'opt1', correct: true },
+126:+                { label: 'opt3', correct: true },
+127:+            ],
+128:+        });
+129:+        expect(responders?.[1]).toEqual({
+130:+            name: 'ნინო',
+131:+            picks: [{ label: 'opt2', correct: false }],
+132:+        });
+133:+    });
+134:+
+135:+    it('should anonymize responder names when anonymousNames is enabled', async () => {
+136:+        const room = makeRoom(true);
+137:+
+138:+        const history = await WorkshopService.getRoomHistory(room);
+139:+
+140:+        const results = history.rounds[0]?.results;
+141:+        const responders = results && results.type === 'multi' ? results.responders : undefined;
+142:+        expect(responders?.[0]?.name).toBe(`${ANON_LABEL} 1`);
+143:+        expect(responders?.[1]?.name).toBe(`${ANON_LABEL} 2`);
+144:+    });
+145:+
+146:+    it('should resolve a multi answer to joined option labels in the per-participant grid', async () => {
+147:+        const room = makeRoom(false);
+148:+
+149:+        const history = await WorkshopService.getRoomHistory(room);
+150:+
+151:+        const dato = history.participants.find((p) => p.clientId === 'c1');
+152:+        expect(dato?.answers?.[0]?.value).toBe('opt1, opt3');
+153:+    });
+154:+});
+159:+++ b/src/app/workshop/host/[hostKey]/remote/MultiResponders.tsx
+161:+'use client'
+162:+
+163:+import type { ReactElement } from 'react'
+164:+import NameAvatar from '@/components/workshop/NameAvatar'
+165:+import type { MultiResponder } from '@/types/workshop.types'
+166:+import { cn } from '@/lib/utils'
+167:+import { STR } from '@/data/workshop-strings'
+168:+
+169:+interface MultiRespondersProps {
+170:+    responders: MultiResponder[]
+171:+}
+172:+
+173:+/**
+174:+ * Live per-name picks on a find-the-mistake (multi) round.
+175:+ * Host reads finders aloud by name and sees which of the planted mistakes are still unfound.
+176:+ * Pult-only, never projected. Updates on the existing host poll.
+177:+ */
+178:+export function MultiResponders({ responders }: MultiRespondersProps): ReactElement {
+179:+    return (
+180:+        <div className="px-5 pb-3 space-y-2">
+181:+            <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">
+182:+                {STR.remote.findersHeader}
+183:+                <span className="text-warning"> · {responders.length}</span>
+184:+            </p>
+185:+            {responders.map((responder, i) => (
+186:+                <div
+187:+                    key={`${responder.name}-${i}`}
+188:+                    className="flex items-start gap-2.5 rounded-xl border border-border bg-card px-3.5 py-2.5 shadow-sm"
+189:+                >
+190:+                    <NameAvatar name={responder.name} size={30} />
+191:+                    <div className="min-w-0 flex-1">
+192:+                        <p className="text-xs font-semibold text-muted-foreground">{responder.name}</p>
+193:+                        <div className="mt-1 flex flex-wrap gap-1.5">
+194:+                            {responder.picks.map((pick, j) => (
+195:+                                <span
+196:+                                    key={`${pick.label}-${j}`}
+197:+                                    className={cn(
+198:+                                        'rounded-md border px-2 py-0.5 text-xs',
+199:+                                        pick.correct
+200:+                                            ? 'border-success/40 bg-success/10 text-success'
+201:+                                            : 'border-border bg-muted text-muted-foreground',
+202:+                                    )}
+203:+                                >
+204:+                                    {pick.label}
+205:+                                </span>
+206:+                            ))}
+207:+                        </div>
+208:+                    </div>
+209:+                </div>
+210:+            ))}
+211:+        </div>
+212:+    )
+213:+}
+217:+++ b/src/app/workshop/host/[hostKey]/remote/RemoteClient.tsx
+222:+import { MultiResponders } from './MultiResponders'
+230:+    const multiResponders = state.results?.type === 'multi' ? state.results.responders ?? [] : []
+239:+                    {/* Quick pin list for text rounds, multi-select spotlight */}
+247:+                    {/* Live per-name picks for find-the-mistake (multi) rounds, host reads finders aloud */}
+248:+                    {multiResponders.length > 0 && <MultiResponders responders={multiResponders} />}
+249:+
+256:+++ b/src/data/workshop-strings.ts
+261:+        findersHeader: 'ვინ რა მონიშნა',
+268:+++ b/src/services/workshop.service.ts
+273:+    MultiResponder,
+281:+            if (r.type === 'multi') return (doc.optionIds ?? []).map((id) => labelOf(r, id)).join(', ')
+290:+            // one find in answer-order → both the responder count and the per-name picks panel (host pult, multi)
+291:+            const docs = await WorkshopResponse.find({ roomId: room._id, roundKey: round.key, phase: 'open' })
+292:+                .sort({ createdAt: 1 })
+293:+                .lean<IWorkshopResponse[]>()
+294:+            const correctSet = new Set<string>(round.correctOptionIds ?? [])
+295:+            const responders: MultiResponder[] = docs.map((d, n) => ({
+296:+                name: anon ? `${ANON_LABEL} ${n + 1}` : d.name,
+297:+                picks: (d.optionIds ?? []).map((id) => ({
+298:+                    label: round.options.find((o) => o.id === id)?.label ?? id,
+299:+                    correct: correctSet.has(id),
+300:+                })),
+301:+            }))
+302:+            const total = docs.length // responders, not selections
+308:+                total,
+311:+                ...(responders.length ? { responders } : {}),
+318:+++ b/src/types/workshop.types.ts
+323:+// a single participant's picks on a multi round: name plus the options they selected, with correctness
+324:+export interface MultiResponder {
+325:+    name: string;
+326:+    picks: { label: string; correct: boolean }[];
+327:+}
+328:+
+333:+    | {
+334:+          type: 'multi';
+335:+          counts: ChoiceCount[];
+336:+          total: number;
+337:+          correctOptionIds?: string[];
+338:+          writeIns?: WriteIn[];
+339:+          responders?: MultiResponder[];
+340:+      }

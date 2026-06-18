@@ -6,7 +6,7 @@ import { useRef } from "react"
 import { brand } from "@/lib/brand"
 
 const stats = [
-    { value: parseInt(brand.stats.yearsExperience), suffix: "+", label: "წელი გამოცდილება" },
+    { value: parseInt(brand.stats.yearsExperience), suffix: "+", label: "წლის გამოცდილება" },
     { value: 50, suffix: "K+", label: "გამომწერი" }, // Hardcoded base number for animation, visual suffix
     { value: 200, suffix: "+", label: "სტატია" },
     { value: 30, suffix: "+", label: "პროექტი" },

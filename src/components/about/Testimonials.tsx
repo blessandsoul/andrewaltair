@@ -19,7 +19,7 @@ const testimonials = [
     {
         name: "ნინო წიკლაური",
         role: "Content Creator",
-        content: "მისი ტუტორიალები არის ყველაზე პრაქტიკული და ადვილად გასაგები ქართულ ინტერნეტ სივრცეში. მადლობა ასეთი ხარისხიანი კონტენტისთვის!",
+        content: "მისი ტუტორიალები არის ყველაზე პრაქტიკული და ადვილად გასაგები ქართულ ინტერნეტსივრცეში. მადლობა ასეთი ხარისხიანი კონტენტისთვის!",
         avatar: "/avatars/nino.jpg"
     },
     {
@@ -39,7 +39,7 @@ export function Testimonials() {
                         <TbMessageCircle className="w-8 h-8 text-primary" />
                         რას ამბობენ
                     </h2>
-                    <p className="text-muted-foreground mt-2">კლიენტების და გამომწერების შეფასებები</p>
+                    <p className="text-muted-foreground mt-2">კლიენტებისა და გამომწერების შეფასებები</p>
                 </div>
 
                 <div className="grid gap-8 md:grid-cols-3">

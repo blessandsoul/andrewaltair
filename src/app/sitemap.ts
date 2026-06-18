@@ -48,6 +48,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             priority: 0.9,
         },
         {
+            url: `${baseUrl}/en/insights`,
+            lastModified: now,
+            changeFrequency: 'hourly',
+            priority: 0.8,
+        },
+        {
             url: `${baseUrl}/encyclopedia/vibe-coding`,
             lastModified: DEPLOY_DATE,
             changeFrequency: 'daily',
@@ -223,14 +229,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     let insightUrls: MetadataRoute.Sitemap = []
     try {
         const insights = await Insight.find({ status: 'published' })
-            .select('slug updatedAt createdAt')
+            .select('slug language updatedAt createdAt')
             .lean()
 
         insightUrls = insights
             // dead/duplicate slugs 301 away via middleware — never list them
             .filter((insight) => !(insight.slug in INSIGHT_SLUG_REDIRECTS))
             .map((insight) => ({
-                url: `${baseUrl}/insights/${insight.slug}`,
+                // EN insights live under /en/insights — list the canonical URL,
+                // never the KA path that would 301.
+                url: `${baseUrl}${insight.language === 'en' ? '/en/insights' : '/insights'}/${insight.slug}`,
                 lastModified: insight.updatedAt || insight.createdAt || new Date(),
                 changeFrequency: 'weekly' as const,
                 priority: 0.8,

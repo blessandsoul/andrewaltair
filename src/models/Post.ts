@@ -19,7 +19,7 @@ export interface ISection {
     icon?: string;  // lucide icon name (e.g., 'Brain', 'Factory', 'Globe')
     title?: string;
     content: string;
-    type: 'intro' | 'section' | 'heading' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'cta' | 'hashtags' | 'prompt' | 'author-comment' | 'quote' | 'image' | 'graph' | 'takeaway' | 'deep_dive';
+    type: 'intro' | 'section' | 'heading' | 'sarcasm' | 'warning' | 'tip' | 'fact' | 'opinion' | 'cta' | 'hashtags' | 'prompt' | 'author-comment' | 'quote' | 'image' | 'graph' | 'tutorial-step' | 'secret' | 'takeaway' | 'deep_dive';
 }
 
 // Cover images for responsive display
@@ -161,7 +161,9 @@ const SectionSchema = new Schema<ISection>(
         content: { type: String, default: '' },
         type: {
             type: String,
-            enum: ['intro', 'section', 'heading', 'sarcasm', 'warning', 'tip', 'fact', 'opinion', 'cta', 'hashtags', 'prompt', 'author-comment', 'quote', 'image', 'graph', 'takeaway', 'deep_dive'],
+            // 'tutorial-step' + 'secret' are rendered by RichPostContent (TutorialStepRenderer)
+            // but were missing here — the gap broke the grok-pillar-post boot migration.
+            enum: ['intro', 'section', 'heading', 'sarcasm', 'warning', 'tip', 'fact', 'opinion', 'cta', 'hashtags', 'prompt', 'author-comment', 'quote', 'image', 'graph', 'tutorial-step', 'secret', 'takeaway', 'deep_dive'],
             default: 'section'
         },
     },

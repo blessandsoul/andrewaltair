@@ -19,11 +19,11 @@ import { toast } from "sonner"
 import { TbSend } from "react-icons/tb"
 
 const contactSchema = z.object({
-    name: z.string().min(2, 'სახელი უნდა იყოს მინიმუმ 2 სიმბოლო'),
+    name: z.string().min(2, 'სახელი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს'),
     email: z.string().email('გთხოვთ შეიყვანოთ სწორი ელფოსტა'),
     phone: z.string().optional(),
     service: z.string().optional(),
-    message: z.string().min(10, 'შეტყობინება უნდა იყოს მინიმუმ 10 სიმბოლო'),
+    message: z.string().min(10, 'შეტყობინება უნდა შეიცავდეს მინიმუმ 10 სიმბოლოს'),
 })
 type ContactFormData = z.infer<typeof contactSchema>
 
@@ -90,8 +90,8 @@ export function ContactForm() {
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent" />
 
                     <div className="text-center mb-8">
-                        <h2 className="text-3xl font-bold mb-2">მოდი ვითანამშრომლოთ</h2>
-                        <p className="text-muted-foreground">შეავსე ფორმა და მალე დაგიკავშირდები</p>
+                        <h2 className="text-3xl font-bold mb-2">მოდით, ვითანამშრომლოთ</h2>
+                        <p className="text-muted-foreground">შეავსეთ ფორმა და მალე დაგიკავშირდებით</p>
                     </div>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -150,7 +150,7 @@ export function ContactForm() {
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="consulting">AI კონსულტაცია</SelectItem>
-                                            <SelectItem value="training">ტრეინინგი / ვორქშოპი</SelectItem>
+                                            <SelectItem value="training">ტრენინგი / ვორქშოპი</SelectItem>
                                             <SelectItem value="collaboration">კოლაბორაცია</SelectItem>
                                             <SelectItem value="media">მედია / ინტერვიუ</SelectItem>
                                             <SelectItem value="other">სხვა</SelectItem>

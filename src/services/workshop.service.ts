@@ -16,6 +16,7 @@ import type {
     HostAction,
     RoomSettingsDTO,
     RoundResults,
+    MultiResponder,
     StudentRound,
     StudentState,
     RosterEntry,
@@ -405,10 +406,27 @@ export class WorkshopService {
         // allows it AND the round is revealed.
         const showCorrect = room.settings?.revealCorrect ?? DEFAULT_ROOM_SETTINGS.revealCorrect
         const revealCorrect = forHost || (r.phase === 'revealed' && showCorrect)
+        // Host-only live-resolve: re-render script/content/prompt from the source
+        // template on every read, so deck edits show on the pult WITHOUT recreating
+        // the room (rooms store creation-time flattened strings). Students and the
+        // projector keep the stored strings, so there is no host/student divergence.
+        let liveScript = r.script
+        let liveContent = r.content
+        let livePrompt = r.prompt
+        if (forHost && room.templateId && isWorkshopTemplateId(room.templateId)) {
+            const tplRound = WORKSHOP_TEMPLATES[room.templateId].rounds.find((t) => t.key === r.key)
+            if (tplRound) {
+                const lang = room.settings?.language ?? DEFAULT_ROOM_SETTINGS.language
+                const resolved = resolveDeep(tplRound, lang) as unknown as ResolvedTemplateRound
+                if (resolved.script) liveScript = resolved.script
+                if (resolved.content) liveContent = resolved.content
+                if (resolved.prompt) livePrompt = resolved.prompt
+            }
+        }
         return {
             key: r.key,
             type: r.type,
-            prompt: r.prompt,
+            prompt: livePrompt,
             options: r.options.map((o) => ({ id: o.id, label: o.label, ...(o.src ? { src: o.src } : {}) })),
             phase: r.phase,
             config: r.config ?? {},
@@ -416,10 +434,10 @@ export class WorkshopService {
             ...(revealCorrect && r.correctOptionIds?.length ? { correctOptionIds: r.correctOptionIds } : {}),
             ...(revealCorrect && r.correctOrder?.length ? { correctOrder: r.correctOrder } : {}),
             ...(forHost && r.hostNotes ? { hostNotes: r.hostNotes } : {}),
-            ...(forHost && r.script ? { script: r.script } : {}),
+            ...(forHost && liveScript ? { script: liveScript } : {}),
             ...(r.phaseStartedAt ? { phaseStartedAt: r.phaseStartedAt.toISOString() } : {}),
             ...(typeof r.durationSec === 'number' ? { durationSec: r.durationSec } : {}),
-            ...(r.content ? { content: r.content } : {}),
+            ...(liveContent ? { content: liveContent } : {}),
             ...(r.showsHeroPhoto ? { showsHeroPhoto: true } : {}),
             ...(r.roundImage ? { roundImage: r.roundImage } : {}),
             ...(r.reasons && r.reasons.length ? { reasons: r.reasons.map((x) => ({ id: x.id, label: x.label })) } : {}),
@@ -502,10 +520,14 @@ export class WorkshopService {
         // (2) F2 — all-answered → 5s grace → auto-reveal.
         // Applies to simple open rounds and to the Mazur RE-vote (not the first
         // Mazur vote, which should flow into discuss instead of reveal).
+        // Gated on phaseStartedAt: auto-reveal only runs once the host has pressed
+        // "Start timer". A poll the host opened WITHOUT starting the clock never
+        // auto-reveals, so the host reads his winner script and reveals by hand.
         const autoRevealOn = room.settings?.autoReveal ?? DEFAULT_ROOM_SETTINGS.autoReveal
         const graceMs = (room.settings?.graceSec ?? DEFAULT_ROOM_SETTINGS.graceSec) * 1000
         const autoRevealEligible =
             autoRevealOn &&
+            !!r.phaseStartedAt &&
             r.type !== 'teach' &&
             ((r.phase === 'open' && r.type !== 'choice_revote') || r.phase === 'revote')
         if (autoRevealEligible) {
@@ -836,6 +858,7 @@ export class WorkshopService {
                     .map((id) => labelOf(r, id))
                     .join(' → ')
             if (r.type === 'choice' || r.type === 'quiz' || r.type === 'choice_revote') return labelOf(r, doc.optionId)
+            if (r.type === 'multi') return (doc.optionIds ?? []).map((id) => labelOf(r, id)).join(', ')
             return doc.textValue ?? ''
         }
         const byClient = new Map<string, HistoryParticipant>()
@@ -1215,14 +1238,27 @@ export class WorkshopService {
             ])
             const countMap = new Map<string, number>(agg.map((a) => [a._id as string, a.count as number]))
             const counts = round.options.map((o) => ({ optionId: o.id, label: o.label, count: countMap.get(o.id) ?? 0 }))
-            const total = await WorkshopResponse.countDocuments({ roomId: room._id, roundKey: round.key, phase: 'open' })
+            // one find in answer-order → both the responder count and the per-name picks panel (host pult, multi)
+            const docs = await WorkshopResponse.find({ roomId: room._id, roundKey: round.key, phase: 'open' })
+                .sort({ createdAt: 1 })
+                .lean<IWorkshopResponse[]>()
+            const correctSet = new Set<string>(round.correctOptionIds ?? [])
+            const responders: MultiResponder[] = docs.map((d, n) => ({
+                name: anon ? `${ANON_LABEL} ${n + 1}` : d.name,
+                picks: (d.optionIds ?? []).map((id) => ({
+                    label: round.options.find((o) => o.id === id)?.label ?? id,
+                    correct: correctSet.has(id),
+                })),
+            }))
+            const total = docs.length // responders, not selections
             const writeIns = await this.collectWriteIns(room, round, anon)
             return {
                 type: 'multi',
                 counts,
-                total, // responders, not selections
+                total,
                 ...(round.correctOptionIds?.length ? { correctOptionIds: round.correctOptionIds } : {}),
                 ...(writeIns.length ? { writeIns } : {}),
+                ...(responders.length ? { responders } : {}),
             }
         }
 
@@ -1375,6 +1411,11 @@ export class WorkshopService {
         // Teach slides have no answering phase — they land directly on 'revealed'
         // (students see the "look at the screen" banner, projector shows the content).
         const openPhaseFor = (r: IWorkshopRound) => (r.type === 'teach' ? 'revealed' : 'open')
+        // Advancing INTO a round only stages it: a non-teach round lands on 'closed'
+        // (projector shows the prompt + hero photo, NO poll, NO timer) so the host can
+        // read his script first, then press "open round" to start the poll, then
+        // "start timer" to run the countdown. Teach slides still land on 'revealed'.
+        const landPhaseFor = (r: IWorkshopRound) => (r.type === 'teach' ? 'revealed' : 'closed')
 
         // Any host action except the wheel itself dismisses a prior wheel result.
         if (action !== 'spinWheel' && doc.spotlightName) {
@@ -1397,16 +1438,19 @@ export class WorkshopService {
 
         switch (action) {
             case 'openRound': {
-                // From lobby (or after reveal): open the NEXT closed round, or re-open current closed one
+                // A staged round is 'closed' → this press opens the poll (no timer yet;
+                // the host runs it with the dedicated 'startTimer' action). Otherwise
+                // advance to the NEXT round and STAGE it at 'closed' (host reads his
+                // script before opening the poll). Teach slides skip straight to 'revealed'.
                 if (round && round.phase === 'closed') {
                     round.phase = openPhaseFor(round)
-                    stamp(round)
+                    round.phaseStartedAt = undefined
                 } else {
                     const nextIdx = idx + 1
                     if (nextIdx >= doc.rounds.length) return { ok: false, message: 'No more rounds' }
                     doc.currentRoundIndex = nextIdx
-                    doc.rounds[nextIdx].phase = openPhaseFor(doc.rounds[nextIdx])
-                    stamp(doc.rounds[nextIdx])
+                    doc.rounds[nextIdx].phase = landPhaseFor(doc.rounds[nextIdx])
+                    doc.rounds[nextIdx].phaseStartedAt = undefined
                 }
                 doc.status = 'live'
                 break
@@ -1417,7 +1461,8 @@ export class WorkshopService {
                 if (round.phase === 'open') round.phase = 'discuss'
                 else if (round.phase === 'discuss') round.phase = 'revote'
                 else return { ok: false, message: 'Cannot advance phase' }
-                stamp(round)
+                // No auto-timer: discuss is talk-time; the revote countdown starts on 'startTimer'.
+                round.phaseStartedAt = undefined
                 break
             }
             case 'reveal': {
@@ -1432,8 +1477,9 @@ export class WorkshopService {
                 const nextIdx = idx + 1
                 if (nextIdx >= doc.rounds.length) return { ok: false, message: 'No more rounds' }
                 doc.currentRoundIndex = nextIdx
-                doc.rounds[nextIdx].phase = openPhaseFor(doc.rounds[nextIdx])
-                stamp(doc.rounds[nextIdx])
+                // Stage the next round at 'closed' (host reads his script, then opens the poll).
+                doc.rounds[nextIdx].phase = landPhaseFor(doc.rounds[nextIdx])
+                doc.rounds[nextIdx].phaseStartedAt = undefined
                 doc.status = 'live'
                 break
             }
@@ -1457,7 +1503,8 @@ export class WorkshopService {
                 round.phase = 'open'
                 round.allAnsweredAt = undefined
                 round.pinnedResponseIds = undefined
-                stamp(round)
+                // Poll re-opens without a running timer; host presses 'startTimer' when ready.
+                round.phaseStartedAt = undefined
                 doc.status = 'live'
                 break
             }
@@ -1567,6 +1614,16 @@ export class WorkshopService {
                 doc.usedQuestions = [...new Set([...(doc.usedQuestions ?? []), count])]
                 doc.questionPickerIds = undefined
                 // activeQuestion is already cleared above (action !== 'pickQuestion')
+                break
+            }
+            case 'startTimer': {
+                // Host manually starts the countdown for the open poll (polls open
+                // without a running clock so the host can read his script first).
+                if (!round) return { ok: false, message: 'No active round' }
+                if (round.phase !== 'open' && round.phase !== 'revote')
+                    return { ok: false, message: 'Timer only runs during a poll' }
+                if (!round.durationSec) return { ok: false, message: 'This round has no timer' }
+                stamp(round)
                 break
             }
             default:

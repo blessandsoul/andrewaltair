@@ -78,6 +78,9 @@ interface InsightPageClientProps {
         };
     }[];
     initialComments?: any[];
+    /** Render locale. 'ka' (default, /insights) or 'en' (/en/insights). Drives
+     *  link prefixes, date formatting, and the few UI strings on this page. */
+    locale?: 'ka' | 'en';
 }
 
 const REACTION_CONFIG = [
@@ -88,9 +91,13 @@ const REACTION_CONFIG = [
     { key: 'insightful', icon: TbBulb, label: 'Insightful' },
 ] as const;
 
-export function InsightPageClient({ insight, parsedBody, relatedPosts, relatedInsights, initialComments }: InsightPageClientProps) {
+export function InsightPageClient({ insight, parsedBody, relatedPosts, relatedInsights, initialComments, locale = 'ka' }: InsightPageClientProps) {
     const [reactions, setReactions] = useState(insight.reactions);
     const [isReacting, setIsReacting] = useState(false);
+
+    const isEn = locale === 'en';
+    const basePath = isEn ? '/en/insights' : '/insights';
+    const dateLocale = isEn ? 'en-US' : 'ka-GE';
 
     const handleReaction = async (reaction: string) => {
         if (isReacting) return;
@@ -123,7 +130,7 @@ export function InsightPageClient({ insight, parsedBody, relatedPosts, relatedIn
         }
     };
 
-    const publishedDate = new Date(insight.publishedAt).toLocaleDateString('ka-GE', {
+    const publishedDate = new Date(insight.publishedAt).toLocaleDateString(dateLocale, {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -134,7 +141,7 @@ export function InsightPageClient({ insight, parsedBody, relatedPosts, relatedIn
             <div className="container mx-auto px-4 py-8 max-w-2xl">
                 {/* Back link */}
                 <Link
-                    href="/insights"
+                    href={basePath}
                     className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
                 >
                     <TbArrowLeft className="w-4 h-4" />
@@ -209,7 +216,7 @@ export function InsightPageClient({ insight, parsedBody, relatedPosts, relatedIn
                 {insight.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-6">
                         {insight.tags.map((tag) => (
-                            <Link key={tag} href={`/insights?tag=${encodeURIComponent(tagToSlug(tag))}`}>
+                            <Link key={tag} href={`${basePath}?tag=${encodeURIComponent(tagToSlug(tag))}`}>
                                 <Badge variant="outline" className="hover:bg-primary/10 cursor-pointer">
                                     #{tag}
                                 </Badge>
@@ -226,9 +233,9 @@ export function InsightPageClient({ insight, parsedBody, relatedPosts, relatedIn
                             {publishedDate}
                         </span>
                         {parsedBody.readingMinutes > 0 && (
-                            <span className="flex items-center gap-1.5" title={`${parsedBody.chars} სიმბოლო`}>
+                            <span className="flex items-center gap-1.5" title={isEn ? `${parsedBody.chars} chars` : `${parsedBody.chars} სიმბოლო`}>
                                 <TbClock className="w-4 h-4" />
-                                {parsedBody.readingMinutes} წთ
+                                {parsedBody.readingMinutes} {isEn ? 'min' : 'წთ'}
                             </span>
                         )}
                         <span className="flex items-center gap-1.5">
@@ -270,13 +277,13 @@ export function InsightPageClient({ insight, parsedBody, relatedPosts, relatedIn
                 {relatedInsights.length > 0 && (
                     <section className="mt-8 space-y-4">
                         <h2 className="text-lg font-semibold text-foreground">
-                            მსგავსი ინსაითები
+                            {isEn ? 'Related insights' : 'მსგავსი ინსაითები'}
                         </h2>
                         <div className="grid gap-3">
                             {relatedInsights.map((related) => (
                                 <Link
                                     key={related.slug}
-                                    href={`/insights/${related.slug}`}
+                                    href={`${basePath}/${related.slug}`}
                                     className="p-4 rounded-xl border border-border bg-card hover:border-primary/20 transition-colors"
                                 >
                                     <p className="text-sm text-foreground line-clamp-3">

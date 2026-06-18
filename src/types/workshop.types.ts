@@ -252,10 +252,23 @@ export interface WriteIn {
     text: string;
 }
 
+// a single participant's picks on a multi round: name plus the options they selected, with correctness
+export interface MultiResponder {
+    name: string;
+    picks: { label: string; correct: boolean }[];
+}
+
 export type RoundResults =
     | { type: 'text'; items: TextResultItem[] }
     | { type: 'choice'; counts: ChoiceCount[]; total: number; correctOptionId?: string; writeIns?: WriteIn[] }
-    | { type: 'multi'; counts: ChoiceCount[]; total: number; correctOptionIds?: string[]; writeIns?: WriteIn[] }
+    | {
+          type: 'multi';
+          counts: ChoiceCount[];
+          total: number;
+          correctOptionIds?: string[];
+          writeIns?: WriteIn[];
+          responders?: MultiResponder[];
+      }
     | {
           type: 'choice_revote';
           options: RevoteOptionResult[];
@@ -427,5 +440,6 @@ export const HOST_ACTIONS = {
     SHOW_TOP_ANSWERS: 'showTopAnswers',
     PICK_QUESTION: 'pickQuestion', // round 28: pop question N onto the projector
     CLOSE_QUESTION: 'closeQuestion', // round 28: mark question N answered (grey it, clear the popup)
+    START_TIMER: 'startTimer', // host starts the countdown manually (poll opens without a running timer)
 } as const;
 export type HostAction = (typeof HOST_ACTIONS)[keyof typeof HOST_ACTIONS];

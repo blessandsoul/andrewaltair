@@ -11,21 +11,21 @@ const paths = [
     {
         icon: TbPlayerPlay,
         title: "დამწყები",
-        desc: "დაიწყე უფასო YouTube ტუტორიალებით.",
-        cta: "უყურე ახლავე",
+        desc: "დაიწყეთ უფასო YouTube ტუტორიალებით.",
+        cta: "უყურეთ ახლავე",
         href: brand.social.youtube,
     },
     {
         icon: TbSchool,
-        title: "მსწავლელი",
+        title: "ენთუზიასტი",
         desc: "სიღრმისეული ცოდნა და კურსები.",
-        cta: "ნახე კურსები",
+        cta: "ნახეთ კურსები",
         href: "/tutorials",
     },
     {
         icon: TbBriefcase,
         title: "ბიზნესი",
-        desc: "შენი საქმიანობის ავტომატიზაცია.",
+        desc: "ბიზნეს-პროცესების ავტომატიზაცია.",
         cta: "კონსულტაცია",
         href: brand.social.telegram.replace("channel", ""),
     },
@@ -38,9 +38,9 @@ export function AboutStartPath() {
                 <div className="grid lg:grid-cols-12 gap-12 items-center">
 
                     <div className="lg:col-span-4">
-                        <h2 className="text-3xl font-bold tracking-tight mb-4">დაიწყე აქ</h2>
+                        <h2 className="text-3xl font-bold tracking-tight mb-4">დაიწყეთ აქ</h2>
                         <p className="text-muted-foreground text-lg mb-8">
-                            აირჩიე შენი გზა გამოცდილების მიხედვით.
+                            აირჩიეთ თქვენი გზა გამოცდილების მიხედვით.
                         </p>
                     </div>
 

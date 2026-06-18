@@ -35,8 +35,8 @@ export function AboutPhilosophy() {
                             <span className="text-indigo-400">2030</span> პროგნოზი
                         </h3>
                         <p className="text-lg leading-relaxed text-foreground/90 mb-6">
-                            "2030 წლისთვის AI არ ჩაანაცვლებს ადამიანებს, მაგრამ ადამიანები,
-                            რომლებიც იყენებენ AI-ს, ჩაანაცვლებენ მათ, ვინც მას არ იყენებს.
+                            "2030 წლისთვის ხელოვნური ინტელექტი (AI) არ ჩაანაცვლებს ადამიანებს, თუმცა ადამიანები,
+                            რომლებიც იყენებენ მას, ჩაანაცვლებენ მათ, ვინც მას არ იყენებს.
                             კრეატიულობა გახდება ყველაზე ღირებული ვალუტა."
                         </p>
                         <div className="text-sm font-mono text-indigo-400 opacity-60">
@@ -61,7 +61,7 @@ export function AboutPhilosophy() {
                         </h3>
                         <p className="text-lg leading-relaxed text-foreground/90 mb-6">
                             ჩემი პოზიცია ცალსახაა: ტექნოლოგია უნდა ემსახურებოდეს ადამიანის გაძლიერებას და არა მანიპულაციას.
-                            მე ვემხრობი გამჭვირვალე და ეთიკურ AI განვითარებას.
+                            მე მხარს ვუჭერ ხელოვნური ინტელექტის (AI) გამჭვირვალე და ეთიკურ განვითარებას.
                         </p>
                         <div className="flex gap-2">
                             <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300 text-xs font-medium border border-emerald-200 dark:border-emerald-500/30">Human Centric</span>

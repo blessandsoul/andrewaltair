@@ -18,6 +18,14 @@ export interface InsightCreateData {
     tags?: string[];
     status?: IInsight['status'];
     author?: { name: string; avatar?: string; role?: string };
+    /** Content language. Defaults to 'ka'. EN insights surface only at /en/insights. */
+    language?: 'ka' | 'en';
+    /** Explicit slug override. When omitted the slug is derived from the source OG title. */
+    slug?: string;
+    /** Explicit H1 / metaTitle override. When omitted the OG title is used.
+     *  Needed because /short sources are perplexity aggregators whose OG title is
+     *  English — a KA insight must carry its own Georgian headline (meta.headline_alt). */
+    headline?: string;
 }
 
 export interface InsightUpdateData {
@@ -35,6 +43,10 @@ export interface InsightQueryOptions {
     tag?: string | null;
     search?: string | null;
     afterSlug?: string | null;
+    /** 'en' → English insights only. Anything else (incl. omitted) → KA + legacy
+     *  (filtered as { $ne: 'en' }) so existing fieldless docs never drop out and
+     *  English never leaks into the Georgian surface. */
+    language?: 'ka' | 'en' | null;
 }
 
 export class InsightService {
@@ -51,12 +63,17 @@ export class InsightService {
             tag,
             search,
             afterSlug,
+            language,
         } = options;
 
         const query: Record<string, unknown> = {};
 
         if (status && status !== 'all') query.status = status;
         if (tag) query.tags = tag;
+
+        // Language gate. 'en' → English only; everything else → KA + legacy
+        // (legacy docs have no `language` field, so { $ne: 'en' } keeps them in).
+        query.language = language === 'en' ? 'en' : { $ne: 'en' };
 
         if (search) {
             if (/^\d{6}$/.test(search)) {
@@ -126,11 +143,18 @@ export class InsightService {
     static async createInsight(data: InsightCreateData) {
         await dbConnect();
 
+        const language: 'ka' | 'en' = data.language === 'en' ? 'en' : 'ka';
+        // KA + legacy docs match { $ne: 'en' }; EN matches 'en'. Scoping the guard
+        // by language lets the SAME story exist once in KA and once in EN (they
+        // share the perplexity sourceUrl) without one blocking the other.
+        const langMatch = language === 'en' ? 'en' : { $ne: 'en' };
+
         // Idempotency guard: the same source URL must never mint a second
-        // insight — retried ingests shipped live "-2" slug duplicates into the
-        // sitemap/index (SEO audit 2026-06-12). A retry returns the existing doc.
+        // insight in the same language — retried ingests shipped live "-2" slug
+        // duplicates into the sitemap/index (SEO audit 2026-06-12). A retry
+        // returns the existing doc.
         if (data.sourceUrl) {
-            const existing = await Insight.findOne({ sourceUrl: data.sourceUrl });
+            const existing = await Insight.findOne({ sourceUrl: data.sourceUrl, language: langMatch });
             if (existing) {
                 const plain = JSON.parse(JSON.stringify(existing));
                 return { ...plain, id: plain._id?.toString?.() ?? String(plain._id) };
@@ -146,12 +170,14 @@ export class InsightService {
             ? [...new Set([...data.tags, ...extractedTags])]
             : extractedTags;
 
-        // 3. Generate slug from source title or content.
+        // 3. Generate slug. Prefer an explicit slug (the /short pipeline supplies a
+        // clean English slug from meta.md, and EN insights pass a "-en"-suffixed one
+        // to avoid colliding with their KA twin); otherwise derive from the OG title.
         // titleToSlug decodes HTML entities before slugifying so "Sam Altman&#039;s"
         // becomes "sam-altmans" instead of "sam-altman-039-s".
-        const slugBase = ogData.title
-            ? titleToSlug(ogData.title, 60)
-            : `insight-${Date.now()}`;
+        const slugBase = data.slug
+            ? titleToSlug(data.slug, 80)
+            : (ogData.title ? titleToSlug(ogData.title, 60) : `insight-${Date.now()}`);
 
         let slug = slugBase || `insight-${Date.now()}`;
         let counter = 2;
@@ -174,19 +200,26 @@ export class InsightService {
 
         // Decode HTML entities in user-visible title once at save time
         // so &#039; / &quot; never leak into rendered UI, OG tags, or JSON-LD.
-        const cleanTitle = ogData.title ? decodeHtmlEntities(ogData.title).trim() : '';
+        // H1/metaTitle: an explicit headline override wins (KA Georgian headline
+        // from meta.headline_alt, or the EN reddit headline) because the perplexity
+        // source OG title is English and wrong for a KA article. Else fall back to OG.
+        const headlineOverride = data.headline ? decodeHtmlEntities(data.headline).trim() : '';
+        const ogTitleClean = ogData.title ? decodeHtmlEntities(ogData.title).trim() : '';
+        const cleanTitle = ogTitleClean || headlineOverride;
+        const basePath = language === 'en' ? '/en/insights' : '/insights';
 
         const insightData = {
             slug,
             content: data.content,
             excerpt,
             sourceUrl: data.sourceUrl,
-            sourceTitle: cleanTitle,
+            sourceTitle: ogTitleClean || headlineOverride,
             sourceDomain: ogData.domain,
             sourceImage: ogData.image,
             tags: finalTags,
             autoTags,
             categories: data.categories || ['ai', 'tech-insights'],
+            language,
             author: data.author || {
                 name: 'Andrew Altair',
                 avatar: '/images/avatar.jpg',
@@ -195,12 +228,14 @@ export class InsightService {
             status: data.status || 'published',
             numericId,
             seo: {
-                metaTitle: cleanTitle
-                    ? `${cleanTitle.slice(0, 50)} — ინსაითი`
-                    : excerpt.slice(0, 60),
+                // Override headline used verbatim (capped). The " — ინსაითი" suffix
+                // is KA-only and applies just to the OG-derived fallback path.
+                metaTitle: headlineOverride
+                    ? headlineOverride.slice(0, 70)
+                    : (cleanTitle ? `${cleanTitle.slice(0, 50)} — ინსაითი` : excerpt.slice(0, 60)),
                 metaDescription: excerpt,
                 ogImage: ogData.image || '',
-                canonicalUrl: `${siteUrl}/insights/${slug}`,
+                canonicalUrl: `${siteUrl}${basePath}/${slug}`,
             },
         };
 

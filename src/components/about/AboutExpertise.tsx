@@ -20,7 +20,7 @@ const expertise = [
     {
         icon: TbRocket,
         title: "AI ავტომატიზაცია",
-        description: "ბიზნეს პროცესების ავტომატიზაცია ხელოვნური ინტელექტით",
+        description: "ბიზნეს-პროცესების ავტომატიზაცია ხელოვნური ინტელექტით",
         color: "#6366f1"
     },
     {
@@ -32,7 +32,7 @@ const expertise = [
     {
         icon: TbSchool,
         title: "AI განათლება",
-        description: "ტრეინინგები და ვორქშოპები AI-ს შესახებ",
+        description: "ტრენინგები და ვორქშოპები AI-ს შესახებ",
         color: "#10b981"
     }
 ]

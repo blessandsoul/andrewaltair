@@ -24,6 +24,7 @@ const controlSchema = z.object({
         'showTopAnswers',
         'pickQuestion',
         'closeQuestion',
+        'startTimer',
     ]),
     responseId: z.string().max(32).optional(),
     targetClientId: z.string().max(64).optional(),

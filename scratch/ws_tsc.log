@@ -1,0 +1,9 @@
+src/__tests__/services/auth.service.test.ts(248,38): error TS2345: Argument of type '{ username: string; }' is not assignable to parameter of type 'Pick<IUser, "username" | "email" | "password" | "fullName">'.
+  Type '{ username: string; }' is missing the following properties from type 'Pick<IUser, "username" | "email" | "password" | "fullName">': email, fullName
+src/__tests__/services/auth.service.test.ts(258,38): error TS2345: Argument of type '{ email: string; password: string; fullName: string; }' is not assignable to parameter of type 'Pick<IUser, "username" | "email" | "password" | "fullName">'.
+  Property 'username' is missing in type '{ email: string; password: string; fullName: string; }' but required in type 'Pick<IUser, "username" | "email" | "password" | "fullName">'.
+src/__tests__/services/auth.service.test.ts(268,38): error TS2345: Argument of type '{ username: string; password: string; fullName: string; }' is not assignable to parameter of type 'Pick<IUser, "username" | "email" | "password" | "fullName">'.
+  Property 'email' is missing in type '{ username: string; password: string; fullName: string; }' but required in type 'Pick<IUser, "username" | "email" | "password" | "fullName">'.
+src/__tests__/services/post.service.test.ts(678,42): error TS2345: Argument of type '{ title: string; slug: string; excerpt: string; content: string; categories: string[]; author: { name: string; avatar: string; role: string; }; status: string; readingTime: number; }' is not assignable to parameter of type 'PostCreateData'.
+  Types of property 'status' are incompatible.
+    Type 'string' is not assignable to type '"draft" | "published" | "scheduled" | "archived" | undefined'.

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Play, MessagesSquare, BarChart3, RotateCcw, SkipForward, Dices, ChevronLeft, Disc3, Trophy, ListOrdered } from 'lucide-react'
+import { Play, MessagesSquare, BarChart3, RotateCcw, SkipForward, Dices, ChevronLeft, Disc3, Trophy, ListOrdered, Timer } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -203,6 +203,19 @@ export default function HostControls({
                         </Button>
                     )
                 })}
+                {answering && round && !!round.durationSec && !round.phaseStartedAt && (
+                    <Button
+                        onClick={() => onAction('startTimer')}
+                        disabled={busy}
+                        title={STR.controls.startTimer}
+                        variant="outline"
+                        size="lg"
+                        className="h-auto px-5 py-3.5 text-base font-semibold border-2 border-primary/50 text-primary hover:bg-primary/10"
+                    >
+                        <Timer size={18} />
+                        {STR.controls.startTimer}
+                    </Button>
+                )}
                 {answering && (
                     <Button
                         onClick={() => onAction('seedFake')}

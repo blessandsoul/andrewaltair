@@ -7,7 +7,7 @@ import { TbCalendar } from "react-icons/tb"
 const timeline = [
     {
         year: "2024",
-        title: "AI კონტენტ კრეატორი",
+        title: "AI კონტენტის შემქმნელი",
         company: "AndrewAltair.GE",
         description: "AI-ს შესახებ კონტენტის შექმნა და გაზიარება სოციალურ ქსელებში"
     },
