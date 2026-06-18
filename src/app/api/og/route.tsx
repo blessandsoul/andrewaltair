@@ -132,7 +132,8 @@ export async function GET(request: NextRequest) {
             {/* Title */}
             <h1
               style={{
-                fontSize: title.length > 40 ? '60px' : '82px',
+                // Adaptive size so long Georgian titles render FULLY (no clip).
+                fontSize: title.length > 90 ? '46px' : title.length > 60 ? '58px' : title.length > 40 ? '70px' : '84px',
                 fontWeight: 800,
                 background: 'linear-gradient(to right, #ffffff, #a5f3fc)', // White to Cyan 200
                 backgroundClip: 'text',
@@ -147,8 +148,8 @@ export async function GET(request: NextRequest) {
               {title}
             </h1>
 
-            {/* Description */}
-            {description && (
+            {/* Description — hidden for insight cards (title-only per directive) */}
+            {type !== 'insight' && description && (
               <p
                 style={{
                   fontSize: '32px',
@@ -204,8 +205,8 @@ export async function GET(request: NextRequest) {
               )}
             </div>
 
-            {/* Bottom Bar: Stats (only for default view) */}
-            {type !== 'post' && (
+            {/* Bottom Bar: Stats — default view only; hidden for post + insight */}
+            {type !== 'post' && type !== 'insight' && (
               <div
                 style={{
                   display: 'flex',

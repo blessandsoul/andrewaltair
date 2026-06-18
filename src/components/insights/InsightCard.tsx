@@ -31,6 +31,7 @@ interface InsightCardProps {
             insightful: number;
         };
         likedBy?: { personaId: string; name: string }[];
+        seo?: { metaTitle?: string };
     };
     /** URL prefix for article + tag links. '/insights' (KA) or '/en/insights' (EN). */
     basePath?: string;
@@ -81,7 +82,7 @@ export function InsightCard({ insight, basePath = '/insights', dateLocale = 'ka-
     // title-card so every insight shows an image. v=2 busts the stale tofu image
     // cached before the Georgian font was embedded in /api/og.
     const displayImage = insight.sourceImage
-        || `/api/og?title=${encodeURIComponent((insight.sourceTitle || insight.excerpt || 'Insight').slice(0, 90))}&type=insight&v=2`;
+        || `/api/og?title=${encodeURIComponent((insight.seo?.metaTitle || insight.sourceTitle || insight.excerpt || 'Insight').slice(0, 140))}&type=insight&v=2`;
 
     return (
         <article className="bg-card border border-border rounded-2xl overflow-hidden transition-all hover:border-primary/20 hover:shadow-lg">

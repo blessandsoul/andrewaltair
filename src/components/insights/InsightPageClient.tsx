@@ -102,7 +102,7 @@ export function InsightPageClient({ insight, parsedBody, relatedPosts, relatedIn
     // Sources without an og:image (e.g. perplexity.ai) leave sourceImage empty;
     // fall back to the site's generated OG title-card so the article still has a hero.
     const heroImage = insight.sourceImage
-        || `/api/og?title=${encodeURIComponent((insight.seo?.metaTitle || insight.sourceTitle || 'Insight').slice(0, 90))}&type=insight&v=2`;
+        || `/api/og?title=${encodeURIComponent((insight.seo?.metaTitle || insight.sourceTitle || 'Insight').slice(0, 140))}&type=insight&v=2`;
 
     const handleReaction = async (reaction: string) => {
         if (isReacting) return;
