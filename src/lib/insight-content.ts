@@ -69,6 +69,23 @@ function looksLikeHeadline(line: string, seoTitle?: string): boolean {
     return false;
 }
 
+/**
+ * Remove only the "წყარო:" / "დამატებითი:" / "Source(s):" attribution lines,
+ * keeping the headline and body. The source is already rendered from
+ * insight.sourceUrl as a dedicated block, so these lines are a visible
+ * duplicate in the listing card (which shows raw content, unlike the detail
+ * page that runs full parseInsightBody). User directive 2026-06-18.
+ */
+export function stripSourceLines(content: string): string {
+    if (!content) return '';
+    return content
+        .split(/\r?\n/)
+        .filter((line) => !SOURCE_LINE_RE.test(line.trim()))
+        .join('\n')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+}
+
 export function parseInsightBody(content: string, seoTitle?: string): ParsedInsightBody {
     if (!content) {
         return { paragraphs: [], readingMinutes: 0, chars: 0 };

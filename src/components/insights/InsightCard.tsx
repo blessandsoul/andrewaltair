@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { TbExternalLink, TbFlame, TbHeart, TbBrain, TbHandClick, TbBulb, TbEye, TbCalendar } from 'react-icons/tb';
 import { cn } from '@/lib/utils';
 import { tagToSlug } from '@/lib/slug';
+import { stripSourceLines } from '@/lib/insight-content';
 import { Badge } from '@/components/ui/badge';
 import { PersonaLikeStack } from '@/components/ai/PersonaLikeStack';
 
@@ -79,14 +80,20 @@ export function InsightCard({ insight, basePath = '/insights', dateLocale = 'ka-
         day: 'numeric',
     });
 
+    // Some sources (e.g. perplexity.ai) expose no og:image, so sourceImage is
+    // empty and the card had no photo. Fall back to the site's generated OG
+    // title-card so every insight shows an image.
+    const displayImage = insight.sourceImage
+        || `/api/og?title=${encodeURIComponent((insight.sourceTitle || insight.excerpt || 'Insight').slice(0, 90))}&type=insight`;
+
     return (
         <article className="bg-card border border-border rounded-2xl overflow-hidden transition-all hover:border-primary/20 hover:shadow-lg">
             {/* Source Image */}
-            {insight.sourceImage && (
+            {displayImage && (
                 <Link href={`${basePath}/${insight.slug}`}>
                     <div className="relative w-full aspect-[2/1] overflow-hidden">
                         <Image
-                            src={insight.sourceImage}
+                            src={displayImage}
                             alt={insight.sourceTitle || 'Source preview'}
                             fill
                             className="object-cover transition-transform hover:scale-105"
@@ -114,7 +121,7 @@ export function InsightCard({ insight, basePath = '/insights', dateLocale = 'ka-
                 {/* Full text */}
                 <Link href={`${basePath}/${insight.slug}`} className="block">
                     <div className="text-foreground whitespace-pre-line leading-relaxed text-[15px]">
-                        {insight.content}
+                        {stripSourceLines(insight.content)}
                     </div>
                 </Link>
 
