@@ -53,3 +53,5 @@ next-swc.win32-x64-msvc.node
 
 # local scratch / throwaway working files (never ship to repo or prod)
 scratch/
+
+# auto-deploy webhook test 2026-06-18
