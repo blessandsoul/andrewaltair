@@ -11,6 +11,16 @@ import { titleToSlug, decodeHtmlEntities } from '@/lib/slug';
 
 import type { IInsight } from '@/models/Insight';
 
+/**
+ * Strip lone UTF-16 surrogates before a string reaches Mongo. A half-stripped
+ * emoji (a char class used without the /u flag) or a slice that splits a
+ * surrogate pair leaves a lone surrogate, which is invalid UTF-8 and makes BSON
+ * serialization throw on .save(). Valid surrogate PAIRS are preserved.
+ */
+function stripLoneSurrogates(s: string): string {
+    return s.replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '');
+}
+
 export interface InsightCreateData {
     content: string;
     sourceUrl: string;
@@ -190,11 +200,14 @@ export class InsightService {
         // 4. Generate numericId
         const numericId = await generateUniqueId();
 
-        // 5. Build excerpt
-        const excerpt = data.content
-            .replace(/[⚠️🛠👁🔬⚡️]/g, '')
-            .trim()
-            .slice(0, 160);
+        // 5. Build excerpt. The /u flag makes the emoji char-class match whole
+        // code points — without it the high surrogate \uD83D (shared by 🛠👁🔬)
+        // was stripped out of OTHER emoji (🚀📡🔒...), leaving an invalid lone
+        // surrogate that crashes the BSON encoder on save. stripLoneSurrogates
+        // also guards the slice(160) boundary.
+        const excerpt = stripLoneSurrogates(
+            data.content.replace(/[⚠️🛠👁🔬⚡️]/gu, '').trim().slice(0, 160)
+        );
 
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://andrewaltair.ge';
 
@@ -213,7 +226,7 @@ export class InsightService {
             content: data.content,
             excerpt,
             sourceUrl: data.sourceUrl,
-            sourceTitle: ogTitleClean || headlineOverride,
+            sourceTitle: stripLoneSurrogates(ogTitleClean || headlineOverride),
             sourceDomain: ogData.domain,
             sourceImage: ogData.image,
             tags: finalTags,
@@ -230,9 +243,9 @@ export class InsightService {
             seo: {
                 // Override headline used verbatim (capped). The " — ინსაითი" suffix
                 // is KA-only and applies just to the OG-derived fallback path.
-                metaTitle: headlineOverride
+                metaTitle: stripLoneSurrogates(headlineOverride
                     ? headlineOverride.slice(0, 70)
-                    : (cleanTitle ? `${cleanTitle.slice(0, 50)} — ინსაითი` : excerpt.slice(0, 60)),
+                    : (cleanTitle ? `${cleanTitle.slice(0, 50)} — ინსაითი` : excerpt.slice(0, 60))),
                 metaDescription: excerpt,
                 ogImage: ogData.image || '',
                 canonicalUrl: `${siteUrl}${basePath}/${slug}`,
@@ -282,7 +295,7 @@ export class InsightService {
                 : extractedTags;
             insight.autoTags = autoTags;
             insight.content = data.content;
-            insight.excerpt = data.content.replace(/[⚠️🛠👁🔬⚡️]/g, '').trim().slice(0, 160);
+            insight.excerpt = stripLoneSurrogates(data.content.replace(/[⚠️🛠👁🔬⚡️]/gu, '').trim().slice(0, 160));
         }
 
         // If source URL changed, re-parse
