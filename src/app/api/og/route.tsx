@@ -13,7 +13,13 @@ export async function GET(request: NextRequest) {
     const tags = searchParams.get('tags')?.split(',') || [];
     const date = searchParams.get('date');
 
-    // Font loading could be added here if needed, but using system fonts for speed/reliability on edge
+    // The edge default font has NO Georgian glyphs, so all Mkhedruli text
+    // rendered as tofu boxes (□□□). Load Noto Sans Georgian (covers Georgian
+    // AND Latin) from the site's own /public/fonts so every glyph renders.
+    const [georgianRegular, georgianBold] = await Promise.all([
+      fetch(new URL('/fonts/NotoSansGeorgian-Regular.ttf', request.url)).then((r) => r.arrayBuffer()),
+      fetch(new URL('/fonts/NotoSansGeorgian-Bold.ttf', request.url)).then((r) => r.arrayBuffer()),
+    ]);
 
     return new ImageResponse(
       (
@@ -31,7 +37,7 @@ export async function GET(request: NextRequest) {
               radial-gradient(circle at 75% 75%, rgba(34, 211, 238, 0.15) 0%, transparent 50%)
             `,
             position: 'relative',
-            fontFamily: 'Inter, sans-serif',
+            fontFamily: '"Noto Sans Georgian", sans-serif',
           }}
         >
           {/* Grid Pattern Background */}
@@ -239,6 +245,10 @@ export async function GET(request: NextRequest) {
       {
         width: 1200,
         height: 630,
+        fonts: [
+          { name: 'Noto Sans Georgian', data: georgianRegular, weight: 400, style: 'normal' },
+          { name: 'Noto Sans Georgian', data: georgianBold, weight: 700, style: 'normal' },
+        ],
       }
     );
   } catch (error) {
