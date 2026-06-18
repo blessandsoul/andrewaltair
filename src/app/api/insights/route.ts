@@ -62,10 +62,6 @@ export async function POST(request: Request) {
         return apiSuccess(insight, 'Insight created', 201);
     } catch (error) {
         console.error('[API] POST /api/insights error:', error);
-        // TEMP DIAGNOSTIC: surface the real error to the (admin-authed) caller so
-        // the publish script can report the exact cause. Revert to the generic
-        // message once the insight ingest is confirmed working.
-        const detail = error instanceof Error ? error.message : String(error);
-        return apiError(ERROR_CODES.INSIGHT_CREATE_FAILED, `Failed to create insight: ${detail}`, 500);
+        return apiError(ERROR_CODES.INSIGHT_CREATE_FAILED, 'Failed to create insight', 500);
     }
 }
