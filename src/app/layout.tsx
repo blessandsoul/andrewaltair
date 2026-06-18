@@ -61,6 +61,21 @@ export default function RootLayout({
             `,
           }}
         />
+        <script
+          // Sets html[data-route] before first paint so the admin-only CSS that
+          // hides the aiSTAFF chat widget applies with no flash. LayoutWrapper
+          // keeps it in sync on client-side navigation.
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  document.documentElement.dataset.route =
+                    location.pathname.indexOf('/admin') === 0 ? 'admin' : 'site';
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />

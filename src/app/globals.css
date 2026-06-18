@@ -1408,3 +1408,13 @@
 [id^="post-article-"] .text-xl {
   font-size: calc(1.25em * var(--article-font-scale, 1));
 }
+
+/* aiSTAFF.ge support-chat widget is for site VISITORS only, not the admin panel.
+   It appends #widget-chat-bubble / -backdrop / -iframe straight to document.body
+   (light DOM, stable ids). html[data-route] is set by a sync script in <head>
+   (no first-paint flash) and kept in sync on SPA navigation by LayoutWrapper. */
+html[data-route="admin"] #widget-chat-bubble,
+html[data-route="admin"] #widget-chat-backdrop,
+html[data-route="admin"] #widget-chat-iframe {
+  display: none !important;
+}

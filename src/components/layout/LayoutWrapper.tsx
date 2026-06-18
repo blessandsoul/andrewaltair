@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense } from "react"
+import { Suspense, useEffect } from "react"
 import { usePathname } from "next/navigation"
 import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/footer"
@@ -20,6 +20,13 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const isWorkshopRoute = pathname?.startsWith("/workshop")
     // Check if on blog post detail page (has slug after /blog/) OR tutorial page
     const isBlogPostPage = (pathname?.startsWith("/blog/") && pathname !== "/blog/") || pathname?.startsWith("/tutorials/")
+
+    // Keep <html data-route> in sync on client navigation so the admin-only CSS
+    // (hides the aiSTAFF support-chat widget) tracks SPA route changes, not just
+    // the initial sync script in <head>. Visitors keep the widget everywhere else.
+    useEffect(() => {
+        document.documentElement.dataset.route = isAdminRoute ? "admin" : "site"
+    }, [isAdminRoute])
 
     // Don't show main layout elements on admin pages.
     // Workshop = live realtime tool: NO analytics tracker (its blocking writes starve the
