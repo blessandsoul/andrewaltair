@@ -50,3 +50,6 @@ next-env.d.ts
 # custom
 next-swc.win32-x64-msvc.node
 .worktrees/
+
+# local scratch / throwaway working files (never ship to repo or prod)
+scratch/
