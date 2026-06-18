@@ -232,7 +232,9 @@ export class InsightService {
             tags: finalTags,
             autoTags,
             categories: data.categories || ['ai', 'tech-insights'],
-            language,
+            // Only persist 'en'. KA stays absent (see Insight model note: a 'ka'
+            // value collides with MongoDB's text-index language override).
+            ...(language === 'en' ? { language: 'en' as const } : {}),
             author: data.author || {
                 name: 'Andrew Altair',
                 avatar: '/images/avatar.jpg',

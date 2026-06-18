@@ -33,7 +33,7 @@ export interface IInsight extends Document {
     tags: string[];
     autoTags: string[];
     categories: string[];
-    language: 'ka' | 'en';
+    language?: 'en';
     relatedInsights: string[];
     relatedPosts: string[];
     seo: IInsightSEO;
@@ -124,13 +124,16 @@ const InsightSchema = new Schema<IInsight>(
             default: [],
             index: true,
         },
-        // Content language. Legacy docs predate this field — they have no
-        // `language` key at all, so KA-facing queries must filter with
-        // { $ne: 'en' } (matches missing + 'ka'), never { language: 'ka' }.
+        // Set ONLY for English insights ('en'). Georgian + legacy docs leave it
+        // ABSENT (KA-facing queries filter { $ne: 'en' }, which matches missing).
+        // CRITICAL: never store 'ka' here. MongoDB's text index reads the field
+        // named `language` as a per-doc stemming-language override, and 'ka' is
+        // not a supported text-search language, so a 'ka' value makes .save()
+        // throw "language override unsupported: ka". Hence enum is ['en'] only
+        // and there is no default.
         language: {
             type: String,
-            enum: ['ka', 'en'],
-            default: 'ka',
+            enum: ['en'],
             index: true,
         },
         relatedInsights: {
