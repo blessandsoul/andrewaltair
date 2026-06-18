@@ -87,8 +87,14 @@ export function InsightCard({ insight, basePath = '/insights', dateLocale = 'ka-
     const displayImage = insight.sourceImage
         || `/api/og?title=${encodeURIComponent(ogTitle)}&type=insight&v=3`;
 
+    // Split the bot body into a bold headline (line 1) + the rest, so grid cards
+    // read like news cards instead of a wall of text.
+    const cleaned = stripSourceLines(insight.content);
+    const headline = getHeadline(insight.content);
+    const body = cleaned.startsWith(headline) ? cleaned.slice(headline.length).trim() : cleaned;
+
     return (
-        <article className="bg-card border border-border rounded-2xl overflow-hidden transition-all hover:border-primary/20 hover:shadow-lg">
+        <article className="bg-card border border-border rounded-2xl overflow-hidden transition-all hover:border-primary/20 hover:shadow-lg h-full flex flex-col">
             {/* Source Image */}
             {displayImage && (
                 <Link href={`${basePath}/${insight.slug}`}>
@@ -118,18 +124,23 @@ export function InsightCard({ insight, basePath = '/insights', dateLocale = 'ka-
             )}
 
             {/* Content */}
-            <div className="p-5 space-y-4">
-                {/* Full text */}
-                <Link href={`${basePath}/${insight.slug}`} className="block">
-                    <div className="text-foreground whitespace-pre-line leading-relaxed text-[15px]">
-                        {stripSourceLines(insight.content)}
-                    </div>
+            <div className="p-5 flex flex-col flex-1 gap-3">
+                {/* Headline + excerpt (news-card style) */}
+                <Link href={`${basePath}/${insight.slug}`} className="block group">
+                    <h3 className="text-foreground font-semibold leading-snug text-[17px] line-clamp-3 group-hover:text-primary transition-colors">
+                        {headline}
+                    </h3>
+                    {body && (
+                        <p className="mt-2 text-muted-foreground leading-relaxed text-sm line-clamp-3">
+                            {body}
+                        </p>
+                    )}
                 </Link>
 
                 {/* Tags */}
                 {insight.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
-                        {insight.tags.slice(0, 6).map((tag) => (
+                        {insight.tags.slice(0, 3).map((tag) => (
                             <Link key={tag} href={`${basePath}?tag=${encodeURIComponent(tagToSlug(tag))}`}>
                                 <Badge
                                     variant="outline"
@@ -147,14 +158,14 @@ export function InsightCard({ insight, basePath = '/insights', dateLocale = 'ka-
                     href={insight.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer nofollow"
-                    className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                    className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors"
                 >
-                    <TbExternalLink className="w-4 h-4 shrink-0" />
-                    <span className="truncate">{insight.sourceTitle || insight.sourceUrl}</span>
+                    <TbExternalLink className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">{insight.sourceTitle || insight.sourceDomain || insight.sourceUrl}</span>
                 </a>
 
-                {/* Footer: date, views, reactions */}
-                <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                {/* Footer: date, views, reactions — pinned to bottom so cards align */}
+                <div className="flex items-center justify-between pt-3 mt-auto border-t border-border/50">
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                             <TbCalendar className="w-3.5 h-3.5" />

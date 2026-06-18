@@ -119,8 +119,8 @@ export function InsightsFeed({ initialInsights, initialHasMore, activeTag, allTa
                 </div>
             )}
 
-            {/* Feed */}
-            <div className="flex flex-col gap-6 max-w-2xl mx-auto">
+            {/* Feed — responsive news grid (1 / 2 / 3 columns) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
                 {insights.map((insight) => (
                     <InsightCard key={insight.id} insight={insight} basePath={basePath} dateLocale={dateLocale} />
                 ))}
