@@ -1,7 +1,28 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
-export const runtime = 'edge';
+// nodejs (not edge): the edge runtime can't reliably fetch the site's own
+// /fonts asset (same-zone subrequest behind Cloudflare 500'd), and edge has no
+// fs. nodejs reads the bundled Georgian font straight off disk.
+export const runtime = 'nodejs';
+
+// Load once per cold start. Wrapped so a missing file degrades to no-custom-font
+// (Latin renders, Georgian would tofu) instead of crashing the whole route.
+function loadGeorgianFonts() {
+  try {
+    const dir = join(process.cwd(), 'public', 'fonts');
+    return [
+      { name: 'Noto Sans Georgian', data: readFileSync(join(dir, 'NotoSansGeorgian-Regular.ttf')), weight: 400 as const, style: 'normal' as const },
+      { name: 'Noto Sans Georgian', data: readFileSync(join(dir, 'NotoSansGeorgian-Bold.ttf')), weight: 700 as const, style: 'normal' as const },
+    ];
+  } catch (e) {
+    console.error('[og] Georgian font load failed:', e);
+    return undefined;
+  }
+}
+const GEORGIAN_FONTS = loadGeorgianFonts();
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,13 +34,6 @@ export async function GET(request: NextRequest) {
     const tags = searchParams.get('tags')?.split(',') || [];
     const date = searchParams.get('date');
 
-    // The edge default font has NO Georgian glyphs, so all Mkhedruli text
-    // rendered as tofu boxes (□□□). Load Noto Sans Georgian (covers Georgian
-    // AND Latin) from the site's own /public/fonts so every glyph renders.
-    const [georgianRegular, georgianBold] = await Promise.all([
-      fetch(new URL('/fonts/NotoSansGeorgian-Regular.ttf', request.url)).then((r) => r.arrayBuffer()),
-      fetch(new URL('/fonts/NotoSansGeorgian-Bold.ttf', request.url)).then((r) => r.arrayBuffer()),
-    ]);
 
     return new ImageResponse(
       (
@@ -245,10 +259,7 @@ export async function GET(request: NextRequest) {
       {
         width: 1200,
         height: 630,
-        fonts: [
-          { name: 'Noto Sans Georgian', data: georgianRegular, weight: 400, style: 'normal' },
-          { name: 'Noto Sans Georgian', data: georgianBold, weight: 700, style: 'normal' },
-        ],
+        ...(GEORGIAN_FONTS ? { fonts: GEORGIAN_FONTS } : {}),
       }
     );
   } catch (error) {

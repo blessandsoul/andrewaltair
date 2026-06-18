@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { TbExternalLink, TbFlame, TbHeart, TbBrain, TbHandClick, TbBulb, TbEye, TbCalendar } from 'react-icons/tb';
 import { cn } from '@/lib/utils';
 import { tagToSlug } from '@/lib/slug';
-import { stripSourceLines } from '@/lib/insight-content';
+import { stripSourceLines, formatInsightDate } from '@/lib/insight-content';
 import { Badge } from '@/components/ui/badge';
 import { PersonaLikeStack } from '@/components/ai/PersonaLikeStack';
 
@@ -74,17 +74,14 @@ export function InsightCard({ insight, basePath = '/insights', dateLocale = 'ka-
         }
     };
 
-    const publishedDate = new Date(insight.publishedAt).toLocaleDateString(dateLocale, {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-    });
+    const publishedDate = formatInsightDate(insight.publishedAt, dateLocale.startsWith('en') ? 'en' : 'ka');
 
     // Some sources (e.g. perplexity.ai) expose no og:image, so sourceImage is
     // empty and the card had no photo. Fall back to the site's generated OG
-    // title-card so every insight shows an image.
+    // title-card so every insight shows an image. v=2 busts the stale tofu image
+    // cached before the Georgian font was embedded in /api/og.
     const displayImage = insight.sourceImage
-        || `/api/og?title=${encodeURIComponent((insight.sourceTitle || insight.excerpt || 'Insight').slice(0, 90))}&type=insight`;
+        || `/api/og?title=${encodeURIComponent((insight.sourceTitle || insight.excerpt || 'Insight').slice(0, 90))}&type=insight&v=2`;
 
     return (
         <article className="bg-card border border-border rounded-2xl overflow-hidden transition-all hover:border-primary/20 hover:shadow-lg">

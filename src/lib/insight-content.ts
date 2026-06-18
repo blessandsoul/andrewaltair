@@ -86,6 +86,22 @@ export function stripSourceLines(content: string): string {
         .trim();
 }
 
+// Georgian short month names. toLocaleDateString('ka-GE') is unreliable: when
+// the runtime (server container, limited-ICU Node) lacks Georgian locale data
+// it silently falls back to the host default — which rendered dates in RUSSIAN
+// ("18 июн. 2026 г."). Manual mapping + UTC getters = deterministic, identical
+// on server and client (no hydration drift). User directive 2026-06-18.
+const KA_MONTHS_SHORT = ['იან', 'თებ', 'მარ', 'აპრ', 'მაი', 'ივნ', 'ივლ', 'აგვ', 'სექ', 'ოქტ', 'ნოე', 'დეკ'];
+
+export function formatInsightDate(value: string | Date, locale: 'ka' | 'en' = 'ka'): string {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '';
+    if (locale === 'en') {
+        return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+    }
+    return `${d.getUTCDate()} ${KA_MONTHS_SHORT[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+}
+
 export function parseInsightBody(content: string, seoTitle?: string): ParsedInsightBody {
     if (!content) {
         return { paragraphs: [], readingMinutes: 0, chars: 0 };

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { TbExternalLink, TbFlame, TbHeart, TbBrain, TbHandClick, TbBulb, TbEye, TbCalendar, TbArrowLeft, TbShare, TbClock } from 'react-icons/tb';
 import { cn } from '@/lib/utils';
 import { tagToSlug } from '@/lib/slug';
+import { formatInsightDate } from '@/lib/insight-content';
 import { Badge } from '@/components/ui/badge';
 import { InsightRelatedPosts } from './InsightRelatedPosts';
 import { Comments } from '@/components/interactive/Comments';
@@ -97,12 +98,11 @@ export function InsightPageClient({ insight, parsedBody, relatedPosts, relatedIn
 
     const isEn = locale === 'en';
     const basePath = isEn ? '/en/insights' : '/insights';
-    const dateLocale = isEn ? 'en-US' : 'ka-GE';
 
     // Sources without an og:image (e.g. perplexity.ai) leave sourceImage empty;
     // fall back to the site's generated OG title-card so the article still has a hero.
     const heroImage = insight.sourceImage
-        || `/api/og?title=${encodeURIComponent((insight.seo?.metaTitle || insight.sourceTitle || 'Insight').slice(0, 90))}&type=insight`;
+        || `/api/og?title=${encodeURIComponent((insight.seo?.metaTitle || insight.sourceTitle || 'Insight').slice(0, 90))}&type=insight&v=2`;
 
     const handleReaction = async (reaction: string) => {
         if (isReacting) return;
@@ -135,11 +135,7 @@ export function InsightPageClient({ insight, parsedBody, relatedPosts, relatedIn
         }
     };
 
-    const publishedDate = new Date(insight.publishedAt).toLocaleDateString(dateLocale, {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
+    const publishedDate = formatInsightDate(insight.publishedAt, isEn ? 'en' : 'ka');
 
     return (
         <div className="min-h-screen bg-background">
