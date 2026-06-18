@@ -135,7 +135,7 @@
     "entities": ["Grok", "xAI", "Elon Musk", "ChatGPT", "X (Twitter)", "AI chatbot"]
   },
   "sources": [
-    { "title": "xAI — Grok official", "url": "https://x.ai/" },
-    { "title": "Grok web app", "url": "https://grok.com/" }
+    { "index": 1, "outlet": "xAI", "title": "xAI Grok official", "url": "https://x.ai/" },
+    { "index": 2, "outlet": "Grok", "title": "Grok web app", "url": "https://grok.com/" }
   ]
 }
