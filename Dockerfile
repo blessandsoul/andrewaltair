@@ -23,14 +23,17 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # ============================================================
 # Build-time environment variables (placeholders for static generation)
 # Real values are injected at runtime via Coolify Environment Variables
-# These are ONLY used during `npm run build` to satisfy Next.js
+# These are ONLY used during `npm run build` to satisfy Next.js.
+# NOTE: the secret placeholders must be STRONG (>=32 chars, no weak words like
+# "secret"/"dev") — src/lib/jwt-config.ts rejects weak secrets and the build
+# fails at "Collecting page data" otherwise. These are throwaway build values.
 # ============================================================
 ARG MONGODB_URI="mongodb://placeholder:27017/placeholder"
-ARG JWT_SECRET="build-time-placeholder-secret-32chars"
-ARG NEXTAUTH_SECRET="build-time-placeholder-secret"
+ARG JWT_SECRET="Zk9Pw2Lr7Qx4Vn8Hb3Yc6Tf1Mg5Js0Au8Ue2Ri4Ko7Xy"
+ARG NEXTAUTH_SECRET="Zk9Pw2Lr7Qx4Vn8Hb3Yc6Tf1Mg5Js0Au8Ue2Ri4Ko7Xy"
 ARG NEXTAUTH_URL="http://localhost:3000"
-ARG ADMIN_PASSWORD="build-placeholder"
-ARG ADMIN_SESSION_SECRET="build-time-placeholder-secret-32chars"
+ARG ADMIN_PASSWORD="Qw9Zx2Cv5Bn8Mk1Lp4Jh7Gf0Es3Au6Yt"
+ARG ADMIN_SESSION_SECRET="Zk9Pw2Lr7Qx4Vn8Hb3Yc6Tf1Mg5Js0Au8Ue2Ri4Ko7Xy"
 ARG GROQ_API_KEY="placeholder"
 ARG NEXT_PUBLIC_GA_ID="G-PLACEHOLDER"
 ARG NEXT_PUBLIC_SITE_URL="https://andrewaltair.ge"
