@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { TbArrowRight, TbBook2, TbNotebook, TbHeart, TbBrandGithub } from 'react-icons/tb';
+import { TbArrowRight, TbBook2, TbNotebook, TbHeart, TbBrandGithub, TbUsers, TbRoute, TbListCheck } from 'react-icons/tb';
 import manifestJson from '@/data/courses/ai-for-beginners/manifest.json';
 import type { CourseManifest } from '@/types/course';
 import ModuleIcon from '@/components/courses/ai-for-beginners/ModuleIcon';
@@ -9,13 +9,15 @@ const manifest = manifestJson as CourseManifest;
 const SITE = 'https://andrewaltair.ge';
 const BASE = `${SITE}/encyclopedia/ai-for-beginners`;
 const DESCRIPTION = 'ხელოვნური ინტელექტის უფასო კურსი ქართულად: ნეირონული ქსელები, კომპიუტერული ხედვა, ბუნებრივი ენის დამუშავება და მეტი. Microsoft-ის ღია კურსის თარგმანი, თეორია და პრაქტიკული Python ნოუთბუქები.';
+const OG_IMAGE = `${SITE}/api/og?title=${encodeURIComponent('AI დამწყებთათვის')}&description=${encodeURIComponent('ხელოვნური ინტელექტის უფასო კურსი ქართულად')}&type=default`;
 
 export const metadata: Metadata = {
     title: 'AI დამწყებთათვის — ხელოვნური ინტელექტის უფასო კურსი ქართულად',
     description: DESCRIPTION,
     keywords: ['AI', 'ხელოვნური ინტელექტი', 'კურსი', 'ნეირონული ქსელები', 'machine learning', 'ქართულად', 'უფასო'],
     alternates: { canonical: BASE },
-    openGraph: { title: 'AI დამწყებთათვის — უფასო კურსი ქართულად', description: DESCRIPTION, type: 'website', url: BASE },
+    openGraph: { title: 'AI დამწყებთათვის — უფასო კურსი ქართულად', description: DESCRIPTION, type: 'website', url: BASE, images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: 'AI დამწყებთათვის' }] },
+    twitter: { card: 'summary_large_image', title: 'AI დამწყებთათვის — უფასო კურსი ქართულად', description: DESCRIPTION, images: [OG_IMAGE] },
 };
 
 const TEACHES = [
@@ -44,9 +46,20 @@ export default function AIForBeginnersLanding() {
         isBasedOn: { '@type': 'CreativeWork', name: 'Microsoft AI for Beginners', url: manifest.attribution.url, license: 'https://opensource.org/licenses/MIT' },
     };
 
+    const breadcrumb = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'მთავარი', item: SITE },
+            { '@type': 'ListItem', position: 2, name: 'ენციკლოპედია', item: `${SITE}/encyclopedia` },
+            { '@type': 'ListItem', position: 3, name: 'AI დამწყებთათვის', item: BASE },
+        ],
+    };
+
     return (
         <div className="min-h-screen bg-[#f8f9ff]">
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
 
             {/* Hero */}
             <section className="relative overflow-hidden">
@@ -89,6 +102,37 @@ export default function AIForBeginnersLanding() {
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" /> {t}
                         </div>
                     ))}
+                </div>
+            </section>
+
+            {/* How it works / who for / prerequisites */}
+            <section className="max-w-5xl mx-auto px-4 lg:px-8 py-8">
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-3">როგორ მუშაობს კურსი</h2>
+                <p className="text-gray-500 text-center max-w-2xl mx-auto mb-8">
+                    ეს არის Microsoft-ის ღია კურსის „AI for Beginners“ სრული ქართული თარგმანი. ისწავლე საკუთარი ტემპით, უფასოდ.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white mb-4">
+                            <TbUsers size={22} />
+                        </div>
+                        <h3 className="font-bold text-gray-900 mb-1.5">ვისთვის არის</h3>
+                        <p className="text-sm text-gray-500 leading-relaxed">დამწყებთათვის, სტუდენტებისთვის და დეველოპერებისთვის. ნებისმიერი, ვისაც სურს AI გაიგოს ნულიდან. წინასწარი ცოდნა საჭირო არ არის.</p>
+                    </div>
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white mb-4">
+                            <TbRoute size={22} />
+                        </div>
+                        <h3 className="font-bold text-gray-900 mb-1.5">როგორ ისწავლი</h3>
+                        <p className="text-sm text-gray-500 leading-relaxed">თეორია გასაგებ ქართულ ენაზე, შემდეგ პრაქტიკა Python-ის ნოუთბუქებში. გაკვეთილები თანმიმდევრულია, გადადი მოდულიდან მოდულზე.</p>
+                    </div>
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white mb-4">
+                            <TbListCheck size={22} />
+                        </div>
+                        <h3 className="font-bold text-gray-900 mb-1.5">რა გჭირდება</h3>
+                        <p className="text-sm text-gray-500 leading-relaxed">თეორიისთვის — მხოლოდ ბრაუზერი. პრაქტიკული ნოუთბუქებისთვის — Python-ის საბაზისო ცოდნა და უფასო Google Colab ან Jupyter.</p>
+                    </div>
                 </div>
             </section>
 

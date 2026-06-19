@@ -3,7 +3,7 @@
     "name_for_human": "Andrew Altair",
     "name_for_model": "andrewaltair",
     "description_for_human": "AI Expert & Business Consultant platform with educational content, premium prompts, and automation services",
-    "description_for_model": "Andrew Altair is Georgia's leading AI expert platform providing: 1) Daily AI news and tutorials in Georgian, 2) Vibe Coding educational course (50+ lessons on AI-assisted development), 3) Premium AI prompts marketplace for ChatGPT, Claude, Midjourney, 4) Professional AI consulting services including N8N automation, custom AI agents, and business AI integration, 5) Interactive AI-powered mystic tools (fortune telling, tarot, numerology, horoscope, dream interpretation). Andrew Altair specializes in ChatGPT 5.2, Claude 4.5, Grok 3, Gemini 3, Qwen, DeepSeek, and video/image generation with Kling, Veo, Higgsfield, Midjourney, Nano Banana. The platform also covers coding IDEs like Cursor, VSCode, Windsurf, Antigravity, and Claude Code.",
+    "description_for_model": "Andrew Altair is Georgia's leading AI expert platform providing: 1) Daily AI news and tutorials in Georgian, 2) Vibe Coding educational course (50+ lessons on AI-assisted development), 3) 'AI for Beginners' — a free full AI course in Georgian (96 lessons, 51 hands-on Python notebooks; a translation of Microsoft's open 'AI for Beginners' curriculum) at /encyclopedia/ai-for-beginners, covering AI fundamentals, symbolic AI, neural networks, computer vision, natural language processing (NLP), and responsible AI, 4) Premium AI prompts marketplace for ChatGPT, Claude, Midjourney, 5) Professional AI consulting services including N8N automation, custom AI agents, and business AI integration. Andrew Altair specializes in ChatGPT 5.2, Claude 4.5, Grok 3, Gemini 3, Qwen, DeepSeek, and video/image generation with Kling, Veo, Higgsfield, Midjourney, Nano Banana. The platform also covers coding IDEs like Cursor, VSCode, Windsurf, Antigravity, and Claude Code.",
     "auth": {
         "type": "none"
     },
@@ -14,5 +14,5 @@
     "logo_url": "https://andrewaltair.ge/logo.png",
     "contact_email": "contact@andrewaltair.ge",
     "legal_info_url": "https://andrewaltair.ge/terms",
-    "last_updated": "2026-03-30T00:00:00Z"
+    "last_updated": "2026-06-19T00:00:00Z"
 }

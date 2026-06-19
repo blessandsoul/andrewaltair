@@ -8,6 +8,7 @@ import MarketplacePrompt from '@/models/MarketplacePrompt'
 import Bot from '@/models/Bot'
 import { BLOG_SLUG_REDIRECTS } from '@/data/blogSlugRedirects'
 import { INSIGHT_SLUG_REDIRECTS } from '@/data/insightSlugRedirects'
+import aiForBeginnersManifest from '@/data/courses/ai-for-beginners/manifest.json'
 
 // Cached for an hour — force-dynamic ran 7 Mongo collection scans on EVERY
 // /sitemap.xml hit (and crawlers hit it constantly). Publish flow busts it
@@ -247,5 +248,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         console.error('Sitemap: Error fetching insights:', error)
     }
 
-    return [...staticPages, ...libraryUrls, ...blogUrls, ...insightUrls, ...tutorialUrls, ...promptUrls, ...botEntries]
+    // AI for Beginners course — landing + library + every lesson (the reader is a
+    // dynamic [...slug] route with no generateStaticParams, so Google can only
+    // discover these 96 lessons via the sitemap). Static JSON import, no DB.
+    const courseBase = `${baseUrl}/encyclopedia/ai-for-beginners`
+    const courseUrls: MetadataRoute.Sitemap = [
+        { url: courseBase, lastModified: DEPLOY_DATE, changeFrequency: 'weekly', priority: 0.9 },
+        { url: `${courseBase}/library`, lastModified: DEPLOY_DATE, changeFrequency: 'weekly', priority: 0.7 },
+        ...aiForBeginnersManifest.modules.flatMap((m) =>
+            m.lessons.map((l) => ({
+                url: `${courseBase}/${l.slug}`,
+                lastModified: DEPLOY_DATE,
+                changeFrequency: 'weekly' as const,
+                priority: 0.7,
+            }))
+        ),
+    ]
+
+    return [...staticPages, ...libraryUrls, ...blogUrls, ...insightUrls, ...tutorialUrls, ...promptUrls, ...botEntries, ...courseUrls]
 }

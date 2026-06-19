@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import CourseMarkdown from './CourseMarkdown';
 import type { CourseNotebookLesson, NotebookCodeCell, NotebookOutput } from '@/types/course';
-import { TbChevronDown } from 'react-icons/tb';
+import { TbChevronDown, TbBulb } from 'react-icons/tb';
 
 const CodeBlock = dynamic(() => import('./CodeBlock'), {
     ssr: false,
@@ -55,6 +55,10 @@ function CodeCell({ cell }: { cell: NotebookCodeCell }) {
 export default function NotebookViewer({ lesson }: { lesson: CourseNotebookLesson }) {
     return (
         <div className="course-notebook">
+            <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-emerald-100 bg-emerald-50/50 px-4 py-3 text-sm text-emerald-900">
+                <TbBulb className="w-4 h-4 mt-0.5 shrink-0 text-emerald-600" />
+                <span>ეს არის პრაქტიკული ნოუთბუქი. წაიკითხე კოდი და შედეგები აქ, ან გაუშვი ინტერაქტიულად Google Colab-ში ან Jupyter-ში.</span>
+            </div>
             {lesson.cells.map((cell, i) =>
                 cell.type === 'markdown'
                     ? <CourseMarkdown key={i} content={cell.source} />

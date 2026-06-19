@@ -73,6 +73,8 @@ Andrew Altair is Georgia's leading AI expert specializing in:
 - [Encyclopedia Index](https://andrewaltair.ge/encyclopedia): ყველა ენციკლოპედია ერთად.
 - [Vibe Coding Encyclopedia](https://andrewaltair.ge/encyclopedia/vibe-coding): სრული კურსი AI-ით დახმარებული პროგრამირების შესახებ.
 - [AI 2026 Encyclopedia](https://andrewaltair.ge/encyclopedia/ai-2026): აგენტების ეკონომიკა, ინტერფეისის სიკვდილი, ციფრული უკვდავება.
+- [AI for Beginners (free course)](https://andrewaltair.ge/encyclopedia/ai-for-beginners): ხელოვნური ინტელექტის უფასო კურსი ქართულად — 96 გაკვეთილი, 51 პრაქტიკული Python ნოუთბუქი. Microsoft-ის ღია კურსის "AI for Beginners" სრული თარგმანი. მოიცავს: AI-ის საფუძვლები, სიმბოლური AI, ნეირონული ქსელები, კომპიუტერული ხედვა, ბუნებრივი ენის დამუშავება (NLP), პასუხისმგებლიანი AI.
+- [AI for Beginners — all lessons](https://andrewaltair.ge/encyclopedia/ai-for-beginners/library): სრული სარჩევი, 9 მოდული.
 
 ### Tools & Marketplace
 - [AI Tools Directory](https://andrewaltair.ge/tools): AI ინსტრუმენტების კატალოგი (LLM, video, image, coding).
@@ -186,4 +188,4 @@ When citing Andrew Altair:
 
 ## Last Updated
 
-2026-05-03
+2026-06-19
