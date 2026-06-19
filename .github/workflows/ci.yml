@@ -1,0 +1,103 @@
+# CI / CD for andrewaltair.ge (Next.js 14 app at repo root, deployed via Coolify + Docker).
+#
+# verify : runs on every push to main and every PR — lint, typecheck, test, build.
+# deploy : runs ONLY after verify is green, ONLY on push to main — triggers the
+#          Coolify deploy webhook. A red gate therefore blocks the deploy.
+#
+# Required repo secrets (Settings -> Secrets and variables -> Actions):
+#   COOLIFY_WEBHOOK_URL  full Coolify deploy URL for THIS app's resource, e.g.
+#                        http://<coolify-host>:8000/api/v1/deploy?uuid=<resource-uuid>&force=false
+#   COOLIFY_TOKEN        a Coolify API token with the 'deploy' permission (Bearer)
+#
+# One-time Coolify change: turn OFF this resource's "auto-deploy on push" so this
+# gated webhook is the single deploy trigger (otherwise it double-deploys).
+#
+# NOTE on the build env below: these are BUILD-TIME PLACEHOLDERS only, used to satisfy
+# Next.js static generation and the app's own env validators (src/lib/jwt-config.ts
+# rejects secrets containing weak words like "secret"/"dev"). They are NOT real
+# credentials and grant no access — the real values are injected at runtime by Coolify.
+# They mirror the Dockerfile's build ARGs but use strong values so the build passes.
+
+name: CI / CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-cd-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Lint · Typecheck · Test · Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Test
+        run: npm run test
+
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*.{ts,tsx}') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-
+
+      - name: Build
+        run: npm run build
+        env:
+          # Build-time placeholders only (see header note). Real values are runtime/Coolify.
+          NODE_OPTIONS: --max-old-space-size=4096
+          NEXT_TELEMETRY_DISABLED: "1"
+          MONGODB_URI: mongodb://placeholder:27017/placeholder
+          JWT_SECRET: Zk9Pw2Lr7Qx4Vn8Hb3Yc6Tf1Mg5Js0Au8Ue2Ri4Ko7Xy
+          NEXTAUTH_SECRET: Zk9Pw2Lr7Qx4Vn8Hb3Yc6Tf1Mg5Js0Au8Ue2Ri4Ko7Xy
+          NEXTAUTH_URL: http://localhost:3000
+          ADMIN_PASSWORD: Qw9Zx2Cv5Bn8Mk1Lp4Jh7Gf0Es3Au6Yt
+          ADMIN_SESSION_SECRET: Zk9Pw2Lr7Qx4Vn8Hb3Yc6Tf1Mg5Js0Au8Ue2Ri4Ko7Xy
+          GROQ_API_KEY: placeholder
+          NEXT_PUBLIC_GA_ID: G-PLACEHOLDER
+          NEXT_PUBLIC_SITE_URL: https://andrewaltair.ge
+          NEXT_PUBLIC_BASE_URL: http://localhost:3000
+          NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: QTTGbfAIhXP68dMB7BVnqmecivj7DoDTPru7hbpbtvc=
+
+  deploy:
+    name: Deploy (Coolify)
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Coolify deploy
+        run: |
+          curl --fail --silent --show-error --location \
+            --retry 3 --retry-delay 5 \
+            --request GET "${COOLIFY_WEBHOOK_URL}" \
+            --header "Authorization: Bearer ${COOLIFY_TOKEN}"
+        env:
+          COOLIFY_WEBHOOK_URL: ${{ secrets.COOLIFY_WEBHOOK_URL }}
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
