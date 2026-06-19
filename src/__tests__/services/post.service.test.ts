@@ -349,9 +349,12 @@ describe('PostService', () => {
             const result = await PostService.getRelatedPosts('current-post', ['ai', 'tech'], 2);
 
             // Assert
+            // Service excludes the current slug (plus any already-matched
+            // slugs) via $nin, so the category-fill query excludes just
+            // [currentSlug] here.
             expect(Post.find).toHaveBeenCalledWith({
                 status: 'published',
-                slug: { $ne: 'current-post' },
+                slug: { $nin: ['current-post'] },
                 categories: { $in: ['ai', 'tech'] },
             });
             expect(result).toHaveLength(2);
@@ -424,8 +427,10 @@ describe('PostService', () => {
 
             // Assert
             const secondCallArgs = (Post.find as ReturnType<typeof vi.fn>).mock.calls[1][0];
+            // Recent-fill query excludes the current slug AND every
+            // already-matched slug via a single $nin list.
             expect(secondCallArgs.slug.$nin).toContain('matched-post');
-            expect(secondCallArgs.slug.$ne).toBe('current-post');
+            expect(secondCallArgs.slug.$nin).toContain('current-post');
         });
     });
 
@@ -655,7 +660,8 @@ describe('PostService', () => {
             expect(constructedPostData.excerpt).toBe('SEO excerpt text');
             expect(constructedPostData.keyPoints).toEqual(['Point 1', 'Point 2']);
             expect(constructedPostData.status).toBe('published');
-            expect(constructedPostData.sections).toBe(newFormatData.content);
+            // sections is an array (deep-equal, not necessarily same ref).
+            expect(constructedPostData.sections).toEqual(newFormatData.content);
         });
 
         it('should handle standard (old) format', async () => {
@@ -670,7 +676,7 @@ describe('PostService', () => {
                 content: 'Post body content',
                 categories: ['tech'],
                 author: { name: 'Author', avatar: '/avatar.jpg', role: 'Writer' },
-                status: 'draft',
+                status: 'draft' as const,
                 readingTime: 10,
             };
 

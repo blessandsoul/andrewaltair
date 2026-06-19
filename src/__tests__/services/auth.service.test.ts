@@ -240,8 +240,10 @@ describe('AuthService', () => {
     // ================================================================
     describe('register', () => {
         it('should throw when required fields are missing', async () => {
-            // Arrange
-            const incompleteData = { username: 'test' }
+            // Arrange — only username provided; the rest empty so the
+            // `!email || !password || !fullName` guard fires (matches the
+            // Pick<IUser, ...> contract, no cast needed).
+            const incompleteData = { username: 'test', email: '', password: '', fullName: '' }
 
             // Act & Assert
             await expect(
@@ -250,8 +252,8 @@ describe('AuthService', () => {
         })
 
         it('should throw when username is missing', async () => {
-            // Arrange
-            const data = { email: 'a@b.com', password: 'password123', fullName: 'Name' }
+            // Arrange — empty username triggers the required-fields guard.
+            const data = { username: '', email: 'a@b.com', password: 'password123', fullName: 'Name' }
 
             // Act & Assert
             await expect(
@@ -260,8 +262,8 @@ describe('AuthService', () => {
         })
 
         it('should throw when email is missing', async () => {
-            // Arrange
-            const data = { username: 'testuser', password: 'password123', fullName: 'Name' }
+            // Arrange — empty email triggers the required-fields guard.
+            const data = { username: 'testuser', email: '', password: 'password123', fullName: 'Name' }
 
             // Act & Assert
             await expect(
@@ -505,9 +507,12 @@ describe('AuthService', () => {
             })
 
             // Act & Assert
+            // Generic credential-failure message (anti account-enumeration):
+            // login() deliberately returns the same error for unknown-user and
+            // wrong-password so an attacker can't probe which emails exist.
             await expect(
                 AuthService.login('nonexistent@test.com', 'password123', TEST_IP, TEST_USER_AGENT)
-            ).rejects.toThrow('მომხმარებელი ვერ მოიძებნა')
+            ).rejects.toThrow('ელფოსტა ან პაროლი არასწორია')
         })
 
         it('should throw when account is blocked', async () => {
@@ -532,9 +537,10 @@ describe('AuthService', () => {
             })
 
             // Act & Assert
+            // Same generic message as the unknown-user case (anti enumeration).
             await expect(
                 AuthService.login('test@example.com', 'wrongpassword', TEST_IP, TEST_USER_AGENT)
-            ).rejects.toThrow('არასწორი პაროლი')
+            ).rejects.toThrow('ელფოსტა ან პაროლი არასწორია')
         })
 
         it('should record failed attempt on wrong password', async () => {
