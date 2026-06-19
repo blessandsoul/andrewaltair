@@ -1,0 +1,742 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "neural-networks/frameworks/intro-py-torch",
+ "segments": [
+  "neural-networks",
+  "frameworks",
+  "intro-py-torch"
+ ],
+ "title": "შესავალი PyTorch-ში",
+ "module": {
+  "id": "3-NeuralNetworks",
+  "slug": "neural-networks",
+  "title": "ნეირონული ქსელები",
+  "icon": "network"
+ },
+ "lessonNumber": 5,
+ "orderInModule": 1050.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/3-NeuralNetworks/05-Frameworks/IntroPyTorch.ipynb"
+ },
+ "prev": {
+  "slug": "neural-networks/frameworks/intro-keras",
+  "title": "უმარტივესი შესავალი ნერვულ ქსელებში Keras-ით"
+ },
+ "next": {
+  "slug": "neural-networks/frameworks/intro-keras-tf",
+  "title": "შესავალი Tensorflow-სა და Keras-ში"
+ },
+ "framework": "pytorch",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "> ეს ნოუთბუქი AI დამწყებთათვის სასწავლო გეგმები-ის ნაწილია. ეწვიეთ საცავს სასწავლო მასალების სრული ნაკრებისთვის.\n\n### ნერვული ჩარჩოები\n\nჩვენ გავიგეთ, რომ ნერვული ქსელების მოსამზადებლად გჭირდებათ:\n* სწრაფად გაამრავლეთ მატრიცები (ტენსორები)\n* გამოთვალეთ გრადიენტები გრადიენტული წარმოშობის ოპტიმიზაციის შესასრულებლად\n\nრა საშუალებას გაძლევთ გააკეთოთ ნერვული ქსელის ჩარჩოები:\n* იმუშავეთ ტენსორებით ნებისმიერ გამოთვლაზე, CPU ან GPU, ან თუნდაც TPU\n* გრადიენტების ავტომატური გამოთვლა (ისინი აშკარად დაპროგრამებულია ყველა ჩაშენებული ტენზორული ფუნქციისთვის)\n\nსურვილისამებრ:\n* ნერვული ქსელის კონსტრუქტორი / უმაღლესი დონის API (აღწერეთ ქსელი, როგორც ფენების თანმიმდევრობა)\n* მარტივი სასწავლო ფუნქციები (`fit`, როგორც Scikit Learn-ში)\n* ოპტიმიზაციის მთელი რიგი ალგორითმები გრადიენტული წარმოშობის გარდა\n* მონაცემთა დამუშავების აბსტრაქციები (რომელიც იდეალურად იმუშავებს GPU-ზეც)\n"
+  },
+  {
+   "type": "markdown",
+   "source": "### ყველაზე პოპულარული ჩარჩოები\n\n* Tensorflow 1.x - პირველი ფართოდ ხელმისაწვდომი ჩარჩო (Google). ნებადართულია განსაზღვროს სტატიკური გამოთვლითი გრაფიკი, დააყენოს იგი GPU-ზე და მკაფიოდ შეაფასოს იგი\n* PyTorch - ფეისბუქის ჩარჩო, რომელიც იზრდება პოპულარობით\n* Keras - უფრო მაღალი დონის API Tensorflow/PyTorch-ის თავზე ნერვული ქსელების გაერთიანებისა და გამარტივების მიზნით (Francois Chollet)\n* Tensorflow 2.x + Keras - Tensorflow-ის ახალი ვერსია ინტეგრირებული Keras ფუნქციონირებით, რომელიც მხარს უჭერს დინამიური გამოთვლის გრაფიკს, რაც საშუალებას გაძლევთ შეასრულოთ ტენზორული ოპერაციები, რომლებიც ძალიან ჰგავს numpy-ს (და PyTorch)\n\nამ ნოუთბუქში ჩვენ ვისწავლით PyTorch-ის გამოყენებას. თქვენ უნდა დარწმუნდეთ, რომ დაინსტალირებული გაქვთ PyTorch-ის უახლესი ვერსია - ამისათვის მიჰყევით ინსტრუქციები მათ საიტზე. როგორც წესი, ეს ისეთივე მარტივია, როგორც გაკეთება```\npip install torch torchvision\n```ან```\nconda install pytorch -c pytorch\n```\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import torch\ntorch.__version__",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "'1.11.0+cu113'"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## ძირითადი ცნებები: ტენსორი\n\nTensor არის მრავალგანზომილებიანი მასივი. ძალიან მოსახერხებელია ტენსორების გამოყენება სხვადასხვა ტიპის მონაცემების წარმოსადგენად:\n* 400x400 - შავ-თეთრი სურათი\n* 400x400x3 - ფერადი სურათი \n* 16x400x400x3 - 16 ფერადი სურათის მინი პარტია\n* 25x400x400x3 - ერთი წამი 25-fps ვიდეოდან\n* 8x25x400x400x3 - 8 1 წამიანი ვიდეოს მინი პარტია\n"
+  },
+  {
+   "type": "markdown",
+   "source": "### მარტივი ტენსორები\n\nთქვენ შეგიძლიათ მარტივად შექმნათ მარტივი ტენსორები np მასივების სიებიდან, ან შექმნათ შემთხვევითი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "a = torch.tensor([[1,2],[3,4]])\nprint(a)\na = torch.randn(size=(10,3))\nprint(a)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "tensor([[1, 2],\n        [3, 4]])\ntensor([[ 0.8995, -1.6137,  1.4489],\n        [-0.2796, -2.1443, -2.4618],\n        [-0.2358, -0.4249, -0.0716],\n        [-0.1267, -0.6382,  0.0593],\n        [-0.4956,  1.7054,  0.3874],\n        [ 1.3479, -1.6329,  0.2793],\n        [ 1.1211, -1.5430,  0.7186],\n        [-1.5197,  0.5559, -1.6421],\n        [ 0.1900, -0.4175, -0.3922],\n        [ 1.8994,  0.1497, -0.7039]])\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "თქვენ შეგიძლიათ გამოიყენოთ არითმეტიკული მოქმედებები ტენსორებზე, რომლებიც შესრულებულია ელემენტების მიხედვით, როგორც numpy-ში. საჭიროების შემთხვევაში ტენზორები ავტომატურად აფართოებენ საჭირო განზომილებას. ტენსორიდან ნუმპი მასივის ამოსაღებად გამოიყენეთ `.numpy()`:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "print(a-a[0])\nprint(torch.exp(a)[0].numpy())",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "tensor([[ 0.0000,  0.0000,  0.0000],\n        [-2.0583, -0.5631,  1.4932],\n        [-1.0613, -1.0738,  2.2078],\n        [-1.5101,  0.5896,  2.4722],\n        [-2.8219, -2.0846,  1.2405],\n        [ 0.8706, -0.2485,  2.3679],\n        [-1.6590,  0.1935,  1.8698],\n        [-0.3316,  0.8065,  1.6490],\n        [-1.5788, -1.1844, -0.4816],\n        [ 0.0680, -1.4526,  1.8159]])\n[3.887189   2.1276016  0.17371987]\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## ადგილზე და გარე ოპერაციები\n\nტენსორის ოპერაციები, როგორიცაა `+`/`add` აბრუნებს ახალ ტენსორებს. თუმცა, ზოგჯერ საჭიროა არსებული ტენზორის ადგილზე შეცვლა. ოპერაციების უმეტესობას აქვს საკუთარი ანალოგები, რომლებიც მთავრდება `_`-ით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "u = torch.tensor(5)\nprint(\"Result when adding out-of-place:\",u.add(torch.tensor(3)))\nu.add_(torch.tensor(3))\nprint(\"Result after adding in-place:\", u)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Result when adding out-of-place: tensor(8)\nResult after adding in-place: tensor(8)\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "აი, როგორ შეგვიძლია გამოვთვალოთ ჯამი ან ყველა მწკრივი მატრიცაში გულუბრყვილოდ:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "s = torch.zeros_like(a[0])\nfor i in a:\n  s.add_(i)\n\nprint(s)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "tensor([ 3.4945,  2.5325, -2.8684])\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მაგრამ მისი გამოყენება ბევრად უკეთესია\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "torch.sum(a,axis=0)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "tensor([ 3.4945,  2.5325, -2.8684])"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "შეგიძლიათ მეტი წაიკითხოთ PyTorch ტენსორების შესახებ ოფიციალური დოკუმენტაცია-ში\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## გამოთვლითი გრადიენტები\n\nუკანა გამრავლებისთვის საჭიროა გრადიენტების გამოთვლა. ჩვენ შეგვიძლია დავაყენოთ PyTorch Tensor-ის ნებისმიერი ატრიბუტი `requires_grad``True`-ზე, რაც გამოიწვევს ამ ტენზორის ყველა ოპერაციას გრადიენტის გამოთვლებისთვის. გრადიენტების გამოსათვლელად, თქვენ უნდა გამოიძახოთ `backward()` მეთოდი, რის შემდეგაც გრადიენტი ხელმისაწვდომი გახდება `grad` ატრიბუტის გამოყენებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "a = torch.randn(size=(2, 2), requires_grad=True)\nb = torch.randn(size=(2, 2))\n\nc = torch.mean(torch.sqrt(torch.square(a) + torch.square(b)))  # Do some math using `a`\nc.backward() # call backward() to compute all gradients\n# What's the gradient of `c` with respect to `a`?\nprint(a.grad)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "tensor([[-0.1728,  0.0913],\n        [-0.1666, -0.1942]])\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "უფრო ზუსტად რომ ვთქვათ, PyTorch ავტომატურად აგროვებს გრადიენტებს. თუ `backward`-ის გამოძახებისას მიუთითებთ `retain_graph=True`-ს, გამოთვლითი გრაფიკი შენარჩუნდება და ახალი გრადიენტი დაემატება `grad` ველს. იმისათვის, რომ გამოთვლითი გრადიენტები თავიდან დავიწყოთ, ჩვენ გვჭირდება `grad` ველის გადატვირთვა 0-ზე აშკარად `zero_()`-ის დარეკვით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "c = torch.mean(torch.sqrt(torch.square(a) + torch.square(b)))\nc.backward(retain_graph=True)\nc.backward(retain_graph=True)\nprint(a.grad)\na.grad.zero_()\nc.backward()\nprint(a.grad)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "tensor([[-0.5185,  0.2739],\n        [-0.4998, -0.5826]])\ntensor([[-0.1728,  0.0913],\n        [-0.1666, -0.1942]])\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "გრადიენტების გამოსათვლელად PyTorch ქმნის და ინახავს გამოთვლით გრაფიკს. თითოეული ტენსორისთვის, რომელსაც აქვს `requires_grad` დროშა დაყენებული `True`-ზე, PyTorch ინარჩუნებს სპეციალურ ფუნქციას, სახელწოდებით `grad_fn`, რომელიც გამოთვლის გამოხატვის წარმოებულს ჯაჭვის დიფერენციაციის წესის მიხედვით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "print(c)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "tensor(0.9143, grad_fn=<MeanBackward0>)\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "აქ `c` გამოითვლება `mean` ფუნქციის გამოყენებით, შესაბამისად `grad_fn` მიუთითებს ფუნქციაზე, სახელად `MeanBackward`.\n\nუმეტეს შემთხვევაში, ჩვენ გვინდა, რომ PyTorch-მა გამოთვალოს სკალარული ფუნქციის გრადიენტი (როგორიცაა დაკარგვის ფუნქცია). თუმცა, თუ ჩვენ გვინდა გამოვთვალოთ ტენზორის გრადიენტი სხვა ტენზორთან მიმართებაში, PyTorch გვაძლევს საშუალებას გამოვთვალოთ იაკობის მატრიცისა და მოცემული ვექტორის ნამრავლი.\n\nდავუშვათ, გვაქვს ვექტორული ფუნქცია $\\vec{y}=f(\\vec{x})$, სადაც\n$\\vec{x}=\\langle x_1,\\dots,x_n\\rangle$ და\n$\\vec{y}=\\langle y_1,\\dots,y_m\\rangle$, შემდეგ $\\vec{y}$-ის გრადიენტი $\\vec{x}$-ის მიმართ განისაზღვრება Jacobian-ით:\n\n$$\n\\begin{align}J=\\left(\\begin{მასივი}ccc}\n   \\frac{\\partial y_{1}}{\\partial x_{1}} & \\cdots & \\frac{\\partial y_{1}}{\\partial x_{n}}\\\\\n   \\vdots & \\ddots & \\vdots\\\\\n   \\frac{\\partial y_{m}}{\\partial x_{1}} & \\cdots & \\frac{\\partial y_{m}}{\\partial x_{n}}\n\\end{მასივი}\\right)\\end{გასწორება}\n$$\n\nიმის ნაცვლად, რომ მოგვცეს წვდომა მთელ Jacobian-ზე, PyTorch გამოთვლის პროდუქტს $v^T\\cdot J$ of Jacobian რაღაც ვექტორით.\n$v=(v_1 \\წერტილები v_m)$. ამისათვის ჩვენ უნდა გამოვიძახოთ ``backward`` and pass `v` as an argument. The size of `v` უნდა იყოს იგივე, რაც საწყისი ტენზორის ზომა, რომლის მიმართაც ჩვენ გამოვთვალოთ გრადიენტი.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "c = torch.sqrt(torch.square(a) + torch.square(b))\nc.backward(torch.eye(2)) # eye(2) means 2x2 identity matrix\nprint(a.grad)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "tensor([[-0.8642,  0.0913],\n        [-0.1666, -0.9710]])\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მეტი იაკობიანების გამოთვლის შესახებ PyTorch-ში შეგიძლიათ იხილოთ ოფიციალური დოკუმენტაცია-ში\n"
+  },
+  {
+   "type": "markdown",
+   "source": "# მაგალითი 0: ოპტიმიზაცია გრადიენტური დაღმართის გამოყენებით\n\nშევეცადოთ გამოვიყენოთ ავტომატური დიფერენციაცია, რათა ვიპოვოთ მარტივი ორცვლადიანი ფუნქციის მინიმუმი $f(x_1,x_2)=(x_1-3)^2+(x_2+2)^2$. დაე, ტენსორმა `x` შეინარჩუნოს წერტილის მიმდინარე კოორდინატები. ჩვენ ვიწყებთ საწყისი წერტილით $x^{(0)}=(0,0)$ და გამოვთვალეთ შემდეგი წერტილი თანმიმდევრობით გრადიენტული წარმოშობის ფორმულის გამოყენებით:\n$$\nx^{(n+1)} = x^{(n)} - \\eta\\nabla f\n$$\nაქ $\\eta$ არის ეგრეთ წოდებული სწავლის გაბრაზება (კოდში აღვნიშნავთ `lr`-ით), ხოლო $\\nabla f = (\\frac{\\partial f}{\\partial x_1},\\frac{\\partial f}{\\partial x_2})$ - $f$-ის გრადიენტი.\n\nდასაწყისისთვის, მოდით განვსაზღვროთ `x` საწყისი მნიშვნელობა და ფუნქცია `f`:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "x = torch.zeros(2,requires_grad=True)\nf = lambda x : (x-torch.tensor([3,-2])).pow(2).sum()\nlr = 0.1",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მოდით გავაკეთოთ გრადიენტური დაღმართის 15 გამეორება. თითოეულ გამეორებაში ჩვენ განვაახლებთ `x` კოორდინატებს და დავბეჭდავთ მათ, რათა დავრწმუნდეთ, რომ ვუახლოვდებით მინიმალურ წერტილს (3,-2):\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "for i in range(15):\n    y = f(x)\n    y.backward()\n    gr = x.grad\n    x.data.add_(-lr*gr)\n    x.grad.zero_()\n    print(\"Step {}: x[0]={}, x[1]={}\".format(i,x[0],x[1]))",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Step 0: x[0]=0.6000000238418579, x[1]=-0.4000000059604645\nStep 1: x[0]=1.0800000429153442, x[1]=-0.7200000286102295\nStep 2: x[0]=1.4639999866485596, x[1]=-0.9760000705718994\nStep 3: x[0]=1.7711999416351318, x[1]=-1.1808000802993774\nStep 4: x[0]=2.0169599056243896, x[1]=-1.3446400165557861\nStep 5: x[0]=2.2135679721832275, x[1]=-1.4757120609283447\nStep 6: x[0]=2.370854377746582, x[1]=-1.5805696249008179\nStep 7: x[0]=2.4966835975646973, x[1]=-1.6644556522369385\nStep 8: x[0]=2.597346782684326, x[1]=-1.7315645217895508\nStep 9: x[0]=2.677877426147461, x[1]=-1.7852516174316406\nStep 10: x[0]=2.7423019409179688, x[1]=-1.8282012939453125\nStep 11: x[0]=2.793841600418091, x[1]=-1.8625609874725342\nStep 12: x[0]=2.835073232650757, x[1]=-1.8900487422943115\nStep 13: x[0]=2.868058681488037, x[1]=-1.912039041519165\nStep 14: x[0]=2.894446849822998, x[1]=-1.929631233215332\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## მაგალითი 1: ხაზოვანი რეგრესია\n\nახლა ჩვენ საკმარისი ვიცით წრფივი რეგრესიის კლასიკური ამოცანის გადასაჭრელად. მოდით შევქმნათ მცირე სინთეზური მონაცემთა ნაკრები:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import numpy as np\nimport matplotlib.pyplot as plt\nfrom sklearn.datasets import make_classification, make_regression\nfrom sklearn.model_selection import train_test_split\nimport random",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "np.random.seed(13) # pick the seed for reproducibility - change it to explore the effects of random variations\n\ntrain_x = np.linspace(0, 3, 120)\ntrain_labels = 2 * train_x + 0.9 + np.random.randn(*train_x.shape) * 0.5\n\nplt.scatter(train_x,train_labels)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<matplotlib.collections.PathCollection at 0x20b8e1f1ca0>"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/064d4965744637d1.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "წრფივი რეგრესია განისაზღვრება სწორი ხაზით $f_{W,b}(x) = Wx+b$, სადაც $W, b$ არის მოდელის პარამეტრები, რომლებიც უნდა ვიპოვოთ. შეცდომა ჩვენს მონაცემთა ბაზაში $\\{x_i,y_u\\}_{i=1}^N$ (ასევე უწოდებენ დაკარგვის ფუნქციას) შეიძლება განისაზღვროს, როგორც საშუალო კვადრატული შეცდომა:\n$$\n\\mathcal{L}(W,b) = {1\\ მეტი N}\\sum_{i=1}^N (f_{W,b}(x_i)-y_i)^2\n$$\n\nმოდით განვსაზღვროთ ჩვენი მოდელი და დაკარგვის ფუნქცია:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "input_dim = 1\noutput_dim = 1\nlearning_rate = 0.1\n\n# This is our weight matrix\nw = torch.tensor([100.0],requires_grad=True,dtype=torch.float32)\n# This is our bias vector\nb = torch.zeros(size=(output_dim,),requires_grad=True)\n\ndef f(x):\n  return torch.matmul(x,w) + b\n\ndef compute_loss(labels, predictions):\n  return torch.mean(torch.square(labels - predictions))",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ მოვამზადებთ მოდელს მინი პატჩების სერიაზე. ჩვენ გამოვიყენებთ გრადიენტულ დაშვებას, მოდელის პარამეტრების კორექტირებას შემდეგი ფორმულების გამოყენებით:\n$$\n\\დაწყება{მასივი}{l}\nW^{(n+1)}=W^{(n)}-\\eta\\frac{\\partial\\mathcal{L}}{\\partial W} \\\\\nb^{(n+1)}=b^{(n)}-\\eta\\frac{\\partial\\mathcal{L}}{\\partial b} \\\\\n\\დასრულება{მასივი}\n$$\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def train_on_batch(x, y):\n  predictions = f(x)\n  loss = compute_loss(y, predictions)\n  loss.backward()\n  w.data.sub_(learning_rate * w.grad)\n  b.data.sub_(learning_rate * b.grad)\n  w.grad.zero_()\n  b.grad.zero_()\n  return loss",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩავატაროთ ტრენინგი. ჩვენ გავაკეთებთ რამდენიმე გავლას მონაცემთა ნაკრებში (ე.წ. ეპოქები), გავყოფთ მას მინიპატჩებად და გამოვიძახებთ ზემოთ განსაზღვრულ ფუნქციას:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Shuffle the data.\nindices = np.random.permutation(len(train_x))\nfeatures = torch.tensor(train_x[indices],dtype=torch.float32)\nlabels = torch.tensor(train_labels[indices],dtype=torch.float32)",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "batch_size = 4\nfor epoch in range(10):\n  for i in range(0,len(features),batch_size):\n    loss = train_on_batch(features[i:i+batch_size].view(-1,1),labels[i:i+batch_size])\n  print('Epoch %d: last batch loss = %.4f' % (epoch, float(loss)))",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch 0: last batch loss = 94.5247\nEpoch 1: last batch loss = 9.3428\nEpoch 2: last batch loss = 1.4166\nEpoch 3: last batch loss = 0.5224\nEpoch 4: last batch loss = 0.3807\nEpoch 5: last batch loss = 0.3495\nEpoch 6: last batch loss = 0.3413\nEpoch 7: last batch loss = 0.3390\nEpoch 8: last batch loss = 0.3384\nEpoch 9: last batch loss = 0.3382\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ ახლა მივიღეთ ოპტიმიზებული პარამეტრები $W$ და $b$. Note that their values are similar to the original values used when generating the dataset ($W=2, b=1$)\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "w,b",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "(tensor([1.8617], requires_grad=True), tensor([1.0711], requires_grad=True))"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plt.scatter(train_x,train_labels)\nx = np.array([min(train_x),max(train_x)])\nwith torch.no_grad():\n  y = w.numpy()*x+b.numpy()\nplt.plot(x,y,color='red')",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[<matplotlib.lines.Line2D at 0x20b8e30a850>]"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/630d0d7c8059b8cc.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## გამოთვლები GPU-ზე\n\nგამოთვლებისთვის GPU-ს გამოსაყენებლად PyTorch მხარს უჭერს ტენსორების გადატანას GPU-ზე და გამოთვლითი გრაფიკის აგებას GPU-სთვის. ტრადიციულად, ჩვენი კოდის დასაწყისში ჩვენ განვსაზღვრავთ ხელმისაწვდომ გამოთვლით მოწყობილობას `device` (რომელიც არის `cpu` ან `cuda`), შემდეგ კი გადავიტანთ ყველა ტენსორს ამ მოწყობილობაზე `.to(device)` ზარის გამოყენებით. ჩვენ ასევე შეგვიძლია შევქმნათ ტენსორები მითითებულ მოწყობილობაზე წინასწარ, პარამეტრის `device=...` გადაცემით ტენზორის შექმნის კოდზე. ასეთი კოდი მუშაობს ცვლილებების გარეშე როგორც CPU-ზე, ასევე GPU-ზე:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "device = 'cuda' if torch.cuda.is_available() else 'cpu'\n\nprint('Doing computations on '+device)\n\n### Changes here: indicate device\nw = torch.tensor([100.0],requires_grad=True,dtype=torch.float32,device=device)\nb = torch.zeros(size=(output_dim,),requires_grad=True,device=device)\n\ndef f(x):\n  return torch.matmul(x,w) + b\n\ndef compute_loss(labels, predictions):\n  return torch.mean(torch.square(labels - predictions))\n\ndef train_on_batch(x, y):\n  predictions = f(x)\n  loss = compute_loss(y, predictions)\n  loss.backward()\n  w.data.sub_(learning_rate * w.grad)\n  b.data.sub_(learning_rate * b.grad)\n  w.grad.zero_()\n  b.grad.zero_()\n  return loss\n\nbatch_size = 4\nfor epoch in range(10):\n  for i in range(0,len(features),batch_size):\n    ### Changes here: move data to required device\n    loss = train_on_batch(features[i:i+batch_size].view(-1,1).to(device),labels[i:i+batch_size].to(device))\n  print('Epoch %d: last batch loss = %.4f' % (epoch, float(loss)))",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Doing computations on cpu\nEpoch 0: last batch loss = 94.5247\nEpoch 1: last batch loss = 9.3428\nEpoch 2: last batch loss = 1.4166\nEpoch 3: last batch loss = 0.5224\nEpoch 4: last batch loss = 0.3807\nEpoch 5: last batch loss = 0.3495\nEpoch 6: last batch loss = 0.3413\nEpoch 7: last batch loss = 0.3390\nEpoch 8: last batch loss = 0.3384\nEpoch 9: last batch loss = 0.3382\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## მაგალითი 2: კლასიფიკაცია\n\nახლა განვიხილავთ ორობითი კლასიფიკაციის პრობლემას. ასეთი პრობლემის კარგი მაგალითი იქნება სიმსივნის კლასიფიკაცია ავთვისებიანსა და კეთილთვისებიანს შორის მისი ზომისა და ასაკის მიხედვით.\n\nძირითადი მოდელი რეგრესიის მსგავსია, მაგრამ ჩვენ უნდა გამოვიყენოთ სხვადასხვა დანაკარგის ფუნქცია. დავიწყოთ ნიმუშის მონაცემების გენერირებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "np.random.seed(0) # pick the seed for reproducibility - change it to explore the effects of random variations\n\nn = 100\nX, Y = make_classification(n_samples = n, n_features=2,\n                           n_redundant=0, n_informative=2, flip_y=0.1,class_sep=1.5)\nX = X.astype(np.float32)\nY = Y.astype(np.int32)\n\nsplit = [ 70*n//100, (15+70)*n//100 ]\ntrain_x, valid_x, test_x = np.split(X, split)\ntrain_labels, valid_labels, test_labels = np.split(Y, split)",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def plot_dataset(features, labels, W=None, b=None):\n    # prepare the plot\n    fig, ax = plt.subplots(1, 1)\n    ax.set_xlabel('$x_i[0]$ -- (feature 1)')\n    ax.set_ylabel('$x_i[1]$ -- (feature 2)')\n    colors = ['r' if l else 'b' for l in labels]\n    ax.scatter(features[:, 0], features[:, 1], marker='o', c=colors, s=100, alpha = 0.5)\n    if W is not None:\n        min_x = min(features[:,0])\n        max_x = max(features[:,1])\n        min_y = min(features[:,1])*(1-.1)\n        max_y = max(features[:,1])*(1+.1)\n        cx = np.array([min_x,max_x],dtype=np.float32)\n        cy = (0.5-W[0]*cx-b)/W[1]\n        ax.plot(cx,cy,'g')\n        ax.set_ylim(min_y,max_y)\n    fig.show()",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plot_dataset(train_x, train_labels)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "C:\\Users\\dmitryso\\AppData\\Local\\Temp/ipykernel_89704/2721537645.py:17: UserWarning: Matplotlib is currently using module://matplotlib_inline.backend_inline, which is a non-GUI backend, so cannot show the figure.\n  fig.show()\n",
+     "stream": "stderr"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/a7800bdc397aa202.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## ტრენინგი ერთშრიანი პერცეპტრონი\n\nმოდით გამოვიყენოთ PyTorch გრადიენტური გამოთვლითი აპარატურა ერთშრიანი პერცეპტრონის მოსამზადებლად.\n\nჩვენს ნერვულ ქსელს ექნება 2 შეყვანა და 1 გამომავალი. წონის მატრიცას $W$ ექნება ზომა $2\\ჯერ1$ და მიკერძოების ვექტორი $b$ -- $1$.\n\nიმისათვის, რომ ჩვენი კოდი უფრო სტრუქტურირებული გავხადოთ, მოდით დავაჯგუფოთ ყველა პარამეტრი ერთ კლასში:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class Network():\n  def __init__(self):\n     self.W = torch.randn(size=(2,1),requires_grad=True)\n     self.b = torch.zeros(size=(1,),requires_grad=True)\n\n  def forward(self,x):\n    return torch.matmul(x,self.W)+self.b\n\n  def zero_grad(self):\n    self.W.data.zero_()\n    self.b.data.zero_()\n\n  def update(self,lr=0.1):\n    self.W.data.sub_(lr*self.W.grad)\n    self.b.data.sub_(lr*self.b)\n\nnet = Network()",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "> გაითვალისწინეთ, რომ ჩვენ ვიყენებთ `W.data.zero_()` `W.zero_()`-ის ნაცვლად. ჩვენ ეს უნდა გავაკეთოთ, რადგან ჩვენ არ შეგვიძლია პირდაპირ შევცვალოთ ტენზორი, რომელსაც აკონტროლებენ Autograd მექანიზმის გამოყენებით.\n\nძირითადი მოდელი იქნება იგივე, რაც წინა მაგალითში, მაგრამ დაკარგვის ფუნქცია იქნება ლოგისტიკური დანაკარგი. ლოგისტიკური დანაკარგის გამოსაყენებლად, ჩვენ უნდა მივიღოთ ალბათობა, როგორც ჩვენი ქსელის გამოსავალი, ანუ გამომავალი $z$ უნდა მივიყვანოთ დიაპაზონში [0,1] `sigmoid` აქტივაციის ფუნქციის გამოყენებით: $p=\\sigma(z)$.\n\nთუ მივიღებთ ალბათობას $p_i$ i-ის შეყვანის მნიშვნელობისთვის, რომელიც შეესაბამება $y_i\\in\\{0,1\\}$ ფაქტობრივ კლასს, ჩვენ გამოვთვლით დანაკარგს $\\mathcal{L_i}=-(y_i\\log p_i + (1-y_i)log(1-p_i))$.\n\nPyTorch-ში ორივე ეს ნაბიჯი (სიგმოიდის გამოყენება და შემდეგ ლოგისტიკური დაკარგვა) შეიძლება განხორციელდეს ერთი ზარის გამოყენებით `binary_cross_entropy_with_logits` ფუნქციაზე. იმის გამო, რომ ჩვენ ვავარჯიშებთ ჩვენს ქსელს მინი პარტიაში, ჩვენ უნდა გამოვთვალოთ დანაკარგის საშუალო რაოდენობა მინი-სერიების ყველა ელემენტში - და ეს ასევე ავტომატურად ხდება `binary_cross_entropy_with_logits` ფუნქციით:\n\n> ზარი `binary_crossentropy_with_logits`-ზე უდრის ზარს `sigmoid`-ზე, რასაც მოჰყვება ზარი `binary_crossentropy`-ზე\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def train_on_batch(net, x, y):\n  z = net.forward(x).flatten()\n  loss = torch.nn.functional.binary_cross_entropy_with_logits(input=z,target=y)\n  net.zero_grad()\n  loss.backward()\n  net.update()\n  return loss",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენი მონაცემების გადასახედად, ჩვენ გამოვიყენებთ ჩაშენებულ PyTorch მექანიზმს მონაცემთა ნაკრების სამართავად. იგი ეფუძნება ორ კონცეფციას:\n* Dataset არის მონაცემთა ძირითადი წყარო, ის შეიძლება იყოს Iterable ან Map-style\n* Dataloader პასუხისმგებელია მონაცემთა ნაკრებიდან ჩატვირთვაზე და მინი პატჩებად დაყოფაზე.\n\nჩვენს შემთხვევაში, ჩვენ განვსაზღვრავთ მონაცემთა ბაზას ტენზორის საფუძველზე და დავყოფთ მას 16 ელემენტისგან შემდგარ მინი პარტიებად. თითოეული მინი პარტია შეიცავს ორ ტენსორს, შეყვანის მონაცემებს (ზომა=16x2) და ლეიბლებს (მთლიანი ტიპის 16 სიგრძის ვექტორი - კლასის ნომერი).\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Create a tf.data.Dataset object for easy batched iteration\ndataset = torch.utils.data.TensorDataset(torch.tensor(train_x),torch.tensor(train_labels,dtype=torch.float32))\ndataloader = torch.utils.data.DataLoader(dataset,batch_size=16)\n\nlist(dataloader)[0]",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[tensor([[ 1.5442,  2.5290],\n         [-1.6284,  0.0772],\n         [-1.7141,  2.4770],\n         [-1.4951,  0.7320],\n         [-1.6899,  0.9243],\n         [-0.9474, -0.7681],\n         [ 3.8597, -2.2951],\n         [-1.3944,  1.4300],\n         [ 4.3627,  3.1333],\n         [-1.0973, -1.7011],\n         [-2.5532, -0.0777],\n         [-1.2661, -0.3167],\n         [ 0.3921,  1.8406],\n         [ 2.2091, -1.6045],\n         [ 1.8383, -1.4861],\n         [ 0.7173, -0.9718]]),\n tensor([1., 0., 0., 0., 0., 0., 1., 0., 1., 0., 0., 0., 1., 1., 1., 1.])]"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა ჩვენ შეგვიძლია შევამოწმოთ მთელი მონაცემთა ბაზა, რათა გავავარჯიშოთ ჩვენი ქსელი 15 ეპოქისთვის:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "for epoch in range(15):\n  for (x, y) in dataloader:\n    loss = train_on_batch(net,x,y)\n  print('Epoch %d: last batch loss = %.4f' % (epoch, float(loss)))",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch 0: last batch loss = 0.6491\nEpoch 1: last batch loss = 0.6064\nEpoch 2: last batch loss = 0.5822\nEpoch 3: last batch loss = 0.5679\nEpoch 4: last batch loss = 0.5592\nEpoch 5: last batch loss = 0.5537\nEpoch 6: last batch loss = 0.5501\nEpoch 7: last batch loss = 0.5478\nEpoch 8: last batch loss = 0.5463\nEpoch 9: last batch loss = 0.5454\nEpoch 10: last batch loss = 0.5447\nEpoch 11: last batch loss = 0.5443\nEpoch 12: last batch loss = 0.5441\nEpoch 13: last batch loss = 0.5439\nEpoch 14: last batch loss = 0.5438\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მიღებული პარამეტრები:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "print(net.W,net.b)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "tensor([[ 0.1330],\n        [-0.2810]], requires_grad=True) tensor([0.], requires_grad=True)\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "იმისათვის, რომ დავრწმუნდეთ, რომ ჩვენი ტრენინგი მუშაობდა, მოდით დავხატოთ ხაზი, რომელიც ჰყოფს ორ კლასს. გამოყოფის ხაზი განისაზღვრება განტოლებით $W\\ჯერ x + b = 0.5$\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plot_dataset(train_x,train_labels,net.W.detach().numpy(),net.b.detach().numpy())",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "C:\\Users\\dmitryso\\AppData\\Local\\Temp/ipykernel_89704/2721537645.py:17: UserWarning: Matplotlib is currently using module://matplotlib_inline.backend_inline, which is a non-GUI backend, so cannot show the figure.\n  fig.show()\n",
+     "stream": "stderr"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/8044b775062e36a6.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით არ გამოვთვალოთ სიზუსტე ვალიდაციის მონაცემთა ბაზაში:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "pred = torch.sigmoid(net.forward(torch.tensor(valid_x)))\ntorch.mean(((pred.view(-1)>0.5)==(torch.tensor(valid_labels)>0.5)).type(torch.float32))",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "tensor(0.7333)"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მოდი ავხსნათ რა ხდება აქ:\n* `pred` არის პროგნოზირებული ალბათობების ვექტორი მთელი ვალიდაციის მონაცემთა ნაკრებისთვის. ჩვენ ვიანგარიშებთ მას ჩვენი ქსელის მეშვეობით ორიგინალური ვალიდაციის მონაცემების `valid_x` გაშვებით და ალბათობების მისაღებად `sigmoid`-ის გამოყენებით.\n* `pred.view(-1)` ქმნის ორიგინალური ტენზორის გაბრტყელ ხედს. `view` მსგავსია `reshape` ფუნქციის numpy-ში.\n* `pred.view(-1)>0.5` აბრუნებს ლოგიკური ტენსორის ან ჭეშმარიტების მნიშვნელობას, რომელიც აჩვენებს წინასწარმეტყველურ კლასს (False = კლასი 0, True = კლასი 1)\n* ანალოგიურად, `torch.tensor(valid_labels)>0.5)` ქმნის ჭეშმარიტების მნიშვნელობების ლოგიკურ ტენსორს ვალიდაციის ეტიკეტებისთვის\n* ჩვენ შევადარებთ ამ ორ ტენსორს ელემენტის მიხედვით და მივიღებთ სხვა ლოგიკურ ტენსორს, სადაც `True` შეესაბამება სწორ პროგნოზს, ხოლო `False` - არასწორს.\n* ჩვენ ამ ტენსორს ვცვლით მცურავ წერტილად და ვიღებთ მის საშუალო მნიშვნელობას `torch.mean`-ის გამოყენებით - ეს არის სასურველი სიზუსტე\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## ნერვული ქსელები და ოპტიმიზატორები\n\nPyTorch-ში განსაზღვრულია სპეციალური მოდული `torch.nn.Module`, რომელიც წარმოადგენს ნერვულ ქსელს. თქვენი საკუთარი ნერვული ქსელის განსაზღვრის ორი მეთოდი არსებობს:\n* თანმიმდევრული, სადაც თქვენ უბრალოდ მიუთითებთ ფენების სიას, რომლებიც მოიცავს თქვენს ქსელს\n* როგორც კლასი მემკვიდრეობით `torch.nn.Module`-დან\n\nპირველი მეთოდი საშუალებას გაძლევთ მიუთითოთ სტანდარტული ქსელები ფენების თანმიმდევრული შემადგენლობით, ხოლო მეორე უფრო მოქნილია და იძლევა თვითნებური რთული არქიტექტურის ქსელების გამოხატვის შესაძლებლობას.\n\nმოდულების შიგნით შეგიძლიათ გამოიყენოთ სტანდარტული ფენები, როგორიცაა:\n* `Linear` - მკვრივი წრფივი ფენა, ერთშრიანი პერცეპტრონის ტოლფასი. მას აქვს იგივე არქიტექტურა, რაც ზემოთ განვსაზღვრეთ ჩვენი ქსელისთვის\n* `Softmax`, `Sigmoid`, `ReLU` - ფენები, რომლებიც შეესაბამება აქტივაციის ფუნქციებს \n* ასევე არსებობს სხვა ფენები ქსელის სპეციალური ტიპებისთვის - კონვოლუცია, განმეორებადი და ა.შ. ბევრ მათგანს მოგვიანებით განვიხილავთ.\n\n> PyTorch-ში აქტივაციის ფუნქციისა და დაკარგვის ფუნქციების უმეტესობა ხელმისაწვდომია ორი ფორმით: ფუნქციის (`torch.nn.functional` სახელთა სივრცის შიგნით) და შრის სახით (`torch.nn` სახელთა სივრცის შიგნით). აქტივაციის ფუნქციებისთვის ხშირად უფრო ადვილია ფუნქციური ელემენტების გამოყენება `torch.nn.functional`-დან, ცალკეული ფენის ობიექტის შექმნის გარეშე.\n\nთუ გვსურს ვავარჯიშოთ ერთშრიანი პერცეტრონი, შეგვიძლია გამოვიყენოთ ერთი ჩაშენებული `Linear` ფენა:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "net = torch.nn.Linear(2,1) # 2 inputs, 1 output\n\nprint(list(net.parameters()))",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[Parameter containing:\ntensor([[-0.0422,  0.1821]], requires_grad=True), Parameter containing:\ntensor([0.6582], requires_grad=True)]\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "როგორც ხედავთ, `parameters()` მეთოდი აბრუნებს ყველა იმ პარამეტრს, რომელიც უნდა დარეგულირდეს ტრენინგის დროს. ისინი შეესაბამება წონის მატრიცას $W$ და მიკერძოებას $b$. თქვენ შეგიძლიათ შენიშნოთ, რომ მათ აქვთ `requires_grad` დაყენებული `True`, რადგან ჩვენ გვჭირდება გრადიენტების გამოთვლა პარამეტრების მიმართ.\n\nPyTorch ასევე შეიცავს ჩაშენებულ ოპტიმიზატორებს, რომლებიც ახორციელებენ ოპტიმიზაციის მეთოდებს, როგორიცაა გრადიენტული წარმოშობა. აი, როგორ შეგვიძლია განვსაზღვროთ სტოქასტური გრადიენტული დაღმართის ოპტიმიზატორი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "optim = torch.optim.SGD(net.parameters(),lr=0.05)",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ოპტიმიზატორის გამოყენებით, ჩვენი სასწავლო ციკლი ასე გამოიყურება:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "val_x = torch.tensor(valid_x)\nval_lab = torch.tensor(valid_labels)\n\nfor ep in range(10):\n  for (x,y) in dataloader:\n    z = net(x).flatten()\n    loss = torch.nn.functional.binary_cross_entropy_with_logits(z,y)\n    optim.zero_grad()\n    loss.backward()\n    optim.step()\n  acc = ((torch.sigmoid(net(val_x).flatten())>0.5).float()==val_lab).float().mean()\n  print(f\"Epoch {ep}: last batch loss = {loss}, val acc = {acc}\")",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch 0: last batch loss = 0.7596041560173035, val acc = 0.5333333611488342\nEpoch 1: last batch loss = 0.6602361798286438, val acc = 0.6000000238418579\nEpoch 2: last batch loss = 0.5847358107566833, val acc = 0.6666666865348816\nEpoch 3: last batch loss = 0.5263020992279053, val acc = 0.7333333492279053\nEpoch 4: last batch loss = 0.48015740513801575, val acc = 0.800000011920929\nEpoch 5: last batch loss = 0.4430023431777954, val acc = 0.8666666746139526\nEpoch 6: last batch loss = 0.41254672408103943, val acc = 0.8666666746139526\nEpoch 7: last batch loss = 0.3871781527996063, val acc = 0.800000011920929\nEpoch 8: last batch loss = 0.3657420873641968, val acc = 0.800000011920929\nEpoch 9: last batch loss = 0.34739670157432556, val acc = 0.800000011920929\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "> თქვენ შეიძლება შეამჩნიოთ, რომ ჩვენი ქსელის მონაცემების შესატანად გამოსაყენებლად, ჩვენ შეგვიძლია გამოვიყენოთ `net(x)` `net.forward(x)`-ის ნაცვლად, რადგან `nn.Module` ახორციელებს Python `__call__()` ფუნქციას\n\nამის გათვალისწინებით, ჩვენ შეგვიძლია განვსაზღვროთ ზოგადი `train` ფუნქცია:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def train(net, dataloader, val_x, val_lab, epochs=10, lr=0.05):\n  optim = torch.optim.Adam(net.parameters(),lr=lr)\n  for ep in range(epochs):\n    for (x,y) in dataloader:\n      z = net(x).flatten()\n      loss = torch.nn.functional.binary_cross_entropy_with_logits(z,y)\n      optim.zero_grad()\n      loss.backward()\n      optim.step()\n    acc = ((torch.sigmoid(net(val_x).flatten())>0.5).float()==val_lab).float().mean()\n    print(f\"Epoch {ep}: last batch loss = {loss}, val acc = {acc}\")\n\nnet = torch.nn.Linear(2,1)\n\ntrain(net,dataloader,val_x,val_lab,lr=0.03)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch 0: last batch loss = 0.48486900329589844, val acc = 0.7333333492279053\nEpoch 1: last batch loss = 0.41338109970092773, val acc = 0.800000011920929\nEpoch 2: last batch loss = 0.35756850242614746, val acc = 0.800000011920929\nEpoch 3: last batch loss = 0.31495171785354614, val acc = 0.800000011920929\nEpoch 4: last batch loss = 0.2824164032936096, val acc = 0.800000011920929\nEpoch 5: last batch loss = 0.2572754919528961, val acc = 0.800000011920929\nEpoch 6: last batch loss = 0.23751722276210785, val acc = 0.800000011920929\nEpoch 7: last batch loss = 0.2217157930135727, val acc = 0.800000011920929\nEpoch 8: last batch loss = 0.2088666558265686, val acc = 0.800000011920929\nEpoch 9: last batch loss = 0.19824868440628052, val acc = 0.800000011920929\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## ქსელის, როგორც ფენების თანმიმდევრობის განსაზღვრა\n\nახლა მოდით ვავარჯიშოთ მრავალშრიანი პერცეტრონი. ის შეიძლება განისაზღვროს მხოლოდ ფენების თანმიმდევრობის მითითებით. შედეგად მიღებული ობიექტი ავტომატურად მიიღებს მემკვიდრეობას `Module`-დან, მაგ. მას ასევე ექნება `parameters` მეთოდი, რომელიც დააბრუნებს მთელი ქსელის ყველა პარამეტრს.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "net = torch.nn.Sequential(torch.nn.Linear(2,5),torch.nn.Sigmoid(),torch.nn.Linear(5,1))\nprint(net)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Sequential(\n  (0): Linear(in_features=2, out_features=5, bias=True)\n  (1): Sigmoid()\n  (2): Linear(in_features=5, out_features=1, bias=True)\n)\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ შეგვიძლია მოვამზადოთ ეს მრავალშრიანი ქსელი ფუნქციის `train` გამოყენებით, რომელიც ზემოთ განვსაზღვრეთ:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "train(net,dataloader,val_x,val_lab)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch 0: last batch loss = 0.5835739970207214, val acc = 0.800000011920929\nEpoch 1: last batch loss = 0.4642275869846344, val acc = 0.800000011920929\nEpoch 2: last batch loss = 0.35158076882362366, val acc = 0.800000011920929\nEpoch 3: last batch loss = 0.26132312417030334, val acc = 0.800000011920929\nEpoch 4: last batch loss = 0.19465585052967072, val acc = 0.800000011920929\nEpoch 5: last batch loss = 0.14735405147075653, val acc = 0.800000011920929\nEpoch 6: last batch loss = 0.11454981565475464, val acc = 0.800000011920929\nEpoch 7: last batch loss = 0.09244414418935776, val acc = 0.800000011920929\nEpoch 8: last batch loss = 0.07805468142032623, val acc = 0.800000011920929\nEpoch 9: last batch loss = 0.06894762068986893, val acc = 0.800000011920929\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## ქსელის კლასის განსაზღვრა\n\n`torch.nn.Module`-დან მემკვიდრეობით მიღებული კლასის გამოყენება უფრო მოქნილი მეთოდია, რადგან ჩვენ შეგვიძლია განვსაზღვროთ ნებისმიერი გამოთვლა მის შიგნით. `Module` ავტომატიზირებს ბევრ რამეს, მაგ. ის ავტომატურად იგებს ყველა შიდა ცვლადს, რომელიც არის PyTorch ფენა და აგროვებს მათ პარამეტრებს ოპტიმიზაციისთვის. თქვენ უბრალოდ უნდა განსაზღვროთ ქსელის ყველა ფენა, როგორც კლასის წევრები:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class MyNet(torch.nn.Module):\n  def __init__(self,hidden_size=10,func=torch.nn.Sigmoid()):\n    super().__init__()\n    self.fc1 = torch.nn.Linear(2,hidden_size)\n    self.func = func\n    self.fc2 = torch.nn.Linear(hidden_size,1)\n\n  def forward(self,x):\n    x = self.fc1(x)\n    x = self.func(x)\n    x = self.fc2(x)\n    return x\n  \nnet = MyNet(func=torch.nn.ReLU())\nprint(net)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "MyNet(\n  (fc1): Linear(in_features=2, out_features=10, bias=True)\n  (func): ReLU()\n  (fc2): Linear(in_features=10, out_features=1, bias=True)\n)\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "train(net,dataloader,val_x,val_lab,lr=0.005)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch 0: last batch loss = 0.7821246981620789, val acc = 0.46666666865348816\nEpoch 1: last batch loss = 0.7457502484321594, val acc = 0.5333333611488342\nEpoch 2: last batch loss = 0.7120334506034851, val acc = 0.5333333611488342\nEpoch 3: last batch loss = 0.6811249256134033, val acc = 0.6666666865348816\nEpoch 4: last batch loss = 0.6533011794090271, val acc = 0.7333333492279053\nEpoch 5: last batch loss = 0.627849280834198, val acc = 0.7333333492279053\nEpoch 6: last batch loss = 0.6030643582344055, val acc = 0.800000011920929\nEpoch 7: last batch loss = 0.5775002837181091, val acc = 0.800000011920929\nEpoch 8: last batch loss = 0.5522137880325317, val acc = 0.8666666746139526\nEpoch 9: last batch loss = 0.5250465869903564, val acc = 0.8666666746139526\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ამოცანა 1: დახაზეთ ზარალის ფუნქციისა და სიზუსტის გრაფიკები ტრენინგის დროს და დამოწმების მონაცემები\n\nამოცანა 2: სცადეთ გადაჭრათ MNIST კლასიფიკაციის პრობლემა ამ კოდის გამოყენებით. მინიშნება: გამოიყენეთ `crossentropy_with_logits` როგორც დაკარგვის ფუნქცია.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## ქსელის განსაზღვრა, როგორც PyTorch Lightning მოდული\n"
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით ჩავაკრათ დაწერილი PyTorch მოდელის კოდი PyTorch Lightining მოდულში. ეს საშუალებას გაძლევთ იმუშაოთ თქვენს მოდელთან უფრო მოხერხებულად და მოქნილად, სხვადასხვა Lightining მეთოდების გამოყენებით ვარჯიშისა და სიზუსტის ტესტირებისთვის.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "ჯერ PyTorch Lightining-ის ინსტალაცია და იმპორტი გვჭირდება. ეს შეიძლება გაკეთდეს ბრძანებით\n\n```\npip install pytorch-lightning\n```ან```\nconda install -c conda-forge pytorch-lightning\n```\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import pytorch_lightning as pl",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "იმისათვის, რომ ჩვენმა კოდმა იმუშაოს Lightning-ში, ჩვენ უნდა გავაკეთოთ შემდეგი:\n\n1. შექმენით `pl.LightningModule`-ის ქვეკლასი და დაამატეთ მას მოდელის არქიტექტურა `__init__` მეთოდით და `forward` pass მეთოდით.\n2. გამოყენებული ოპტიმიზატორი გადაიტანეთ `configure_optimizers()` მეთოდზე.\n3. განსაზღვრეთ ტრენინგის და ვალიდაციის პროცესი შესაბამისად `training_step` და `validation_step` მეთოდებში.\n4. (სურვილისამებრ) განახორციელეთ ტესტირების (`test_step` მეთოდი) და პროგნოზირების პროცესი (`predict_step` მეთოდი).\n\nასევე უნდა გვესმოდეს, რომ PyTorch Lightning-ს აქვს მოდელების ჩაშენებული თარგმანი სხვადასხვა მოწყობილობებზე, იმისდა მიხედვით, თუ სად მდებარეობს `DataLoaders` შემომავალი მონაცემები. ამიტომ, ყველა ზარი `.cuda()` ან `.to(device)` უნდა წაიშალოს კოდიდან.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class MyNetPL(pl.LightningModule):\n    def __init__(self, hidden_size = 10, func = torch.nn.Sigmoid()):\n        super().__init__()\n        self.fc1 = torch.nn.Linear(2,hidden_size)\n        self.func = func\n        self.fc2 = torch.nn.Linear(hidden_size,1)\n\n        self.val_epoch_num = 0 # for logging\n\n    def forward(self, x):\n        x = self.fc1(x)\n        x = self.func(x)\n        x = self.fc2(x)\n        return x\n\n    def training_step(self, batch, batch_nb):\n        x, y = batch\n        y_res = self(x).view(-1)\n        loss = torch.nn.functional.binary_cross_entropy_with_logits(y_res, y)\n        return loss\n\n    def configure_optimizers(self):\n        optimizer = torch.optim.SGD(self.parameters(), lr = 0.005)\n        return optimizer\n    \n    def validation_step(self, batch, batch_nb):\n        x, y = batch\n        y_res = self(x).view(-1)\n        val_loss = torch.nn.functional.binary_cross_entropy_with_logits(y_res, y)\n        print(\"Epoch \", self.val_epoch_num, \": val loss = \", val_loss.item(), \" val acc = \",((torch.sigmoid(y_res.flatten())>0.5).float()==y).float().mean().item(),  sep = \"\")\n        self.val_epoch_num += 1",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით ასევე დავამატოთ ვალიდაცია `Dataset` და `DataLoader`:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "valid_dataset = torch.utils.data.TensorDataset(torch.tensor(valid_x),torch.tensor(valid_labels,dtype=torch.float32))\nvalid_dataloader = torch.utils.data.DataLoader(valid_dataset, batch_size = 16)",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა ჩვენი მოდელი მზად არის ტრენინგისთვის. Pytorch Lightning-ში ეს პროცესი ხორციელდება `Trainer` კლასის ობიექტის მეშვეობით, რომელიც არსებითად \"არევს\" მოდელს ნებისმიერ მონაცემთა ნაკრებთან.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "net = MyNetPL(func=torch.nn.ReLU())\ntrainer = pl.Trainer(max_epochs = 30, log_every_n_steps = 1, accelerator='gpu', devices=1)\ntrainer.fit(model = net, train_dataloaders = dataloader, val_dataloaders = valid_dataloader)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "GPU available: True, used: True\nTPU available: False, using: 0 TPU cores\nIPU available: False, using: 0 IPUs\nHPU available: False, using: 0 HPUs\nLOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]\n\n  | Name | Type   | Params\n--------------------------------\n0 | fc1  | Linear | 30    \n1 | func | ReLU   | 0     \n2 | fc2  | Linear | 11    \n--------------------------------\n41        Trainable params\n0         Non-trainable params\n41        Total params\n0.000     Total estimated model params size (MB)\n",
+     "stream": "stderr"
+    },
+    {
+     "kind": "text",
+     "text": "Sanity Checking: 0it [00:00, ?it/s]"
+    },
+    {
+     "kind": "text",
+     "text": "Epoch 0: val loss = 0.7213451266288757 val acc = 0.3333333432674408\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "Training: 0it [00:00, ?it/s]"
+    },
+    {
+     "kind": "text",
+     "text": "Validation: 0it [00:00, ?it/s]"
+    },
+    {
+     "kind": "text",
+     "text": "Epoch 1: val loss = 0.7164624333381653 val acc = 0.3333333432674408\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "Validation: 0it [00:00, ?it/s]"
+    },
+    {
+     "kind": "text",
+     "text": "Epoch 2: val loss = 0.7117107510566711 val acc = 0.3333333432674408\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## Takeaways\n\n* PyTorch გაძლევთ საშუალებას იმუშაოთ ტენსორებზე დაბალ დონეზე, თქვენ გაქვთ ყველაზე მეტი მოქნილობა.\n* არსებობს მოსახერხებელი ხელსაწყოები მონაცემებთან მუშაობისთვის, როგორიცაა Datasets და Dataloaders.\n* თქვენ შეგიძლიათ განსაზღვროთ ნერვული ქსელის არქიტექტურა `Sequential` სინტაქსის გამოყენებით, ან კლასის მემკვიდრეობით `torch.nn.Module`-დან\n* ქსელის განსაზღვრისა და ტრენინგის კიდევ უფრო მარტივი მიდგომისთვის - გადახედეთ PyTorch Lightning-ს\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/3-NeuralNetworks/05-Frameworks/IntroPyTorch.ipynb"
+}

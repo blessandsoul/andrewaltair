@@ -1,0 +1,78 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "other/deep-rl/lab/mountain-car",
+ "segments": [
+  "other",
+  "deep-rl",
+  "lab",
+  "mountain-car"
+ ],
+ "title": "# სავარჯიშო მთის მანქანა გაქცევისთვის",
+ "module": {
+  "id": "6-Other",
+  "slug": "other",
+  "title": "სხვა AI ტექნიკები",
+  "icon": "puzzle"
+ },
+ "lessonNumber": 22,
+ "orderInModule": 1220.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/6-Other/22-DeepRL/lab/MountainCar.ipynb"
+ },
+ "prev": {
+  "slug": "other/deep-rl",
+  "title": "ღრმა განმტკიცების სწავლა"
+ },
+ "next": {
+  "slug": "other/deep-rl/cart-pole-rl-py-torch",
+  "title": "ტრენინგი RL Cartpole Balancing-ის გასაკეთებლად"
+ },
+ "framework": "generic",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "ლაბორატორიული დავალება AI დამწყებთათვის სასწავლო პროგრამა-დან.\n\nთქვენი მიზანია მოამზადოთ RL აგენტი სამთო მანქანა-ის გასაკონტროლებლად OpenAI Environment-ში.\n\nდავიწყოთ გარემოს შექმნით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import gym\nenv = gym.make('MountainCar-v0')",
+   "executionCount": 1,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ვნახოთ, როგორ გამოიყურება შემთხვევითი ექსპერიმენტი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "state = env.reset()\nwhile True:\n    env.render()\n    action = env.action_space.sample()\n    state, reward, done, info = env.step(action)\n    if done:\n        break",
+   "executionCount": 2,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა ნოუთბუქი სულ შენია - თავისუფლად მიიღე პოლიტიკის გრადიენტები და კრიტიკოსების ალგორითმები გაკვეთილიდან ამ პრობლემამდე!\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "## Lost of code here",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "env.close()",
+   "executionCount": 3,
+   "outputs": []
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/6-Other/22-DeepRL/lab/MountainCar.ipynb"
+}

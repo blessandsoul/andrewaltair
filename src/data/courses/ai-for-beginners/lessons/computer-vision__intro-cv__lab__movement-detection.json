@@ -1,0 +1,86 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "computer-vision/intro-cv/lab/movement-detection",
+ "segments": [
+  "computer-vision",
+  "intro-cv",
+  "lab",
+  "movement-detection"
+ ],
+ "title": "პალმის მოძრაობის გამოვლენა ოპტიკური ნაკადის გამოყენებით",
+ "module": {
+  "id": "4-ComputerVision",
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა",
+  "icon": "eye"
+ },
+ "lessonNumber": 6,
+ "orderInModule": 1060.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/4-ComputerVision/06-IntroCV/lab/MovementDetection.ipynb"
+ },
+ "prev": {
+  "slug": "computer-vision/intro-cv/open-cv",
+  "title": "Computer Vision და OpenCV"
+ },
+ "next": {
+  "slug": "computer-vision/conv-nets/lab",
+  "title": "ამოცანა"
+ },
+ "framework": "generic",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "ეს ლაბორატორია არის AI დამწყებთათვის სასწავლო პროგრამა-ის ნაწილი.\n\nგანვიხილოთ ამ ვიდეოს, რომელშიც ადამიანის ხელი მოძრაობს მარცხნივ/მარჯვნივ/ზემოთ/ქვემოთ სტაბილურ ფონზე.\n\n![Palm Movement Frame](/courses/ai-for-beginners/4-ComputerVision/06-IntroCV/images/palm-movement.png)\n\nთქვენი მიზანი იქნება ოპტიკური ნაკადის გამოყენება, რათა დადგინდეს, ვიდეოს რომელი ნაწილები შეიცავს მოძრაობებს ზემოთ/ქვემოთ/მარცხნივ/მარჯვნივ.\n\nდაიწყეთ ვიდეო ჩარჩოების მიღებით, როგორც ეს აღწერილია ლექციაში:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Code here",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა გამოთვალეთ მკვრივი ოპტიკური ნაკადის ჩარჩოები, როგორც ეს აღწერილია ლექციაში და გადააქციეთ მკვრივი ოპტიკური ნაკადი პოლარულ კოორდინატებად:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Code here",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "შექმენით მიმართულებების ჰისტოგრამა თითოეული ოპტიკური ნაკადის ჩარჩოსთვის. ჰისტოგრამა გვიჩვენებს, რამდენი ვექტორი ხვდება გარკვეულ ურნაში და მან უნდა გამოყოს მოძრაობის სხვადასხვა მიმართულება ჩარჩოზე.\n\n> თქვენ ასევე შეიძლება დაგჭირდეთ ყველა ვექტორის ნულოვანი გამორთვა, რომელთა სიდიდე გარკვეულ ზღურბლზე დაბალია. ეს მოგიხსნით ვიდეოში მცირე ზედმეტ მოძრაობებს, როგორიცაა თვალები და თავი.\n\nდახაზეთ ჰისტოგრამები ზოგიერთი ჩარჩოსთვის.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Code here",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჰისტოგრამების დათვალიერებისას, საკმაოდ მარტივი უნდა იყოს, თუ როგორ უნდა განვსაზღვროთ მოძრაობის მიმართულება. თქვენ უნდა აირჩიოთ ის ურნები, რომ შეესაბამებოდეს ზევით/ქვემოთ/მარცხნივ/მარჯვნივ მიმართულებებს და რომლებიც გარკვეულ ზღვარს აღემატება.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Code here",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "გილოცავ! თუ თქვენ შეასრულეთ ყველა ზემოთ ჩამოთვლილი ნაბიჯი, თქვენ დაასრულეთ ლაბორატორია!\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/4-ComputerVision/06-IntroCV/lab/MovementDetection.ipynb"
+}

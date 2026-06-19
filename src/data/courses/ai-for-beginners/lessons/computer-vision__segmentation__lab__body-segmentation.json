@@ -1,0 +1,76 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "computer-vision/segmentation/lab/body-segmentation",
+ "segments": [
+  "computer-vision",
+  "segmentation",
+  "lab",
+  "body-segmentation"
+ ],
+ "title": "სხეულის სეგმენტაცია",
+ "module": {
+  "id": "4-ComputerVision",
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა",
+  "icon": "eye"
+ },
+ "lessonNumber": 12,
+ "orderInModule": 1120.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/4-ComputerVision/12-Segmentation/lab/BodySegmentation.ipynb"
+ },
+ "prev": {
+  "slug": "computer-vision/segmentation/semantic-segmentation-tf",
+  "title": "სემანტიკური სეგმენტაცია"
+ },
+ "next": {
+  "slug": "nlp",
+  "title": "ბუნებრივი ენის დამუშავება"
+ },
+ "framework": "generic",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "ლაბორატორიული დავალება AI დამწყებთათვის სასწავლო პროგრამა-დან.\n\nვიდეოს წარმოებაში, მაგალითად, ამინდის პროგნოზში, ხშირად გვჭირდება კამერიდან ადამიანის გამოსახულების ამოჭრა და სხვა კადრების თავზე განთავსება. ეს ჩვეულებრივ კეთდება chroma key ტექნიკის გამოყენებით, როდესაც ადამიანი გადაიღეს ერთიანი ფერის ფონის წინ, რომელიც შემდეგ ამოღებულია. ამ ლაბორატორიაში ჩვენ მოვამზადებთ ნერვული ქსელის მოდელს ადამიანის სილუეტის ამოსაჭრელად.\n\nჩვენ გამოვიყენებთ სეგმენტაციის სრული სხეული MADS მონაცემთა ნაკრები-ს Kaggle-დან. ჩამოტვირთეთ მონაცემთა ნაკრები ხელით Kaggle-დან და გახსენით მიმდინარე დირექტორიაში.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "dataset_path = 'segmentation_full_body_mads_dataset_1192_img'\n\nimport os\nimport matplotlib.pyplot as plt",
+   "executionCount": 2,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ვნახოთ, როგორ გამოიყურება სურათების ნაკრები:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "img_path = os.path.join(dataset_path,'images')\nmask_path = os.path.join(dataset_path,'masks')\n\nfnames = os.listdir(img_path)\n\ndef load_image(img_name):\n    img = plt.imread(os.path.join(img_path,img_name))\n    mask = plt.imread(os.path.join(mask_path,img_name))\n    return img,mask",
+   "executionCount": 3,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "img, mask = load_image(fnames[5])\n\nfig,ax = plt.subplots(1,2,figsize=(10,5))\nax[0].imshow(img)\nax[1].imshow(mask)\nax[0].axis('off')\nax[1].axis('off')",
+   "executionCount": 4,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "(-0.5, 511.5, 383.5, -0.5)"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/aeb8f7c52d8d8b73.png"
+    }
+   ]
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/4-ComputerVision/12-Segmentation/lab/BodySegmentation.ipynb"
+}

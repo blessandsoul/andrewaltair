@@ -1,0 +1,411 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "computer-vision/autoencoders/autoencoders-tf",
+ "segments": [
+  "computer-vision",
+  "autoencoders",
+  "autoencoders-tf"
+ ],
+ "title": "ავტოკოდერები",
+ "module": {
+  "id": "4-ComputerVision",
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა",
+  "icon": "eye"
+ },
+ "lessonNumber": 9,
+ "orderInModule": 1090.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/4-ComputerVision/09-Autoencoders/AutoencodersTF.ipynb"
+ },
+ "prev": {
+  "slug": "computer-vision/autoencoders/auto-encoders-py-torch",
+  "title": "ავტოინკოდერები"
+ },
+ "next": {
+  "slug": "computer-vision/ga-ns",
+  "title": "გენერაციული საპირისპირო ქსელები"
+ },
+ "framework": "tensorflow",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "CNN-ების მომზადებისას, ერთ-ერთი პრობლემა ის არის, რომ ჩვენ გვჭირდება ბევრი ეტიკეტირებული მონაცემები. გამოსახულების კლასიფიკაციის შემთხვევაში, ჩვენ გვჭირდება სურათების გამოყოფა სხვადასხვა კლასებად, რაც არის ხელით ძალისხმევა.\n\nთუმცა, ჩვენ შეიძლება გვსურს გამოვიყენოთ ნედლეული (არა მარკირებული) მონაცემები CNN-ის ფუნქციების ამომყვანების ტრენინგისთვის, რასაც თვით ზედამხედველობითი სწავლება ეწოდება. ეტიკეტების ნაცვლად, ჩვენ გამოვიყენებთ ტრენინგ სურათებს როგორც ქსელის შეყვანის, ასევე გამოსავლის სახით. autoencoder-ის მთავარი იდეა არის ის, რომ ჩვენ გვექნება კოდერის ქსელი, რომელიც გარდაქმნის შეყვანის სურათს რაღაც ლატენტურ სივრცეში (ჩვეულებრივ, ეს არის მხოლოდ მცირე ზომის ვექტორი), შემდეგ დეკოდერის ქსელი, რომლის მიზანი იქნება ორიგინალური სურათის რეკონსტრუქცია.\n\nიმის გამო, რომ ჩვენ ვამზადებთ ავტოენკოდერს, რათა აღბეჭდოს რაც შეიძლება მეტი ინფორმაცია ორიგინალური სურათიდან ზუსტი რეკონსტრუქციისთვის, ქსელი ცდილობს მოიძიოს შეყვანის სურათების საუკეთესო ემბედინგი მნიშვნელობის დასაფიქსირებლად.\n\n![AutoEncoder Diagram](/courses/ai-for-beginners/4-ComputerVision/09-Autoencoders/images/autoencoder_schema.jpg)\n\nსურათი კერას ბლოგი-დან\n\nქვემოთ მოყვანილი მაგალითების უმეტესობა შთაგონებულია ამ სტატიას-ით.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით შევქმნათ უმარტივესი ავტოკოდერი MNIST-ისთვის:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import tensorflow as tf\nfrom tensorflow.keras.datasets import mnist\nimport numpy as np\nimport matplotlib.pyplot as plt\n\n(x_train, y_trainclass), (x_test, y_testclass) = mnist.load_data()",
+   "executionCount": 1,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def plotn(n,x):\n  fig,ax = plt.subplots(1,n)\n  for i,z in enumerate(x[0:n]):\n    ax[i].imshow(z.reshape(28,28) if z.size==28*28 else z.reshape(14,14) if z.size==14*14 else z)\n  plt.show()\n  \nplotn(5,x_train)",
+   "executionCount": 2,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/747893b1b19b455b.png"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "from tensorflow.keras.layers import Input, Dense, Conv2D, MaxPooling2D, UpSampling2D, Lambda\nfrom tensorflow.keras.models import Model\nfrom tensorflow.keras.losses import binary_crossentropy,mse\n\ninput_img = Input(shape=(28, 28, 1))\n\nx = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)\nx = MaxPooling2D((2, 2), padding='same')(x)\nx = Conv2D(8, (3, 3), activation='relu', padding='same')(x)\nx = MaxPooling2D((2, 2), padding='same')(x)\nx = Conv2D(8, (3, 3), activation='relu', padding='same')(x)\nencoded = MaxPooling2D((2, 2), padding='same')(x)\n\nencoder = Model(input_img,encoded)\n\ninput_rep = Input(shape=(4,4,8))\n\nx = Conv2D(8, (3, 3), activation='relu', padding='same')(input_rep)\nx = UpSampling2D((2, 2))(x)\nx = Conv2D(8, (3, 3), activation='relu', padding='same')(x)\nx = UpSampling2D((2, 2))(x)\nx = Conv2D(16, (3, 3), activation='relu')(x)\nx = UpSampling2D((2, 2))(x)\ndecoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(x)\n\ndecoder = Model(input_rep,decoded)\n\nautoencoder = Model(input_img, decoder(encoder(input_img)))\nautoencoder.compile(optimizer='adam', loss='binary_crossentropy')",
+   "executionCount": 3,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "x_train = x_train.astype('float32') / 255.\nx_test = x_test.astype('float32') / 255.\nx_train = np.reshape(x_train, (len(x_train), 28, 28, 1))\nx_test = np.reshape(x_test, (len(x_test), 28, 28, 1))",
+   "executionCount": 5,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "autoencoder.fit(x_train, x_train,\n                epochs=25,\n                batch_size=128,\n                shuffle=True,\n                validation_data=(x_test, x_test))",
+   "executionCount": 131,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Train on 60000 samples, validate on 10000 samples\nEpoch 1/25\n59648/60000 [============================>.] - ETA: 0s - loss: 0.2134",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "/usr/local/lib/python3.7/dist-packages/tensorflow/python/keras/engine/training.py:2325: UserWarning: `Model.state_updates` will be removed in a future version. This property should not be used in TensorFlow 2.0, as `updates` are applied automatically.\n  warnings.warn('`Model.state_updates` will be removed in a future version. '\n",
+     "stream": "stderr"
+    },
+    {
+     "kind": "text",
+     "text": "60000/60000 [==============================] - 6s 99us/sample - loss: 0.2130 - val_loss: 0.1454\nEpoch 2/25\n60000/60000 [==============================] - 5s 86us/sample - loss: 0.1353 - val_loss: 0.1258\nEpoch 3/25\n60000/60000 [==============================] - 5s 87us/sample - loss: 0.1225 - val_loss: 0.1177\nEpoch 4/25\n60000/60000 [==============================] - 5s 85us/sample - loss: 0.1163 - val_loss: 0.1126\nEpoch 5/25\n60000/60000 [==============================] - 5s 87us/sample - loss: 0.1120 - val_loss: 0.1091\nEpoch 6/25\n60000/60000 [==============================] - 5s 86us/sample - loss: 0.1093 - val_loss: 0.1070\nEpoch 7/25\n60000/60000 [==============================] - 5s 87us/sample - loss: 0.1072 - val_loss: 0.1055\nEpoch 8/25\n60000/60000 [==============================] - 5s 87us/sample - loss: 0.1057 - val_loss: 0.1041\nEpoch 9/25\n60000/60000 [==============================] - 5s 85us/sample - loss: 0.1045 - val_loss: 0.1028\nEpoch 10/25\n60000/60000 [==============================] - 5s 84us/sample - loss: 0.1035 - val_loss: 0.1022\nEpoch 11/25\n60000/60000 [==============================] - 5s 84us/sample - loss: 0.1026 - val_loss: 0.1011\nEpoch 12/25\n60000/60000 [==============================] - 5s 83us/sample - loss: 0.1018 - val_loss: 0.1003\nEpoch 13/25\n60000/60000 [==============================] - 5s 83us/sample - loss: 0.1012 - val_loss: 0.0996\nEpoch 14/25\n60000/60000 [==============================] - 5s 83us/sample - loss: 0.1005 - val_loss: 0.0991\nEpoch 15/25\n60000/60000 [==============================] - 5s 83us/sample - loss: 0.1000 - val_loss: 0.0988\nEpoch 16/25\n60000/60000 [==============================] - 5s 82us/sample - loss: 0.0995 - val_loss: 0.0981\nEpoch 17/25\n60000/60000 [==============================] - 5s 83us/sample - loss: 0.0990 - val_loss: 0.0976\nEpoch 18/25\n60000/60000 [==============================] - 5s 83us/sample - loss: 0.0986 - val_loss: 0.0974\nEpoch 19/25\n60000/60000 [==============================] - 5s 84us/sample - loss: 0.0982 - val_loss: 0.0969\nEpoch 20/25\n60000/60000 [==============================] - 5s 85us/sample - loss: 0.0978 - val_loss: 0.0970\nEpoch 21/25\n60000/60000 [==============================] - 5s 84us/sample - loss: 0.0975 - val_loss: 0.0962\nEpoch 22/25\n60000/60000 [==============================] - 5s 84us/sample - loss: 0.0971 - val_loss: 0.0960\nEpoch 23/25\n60000/60000 [==============================] - 5s 83us/sample - loss: 0.0968 - val_loss: 0.0958\nEpoch 24/25\n60000/60000 [==============================] - 5s 84us/sample - loss: 0.0966 - val_loss: 0.0953\nEpoch 25/25\n60000/60000 [==============================] - 5s 83us/sample - loss: 0.0963 - val_loss: 0.0953\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<tensorflow.python.keras.callbacks.History at 0x7f3fa179b690>"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "y_test = autoencoder.predict(x_test[0:5])\nplotn(5,x_test)\nplotn(5,y_test)",
+   "executionCount": 132,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "/usr/local/lib/python3.7/dist-packages/tensorflow/python/keras/engine/training.py:2325: UserWarning: `Model.state_updates` will be removed in a future version. This property should not be used in TensorFlow 2.0, as `updates` are applied automatically.\n  warnings.warn('`Model.state_updates` will be removed in a future version. '\n",
+     "stream": "stderr"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/49a32d2924b9838f.png"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/527a7dd26252199f.png"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "encoder = Model(input_img, encoded)\nencoded_imgs = encoder.predict(x_test[0:5])",
+   "executionCount": 133,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "/usr/local/lib/python3.7/dist-packages/tensorflow/python/keras/engine/training.py:2325: UserWarning: `Model.state_updates` will be removed in a future version. This property should not be used in TensorFlow 2.0, as `updates` are applied automatically.\n  warnings.warn('`Model.state_updates` will be removed in a future version. '\n",
+     "stream": "stderr"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plotn(5,encoded_imgs.reshape(5,-1,8))",
+   "executionCount": 134,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/6c5e4d39e5a2916e.png"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "print(encoded_imgs.max(),encoded_imgs.min())\nres = decoder.predict(7*np.random.rand(7,4,4,8))\nplotn(7,res)",
+   "executionCount": 136,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "6.3110805 0.0\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/0bee69ecb43e01af.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "> ამოცანა 1: შეეცადეთ მოამზადოთ ავტოენკოდერი ძალიან მცირე ფარული ვექტორის ზომით, მაგ. 2 და დახაზეთ წერტილები, რომლებიც შეესაბამება სხვადასხვა ციფრს. მინიშნება: გამოიყენეთ სრულად დაკავშირებული მკვრივი ფენა კონვოლუტონური ნაწილის შემდეგ, რათა შეამციროთ ვექტორის ზომა საჭირო მნიშვნელობამდე.\n\n> ამოცანა 2: დაწყებული სხვადასხვა ციფრიდან, მიიღეთ მათი ფარული სივრცის წარმოდგენები და ნახეთ, რა გავლენას ახდენს ლატენტურ სივრცეში გარკვეული ხმაურის დამატება მიღებულ ციფრებზე.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## დენოიზირება\n\nავტოინკოდერები შეიძლება ეფექტურად იქნას გამოყენებული სურათებიდან ხმაურის მოსაშორებლად. დენოიზერის მომზადების მიზნით, ჩვენ დავიწყებთ ხმაურის გარეშე გამოსახულებებით და დავამატებთ მათ ხელოვნურ ხმაურს. შემდეგ, ჩვენ გამოვკვებავთ ავტოინკოდერს ხმაურიანი სურათებით, როგორც შეყვანის სახით, და ხმაურის გარეშე გამოსახულებით, როგორც გამომავალი.\n\nვნახოთ, როგორ მუშაობს ეს MNIST-ისთვის:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def noisify(data):\n  return np.clip(data+np.random.normal(loc=0.5,scale=0.5,size=data.shape),0.,1.)\n\nx_train_noise = noisify(x_train)\nx_test_noise = noisify(x_test)\n\nplotn(5,x_train_noise)",
+   "executionCount": 137,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/ec1b47baa3459525.png"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "autoencoder.fit(x_train_noise, x_train,\n                epochs=25,\n                batch_size=128,\n                shuffle=True,\n                validation_data=(x_test_noise, x_test))",
+   "executionCount": 141,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Train on 60000 samples, validate on 10000 samples\nEpoch 1/25\n60000/60000 [==============================] - 6s 101us/sample - loss: 0.1576 - val_loss: 0.1566\nEpoch 2/25\n60000/60000 [==============================] - 6s 95us/sample - loss: 0.1564 - val_loss: 0.1553\nEpoch 3/25\n60000/60000 [==============================] - 6s 94us/sample - loss: 0.1555 - val_loss: 0.1539\nEpoch 4/25\n60000/60000 [==============================] - 6s 95us/sample - loss: 0.1545 - val_loss: 0.1530\nEpoch 5/25\n60000/60000 [==============================] - 6s 95us/sample - loss: 0.1538 - val_loss: 0.1517\nEpoch 6/25\n60000/60000 [==============================] - 6s 93us/sample - loss: 0.1528 - val_loss: 0.1506\nEpoch 7/25\n60000/60000 [==============================] - 6s 93us/sample - loss: 0.1521 - val_loss: 0.1499\nEpoch 8/25\n60000/60000 [==============================] - 5s 92us/sample - loss: 0.1514 - val_loss: 0.1495\nEpoch 9/25\n60000/60000 [==============================] - 6s 92us/sample - loss: 0.1508 - val_loss: 0.1487\nEpoch 10/25\n60000/60000 [==============================] - 6s 93us/sample - loss: 0.1500 - val_loss: 0.1483\nEpoch 11/25\n60000/60000 [==============================] - 6s 92us/sample - loss: 0.1495 - val_loss: 0.1484\nEpoch 12/25\n60000/60000 [==============================] - 6s 94us/sample - loss: 0.1487 - val_loss: 0.1468\nEpoch 13/25\n60000/60000 [==============================] - 6s 92us/sample - loss: 0.1482 - val_loss: 0.1467\nEpoch 14/25\n60000/60000 [==============================] - 6s 92us/sample - loss: 0.1476 - val_loss: 0.1459\nEpoch 15/25\n60000/60000 [==============================] - 6s 92us/sample - loss: 0.1469 - val_loss: 0.1450\nEpoch 16/25\n60000/60000 [==============================] - 6s 92us/sample - loss: 0.1463 - val_loss: 0.1442\nEpoch 17/25\n60000/60000 [==============================] - 6s 92us/sample - loss: 0.1457 - val_loss: 0.1441\nEpoch 18/25\n60000/60000 [==============================] - 6s 92us/sample - loss: 0.1451 - val_loss: 0.1429\nEpoch 19/25\n60000/60000 [==============================] - 6s 92us/sample - loss: 0.1445 - val_loss: 0.1425\nEpoch 20/25\n60000/60000 [==============================] - 6s 94us/sample - loss: 0.1440 - val_loss: 0.1418\nEpoch 21/25\n60000/60000 [==============================] - 6s 93us/sample - loss: 0.1435 - val_loss: 0.1423\nEpoch 22/25\n60000/60000 [==============================] - 6s 93us/sample - loss: 0.1430 - val_loss: 0.1409\nEpoch 23/25\n60000/60000 [==============================] - 6s 94us/sample - loss: 0.1426 - val_loss: 0.1405\nEpoch 24/25\n60000/60000 [==============================] - 6s 93us/sample - loss: 0.1422 - val_loss: 0.1409\nEpoch 25/25\n60000/60000 [==============================] - 6s 93us/sample - loss: 0.1418 - val_loss: 0.1398\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<tensorflow.python.keras.callbacks.History at 0x7f3fa612c4d0>"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "y_test = autoencoder.predict(x_test_noise[0:5])\nplotn(5,x_test_noise)\nplotn(5,y_test)",
+   "executionCount": 144,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/4725a00d40ea77ba.png"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/a1174f1997e4a940.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "> სავარჯიშო: ნახეთ, როგორ მუშაობს MNIST ციფრებზე მომზადებული დენოიზერი სხვადასხვა სურათზე. მაგალითად, შეგიძლიათ აიღოთ მოდის MNIST მონაცემთა ნაკრები, რომელსაც აქვს სურათის იგივე ზომა. გაითვალისწინეთ, რომ დენოიზერი კარგად მუშაობს მხოლოდ იმავე ტიპის გამოსახულებაზე, რომელზედაც ივარჯიშეს (ანუ შეყვანის მონაცემების იგივე ალბათობის განაწილებისთვის).\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## სუპერ გარჩევადობა\n\nდენოიზერის მსგავსად, ჩვენ შეგვიძლია მოვამზადოთ ავტოენკოდერები გამოსახულების გარჩევადობის გაზრდის მიზნით. სუპერ გარჩევადობის ქსელის მოსამზადებლად, ჩვენ დავიწყებთ მაღალი გარჩევადობის სურათებით და ავტომატურად შევამცირებთ მათ მასშტაბებს ქსელის შეყვანის შესაქმნელად. შემდეგ ჩვენ გამოვკვებავთ ავტოინკოდერს მცირე სურათებით, როგორც შეყვანის სახით და მაღალი რეზოლუციის გამოსახულებებს, როგორც გამოსავალს.\n\nმოდით შევამციროთ MNIST 14x14-მდე:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "x_train_lr = tf.keras.layers.AveragePooling2D()(x_train).numpy()\nx_test_lr = tf.keras.layers.AveragePooling2D()(x_test).numpy()\nplotn(5,x_train_lr)",
+   "executionCount": 6,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/2b06198356963fc1.png"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "from tensorflow.keras.layers import Input, Dense, Conv2D, MaxPooling2D, UpSampling2D, Lambda\nfrom tensorflow.keras.models import Model\nfrom tensorflow.keras.losses import binary_crossentropy,mse\n\ninput_img = Input(shape=(14, 14, 1))\n\nx = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)\nx = MaxPooling2D((2, 2), padding='same')(x)\nx = Conv2D(8, (3, 3), activation='relu', padding='same')(x)\nencoded = MaxPooling2D((2, 2), padding='same')(x)\n\nencoder = Model(input_img,encoded)\n\ninput_rep = Input(shape=(4,4,8))\n\nx = Conv2D(8, (3, 3), activation='relu', padding='same')(input_rep)\nx = UpSampling2D((2, 2))(x)\nx = Conv2D(8, (3, 3), activation='relu', padding='same')(x)\nx = UpSampling2D((2, 2))(x)\nx = Conv2D(16, (3, 3), activation='relu')(x)\nx = UpSampling2D((2, 2))(x)\ndecoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(x)\n\ndecoder = Model(input_rep,decoded)\n\nautoencoder = Model(input_img, decoder(encoder(input_img)))\nautoencoder.compile(optimizer='adam', loss='binary_crossentropy')",
+   "executionCount": 7,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "autoencoder.fit(x_train_lr, x_train,\n                epochs=25,\n                batch_size=128,\n                shuffle=True,\n                validation_data=(x_test_lr, x_test))",
+   "executionCount": 8,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch 1/25\n469/469 [==============================] - 6s 10ms/step - loss: 0.3413 - val_loss: 0.1519\nEpoch 2/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.1457 - val_loss: 0.1292\nEpoch 3/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.1273 - val_loss: 0.1202\nEpoch 4/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.1189 - val_loss: 0.1142\nEpoch 5/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.1148 - val_loss: 0.1107\nEpoch 6/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.1115 - val_loss: 0.1083\nEpoch 7/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.1093 - val_loss: 0.1063\nEpoch 8/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.1071 - val_loss: 0.1046\nEpoch 9/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.1060 - val_loss: 0.1037\nEpoch 10/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.1048 - val_loss: 0.1026\nEpoch 11/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.1039 - val_loss: 0.1019\nEpoch 12/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.1030 - val_loss: 0.1012\nEpoch 13/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.1024 - val_loss: 0.1004\nEpoch 14/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.1017 - val_loss: 0.0999\nEpoch 15/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.1010 - val_loss: 0.0993\nEpoch 16/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.1005 - val_loss: 0.0989\nEpoch 17/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.0999 - val_loss: 0.0983\nEpoch 18/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.0995 - val_loss: 0.0982\nEpoch 19/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.0990 - val_loss: 0.0975\nEpoch 20/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.0987 - val_loss: 0.0971\nEpoch 21/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.0981 - val_loss: 0.0971\nEpoch 22/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.0979 - val_loss: 0.0965\nEpoch 23/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.0977 - val_loss: 0.0959\nEpoch 24/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.0972 - val_loss: 0.0957\nEpoch 25/25\n469/469 [==============================] - 4s 9ms/step - loss: 0.0972 - val_loss: 0.0955\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<tensorflow.python.keras.callbacks.History at 0x7f66790ada90>"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "y_test_lr = autoencoder.predict(x_test_lr[0:5])\nplotn(5,x_test_lr)\nplotn(5,y_test_lr)",
+   "executionCount": 9,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/bdc5cb5258d5a2dc.png"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/cc37948b5e9aeea9.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "> სავარჯიშო: სცადეთ ავარჯიშოთ სუპერ გარჩევადობის ქსელი CIFAR-10-ზე 2x და 4x გაფართოებისთვის. გამოიყენეთ ხმაური, როგორც შემავალი 4x გაფართოების მოდელი და დააკვირდით შედეგს.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## ვარიაციული ავტომატური შიფრები (VAE)\n\nტრადიციული ავტოკოდერები გარკვეულწილად ამცირებენ შეყვანის მონაცემების განზომილებას, აცნობიერებენ შეყვანის სურათების მნიშვნელოვან მახასიათებლებს. თუმცა, ლატენტურ ვექტორებს ხშირად დიდი აზრი არ აქვს. სხვა სიტყვებით რომ ვთქვათ, MNIST მონაცემთა ნაკრების მაგალითზე აყვანა, იმის გარკვევა, თუ რომელი ციფრები შეესაბამება სხვადასხვა ლატენტურ ვექტორებს, არ არის ადვილი ამოცანა, რადგან ახლო ფარული ვექტორები აუცილებლად არ შეესაბამება იმავე ციფრებს.\n\nმეორეს მხრივ, გენერაციული მოდელების მოსამზადებლად უმჯობესია ლატენტური სივრცის გარკვეული გაგება. ეს იდეა მიგვიყვანს ვარიაციული ავტომატური კოდირებით (VAE).\n\nVAE არის ავტოკოდერი, რომელიც სწავლობს ფარული პარამეტრების სტატისტიკური განაწილების წინასწარმეტყველებას, ე.წ. ლატენტური განაწილების. მაგალითად, შეგვიძლია ვივარაუდოთ, რომ ლატენტური ვექტორები განაწილებული იქნება $N(\\mathrm{z\\_mean},e^{\\mathrm{z\\_log\\_sigma}})$, სადაც $\\mathrm{z\\_mean}, \\mathrm{z\\_log\\_sigma} \\in\\mathbb${R}^d. Encoder in VAE სწავლობს ამ პარამეტრების პროგნოზირებას, შემდეგ კი დეკოდერი იღებს შემთხვევით ვექტორს ამ განაწილებიდან ობიექტის რეკონსტრუქციისთვის.\n\nშეჯამება:\n\n* შეყვანის ვექტორიდან ჩვენ ვიწინასწარმეტყველებთ `z_mean` და `z_log_sigma`-ს (თვითონ სტანდარტული გადახრის პროგნოზირების ნაცვლად, ჩვენ ვიწინასწარმეტყველებთ მის ლოგარითმს)\n * ჩვენ ვატარებთ ვექტორს `sample` განაწილებიდან $N(\\mathrm{z\\_mean},e^{\\mathrm{z\\_log\\_sigma}})$\n * დეკოდერი ცდილობს ორიგინალური სურათის გაშიფვრას `sample` შეყვანის ვექტორის გამოყენებით\n\n![](/courses/ai-for-beginners/4-ComputerVision/09-Autoencoders/images/vae.png)\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "intermediate_dim = 512\nlatent_dim = 2\nbatch_size = 128\n\ntf.compat.v1.disable_eager_execution()\n\ninputs = Input(shape=(784,))\nh = Dense(intermediate_dim, activation='relu')(inputs)\nz_mean = Dense(latent_dim)(h)\nz_log_sigma = Dense(latent_dim)(h)",
+   "executionCount": 21,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "@tf.function\ndef sampling(args):\n    z_mean, z_log_sigma = args\n    bs = tf.shape(z_mean)[0]\n    epsilon = tf.random.normal(shape=(bs, latent_dim))\n    return z_mean + tf.exp(z_log_sigma) * epsilon\n\nz = Lambda(sampling)([z_mean, z_log_sigma])",
+   "executionCount": 22,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "encoder = Model(inputs, [z_mean, z_log_sigma, z])\n\nlatent_inputs = Input(shape=(latent_dim,))\nx = Dense(intermediate_dim, activation='relu')(latent_inputs)\noutputs = Dense(784, activation='sigmoid')(x)\n\ndecoder = Model(latent_inputs, outputs)\n\noutputs = decoder(encoder(inputs)[2])\n\nvae = Model(inputs, outputs)",
+   "executionCount": 23,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ვარიაციური ავტომატური შიფრები იყენებენ კომპლექსურ დაკარგვის ფუნქციას, რომელიც შედგება ორი ნაწილისგან:\n* რეკონსტრუქციის დაკარგვა არის დაკარგვის ფუნქცია, რომელიც გვიჩვენებს, რამდენად ახლოს არის რეკონსტრუქციული სურათი მიზანთან (შეიძლება იყოს MSE). ეს არის იგივე დაკარგვის ფუნქცია, როგორც ჩვეულებრივ ავტოენკოდერებში.\n* KL დაკარგვა, რაც უზრუნველყოფს ფარული ცვლადი განაწილების ნორმალურ განაწილებასთან ახლოს ყოფნას. იგი ეფუძნება კულბეკ-ლეიბლერის დივერგენცია ცნებას - მეტრიკა, რათა შეფასდეს, რამდენად მსგავსია ორი სტატისტიკური განაწილება.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "@tf.function\ndef vae_loss(x1,x2):\n  reconstruction_loss = mse(x1,x2)*784\n  tmp = 1 + z_log_sigma - tf.square(z_mean) - tf.exp(z_log_sigma)\n  kl_loss = -0.5*tf.reduce_sum(tmp, axis=-1)\n  return tf.convert_to_tensor(tf.reduce_mean(reconstruction_loss + kl_loss))\n\nvae.compile(optimizer='rmsprop', loss=vae_loss)",
+   "executionCount": 24,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "x_train_flat = x_train.reshape((len(x_train), np.prod(x_train.shape[1:])))\nx_test_flat = x_test.reshape((len(x_test), np.prod(x_test.shape[1:])))\n\nvae.fit(x_train_flat, x_train_flat,\n        shuffle=True,\n        epochs=25,\n        batch_size=batch_size,\n        validation_data=(x_test_flat, x_test_flat))",
+   "executionCount": 25,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Train on 60000 samples, validate on 10000 samples\nEpoch 1/25\n59520/60000 [============================>.] - ETA: 0s - loss: 48.6396",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "/usr/local/lib/python3.7/dist-packages/tensorflow/python/keras/engine/training.py:2325: UserWarning: `Model.state_updates` will be removed in a future version. This property should not be used in TensorFlow 2.0, as `updates` are applied automatically.\n  warnings.warn('`Model.state_updates` will be removed in a future version. '\n",
+     "stream": "stderr"
+    },
+    {
+     "kind": "text",
+     "text": "60000/60000 [==============================] - 4s 64us/sample - loss: 48.5874 - val_loss: 41.8877\nEpoch 2/25\n60000/60000 [==============================] - 3s 57us/sample - loss: 41.1296 - val_loss: 40.2556\nEpoch 3/25\n60000/60000 [==============================] - 3s 56us/sample - loss: 40.0063 - val_loss: 39.3692\nEpoch 4/25\n60000/60000 [==============================] - 3s 56us/sample - loss: 39.2531 - val_loss: 38.7666\nEpoch 5/25\n60000/60000 [==============================] - 3s 57us/sample - loss: 38.7147 - val_loss: 38.6124\nEpoch 6/25\n60000/60000 [==============================] - 3s 57us/sample - loss: 38.2962 - val_loss: 38.1867\nEpoch 7/25\n60000/60000 [==============================] - 3s 56us/sample - loss: 37.9756 - val_loss: 37.9831\nEpoch 8/25\n60000/60000 [==============================] - 3s 57us/sample - loss: 37.6933 - val_loss: 37.5475\nEpoch 9/25\n60000/60000 [==============================] - 3s 57us/sample - loss: 37.4323 - val_loss: 37.2913\nEpoch 10/25\n60000/60000 [==============================] - 3s 56us/sample - loss: 37.2133 - val_loss: 37.1992\nEpoch 11/25\n60000/60000 [==============================] - 3s 57us/sample - loss: 36.9966 - val_loss: 36.9521\nEpoch 12/25\n60000/60000 [==============================] - 3s 57us/sample - loss: 36.8204 - val_loss: 36.8431\nEpoch 13/25\n60000/60000 [==============================] - 3s 57us/sample - loss: 36.6490 - val_loss: 36.6979\nEpoch 14/25\n60000/60000 [==============================] - 3s 57us/sample - loss: 36.5023 - val_loss: 36.6661\nEpoch 15/25\n60000/60000 [==============================] - 3s 57us/sample - loss: 36.3456 - val_loss: 36.4957\nEpoch 16/25\n60000/60000 [==============================] - 3s 56us/sample - loss: 36.2266 - val_loss: 36.6669\nEpoch 17/25\n60000/60000 [==============================] - 3s 57us/sample - loss: 36.1045 - val_loss: 36.4855\nEpoch 18/25\n60000/60000 [==============================] - 3s 57us/sample - loss: 35.9922 - val_loss: 36.4150\nEpoch 19/25\n60000/60000 [==============================] - 3s 56us/sample - loss: 35.8968 - val_loss: 36.1196\nEpoch 20/25\n60000/60000 [==============================] - 3s 57us/sample - loss: 35.7991 - val_loss: 36.0708\nEpoch 21/25\n60000/60000 [==============================] - 3s 56us/sample - loss: 35.7129 - val_loss: 36.1686\nEpoch 22/25\n60000/60000 [==============================] - 3s 57us/sample - loss: 35.6214 - val_loss: 36.1080\nEpoch 23/25\n60000/60000 [==============================] - 3s 57us/sample - loss: 35.5357 - val_loss: 36.2309\nEpoch 24/25\n60000/60000 [==============================] - 3s 56us/sample - loss: 35.4528 - val_loss: 36.1416\nEpoch 25/25\n60000/60000 [==============================] - 3s 56us/sample - loss: 35.3650 - val_loss: 35.7258\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<tensorflow.python.keras.callbacks.History at 0x7f0e00233890>"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "y_test = vae.predict(x_test_flat[0:5])\nplotn(5,x_test_flat)\nplotn(5,y_test)",
+   "executionCount": 26,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "/usr/local/lib/python3.7/dist-packages/tensorflow/python/keras/engine/training.py:2325: UserWarning: `Model.state_updates` will be removed in a future version. This property should not be used in TensorFlow 2.0, as `updates` are applied automatically.\n  warnings.warn('`Model.state_updates` will be removed in a future version. '\n",
+     "stream": "stderr"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/49a32d2924b9838f.png"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/09c9a02a654fb2e4.png"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "x_test_encoded = encoder.predict(x_test_flat)[0]\nplt.figure(figsize=(6, 6))\nplt.scatter(x_test_encoded[:, 0], x_test_encoded[:, 1], c=y_testclass)\nplt.colorbar()\nplt.show()",
+   "executionCount": 27,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "/usr/local/lib/python3.7/dist-packages/tensorflow/python/keras/engine/training.py:2325: UserWarning: `Model.state_updates` will be removed in a future version. This property should not be used in TensorFlow 2.0, as `updates` are applied automatically.\n  warnings.warn('`Model.state_updates` will be removed in a future version. '\n",
+     "stream": "stderr"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/ef058b339def7c58.png"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def plotsample(n):\n  dx = np.linspace(-1,1,n)\n  dy = np.linspace(-1,1,n)\n  fig,ax = plt.subplots(n,n)\n  for i,xi in enumerate(dx):\n    for j,xj in enumerate(dy):\n      res = decoder.predict(np.array([xi,xj]).reshape(-1,2))[0]\n      ax[i,j].imshow(res.reshape(28,28))\n      ax[i,j].axis('off')\n  plt.show()\n  \nplotsample(10)",
+   "executionCount": 28,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "/usr/local/lib/python3.7/dist-packages/tensorflow/python/keras/engine/training.py:2325: UserWarning: `Model.state_updates` will be removed in a future version. This property should not be used in TensorFlow 2.0, as `updates` are applied automatically.\n  warnings.warn('`Model.state_updates` will be removed in a future version. '\n",
+     "stream": "stderr"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/51e85088c2ae29ca.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "> ამოცანა: ჩვენს ნიმუშში ჩვენ მოვამზადეთ სრულად დაკავშირებული VAE. ახლა აიღეთ CNN ზემოთ არსებული ტრადიციული ავტომატური კოდირებიდან და შექმენით CNN-ზე დაფუძნებული VAE.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## დამატებითი მასალები\n\n* ბლოგის პოსტი NeuroHive-ზე\n* ვარიაციური ავტოენკოდერები განმარტებულია\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/4-ComputerVision/09-Autoencoders/AutoencodersTF.ipynb"
+}

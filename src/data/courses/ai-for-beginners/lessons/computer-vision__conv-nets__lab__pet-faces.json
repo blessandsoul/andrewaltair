@@ -1,0 +1,209 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "computer-vision/conv-nets/lab/pet-faces",
+ "segments": [
+  "computer-vision",
+  "conv-nets",
+  "lab",
+  "pet-faces"
+ ],
+ "title": "მონაცემების მიღება",
+ "module": {
+  "id": "4-ComputerVision",
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა",
+  "icon": "eye"
+ },
+ "lessonNumber": 7,
+ "orderInModule": 1070.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/4-ComputerVision/07-ConvNets/lab/PetFaces.ipynb"
+ },
+ "prev": {
+  "slug": "computer-vision/conv-nets/conv-nets-tf",
+  "title": "კონვოლუციური ნერვული ქსელები"
+ },
+ "next": {
+  "slug": "computer-vision/transfer-learning/lab",
+  "title": "ოქსფორდის შინაური ცხოველების კლასიფიკაცია ტრანსფერული სწავლის გამოყენებით"
+ },
+ "framework": "tensorflow",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "შინაური ცხოველის სახეების # კლასიფიკაცია\n\nლაბორატორიული დავალება AI დამწყებთათვის სასწავლო პროგრამა-დან.\n\n\n\nამ დავალებაში გავამახვილებთ ყურადღებას შედარებით მარტივ კლასიფიკაციის ამოცანაზე - შინაური ცხოველის სახეების კლასიფიკაციაზე. ჩვენ გამოვიყენებთ Oxford-IIIT Pet Dataset-ს, რომელიც შეიცავს 37 სხვადასხვა ჯიშის ძაღლებისა და კატების სურათებს. დავიწყოთ მონაცემთა ნაკრების ჩამოტვირთვისა და ვიზუალიზაციით.\n\nშენიშვნა: Oxford-IIIT შინაური ცხოველების მონაცემთა ნაკრები შეიცავს შინაური ცხოველების სრულ სურათებს. სურათები დალაგდება ჯიშის მიხედვით ამოღებულ საქაღალდეში.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "!wget https://thor.robots.ox.ac.uk/~vgg/data/pets/images.tar.gz\n!tar xfz images.tar.gz\n!rm images.tar.gz",
+   "executionCount": 1,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "--2022-02-17 12:32:43--  https://thor.robots.ox.ac.uk/~vgg/data/pets/images.tar.gz\nResolving mslearntensorflowlp.blob.core.windows.net... 20.150.90.68\nConnecting to mslearntensorflowlp.blob.core.windows.net|20.150.90.68|:443... connected.\nHTTP request sent, awaiting response... 200 OK\nLength: 24483412 (23M) [application/x-gzip]\nSaving to: ‘images.tar.gz’\n\nimages.tar.gz     100%[===================>]  23.35M  12.5MB/s    in 1.9s    \n\n2022-02-17 12:32:45 (12.5 MB/s) - ‘images.tar.gz’ saved [24483412/24483412]\n\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ განვსაზღვრავთ ზოგად ფუნქციას სიიდან სურათების სერიის საჩვენებლად:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import matplotlib.pyplot as plt\nimport os\nfrom PIL import Image\nimport numpy as np\n\ndef display_images(l,titles=None,fontsize=12):\n    n=len(l)\n    fig,ax = plt.subplots(1,n)\n    for i,im in enumerate(l):\n        ax[i].imshow(im)\n        ax[i].axis('off')\n        if titles is not None:\n            ax[i].set_title(titles[i],fontsize=fontsize)\n    fig.set_size_inches(fig.get_size_inches()*n)\n    plt.tight_layout()\n    plt.show()",
+   "executionCount": 2,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მოდით გადავხედოთ კლასის ყველა ქვედირექტორიას და დავხატოთ თითოეული კლასის პირველი რამდენიმე სურათი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Note: The Oxford-IIIT Pet Dataset extracts to a folder named 'images'\n# Images are named by breed (e.g., 'Abyssinian_1.jpg')\n# We need to organize them into breed-specific subdirectories\nimport os\nfrom collections import defaultdict\n\n# Organize images by breed\nif not os.path.exists('petfaces'):\n    os.makedirs('petfaces')\n    for img_file in os.listdir('images'):\n        if img_file.endswith(('.jpg', '.png')):\n            # Extract breed name from filename (everything before the last underscore and number)\n            breed = '_'.join(img_file.split('_')[:-1])\n            breed_dir = os.path.join('petfaces', breed)\n            if not os.path.exists(breed_dir):\n                os.makedirs(breed_dir)\n            os.rename(os.path.join('images', img_file), os.path.join(breed_dir, img_file))\n\nfor cls in os.listdir('petfaces'):\n    print(cls)\n    display_images([Image.open(os.path.join('petfaces',cls,x)) \n                    for x in os.listdir(os.path.join('petfaces',cls))[:10]])",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით ასევე განვსაზღვროთ კლასების რაოდენობა ჩვენს მონაცემთა ბაზაში:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "num_classes = len(os.listdir('petfaces'))\nnum_classes",
+   "executionCount": 4,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "35"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## მონაცემთა ნაკრების მომზადება ღრმა სწავლისთვის\n\nჩვენი ნერვული ქსელის სწავლების დასაწყებად, ჩვენ უნდა გადავიყვანოთ ყველა სურათი ტენსორებად და ასევე შევქმნათ ეტიკეტების შესაბამისი ტენსორები (კლასის ნომრები). Most neural network frameworks contain simple tools for dealing with images:\n* In Tensorflow, use `tf.keras.preprocessing.image_dataset_from_directory`\n* In PyTorch, use `torchvision.datasets.ImageFolder`\n\nროგორც ზემოთ მოყვანილი სურათებიდან ხედავთ, ყველა მათგანი ახლოსაა კვადრატულ გამოსახულების თანაფარდობასთან, ამიტომ ჩვენ უნდა შევცვალოთ ყველა სურათის ზომა კვადრატულ ზომამდე. ასევე, ჩვენ შეგვიძლია სურათების ორგანიზება მინი პატჩებში.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# CODE TO LOAD DATASET",
+   "executionCount": 5,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა ჩვენ უნდა გავყოთ მონაცემთა ბაზა მატარებლისა და ტესტის ნაწილებად:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# CODE TO DO TRAIN/TEST SPLIT",
+   "executionCount": 6,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მოდით დავბეჭდოთ ტენსორების ზომა ჩვენს მონაცემთა ბაზაში. თუ ყველაფერი სწორად გააკეთე, სასწავლო ელემენტების ზომა უნდა იყოს\n * `(batch_size,image_size,image_size,3)` Tensorflow-სთვის, `batch_size,3,image_size,image_size` PyTorch-ისთვის\n * `batch_size` ლეიბლებისთვის\n \n ეტიკეტები უნდა შეიცავდეს კლასების რაოდენობას.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Print tensor sizes",
+   "executionCount": 1,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Display the data",
+   "executionCount": 9,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<Figure size 3024x2016 with 7 Axes>"
+    },
+    {
+     "kind": "text",
+     "text": "<Figure size 3024x2016 with 7 Axes>"
+    },
+    {
+     "kind": "text",
+     "text": "<Figure size 3024x2016 with 7 Axes>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## განსაზღვრეთ ნერვული ქსელი\n\nFor image classification, you should probably define a convolutional neural network with several layers. რას მივაქციოთ თვალი:\n* Keep in mind the pyramid architecture, i.e. number of filters should increase as you go deeper\n* არ დაგავიწყდეთ აქტივაციის ფუნქციები ფენებს შორის (ReLU) და Max Pooling\n* საბოლოო კლასიფიკატორი შეიძლება იყოს ფარული შრეებით ან მის გარეშე, მაგრამ გამომავალი ნეირონების რაოდენობა უნდა იყოს კლასების რაოდენობის ტოლი.\n\nმნიშვნელოვანი ის არის, რომ სწორად მივიღოთ აქტივაციის ფუნქცია ბოლო ფენაზე + დაკარგვის ფუნქცია:\n* Tensorflow-ში შეგიძლიათ გამოიყენოთ `softmax` როგორც გააქტიურება და `sparse_categorical_crossentropy` როგორც დაკარგვა. განსხვავება იშვიათ კატეგორიულ ჯვარედინი ენტროპიასა და არასპარსს შორის არის ის, რომ პირველი მოელის გამომავალს, როგორც კლასის რაოდენობას და არა როგორც one-hot ვექტორს.\n* PyTorch-ში შეგიძლიათ გქონდეთ საბოლოო ფენა აქტივაციის ფუნქციის გარეშე და გამოიყენოთ `CrossEntropyLoss` დაკარგვის ფუნქცია. ეს ფუნქცია ავტომატურად მოქმედებს softmax-ზე.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# CODE TO DEFINE NEURAL NETWORK",
+   "executionCount": 2,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## ავარჯიშეთ ნერვული ქსელი\n\nახლა ჩვენ მზად ვართ გავავარჯიშოთ ნერვული ქსელი. ტრენინგის დროს, გთხოვთ, შეაგროვოთ მატარებლის სიზუსტე და ტესტის მონაცემები თითოეულ ეპოქაზე და შემდეგ დახაზოთ სიზუსტე, რათა ნახოთ, არის თუ არა გადაჭარბებული მორგება.\n\n> ტრენინგის დასაჩქარებლად, თქვენ უნდა გამოიყენოთ GPU, თუ ეს შესაძლებელია. მიუხედავად იმისა, რომ TensorFlow/Keras ავტომატურად გამოიყენებს GPU-ს, PyTorch-ში თქვენ უნდა გადაიტანოთ როგორც მოდელი, ასევე მონაცემები GPU-ზე ტრენინგის დროს `.to()` მეთოდის გამოყენებით, რათა ისარგებლოთ GPU აჩქარებით.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# TRAIN THE NETWORK",
+   "executionCount": 11,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# PLOT THE ACCURACY on train and validation dataset",
+   "executionCount": 13,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/d18f81c0800e811c.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "რას იტყვით ზედმეტად მორგებაზე? რა შეიძლება გაკეთდეს მოდელის სიზუსტის გასაუმჯობესებლად\n\n## სურვილისამებრ: გამოთვალეთ Top3 სიზუსტე\n\nამ სავარჯიშოში ჩვენ საქმე გვქონდა კლასიფიკაციასთან საკმაოდ მაღალი რაოდენობის კლასებთან (35), ამიტომ ჩვენი შედეგი - დაახლოებით 50% ვალიდაციის სიზუსტე - საკმაოდ კარგია. სტანდარტულ ImageNet მონაცემთა ბაზას აქვს კიდევ უფრო მეტი - 1000 კლასი.\n\nასეთ შემთხვევებში ძნელია იმის უზრუნველყოფა, რომ მოდელი ყოველთვის სწორად პროგნოზირებს კლასს. არის შემთხვევები, როდესაც ორი ჯიში ძალიან ჰგავს ერთმანეთს და მოდელი აბრუნებს ძალიან მსგავს ალბათობას (მაგ., 0.45 და 0.43). თუ გავზომავთ სტანდარტულ სიზუსტეს, ეს ჩაითვლება არასწორ შემთხვევად, მიუხედავად იმისა, რომ მოდელმა ძალიან მცირე შეცდომა დაუშვა. ჩვენ ხშირად ვზომავთ სხვა მეტრიკას - სიზუსტეს მოდელის 3 ყველაზე სავარაუდო პროგნოზის ფარგლებში.\n\nჩვენ მიგვაჩნია, რომ შემთხვევა ზუსტია, თუ სამიზნე ეტიკეტი შეიცავს ტოპ 3 მოდელის პროგნოზს.\n\nსატესტო მონაცემთა ნაკრების ტოპ-3 სიზუსტის გამოსათვლელად, თქვენ ხელით უნდა გადახვიდეთ მონაცემთა ბაზაში, გამოიყენოთ ნერვული ქსელი პროგნოზის მისაღებად და შემდეგ გააკეთოთ გამოთვლები. რამდენიმე მინიშნება:\n\n* Tensorflow-ში გამოიყენეთ `tf.nn.in_top_k` ფუნქცია, რომ ნახოთ `predictions` (მოდელის გამომავალი) არის თუ არა top-k-ში (გაატარეთ `k=3` პარამეტრად), `targets`-ის მიმართ. ეს ფუნქცია აბრუნებს ლოგიკური მნიშვნელობების ტენსორს, რომელიც შეიძლება გარდაიქმნას `int`-ად `tf.cast`-ის გამოყენებით და შემდეგ დაგროვდეს `tf.reduce_sum`-ის გამოყენებით.\n* PyTorch-ში შეგიძლიათ გამოიყენოთ `torch.topk` ფუნქცია უფრო მაღალი ალბათობით კლასების ინდექსების მისაღებად და შემდეგ ნახოთ, ეკუთვნის თუ არა მათ სწორი კლასი. იხილეთ ეს დამატებითი მინიშნებებისთვის.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# CALCULATE TOP-3 ACCURACY",
+   "executionCount": 3,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## სურვილისამებრ: Build Cats vs. ძაღლების კლასიფიკაცია\n\nჩვენ ასევე გვინდა ვნახოთ, რამდენად ზუსტი იქნება ჩვენი ორობითი კატების და ძაღლების კლასიფიკაცია იმავე თარიღის მიხედვით. ამისათვის ჩვენ უნდა დავარეგულიროთ ეტიკეტები:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Define dataset that contains only two labels: 0 = cat, 1 = dog\n# Hint: use class name prefix to figure out which one is which",
+   "executionCount": 5,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Define neural network architecture and train",
+   "executionCount": 4,
+   "outputs": []
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/4-ComputerVision/07-ConvNets/lab/PetFaces.ipynb"
+}

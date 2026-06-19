@@ -1,0 +1,421 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "computer-vision/transfer-learning/transfer-learning-tf",
+ "segments": [
+  "computer-vision",
+  "transfer-learning",
+  "transfer-learning-tf"
+ ],
+ "title": "წინასწარ მომზადებული მოდელები და გადაცემის სწავლა",
+ "module": {
+  "id": "4-ComputerVision",
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა",
+  "icon": "eye"
+ },
+ "lessonNumber": 8,
+ "orderInModule": 1080.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/4-ComputerVision/08-TransferLearning/TransferLearningTF.ipynb"
+ },
+ "prev": {
+  "slug": "computer-vision/transfer-learning/transfer-learning-py-torch",
+  "title": "წინასწარ მომზადებული მოდელები და გადაცემის სწავლა"
+ },
+ "next": {
+  "slug": "computer-vision/autoencoders",
+  "title": "ავტოკოდერები"
+ },
+ "framework": "tensorflow",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "CNN-ების ტრენინგს შეიძლება ბევრი დრო დასჭირდეს და ამ ამოცანისთვის ბევრი მონაცემია საჭირო. თუმცა, დროის დიდი ნაწილი იხარჯება საუკეთესო დაბალი დონის ფილტრების შესასწავლად, რომლებსაც ქსელი იყენებს სურათებიდან შაბლონების ამოსაღებად. ჩნდება ბუნებრივი კითხვა - შეგვიძლია გამოვიყენოთ ერთ მონაცემთა ბაზაზე მომზადებული ნერვული ქსელი და მოვარგოთ სხვადასხვა სურათების კლასიფიკაციას სრული სასწავლო პროცესის გარეშე?\n\nამ მიდგომას ეწოდება ტრანსფერული სწავლა, რადგან ჩვენ გადავცემთ გარკვეულ ცოდნას ერთი ნერვული ქსელის მოდელიდან მეორეზე. გადაცემის სწავლისას, ჩვენ ჩვეულებრივ ვიწყებთ წინასწარ გაწვრთნილი მოდელით, რომელიც გავლილი იყო გარკვეული დიდი სურათების მონაცემთა ბაზაზე, როგორიცაა ImageNet. ამ მოდელებს უკვე შეუძლიათ კარგი სამუშაოს შესრულება ზოგადი სურათებისგან განსხვავებული ფუნქციების ამოღებით და ხშირ შემთხვევაში მხოლოდ კლასიფიკატორის აგება ამ ამოღებულ მახასიათებლებზე შეიძლება კარგი შედეგის მომტანი იყოს.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import tensorflow as tf\nfrom tensorflow import keras\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\nfrom tfcv import *",
+   "executionCount": 1,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## კატები ძაღლების წინააღმდეგ მონაცემთა ნაკრები\n\nამ განყოფილებაში ჩვენ მოვაგვარებთ კატებისა და ძაღლების სურათების კლასიფიკაციის რეალურ პრობლემას. ამ მიზეზით, ჩვენ გამოვიყენებთ Kaggle Cats vs. Dogs მონაცემთა ნაკრები, რომლის ჩამოტვირთვაც შესაძლებელია Microsoft-ისგან.\n\nგადმოვწეროთ ეს მონაცემთა ნაკრები და ამოვიტანოთ `data` დირექტორიაში (ამ პროცესს შეიძლება გარკვეული დრო დასჭირდეს!):\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "if not os.path.exists('data/kagglecatsanddogs_5340.zip'):\n    !wget -P data https://download.microsoft.com/download/3/E/1/3E1C3F21-ECDB-4869-8368-6DEBA77B919F/kagglecatsanddogs_5340.zip",
+   "executionCount": 2,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import zipfile\nif not os.path.exists('data/PetImages'):\n    with zipfile.ZipFile('data/kagglecatsanddogs_5340.zip', 'r') as zip_ref:\n        zip_ref.extractall('data')",
+   "executionCount": 2,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "სამწუხაროდ, მონაცემთა ნაკრებში არის რამდენიმე კორუმპირებული გამოსახულების ფაილი. ჩვენ გვჭირდება სწრაფი გაწმენდა დაზიანებული ფაილების შესამოწმებლად. იმისათვის, რომ ეს ტუტორიალი არ დავკარგოთ, ჩვენ გადავიტანეთ კოდი მონაცემთა ნაკრების დასადასტურებლად მოდულში.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "check_image_dir('data/PetImages/Cat/*.jpg')\ncheck_image_dir('data/PetImages/Dog/*.jpg')",
+   "executionCount": 3,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Corrupt image or wrong format: data/PetImages/Cat/12235.jpg\nCorrupt image or wrong format: data/PetImages/Cat/2663.jpg\nCorrupt image or wrong format: data/PetImages/Cat/4929.jpg\nCorrupt image or wrong format: data/PetImages/Cat/8183.jpg\nCorrupt image or wrong format: data/PetImages/Cat/11083.jpg\nCorrupt image or wrong format: data/PetImages/Cat/6435.jpg\nCorrupt image or wrong format: data/PetImages/Cat/6491.jpg\nCorrupt image or wrong format: data/PetImages/Cat/7968.jpg\nCorrupt image or wrong format: data/PetImages/Cat/6768.jpg\nCorrupt image or wrong format: data/PetImages/Cat/11397.jpg\nCorrupt image or wrong format: data/PetImages/Cat/8295.jpg\nCorrupt image or wrong format: data/PetImages/Cat/4874.jpg\nCorrupt image or wrong format: data/PetImages/Cat/23.jpg\nCorrupt image or wrong format: data/PetImages/Cat/11864.jpg\nCorrupt image or wrong format: data/PetImages/Cat/3491.jpg\nCorrupt image or wrong format: data/PetImages/Cat/11729.jpg\nCorrupt image or wrong format: data/PetImages/Cat/3197.jpg\nCorrupt image or wrong format: data/PetImages/Cat/10874.jpg\nCorrupt image or wrong format: data/PetImages/Cat/6376.jpg\nCorrupt image or wrong format: data/PetImages/Cat/9361.jpg\nCorrupt image or wrong format: data/PetImages/Cat/9328.jpg\nCorrupt image or wrong format: data/PetImages/Cat/910.jpg\nCorrupt image or wrong format: data/PetImages/Cat/2021.jpg\nCorrupt image or wrong format: data/PetImages/Cat/666.jpg\nCorrupt image or wrong format: data/PetImages/Cat/3710.jpg\nCorrupt image or wrong format: data/PetImages/Cat/9171.jpg\nCorrupt image or wrong format: data/PetImages/Cat/6906.jpg\nCorrupt image or wrong format: data/PetImages/Cat/11095.jpg\nCorrupt image or wrong format: data/PetImages/Cat/660.jpg\nCorrupt image or wrong format: data/PetImages/Cat/8415.jpg\nCorrupt image or wrong format: data/PetImages/Cat/3161.jpg\nCorrupt image or wrong format: data/PetImages/Cat/850.jpg\nCorrupt image or wrong format: data/PetImages/Cat/7003.jpg\nCorrupt image or wrong format: data/PetImages/Cat/1267.jpg\nCorrupt image or wrong format: data/PetImages/Cat/7642.jpg\nCorrupt image or wrong format: data/PetImages/Cat/8553.jpg\nCorrupt image or wrong format: data/PetImages/Cat/6900.jpg\nCorrupt image or wrong format: data/PetImages/Cat/4334.jpg\nCorrupt image or wrong format: data/PetImages/Cat/10404.jpg\nCorrupt image or wrong format: data/PetImages/Cat/6980.jpg\nCorrupt image or wrong format: data/PetImages/Cat/936.jpg\nCorrupt image or wrong format: data/PetImages/Cat/9619.jpg\nCorrupt image or wrong format: data/PetImages/Cat/3300.jpg\nCorrupt image or wrong format: data/PetImages/Cat/7647.jpg\nCorrupt image or wrong format: data/PetImages/Cat/2742.jpg\nCorrupt image or wrong format: data/PetImages/Cat/9565.jpg\nCorrupt image or wrong format: data/PetImages/Cat/1757.jpg\nCorrupt image or wrong format: data/PetImages/Cat/11874.jpg\nCorrupt image or wrong format: data/PetImages/Cat/1936.jpg\nCorrupt image or wrong format: data/PetImages/Cat/5077.jpg\nCorrupt image or wrong format: data/PetImages/Cat/7845.jpg\nCorrupt image or wrong format: data/PetImages/Cat/8832.jpg\nCorrupt image or wrong format: data/PetImages/Cat/11935.jpg\nCorrupt image or wrong format: data/PetImages/Cat/9208.jpg\nCorrupt image or wrong format: data/PetImages/Cat/4322.jpg\nCorrupt image or wrong format: data/PetImages/Cat/7978.jpg\nCorrupt image or wrong format: data/PetImages/Cat/10820.jpg\nCorrupt image or wrong format: data/PetImages/Cat/391.jpg\nCorrupt image or wrong format: data/PetImages/Cat/10073.jpg\nCorrupt image or wrong format: data/PetImages/Cat/8958.jpg\nCorrupt image or wrong format: data/PetImages/Cat/8470.jpg\nCorrupt image or wrong format: data/PetImages/Cat/445.jpg\nCorrupt image or wrong format: data/PetImages/Cat/4821.jpg\nCorrupt image or wrong format: data/PetImages/Cat/11565.jpg\nCorrupt image or wrong format: data/PetImages/Cat/4351.jpg\nCorrupt image or wrong format: data/PetImages/Cat/4833.jpg\nCorrupt image or wrong format: data/PetImages/Cat/140.jpg\nCorrupt image or wrong format: data/PetImage\n… (გამოტანა შემოკლებულია)",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "/anaconda/envs/py38_tensorflow/lib/python3.8/site-packages/PIL/TiffImagePlugin.py:793: UserWarning: Truncated File Read\n  warnings.warn(str(msg))\n",
+     "stream": "stderr"
+    },
+    {
+     "kind": "text",
+     "text": "Corrupt image or wrong format: data/PetImages/Dog/543.jpg\nCorrupt image or wrong format: data/PetImages/Dog/8730.jpg\nCorrupt image or wrong format: data/PetImages/Dog/12114.jpg\nCorrupt image or wrong format: data/PetImages/Dog/522.jpg\nCorrupt image or wrong format: data/PetImages/Dog/10863.jpg\nCorrupt image or wrong format: data/PetImages/Dog/10401.jpg\nCorrupt image or wrong format: data/PetImages/Dog/7739.jpg\nCorrupt image or wrong format: data/PetImages/Dog/561.jpg\nCorrupt image or wrong format: data/PetImages/Dog/1308.jpg\nCorrupt image or wrong format: data/PetImages/Dog/9643.jpg\nCorrupt image or wrong format: data/PetImages/Dog/3155.jpg\nCorrupt image or wrong format: data/PetImages/Dog/5736.jpg\nCorrupt image or wrong format: data/PetImages/Dog/4257.jpg\nCorrupt image or wrong format: data/PetImages/Dog/11853.jpg\nCorrupt image or wrong format: data/PetImages/Dog/6855.jpg\nCorrupt image or wrong format: data/PetImages/Dog/1259.jpg\nCorrupt image or wrong format: data/PetImages/Dog/7652.jpg\nCorrupt image or wrong format: data/PetImages/Dog/573.jpg\nCorrupt image or wrong format: data/PetImages/Dog/11702.jpg\nCorrupt image or wrong format: data/PetImages/Dog/414.jpg\nCorrupt image or wrong format: data/PetImages/Dog/4301.jpg\nCorrupt image or wrong format: data/PetImages/Dog/9500.jpg\nCorrupt image or wrong format: data/PetImages/Dog/10726.jpg\nCorrupt image or wrong format: data/PetImages/Dog/9367.jpg\nCorrupt image or wrong format: data/PetImages/Dog/2877.jpg\nCorrupt image or wrong format: data/PetImages/Dog/10907.jpg\nCorrupt image or wrong format: data/PetImages/Dog/10972.jpg\nCorrupt image or wrong format: data/PetImages/Dog/7311.jpg\nCorrupt image or wrong format: data/PetImages/Dog/10797.jpg\nCorrupt image or wrong format: data/PetImages/Dog/2317.jpg\nCorrupt image or wrong format: data/PetImages/Dog/7128.jpg\nCorrupt image or wrong format: data/PetImages/Dog/6500.jpg\nCorrupt image or wrong format: data/PetImages/Dog/11285.jpg\nCorrupt image or wrong format: data/PetImages/Dog/6430.jpg\nCorrupt image or wrong format: data/PetImages/Dog/6032.jpg\nCorrupt image or wrong format: data/PetImages/Dog/10969.jpg\nCorrupt image or wrong format: data/PetImages/Dog/8364.jpg\nCorrupt image or wrong format: data/PetImages/Dog/11692.jpg\nCorrupt image or wrong format: data/PetImages/Dog/3038.jpg\nCorrupt image or wrong format: data/PetImages/Dog/5604.jpg\nCorrupt image or wrong format: data/PetImages/Dog/565.jpg\nCorrupt image or wrong format: data/PetImages/Dog/9640.jpg\nCorrupt image or wrong format: data/PetImages/Dog/7459.jpg\nCorrupt image or wrong format: data/PetImages/Dog/6305.jpg\nCorrupt image or wrong format: data/PetImages/Dog/6555.jpg\nCorrupt image or wrong format: data/PetImages/Dog/11590.jpg\nCorrupt image or wrong format: data/PetImages/Dog/6059.jpg\nCorrupt image or wrong format: data/PetImages/Dog/3927.jpg\nCorrupt image or wrong format: data/PetImages/Dog/10705.jpg\nCorrupt image or wrong format: data/PetImages/Dog/2384.jpg\nCorrupt image or wrong format: data/PetImages/Dog/3885.jpg\nCorrupt image or wrong format: data/PetImages/Dog/663.jpg\nCorrupt image or wrong format: data/PetImages/Dog/9043.jpg\nCorrupt image or wrong format: data/PetImages/Dog/8563.jpg\nCorrupt image or wrong format: data/PetImages/Dog/9556.jpg\nCorrupt image or wrong format: data/PetImages/Dog/9967.jpg\nCorrupt image or wrong format: data/PetImages/Dog/10158.jpg\nCorrupt image or wrong format: data/PetImages/Dog/5263.jpg\nCorrupt image or wrong format: data/PetImages/Dog/8641.jpg\nCorrupt image or wrong format: data/PetImages/Dog/7369.jpg\nCorrupt image or wrong format: data/PetImages/Dog/4924.jpg\nCorrupt image or wrong format: data/PetImages/Dog/10351.jpg\nCorrupt image or wrong format: data/PetImages/Dog/6213.jpg\nCorrupt image or wrong format: data/PetImages/Dog/5104.jpg\nCorrupt image or wrong format: data/PetImages/Dog/1356.jpg\nCorrupt image or wrong format: data/PetImages/Dog/7133.jpg\nCorrupt image or wrong format: data/PetImages/Dog/7112.jpg\nCorrupt image or wrong format: data/Pe\n… (გამოტანა შემოკლებულია)",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## იტვირთება მონაცემთა ნაკრები\n\nწინა მაგალითებში ჩვენ ვტვირთავდით Keras-ში ჩაშენებულ მონაცემთა ნაკრებებს. ახლა ჩვენ ვაპირებთ გაუმკლავდეთ ჩვენს მონაცემთა ბაზას, რომელიც უნდა ჩატვირთოთ სურათების დირექტორიადან.\n\nრეალურ ცხოვრებაში, სურათების მონაცემთა ნაკრების ზომა შეიძლება იყოს საკმაოდ დიდი და არ შეიძლება დაეყრდნოთ ყველა მონაცემს, რომელიც შეძლებს მეხსიერებაში მოთავსებას. ამრიგად, მონაცემთა ნაკრები ხშირად წარმოდგენილია როგორც გენერატორები, რომლებსაც შეუძლიათ მონაცემების დაბრუნება ტრენინგისთვის შესაფერისი მინი პაკეტებში.\n\nგამოსახულების კლასიფიკაციისთვის Keras მოიცავს სპეციალურ ფუნქციას `image_dataset_from_directory`, რომელსაც შეუძლია სურათების ჩატვირთვა სხვადასხვა კლასების შესაბამისი ქვედირექტორიებიდან. ეს ფუნქცია ასევე ზრუნავს სურათების სკალირებაზე და მას ასევე შეუძლია მონაცემთა დაყოფა მატარებელ და სატესტო ქვეჯგუფებად:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "data_dir = 'data/PetImages'\nbatch_size = 64\nds_train = keras.preprocessing.image_dataset_from_directory(\n    data_dir,\n    validation_split = 0.2,\n    subset = 'training',\n    seed = 13,\n    image_size = (224,224),\n    batch_size = batch_size\n)\nds_test = keras.preprocessing.image_dataset_from_directory(\n    data_dir,\n    validation_split = 0.2,\n    subset = 'validation',\n    seed = 13,\n    image_size = (224,224),\n    batch_size = batch_size\n)",
+   "executionCount": 4,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Found 24769 files belonging to 2 classes.\nUsing 19816 files for training.\nFound 24769 files belonging to 2 classes.\nUsing 4953 files for validation.\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მნიშვნელოვანია ორივე ზარისთვის იგივე `seed` მნიშვნელობის დაყენება, რადგან ეს გავლენას ახდენს სურათების გაყოფაზე მატარებლისა და ტესტის მონაცემთა ბაზას შორის.\n\nმონაცემთა ნაკრები ავტომატურად იღებს კლასების სახელებს დირექტორიებიდან და საჭიროების შემთხვევაში შეგიძლიათ მათზე წვდომა დარეკვით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "ds_train.class_names",
+   "executionCount": 6,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "['Cat', 'Dog']"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მონაცემთა ნაკრები, რომელიც ჩვენ მივიღეთ, შეიძლება პირდაპირ გადავიდეს `fit` ფუნქციაზე მოდელის მოსამზადებლად. ისინი შეიცავს როგორც შესაბამის სურათებს, ასევე ეტიკეტებს, რომელთა გადატანა შესაძლებელია შემდეგი კონსტრუქციის გამოყენებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "for x,y in ds_train:\n    print(f\"Training batch shape: features={x.shape}, labels={y.shape}\")\n    x_sample, y_sample = x,y\n    break\n    \ndisplay_dataset(x_sample.numpy().astype(np.int),np.expand_dims(y_sample,1),classes=ds_train.class_names)",
+   "executionCount": 7,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Training batch shape: features=(64, 224, 224, 3), labels=(64,)\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/37476f481e883fd0.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "> შენიშვნა: მონაცემთა ნაკრების ყველა სურათი წარმოდგენილია როგორც მცურავი წერტილის ტენსორები დიაპაზონით 0-255. სანამ მათ ნერვულ ქსელში გადავიტანთ, ჩვენ უნდა გავაფართოვოთ ეს მნიშვნელობები 0-1 დიაპაზონში. სურათების შედგენისას ჩვენ ან უნდა გავაკეთოთ იგივე, ან გადავიტანოთ მნიშვნელობები `int` ტიპად (რასაც ვაკეთებთ ზემოთ მოცემულ კოდში), რათა ვაჩვენოთ `matplotlib`, რომ გვინდა გამოვსახოთ ორიგინალური გაუსწორებელი სურათი.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## წინასწარ მომზადებული მოდელები\n\nFor many image classification tasks one can find pre-trained neural network models. Many of those models are available inside `keras.applications` namespace, and even more models can be found on the Internet. ვნახოთ, რამდენად მარტივია VGG-16 მოდელის ჩატვირთვა და გამოყენება:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "vgg = keras.applications.VGG16()\ninp = keras.applications.vgg16.preprocess_input(x_sample[:1])\n\nres = vgg(inp)\nprint(f\"Most probable class = {tf.argmax(res,1)}\")\n\nkeras.applications.vgg16.decode_predictions(res.numpy())",
+   "executionCount": 8,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Downloading data from https://storage.googleapis.com/tensorflow/keras-applications/vgg16/vgg16_weights_tf_dim_ordering_tf_kernels.h5\n553467904/553467096 [==============================] - 6s 0us/step\nMost probable class = [208]\nDownloading data from https://storage.googleapis.com/download.tensorflow.org/data/imagenet_class_index.json\n40960/35363 [==================================] - 0s 0us/step\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "[[('n02099712', 'Labrador_retriever', 0.5340957),\n  ('n02100236', 'German_short-haired_pointer', 0.0939442),\n  ('n02092339', 'Weimaraner', 0.08160535),\n  ('n02099849', 'Chesapeake_Bay_retriever', 0.057179328),\n  ('n02109047', 'Great_Dane', 0.03733857)]]"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "აქ არის რამდენიმე მნიშვნელოვანი რამ:\n* სანამ რაიმე წინასწარ გაწვრთნილ ქსელში შეყვანის გაცემამდე ის წინასწარ უნდა დამუშავდეს გარკვეული გზით. ეს კეთდება შესაბამისი `preprocess_input` ფუნქციის გამოძახებით, რომელიც იღებს სურათების ჯგუფს და აბრუნებს მათ დამუშავებულ ფორმას. VGG-16-ის შემთხვევაში, გამოსახულებები ნორმალიზდება და თითოეული არხისთვის წინასწარ განსაზღვრული საშუალო მნიშვნელობა გამოკლებულია. ეს იმიტომ ხდება, რომ VGG-16 თავდაპირველად გაწვრთნილი იყო ამ წინასწარი დამუშავებით.\n* ნერვული ქსელი გამოიყენება შეყვანის ჯგუფზე და შედეგად ვიღებთ 1000-ელემენტიანი ტენზორების პარტიას, რომელიც აჩვენებს თითოეული კლასის ალბათობას. ჩვენ შეგვიძლია ვიპოვოთ ყველაზე სავარაუდო კლასის ნომერი ამ ტენზორზე `argmax`-ზე დარეკვით.\n* მიღებული შედეგია `ImageNet` კლასის ნომერი. ამ შედეგის გასაგებად, ჩვენ ასევე შეგვიძლია გამოვიყენოთ `decode_predictions` ფუნქცია, რომელიც აბრუნებს ტოპ n კლასს მათ სახელებთან ერთად.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით ასევე ვნახოთ VGG-16 ქსელის არქიტექტურა:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "vgg.summary()",
+   "executionCount": 9,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Model: \"vgg16\"\n_________________________________________________________________\nLayer (type)                 Output Shape              Param #   \n=================================================================\ninput_1 (InputLayer)         [(None, 224, 224, 3)]     0         \n_________________________________________________________________\nblock1_conv1 (Conv2D)        (None, 224, 224, 64)      1792      \n_________________________________________________________________\nblock1_conv2 (Conv2D)        (None, 224, 224, 64)      36928     \n_________________________________________________________________\nblock1_pool (MaxPooling2D)   (None, 112, 112, 64)      0         \n_________________________________________________________________\nblock2_conv1 (Conv2D)        (None, 112, 112, 128)     73856     \n_________________________________________________________________\nblock2_conv2 (Conv2D)        (None, 112, 112, 128)     147584    \n_________________________________________________________________\nblock2_pool (MaxPooling2D)   (None, 56, 56, 128)       0         \n_________________________________________________________________\nblock3_conv1 (Conv2D)        (None, 56, 56, 256)       295168    \n_________________________________________________________________\nblock3_conv2 (Conv2D)        (None, 56, 56, 256)       590080    \n_________________________________________________________________\nblock3_conv3 (Conv2D)        (None, 56, 56, 256)       590080    \n_________________________________________________________________\nblock3_pool (MaxPooling2D)   (None, 28, 28, 256)       0         \n_________________________________________________________________\nblock4_conv1 (Conv2D)        (None, 28, 28, 512)       1180160   \n_________________________________________________________________\nblock4_conv2 (Conv2D)        (None, 28, 28, 512)       2359808   \n_________________________________________________________________\nblock4_conv3 (Conv2D)        (None, 28, 28, 512)       2359808   \n_________________________________________________________________\nblock4_pool (MaxPooling2D)   (None, 14, 14, 512)       0         \n_________________________________________________________________\nblock5_conv1 (Conv2D)        (None, 14, 14, 512)       2359808   \n_________________________________________________________________\nblock5_conv2 (Conv2D)        (None, 14, 14, 512)       2359808   \n_________________________________________________________________\nblock5_conv3 (Conv2D)        (None, 14, 14, 512)       2359808   \n_________________________________________________________________\nblock5_pool (MaxPooling2D)   (None, 7, 7, 512)         0         \n_________________________________________________________________\nflatten (Flatten)            (None, 25088)             0         \n_________________________________________________________________\nfc1 (Dense)                  (None, 4096)              102764544 \n_________________________________________________________________\nfc2 (Dense)                  (None, 4096)              16781312  \n_________________________________________________________________\npredictions (Dense)          (None, 1000)              4097000   \n=================================================================\nTotal params: 138,357,544\nTrainable params: 138,357,544\nNon-trainable params: 0\n_________________________________________________________________\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## GPU გამოთვლები\n\nღრმა ნეირონული ქსელები, როგორიცაა VGG-16 და სხვა უფრო თანამედროვე არქიტექტურა, საკმაოდ დიდ გამოთვლით ძალას მოითხოვს. აზრი აქვს GPU აჩქარების გამოყენებას, თუ ის ხელმისაწვდომია. საბედნიეროდ, Keras ავტომატურად აჩქარებს გამოთვლებს GPU-ზე, თუ ის ხელმისაწვდომია. ჩვენ შეგვიძლია შევამოწმოთ თუ არა Tensorflow-ს შეუძლია გამოიყენოს GPU შემდეგი კოდის გამოყენებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "tf.config.list_physical_devices('GPU')",
+   "executionCount": 10,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')]"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## VGG მახასიათებლების ამოღება\n\nთუ გვინდა გამოვიყენოთ VGG-16 ჩვენი სურათებიდან ფუნქციების ამოსაღებად, გვჭირდება მოდელი საბოლოო კლასიფიკაციის ფენების გარეშე. ჩვენ შეგვიძლია გამოვიყენოთ VGG-16 მოდელი ზედა ფენების გარეშე ამ კოდის გამოყენებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "vgg = keras.applications.VGG16(include_top=False)\n\ninp = keras.applications.vgg16.preprocess_input(x_sample[:1])\nres = vgg(inp)\nprint(f\"Shape after applying VGG-16: {res[0].shape}\")\nplt.figure(figsize=(15,3))\nplt.imshow(res[0].numpy().reshape(-1,512))",
+   "executionCount": 15,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Shape after applying VGG-16: (7, 7, 512)\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<matplotlib.image.AxesImage at 0x7fafcc685ac0>"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/6426a6497f7d7426.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მახასიათებლის ტენზორის განზომილებაა 7x7x512, მაგრამ მისი ვიზუალიზაციისთვის ჩვენ უნდა გადაგვეკეთებინა 2D ფორმაში.\n\nახლა ვცადოთ ვნახოთ, შეიძლება თუ არა ამ ფუნქციების გამოყენება სურათების კლასიფიკაციისთვის. მოდით ხელით ავიღოთ სურათების გარკვეული ნაწილი (ჩვენს შემთხვევაში 50 მინი პარტია) და წინასწარ გამოვთვალოთ მათი მახასიათებლების ვექტორები. ჩვენ შეგვიძლია გამოვიყენოთ Tensorflow dataset API ამისათვის. `map` ფუნქცია იღებს მონაცემთა ნაკრებს და იყენებს მოცემულ ლამბდა ფუნქციას მის გარდაქმნისთვის. ჩვენ ვიყენებთ ამ მექანიზმს მონაცემთა ახალი ნაკრების შესაქმნელად, `ds_features_train` და `ds_features_test`, რომლებიც შეიცავს VGG-ით ამოღებულ ფუნქციებს ორიგინალური სურათების ნაცვლად.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "num = batch_size*50\nds_features_train = ds_train.take(50).map(lambda x,y : (vgg(x),y))\nds_features_test = ds_test.take(10).map(lambda x,y : (vgg(x),y))\n\nfor x,y in ds_features_train:\n    print(x.shape,y.shape)\n    break",
+   "executionCount": 41,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "(64, 7, 7, 512) (64,)\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ გამოვიყენეთ კონსტრუქცია `.take(50)` მონაცემთა ნაკრების ზომის შესაზღუდად, ჩვენი დემონსტრირების დასაჩქარებლად. თქვენ, რა თქმა უნდა, შეგიძლიათ განახორციელოთ ეს ექსპერიმენტი სრულ მონაცემთა ბაზაზე.\n\nახლა, როდესაც ჩვენ გვაქვს მონაცემთა ნაკრები მოპოვებული მახასიათებლებით, ჩვენ შეგვიძლია მოვამზადოთ მარტივი მკვრივი კლასიფიკატორი კატებისა და ძაღლების გასარჩევად. ეს ქსელი მიიღებს ფორმის ვექტორს (7,7,512) და გამოიმუშავებს ერთ გამოსავალს, რომელიც შეესაბამება ძაღლს ან კატას. იმის გამო, რომ ეს არის ორობითი კლასიფიკაცია, ჩვენ ვიყენებთ `sigmoid` აქტივაციის ფუნქციას და `binary_crossentropy` დაკარგვას.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model = keras.models.Sequential([\n    keras.layers.Flatten(input_shape=(7,7,512)),\n    keras.layers.Dense(1,activation='sigmoid')\n])\nmodel.compile(optimizer='adam', loss='binary_crossentropy', metrics=['acc'])\nhist = model.fit(ds_features_train, validation_data=ds_features_test)",
+   "executionCount": 44,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "50/50 [==============================] - 1896s 38s/step - loss: 1.4845 - acc: 0.9144 - val_loss: 0.7220 - val_acc: 0.9516\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "შედეგი შესანიშნავია, თითქმის 95%-იანი ალბათობით შეგვიძლია გამოვყოთ კატა და ძაღლი! თუმცა, ჩვენ გამოვცადეთ ეს მიდგომა მხოლოდ ყველა სურათის ქვეჯგუფზე, რადგან, როგორც ჩანს, ფუნქციების ხელით ამოღებას დიდი დრო სჭირდება.\n\n## სწავლის გადაცემა ერთი VGG ქსელის გამოყენებით\n\nჩვენ ასევე შეგვიძლია თავიდან ავიცილოთ ფუნქციების ხელით წინასწარი გამოთვლა ტრენინგის დროს ორიგინალური VGG-16 ქსელის მთლიანობაში გამოყენებით, ჩვენს ქსელში ფუნქციების ამომყვანის დამატებით, როგორც პირველ ფენას.\n\nKeras-ის არქიტექტურის სილამაზე იმაში მდგომარეობს, რომ VGG-16 მოდელი, რომელიც ზემოთ განვსაზღვრეთ, ასევე შეიძლება გამოყენებულ იქნას როგორც ფენა სხვა ნერვულ ქსელში! ჩვენ უბრალოდ უნდა ავაშენოთ ქსელი მკვრივი კლასიფიკატორით მის თავზე და შემდეგ მოვამზადოთ მთელი ქსელი უკანა გამრავლების გამოყენებით.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model = keras.models.Sequential()\nmodel.add(keras.applications.VGG16(include_top=False,input_shape=(224,224,3)))\nmodel.add(keras.layers.Flatten())\nmodel.add(keras.layers.Dense(1,activation='sigmoid'))\n\nmodel.layers[0].trainable = False\n\nmodel.summary()",
+   "executionCount": 6,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Model: \"sequential\"\n_________________________________________________________________\nLayer (type)                 Output Shape              Param #   \n=================================================================\nvgg16 (Functional)           (None, 7, 7, 512)         14714688  \n_________________________________________________________________\nflatten (Flatten)            (None, 25088)             0         \n_________________________________________________________________\ndense (Dense)                (None, 1)                 25089     \n=================================================================\nTotal params: 14,739,777\nTrainable params: 25,089\nNon-trainable params: 14,714,688\n_________________________________________________________________\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ეს მოდელი ჰგავს და ბოლოდან ბოლომდე კლასიფიკაციის ქსელს, რომელიც იღებს სურათს და აბრუნებს კლასს. თუმცა, სახიფათო ის არის, რომ ჩვენ გვინდა, რომ VGG16 იმოქმედოს როგორც ფუნქციების ამომყვანი და არა ხელახლა გადამზადება. ამრიგად, ჩვენ გვჭირდება კონვოლუციური მახასიათებლების ამომყვანის წონების გაყინვა. ჩვენ შეგვიძლია ქსელის პირველ შრეზე წვდომა `model.layers[0]`-ის გამოძახებით და ჩვენ უბრალოდ უნდა დავაყენოთ `trainable` თვისება `False`.\n\n> შენიშვნა: საჭიროა მახასიათებლის ექსტრაქტორის წონების გაყინვა, რადგან სხვაგვარად დაუვარჯიშებელი კლასიფიკატორის ფენას შეუძლია გაანადგუროს კონვოლუციური ექსტრაქტორის ორიგინალური წინასწარ მომზადებული წონა.\n\nთქვენ შეგიძლიათ შეამჩნიოთ, რომ მიუხედავად იმისა, რომ ჩვენს ქსელში პარამეტრების საერთო რაოდენობა დაახლოებით 15 მილიონია, ჩვენ ვვარჯიშობთ მხოლოდ 25 ათასი პარამეტრს. უმაღლესი დონის კონვოლუციური ფილტრების ყველა სხვა პარამეტრი წინასწარ არის მომზადებული. ეს კარგია, რადგან ჩვენ შეგვიძლია უფრო მცირე რაოდენობის პარამეტრების დაზუსტება მაგალითების მცირე რაოდენობით.\n\nჩვენ ახლა მოვამზადებთ ჩვენს ქსელს და ვნახავთ, რამდენად კარგის მიღწევა შეგვიძლია. მოსალოდნელია საკმაოდ ხანგრძლივი მუშაობის დრო და არ ინერვიულოთ, თუ შესრულება გარკვეული დროით გაყინულია.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['acc'])\nhist = model.fit(ds_train, validation_data=ds_test)",
+   "executionCount": 7,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "310/310 [==============================] - 265s 716ms/step - loss: 0.9917 - acc: 0.9512 - val_loss: 0.8156 - val_acc: 0.9671\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "როგორც ჩანს, ჩვენ მივიღეთ საკმაოდ ზუსტი კლასიფიკატორი კატები ძაღლების წინააღმდეგ!\n\n## მოდელის შენახვა და ჩატვირთვა\n\nმას შემდეგ რაც ჩვენ მოვამზადებთ მოდელს, ჩვენ შეგვიძლია შევინახოთ მოდელის არქიტექტურა და გაწვრთნილი წონა ფაილში მომავალი გამოყენებისთვის:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model.save('data/cats_dogs.tf')",
+   "executionCount": 8,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "INFO:tensorflow:Assets written to: data/cats_dogs.tf/assets\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "შემდეგ ჩვენ შეგვიძლია ჩატვირთოთ მოდელი ფაილიდან ნებისმიერ დროს. შეიძლება გამოგადგეთ იმ შემთხვევაში, თუ მომდევნო ექსპერიმენტმა გაანადგურა მოდელი - თქვენ არ მოგიწევთ თავიდან დაწყება ნულიდან.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model = keras.models.load_model('data/cats_dogs.tf')",
+   "executionCount": 9,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## დახვეწილი გადაცემის სწავლა\n\nწინა განყოფილებაში, ჩვენ ვავარჯიშეთ საბოლოო კლასიფიკატორის ფენა სურათების კლასიფიკაციისთვის ჩვენს მონაცემთა ბაზაში. თუმცა, ჩვენ არ გადავარჯიშეთ ფუნქციების ამომყვანი და ჩვენი მოდელი ეყრდნობოდა იმ ფუნქციებს, რომლებიც მოდელმა ისწავლა ImageNet-ის მონაცემებზე. თუ თქვენი ობიექტები ვიზუალურად განსხვავდებიან ჩვეულებრივი ImageNet სურათებისგან, ფუნქციების ეს კომბინაცია შესაძლოა საუკეთესოდ არ იმუშაოს. ამრიგად, აზრი აქვს კონვოლუციური ფენების ვარჯიშის დაწყებასაც.\n\nამისათვის ჩვენ შეგვიძლია გავაყინოთ კონვოლუციური ფილტრის პარამეტრები, რომლებიც ადრე გავყინეთ.\n\n> შენიშვნა: მნიშვნელოვანია, რომ ჯერ გაყინოთ პარამეტრები და განახორციელოთ ვარჯიშის რამდენიმე ეპოქა, რათა დასტაბილურდეს წონა კლასიფიკაციის ფენაში. თუ დაუყონებლივ დაიწყებთ ქსელის ბოლომდე ვარჯიშს გაყინული პარამეტრებით, დიდი შეცდომები სავარაუდოდ გაანადგურებს წინასწარ მომზადებულ წონებს კონვოლუციურ ფენებში.\n\nჩვენი კონვოლუციური VGG-16 მოდელი მდებარეობს პირველი ფენის შიგნით და ის თავად შედგება მრავალი ფენისგან. ჩვენ შეგვიძლია შევხედოთ მის სტრუქტურას:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model.layers[0].summary()",
+   "executionCount": 10,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Model: \"vgg16\"\n_________________________________________________________________\nLayer (type)                 Output Shape              Param #   \n=================================================================\ninput_1 (InputLayer)         [(None, 224, 224, 3)]     0         \n_________________________________________________________________\nblock1_conv1 (Conv2D)        (None, 224, 224, 64)      1792      \n_________________________________________________________________\nblock1_conv2 (Conv2D)        (None, 224, 224, 64)      36928     \n_________________________________________________________________\nblock1_pool (MaxPooling2D)   (None, 112, 112, 64)      0         \n_________________________________________________________________\nblock2_conv1 (Conv2D)        (None, 112, 112, 128)     73856     \n_________________________________________________________________\nblock2_conv2 (Conv2D)        (None, 112, 112, 128)     147584    \n_________________________________________________________________\nblock2_pool (MaxPooling2D)   (None, 56, 56, 128)       0         \n_________________________________________________________________\nblock3_conv1 (Conv2D)        (None, 56, 56, 256)       295168    \n_________________________________________________________________\nblock3_conv2 (Conv2D)        (None, 56, 56, 256)       590080    \n_________________________________________________________________\nblock3_conv3 (Conv2D)        (None, 56, 56, 256)       590080    \n_________________________________________________________________\nblock3_pool (MaxPooling2D)   (None, 28, 28, 256)       0         \n_________________________________________________________________\nblock4_conv1 (Conv2D)        (None, 28, 28, 512)       1180160   \n_________________________________________________________________\nblock4_conv2 (Conv2D)        (None, 28, 28, 512)       2359808   \n_________________________________________________________________\nblock4_conv3 (Conv2D)        (None, 28, 28, 512)       2359808   \n_________________________________________________________________\nblock4_pool (MaxPooling2D)   (None, 14, 14, 512)       0         \n_________________________________________________________________\nblock5_conv1 (Conv2D)        (None, 14, 14, 512)       2359808   \n_________________________________________________________________\nblock5_conv2 (Conv2D)        (None, 14, 14, 512)       2359808   \n_________________________________________________________________\nblock5_conv3 (Conv2D)        (None, 14, 14, 512)       2359808   \n_________________________________________________________________\nblock5_pool (MaxPooling2D)   (None, 7, 7, 512)         0         \n=================================================================\nTotal params: 14,714,688\nTrainable params: 0\nNon-trainable params: 14,714,688\n_________________________________________________________________\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ შეგვიძლია გავყინოთ კონვოლუციური ბაზის ყველა ფენა:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model.layers[0].trainable = True",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "თუმცა, ყველა მათგანის ერთდროულად გაუქმება საუკეთესო იდეა არ არის. ჩვენ შეგვიძლია თავიდან გავაყინოთ კონვოლუციის მხოლოდ რამდენიმე ბოლო ფენა, რადგან ისინი შეიცავს უფრო მაღალი დონის ნიმუშებს, რომლებიც აქტუალურია ჩვენი სურათებისთვის. მაგალითად, დასაწყისისთვის, ჩვენ შეგვიძლია გავყინოთ ყველა ფენა, გარდა ბოლო 4-ისა:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "for i in range(len(model.layers[0].layers)-4):\n    model.layers[0].layers[i].trainable = False\nmodel.summary()",
+   "executionCount": 11,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Model: \"sequential\"\n_________________________________________________________________\nLayer (type)                 Output Shape              Param #   \n=================================================================\nvgg16 (Functional)           (None, 7, 7, 512)         14714688  \n_________________________________________________________________\nflatten (Flatten)            (None, 25088)             0         \n_________________________________________________________________\ndense (Dense)                (None, 1)                 25089     \n=================================================================\nTotal params: 14,739,777\nTrainable params: 7,104,513\nNon-trainable params: 7,635,264\n_________________________________________________________________\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "დააკვირდით, რომ სავარჯიშო პარამეტრების რაოდენობა მნიშვნელოვნად გაიზარდა, მაგრამ მაინც არის ყველა პარამეტრის დაახლოებით 50%.\n\nგაყინვის შემდეგ შეგვიძლია გავაკეთოთ ვარჯიშის კიდევ რამდენიმე ეპოქა (ჩვენს მაგალითში მხოლოდ ერთს გავაკეთებთ). თქვენ ასევე შეგიძლიათ აირჩიოთ უფრო დაბალი სწავლის სიჩქარე, რათა მინიმუმამდე დაიყვანოთ გავლენა წინასწარ მომზადებულ წონებზე. თუმცა, სწავლის დაბალი სიჩქარითაც კი, თქვენ შეგიძლიათ მოელოდეთ, რომ სიზუსტე დაეცემა ვარჯიშის დასაწყისში, სანამ საბოლოოდ არ მიაღწევთ ოდნავ უფრო მაღალ დონეს, ვიდრე ფიქსირებული წონის შემთხვევაში.\n\n> შენიშვნა: ეს ტრენინგი გაცილებით ნელა მიმდინარეობს, რადგან ჩვენ გვჭირდება გრადიენტების გავრცელება ქსელის მრავალ ფენაში!\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "hist = model.fit(ds_train, validation_data=ds_test)",
+   "executionCount": 12,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "310/310 [==============================] - 201s 645ms/step - loss: 0.5270 - acc: 0.9776 - val_loss: 1.4132 - val_acc: 0.9653\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ სავარაუდოდ მივაღწევთ ტრენინგის უფრო მაღალ სიზუსტეს, რადგან ვიყენებთ უფრო მძლავრ ქსელს მეტი პარამეტრით, მაგრამ ვალიდაციის სიზუსტე არც ისე გაიზრდება.\n\nთავისუფლად გახსენით ქსელის კიდევ რამდენიმე ფენა და ივარჯიშეთ მეტი, რათა ნახოთ, შეძლებთ თუ არა უფრო მაღალი სიზუსტის მიღწევას!\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## სხვა კომპიუტერული ხედვის მოდელები\n\nVGG-16 არის ერთ-ერთი უმარტივესი კომპიუტერული ხედვის არქიტექტურა. Keras გთავაზობთ კიდევ ბევრ წინასწარ მომზადებულ ქსელს. მათ შორის ყველაზე ხშირად გამოყენებულია ResNet არქიტექტურები, შემუშავებული Microsoft-ის მიერ და Inception Google-ის მიერ. მაგალითად, მოდით გამოვიკვლიოთ უმარტივესი ResNet-50 მოდელის არქიტექტურა (ResNet არის სხვადასხვა სიღრმის მოდელების ოჯახი, შეგიძლიათ სცადოთ ResNet-152-ის ექსპერიმენტები, თუ გსურთ ნახოთ, როგორ გამოიყურება მართლაც ღრმა მოდელი):\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "resnet = keras.applications.ResNet50()\nresnet.summary()",
+   "executionCount": 16,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Model: \"resnet50\"\n__________________________________________________________________________________________________\nLayer (type)                    Output Shape         Param #     Connected to                     \n==================================================================================================\ninput_3 (InputLayer)            [(None, 224, 224, 3) 0                                            \n__________________________________________________________________________________________________\nconv1_pad (ZeroPadding2D)       (None, 230, 230, 3)  0           input_3[0][0]                    \n__________________________________________________________________________________________________\nconv1_conv (Conv2D)             (None, 112, 112, 64) 9472        conv1_pad[0][0]                  \n__________________________________________________________________________________________________\nconv1_bn (BatchNormalization)   (None, 112, 112, 64) 256         conv1_conv[0][0]                 \n__________________________________________________________________________________________________\nconv1_relu (Activation)         (None, 112, 112, 64) 0           conv1_bn[0][0]                   \n__________________________________________________________________________________________________\npool1_pad (ZeroPadding2D)       (None, 114, 114, 64) 0           conv1_relu[0][0]                 \n__________________________________________________________________________________________________\npool1_pool (MaxPooling2D)       (None, 56, 56, 64)   0           pool1_pad[0][0]                  \n__________________________________________________________________________________________________\nconv2_block1_1_conv (Conv2D)    (None, 56, 56, 64)   4160        pool1_pool[0][0]                 \n__________________________________________________________________________________________________\nconv2_block1_1_bn (BatchNormali (None, 56, 56, 64)   256         conv2_block1_1_conv[0][0]        \n__________________________________________________________________________________________________\nconv2_block1_1_relu (Activation (None, 56, 56, 64)   0           conv2_block1_1_bn[0][0]          \n__________________________________________________________________________________________________\nconv2_block1_2_conv (Conv2D)    (None, 56, 56, 64)   36928       conv2_block1_1_relu[0][0]        \n__________________________________________________________________________________________________\nconv2_block1_2_bn (BatchNormali (None, 56, 56, 64)   256         conv2_block1_2_conv[0][0]        \n__________________________________________________________________________________________________\nconv2_block1_2_relu (Activation (None, 56, 56, 64)   0           conv2_block1_2_bn[0][0]          \n__________________________________________________________________________________________________\nconv2_block1_0_conv (Conv2D)    (None, 56, 56, 256)  16640       pool1_pool[0][0]                 \n__________________________________________________________________________________________________\nconv2_block1_3_conv (Conv2D)    (None, 56, 56, 256)  16640       conv2_block1_2_relu[0][0]        \n__________________________________________________________________________________________________\nconv2_block1_0_bn (BatchNormali (None, 56, 56, 256)  1024        conv2_block1_0_conv[0][0]        \n__________________________________________________________________________________________________\nconv2_block1_3_bn (BatchNormali (None, 56, 56, 256)  1024        conv2_block1_3_conv[0][0]        \n__________________________________________________________________________________________________\nconv2_block1_add (Add)          (None, 56, 56, 256)  0           conv2_block1_0_bn[0][0]          \n                                                                 conv2_block1_3_bn[0][0]          \n__________________________________________________________________________________________________\nconv2_block1_out (Acti\n… (გამოტანა შემოკლებულია)",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "როგორც ხედავთ, მოდელი შეიცავს იგივე ნაცნობ სამშენებლო ბლოკებს: კონვოლუციურ ფენებს, გაერთიანების ფენებს და საბოლოო მკვრივ კლასიფიკატორს. ჩვენ შეგვიძლია გამოვიყენოთ ეს მოდელი ზუსტად ისევე, როგორც ვიყენებდით VGG-16 გადაცემის სწავლისთვის. შეგიძლიათ სცადოთ ექსპერიმენტი ზემოთ მოცემულ კოდზე, გამოიყენოთ სხვადასხვა ResNet მოდელები, როგორც საბაზისო მოდელი და ნახოთ, როგორ იცვლება სიზუსტე.\n\n## სერიის ნორმალიზაცია\n\nეს ქსელი შეიცავს კიდევ ერთი ტიპის ფენას: Batch Normalization. სურათების ნორმალიზაციის იდეა არის მნიშვნელობების მიყვანა, რომლებიც მიედინება ნერვულ ქსელში სწორ ინტერვალამდე. როგორც წესი, ნერვული ქსელები საუკეთესოდ მუშაობს, როდესაც ყველა მნიშვნელობა არის [-1,1] ან [0,1] დიაპაზონში, და ეს არის მიზეზი იმისა, რომ ჩვენ შესაბამისად ვადიდებთ/ნორმალიზებთ შეყვანის მონაცემებს. თუმცა, ღრმა ქსელის ვარჯიშის დროს, შეიძლება მოხდეს, რომ მნიშვნელობები მნიშვნელოვნად გასცდეს ამ დიაპაზონს, რაც ვარჯიშს პრობლემურია. სერიის ნორმალიზაციის ფენა ითვლის საშუალო და სტანდარტულ გადახრას მიმდინარე მინი-სამეფოში ყველა მნიშვნელობისთვის და იყენებს მათ სიგნალის ნორმალიზებისთვის, სანამ ის გაივლის ნერვული ქსელის შრეში. ეს მნიშვნელოვნად აუმჯობესებს ღრმა ქსელების სტაბილურობას.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## Takeaway\n\nტრანსფერის სწავლის გამოყენებით, ჩვენ შევძელით სწრაფად შეგვექმნა კლასიფიკატორი ჩვენი მორგებული ობიექტების კლასიფიკაციის ამოცანისთვის და მივაღწიეთ მაღალ სიზუსტეს. თუმცა, ეს მაგალითი არ იყო სრულიად სამართლიანი, რადგან ორიგინალური VGG-16 ქსელი წინასწარ იყო გაწვრთნილი კატებისა და ძაღლების ამოცნობისთვის და, ამრიგად, ჩვენ უბრალოდ ხელახლა ვიყენებდით ქსელში უკვე არსებული შაბლონების უმეტესობას. თქვენ შეგიძლიათ ველოდოთ უფრო დაბალ სიზუსტეს უფრო ეგზოტიკურ დომენის სპეციფიკურ ობიექტებზე, როგორიცაა მცენარის წარმოების ხაზის დეტალები ან ხის სხვადასხვა ფოთლებზე.\n\nთქვენ ხედავთ, რომ უფრო რთული ამოცანები, რომლებსაც ჩვენ ახლა ვწყვეტთ, მოითხოვს უფრო მაღალ გამოთვლით სიმძლავრეს და ადვილად ვერ გადაიჭრება CPU-ზე. მომდევნო განყოფილებაში ჩვენ შევეცდებით გამოვიყენოთ უფრო მსუბუქი დანერგვა იმავე მოდელის მოსამზადებლად დაბალი გამოთვლითი რესურსების გამოყენებით, რაც იწვევს ოდნავ დაბალ სიზუსტეს.\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/4-ComputerVision/08-TransferLearning/TransferLearningTF.ipynb"
+}

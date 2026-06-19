@@ -1,0 +1,113 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "extras/x1-multi-modal/clip",
+ "segments": [
+  "extras",
+  "x1-multi-modal",
+  "clip"
+ ],
+ "title": "მულტიმოდალური მოდელები",
+ "module": {
+  "id": "X-Extras",
+  "slug": "extras",
+  "title": "დამატებები",
+  "icon": "sparkles"
+ },
+ "lessonNumber": null,
+ "orderInModule": 6000.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/X-Extras/X1-MultiModal/Clip.ipynb"
+ },
+ "prev": {
+  "slug": "extras/x1-multi-modal",
+  "title": "მრავალმოდალური ქსელები"
+ },
+ "next": null,
+ "framework": "generic",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "ეს ნოუთბუქი არის AI დამწყებთათვის სასწავლო პროგრამა-დან.\n\n## ექსპერიმენტი CLIP-ით\n\nკლიპი OpenAI-დან გამოქვეყნებულია საჯაროდ, ასე რომ თქვენ შეგიძლიათ სცადოთ მისი გამოყენება სხვადასხვა ამოცანებისთვის, მათ შორის ნულოვანი სურათების კლასიფიკაციისთვის. გაითვალისწინეთ, რომ რესურსების მხრივ საკმაოდ გაუმაძღარია!\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import sys\n!{sys.executable} -m pip install git+https://github.com/openai/CLIP.git",
+   "executionCount": 2,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ ჯერ დავრწმუნდებით, რომ შეგვიძლია გამოვიყენოთ GPU, თუ ის ხელმისაწვდომია, და შემდეგ ჩავტვირთოთ CLIP მოდელი.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import torch\nimport clip\nfrom PIL import Image\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\nnp.set_printoptions(precision=2,suppress=True)\n\ndevice = \"cuda\" if torch.cuda.is_available() else \"cpu\"\nmodel, preprocess = clip.load(\"ViT-B/32\", device=device)",
+   "executionCount": 8,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით ასევე მივიღოთ კატების სურათების ქვეჯგუფი Oxford-IIIT მონაცემთა ნაკრები-დან:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "!wget https://mslearntensorflowlp.blob.core.windows.net/data/oxcats.tar.gz\n!tar xfz oxcats.tar.gz\n!rm oxcats.tar.gz",
+   "executionCount": 4,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "### ნულოვანი კადრი გამოსახულების კლასიფიკაცია\n\nმთავარი, რისი გაკეთებაც CLIP-ს შეუძლია, არის სურათის შეხამება ტექსტურ მოთხოვნასთან. ასე რომ, თუ ჩვენ ავიღებთ, ვთქვათ, კატის სურათს და შემდეგ ვცდილობთ მის შეხამებას ტექსტური მითითებებით \"კატა\", \"პინგვინი\", \"დათვი\" - პირველს სავარაუდოდ უფრო მაღალი ალბათობა ექნება. ამრიგად, შეგვიძლია დავასკვნათ, რომ საქმე გვაქვს კატასთან. ჩვენ არ გვჭირდება მოდელის მომზადება, რადგან ის უკვე წინასწარ იყო გაწვრთნილი უზარმაზარ მონაცემთა ბაზაზე - ამიტომ მას უწოდებენ zero-shot.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "image = preprocess(Image.open(\"oxcats/Maine_Coon_1.jpg\")).unsqueeze(0).to(device)\ntext = clip.tokenize([\"a penguin\", \"a bear\", \"a cat\"]).to(device)\n\nwith torch.no_grad():\n    image_features = model.encode_image(image)\n    text_features = model.encode_text(text)\n    \n    logits_per_image, logits_per_text = model(image, text)\n    probs = logits_per_image.softmax(dim=-1).cpu().numpy()\n\nprint(\"Label probs:\", probs)",
+   "executionCount": 7,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Label probs: [[0. 0. 1.]]\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "### ინტელექტუალური გამოსახულების ძებნა\n\nწინა მაგალითში იყო ერთი სურათი 3 ტექსტური მოთხოვნა. ჩვენ შეგვიძლია გამოვიყენოთ CLIP სხვა კონტექსტში, მაგ. ჩვენ შეგვიძლია გადავიღოთ კატის მრავალი სურათი, შემდეგ კი შევარჩიოთ სურათი, რომელიც საუკეთესოდ შეესაბამება ტექსტურ აღწერილობას:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "cats_img = [ Image.open(os.path.join(\"oxcats\",x)) for x in os.listdir(\"oxcats\") ] \ncats = torch.cat([ preprocess(i).unsqueeze(0) for i in cats_img ]).to(device)\ntext = clip.tokenize([\"a very fat gray cat\"]).to(device)\nwith torch.no_grad():\n    logits_per_image, logits_per_text = model(cats, text)\n    res = logits_per_text.softmax(dim=-1).argmax().cpu().numpy()\n\nprint(\"Img Index:\", res)\n\nplt.imshow(cats_img[res])",
+   "executionCount": 16,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Img Index: 97\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<matplotlib.image.AxesImage at 0x2f58593b310>"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/b2f2ef4a54ca2296.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## Takeaway\n\nწინასწარ გაწვრთნილი CLIP მოდელი შეიძლება გამოყენებულ იქნას ისეთი ამოცანების შესასრულებლად, როგორიცაა გამოსახულების კლასიფიკაცია საერთო ობიექტებზე დომენის სპეციფიკური ტრენინგის გარეშე. ასევე, საშუალებას იძლევა უფრო მოქნილი კლასიფიკაცია/გამოსახულების ძებნა, სურათზე ობიექტების სივრცითი კონფიგურაციის გათვალისწინებით.\n\nCLIP-ის კიდევ ერთი საინტერესო გამოყენებისთვის, მოძებნეთ VQGAN+CLIP.\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/X-Extras/X1-MultiModal/Clip.ipynb"
+}

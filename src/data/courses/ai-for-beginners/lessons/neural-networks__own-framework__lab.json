@@ -1,0 +1,52 @@
+{
+ "kind": "markdown",
+ "courseSlug": "ai-for-beginners",
+ "slug": "neural-networks/own-framework/lab",
+ "segments": [
+  "neural-networks",
+  "own-framework",
+  "lab"
+ ],
+ "title": "MNIST კლასიფიკაცია ჩვენი საკუთარი ჩარჩოთი",
+ "module": {
+  "id": "3-NeuralNetworks",
+  "slug": "neural-networks",
+  "title": "ნეირონული ქსელები",
+  "icon": "network"
+ },
+ "lessonNumber": 4,
+ "orderInModule": 1040,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/3-NeuralNetworks/04-OwnFramework/lab/README.md"
+ },
+ "prev": {
+  "slug": "neural-networks/perceptron/perceptron",
+  "title": "პერცეპტრონი"
+ },
+ "next": {
+  "slug": "neural-networks/own-framework",
+  "title": "შესავალი ნერვულ ქსელებში. მრავალშრიანი პერცეტრონი"
+ },
+ "markdown": "ლაბორატორიული დავალება AI დამწყებთათვის სასწავლო პროგრამა-დან.\n\n## ამოცანა\n\nამოხსენით MNIST ხელნაწერი ციფრების კლასიფიკაციის პრობლემა 1-, 2- და 3-ფენიანი პერცეტრონის გამოყენებით. გამოიყენეთ ნერვული ქსელის ჩარჩო, რომელიც ჩვენ შევიმუშავეთ გაკვეთილზე.\n\n## მითითებული ნოუთბუქი\n\nდაიწყეთ ლაბორატორია MyFW_MNIST.ipynb გახსნით\n\n## კითხვები\n\nამ ლაბორატორიის შედეგად, შეეცადეთ უპასუხოთ შემდეგ კითხვებს:\n\n- მოქმედებს თუ არა ფენათაშორისი აქტივაციის ფუნქცია ქსელის მუშაობაზე?\n- ამ ამოცანისთვის გვჭირდება 2 ან 3 ფენიანი ქსელი?\n- ქსელის მომზადებაში რაიმე პრობლემა შეგექმნათ? მით უმეტეს, რომ ფენების რაოდენობა გაიზარდა.\n- როგორ იქცევა ქსელის წონები ვარჯიშის დროს? თქვენ შეგიძლიათ დახაზოთ წონების მაქსიმალური abs მნიშვნელობა ეპოქის წინააღმდეგ, რათა გაიგოთ ურთიერთობა.\n",
+ "headings": [
+  {
+   "id": "ამოცანა",
+   "text": "ამოცანა",
+   "level": 2
+  },
+  {
+   "id": "მითითებული-ნოუთბუქი",
+   "text": "მითითებული ნოუთბუქი",
+   "level": 2
+  },
+  {
+   "id": "კითხვები",
+   "text": "კითხვები",
+   "level": 2
+  }
+ ],
+ "readingMinutes": 1
+}

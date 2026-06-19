@@ -1,0 +1,233 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "computer-vision/conv-nets/conv-nets-py-torch",
+ "segments": [
+  "computer-vision",
+  "conv-nets",
+  "conv-nets-py-torch"
+ ],
+ "title": "კონვოლუციური ნერვული ქსელები",
+ "module": {
+  "id": "4-ComputerVision",
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა",
+  "icon": "eye"
+ },
+ "lessonNumber": 7,
+ "orderInModule": 1070.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/4-ComputerVision/07-ConvNets/ConvNetsPyTorch.ipynb"
+ },
+ "prev": {
+  "slug": "computer-vision/conv-nets/cnn-architectures",
+  "title": "კარგად ცნობილი CNN არქიტექტურა"
+ },
+ "next": {
+  "slug": "computer-vision/conv-nets/conv-nets-tf",
+  "title": "კონვოლუციური ნერვული ქსელები"
+ },
+ "framework": "pytorch",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "წინა განყოფილებაში ვისწავლეთ, როგორ განვსაზღვროთ მრავალშრიანი ნერვული ქსელი კლასის განსაზღვრის გამოყენებით, მაგრამ ეს ქსელები იყო ზოგადი და არა სპეციალიზებული კომპიუტერული ხედვის ამოცანებისთვის. ამ განყოფილებაში გავეცნობით კონვოლუციურ ნერვულ ქსელებს (CNN), რომლებიც სპეციალურად შექმნილია კომპიუტერული ხედვისთვის.\n\nკომპიუტერული ხედვა განსხვავდება ზოგადი კლასიფიკაციისგან, რადგან როდესაც ჩვენ ვცდილობთ ვიპოვოთ გარკვეული ობიექტი სურათზე, ჩვენ სკანირებთ სურათს, ვეძებთ კონკრეტულ შაბლონებს და მათ კომბინაციებს. მაგალითად, როდესაც ვეძებთ კატას, ჩვენ ჯერ შეიძლება მოვძებნოთ ჰორიზონტალური ხაზები, რომლებსაც შეუძლიათ შექმნან ულვაში, შემდეგ კი ულვაშების გარკვეულმა კომბინაციამ შეიძლება გვითხრას, რომ ეს სინამდვილეში კატის სურათია. მნიშვნელოვანია გარკვეული შაბლონების შედარებითი პოზიცია და არსებობა და არა მათი ზუსტი პოზიცია სურათზე.\n\nშაბლონების ამოსაღებად, ჩვენ გამოვიყენებთ კონვოლუციური ფილტრების ცნებას. მაგრამ პირველ რიგში, მოდით ჩატვირთოთ ყველა დამოკიდებულება და ფუნქცია, რომელიც განვსაზღვრეთ წინა ერთეულებში.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import torch\nimport torch.nn as nn\nimport torchvision\nimport matplotlib.pyplot as plt\nfrom torchinfo import summary\nimport numpy as np\n\nfrom pytorchcv import load_mnist, train, plot_results, plot_convolution, display_dataset\nload_mnist(batch_size=128)",
+   "executionCount": 1,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## კონვოლუციური ფილტრები\n\nკონვოლუციური ფილტრები არის პატარა ფანჯრები, რომლებიც გადადიან გამოსახულების თითოეულ პიქსელზე და ითვლის მეზობელი პიქსელების საშუალო შეწონილებას.\n\n\n\nისინი განისაზღვრება წონის კოეფიციენტების მატრიცებით. მოდით ვნახოთ ორი განსხვავებული კონვოლუციური ფილტრის გამოყენების მაგალითები ჩვენს MNIST ხელნაწერ ციფრებზე:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plot_convolution(torch.tensor([[-1.,0.,1.],[-1.,0.,1.],[-1.,0.,1.]]),'Vertical edge filter')\nplot_convolution(torch.tensor([[-1.,-1.,-1.],[0.,0.,0.],[1.,1.,1.]]),'Horizontal edge filter')\n",
+   "executionCount": 2,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/6e67fccc1aefb627.png"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/8210bef862077442.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "პირველ ფილტრს ეწოდება ვერტიკალური კიდეების ფილტრი და ის განისაზღვრება შემდეგი მატრიცით:\n$$\n\\მარცხნივ(\n    \\დაწყება{მატრიცა}\n     -1 & 0 & 1 \\ კრ\n     -1 & 0 & 1 \\ კრ\n     -1 & 0 & 1 \\ კრ\n    \\დასრულება{მატრიცა}\n\\ მარჯვენა)\n$$\nროდესაც ეს ფილტრი გადადის შედარებით ერთგვაროვან პიქსელის ველზე, ყველა მნიშვნელობა ემატება 0-მდე. თუმცა, როდესაც ის ხვდება ვერტიკალურ კიდეს სურათზე, წარმოიქმნება მაღალი მწვერვალის მნიშვნელობა. სწორედ ამიტომ, ზემოთ მოცემულ სურათებზე შეგიძლიათ იხილოთ ვერტიკალური კიდეები, რომლებიც წარმოდგენილია მაღალი და დაბალი მნიშვნელობებით, ხოლო ჰორიზონტალური კიდეები არის საშუალოდ.\n\nსაპირისპირო ხდება, როდესაც ვაყენებთ ჰორიზონტალურ კიდეების ფილტრს - ჰორიზონტალური ხაზები ძლიერდება, ხოლო ვერტიკალური საშუალოდ.\n\nკლასიკურ კომპიუტერულ ხედვაში მრავალი ფილტრი გამოიყენებოდა სურათზე ფუნქციების შესაქმნელად, რომლებიც შემდეგ გამოიყენებოდა მანქანური სწავლების ალგორითმის მიერ კლასიფიკატორის შესაქმნელად. თუმცა, ღრმა სწავლისას ჩვენ ვაშენებთ ქსელებს, რომლებიც ვისწავლიან საუკეთესო კონვოლუციურ ფილტრებს კლასიფიკაციის პრობლემის გადასაჭრელად.\n\nამისათვის ჩვენ წარმოგიდგენთ კონვოლუციურ ფენებს.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## კოვოლუციური ფენები\n\nკონვოლუციური ფენები განისაზღვრება `nn.Conv2d` კონსტრუქციის გამოყენებით. ჩვენ უნდა დავაკონკრეტოთ შემდეგი:\n* `in_channels` - შეყვანის არხების რაოდენობა. ჩვენს შემთხვევაში საქმე გვაქვს ნაცრისფერი მასშტაბის გამოსახულებასთან, შესაბამისად შეყვანის არხების რაოდენობა არის 1.\n* `out_channels` - გამოსაყენებელი ფილტრების რაოდენობა. ჩვენ გამოვიყენებთ 9 განსხვავებულ ფილტრს, რაც ქსელს მისცემს უამრავ შესაძლებლობას გამოიკვლიოს რომელი ფილტრები მუშაობს საუკეთესოდ ჩვენი სცენარისთვის.\n* `kernel_size` is the size of the sliding window. ჩვეულებრივ გამოიყენება 3x3 ან 5x5 ფილტრები.\n\nუმარტივესი CNN შეიცავს ერთ კონვოლუციურ ფენას. 28x28 შეყვანის ზომის გათვალისწინებით, ცხრა 5x5 ფილტრის გამოყენების შემდეგ მივიღებთ ტენსორს 9x24x24 (სივრცითი ზომა უფრო მცირეა, რადგან მხოლოდ 24 პოზიციაა, სადაც 5 სიგრძის მოცურების ინტერვალი შეიძლება მოერგოს 28 პიქსელს).\n\nკონვოლუციის შემდეგ, ჩვენ ვასწორებთ 9x24x24 ტენსორს 5184 ზომის ერთ ვექტორად და შემდეგ ვამატებთ ხაზოვან ფენას 10 კლასის შესაქმნელად. ჩვენ ასევე ვიყენებთ `relu` აქტივაციის ფუნქციას შრეებს შორის.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class OneConv(nn.Module):\n    def __init__(self):\n        super(OneConv, self).__init__()\n        self.conv = nn.Conv2d(in_channels=1,out_channels=9,kernel_size=(5,5))\n        self.flatten = nn.Flatten()\n        self.fc = nn.Linear(5184,10)\n\n    def forward(self, x):\n        x = nn.functional.relu(self.conv(x))\n        x = self.flatten(x)\n        x = nn.functional.log_softmax(self.fc(x),dim=1)\n        return x\n\nnet = OneConv()\n\nsummary(net,input_size=(1,1,28,28))",
+   "executionCount": 6,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "==========================================================================================\nLayer (type:depth-idx)                   Output Shape              Param #\n==========================================================================================\n├─Conv2d: 1-1                            [1, 9, 24, 24]            234\n├─Flatten: 1-2                           [1, 5184]                 --\n├─Linear: 1-3                            [1, 10]                   51,850\n==========================================================================================\nTotal params: 52,084\nTrainable params: 52,084\nNon-trainable params: 0\nTotal mult-adds (M): 0.18\n==========================================================================================\nInput size (MB): 0.00\nForward/backward pass size (MB): 0.04\nParams size (MB): 0.21\nEstimated Total Size (MB): 0.25\n=========================================================================================="
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "თქვენ ხედავთ, რომ ეს ქსელი შეიცავს დაახლოებით 50k სასწავლო პარამეტრს, შედარებით დაახლოებით 80k სრულად დაკავშირებულ მრავალ ფენიან ქსელებში. ეს საშუალებას გვაძლევს მივაღწიოთ კარგ შედეგებს თუნდაც მცირე მონაცემთა ნაკრებებზე, რადგან კონვოლუციური ქსელები ბევრად უკეთესად განზოგადება.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "hist = train(net,train_loader,test_loader,epochs=5)\nplot_results(hist)",
+   "executionCount": 7,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch  0, Train acc=0.947, Val acc=0.969, Train loss=0.001, Val loss=0.001\nEpoch  1, Train acc=0.979, Val acc=0.975, Train loss=0.001, Val loss=0.001\nEpoch  2, Train acc=0.985, Val acc=0.977, Train loss=0.000, Val loss=0.001\nEpoch  3, Train acc=0.988, Val acc=0.975, Train loss=0.000, Val loss=0.001\nEpoch  4, Train acc=0.988, Val acc=0.976, Train loss=0.000, Val loss=0.001\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/54d38cffd1ee1079.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "როგორც ხედავთ, ჩვენ შეგვიძლია მივაღწიოთ უფრო მაღალ სიზუსტეს და ბევრად უფრო სწრაფად, წინა განყოფილების სრულად დაკავშირებულ ქსელებთან შედარებით.\n\nჩვენ ასევე შეგვიძლია ვიზუალურად წარმოვადგინოთ ჩვენი გაწვრთნილი კონვოლუციური ფენების წონა, რათა ვცადოთ უფრო მეტი გაგება, თუ რა ხდება:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "fig,ax = plt.subplots(1,9)\nwith torch.no_grad():\n    p = next(net.conv.parameters())\n    for i,x in enumerate(p):\n        ax[i].imshow(x.detach().cpu()[0,...])\n        ax[i].axis('off')",
+   "executionCount": 9,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/e80063fe94d2f22c.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "თქვენ ხედავთ, რომ ზოგიერთი ფილტრი გამოიყურება ისე, რომ მათ შეუძლიათ ამოიცნონ ზოგიერთი ირიბი დარტყმა, ზოგი კი საკმაოდ შემთხვევით გამოიყურება.\n\n## მრავალ ფენიანი CNN და გაერთიანების ფენები\n\nპირველი კონვოლუციური ფენები ეძებს პრიმიტიულ შაბლონებს, როგორიცაა ჰორიზონტალური ან ვერტიკალური ხაზები, მაგრამ ჩვენ შეგვიძლია გამოვიყენოთ შემდგომი კონვოლუციური ფენები მათ თავზე უფრო მაღალი დონის შაბლონების მოსაძებნად, როგორიცაა პრიმიტიული ფორმები. შემდეგ უფრო კონვოლუციურ ფენებს შეუძლიათ გააერთიანონ ეს ფორმები სურათის ზოგიერთ ნაწილში, საბოლოო ობიექტამდე, რომლის კლასიფიკაციასაც ვცდილობთ.\n\nამის გაკეთებისას ჩვენ ასევე შეგვიძლია გამოვიყენოთ ერთი ხრიკი: სურათის სივრცითი ზომის შემცირება. მას შემდეგ რაც აღმოვაჩინეთ, რომ არის ჰორიზონტალური სტოკი მოცურების 3x3 ფანჯარაში, არც ისე მნიშვნელოვანია, რომელ პიქსელზე მოხდა ის. ამრიგად, ჩვენ შეგვიძლია \"შემცირდეს\" გამოსახულების ზომა, რაც კეთდება ერთ-ერთი გაერთიანების ფენის გამოყენებით:\n\n* Average Pooling იღებს მოცურების ფანჯარას (მაგალითად, 2x2 პიქსელი) და ითვლის საშუალო მნიშვნელობებს ფანჯარაში\n * Max Pooling ცვლის ფანჯარას მაქსიმალური მნიშვნელობით. მაქსიმალური გაერთიანების იდეა არის გარკვეული ნიმუშის არსებობის გამოვლენა მოცურების ფანჯარაში.\n\nამრიგად, ტიპიურ CNN-ში იქნება რამდენიმე კონვოლუციური ფენა, მათ შორის ფენების გაერთიანებით, რათა შემცირდეს გამოსახულების ზომები. ჩვენ ასევე გავზრდით ფილტრების რაოდენობას, რადგან შაბლონები უფრო დახვეწილი ხდება - უფრო სავარაუდოა საინტერესო კომბინაციები, რომლებიც უნდა ვეძებოთ.\n\n![An image showing several convolutional layers with pooling layers.](/courses/ai-for-beginners/4-ComputerVision/07-ConvNets/images/cnn-pyramid.png)\n\nსივრცითი ზომების შემცირებისა და ფუნქციების/ფილტრების ზომების გაზრდის გამო, ამ არქიტექტურას ასევე უწოდებენ პირამიდის არქიტექტურას.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class MultiLayerCNN(nn.Module):\n    def __init__(self):\n        super(MultiLayerCNN, self).__init__()\n        self.conv1 = nn.Conv2d(1, 10, 5)\n        self.pool = nn.MaxPool2d(2, 2)\n        self.conv2 = nn.Conv2d(10, 20, 5)\n        self.fc = nn.Linear(320,10)\n\n    def forward(self, x):\n        x = self.pool(nn.functional.relu(self.conv1(x)))\n        x = self.pool(nn.functional.relu(self.conv2(x)))\n        x = x.view(-1, 320)\n        x = nn.functional.log_softmax(self.fc(x),dim=1)\n        return x\n\nnet = MultiLayerCNN()\nsummary(net,input_size=(1,1,28,28))",
+   "executionCount": 13,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "==========================================================================================\nLayer (type:depth-idx)                   Output Shape              Param #\n==========================================================================================\n├─Conv2d: 1-1                            [1, 10, 24, 24]           260\n├─MaxPool2d: 1-2                         [1, 10, 12, 12]           --\n├─Conv2d: 1-3                            [1, 20, 8, 8]             5,020\n├─MaxPool2d: 1-4                         [1, 20, 4, 4]             --\n├─Linear: 1-5                            [1, 10]                   3,210\n==========================================================================================\nTotal params: 8,490\nTrainable params: 8,490\nNon-trainable params: 0\nTotal mult-adds (M): 0.47\n==========================================================================================\nInput size (MB): 0.00\nForward/backward pass size (MB): 0.06\nParams size (MB): 0.03\nEstimated Total Size (MB): 0.09\n=========================================================================================="
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "გაითვალისწინეთ რამდენიმე რამ ამ განმარტების შესახებ:\n* ნაცვლად `Flatten` ფენის გამოყენებისა, ჩვენ ვასწორებთ ტენსორს `forward` ფუნქციის შიგნით `view` ფუნქციის გამოყენებით. ვინაიდან გაბრტყელ ფენას არ აქვს სავარჯიშო წონა, არ არის აუცილებელი, რომ შევქმნათ ცალკე ფენის მაგალითი ჩვენს კლასში.\n* ჩვენ ვიყენებთ გაერთიანების ფენის მხოლოდ ერთ ეგზემპლარს ჩვენს მოდელში, ასევე იმიტომ, რომ ის არ შეიცავს რაიმე ტრენინგ პარამეტრს და ეს ერთი მაგალითი შეიძლება ეფექტურად იქნას გამოყენებული.\n* სავარჯიშო პარამეტრების რაოდენობა (~8.5K) მკვეთრად ნაკლებია, ვიდრე წინა შემთხვევებში. ეს იმიტომ ხდება, რომ კონვოლუციურ ფენებს ზოგადად აქვთ რამდენიმე პარამეტრი და გამოსახულების განზომილება საბოლოო მკვრივი ფენის გამოყენებამდე მნიშვნელოვნად მცირდება. პარამეტრების მცირე რაოდენობა დადებითად აისახება ჩვენს მოდელებზე, რადგან ეს ხელს უწყობს მონაცემთა გადაჭარბების თავიდან აცილებას მონაცემთა მცირე ზომის ზომებზეც კი.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "hist = train(net,train_loader,test_loader,epochs=5)",
+   "executionCount": 14,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch  0, Train acc=0.952, Val acc=0.977, Train loss=0.001, Val loss=0.001\nEpoch  1, Train acc=0.982, Val acc=0.983, Train loss=0.000, Val loss=0.000\nEpoch  2, Train acc=0.986, Val acc=0.983, Train loss=0.000, Val loss=0.000\nEpoch  3, Train acc=0.986, Val acc=0.978, Train loss=0.000, Val loss=0.001\nEpoch  4, Train acc=0.987, Val acc=0.981, Train loss=0.000, Val loss=0.000\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "რაც თქვენ ალბათ უნდა დააკვირდეთ არის ის, რომ ჩვენ შეგვიძლია მივაღწიოთ უფრო მაღალ სიზუსტეს, ვიდრე მხოლოდ ერთი ფენით და ბევრად უფრო სწრაფად - მხოლოდ 1 ან 2 ეპოქით. ეს ნიშნავს, რომ დახვეწილი ქსელის არქიტექტურას გაცილებით ნაკლები მონაცემები სჭირდება იმის გასარკვევად, თუ რა ხდება და ჩვენი სურათებიდან ზოგადი შაბლონების ამოსაღებად.\n\n## თამაში რეალურ სურათებთან CIFAR-10 მონაცემთა ნაკრებიდან\n\nმიუხედავად იმისა, რომ ჩვენი ხელნაწერი ციფრების ამოცნობის პრობლემა შეიძლება სათამაშოს პრობლემად ჩანდეს, ახლა ჩვენ მზად ვართ გავაკეთოთ უფრო სერიოზული. მოდით გამოვიკვლიოთ სხვადასხვა ობიექტების სურათების უფრო გაფართოებული მონაცემთა ნაკრები, სახელწოდებით CIFAR-10. იგი შეიცავს 60k 32x32 სურათს, დაყოფილია 10 კლასად.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "transform = torchvision.transforms.Compose(\n    [torchvision.transforms.ToTensor(),\n     torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])\n\ntrainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)\ntrainloader = torch.utils.data.DataLoader(trainset, batch_size=14, shuffle=True)\ntestset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)\ntestloader = torch.utils.data.DataLoader(testset, batch_size=14, shuffle=False)\nclasses = ('plane', 'car', 'bird', 'cat',\n           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')",
+   "executionCount": 22,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Downloading https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz to ./data/cifar-10-python.tar.gz\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "HBox(children=(FloatProgress(value=1.0, bar_style='info', max=1.0), HTML(value='')))"
+    },
+    {
+     "kind": "text",
+     "text": "Extracting ./data/cifar-10-python.tar.gz to ./data\nFiles already downloaded and verified\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "display_dataset(trainset,classes=classes)",
+   "executionCount": 23,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/947165664897cec6.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "A well-known architecture for CIFAR-10 is called ლენეტი, and has been proposed by Yann LeCun. It follows the same principles as we have outlined above, the main difference being 3 input color channels instead of 1. \n\nჩვენ ასევე ვაკეთებთ ამ მოდელს კიდევ ერთ გამარტივებას - ჩვენ არ ვიყენებთ `log_softmax` როგორც გამომავალი აქტივაციის ფუნქციას და უბრალოდ ვაბრუნებთ ბოლო სრულად დაკავშირებული ფენის გამომავალს. ამ შემთხვევაში ჩვენ შეგვიძლია უბრალოდ გამოვიყენოთ `CrossEntropyLoss` დაკარგვის ფუნქცია მოდელის ოპტიმიზაციისთვის.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class LeNet(nn.Module):\n    def __init__(self):\n        super(LeNet, self).__init__()\n        self.conv1 = nn.Conv2d(3, 6, 5)\n        self.pool = nn.MaxPool2d(2)\n        self.conv2 = nn.Conv2d(6, 16, 5)\n        self.conv3 = nn.Conv2d(16,120,5)\n        self.flat = nn.Flatten()\n        self.fc1 = nn.Linear(120,64)\n        self.fc2 = nn.Linear(64,10)\n\n    def forward(self, x):\n        x = self.pool(nn.functional.relu(self.conv1(x)))\n        x = self.pool(nn.functional.relu(self.conv2(x)))\n        x = nn.functional.relu(self.conv3(x))\n        x = self.flat(x)\n        x = nn.functional.relu(self.fc1(x))\n        x = self.fc2(x)\n        return x\n\nnet = LeNet()\n\nsummary(net,input_size=(1,3,32,32))",
+   "executionCount": 25,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "==========================================================================================\nLayer (type:depth-idx)                   Output Shape              Param #\n==========================================================================================\n├─Conv2d: 1-1                            [1, 6, 28, 28]            456\n├─MaxPool2d: 1-2                         [1, 6, 14, 14]            --\n├─Conv2d: 1-3                            [1, 16, 10, 10]           2,416\n├─MaxPool2d: 1-4                         [1, 16, 5, 5]             --\n├─Conv2d: 1-5                            [1, 120, 1, 1]            48,120\n├─Flatten: 1-6                           [1, 120]                  --\n├─Linear: 1-7                            [1, 64]                   7,744\n├─Linear: 1-8                            [1, 10]                   650\n==========================================================================================\nTotal params: 59,386\nTrainable params: 59,386\nNon-trainable params: 0\nTotal mult-adds (M): 0.65\n==========================================================================================\nInput size (MB): 0.01\nForward/backward pass size (MB): 0.05\nParams size (MB): 0.24\nEstimated Total Size (MB): 0.30\n=========================================================================================="
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ამ ქსელის სწორად მომზადებას მნიშვნელოვანი დრო დასჭირდება და სასურველია განხორციელდეს GPU-ზე ჩართული გამოთვლებით.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "opt = torch.optim.SGD(net.parameters(),lr=0.001,momentum=0.9)\nhist = train(net, trainloader, testloader, epochs=3, optimizer=opt, loss_fn=nn.CrossEntropyLoss())",
+   "executionCount": 26,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch  0, Train acc=0.261, Val acc=0.388, Train loss=0.143, Val loss=0.121\nEpoch  1, Train acc=0.437, Val acc=0.491, Train loss=0.110, Val loss=0.101\nEpoch  2, Train acc=0.508, Val acc=0.522, Train loss=0.097, Val loss=0.094\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "სიზუსტე, რომელიც ჩვენ შევძელით ვარჯიშის 3 ეპოქით, დიდი არ ჩანს. თუმცა, გახსოვდეთ, რომ ბრმა გამოცნობა მხოლოდ 10%-იან სიზუსტეს მოგვცემს და რომ ჩვენი პრობლემა რეალურად ბევრად უფრო რთულია, ვიდრე MNIST ციფრული კლასიფიკაცია. ასეთ მოკლე ვარჯიშში 50%-ზე მეტი სიზუსტის მიღწევა კარგი მიღწევაა.\n\n## Takeaways\n\nამ განყოფილებაში ჩვენ ვისწავლეთ კომპიუტერული ხედვის ნერვული ქსელების მთავარი კონცეფცია - კონვოლუციური ქსელები. რეალური არქიტექტურები, რომლებიც აძლიერებენ გამოსახულების კლასიფიკაციას, ობიექტების ამოცნობას და სურათების გენერირების ქსელებსაც კი, ყველა დაფუძნებულია CNN-ზე, მხოლოდ მეტი ფენით და დამატებითი სასწავლო ხრიკებით.\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/4-ComputerVision/07-ConvNets/ConvNetsPyTorch.ipynb"
+}

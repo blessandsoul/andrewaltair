@@ -1,0 +1,282 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "other/genetic-algorithms/genetic",
+ "segments": [
+  "other",
+  "genetic-algorithms",
+  "genetic"
+ ],
+ "title": "გენეტიკური ალგორითმები",
+ "module": {
+  "id": "6-Other",
+  "slug": "other",
+  "title": "სხვა AI ტექნიკები",
+  "icon": "puzzle"
+ },
+ "lessonNumber": 21,
+ "orderInModule": 1210.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/6-Other/21-GeneticAlgorithms/Genetic.ipynb"
+ },
+ "prev": {
+  "slug": "other/genetic-algorithms",
+  "title": "გენეტიკური ალგორითმები"
+ },
+ "next": {
+  "slug": "other/genetic-algorithms/diophantine",
+  "title": "დიოფანტინის განტოლებები"
+ },
+ "framework": "generic",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "ეს ნოუთბუქი AI დამწყებთათვის სასწავლო პროგრამა-ის ნაწილია.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import random\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport math\nimport time",
+   "executionCount": 2,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## ზოგიერთი თეორია\n\nგენეტიკური ალგორითმები (GA) ეფუძნება ევოლუციური მიდგომას AI-ს მიმართ, რომელშიც გამოყენებულია მოსახლეობის ევოლუციის მეთოდები მოცემული პრობლემის ოპტიმალური გადაწყვეტის მისაღებად. ისინი შემოგვთავაზეს 1975 წელს ჯონ ჰენრი ჰოლანდი-ის მიერ.\n\nგენეტიკური ალგორითმები ეფუძნება შემდეგ იდეებს:\n* პრობლემის სწორი გადაწყვეტილებები შეიძლება წარმოდგენილი იყოს როგორც გენები\n* Crossover საშუალებას გვაძლევს გავაერთიანოთ ორი გამოსავალი, რათა მივიღოთ ახალი მოქმედი გადაწყვეტა\n* Selection გამოიყენება უფრო ოპტიმალური გადაწყვეტილებების შესარჩევად ზოგიერთი ფიტნეს ფუნქციის გამოყენებით\n* მუტაციები დანერგილია ოპტიმიზაციის დესტაბილიზაციისა და ლოკალური მინიმალურიდან გამოსაყვანად\n\nთუ გსურთ გენეტიკური ალგორითმის დანერგვა, დაგჭირდებათ შემდეგი:\n\n* ვიპოვოთ ჩვენი პრობლემის გადაწყვეტის კოდირების მეთოდი გენების $g\\in\\Gamma$-ის გამოყენებით\n * $\\Gamma$ გენების ნაკრებზე უნდა განვსაზღვროთ fitness ფუნქცია $\\mathrm{fit}: \\Gamma\\to\\mathbb{R}$. ფუნქციის უფრო მცირე მნიშვნელობები შეესაბამება უკეთეს გადაწყვეტილებებს.\n * განვსაზღვროთ ჯვარედინი მექანიზმი, რომ დააკავშიროთ ორი გენი ერთად ახალი მოქმედი გადაწყვეტის მისაღებად $\\mathrm{crossover}: \\Gamma^2\\to\\Gamma$.\n * მუტაციის მექანიზმის განსაზღვრა $\\mathrm{mutate}: \\Gamma\\to\\Gamma$.\nხშირ შემთხვევაში, კროსოვერი და მუტაცია საკმაოდ მარტივი ალგორითმებია გენების მანიპულირებისთვის, როგორც რიცხვითი თანმიმდევრობების ან ბიტების ვექტორების სახით.\n\nგენეტიკური ალგორითმის სპეციფიკური განხორციელება შეიძლება განსხვავდებოდეს შემთხვევიდან კონკრეტულ შემთხვევაში, მაგრამ საერთო სტრუქტურა შემდეგია:\n\n1. აირჩიეთ საწყისი პოპულაცია $G\\subset\\Gamma$\n2. შემთხვევით აირჩიეთ ერთ-ერთი ოპერაცია, რომელიც შესრულდება ამ ეტაპზე: კროსოვერი ან მუტაცია \n3. კროსოვერი:\n  * შემთხვევით აირჩიეთ ორი გენი $g_1, g_2 \\G$-ში\n  * გამოთვალეთ კროსოვერი $g=\\mathrm{კროსოვერი}(g_1,g_2)$\n  * თუ $\\mathrm{fit}(g)<\\mathrm{fit}(g_1)$ ან $\\mathrm{fit}(g)<\\mathrm{fit}(g_2)$ - შეცვალეთ შესაბამისი გენი პოპულაციაში $g$-ით.\n4. მუტაცია - აირჩიეთ შემთხვევითი გენი $g\\G$-ში და შეცვალეთ იგი $\\mathrm{mutate}(g)$-ით\n5. გაიმეორეთ მე-2 საფეხურიდან, სანამ არ მივიღებთ საკმარისად მცირე მნიშვნელობას $\\mathrm{fit}$, ან სანამ არ მიიღწევა ნაბიჯების რაოდენობის ლიმიტი.\n\nამოცანები, როგორც წესი, წყვეტს GA:\n1. განრიგის ოპტიმიზაცია\n1. ოპტიმალური შეფუთვა\n1. ოპტიმალური ჭრა\n1. ამომწურავი ძიების დაჩქარება\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## პრობლემა 1: სამართლიანი განძის გაყოფა\n\nამოცანა: \nორმა ადამიანმა იპოვა საგანძური, რომელიც შეიცავს სხვადასხვა ზომის (და, შესაბამისად, განსხვავებული ფასის) ბრილიანტებს. მათ უნდა გაანაწილონ საგანძური ორ ნაწილად ისე, რომ ფასში სხვაობა იყოს 0 (ან მინიმალური).\n\nფორმალური განმარტება: \nჩვენ გვაქვს რიცხვების ნაკრები $S$. ჩვენ უნდა გავყოთ ის ორ ქვეჯგუფად $S_1$ და $S_2$, ისე, რომ $$\\left|\\sum_{i\\in S_1}i - \\sum_{j\\in S_2}j\\right|\\to\\min$$ და $S_1\\cup S_2=S$, $S_1\\cap S_2=\\emptyset$.\n\nპირველ რიგში, მოდით განვსაზღვროთ ნაკრები $S$:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "N = 200\nS = np.array([random.randint(1,10000) for _ in range(N)])\nprint(S)",
+   "executionCount": 3,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[8344 2197 9335 3131 5863 9429 3818 9791   15 5455 1396 9538 4872 6549\n 8587 5986 6021 9764 8102 5083 5739 7684 8498 3007 6599  820 7490 2372\n 9370 5235 3525 3154  859 1906 8159 3950 2173 2988 2050  349 8713 2284\n 4177 6033 1651 9176 5049 8201  171 5081 1216 3756 4711 2757 7738 1272\n 5650 6584 5395 9004 7797  969 8104 1283 1392 4001 5768  445  274  256\n 8239 8015 4381 9021 1189 8879 1411 3539 6526 8011  136 7230 2332  451\n 5702 2989 4320 2446 9578 8486 4027 2410 9588 8981 2177 1493 3232 9151\n 4835 5594 6859 8394  369 3200  126 4259 2283 7755 2014 2458 8327 8082\n 7413 7622 1206 5533 8751 3495 5868 8472 6850 3958 3149 4672 4810 6274\n 4700 6134 4627 4616 6656 9949  884 2256 7419 1926 7973 5319 5967 9158\n 3823 7697 9466 5675 5412 9784 5426 8209 3421 1136 6047 4429 8001 4417\n 1381  722 7350 6018 6235 7860 5853 7660 5937 6242    1 9552 3971 8302\n 2633 9227 7283  154 8599 4269 9392 8539 1630  368 2409 9351 3838 9814\n 6186 5743 5083 1325 1610  779 3643 3262 5768 8725  961 4611 6310 4788\n 1648 5951 8118 7779]\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით დავაშიფროთ პრობლემის ყოველი შესაძლო გადაწყვეტა ორობითი ვექტორით $B\\in\\{0,1\\}^N$, სადაც რიცხვი $i$-th პოზიციაზე გვიჩვენებს, რომელ კომპლექტს ($S_1$ ან $S_2$) ეკუთვნის $i$-th რიცხვი თავდაპირველ კომპლექტში $S$. `generate` ფუნქცია გამოიმუშავებს იმ შემთხვევით ორობით ვექტორებს.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def generate(S):\n    return np.array([random.randint(0,1) for _ in S])\n\nb = generate(S)\nprint(b)",
+   "executionCount": 5,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[1 0 0 1 1 1 1 1 0 1 1 1 0 0 1 0 1 1 1 0 0 1 1 0 1 1 0 0 1 0 1 0 1 0 1 1 1\n 0 1 1 1 0 1 0 0 1 0 0 1 1 0 1 0 1 1 0 0 1 0 0 0 1 1 0 1 1 0 0 0 0 1 0 1 0\n 1 0 0 0 0 0 1 1 0 1 0 0 1 0 1 0 0 1 1 0 0 1 1 1 0 0 1 1 0 1 1 0 0 0 0 1 1\n 1 0 1 0 0 1 1 1 1 1 1 1 1 0 1 0 1 1 1 1 1 1 0 1 0 1 0 1 0 0 1 1 1 0 0 1 1\n 0 1 1 0 1 1 0 0 0 1 1 0 0 0 0 0 0 0 0 1 1 0 1 1 1 0 0 1 1 0 1 1 0 0 1 1 0\n 0 0 0 1 0 1 1 0 1 1 0 1 0 0 0]\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით განვსაზღვროთ `fit` ფუნქცია, რომელიც ითვლის გადაწყვეტის \"ფასს\". ეს იქნება სხვაობა ჯამს ან ორ კომპლექტს შორის, $S_1$ და $S_2$:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def fit(B,S=S):\n    c1 = (B*S).sum()\n    c2 = ((1-B)*S).sum()\n    return abs(c1-c2)\n\nfit(b)",
+   "executionCount": 6,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "133784"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა ჩვენ უნდა განვსაზღვროთ ფუნქციები მუტაციისა და გადაკვეთისთვის:\n* მუტაციისთვის ჩვენ ავირჩევთ ერთ შემთხვევით ბიტს და უარვყოფთ მას (0-დან 1-მდე შეცვლა და პირიქით)\n* კროსოვერისთვის, ჩვენ ავიღებთ რამდენიმე ბიტს ერთი ვექტორიდან, ხოლო ზოგ ბიტს მეორე ვექტორიდან. ჩვენ გამოვიყენებთ იგივე `generate` ფუნქციას, რათა შემთხვევით ავირჩიოთ, რომელი ბიტი ავიღოთ შეყვანის ნიღბებიდან.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def mutate(b):\n    x = b.copy()\n    i = random.randint(0,len(b)-1)\n    x[i] = 1-x[i]\n    return x\n\ndef xover(b1,b2):\n    x = generate(b1)\n    return b1*x+b2*(1-x)",
+   "executionCount": 7,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით შევქმნათ გადაწყვეტილებების საწყისი პოპულაცია $P$ ზომის `pop_size`:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "pop_size = 30\nP = [generate(S) for _ in range(pop_size)]",
+   "executionCount": 8,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მთავარი ფუნქციაა ევოლუციის შესრულება. `n` არის ევოლუციის საფეხურების რაოდენობა, რომელიც უნდა გაიარო. ყოველ ნაბიჯზე:\n* 30%-იანი ალბათობით ვასრულებთ მუტაციას და ელემენტს ყველაზე ცუდი `fit` ფუნქციით ვანაცვლებთ მუტაციური ელემენტით\n* 70%-იანი ალბათობით ვასრულებთ კროსოვერს\n\nფუნქცია აბრუნებს საუკეთესო გამოსავალს (გენი, რომელიც შეესაბამება საუკეთესო ხსნარს) და პოპულაციაში მინიმალური მორგების ფუნქციის ისტორიას თითოეულ გამეორებაზე.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def evolve(P,S=S,n=2000):\n    res = []\n    for _ in range(n):\n        f = min([fit(b) for b in P])\n        res.append(f)\n        if f==0:\n            break\n        if random.randint(1,10)<3:\n            i = random.randint(0,len(P)-1)\n            b = mutate(P[i])\n            i = np.argmax([fit(z) for z in P])\n            P[i] = b\n        else:\n            i = random.randint(0,len(P)-1)\n            j = random.randint(0,len(P)-1)\n            b = xover(P[i],P[j])\n            if fit(b)<fit(P[i]):\n                P[i]=b\n            elif fit(b)<fit(P[j]):\n                P[j]=b\n            else:\n                pass\n    i = np.argmin([fit(b) for b in P])\n    return (P[i],res)\n\n(s,hist) = evolve(P)\nprint(s,fit(s))",
+   "executionCount": 9,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[0 0 0 1 1 0 0 0 0 1 1 1 0 1 0 0 0 1 0 1 0 1 0 1 0 1 1 0 0 0 0 0 1 0 1 1 0\n 0 0 0 1 1 0 0 1 0 0 0 0 0 1 0 0 1 1 1 1 1 1 1 0 1 1 0 1 1 1 1 1 0 1 0 0 0\n 0 1 1 1 0 1 0 1 1 1 1 1 0 0 0 1 1 0 1 0 0 1 0 0 1 1 1 1 1 1 1 1 0 1 0 1 1\n 0 1 1 0 0 0 0 1 1 1 1 0 1 0 0 1 0 1 1 1 0 1 0 0 0 0 0 0 1 1 0 0 0 1 1 0 0\n 1 0 1 1 1 1 1 0 1 0 1 0 1 1 1 0 0 0 1 1 0 0 0 0 0 0 1 1 1 0 1 0 0 0 1 0 1\n 0 1 0 1 0 0 1 1 1 0 1 1 0 0 1] 4\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "თქვენ ხედავთ, რომ ჩვენ მოვახერხეთ `fit` ფუნქციის საკმაოდ მინიმიზაცია! აქ არის გრაფიკი, რომელიც გვიჩვენებს, თუ როგორ იქცევა `fit` ფუნქცია მთელი პოპულაციისთვის პროცესის განმავლობაში.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plt.plot(hist)\nplt.show()",
+   "executionCount": 10,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/a3036095e2dccf7e.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## პრობლემა 2: N Queens პრობლემა\n\nამოცანა:\nთქვენ უნდა მოათავსოთ $N$-ის დედოფალები $N\\ჯერ N$ ზომის ჭადრაკის დაფაზე ისე, რომ ისინი ერთმანეთს არ შეუტიონ.\n\nუპირველეს ყოვლისა, მოვაგვაროთ პრობლემა გენეტიკური ალგორითმების გარეშე, სრული ძიების გამოყენებით. ჩვენ შეგვიძლია წარმოვადგინოთ დაფის მდგომარეობა $L$ სიით, სადაც $i$-th რიცხვი სიაში არის დედოფლის ჰორიზონტალური პოზიცია $i$-ე მწკრივში. სავსებით აშკარაა, რომ თითოეულ ხსნარს ექნება მხოლოდ ერთი დედოფალი რიგზე და თითოეულ მწკრივს ექნება დედოფალი.\n\nჩვენი მიზანი იქნება პრობლემის პირველი გამოსავლის პოვნა, რის შემდეგაც შევწყვეტთ ძიებას. თქვენ შეგიძლიათ მარტივად გააფართოვოთ ეს ფუნქცია დედოფლებისთვის ყველა შესაძლო პოზიციის შესაქმნელად.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "N = 8\n\ndef checkbeats(i_new,j_new,l):\n    for i,j in enumerate(l,start=1):\n        if j==j_new:\n            return False\n        else:\n            if abs(j-j_new) == i_new-i:\n                return False\n    return True\n\ndef nqueens(l,N=8,disp=True):\n    if len(l)==N:\n        if disp: print(l)\n        return True\n    else:\n        for j in range(1,N+1):\n            if checkbeats(len(l)+1,j,l):\n                l.append(j)\n                if nqueens(l,N,disp): return True\n                else: l.pop()\n        return False\n            \nnqueens([],8)\n",
+   "executionCount": 11,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[1, 5, 8, 6, 3, 7, 2, 4]\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "True"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მოდით გავზომოთ რამდენი ხანი სჭირდება 20 დედოფლის პრობლემის გადაწყვეტას:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "%timeit nqueens([],20,False)",
+   "executionCount": 12,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "10.6 s ± 2.17 s per loop (mean ± std. dev. of 7 runs, 1 loop each)\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მოდით გადავჭრათ იგივე პრობლემა გენეტიკური ალგორითმის გამოყენებით. ეს გამოსავალი შთაგონებულია ეს ბლოგის პოსტი-ით.\n\nჩვენ წარმოვადგენთ თითოეულ ამოხსნას $N$ სიგრძის ერთი და იგივე სიით და `fit` ფუნქციის სახით ავიღებთ დედოფლების რაოდენობას, რომლებიც თავს ესხმიან ერთმანეთს:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def fit(L):\n    x=0\n    for i1,j1 in enumerate(L,1):\n        for i2,j2 in enumerate(L,1):\n            if i2>i1:\n                if j2==j1 or (abs(j2-j1)==i2-i1): x+=1\n    return x",
+   "executionCount": 13,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ვინაიდან ფიტნესის ფუნქციის გამოთვლა შრომატევადია, მოდით შევინახოთ თითოეული გამოსავალი პოპულაციაში ფიტნეს ფუნქციის მნიშვნელობასთან ერთად. მოდით შევქმნათ საწყისი პოპულაცია:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def generate_one(N):\n    x = np.arange(1,N+1)\n    np.random.shuffle(x)\n    return (x,fit(x))\n\ndef generate(N,NP):\n    return [generate_one(N) for _ in range(NP)]\n\ngenerate(8,5)",
+   "executionCount": 14,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[(array([2, 3, 8, 7, 5, 4, 1, 6]), 4),\n (array([3, 4, 5, 1, 2, 8, 6, 7]), 8),\n (array([1, 3, 7, 4, 5, 8, 6, 2]), 6),\n (array([1, 5, 4, 6, 8, 3, 7, 2]), 4),\n (array([3, 5, 7, 1, 8, 6, 4, 2]), 3)]"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა ჩვენ უნდა განვსაზღვროთ მუტაციის და გადაკვეთის ფუნქციები. კროსვორდი აერთიანებს ორ გენს, არღვევს მათ რაღაც შემთხვევით წერტილში და აერთიანებს სხვადასხვა გენის ორ ნაწილს.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def mutate(G):\n    x=random.randint(0,len(G)-1)\n    G[x]=random.randint(1,len(G))\n    return G\n    \ndef xover(G1,G2):\n    x=random.randint(0,len(G1))\n    return np.concatenate((G1[:x],G2[x:]))\n\nxover([1,2,3,4],[5,6,7,8])",
+   "executionCount": 15,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "array([1, 2, 7, 8])"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ გავაძლიერებთ გენის შერჩევის პროცესს მეტი გენის შერჩევით უკეთესი ფიტნეს ფუნქციით. გენის შერჩევის ალბათობა დამოკიდებული იქნება ფიტნეს ფუნქციაზე:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def choose_rand(P):\n    N=len(P[0][0])\n    mf = N*(N-1)//2 # max fitness fn\n    z = [mf-x[1] for x in P]\n    tf = sum(z) # total fitness\n    w = [x/tf for x in z]\n    p = np.random.choice(len(P),2,False,p=w)\n    return p[0],p[1]\n\ndef choose(P):\n    def ch(w):\n        p=[]\n        while p==[]:\n            r = random.random()\n            p = [i for i,x in enumerate(P) if x[1]>=r]\n        return random.choice(p)\n    N=len(P[0][0])\n    mf = N*(N-1)//2 # max fitness fn\n    z = [mf-x[1] for x in P]\n    tf = sum(z) # total fitness\n    w = [x/tf for x in z]\n    p1=p2=0\n    while p1==p2:\n        p1 = ch(w)\n        p2 = ch(w)\n    return p1,p2",
+   "executionCount": 17,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა განვსაზღვროთ მთავარი ევოლუციური მარყუჟი. ჩვენ ლოგიკას ოდნავ განსხვავებულად გავაკეთებთ წინა მაგალითისგან, რათა დავანახოთ, რომ შეიძლება შემოქმედებითი იყოს. ჩვენ გავაციკლებთ მანამ, სანამ არ მივიღებთ სრულყოფილ გადაწყვეტას (ფიტნეს ფუნქცია=0) და ყოველ ნაბიჯზე ვიღებთ მიმდინარე თაობას და ვაწარმოებთ იმავე ზომის ახალ თაობას. ეს კეთდება `nxgeneration` ფუნქციის გამოყენებით, შემდეგი ნაბიჯების გამოყენებით:\n\n1. გააუქმეთ ყველაზე უვარგისი გადაწყვეტილებები - არის `discard_unfit` ფუნქცია, რომელიც ამას აკეთებს\n1. დაამატეთ კიდევ რამდენიმე შემთხვევითი გადაწყვეტა თაობას\n1. შეავსეთ ახალი თაობის `gen_size` ზომის ახალი თაობა თითოეული ახალი გენისთვის შემდეგი ნაბიჯების გამოყენებით:\n    - აირჩიეთ ორი შემთხვევითი გენი, ფიტნეს ფუნქციის პროპორციული ალბათობით\n    - გამოთვალეთ კროსვორდი\n    - გამოიყენეთ მუტაცია `mutation_prob` ალბათობით\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "mutation_prob = 0.1\n\ndef discard_unfit(P):\n    P.sort(key=lambda x:x[1])\n    return P[:len(P)//3]\n\ndef nxgeneration(P):\n    gen_size=len(P)\n    P = discard_unfit(P)\n    P.extend(generate(len(P[0][0]),3))\n    new_gen = []\n    for _ in range(gen_size):\n        p1,p2 = choose_rand(P)\n        n = xover(P[p1][0],P[p2][0])\n        if random.random()<mutation_prob:\n            n=mutate(n)\n        nf = fit(n)\n        new_gen.append((n,nf))\n        '''\n        if (nf<=P[p1][1]) or (nf<=P[p2][1]):\n            new_gen.append((n,nf))\n        elif (P[p1][1]<P[p2][1]):\n            new_gen.append(P[p1])\n        else:\n            new_gen.append(P[p2])\n        '''\n    return new_gen\n    \ndef genetic(N,pop_size=100):\n    P = generate(N,pop_size)\n    mf = min([x[1] for x in P])\n    n=0\n    while mf>0:\n        #print(\"Generation {0}, fit={1}\".format(n,mf))\n        n+=1\n        mf = min([x[1] for x in P])\n        P = nxgeneration(P)\n    mi = np.argmin([x[1] for x in P])\n    return P[mi]\n\ngenetic(8)",
+   "executionCount": 20,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "(array([4, 7, 5, 3, 1, 6, 8, 2]), 0)"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "საინტერესოა, რომ უმეტეს შემთხვევაში ჩვენ საკმაოდ სწრაფად ვახერხებთ გამოსავლის მიღებას, მაგრამ იშვიათ შემთხვევებში ოპტიმიზაცია აღწევს ადგილობრივ მინიმუმს და პროცესი დიდხანს ჩერდება. მნიშვნელოვანია ამის გათვალისწინება საშუალო დროის გაზომვისას: მიუხედავად იმისა, რომ უმეტეს შემთხვევაში გენეტიკური ალგორითმი უფრო სწრაფი იქნება, ვიდრე სრული ძებნა, ზოგიერთ შემთხვევაში ამას შეიძლება მეტი დრო დასჭირდეს. ამ პრობლემის დასაძლევად ხშირად აზრი აქვს განსახილველი თაობების რაოდენობის შეზღუდვას და თუ გამოსავალი ვერ ვიპოვეთ, შეგვიძლია დავიწყოთ ნულიდან.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "%timeit genetic(10)",
+   "executionCount": 19,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "The slowest run took 18.71 times longer than the fastest. This could mean that an intermediate result is being cached.\n26.4 s ± 28.7 s per loop (mean ± std. dev. of 7 runs, 1 loop each)\n",
+     "stream": "stdout"
+    }
+   ]
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/6-Other/21-GeneticAlgorithms/Genetic.ipynb"
+}

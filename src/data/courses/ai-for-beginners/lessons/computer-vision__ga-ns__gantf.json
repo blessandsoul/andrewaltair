@@ -1,0 +1,251 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "computer-vision/ga-ns/gantf",
+ "segments": [
+  "computer-vision",
+  "ga-ns",
+  "gantf"
+ ],
+ "title": "გენერაციული საპირისპირო ქსელები",
+ "module": {
+  "id": "4-ComputerVision",
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა",
+  "icon": "eye"
+ },
+ "lessonNumber": 10,
+ "orderInModule": 1100.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/4-ComputerVision/10-GANs/GANTF.ipynb"
+ },
+ "prev": {
+  "slug": "computer-vision/ga-ns/gan-py-torch",
+  "title": "გენერაციული საპირისპირო ქსელები"
+ },
+ "next": {
+  "slug": "computer-vision/ga-ns/style-transfer-keras",
+  "title": "სტილის ტრანსფერი"
+ },
+ "framework": "tensorflow",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "Generative Adversarial Network (GAN) მთავარი მიზანია შექმნას სურათები, რომლებიც მსგავსია (მაგრამ არა იდენტური) სასწავლო მონაცემთა ნაკრებისთვის.\n\nGAN შედგება ორი ნერვული ქსელისგან, რომლებიც გაწვრთნიან ერთმანეთის წინააღმდეგ:\n\n* გენერატორი იღებს შემთხვევით ვექტორს და უნდა გამოიმუშაოს მისგან გამოსახულება\n * Discriminator არის ქსელი, რომელმაც უნდა განასხვავოს ორიგინალური სურათი (სავარჯიშო მონაცემთა ნაკრებიდან) და გენერატორის მიერ გამომუშავებული.\n\n![](/courses/ai-for-beginners/4-ComputerVision/10-GANs/images/gan_architecture.png)\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import tensorflow as tf\nimport tensorflow.keras as keras\nfrom tensorflow.keras.models import Sequential\nfrom tensorflow.keras.layers import *\nimport matplotlib.pyplot as plt\nimport numpy as np",
+   "executionCount": 13,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## გენერატორი\n\nგენერატორის როლი არის გარკვეული ზომის შემთხვევითი ვექტორის აღება (ის მსგავსია ავტოენკოდერებში ლატენტური ვექტორის) და სამიზნე გამოსახულების გენერირება. ის ძალიან ჰგავს ავტოენკოდერის გენერაციულ მხარეს.\n\nჩვენს მაგალითში ჩვენ გამოვიყენებთ მკვრივ ნერვულ ქსელებს და MNIST მონაცემთა ბაზას.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "generator = Sequential()\ngenerator.add(Dense(256, input_shape=(100,)))\ngenerator.add(LeakyReLU(alpha=0.2))\ngenerator.add(BatchNormalization(momentum=0.8))\ngenerator.add(Dense(512))\ngenerator.add(LeakyReLU(alpha=0.2))\ngenerator.add(BatchNormalization(momentum=0.8))\ngenerator.add(Dense(1024))\ngenerator.add(LeakyReLU(alpha=0.2))\ngenerator.add(BatchNormalization(momentum=0.8))\ngenerator.add(Dense(784, activation='tanh'))\ngenerator.add(Reshape((28,28)))\n\noptimizer = keras.optimizers.Adam(lr=0.0002, decay=8e-9)\n\ngenerator.compile(loss='binary_crossentropy',optimizer=optimizer,metrics=['accuracy'])\n",
+   "executionCount": 14,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "გენერატორში გამოყენებული რამდენიმე ხრიკი:\n* ReLU-ს ნაცვლად, ვიყენებთ Leaky ReLU, ანუ ReLU, რომელიც არ არის ზუსტად 0 უარყოფითი $x$-ისთვის, არამედ სხვა წრფივ ფუნქციას ძალიან მცირე დახრილობით. ეს მნიშვნელოვანია, რადგან ის ეხმარება გრადიენტულ დაცემას მნიშვნელობების გავრცელებაში, მაშინაც კი, თუ ჩვენ ვიმყოფებით ReLU-ს უარყოფით მხარეზე (სადაც მნიშვნელობები არის 0)\n* ჩვენ ვიყენებთ Batch ნორმალიზებას ტრენინგის სტაბილიზაციის მიზნით\n* ბოლო შრეზე აქტივაციის ფუნქციაა `tanh`, ამიტომ გამომავალი არის [-1,1] დიაპაზონში.\n\n## დისკრიმინატორი\n\nდისკრიმინატორი არის კლასიკური გამოსახულების კლასიფიკაციის ქსელი. ჩვენს პირველ მაგალითში ჩვენ ასევე გამოვიყენებთ მკვრივ კლასიფიკატორს.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "discriminator = Sequential()\ndiscriminator.add(Flatten(input_shape=(28,28)))\ndiscriminator.add(Dense(784))\n\ndiscriminator.add(LeakyReLU(alpha=0.2))\ndiscriminator.add(Dense(784//2))\ndiscriminator.add(LeakyReLU(alpha=0.2))\n\ndiscriminator.add(Dense(1, activation='sigmoid'))\n\ndiscriminator.compile(loss='binary_crossentropy',optimizer=optimizer,metrics=['accuracy'])",
+   "executionCount": 15,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ ასევე განვსაზღვრავთ მოწინააღმდეგე ქსელს, რომელიც არის გენერატორი, რასაც მოჰყვება დისკრიმინატორი. ეს ქსელი იწყება ხმაურის ვექტორით და აბრუნებს ორობით შედეგს.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "discriminator.trainable = False\nadversarial = Sequential()\nadversarial.add(generator)\nadversarial.add(discriminator)\nadversarial.compile(loss='binary_crossentropy', optimizer=optimizer)",
+   "executionCount": 4,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## მონაცემთა ნაკრების ჩატვირთვა\n\nჩვენ გამოვიყენებთ MNIST მონაცემთა ბაზას, ჩაშენებულ Keras-ში:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "(X_train, _), (_, _) = keras.datasets.mnist.load_data()\nX_train = (X_train.astype(np.float32) - 127.5) / 127.5",
+   "executionCount": 17,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## ქსელის ტრენინგი\n\nტრენინგის თითოეულ საფეხურზე გვაქვს ორი ეტაპი:\n\n* ტრენინგის დისკრიმინატორი:\n   - ჩვენ ვქმნით რამდენიმე შემთხვევით ვექტორს `noise`. ტრენინგი ტარდება მინი პაკეტებში, ამიტომ ჩვენ ვიყენებთ `batch//2` ვექტორებს `batch//2` გენერირებული სურათების შესაქმნელად\n   - აირჩიე `batch//2` შემთხვევითი სურათები მონაცემთა ნაკრებიდან\n   - მოამზადეთ დისკრიმინატორი 50% რეალურ და 50% გენერირებულ სურათებზე, შესაბამისი ეტიკეტების მიწოდებით (0 ან 1)\n * ავარჯიშეთ გენერატორი კომბინირებული საპირისპირო მოდელის გამოყენებით, შემთხვევითი ვექტორების გადაცემით, როგორც შეყვანის სახით და ველით 1-ს, როგორც გამოსავალს (რაც შეესაბამება რეალურ სურათებს)\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def plotn(n):\n  noise = np.random.normal(0, 1, (n,100))\n  imgs = generator.predict(noise)\n  fig,ax = plt.subplots(1,n)\n  for i,im in enumerate(imgs):\n    ax[i].imshow(im.reshape(28,28))\n  plt.show()",
+   "executionCount": 18,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "batch=32\nfor cnt in range(3000):\n## train discriminator\n  random_index =  np.random.randint(0, len(X_train) - batch//2)\n  legit_images = X_train[random_index : random_index + batch//2].reshape(batch//2, 28, 28)\n  gen_noise = np.random.normal(0, 1, (batch//2,100))\n  syntetic_images = generator.predict(gen_noise)\n  x_combined_batch = np.concatenate((legit_images, syntetic_images))\n  y_combined_batch = np.concatenate((np.ones((batch//2, 1)), np.zeros((batch//2, 1))))\n  d_loss = discriminator.train_on_batch(x_combined_batch, y_combined_batch)\n# train generator\n  noise = np.random.normal(0, 1, (batch,100))\n  y_mislabled = np.ones((batch, 1))\n  g_loss = adversarial.train_on_batch(noise, y_mislabled)\n  if cnt%500==0:\n    print ('epoch: %d, [Discriminator :: d_loss: %f], [ Generator :: loss: %f]' % (cnt, d_loss[0], g_loss))\n    plotn(5)",
+   "executionCount": 7,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "epoch: 0, [Discriminator :: d_loss: 0.601463], [ Generator :: loss: 0.640677]\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/c2ad35a8d73df624.png"
+    },
+    {
+     "kind": "text",
+     "text": "epoch: 500, [Discriminator :: d_loss: 0.192001], [ Generator :: loss: 12.124918]\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/6c1aa15e95c4396b.png"
+    },
+    {
+     "kind": "text",
+     "text": "epoch: 1000, [Discriminator :: d_loss: 0.141956], [ Generator :: loss: 1.900380]\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/13b524562b1906e5.png"
+    },
+    {
+     "kind": "text",
+     "text": "epoch: 1500, [Discriminator :: d_loss: 0.293635], [ Generator :: loss: 2.443017]\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/fa326c5e8fc1030c.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "> ამოცანა: შეგიძლიათ ამ GAN-ის სწავლება MNIST-ის მთელ მონაცემთა ბაზაზე და ნახოთ, რამდენად კარგი იქნება იგი\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## DCGAN\n\nწინა მაგალითში, ჩვენ გამოვიყენეთ მკვრივი ქსელები როგორც გენერატორისთვის, ასევე დისკრიმინატორისთვის, მაგრამ ვიცით, რომ CNN-ები უკეთეს შესრულებას იძლევა სურათებთან ურთიერთობისას. Deep Convolutional GAN მსგავსია ზემოთ მოყვანილი არქიტექტურისა, მაგრამ ის იყენებს კონვოლუციურ შრეებს გენერატორისა და დისკრიმინატორისთვის.\n\nმთავარი სირთულე აქ არის დენერატორისთვის არქიტექტურის აგება, რადგან მან უნდა გააკეთოს შებრუნებული დავალება ტრადიციულ CNN-თან შედარებით - მან უნდა შექმნას სურათი მხატვრული ვექტორიდან. გარკვეულწილად, ეს ჰგავს ავტოენკოდერების დეკოდერის ნაწილს. ამიტომ ჩვენ გამოვიყენებთ `Conv2DTranspose` ფენებს გენერატორში.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "(X_train, _), (_, _) = keras.datasets.mnist.load_data()\nX_train = (X_train.astype(np.float32)-127.5) / 127.5\nprint(X_train.min(),X_train.max())",
+   "executionCount": 19,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "-1.0 1.0\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "generator = Sequential()\ngenerator.add(Dense(128 * 7 * 7, activation=\"relu\", input_dim=100))\ngenerator.add(Reshape((7, 7, 128)))\ngenerator.add(UpSampling2D())\ngenerator.add(Conv2DTranspose(128, kernel_size=3, padding=\"same\"))\ngenerator.add(BatchNormalization(momentum=0.8))\ngenerator.add(Activation(\"relu\"))\ngenerator.add(UpSampling2D())\ngenerator.add(Conv2DTranspose(64, kernel_size=3, padding=\"same\"))\ngenerator.add(BatchNormalization(momentum=0.8))\ngenerator.add(Activation(\"relu\"))\ngenerator.add(Conv2DTranspose(1, kernel_size=3, padding=\"same\"))\ngenerator.add(Activation(\"tanh\"))\n\noptimizer = keras.optimizers.Adam(0.0001) #, 0.5)\n\ngenerator.compile(loss='binary_crossentropy',optimizer=optimizer,metrics=['accuracy'])\ngenerator.summary()",
+   "executionCount": 9,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Model: \"sequential_3\"\n_________________________________________________________________\nLayer (type)                 Output Shape              Param #   \n=================================================================\ndense_7 (Dense)              (None, 6272)              633472    \n_________________________________________________________________\nreshape_1 (Reshape)          (None, 7, 7, 128)         0         \n_________________________________________________________________\nup_sampling2d (UpSampling2D) (None, 14, 14, 128)       0         \n_________________________________________________________________\nconv2d_transpose (Conv2DTran (None, 14, 14, 128)       147584    \n_________________________________________________________________\nbatch_normalization_3 (Batch (None, 14, 14, 128)       512       \n_________________________________________________________________\nactivation (Activation)      (None, 14, 14, 128)       0         \n_________________________________________________________________\nup_sampling2d_1 (UpSampling2 (None, 28, 28, 128)       0         \n_________________________________________________________________\nconv2d_transpose_1 (Conv2DTr (None, 28, 28, 64)        73792     \n_________________________________________________________________\nbatch_normalization_4 (Batch (None, 28, 28, 64)        256       \n_________________________________________________________________\nactivation_1 (Activation)    (None, 28, 28, 64)        0         \n_________________________________________________________________\nconv2d_transpose_2 (Conv2DTr (None, 28, 28, 1)         577       \n_________________________________________________________________\nactivation_2 (Activation)    (None, 28, 28, 1)         0         \n=================================================================\nTotal params: 856,193\nTrainable params: 855,809\nNon-trainable params: 384\n_________________________________________________________________\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "discriminator = Sequential()\n\ndiscriminator.add(Conv2D(32, kernel_size=3, strides=2, input_shape=(28,28,1), padding=\"same\"))\ndiscriminator.add(LeakyReLU(alpha=0.2))\ndiscriminator.add(Dropout(0.25))\ndiscriminator.add(Conv2D(64, kernel_size=3, strides=2, padding=\"same\"))\ndiscriminator.add(ZeroPadding2D(padding=((0,1),(0,1))))\ndiscriminator.add(BatchNormalization(momentum=0.8))\ndiscriminator.add(LeakyReLU(alpha=0.2))\ndiscriminator.add(Dropout(0.25))\ndiscriminator.add(Conv2D(128, kernel_size=3, strides=2, padding=\"same\"))\ndiscriminator.add(BatchNormalization(momentum=0.8))\ndiscriminator.add(LeakyReLU(alpha=0.2))\ndiscriminator.add(Dropout(0.25))\ndiscriminator.add(Conv2D(256, kernel_size=3, strides=1, padding=\"same\"))\ndiscriminator.add(BatchNormalization(momentum=0.8))\ndiscriminator.add(LeakyReLU(alpha=0.2))\ndiscriminator.add(Dropout(0.25))\ndiscriminator.add(Flatten())\ndiscriminator.add(Dense(1, activation='sigmoid'))\n\ndiscriminator.compile(loss='binary_crossentropy',optimizer=optimizer)",
+   "executionCount": 10,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "discriminator.trainable = False\nadversarial = Sequential()\nadversarial.add(generator)\nadversarial.add(discriminator)\nadversarial.compile(loss='binary_crossentropy', optimizer=optimizer)",
+   "executionCount": 11,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "batch=32\ny_labeled = np.ones((batch, 1))\ny_mislabeled = np.zeros((batch, 1))\nfor cnt in range(1000):\n## train discriminator\n  random_index =  np.random.randint(0, len(X_train) - batch)\n  legit_images = X_train[random_index : random_index + batch].reshape(batch, 28, 28, 1)\n  gen_noise = np.random.normal(0, 1, (batch,100))\n  syntetic_images = generator.predict(gen_noise)\n  d_loss_1 = discriminator.train_on_batch(legit_images, y_labeled)\n  d_loss_2 = discriminator.train_on_batch(syntetic_images, y_mislabeled)\n  d_loss = 0.5*np.add(d_loss_1,d_loss_2)\n# train generator\n  g_loss = adversarial.train_on_batch(gen_noise, y_labeled)\n  if cnt%100==0:\n    print ('epoch: %d, [Discriminator :: d_loss: %f], [ Generator :: loss: %f]' % (cnt, d_loss, g_loss))\n    plotn(5)",
+   "executionCount": 12,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "epoch: 0, [Discriminator :: d_loss: 0.957905], [ Generator :: loss: 0.695994]\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/66e1c3b28c41f24f.png"
+    },
+    {
+     "kind": "text",
+     "text": "epoch: 100, [Discriminator :: d_loss: 0.826593], [ Generator :: loss: 1.488088]\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/69d9c4dff3826c63.png"
+    },
+    {
+     "kind": "text",
+     "text": "epoch: 200, [Discriminator :: d_loss: 0.602254], [ Generator :: loss: 1.362499]\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/dc3c0852e46bcc3b.png"
+    },
+    {
+     "kind": "text",
+     "text": "epoch: 300, [Discriminator :: d_loss: 0.711605], [ Generator :: loss: 1.224355]\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/970ef27286fffcf2.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "> ამოცანა: სცადეთ უფრო რთული ფერადი სურათების გენერირება DCGAN-ით - მაგალითად, აიღეთ ერთი კლასი CIFAR-10 მონაცემთა ბაზიდან.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## ტრენინგი ფერწერაზე\n\nGAN-ის ტრენინგის ერთ-ერთი კარგი კანდიდატია ადამიანის მხატვრების მიერ შექმნილი ნახატები. ქვემოთ მოცემულია DCGAN-ის მიერ მომზადებული სურათის ნიმუში, რომელიც მომზადებულია WikiArt-ის მონაცემთა ბაზაზე. კერაგანი ბიბლიოთეკა გამოიყენეს ამ სურათის შესაქმნელად Azure Machine Learning-ის გამოყენებით\n\n![](https://soshnikov.com/images/artartificial/Flo1.jpg)\n\n(ფოტო ხელოვნური ხელოვნება კოლექციიდან)\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## ცნობები\n\n* სხვადასხვა სათამაშო GAN არქიტექტურის Keras განხორციელება\n* KeraGAN ბიბლიოთეკა\n* ბლოგის პოსტი Azure ML-ზე GAN-ების შექმნის შესახებ\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/4-ComputerVision/10-GANs/GANTF.ipynb"
+}

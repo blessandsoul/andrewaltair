@@ -13,7 +13,8 @@
     "seed": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" src/scripts/seed.ts",
     "add-tools": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" scripts/add-new-tools.ts",
     "seo:update": "npx tsx scripts/update-seo.ts",
-    "seo:update:direct": "npx tsx scripts/update-seo.ts --direct"
+    "seo:update:direct": "npx tsx scripts/update-seo.ts --direct",
+    "course:ingest": "npx tsx scripts/ingest-ai-for-beginners.ts"
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",

@@ -1,0 +1,251 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "computer-vision/transfer-learning/lab/oxford-pets",
+ "segments": [
+  "computer-vision",
+  "transfer-learning",
+  "lab",
+  "oxford-pets"
+ ],
+ "title": "მონაცემთა ნაკრების მომზადება ღრმა სწავლისთვის",
+ "module": {
+  "id": "4-ComputerVision",
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა",
+  "icon": "eye"
+ },
+ "lessonNumber": 8,
+ "orderInModule": 1080.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/4-ComputerVision/08-TransferLearning/lab/OxfordPets.ipynb"
+ },
+ "prev": {
+  "slug": "computer-vision/transfer-learning/dropout",
+  "title": "მიტოვების ეფექტი"
+ },
+ "next": {
+  "slug": "computer-vision/transfer-learning/adversarial-cat-tf",
+  "title": "როგორ ხედავს ნერვული ქსელი კატას"
+ },
+ "framework": "generic",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "შინაური ცხოველის რეალური ცხოვრების სურათების # კლასიფიკაცია\n\nლაბორატორიული დავალება AI დამწყებთათვის სასწავლო პროგრამა-დან.\n\nახლა დროა გაუმკლავდეთ უფრო რთულ ამოცანას - ორიგინალური Oxford-IIIT მონაცემთა ნაკრები კლასიფიკაციას. დავიწყოთ მონაცემთა ნაკრების ჩატვირთვით და ვიზუალიზაციით.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "!wget https://www.robots.ox.ac.uk/~vgg/data/pets/data/images.tar.gz\n!tar xfz images.tar.gz\n!rm images.tar.gz",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ განვსაზღვრავთ ზოგად ფუნქციას სიიდან სურათების სერიის საჩვენებლად:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import matplotlib.pyplot as plt\nimport os\nfrom PIL import Image\nimport numpy as np\n\ndef display_images(l,titles=None,fontsize=12):\n    n=len(l)\n    fig,ax = plt.subplots(1,n)\n    for i,im in enumerate(l):\n        ax[i].imshow(im)\n        ax[i].axis('off')\n        if titles is not None:\n            ax[i].set_title(titles[i],fontsize=fontsize)\n    fig.set_size_inches(fig.get_size_inches()*n)\n    plt.tight_layout()\n    plt.show()",
+   "executionCount": 1,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "თქვენ ხედავთ, რომ ყველა სურათი მდებარეობს ერთ დირექტორიაში, სახელწოდებით `images` და მათი სახელი შეიცავს კლასის (ჯიშის) სახელს:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "fnames = os.listdir('images')[:5]\ndisplay_images([Image.open(os.path.join('images',x)) for x in fnames],titles=fnames,fontsize=30)",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "კლასიფიკაციის გასამარტივებლად და გამოსახულების ჩატვირთვის იგივე მიდგომის გამოსაყენებლად, როგორც წინა ნაწილში, მოდით დაალაგოთ ყველა სურათი შესაბამის დირექტორიაში:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "for fn in os.listdir('images'):\n    cls = fn[:fn.rfind('_')].lower()\n    os.makedirs(os.path.join('images',cls),exist_ok=True)\n    os.replace(os.path.join('images',fn),os.path.join('images',cls,fn))",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით ასევე განვსაზღვროთ კლასების რაოდენობა ჩვენს მონაცემთა ბაზაში:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "num_classes = len(os.listdir('images'))\nnum_classes",
+   "executionCount": 2,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "37"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენი ნერვული ქსელის სწავლების დასაწყებად, ჩვენ უნდა გადავიყვანოთ ყველა სურათი ტენსორებად და ასევე შევქმნათ ეტიკეტების შესაბამისი ტენსორები (კლასის ნომრები). Most neural network frameworks contain simple tools for dealing with images:\n* In Tensorflow, use `tf.keras.preprocessing.image_dataset_from_directory`\n* In PyTorch, use `torchvision.datasets.ImageFolder`\n\nროგორც ზემოთ მოყვანილი სურათებიდან ხედავთ, ყველა მათგანი ახლოსაა კვადრატულ გამოსახულების თანაფარდობასთან, ამიტომ ჩვენ უნდა შევცვალოთ ყველა სურათის ზომა კვადრატულ ზომამდე. ასევე, ჩვენ შეგვიძლია სურათების ორგანიზება მინი პატჩებში.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# PREPARE THE DATASET",
+   "executionCount": 3,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა ჩვენ უნდა გავყოთ მონაცემთა ბაზა მატარებლისა და ტესტის ნაწილებად:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# SPLIT INTO TRAIN-TEST DATASETS",
+   "executionCount": 4,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა განსაზღვრეთ მონაცემთა დამტვირთავი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# DEFINE DATA LOADERS if needed",
+   "executionCount": 5,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# [OPTIONAL] Plot the dataset",
+   "executionCount": 6,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<Figure size 3024x2016 with 7 Axes>"
+    },
+    {
+     "kind": "text",
+     "text": "<Figure size 3024x2016 with 7 Axes>"
+    },
+    {
+     "kind": "text",
+     "text": "<Figure size 3024x2016 with 7 Axes>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## განსაზღვრეთ ნერვული ქსელი\n\nFor image classification, you should probably define a convolutional neural network with several layers. რას მივაქციოთ თვალი:\n* Keep in mind the pyramid architecture, i.e. number of filters should increase as you go deeper\n* არ დაგავიწყდეთ აქტივაციის ფუნქციები ფენებს შორის (ReLU) და Max Pooling\n* საბოლოო კლასიფიკატორი შეიძლება იყოს ფარული შრეებით ან მის გარეშე, მაგრამ გამომავალი ნეირონების რაოდენობა უნდა იყოს კლასების რაოდენობის ტოლი.\n\nმნიშვნელოვანი ის არის, რომ სწორად მივიღოთ აქტივაციის ფუნქცია ბოლო ფენაზე + დაკარგვის ფუნქცია:\n* Tensorflow-ში შეგიძლიათ გამოიყენოთ `softmax` როგორც გააქტიურება და `sparse_categorical_crossentropy` როგორც დაკარგვა. განსხვავება იშვიათ კატეგორიულ ჯვარედინი ენტროპიასა და არასპარსს შორის არის ის, რომ პირველი მოელის გამომავალს, როგორც კლასის რაოდენობას და არა როგორც one-hot ვექტორს.\n* PyTorch-ში შეგიძლიათ გქონდეთ საბოლოო ფენა აქტივაციის ფუნქციის გარეშე და გამოიყენოთ `CrossEntropyLoss` დაკარგვის ფუნქცია. ეს ფუნქცია ავტომატურად მოქმედებს softmax-ზე.\n\n> მინიშნება: PyTorch-ში შეგიძლიათ გამოიყენოთ `LazyLinear` ფენა `Linear`-ის ნაცვლად, რათა თავიდან აიცილოთ შეყვანის რაოდენობის გამოთვლა. მას მხოლოდ ერთი `n_out` პარამეტრი სჭირდება, რაც არის ნეირონების რაოდენობა ფენაში და შეყვანის მონაცემების განზომილება ავტომატურად აისახება პირველი `forward` გავლისას.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# DEFINE NEURAL NETWORK ARCHITECTURE",
+   "executionCount": 11,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## ავარჯიშეთ ნერვული ქსელი\n\nახლა ჩვენ მზად ვართ გავავარჯიშოთ ნერვული ქსელი. ტრენინგის დროს, გთხოვთ, შეაგროვოთ მატარებლის სიზუსტე და ტესტის მონაცემები თითოეულ ეპოქაზე და შემდეგ დახაზოთ სიზუსტე, რათა ნახოთ, არის თუ არა გადაჭარბებული მორგება.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# TRAIN THE NEURAL NETWORK",
+   "executionCount": 1,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# PLOT THE RESULT: Train and Test Accuracy",
+   "executionCount": 12,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/b5e02a6e72e7f7ea.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მაშინაც კი, თუ ყველაფერი სწორად გააკეთეთ, ალბათ ნახავთ, რომ სიზუსტე საკმაოდ დაბალია.\n\n## ტრანსფერი სწავლა\n\nსიზუსტის გასაუმჯობესებლად, გამოვიყენოთ წინასწარ გაწვრთნილი ნერვული ქსელი, როგორც მახასიათებლების ამომყვანი. მოგერიდებათ ექსპერიმენტი VGG-16/VGG-19 მოდელებით, ResNet50 და ა.შ.\n\n> ვინაიდან ეს ტრენინგი უფრო ნელია, შეგიძლიათ დაიწყოთ მოდელის წვრთნა მცირე რაოდენობის ეპოქებისთვის, მაგ. 3. საჭიროების შემთხვევაში, ყოველთვის შეგიძლიათ განაახლოთ ვარჯიში სიზუსტის შემდგომი გასაუმჯობესებლად.\n\nჩვენ გვჭირდება ჩვენი მონაცემების სხვაგვარად ნორმალიზება გადაცემის სწავლისთვის, რითაც ჩვენ ხელახლა ჩავტვირთავთ მონაცემთა ბაზას ტრანსფორმაციის სხვადასხვა ნაკრების გამოყენებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# LOAD THE DATASET\n# Perform standard transformations for VGG-16/VGG-19 if needed ",
+   "executionCount": 2,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით ჩატვირთოთ წინასწარ მომზადებული ქსელი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# vgg = ...",
+   "executionCount": 3,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა განსაზღვრეთ თქვენი პრობლემის კლასიფიკაციის მოდელი:\n* PyTorch-ში არის სლოტი სახელწოდებით `classifier`, რომელიც შეგიძლიათ შეცვალოთ თქვენივე კლასიფიკატორით სასურველი რაოდენობის კლასებისთვის.\n* TensorFlow-ში გამოიყენეთ VGG ქსელი, როგორც ფუნქციების ამომყვანი, და შექმენით `Sequential` მოდელი VGG, როგორც პირველი ფენა, და თქვენი საკუთარი კლასიფიკატორი თავზე.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# BUILD MODEL for your problem with your own linear layers",
+   "executionCount": 52,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "დარწმუნდით, რომ დააყენეთ VGG ფუნქციების ამომყვანის ყველა პარამეტრი ისე, რომ არ იყოს სავარჯიშო\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# MAKE VGG Layers not trainable",
+   "executionCount": 4,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა შეგვიძლია დავიწყოთ ვარჯიში. იყავით ძალიან მომთმენი, რადგან ვარჯიშს დიდი დრო სჭირდება და ჩვენი მატარებლის ფუნქცია არ არის შექმნილი იმისთვის, რომ ეპოქის დასრულებამდე არაფერი დაბეჭდოთ.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# TRAIN THE MODEL",
+   "executionCount": 5,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა ბევრად უკეთესი ჩანს!\n\n## სურვილისამებრ: გამოთვალეთ ტოპ 3 სიზუსტე\n\nჩვენ ასევე შეგვიძლია კომპიუტერის ტოპ 3 სიზუსტე იგივე კოდის გამოყენებით, როგორც წინა სავარჯიშოში.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# CALCULATE TOP-3 Accuracy of the model",
+   "executionCount": 6,
+   "outputs": []
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/4-ComputerVision/08-TransferLearning/lab/OxfordPets.ipynb"
+}

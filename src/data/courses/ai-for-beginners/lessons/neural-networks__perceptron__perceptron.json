@@ -1,0 +1,415 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "neural-networks/perceptron/perceptron",
+ "segments": [
+  "neural-networks",
+  "perceptron",
+  "perceptron"
+ ],
+ "title": "პერცეპტრონი",
+ "module": {
+  "id": "3-NeuralNetworks",
+  "slug": "neural-networks",
+  "title": "ნეირონული ქსელები",
+  "icon": "network"
+ },
+ "lessonNumber": 3,
+ "orderInModule": 1030.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/3-NeuralNetworks/03-Perceptron/Perceptron.ipynb"
+ },
+ "prev": {
+  "slug": "neural-networks/perceptron/lab/perceptron-multi-class",
+  "title": "მრავალკლასიანი კლასიფიკაცია პერცეპტრონით"
+ },
+ "next": {
+  "slug": "neural-networks/own-framework/lab",
+  "title": "MNIST კლასიფიკაცია ჩვენი საკუთარი ჩარჩოთი"
+ },
+ "framework": "generic",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "> ეს ნოუთბუქი AI დამწყებთათვის სასწავლო გეგმები-ის ნაწილია. ეწვიეთ საცავს სასწავლო მასალების სრული ნაკრებისთვის.\n\nროგორც განვიხილეთ, პერცეპტრონი საშუალებას გაძლევთ გადაჭრათ ორობითი კლასიფიკაციის პრობლემა, ანუ შეყვანის მაგალითების კლასიფიკაცია ორ კლასად - შეგვიძლია მათ ვუწოდოთ დადებითი და უარყოფითი.\n\nპირველი, მოდით შემოვიტანოთ რამდენიმე საჭირო ბიბლიოთეკა.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import pylab\nfrom matplotlib import gridspec\nfrom sklearn.datasets import make_classification\nimport numpy as np\nfrom ipywidgets import interact, interactive, fixed\nimport ipywidgets as widgets\nimport pickle\nimport os\nimport gzip\n\n# pick the seed for reproducability - change it to explore the effects of random variations\nnp.random.seed(1)\nimport random",
+   "executionCount": 2,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## სათამაშო პრობლემა\n\nდასაწყისისთვის, დავიწყოთ სათამაშოების პრობლემა, სადაც გვაქვს ორი შეყვანის ფუნქცია. მაგალითად, მედიცინაში შეიძლება გვსურს სიმსივნეების კლასიფიკაცია კეთილთვისებიანი და ავთვისებიანი, მისი ზომისა და ასაკის მიხედვით.\n\nჩვენ შევქმნით შემთხვევითი კლასიფიკაციის მონაცემთა ნაკრებს `make_classification` ფუნქციის გამოყენებით SciKit Learn ბიბლიოთეკიდან:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "n = 50\nX, Y = make_classification(n_samples = n, n_features=2,\n                           n_redundant=0, n_informative=2, flip_y=0)\nY = Y*2-1 # convert initial 0/1 values into -1/1\nX = X.astype(np.float32); Y = Y.astype(np.int32) # features - float, label - int\n\n# Split the dataset into training and test\ntrain_x, test_x = np.split(X, [ n*8//10])\ntrain_labels, test_labels = np.split(Y, [n*8//10])\nprint(\"Features:\\n\",train_x[0:4])\nprint(\"Labels:\\n\",train_labels[0:4])",
+   "executionCount": 3,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Features:\n [[-1.7441838  -1.3952037 ]\n [ 2.5921783  -0.08124504]\n [ 0.9218062   0.91789985]\n [-0.8437018  -0.18738253]]\nLabels:\n [-1 -1  1 -1]\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით ასევე დავხატოთ მონაცემთა ნაკრები:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def plot_dataset(suptitle, features, labels):\n    # prepare the plot\n    fig, ax = pylab.subplots(1, 1)\n    #pylab.subplots_adjust(bottom=0.2, wspace=0.4)\n    fig.suptitle(suptitle, fontsize = 16)\n    ax.set_xlabel('$x_i[0]$ -- (feature 1)')\n    ax.set_ylabel('$x_i[1]$ -- (feature 2)')\n\n    colors = ['r' if l>0 else 'b' for l in labels]\n    ax.scatter(features[:, 0], features[:, 1], marker='o', c=colors, s=100, alpha = 0.5)\n    fig.show()\n\nplot_dataset('Training data', train_x, train_labels)",
+   "executionCount": 4,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<ipython-input-4-ade59d2ee664>:11: UserWarning: Matplotlib is currently using module://ipykernel.pylab.backend_inline, which is a non-GUI backend, so cannot show the figure.\n  fig.show()\n",
+     "stream": "stderr"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/09fb9b1a32035191.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## პერცეპტრონი\n\nვინაიდან პერცეპტრონი ორობითი კლასიფიკატორია, თითოეული შეყვანის ვექტორისთვის $x$ ჩვენი პერცეპტრონის გამომავალი იქნება +1 ან -1, კლასიდან გამომდინარე. გამომავალი გამოითვლება ფორმულის გამოყენებით\n\n$$y(\\mathbf{x}) = f(\\mathbf{w}^{\\mathrm{T}}\\mathbf{x})$$\n\nსადაც $\\mathbf{w}$ არის წონის ვექტორი, $f$ არის ნაბიჯის გააქტიურების ფუნქცია:\n$$\nf(x) = \\დაწყება{შემთხვევები}\n         +1 & x \\geq 0 \\\\\n         -1 & x <0\n       \\დასასრული{შემთხვევები} \\\\\n$$\n\nთუმცა, ზოგად ხაზოვან მოდელს ასევე უნდა ჰქონდეს მიკერძოება, ანუ იდეალურად უნდა გამოვთვალოთ $y$ როგორც $y=f(\\mathbf{w}^{\\mathrm{T}}\\mathbf{x}+\\mathbf{b})$. ჩვენი მოდელის გასამარტივებლად, ჩვენ შეგვიძლია მოვიშოროთ ეს მიკერძოებული ტერმინი ჩვენს შეყვანის მახასიათებლებს კიდევ ერთი განზომილების დამატებით, რომელიც ყოველთვის უდრის 1-ს:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "pos_examples = np.array([ [t[0], t[1], 1] for i,t in enumerate(train_x) \n                          if train_labels[i]>0])\nneg_examples = np.array([ [t[0], t[1], 1] for i,t in enumerate(train_x) \n                          if train_labels[i]<0])\nprint(pos_examples[0:3])",
+   "executionCount": 5,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[[ 0.92180622  0.91789985  1.        ]\n [-1.06435513  1.49764717  1.        ]\n [ 0.32839951  2.25677919  1.        ]]\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## ტრენინგის ალგორითმი\n\nიმისთვის, რომ პერცეპტრონი გავავარჯიშოთ, ჩვენ უნდა გავარკვიოთ $\\mathbf{w}$ წონები, რომლებიც შეამცირებს შეცდომას. შეცდომა განისაზღვრება პერცეპტრონის კრიტერიუმებით:\n\n$$E(\\mathbf{w}) = -\\sum_{n \\in \\mathcal{M}}\\mathbf{w}^{\\mathrm{T}}\\mathbf{x}_{n}t_{n}$$\n \n  * $t_{n} \\{-1, +1\\}$, შესაბამისად, ნეგატიური და დადებითი ტრენინგის ნიმუშებისთვის\n  * $\\mathcal{M}$ - არასწორად კლასიფიცირებული მაგალითების ნაკრები\n  \nჩვენ გამოვიყენებთ გრადიენტული დაღმართის პროცესს. დაწყებული საწყისი შემთხვევითი წონებით $\\mathbf{w}^{(0)}$, ჩვენ დავარეგულირებთ წონებს ვარჯიშის თითოეულ საფეხურზე $E$-ის გრადიენტის გამოყენებით:\n\n$$\\mathbf{w}^{\\tau + 1}=\\mathbf{w}^{\\tau} - \\eta \\nabla E(\\mathbf{w}) = \\mathbf{w}^{\\tau} + \\eta\\sum_{n \\in \\mathcal{M}}\\mathbf{x}_{n$ t}\n\nსადაც $\\eta$ არის სწავლის მაჩვენებელი და $\\tau\\in\\mathbb{N}$ - გამეორების რაოდენობა.\n\nმოდით განვსაზღვროთ ეს ალგორითმი პითონში:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def train(positive_examples, negative_examples, num_iterations = 100, learning_rate = 0.01):\n    num_dims = positive_examples.shape[1]\n    \n    # Initialize weights. \n    # We initialize with 0 for simplicity, but random initialization is also a good idea\n    weights = np.zeros((num_dims,1)) \n    \n    pos_count = positive_examples.shape[0]\n    neg_count = negative_examples.shape[0]\n    \n    report_frequency = 10\n    \n    for i in range(num_iterations):\n        # Pick one positive and one negative example\n        pos = random.choice(positive_examples)\n        neg = random.choice(negative_examples)\n\n        z = np.dot(pos, weights)   \n        if z < 0: # positive example was classified as negative\n            weights = weights + learning_rate * pos.reshape(weights.shape)\n\n        z  = np.dot(neg, weights)\n        if z >= 0: # negative example was classified as positive\n            weights = weights - learning_rate * neg.reshape(weights.shape)\n            \n        # Periodically, print out the current accuracy on all examples \n        if i % report_frequency == 0:             \n            pos_out = np.dot(positive_examples, weights)\n            neg_out = np.dot(negative_examples, weights)        \n            pos_correct = (pos_out >= 0).sum() / float(pos_count)\n            neg_correct = (neg_out < 0).sum() / float(neg_count)\n            print(\"Iteration={}, pos correct={}, neg correct={}\".format(i,pos_correct,neg_correct))\n\n    return weights",
+   "executionCount": 6,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "შენიშვნა სწავლის სიჩქარის შესახებ: `learning_rate` პარამეტრი (ნაგულისხმევი `0.01`) აკონტროლებს, თუ რამდენად ვარეგულირებთ წონებს ყოველი ვარჯიშის საფეხურზე. ეს ახორციელებს გრადიენტული წარმოშობის განახლების ფორმულას:\n\n$$\\mathbf{w}^{\\tau + 1}=\\mathbf{w}^{\\tau} + \\eta \\mathbf{x}_{n} t_{n}$$\n\n- უფრო დიდი სწავლის სიჩქარე (მაგ., `1.0`) აიძულებს პერცეტრონს უფრო სწრაფად ისწავლოს, მაგრამ შეიძლება გადააჭარბოს ოპტიმალურ გადაწყვეტას\n- უფრო მცირე სწავლის მაჩვენებელი (მაგ., `0.001`) უფრო ნელა სწავლობს, მაგრამ შეიძლება უფრო ზუსტად ემთხვეოდეს\n- შეგიძლიათ ექსპერიმენტი დარეკოთ: `train(pos_examples, neg_examples, learning_rate=0.1)`\n"
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მოდით გავატაროთ ტრენინგი ჩვენს მონაცემთა ბაზაზე:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "wts = train(pos_examples,neg_examples)\nprint(wts.transpose())",
+   "executionCount": 7,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Iteration=0, pos correct=0.2631578947368421, neg correct=0.6190476190476191\nIteration=10, pos correct=0.8947368421052632, neg correct=0.8571428571428571\nIteration=20, pos correct=0.8421052631578947, neg correct=1.0\nIteration=30, pos correct=0.8947368421052632, neg correct=0.9523809523809523\nIteration=40, pos correct=0.8947368421052632, neg correct=0.9523809523809523\nIteration=50, pos correct=0.9473684210526315, neg correct=0.9047619047619048\nIteration=60, pos correct=0.8947368421052632, neg correct=0.9523809523809523\nIteration=70, pos correct=0.8947368421052632, neg correct=0.9047619047619048\nIteration=80, pos correct=0.8947368421052632, neg correct=0.6190476190476191\nIteration=90, pos correct=0.8421052631578947, neg correct=1.0\n[[-0.66042328  4.90850882 -1.        ]]\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "როგორც ხედავთ, საწყისი სიზუსტე არის დაახლოებით 50%, მაგრამ ის სწრაფად იზრდება უფრო მაღალ მნიშვნელობებამდე ახლოს 90%.\n\nმოდით ვიზუალურად წარმოვიდგინოთ, თუ როგორ იყოფა კლასები. ჩვენი კლასიფიკაციის ფუნქცია ჰგავს $\\mathbf{w}^Tx$-ს და ის 0-ზე მეტია ერთი კლასისთვის და 0-ზე დაბალია მეორე კლასისთვის. ამრიგად, კლასის გამიჯვნის ხაზი განისაზღვრება $\\mathbf{w}^Tx = 0$-ით. ვინაიდან ჩვენ გვაქვს მხოლოდ ორი განზომილება $x_0$ და $x_1$, ხაზის განტოლება იქნება $w_0x_0+w_1x_1+w_2 = 0$ (გახსოვდეთ, რომ ჩვენ აშკარად განვსაზღვრეთ დამატებითი განზომილება $x_2=1$). მოდით დავხატოთ ეს ხაზი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def plot_boundary(positive_examples, negative_examples, weights):\n    if np.isclose(weights[1], 0):\n        if np.isclose(weights[0], 0):\n            x = y = np.array([-6, 6], dtype = 'float32')\n        else:\n            y = np.array([-6, 6], dtype='float32')\n            x = -(weights[1] * y + weights[2])/weights[0]\n    else:\n        x = np.array([-6, 6], dtype='float32')\n        y = -(weights[0] * x + weights[2])/weights[1]\n\n    pylab.xlim(-6, 6)\n    pylab.ylim(-6, 6)                      \n    pylab.plot(positive_examples[:,0], positive_examples[:,1], 'bo')\n    pylab.plot(negative_examples[:,0], negative_examples[:,1], 'ro')\n    pylab.plot(x, y, 'g', linewidth=2.0)\n    pylab.show()",
+   "executionCount": 8,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plot_boundary(pos_examples,neg_examples,wts)",
+   "executionCount": 9,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/6f99fd691c730021.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## ექსპერიმენტები სწავლის ტემპებით\n\nახლა მოდით გამოვიკვლიოთ, თუ როგორ მოქმედებს სწავლის განსხვავებული სიჩქარე ტრენინგის პროცესზე. სწავლის სიჩქარე აკონტროლებს საფეხურის ზომას გრადიენტულ დაღმართში - გადამწყვეტი ჰიპერპარამეტრი, რომელიც გავლენას ახდენს როგორც კონვერგენციის სიჩქარეზე, ასევე სტაბილურობაზე.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Compare different learning rates\nlearning_rates = [0.001, 0.01, 0.1, 1.0]\nfig, axes = pylab.subplots(2, 2, figsize=(12, 10))\nfig.suptitle('Effect of Different Learning Rates', fontsize=16)\n\nfor idx, lr in enumerate(learning_rates):\n    ax = axes[idx // 2, idx % 2]\n    \n    # Train with this learning rate\n    weights_lr = train(pos_examples, neg_examples, num_iterations=100, learning_rate=lr)\n    \n    # Plot decision boundary\n    if np.isclose(weights_lr[1], 0):\n        if np.isclose(weights_lr[0], 0):\n            x = y = np.array([-6, 6], dtype='float32')\n        else:\n            y = np.array([-6, 6], dtype='float32')\n            x = -(weights_lr[1] * y + weights_lr[2])/weights_lr[0]\n    else:\n        x = np.array([-6, 6], dtype='float32')\n        y = -(weights_lr[0] * x + weights_lr[2])/weights_lr[1]\n    \n    ax.set_xlim(-6, 6)\n    ax.set_ylim(-6, 6)\n    ax.plot(pos_examples[:, 0], pos_examples[:, 1], 'bo', label='Positive', alpha=0.7)\n    ax.plot(neg_examples[:, 0], neg_examples[:, 1], 'ro', label='Negative', alpha=0.7)\n    ax.plot(x, y, 'g-', linewidth=2)\n    ax.set_title(f'Learning Rate = {lr}')\n    ax.set_xlabel('Feature 1')\n    ax.set_ylabel('Feature 2')\n    ax.legend()\n    ax.grid(True, alpha=0.3)\n\npylab.tight_layout()\npylab.show()\n",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "### ინტერაქტიული სწავლის მაჩვენებლის ექსპერიმენტი\n\nგამოიყენეთ ქვემოთ მოცემული სლაიდერი, რომ ინტერაქტიულად ექსპერიმენტი ჩაატაროთ სწავლის სხვადასხვა ტემპებზე და ნახოთ, როგორ იმოქმედებს ისინი გადაწყვეტილების ზღვარზე:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def train_and_plot_with_lr(learning_rate=0.01):\n    \"\"\"Train perceptron with specified learning rate and plot results\"\"\"\n    weights_lr = train(pos_examples, neg_examples, num_iterations=100, learning_rate=learning_rate)\n    \n    fig, (ax1, ax2) = pylab.subplots(1, 2, figsize=(14, 5))\n    \n    # Plot 1: Decision boundary\n    if np.isclose(weights_lr[1], 0):\n        if np.isclose(weights_lr[0], 0):\n            x = y = np.array([-6, 6], dtype='float32')\n        else:\n            y = np.array([-6, 6], dtype='float32')\n            x = -(weights_lr[1] * y + weights_lr[2])/weights_lr[0]\n    else:\n        x = np.array([-6, 6], dtype='float32')\n        y = -(weights_lr[0] * x + weights_lr[2])/weights_lr[1]\n    \n    ax1.set_xlim(-6, 6)\n    ax1.set_ylim(-6, 6)\n    ax1.plot(pos_examples[:, 0], pos_examples[:, 1], 'bo', label='Positive', s=100, alpha=0.6)\n    ax1.plot(neg_examples[:, 0], neg_examples[:, 1], 'ro', label='Negative', s=100, alpha=0.6)\n    ax1.plot(x, y, 'g-', linewidth=3, label='Decision Boundary')\n    ax1.set_title(f'Decision Boundary (lr={learning_rate})', fontsize=14)\n    ax1.set_xlabel('Feature 1')\n    ax1.set_ylabel('Feature 2')\n    ax1.legend()\n    ax1.grid(True, alpha=0.3)\n    \n    # Plot 2: Weight values\n    ax2.bar(['w0', 'w1', 'bias'], weights_lr.flatten(), color=['blue', 'green', 'red'], alpha=0.7)\n    ax2.set_title('Final Weight Values', fontsize=14)\n    ax2.set_ylabel('Weight Value')\n    ax2.grid(True, alpha=0.3, axis='y')\n    ax2.axhline(y=0, color='black', linestyle='-', linewidth=0.5)\n    \n    pylab.tight_layout()\n    pylab.show()\n    \n    print(f\"Final weights: {weights_lr.flatten()}\")\n\n# Create interactive widget\ninteract(train_and_plot_with_lr, \n         learning_rate=widgets.FloatSlider(value=0.01, min=0.001, max=1.0, step=0.001, \n                                          description='Learning Rate:', continuous_update=False))\n",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## შეაფასეთ ტესტის მონაცემთა ნაკრები\n\nდასაწყისში, ჩვენ გამოვყავით გარკვეული მონაცემები ტესტის მონაცემთა ბაზაში. ვნახოთ, რამდენად ზუსტია ჩვენი კლასიფიკატორი ამ ტესტის მონაცემთა ბაზაში. ამისათვის ჩვენ ასევე გავაფართოვებთ სატესტო მონაცემთა ბაზას დამატებითი განზომილებით, ვამრავლებთ წონების მატრიცით და ვრწმუნდებით, რომ მიღებული მნიშვნელობა იგივე ნიშნითაა, როგორც ეტიკეტზე (+1 ან -1). შემდეგ ჩვენ ვამატებთ ყველა ლოგიკურ მნიშვნელობას და ვყოფთ ტესტის ნიმუშის სიგრძეზე, რათა მივიღოთ სიზუსტე:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def accuracy(weights, test_x, test_labels):\n    res = np.dot(np.c_[test_x,np.ones(len(test_x))],weights)\n    return (res.reshape(test_labels.shape)*test_labels>=0).sum()/float(len(test_labels))\n\naccuracy(wts, test_x, test_labels)",
+   "executionCount": 10,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "1.0"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## სასწავლო პროცესის დაკვირვება\n\nადრეც ვნახეთ, როგორ იკლებს სიზუსტე ვარჯიშის დროს. კარგი იქნებოდა იმის დანახვა, თუ როგორ იქცევა გამყოფი ხაზი ვარჯიშის დროს. ქვემოთ მოცემული კოდი აჩვენებს ყველაფერს ერთ გრაფიკზე და თქვენ უნდა შეძლოთ სლაიდერის გადატანა „დროში მოგზაურობაზე“ სასწავლო პროცესის განმავლობაში.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def train_graph(positive_examples, negative_examples, num_iterations = 100, learning_rate = 0.01):\n    num_dims = positive_examples.shape[1]\n    weights = np.zeros((num_dims,1)) # initialize weights\n    \n    pos_count = positive_examples.shape[0]\n    neg_count = negative_examples.shape[0]\n    \n    report_frequency = 15;\n    snapshots = []\n    \n    for i in range(num_iterations):\n        pos = random.choice(positive_examples)\n        neg = random.choice(negative_examples)\n\n        z = np.dot(pos, weights)   \n        if z < 0:\n            weights = weights + learning_rate * pos.reshape(weights.shape)\n\n        z  = np.dot(neg, weights)\n        if z >= 0:\n            weights = weights - learning_rate * neg.reshape(weights.shape)\n            \n        if i % report_frequency == 0:             \n            pos_out = np.dot(positive_examples, weights)\n            neg_out = np.dot(negative_examples, weights)        \n            pos_correct = (pos_out >= 0).sum() / float(pos_count)\n            neg_correct = (neg_out < 0).sum() / float(neg_count)\n            snapshots.append([np.copy(weights).flatten(), (pos_correct+neg_correct)/2.0])\n\n    return np.array(snapshots, dtype=object)\n\nsnapshots = train_graph(pos_examples,neg_examples)\n\ndef plotit(pos_examples,neg_examples,snapshots,step):\n    fig = pylab.figure(figsize=(10,4))\n    fig.add_subplot(1, 2, 1)\n    plot_boundary(pos_examples, neg_examples, snapshots[step][0])\n    fig.add_subplot(1, 2, 2)\n    pylab.plot(np.arange(len(snapshots[:,1])), snapshots[:,1])\n    pylab.ylabel('Accuracy')\n    pylab.xlabel('Iteration')\n    pylab.plot(step, snapshots[step,1], \"bo\")\n    pylab.show()\ndef pl1(step): plotit(pos_examples,neg_examples,snapshots,step)",
+   "executionCount": 11,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "interact(pl1, step=widgets.IntSlider(value=0, min=0, max=len(snapshots)-1))",
+   "executionCount": 12,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "interactive(children=(IntSlider(value=0, description='step', max=6), Output()), _dom_classes=('widget-interact…"
+    },
+    {
+     "kind": "text",
+     "text": "<function __main__.pl1(step)>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## პერცეპტრონის შეზღუდვები\n\nროგორც ზემოთ იხილეთ, პერცეპტრონი არის წრფივი კლასიფიკატორი. მას შეუძლია კარგად განასხვავოს ორი კლასი, თუ ისინი წრფივად განცალკევებულნი არიან, ანუ შეიძლება გამოვყოთ სწორი ხაზით. წინააღმდეგ შემთხვევაში, პერცეპტრონის მომზადების პროცესი არ გადაიყრება.\n\nპრობლემის ყველაზე თვალსაჩინო მაგალითი, რომლის გადაჭრაც შეუძლებელია პერცეპტრონით, არის ეგრეთ წოდებული XOR პრობლემა. ჩვენ გვინდა, რომ ჩვენმა პერცეპტრონმა ისწავლოს XOR ლოგიკური ფუნქცია, რომელსაც აქვს შემდეგი ჭეშმარიტების ცხრილი:\n\n|   | 0 | 1 |\n|---|---|---|\n| 0 | 0 | 1 | \n| 1 | 1 | 0 |\n\nვცადოთ და გავაკეთოთ ეს! ჩვენ ხელით შევავსებთ ტრენინგის ყველა პოზიტიურ და უარყოფით ნიმუშს და შემდეგ გამოვიძახებთ ზემოთ განსაზღვრულ მატარებლის ფუნქციას:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "pos_examples_xor = np.array([[1,0,1],[0,1,1]])\nneg_examples_xor = np.array([[1,1,1],[0,0,1]])\n\nsnapshots_xor = train_graph(pos_examples_xor,neg_examples_xor,1000)\ndef pl2(step): plotit(pos_examples_xor,neg_examples_xor,snapshots_xor,step)",
+   "executionCount": 13,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "interact(pl2, step=widgets.IntSlider(value=0, min=0, max=len(snapshots)-1))",
+   "executionCount": 14,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "interactive(children=(IntSlider(value=0, description='step', max=6), Output()), _dom_classes=('widget-interact…"
+    },
+    {
+     "kind": "text",
+     "text": "<function __main__.pl2(step)>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "როგორც ზემოთ მოყვანილი გრაფიკიდან ხედავთ, სიზუსტე არასდროს სცილდება 75%-ს, რადგან შეუძლებელია სწორი ხაზის დახატვა ისე, რომ ყველა შესაძლო მაგალითი სწორი იყოს.\n\nXOR პრობლემა პერცეპტრონის შეზღუდვების კლასიკური მაგალითია და ეს აღნიშნეს მარვინ მინსკიმ და სეიმურ პეპერტმა 1969 წელს მათ წიგნში პერცეპტრონები. ეს დაკვირვება ზღუდავდა კვლევას ნერვული ქსელების არეალში თითქმის 10 წლის განმავლობაში, მიუხედავად იმისა, რომ - და ამას ჩვენი კურსის შემდეგ ნაწილში დავინახავთ - მრავალშრიანი პერცეტრონები შესანიშნავად ახერხებენ ამგვარი პრობლემების გადაჭრას.\n\n## რთული მაგალითი - MNIST\n\nმიუხედავად იმისა, რომ პერცეტრონს არ შეუძლია გადაჭრას XOR პრობლემა, მას შეუძლია გადაჭრას მრავალი უფრო რთული პრობლემა, როგორიცაა ხელნაწერი სიმბოლოების ამოცნობა.\n\nმონაცემთა ნაკრები, რომელიც ხშირად გამოიყენება მანქანური სწავლების დაუფლებისას, ეწოდება MNIST. ის შექმნილია შეცვლილი სტანდარტებისა და ტექნოლოგიების ეროვნული ინსტიტუტის მიერ და შეიცავს 60000 ხელნაწერი ციფრის სასწავლო კომპლექტს, რომელიც შეგროვებულია ინსტიტუტის დაახლოებით 250 სტუდენტისა და თანამშრომლისგან. ასევე არსებობს 10000 ციფრისგან შემდგარი სატესტო მონაცემთა ნაკრები, შეგროვებული სხვადასხვა პიროვნებისგან.\n\nყველა ციფრი წარმოდგენილია 28x28 პიქსელის ზომის ნაცრისფერი გამოსახულებით.\n\n> MNIST Dataset ხელმისაწვდომია სასწავლო კონკურსის სახით კაგლი-ზე, საიტზე, რომელიც მასპინძლობს მანქანათმცოდნეობის შეჯიბრებებს და კონკურსებს. მას შემდეგ რაც ისწავლით MNIST ციფრების კლასიფიკაციას, შეგიძლიათ თქვენი გადაწყვეტა წარუდგინოთ Kaggle-ს, რათა ნახოთ, როგორ ფასდება ის სხვა მონაწილეებს შორის.\n\nჩვენ ვიწყებთ MNIST მონაცემთა ნაკრების ჩატვირთვით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# If you are not running this notebook from a cloned repository, you may need to grab the binary dataset file first\n# !wget https://github.com/microsoft/AI-For-Beginners/raw/main/data/mnist.pkl.gz?raw=true\n# In this case correct the link to the dataset below as well.\n\nwith gzip.open('../../../data/mnist.pkl.gz', 'rb') as mnist_pickle:\n    MNIST = pickle.load(mnist_pickle, encoding='latin1')",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით ახლა დავხატოთ მონაცემთა ნაკრები:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "print(MNIST['Train']['Features'][0][130:180])\nprint(MNIST['Train']['Labels'][0])\nfeatures = MNIST['Train']['Features'].astype(np.float32) / 256.0\nlabels = MNIST['Train']['Labels']\nfig = pylab.figure(figsize=(10,5))\nfor i in range(10):\n    ax = fig.add_subplot(1,10,i+1)\n    pylab.imshow(features[i].reshape(28,28))\npylab.show()",
+   "executionCount": 16,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[  0   0 188 255  94   0   0   0   0   0   0   0   0   0   0   0   0   0\n   0   0   0   0   0   0   0   0   0   0   0 191 250 253  93   0   0   0\n   0   0   0   0   0   0   0   0   0   0   0   0   0   0]\n1\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/6e079fe256ee9da5.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "იმის გამო, რომ პერცეტრონი არის ორობითი კლასიფიკატორი, ჩვენ შევზღუდავთ ჩვენს პრობლემას მხოლოდ ორი ციფრის ამოცნობით. ქვემოთ მოცემული ფუნქცია შეავსებს დადებითი და უარყოფითი ნიმუშის მასივებს ორი მოცემული ციფრით (და ასევე აჩვენებს ამ ციფრების ნიმუშებს სიცხადისთვის).\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def set_mnist_pos_neg(positive_label, negative_label):\n    positive_indices = [i for i, j in enumerate(MNIST['Train']['Labels']) \n                          if j == positive_label]\n    negative_indices = [i for i, j in enumerate(MNIST['Train']['Labels']) \n                          if j == negative_label]\n\n    positive_images = MNIST['Train']['Features'][positive_indices]\n    negative_images = MNIST['Train']['Features'][negative_indices]\n\n    fig = pylab.figure()\n    ax = fig.add_subplot(1, 2, 1)\n    pylab.imshow(positive_images[0].reshape(28,28), cmap='gray', interpolation='nearest')\n    ax.set_xticks([])\n    ax.set_yticks([])\n    ax = fig.add_subplot(1, 2, 2)\n    pylab.imshow(negative_images[0].reshape(28,28), cmap='gray', interpolation='nearest')\n    ax.set_xticks([])\n    ax.set_yticks([])\n    pylab.show()\n    \n    return positive_images, negative_images",
+   "executionCount": 17,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ დავიწყებთ 0-დან 1-ის კლასიფიკაციის მცდელობით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "pos1,neg1 = set_mnist_pos_neg(1,0)",
+   "executionCount": 19,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/41caa8fff88d3e40.png"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def plotit2(snapshots_mn,step):\n    fig = pylab.figure(figsize=(10,4))\n    ax = fig.add_subplot(1, 2, 1)\n    pylab.imshow(snapshots_mn[step][0].reshape(28, 28), interpolation='nearest')\n    ax.set_xticks([])\n    ax.set_yticks([])\n    pylab.colorbar()\n    ax = fig.add_subplot(1, 2, 2)\n    ax.set_ylim([0,1])\n    pylab.plot(np.arange(len(snapshots_mn[:,1])), snapshots_mn[:,1])\n    pylab.plot(step, snapshots_mn[step,1], \"bo\")\n    pylab.show()\ndef pl3(step): plotit2(snapshots_mn,step)\ndef pl4(step): plotit2(snapshots_mn2,step)    ",
+   "executionCount": 20,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "snapshots_mn = train_graph(pos1,neg1,1000)    \ninteract(pl3, step=widgets.IntSlider(value=0, min=0, max=len(snapshots_mn) - 1))",
+   "executionCount": 21,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "interactive(children=(IntSlider(value=0, description='step', max=66), Output()), _dom_classes=('widget-interac…"
+    },
+    {
+     "kind": "text",
+     "text": "<function __main__.pl3(step)>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "გთხოვთ, გაითვალისწინოთ, რომ სიზუსტე ძალიან სწრაფად აღწევს თითქმის 100%-მდე.\n\nგთხოვთ, გადააადგილეთ სლაიდერი ვარჯიშის ბოლოს რომელიმე პოზიციაზე და დააკვირდით მარცხნივ გამოსახულ სიმძიმის მატრიცას. ეს მატრიცა საშუალებას მოგცემთ გაიგოთ, როგორ მუშაობს პერცეტრონი რეალურად. თქვენ შეგიძლიათ იხილოთ მაღალი წონის მნიშვნელობები ველის შუაში, რომელიც შეესაბამება პიქსელებს, რომლებიც ჩვეულებრივ გვხვდება ციფრ 1-ისთვის და დაბალი უარყოფითი მნიშვნელობები გვერდებზე, სადაც არის 0 ციფრის ნაწილები. ასე რომ, თუ პერცეპტრონისთვის წარმოდგენილი ციფრი ფაქტობრივად არის 1, მისი შუა ნაწილი გამრავლდება მაღალი მნიშვნელობებით, რაც დადებით შედეგს გამოიღებს. პირიქით, როდესაც პერცეპტრონი 0-ს აკვირდება, შესაბამისი პიქსელები გამრავლდება უარყოფით რიცხვებზე.\n\n> შეიძლება შეამჩნიოთ, რომ თუ ჩვენს პერცეტრონს მივცემთ ციფრს 1 ოდნავ გადაადგილებულ ჰორიზონტალურად, ისე რომ მისი პიქსელები დაიკავონ ადგილი, სადაც არის 0-ის ვერტიკალური ნაწილები, შეიძლება მივიღოთ არასწორი შედეგი. ვინაიდან ჩვენი MNIST მონაცემთა ნაკრების ბუნება ისეთია, რომ ყველა ციფრი არის ცენტრში და სწორად განლაგებული, და პერცეტრონი ეყრდნობა მას, რათა განასხვავოს ციფრები.\n\nახლა ვცადოთ სხვადასხვა ციფრები:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "pos2,neg2 = set_mnist_pos_neg(2,5)",
+   "executionCount": 22,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/6d8cd28b2af07074.png"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "snapshots_mn2 = train_graph(pos2,neg2,1000)\ninteract(pl4, step=widgets.IntSlider(value=0, min=0, max=len(snapshots_mn2) - 1))",
+   "executionCount": 23,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "interactive(children=(IntSlider(value=0, description='step', max=66), Output()), _dom_classes=('widget-interac…"
+    },
+    {
+     "kind": "text",
+     "text": "<function __main__.pl4(step)>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## დისკუსია\n\nრატომღაც, 2 და 5 არ არის ადვილად გასაყოფი. მიუხედავად იმისა, რომ ჩვენ ვიღებთ შედარებით მაღალ სიზუსტეს (85%-ზე მეტი), ჩვენ ნათლად ვხედავთ, როგორ წყვეტს პერცეპტრონი რაღაც მომენტში სწავლას.\n\nიმის გასაგებად, თუ რატომ ხდება ეს, შეგვიძლია ვცადოთ ძირითადი კომპონენტის ანალიზი (PCA) გამოყენება. ეს არის მანქანათმცოდნეობის ტექნიკა, რომელიც გამოიყენება შეყვანის მონაცემთა ბაზის განზომილების შესამცირებლად, ისე, რომ მივიღოთ საუკეთესო განცალკევება კლასებს შორის.\n\nჩვენს შემთხვევაში, შეყვანილ სურათს აქვს 784 პიქსელი (შეყვანის ფუნქციები) და ჩვენ გვინდა გამოვიყენოთ PCA, რათა შევამციროთ პარამეტრის რაოდენობა მხოლოდ 2-მდე, რათა შევძლოთ მათი გამოსახვა გრაფიკზე. ეს ორი პარამეტრი იქნება ორიგინალური მახასიათებლების წრფივი კომბინაცია და ჩვენ შეგვიძლია განვიხილოთ ეს პროცედურა, როგორც ჩვენი თავდაპირველი 784 განზომილებიანი სივრცის „ბრუნვა“ და დავაკვირდეთ მის პროექციას ჩვენს 2D სივრცეში, სანამ არ მივიღებთ საუკეთესო ხედს, რომელიც კლასებს ჰყოფს.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "from sklearn.decomposition import PCA\n\ndef pca_analysis(positive_label, negative_label):\n    positive_images, negative_images = set_mnist_pos_neg(positive_label, negative_label)\n    M = np.append(positive_images, negative_images, 0)\n\n    mypca = PCA(n_components=2)\n    mypca.fit(M)\n    \n    pos_points = mypca.transform(positive_images[:200])\n    neg_points = mypca.transform(negative_images[:200])\n\n    pylab.plot(pos_points[:,0], pos_points[:,1], 'bo')\n    pylab.plot(neg_points[:,0], neg_points[:,1], 'ro')",
+   "executionCount": 24,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "pca_analysis(1,0)",
+   "executionCount": 25,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/41caa8fff88d3e40.png"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/6c1c67eaadd92f1f.png"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "pca_analysis(2,5)",
+   "executionCount": 26,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/6d8cd28b2af07074.png"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/30d4021e51b33c20.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "როგორც ხედავთ, 0 და 1 შეიძლება მკაფიოდ გამოიყოს სწორი ხაზით. ეს მიუთითებს, რომ თავდაპირველ 784-განზომილებიანი სივრცეში ციფრების შესაბამისი წერტილები ასევე წრფივად განცალკევებულია. 2-ისა და 5-ის შემთხვევაში ვერ ვიპოვით კარგ პროექციას, რომელიც ციფრებს მკაფიოდ გამოყოფს და, შესაბამისად, არის არასწორი კლასიფიკაციის შემთხვევები.\n\n> ამ კურსის შემდეგ ჩვენ ვისწავლით როგორ შევქმნათ არაწრფივი კლასიფიკატორები ნერვული ქსელების გამოყენებით და როგორ გავუმკლავდეთ ციფრების არასწორად გასწორების პრობლემას. ძალიან მალე ჩვენ მივაღწევთ 99%-ზე მეტ სიზუსტეს MNIST-ის ციფრთა კლასიფიკაციაში, ხოლო მათ 10 სხვადასხვა კლასად დავყოფთ.\n\n## Takeaway\n\n* ჩვენ გავიგეთ უმარტივესი ნერვული ქსელის არქიტექტურის - ერთშრიანი პერცეპტრონის შესახებ.\n * ჩვენ განვახორციელეთ პერცეტრონი „ხელით“, მარტივი სასწავლო პროცედურის გამოყენებით, რომელიც დაფუძნებულია გრადიენტულ დაღმართზე\n * მიუხედავად სიმარტივისა, ერთშრიანი პერცეტრონს შეუძლია გადაჭრას ხელით დაწერილი ციფრების ამოცნობის საკმაოდ რთული პრობლემები\n * ერთშრიანი პერცეტრონი არის ლაინერის კლასიფიკატორი და, შესაბამისად, ის უზრუნველყოფს იმავე კლასიფიკაციის ძალას, როგორც ლოგისტიკური რეგრესია.\n * ნიმუშის სივრცეში პერცეპტრონს შეუძლია გამოყოს შეყვანის მონაცემების ორი კლასი ჰიპერპლანის გამოყენებით.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## კრედიტები\n\nეს ნოუთბუქი არის AI დამწყებთათვის სასწავლო გეგმები-ის ნაწილი და მომზადებულია დიმიტრი სოშნიკოვი-ის მიერ. ის შთაგონებულია ნეირონული ქსელის სემინარიდან Microsoft Research Cambridge-ში. ზოგიერთი კოდი და საილუსტრაციო მასალა აღებულია კატია ჰოფმანი, მეთიუ ჯონსონი და რიოტო ტომიოკა პრეზენტაციებიდან და ნეიროვორკშოპი საცავიდან.\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/3-NeuralNetworks/03-Perceptron/Perceptron.ipynb"
+}

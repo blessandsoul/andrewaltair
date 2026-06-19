@@ -1,0 +1,220 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "computer-vision/segmentation/semantic-segmentation-pytorch",
+ "segments": [
+  "computer-vision",
+  "segmentation",
+  "semantic-segmentation-pytorch"
+ ],
+ "title": "სეგმენტაცია",
+ "module": {
+  "id": "4-ComputerVision",
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა",
+  "icon": "eye"
+ },
+ "lessonNumber": 12,
+ "orderInModule": 1120.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/4-ComputerVision/12-Segmentation/SemanticSegmentationPytorch.ipynb"
+ },
+ "prev": {
+  "slug": "computer-vision/segmentation",
+  "title": "სეგმენტაცია"
+ },
+ "next": {
+  "slug": "computer-vision/segmentation/semantic-segmentation-tf",
+  "title": "სემანტიკური სეგმენტაცია"
+ },
+ "framework": "pytorch",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "ჩვენ უკვე ვისწავლეთ Object Detection-ის შესახებ, რომელიც საშუალებას გვაძლევს აღმოვაჩინოთ ობიექტები სურათზე მათი შეზღუდული უჯრების წინასწარმეტყველებით. თუმცა, ზოგიერთი ამოცანისთვის ჩვენ გვჭირდება არა მხოლოდ შეზღუდვის ყუთები, არამედ უფრო ზუსტი ობიექტის ლოკალიზაცია. ამ ამოცანას ეწოდება სეგმენტაცია.\n\nსეგმენტაცია შეიძლება ჩაითვალოს პიქსელების კლასიფიკაციად, ხოლო თითოეული სურათის პიქსელისთვის უნდა ვიწინასწარმეტყველოთ მისი კლასი (ფონი არის ერთ-ერთი კლასი). არსებობს ორი ძირითადი სეგმენტაციის ალგორითმი:\n\n* სემანტიკური სეგმენტაცია მხოლოდ პიქსელების კლასს ეუბნება და არ განასხვავებს ერთი და იმავე კლასის სხვადასხვა ობიექტებს შორის\n* ინსტანციის სეგმენტაცია ყოფს კლასებს სხვადასხვა ინსტანციებად.\n\nმაგალითად, სეგმენტაცია 10 ცხვარი სხვადასხვა ობიექტია, სემანტიკური სეგმენტაციისთვის ყველა ცხვარი წარმოდგენილია ერთი კლასით.\n\n![](/courses/ai-for-beginners/4-ComputerVision/12-Segmentation/images/instance_vs_semantic.jpeg)\n\n> სურათი ეს ბლოგის პოსტი-დან\n\nარსებობს სხვადასხვა ნერვული არქიტექტურა სეგმენტაციისთვის, მაგრამ მათ აქვთ იგივე სტრუქტურა:\n\n* Encoder ამონაწერი თვისებები შეყვანის სურათი\n* დეკოდერი გარდაქმნის ამ ფუნქციებს ნიღბის გამოსახულებად, არხების იგივე ზომითა და რაოდენობით, რომლებიც შეესაბამება კლასების რაოდენობას.\n\n![](/courses/ai-for-beginners/4-ComputerVision/12-Segmentation/images/segm.png)\n\n> სურათი ამ პუბლიკაციას-დან\n\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## წინაპირობები\n\nდასაწყისისთვის, ჩვენ მოვახდენთ საჭირო ბიბლიოთეკების იმპორტს და შევამოწმებთ არის თუ არა ტრენინგისთვის ხელმისაწვდომი GPU.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import torch\nimport torchvision\nimport matplotlib.pyplot as plt\nfrom torchvision import transforms\nfrom torch import nn\nfrom torch import optim\nfrom tqdm import tqdm\nimport numpy as np\nimport torch.nn.functional as F\nfrom skimage.io import imread\nfrom skimage.transform import resize\nimport os\ntorch.manual_seed(42)\nnp.random.seed(42)",
+   "executionCount": 1,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "device = 'cuda:0' if torch.cuda.is_available() else 'cpu'\ntrain_size = 0.9\nlr = 1e-3\nweight_decay = 1e-6\nbatch_size = 32\nepochs = 30",
+   "executionCount": 2,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## The Dataset\n\nჩვენ გამოვიყენებთ PH2 მონაცემთა ბაზას ადამიანის ნევუსების დერმოსკოპიული გამოსახულებების. ეს მონაცემთა ნაკრები შეიცავს სამი კლასის 200 სურათს: ტიპიური ნევუსი, ატიპიური ნევუსი და მელანომა. ყველა სურათი ასევე შეიცავს შესაბამის ნიღაბს, რომელიც ასახავს ნევუსს.\n\nქვემოთ მოცემული კოდი ჩამოტვირთავს მონაცემთა ბაზას თავდაპირველი მდებარეობიდან და ახდენს მის დეკომპრესიას. თქვენ უნდა გქონდეთ დაინსტალირებული `unrar` პროგრამა ამ კოდის მუშაობისთვის, შეგიძლიათ დააინსტალიროთ `sudo apt-get install unrar`-ის გამოყენებით Linux-ზე, ან ჩამოტვირთეთ ბრძანების ხაზის ვერსია Windows-ისთვის აქ.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "#!apt-get install rar\n!wget https://www.dropbox.com/s/k88qukc20ljnbuo/PH2Dataset.rar\n!unrar x -Y PH2Dataset.rar",
+   "executionCount": 5,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა ჩვენ განვსაზღვრავთ კოდს მონაცემთა ნაკრების ჩასატვირთად. ჩვენ ყველა სურათს გარდაქმნით 256x256 ზომებად და დავყოფთ მონაცემთა ბაზას მატარებელ და სატესტო ნაწილებად. ეს ფუნქცია აბრუნებს მატარებლის და ტესტის მონაცემთა ნაკრებებს, თითოეული შეიცავს ორიგინალურ სურათებს და ნიღბებს, რომლებიც ასახავს ნევუსს.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def load_dataset(train_part, root='PH2Dataset'):\n    images = []\n    masks = []\n\n    for root, dirs, files in os.walk(os.path.join(root, 'PH2 Dataset images')):\n        if root.endswith('_Dermoscopic_Image'):\n            images.append(imread(os.path.join(root, files[0])))\n        if root.endswith('_lesion'):\n            masks.append(imread(os.path.join(root, files[0])))\n\n    size = (256, 256)\n    images = torch.permute(torch.FloatTensor(np.array([resize(image, size, mode='constant', anti_aliasing=True,) for image in images])), (0, 3, 1, 2))\n    masks = torch.FloatTensor(np.array([resize(mask, size, mode='constant', anti_aliasing=False) > 0.5 for mask in masks])).unsqueeze(1)\n\n    indices = np.random.permutation(range(len(images)))\n    train_part = int(train_part * len(images))\n    train_ind = indices[:train_part]\n    test_ind = indices[train_part:]\n\n    train_dataset = (images[train_ind, :, :, :], masks[train_ind, :, :, :])\n    test_dataset = (images[test_ind, :, :, :], masks[test_ind, :, :, :])\n\n    return train_dataset, test_dataset\n\ntrain_dataset, test_dataset = load_dataset(train_size)",
+   "executionCount": 4,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით ახლა დავხატოთ ზოგიერთი სურათი მონაცემთა ნაკრებიდან, რათა დავინახოთ, როგორ გამოიყურებიან ისინი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def plotn(n, data, only_mask=False):\n    images, masks = data[0], data[1]\n    fig, ax = plt.subplots(1, n)\n    fig1, ax1 = plt.subplots(1, n)\n    for i, (img, mask) in enumerate(zip(images, masks)):\n        if i == n:\n            break\n        if not only_mask:\n            ax[i].imshow(torch.permute(img, (1, 2, 0)))\n        else:\n            ax[i].imshow(img[0])\n        ax1[i].imshow(mask[0])\n        ax[i].axis('off')\n        ax1[i].axis('off')\n    plt.show()\n\nplotn(5, train_dataset)",
+   "executionCount": 17,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ ასევე დაგვჭირდება მონაცემთა ჩამტვირთველები, რათა შევიტანოთ მონაცემები ჩვენს ნერვულ ქსელში.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "train_dataloader = torch.utils.data.DataLoader(list(zip(train_dataset[0], train_dataset[1])), batch_size=batch_size, shuffle=True)\ntest_dataloader = torch.utils.data.DataLoader(list(zip(test_dataset[0], test_dataset[1])), batch_size=1, shuffle=False)\ndataloaders = (train_dataloader, test_dataloader)",
+   "executionCount": 16,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## სეგნეტი\n\nუმარტივეს ენკოდერ-დეკოდერის არქიტექტურას ეწოდება SegNet. ის იყენებს სტანდარტულ CNN-ს კონვოლუციებითა და გაერთიანებებით ენკოდერში, და დეკონვოლუციურ CNN-ს, რომელიც მოიცავს დეკოდერში კონვოლუციებს და ასიმპლინგებს. ის ასევე ეყრდნობა პარტიული ნორმალიზებას მრავალ ფენიანი ქსელის წარმატებით მოსამზადებლად.\n\n![](/courses/ai-for-beginners/4-ComputerVision/12-Segmentation/images/segnet.png)\n\n> სურათი ამ ნაშრომიდან: Badrinarayanan, V., Kendall, A., & Cipolla, R. (2015). SegNet: ღრმა კონვოლუციონალური\nენკოდერ-დეკოდერის არქიტექტურა გამოსახულების სეგმენტაციისთვის\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class SegNet(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.enc_conv0 = nn.Conv2d(in_channels=3, out_channels=16, kernel_size=(3,3), padding=1)\n        self.act0 = nn.ReLU()\n        self.bn0 = nn.BatchNorm2d(16)\n        self.pool0 = nn.MaxPool2d(kernel_size=(2,2))\n\n        self.enc_conv1 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=(3,3), padding=1)\n        self.act1 = nn.ReLU()\n        self.bn1 = nn.BatchNorm2d(32)\n        self.pool1 = nn.MaxPool2d(kernel_size=(2,2))\n\n        self.enc_conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=(3,3), padding=1)\n        self.act2 = nn.ReLU()\n        self.bn2 = nn.BatchNorm2d(64)\n        self.pool2 =  nn.MaxPool2d(kernel_size=(2,2))\n\n        self.enc_conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=(3,3), padding=1)\n        self.act3 = nn.ReLU()\n        self.bn3 = nn.BatchNorm2d(128)\n        self.pool3 =  nn.MaxPool2d(kernel_size=(2,2))\n\n        self.bottleneck_conv = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=(3,3), padding=1)\n        \n        self.upsample0 =  nn.UpsamplingBilinear2d(scale_factor=2)\n        self.dec_conv0 = nn.Conv2d(in_channels=256, out_channels=128, kernel_size=(3,3), padding=1)\n        self.dec_act0 = nn.ReLU()\n        self.dec_bn0 = nn.BatchNorm2d(128)\n\n        self.upsample1 =  nn.UpsamplingBilinear2d(scale_factor=2)\n        self.dec_conv1 =  nn.Conv2d(in_channels=128, out_channels=64, kernel_size=(3,3), padding=1)\n        self.dec_act1 = nn.ReLU()\n        self.dec_bn1 = nn.BatchNorm2d(64)\n\n        self.upsample2 = nn.UpsamplingBilinear2d(scale_factor=2)\n        \n        self.dec_conv2 = nn.Conv2d(in_channels=64, out_channels=32, kernel_size=(3,3), padding=1)\n        self.dec_act2 = nn.ReLU()\n        self.dec_bn2 = nn.BatchNorm2d(32)\n\n        self.upsample3 = nn.UpsamplingBilinear2d(scale_factor=2)\n        self.dec_conv3 = nn.Conv2d(in_channels=32, out_channels=1, kernel_size=(1,1))\n\n        self.sigmoid = nn.Sigmoid()\n\n    def forward(self, x):\n        e0 = self.pool0(self.bn0(self.act0(self.enc_conv0(x))))\n        e1 = self.pool1(self.bn1(self.act1(self.enc_conv1(e0))))\n        e2 = self.pool2(self.bn2(self.act2(self.enc_conv2(e1))))\n        e3 = self.pool3(self.bn3(self.act3(self.enc_conv3(e2))))\n\n        b = self.bottleneck_conv(e3)\n\n        d0 = self.dec_bn0(self.dec_act0(self.dec_conv0(self.upsample0(b))))\n        d1 = self.dec_bn1(self.dec_act1(self.dec_conv1(self.upsample1(d0))))\n        d2 = self.dec_bn2(self.dec_act2(self.dec_conv2(self.upsample2(d1))))\n        d3 = self.sigmoid(self.dec_conv3(self.upsample3(d2)))\n        return d3",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "განსაკუთრებით უნდა აღვნიშნოთ დანაკარგის ფუნქცია, რომელიც გამოიყენება სეგმენტაციისთვის. კლასიკურ ავტოენკოდერებში ჩვენ უნდა გავზომოთ მსგავსება ორ სურათს შორის და ამისათვის შეგვიძლია გამოვიყენოთ საშუალო კვადრატული შეცდომა. სეგმენტაციისას, სამიზნე ნიღბის გამოსახულებაში თითოეული პიქსელი წარმოადგენს კლასის ნომერს (one-hot კოდირებული მესამე განზომილების გასწვრივ), ამიტომ ჩვენ უნდა გამოვიყენოთ კლასიფიკაციისთვის დამახასიათებელი დანაკარგის ფუნქციები - ჯვარედინი ენტროპიის დაკარგვა, საშუალოდ ყველა პიქსელზე. თუ ნიღაბი ორობითია (როგორც ჩვენს მაგალითში) - ჩვენ გამოვიყენებთ ორობითი ჯვარედინი ენტროპიის დაკარგვას (ძვ.წ.).\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model = SegNet().to(device)\noptimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)\nloss_fn = nn.BCEWithLogitsLoss()",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ტრენინგის ციკლი განისაზღვრება ჩვეულებრივი გზით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def train(dataloaders, model, loss_fn, optimizer, epochs, device):\n    tqdm_iter = tqdm(range(epochs))\n    train_dataloader, test_dataloader = dataloaders[0], dataloaders[1]\n\n    for epoch in tqdm_iter:\n        model.train()\n        train_loss = 0.0\n        test_loss = 0.0\n\n        for batch in train_dataloader:\n            imgs, labels = batch\n            imgs = imgs.to(device)\n            labels = labels.to(device)\n\n            preds = model(imgs)\n            loss = loss_fn(preds, labels)\n\n            optimizer.zero_grad()\n            loss.backward()\n            optimizer.step()\n\n            train_loss += loss.item()\n\n        model.eval()\n        with torch.no_grad():\n            for batch in test_dataloader:\n                imgs, labels = batch\n                imgs = imgs.to(device)\n                labels = labels.to(device)\n\n                preds = model(imgs)\n                loss = loss_fn(preds, labels)\n\n                test_loss += loss.item()\n\n        train_loss /= len(train_dataloader)\n        test_loss /= len(test_dataloader)\n\n        tqdm_dct = {'train loss:': train_loss, 'test loss:': test_loss}\n        tqdm_iter.set_postfix(tqdm_dct, refresh=True)\n        tqdm_iter.refresh()",
+   "executionCount": 21,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "train(dataloaders, model, loss_fn, optimizer, epochs, device)",
+   "executionCount": 12,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "100%|██████████| 30/30 [16:01<00:00, 32.04s/it, train loss:=0.593, test loss:=0.577]\n",
+     "stream": "stderr"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენი მოდელის შესაფასებლად, ჩვენ უბრალოდ დავსახავთ სამიზნე ნიღბებს და წინასწარმეტყველურ ნიღბებს რამდენიმე სურათისთვის:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model.eval()\npredictions = []\nimage_mask = []\nplots = 5\nimages, masks = test_dataset[0], test_dataset[1]\nfor i, (img, mask) in enumerate(zip(images, masks)):\n    if i == plots:\n        break\n    img = img.to(device).unsqueeze(0)\n    predictions.append((model(img).detach().cpu()[0] > 0.5).float())\n    image_mask.append(mask)\nplotn(plots, (predictions, image_mask), only_mask=True)",
+   "executionCount": 13,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/2568514549b0e12c.png"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/6b0a1a6443a87101.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ასევე არსებობს რამდენიმე ფორმალური მეტრიკა შესრულების შესაფასებლად, რომლის შესახებაც შეგიძლიათ წაიკითხოთ აქ. ყველაზე მარტივი გასაგებად არის პიქსელის სიზუსტე - სწორად კლასიფიცირებული პიქსელების პროცენტი.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## U-Net\n\nSegNet არქიტექტურა ძალიან ბუნებრივია, მაგრამ ის არ არის ყველაზე ზუსტი. მართლაც, ჩვენ პირველად გამოვიყენებთ პირამიდის CNN არქიტექტურას ორიგინალურ სურათზე, რაც ამცირებს გამოსახულების მახასიათებლების სივრცულ სიზუსტეს. შემდეგ, როდესაც სურათს აღვადგინებთ, პიქსელის პოზიციების სწორად რეკონსტრუქციას ვერ ვახერხებთ.\n\nეს მიგვიყვანს იდეამდე გამოტოვოთ კავშირები კონვოლუციურ ფენებს შორის კოდირსა და დეკოდერში. ეს არქიტექტურა ძალიან გავრცელებულია სემანტიკური სეგმენტაციისთვის და ეწოდება U-Net. კავშირების გამოტოვება თითოეულ კონვოლუციურ დონეზე ეხმარება ქსელს არ დაკარგოს ინფორმაცია ფუნქციების შესახებ ორიგინალური შეყვანიდან ამ დონეზე.\n\nჩვენ აქ გამოვიყენებთ საკმაოდ მარტივ CNN არქიტექტურას, მაგრამ U-Net ასევე შეუძლია გამოიყენოს უფრო რთული ენკოდერი ფუნქციების ამოღებისთვის, როგორიცაა ResNet-50.\n\n![](/courses/ai-for-beginners/4-ComputerVision/12-Segmentation/images/unet.png)\n\n> სურათი ქაღალდიდან: რონებერგერი, ოლაფი, ფილიპ ფიშერი და თომას ბროქსი. U-Net: კონვოლუციური ქსელები ბიოსამედიცინო გამოსახულების სეგმენტაციისთვის.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class UNet(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.enc_conv0 = nn.Conv2d(in_channels=3, out_channels=16, kernel_size=(3,3), padding=1)\n        self.act0 = nn.ReLU()\n        self.bn0 = nn.BatchNorm2d(16)\n        self.pool0 = nn.MaxPool2d(kernel_size=(2,2))\n\n        self.enc_conv1 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=(3,3), padding=1)\n        self.act1 = nn.ReLU()\n        self.bn1 = nn.BatchNorm2d(32)\n        self.pool1 = nn.MaxPool2d(kernel_size=(2,2))\n\n        self.enc_conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=(3,3), padding=1)\n        self.act2 = nn.ReLU()\n        self.bn2 = nn.BatchNorm2d(64)\n        self.pool2 =  nn.MaxPool2d(kernel_size=(2,2))\n\n        self.enc_conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=(3,3), padding=1)\n        self.act3 = nn.ReLU()\n        self.bn3 = nn.BatchNorm2d(128)\n        self.pool3 =  nn.MaxPool2d(kernel_size=(2,2))\n\n        self.bottleneck_conv = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=(3,3), padding=1)\n        \n        self.upsample0 =  nn.UpsamplingBilinear2d(scale_factor=2)\n        self.dec_conv0 = nn.Conv2d(in_channels=384, out_channels=128, kernel_size=(3,3), padding=1)\n        self.dec_act0 = nn.ReLU()\n        self.dec_bn0 = nn.BatchNorm2d(128)\n\n        self.upsample1 =  nn.UpsamplingBilinear2d(scale_factor=2)\n        self.dec_conv1 =  nn.Conv2d(in_channels=192, out_channels=64, kernel_size=(3,3), padding=1)\n        self.dec_act1 = nn.ReLU()\n        self.dec_bn1 = nn.BatchNorm2d(64)\n\n        self.upsample2 = nn.UpsamplingBilinear2d(scale_factor=2)\n        self.dec_conv2 = nn.Conv2d(in_channels=96, out_channels=32, kernel_size=(3,3), padding=1)\n        self.dec_act2 = nn.ReLU()\n        self.dec_bn2 = nn.BatchNorm2d(32)\n\n        self.upsample3 = nn.UpsamplingBilinear2d(scale_factor=2)\n        self.dec_conv3 = nn.Conv2d(in_channels=48, out_channels=1, kernel_size=(1,1))\n\n        self.sigmoid = nn.Sigmoid()\n\n    def forward(self, x):\n        e0 = self.pool0(self.bn0(self.act0(self.enc_conv0(x))))\n        e1 = self.pool1(self.bn1(self.act1(self.enc_conv1(e0))))\n        e2 = self.pool2(self.bn2(self.act2(self.enc_conv2(e1))))\n        e3 = self.pool3(self.bn3(self.act3(self.enc_conv3(e2))))\n\n        cat0 = self.bn0(self.act0(self.enc_conv0(x)))\n        cat1 = self.bn1(self.act1(self.enc_conv1(e0)))\n        cat2 = self.bn2(self.act2(self.enc_conv2(e1)))\n        cat3 = self.bn3(self.act3(self.enc_conv3(e2)))\n\n        b = self.bottleneck_conv(e3)\n\n        d0 = self.dec_bn0(self.dec_act0(self.dec_conv0(torch.cat((self.upsample0(b), cat3), dim=1))))\n        d1 = self.dec_bn1(self.dec_act1(self.dec_conv1(torch.cat((self.upsample1(d0), cat2), dim=1))))\n        d2 = self.dec_bn2(self.dec_act2(self.dec_conv2(torch.cat((self.upsample2(d1), cat1), dim=1))))\n        d3 = self.sigmoid(self.dec_conv3(torch.cat((self.upsample3(d2), cat0), dim=1)))\n        return d3",
+   "executionCount": 14,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model = UNet().to(device)\noptimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)\nloss_fn = nn.BCEWithLogitsLoss()",
+   "executionCount": 15,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "train(dataloaders, model, loss_fn, optimizer, epochs, device)",
+   "executionCount": 16,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "100%|██████████| 30/30 [29:07<00:00, 58.26s/it, train loss:=0.595, test loss:=0.572] \n",
+     "stream": "stderr"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model.eval()\npredictions = []\nimage_mask = []\nplots = 5\nimages, masks = test_dataset[0], test_dataset[1]\nfor i, (img, mask) in enumerate(zip(images, masks)):\n    if i == plots:\n        break\n    img = img.to(device).unsqueeze(0)\n    predictions.append((model(img).detach().cpu()[0] > 0.5).float())\n    image_mask.append(mask)\nplotn(plots, (predictions, image_mask), only_mask=True)",
+   "executionCount": 17,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/b55df78a61a06c29.png"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/6b0a1a6443a87101.png"
+    }
+   ]
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/4-ComputerVision/12-Segmentation/SemanticSegmentationPytorch.ipynb"
+}

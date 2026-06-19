@@ -1,0 +1,41 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "other/genetic-algorithms/diophantine",
+ "segments": [
+  "other",
+  "genetic-algorithms",
+  "diophantine"
+ ],
+ "title": "დიოფანტინის განტოლებები",
+ "module": {
+  "id": "6-Other",
+  "slug": "other",
+  "title": "სხვა AI ტექნიკები",
+  "icon": "puzzle"
+ },
+ "lessonNumber": 21,
+ "orderInModule": 1210.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/6-Other/21-GeneticAlgorithms/Diophantine.ipynb"
+ },
+ "prev": {
+  "slug": "other/genetic-algorithms/genetic",
+  "title": "გენეტიკური ალგორითმები"
+ },
+ "next": {
+  "slug": "other/deep-rl/lab",
+  "title": "სავარჯიშო მთის მანქანა გაქცევისთვის"
+ },
+ "framework": "generic",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "> ეს დავალება არის AI დამწყებთათვის სასწავლო პროგრამა-ის ნაწილი და შთაგონებულია ეს პოსტი-ით.\n\nთქვენი მიზანია ამოხსნათ ეგრეთ წოდებული დიოფანტინის განტოლება - განტოლება მთელი ფესვებით და მთელი რიცხვების კოეფიციენტებით. მაგალითად, განიხილეთ შემდეგი განტოლება:\n\n$$a+2b+3c+4d=30$$\n\nთქვენ უნდა იპოვოთ მთელი რიცხვი ფესვები $a$,$b$,$c$,$d\\in\\mathbb{N}$, რომლებიც აკმაყოფილებენ ამ განტოლებას.\n\nმინიშნებები:\n1. თქვენ შეგიძლიათ ჩათვალოთ ფესვები ინტერვალში [0;30]\n1. როგორც გენი, განიხილეთ ძირეული მნიშვნელობების სიის გამოყენება\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/6-Other/21-GeneticAlgorithms/Diophantine.ipynb"
+}

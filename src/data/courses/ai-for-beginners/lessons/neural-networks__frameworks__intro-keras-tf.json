@@ -1,0 +1,501 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "neural-networks/frameworks/intro-keras-tf",
+ "segments": [
+  "neural-networks",
+  "frameworks",
+  "intro-keras-tf"
+ ],
+ "title": "შესავალი Tensorflow-სა და Keras-ში",
+ "module": {
+  "id": "3-NeuralNetworks",
+  "slug": "neural-networks",
+  "title": "ნეირონული ქსელები",
+  "icon": "network"
+ },
+ "lessonNumber": 5,
+ "orderInModule": 1050.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/3-NeuralNetworks/05-Frameworks/IntroKerasTF.ipynb"
+ },
+ "prev": {
+  "slug": "neural-networks/frameworks/intro-py-torch",
+  "title": "შესავალი PyTorch-ში"
+ },
+ "next": {
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა"
+ },
+ "framework": "tensorflow",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "> ეს ნოუთბუქი AI დამწყებთათვის სასწავლო გეგმები-ის ნაწილია. ეწვიეთ საცავს სასწავლო მასალების სრული ნაკრებისთვის.\n\n### ნერვული ჩარჩოები\n\nჩვენ გავიგეთ, რომ ნერვული ქსელების მოსამზადებლად გჭირდებათ:\n* სწრაფად გაამრავლეთ მატრიცები (ტენსორები)\n* გამოთვალეთ გრადიენტები გრადიენტული წარმოშობის ოპტიმიზაციის შესასრულებლად\n\nრა საშუალებას გაძლევთ გააკეთოთ ნერვული ქსელის ჩარჩოები:\n* იმუშავეთ ტენსორებით ნებისმიერ გამოთვლაზე, CPU ან GPU, ან თუნდაც TPU\n* გრადიენტების ავტომატური გამოთვლა (ისინი აშკარად დაპროგრამებულია ყველა ჩაშენებული ტენზორული ფუნქციისთვის)\n\nსურვილისამებრ:\n* ნერვული ქსელის კონსტრუქტორი / უმაღლესი დონის API (აღწერეთ ქსელი, როგორც ფენების თანმიმდევრობა)\n* მარტივი სასწავლო ფუნქციები (`fit`, როგორც Scikit Learn-ში)\n* ოპტიმიზაციის მთელი რიგი ალგორითმები გრადიენტული წარმოშობის გარდა\n* მონაცემთა დამუშავების აბსტრაქციები (რომელიც იდეალურად იმუშავებს GPU-ზეც)\n"
+  },
+  {
+   "type": "markdown",
+   "source": "### ყველაზე პოპულარული ჩარჩოები\n\n* Tensorflow 1.x - პირველი ფართოდ ხელმისაწვდომი ჩარჩო (Google). ნებადართულია განსაზღვროს სტატიკური გამოთვლითი გრაფიკი, დააყენოს იგი GPU-ზე და მკაფიოდ შეაფასოს იგი\n* PyTorch - ფეისბუქის ჩარჩო, რომელიც იზრდება პოპულარობით\n* Keras - უფრო მაღალი დონის API Tensorflow/PyTorch-ის თავზე ნერვული ქსელების გაერთიანებისა და გამარტივების მიზნით (Francois Chollet)\n* Tensorflow 2.x + Keras - Tensorflow-ის ახალი ვერსია ინტეგრირებული Keras ფუნქციონირებით, რომელიც მხარს უჭერს დინამიური გამოთვლის გრაფიკს, რაც საშუალებას გაძლევთ შეასრულოთ ტენზორული ოპერაციები, რომლებიც ძალიან ჰგავს numpy-ს (და PyTorch)\n\nგანვიხილავთ Tensorflow 2.x და Keras. დარწმუნდით, რომ დაინსტალირებული გაქვთ Tensorflow-ის ვერსია 2.x.x:```\npip install tensorflow\n```ან```\nconda install tensorflow\n```\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import tensorflow as tf\nimport numpy as np\nprint(tf.__version__)",
+   "executionCount": 1,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "2.7.0\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## ძირითადი ცნებები: ტენსორი\n\nTensor არის მრავალგანზომილებიანი მასივი. ძალიან მოსახერხებელია ტენსორების გამოყენება სხვადასხვა ტიპის მონაცემების წარმოსადგენად:\n* 400x400 - შავ-თეთრი სურათი\n* 400x400x3 - ფერადი სურათი \n* 16x400x400x3 - 16 ფერადი სურათის მინი პარტია\n* 25x400x400x3 - ერთი წამი 25-fps ვიდეოდან\n* 8x25x400x400x3 - 8 1 წამიანი ვიდეოს მინი პარტია\n"
+  },
+  {
+   "type": "markdown",
+   "source": "### მარტივი ტენსორები\n\nთქვენ შეგიძლიათ მარტივად შექმნათ მარტივი ტენსორები np მასივების სიებიდან, ან შექმნათ შემთხვევითი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "a = tf.constant([[1,2],[3,4]])\nprint(a)\na = tf.random.normal(shape=(10,3))\nprint(a)",
+   "executionCount": 2,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "tf.Tensor(\n[[1 2]\n [3 4]], shape=(2, 2), dtype=int32)\ntf.Tensor(\n[[-0.33552304 -1.8252622  -1.8532339 ]\n [ 1.0871267  -1.2779568   0.5240014 ]\n [-0.12793781 -1.8618349  -0.9020286 ]\n [ 0.5948797   0.11144501 -2.0396452 ]\n [ 0.47620854  1.1726047  -0.4405675 ]\n [-0.27211484 -0.08985762 -0.03376012]\n [ 0.64274263  0.53368104 -0.9006528 ]\n [-0.43745974 -1.0081122  -0.13442488]\n [ 0.36497566  1.3221073  -1.8739727 ]\n [ 0.94821155 -0.02817811  1.3563292 ]], shape=(10, 3), dtype=float32)\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "თქვენ შეგიძლიათ გამოიყენოთ არითმეტიკული მოქმედებები ტენსორებზე, რომლებიც შესრულებულია ელემენტების მიხედვით, როგორც numpy-ში. საჭიროების შემთხვევაში ტენზორები ავტომატურად აფართოებენ საჭირო განზომილებას. ტენსორიდან ნუმპი მასივის ამოსაღებად გამოიყენეთ `.numpy()`:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "print(a-a[0])\nprint(tf.exp(a)[0].numpy())",
+   "executionCount": 3,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "tf.Tensor(\n[[ 0.          0.          0.        ]\n [ 1.4226497   0.54730535  2.3772354 ]\n [ 0.20758523 -0.03657269  0.9512053 ]\n [ 0.93040276  1.9367073  -0.18641126]\n [ 0.8117316   2.9978669   1.4126664 ]\n [ 0.0634082   1.7354046   1.8194739 ]\n [ 0.97826564  2.3589432   0.9525811 ]\n [-0.1019367   0.81715     1.718809  ]\n [ 0.7004987   3.1473694  -0.02073872]\n [ 1.2837346   1.7970841   3.2095633 ]], shape=(10, 3), dtype=float32)\n[0.71496403 0.16117539 0.15672949]\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## ცვლადები\n\nცვლადები სასარგებლოა ტენსორული მნიშვნელობების წარმოსაჩენად, რომლებიც შეიძლება შეიცვალოს `assign` და `assign_add` გამოყენებით. ისინი ხშირად გამოიყენება ნერვული ქსელის წონის წარმოსაჩენად.\n\nმაგალითად, აქ არის სულელური გზა ტენზორის ყველა მწკრივის ჯამის მისაღებად `a`:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "s = tf.Variable(tf.zeros_like(a[0]))\nfor i in a:\n  s.assign_add(i)\n\nprint(s)",
+   "executionCount": 4,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<tf.Variable 'Variable:0' shape=(3,) dtype=float32, numpy=array([ 2.9411097, -2.9513645, -6.2979555], dtype=float32)>\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ბევრად უკეთესი გზა ამის გასაკეთებლად:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "tf.reduce_sum(a,axis=0)",
+   "executionCount": 5,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<tf.Tensor: shape=(3,), dtype=float32, numpy=array([ 2.9411097, -2.9513645, -6.2979555], dtype=float32)>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## გამოთვლითი გრადიენტები\n\nუკანა გამრავლებისთვის საჭიროა გრადიენტების გამოთვლა. ეს კეთდება `tf.GradientTape()` იდიომის გამოყენებით:\n * დაამატეთ `with tf.GradientTape` ბლოკი ჩვენი გამოთვლების გარშემო\n * მონიშნეთ ის ტენსორები, რომლებთან მიმართებაშიც უნდა გამოვთვალოთ გრადიენტები `tape.watch`-ის გამოძახებით (ყველა ცვლადი ყურება ავტომატურად ხდება)\n * გამოვთვალოთ რაც გვჭირდება (გამოთვლითი გრაფიკის შექმნა)\n * მიიღეთ გრადიენტები `tape.gradient`-ის გამოყენებით\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "a = tf.random.normal(shape=(2, 2))\nb = tf.random.normal(shape=(2, 2))\n\nwith tf.GradientTape() as tape:\n  tape.watch(a)  # Start recording the history of operations applied to `a`\n  c = tf.sqrt(tf.square(a) + tf.square(b))  # Do some math using `a`\n  # What's the gradient of `c` with respect to `a`?\n  dc_da = tape.gradient(c, a)\n  print(dc_da)",
+   "executionCount": 6,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "tf.Tensor(\n[[ 0.40935674 -0.3495818 ]\n [ 0.94165146 -0.33209163]], shape=(2, 2), dtype=float32)\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## მაგალითი 1: ხაზოვანი რეგრესია\n\nახლა ჩვენ საკმარისი ვიცით წრფივი რეგრესიის კლასიკური ამოცანის გადასაჭრელად. მოდით შევქმნათ მცირე სინთეზური მონაცემთა ნაკრები:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import matplotlib.pyplot as plt\nfrom sklearn.datasets import make_classification, make_regression\nfrom sklearn.model_selection import train_test_split\nimport random",
+   "executionCount": 7,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "np.random.seed(13) # pick the seed for reproducability - change it to explore the effects of random variations\n\ntrain_x = np.linspace(0, 3, 120)\ntrain_labels = 2 * train_x + 0.9 + np.random.randn(*train_x.shape) * 0.5\n\nplt.scatter(train_x,train_labels)",
+   "executionCount": 8,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<matplotlib.collections.PathCollection at 0x12892776880>"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/064d4965744637d1.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "წრფივი რეგრესია განისაზღვრება სწორი ხაზით $f_{W,b}(x) = Wx+b$, სადაც $W, b$ არის მოდელის პარამეტრები, რომლებიც უნდა ვიპოვოთ. შეცდომა ჩვენს მონაცემთა ბაზაში $\\{x_i,y_u\\}_{i=1}^N$ (ასევე უწოდებენ დაკარგვის ფუნქციას) შეიძლება განისაზღვროს, როგორც საშუალო კვადრატული შეცდომა:\n$$\n\\mathcal{L}(W,b) = {1\\ მეტი N}\\sum_{i=1}^N (f_{W,b}(x_i)-y_i)^2\n$$\n\nმოდით განვსაზღვროთ ჩვენი მოდელი და დაკარგვის ფუნქცია:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "input_dim = 1\noutput_dim = 1\nlearning_rate = 0.1\n\n# This is our weight matrix\nw = tf.Variable([[100.0]])\n# This is our bias vector\nb = tf.Variable(tf.zeros(shape=(output_dim,)))\n\ndef f(x):\n  return tf.matmul(x,w) + b\n\ndef compute_loss(labels, predictions):\n  return tf.reduce_mean(tf.square(labels - predictions))",
+   "executionCount": 9,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ მოვამზადებთ მოდელს მინი პატჩების სერიაზე. ჩვენ გამოვიყენებთ გრადიენტულ დაშვებას, მოდელის პარამეტრების კორექტირებას შემდეგი ფორმულების გამოყენებით:\n$$\n\\დაწყება{მასივი}{l}\nW^{(n+1)}=W^{(n)}-\\eta\\frac{\\partial\\mathcal{L}}{\\partial W} \\\\\nb^{(n+1)}=b^{(n)}-\\eta\\frac{\\partial\\mathcal{L}}{\\partial b} \\\\\n\\დასრულება{მასივი}\n$$\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def train_on_batch(x, y):\n  with tf.GradientTape() as tape:\n    predictions = f(x)\n    loss = compute_loss(y, predictions)\n    # Note that `tape.gradient` works with a list as well (w, b).\n    dloss_dw, dloss_db = tape.gradient(loss, [w, b])\n  w.assign_sub(learning_rate * dloss_dw)\n  b.assign_sub(learning_rate * dloss_db)\n  return loss",
+   "executionCount": 10,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩავატაროთ ტრენინგი. ჩვენ გავაკეთებთ რამდენიმე გავლას მონაცემთა ნაკრებში (ე.წ. ეპოქები), გავყოფთ მას მინიპატჩებად და გამოვიძახებთ ზემოთ განსაზღვრულ ფუნქციას:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Shuffle the data.\nindices = np.random.permutation(len(train_x))\nfeatures = tf.constant(train_x[indices],dtype=tf.float32)\nlabels = tf.constant(train_labels[indices],dtype=tf.float32)",
+   "executionCount": 11,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "batch_size = 4\nfor epoch in range(10):\n  for i in range(0,len(features),batch_size):\n    loss = train_on_batch(tf.reshape(features[i:i+batch_size],(-1,1)),tf.reshape(labels[i:i+batch_size],(-1,1)))\n  print('Epoch %d: last batch loss = %.4f' % (epoch, float(loss)))",
+   "executionCount": 12,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch 0: last batch loss = 94.5247\nEpoch 1: last batch loss = 9.3428\nEpoch 2: last batch loss = 1.4166\nEpoch 3: last batch loss = 0.5224\nEpoch 4: last batch loss = 0.3807\nEpoch 5: last batch loss = 0.3495\nEpoch 6: last batch loss = 0.3413\nEpoch 7: last batch loss = 0.3390\nEpoch 8: last batch loss = 0.3384\nEpoch 9: last batch loss = 0.3382\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ ახლა მივიღეთ ოპტიმიზებული პარამეტრები $W$ და $b$. Note that their values are similar to the original values used when generating the dataset ($W=2, b=1$)\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "w,b",
+   "executionCount": 13,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "(<tf.Variable 'Variable:0' shape=(1, 1) dtype=float32, numpy=array([[1.8616779]], dtype=float32)>,\n <tf.Variable 'Variable:0' shape=(1,) dtype=float32, numpy=array([1.0710956], dtype=float32)>)"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plt.scatter(train_x,train_labels)\nx = np.array([min(train_x),max(train_x)])\ny = w.numpy()[0,0]*x+b.numpy()[0]\nplt.plot(x,y,color='red')",
+   "executionCount": 14,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[<matplotlib.lines.Line2D at 0x12892ae5eb0>]"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/630d0d7c8059b8cc.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## გამოთვლითი გრაფიკი და GPU გამოთვლები\n\nროდესაც ჩვენ გამოვთვლით ტენზორის გამოხატვას, Tensorflow აშენებს გამოთვლით გრაფიკს, რომელიც შეიძლება გამოითვალოს ხელმისაწვდომ გამოთვლით მოწყობილობაზე, მაგ. CPU ან GPU. ვინაიდან ჩვენ ვიყენებდით პითონის თვითნებურ ფუნქციას ჩვენს კოდში, ისინი არ შეიძლება იყოს ჩართული გამოთვლითი გრაფიკის ნაწილად და, შესაბამისად, ჩვენი კოდის GPU-ზე გაშვებისას, დაგვჭირდება მონაცემების გადაცემა CPU-სა და GPU-ს შორის წინ და უკან, და გამოვთვალოთ მორგებული ფუნქცია CPU-ზე.\n\nTensorflow საშუალებას გვაძლევს აღვნიშნოთ ჩვენი პითონის ფუნქცია `@tf.function` დეკორატორის გამოყენებით, რაც ამ ფუნქციას იგივე გამოთვლითი გრაფიკის ნაწილად აქცევს. ეს დეკორატორი შეიძლება გამოყენებულ იქნას ფუნქციებზე, რომლებიც იყენებენ სტანდარტულ Tensorflow ტენსორის ოპერაციებს.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "@tf.function\ndef train_on_batch(x, y):\n  with tf.GradientTape() as tape:\n    predictions = f(x)\n    loss = compute_loss(y, predictions)\n    # Note that `tape.gradient` works with a list as well (w, b).\n    dloss_dw, dloss_db = tape.gradient(loss, [w, b])\n  w.assign_sub(learning_rate * dloss_dw)\n  b.assign_sub(learning_rate * dloss_db)\n  return loss",
+   "executionCount": 15,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "კოდი არ შეცვლილა, მაგრამ თუ ამ კოდს აწარმოებდით GPU-ზე და უფრო დიდ მონაცემთა ბაზაზე - შეამჩნევდით განსხვავებას სიჩქარეში.\n\n## მონაცემთა ნაკრები API\n\nTensorflow შეიცავს მოსახერხებელ API-ს მონაცემებთან მუშაობისთვის. ვცადოთ მისი გამოყენება. ჩვენ ასევე მოვამზადებთ ჩვენს მოდელს ნულიდან.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "w.assign([[10.0]])\nb.assign([0.0])\n\n# Create a tf.data.Dataset object for easy batched iteration\ndataset = tf.data.Dataset.from_tensor_slices((train_x.astype(np.float32), train_labels.astype(np.float32)))\ndataset = dataset.shuffle(buffer_size=1024).batch(256)\n\nfor epoch in range(10):\n  for step, (x, y) in enumerate(dataset):\n    loss = train_on_batch(tf.reshape(x,(-1,1)), tf.reshape(y,(-1,1)))\n  print('Epoch %d: last batch loss = %.4f' % (epoch, float(loss)))",
+   "executionCount": 16,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch 0: last batch loss = 173.4585\nEpoch 1: last batch loss = 13.8459\nEpoch 2: last batch loss = 4.5407\nEpoch 3: last batch loss = 3.7364\nEpoch 4: last batch loss = 3.4334\nEpoch 5: last batch loss = 3.1790\nEpoch 6: last batch loss = 2.9458\nEpoch 7: last batch loss = 2.7311\nEpoch 8: last batch loss = 2.5332\nEpoch 9: last batch loss = 2.3508\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## მაგალითი 2: კლასიფიკაცია\n\nახლა განვიხილავთ ორობითი კლასიფიკაციის პრობლემას. ასეთი პრობლემის კარგი მაგალითი იქნება სიმსივნის კლასიფიკაცია ავთვისებიანსა და კეთილთვისებიანს შორის მისი ზომისა და ასაკის მიხედვით.\n\nძირითადი მოდელი რეგრესიის მსგავსია, მაგრამ ჩვენ უნდა გამოვიყენოთ სხვადასხვა დანაკარგის ფუნქცია. დავიწყოთ ნიმუშის მონაცემების გენერირებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "np.random.seed(0) # pick the seed for reproducibility - change it to explore the effects of random variations\n\nn = 100\nX, Y = make_classification(n_samples = n, n_features=2,\n                           n_redundant=0, n_informative=2, flip_y=0.05,class_sep=1.5)\nX = X.astype(np.float32)\nY = Y.astype(np.int32)\n\nsplit = [ 70*n//100, (15+70)*n//100 ]\ntrain_x, valid_x, test_x = np.split(X, split)\ntrain_labels, valid_labels, test_labels = np.split(Y, split)",
+   "executionCount": 40,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def plot_dataset(features, labels, W=None, b=None):\n    # prepare the plot\n    fig, ax = plt.subplots(1, 1)\n    ax.set_xlabel('$x_i[0]$ -- (feature 1)')\n    ax.set_ylabel('$x_i[1]$ -- (feature 2)')\n    colors = ['r' if l else 'b' for l in labels]\n    ax.scatter(features[:, 0], features[:, 1], marker='o', c=colors, s=100, alpha = 0.5)\n    if W is not None:\n        min_x = min(features[:,0])\n        max_x = max(features[:,1])\n        min_y = min(features[:,1])*(1-.1)\n        max_y = max(features[:,1])*(1+.1)\n        cx = np.array([min_x,max_x],dtype=np.float32)\n        cy = (0.5-W[0]*cx-b)/W[1]\n        ax.plot(cx,cy,'g')\n        ax.set_ylim(min_y,max_y)\n    fig.show()",
+   "executionCount": 41,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plot_dataset(train_x, train_labels)",
+   "executionCount": 42,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "C:\\Users\\dmitryso\\AppData\\Local\\Temp/ipykernel_66184/2721537645.py:17: UserWarning: Matplotlib is currently using module://matplotlib_inline.backend_inline, which is a non-GUI backend, so cannot show the figure.\n  fig.show()\n",
+     "stream": "stderr"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/6ad7f4e3ef2bf108.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## მონაცემთა ნორმალიზება\n\nვარჯიშის დაწყებამდე ჩვეულებრივია ჩვენი შეყვანის მახასიათებლების [0,1] (ან [-1,1]) სტანდარტულ დიაპაზონში მიყვანა. ამის ზუსტ მიზეზებს მოგვიანებით განვიხილავთ, მაგრამ მოკლედ ამის მიზეზი შემდეგია. ჩვენ გვინდა, რომ ავიცილოთ მნიშვნელობები, რომლებიც მიედინება ჩვენს ქსელში, არ გახდეს ძალიან დიდი ან ძალიან მცირე, და ჩვენ ჩვეულებრივ ვთანხმდებით, რომ ყველა მნიშვნელობა შევინარჩუნოთ მცირე დიაპაზონში 0-თან ახლოს. ამრიგად, ჩვენ ვაყენებთ წონებს მცირე შემთხვევითი რიცხვებით და ვინახავთ სიგნალებს იმავე დიაპაზონში.\n\nმონაცემთა ნორმალიზებისას, ჩვენ უნდა გამოვაკლოთ min მნიშვნელობა და გავყოთ დიაპაზონზე. ჩვენ ვიანგარიშებთ მინიმალურ მნიშვნელობას და დიაპაზონს სასწავლო მონაცემების გამოყენებით, შემდეგ კი ტესტირების/დამოწმების მონაცემთა ნაკრების ნორმალიზებას იგივე მინ/დიაპაზონის მნიშვნელობების გამოყენებით სასწავლო ნაკრებიდან. ეს იმიტომ ხდება, რომ რეალურ ცხოვრებაში ჩვენ ვიცნობთ მხოლოდ სასწავლო კომპლექტს და არა ყველა შემომავალ ახალ მნიშვნელობას, რომლის პროგნოზირებაც ქსელს მოეთხოვება. ხანდახან, ახალი მნიშვნელობა შესაძლოა [0,1] დიაპაზონში აღმოჩნდეს, მაგრამ ეს არ არის გადამწყვეტი.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "train_x_norm = (train_x-np.min(train_x)) / (np.max(train_x)-np.min(train_x))\nvalid_x_norm = (valid_x-np.min(train_x)) / (np.max(train_x)-np.min(train_x))\ntest_x_norm = (test_x-np.min(train_x)) / (np.max(train_x)-np.min(train_x))",
+   "executionCount": 43,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## ტრენინგი ერთშრიანი პერცეპტრონი\n\nმოდით გამოვიყენოთ ტენსორფლოს გრადიენტური გამოთვლითი აპარატურა ერთშრიანი პერცეპტრონის მოსამზადებლად.\n\nჩვენს ნერვულ ქსელს ექნება 2 შეყვანა და 1 გამომავალი. წონის მატრიცას $W$ ექნება ზომა $2\\ჯერ1$ და მიკერძოების ვექტორი $b$ -- $1$.\n\nძირითადი მოდელი იქნება იგივე, რაც წინა მაგალითში, მაგრამ დაკარგვის ფუნქცია იქნება ლოგისტიკური დანაკარგი. ლოგისტიკური დანაკარგის გამოსაყენებლად, ჩვენ უნდა მივიღოთ ალბათობა, როგორც ჩვენი ქსელის გამოსავალი, ანუ გამომავალი $z$ უნდა მივიყვანოთ დიაპაზონში [0,1] `sigmoid` აქტივაციის ფუნქციის გამოყენებით: $p=\\sigma(z)$.\n\nთუ მივიღებთ ალბათობას $p_i$ i-ის შეყვანის მნიშვნელობისთვის, რომელიც შეესაბამება $y_i\\in\\{0,1\\}$ ფაქტობრივ კლასს, ჩვენ გამოვთვლით დანაკარგს $\\mathcal{L_i}=-(y_i\\log p_i + (1-y_i)log(1-p_i))$.\n\nTensorflow-ში ორივე ეს ნაბიჯი (სიგმოიდური და შემდეგ ლოგისტიკური დანაკარგის გამოყენება) შეიძლება განხორციელდეს ერთი ზარის გამოყენებით `sigmoid_cross_entropy_with_logits` ფუნქციაზე. იმის გამო, რომ ჩვენ ვავარჯიშებთ ჩვენს ქსელს მინი პარტიებში, ჩვენ უნდა გამოვთვალოთ დანაკარგის საშუალო რაოდენობა მინიპაკეტის ყველა ელემენტში `reduce_mean`-ის გამოყენებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "W = tf.Variable(tf.random.normal(shape=(2,1)),dtype=tf.float32)\nb = tf.Variable(tf.zeros(shape=(1,),dtype=tf.float32))\n\nlearning_rate = 0.1\n\n@tf.function\ndef train_on_batch(x, y):\n  with tf.GradientTape() as tape:\n    z = tf.matmul(x, W) + b\n    loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=y,logits=z))\n  dloss_dw, dloss_db = tape.gradient(loss, [W, b])\n  W.assign_sub(learning_rate * dloss_dw)\n  b.assign_sub(learning_rate * dloss_db)\n  return loss",
+   "executionCount": 52,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ გამოვიყენებთ 16 ელემენტისგან შემდგარ მინი პაკეტებს და გავაკეთებთ ვარჯიშის რამდენიმე ეპოქას:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Create a tf.data.Dataset object for easy batched iteration\ndataset = tf.data.Dataset.from_tensor_slices((train_x_norm.astype(np.float32), train_labels.astype(np.float32)))\ndataset = dataset.shuffle(128).batch(2)\n\nfor epoch in range(10):\n  for step, (x, y) in enumerate(dataset):\n    loss = train_on_batch(x, tf.expand_dims(y,1))\n  print('Epoch %d: last batch loss = %.4f' % (epoch, float(loss)))",
+   "executionCount": 59,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch 0: last batch loss = 0.3823\nEpoch 1: last batch loss = 0.5243\nEpoch 2: last batch loss = 0.4510\nEpoch 3: last batch loss = 0.3261\nEpoch 4: last batch loss = 0.4177\nEpoch 5: last batch loss = 0.3323\nEpoch 6: last batch loss = 0.6294\nEpoch 7: last batch loss = 0.6334\nEpoch 8: last batch loss = 0.2571\nEpoch 9: last batch loss = 0.3425\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "იმისათვის, რომ დავრწმუნდეთ, რომ ჩვენი ტრენინგი მუშაობდა, მოდით დავხატოთ ხაზი, რომელიც ჰყოფს ორ კლასს. გამოყოფის ხაზი განისაზღვრება განტოლებით $W\\ჯერ x + b = 0.5$\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plot_dataset(train_x,train_labels,W.numpy(),b.numpy())",
+   "executionCount": 60,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "C:\\Users\\dmitryso\\AppData\\Local\\Temp/ipykernel_66184/2721537645.py:17: UserWarning: Matplotlib is currently using module://matplotlib_inline.backend_inline, which is a non-GUI backend, so cannot show the figure.\n  fig.show()\n",
+     "stream": "stderr"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/93b6ae58d24c0f63.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ვნახოთ, როგორ იქცევა ჩვენი მოდელი ვალიდაციის მონაცემებზე.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "pred = tf.matmul(test_x,W)+b\nfig,ax = plt.subplots(1,2)\nax[0].scatter(test_x[:,0],test_x[:,1],c=pred[:,0]>0.5)\nax[1].scatter(test_x[:,0],test_x[:,1],c=valid_labels)",
+   "executionCount": 61,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<matplotlib.collections.PathCollection at 0x12892a01460>"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/8149f8234c3905ac.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ვალიდაციის მონაცემებზე სიზუსტის გამოსათვლელად, ჩვენ შეგვიძლია მივცეთ ლოგიკური ტიპი float-ზე და გამოვთვალოთ საშუალო:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "tf.reduce_mean(tf.cast(((pred[0]>0.5)==test_labels),tf.float32))",
+   "executionCount": 62,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<tf.Tensor: shape=(), dtype=float32, numpy=0.46666667>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მოდი ავხსნათ რა ხდება აქ:\n* `pred` არის ქსელის მიერ პროგნოზირებული მნიშვნელობები. ისინი არ არის საკმაოდ ალბათობა, რადგან ჩვენ არ გამოგვიყენებია აქტივაციის ფუნქცია, მაგრამ 0.5-ზე მეტი მნიშვნელობები შეესაბამება 1 კლასს, ხოლო უფრო მცირე - კლასს 0.\n* `pred[0]>0.5` ქმნის შედეგების ლოგიკურ ტენსორს, სადაც `True` შეესაბამება 1 კლასს, ხოლო `False` - 0 კლასს\n* ჩვენ ვადარებთ ამ ტენსორს მოსალოდნელ ეტიკეტებს `valid_labels`, ვიღებთ ლოგიკურ ვექტორს ან სწორ პროგნოზებს, სადაც `True` შეესაბამება სწორ პროგნოზს და `False` - არასწორს.\n* ჩვენ ამ ტენზორს ვცვლით მცურავ წერტილად `tf.cast`-ის გამოყენებით\n* შემდეგ ჩვენ გამოვთვლით საშუალო მნიშვნელობას `tf.reduce_mean`-ის გამოყენებით - ეს არის ზუსტად ჩვენი სასურველი სიზუსტე\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## TensorFlow/Keras ოპტიმიზატორების გამოყენება\n\nTensorflow მჭიდროდ არის ინტეგრირებული Keras-თან, რომელიც შეიცავს უამრავ სასარგებლო ფუნქციას. მაგალითად, ჩვენ შეგვიძლია გამოვიყენოთ სხვადასხვა ოპტიმიზაციის ალგორითმები. მოდით გავაკეთოთ ეს და ასევე დავბეჭდოთ ვარჯიშის დროს მიღებული სიზუსტე.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "optimizer = tf.keras.optimizers.Adam(0.01)\n\nW = tf.Variable(tf.random.normal(shape=(2,1)))\nb = tf.Variable(tf.zeros(shape=(1,),dtype=tf.float32))\n\n@tf.function\ndef train_on_batch(x, y):\n  vars = [W, b]\n  with tf.GradientTape() as tape:\n    z = tf.sigmoid(tf.matmul(x, W) + b)\n    loss = tf.reduce_mean(tf.keras.losses.binary_crossentropy(z,y))\n    correct_prediction = tf.equal(tf.round(y), tf.round(z))\n    acc = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))\n    grads = tape.gradient(loss, vars)\n    optimizer.apply_gradients(zip(grads,vars))\n  return loss,acc\n\nfor epoch in range(20):\n  for step, (x, y) in enumerate(dataset):\n    loss,acc = train_on_batch(tf.reshape(x,(-1,2)), tf.reshape(y,(-1,1)))\n  print('Epoch %d: last batch loss = %.4f, acc = %.4f' % (epoch, float(loss),acc))",
+   "executionCount": 63,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch 0: last batch loss = 4.7787, acc = 1.0000\nEpoch 1: last batch loss = 8.4343, acc = 0.5000\nEpoch 2: last batch loss = 8.3255, acc = 0.5000\nEpoch 3: last batch loss = 7.5579, acc = 0.5000\nEpoch 4: last batch loss = 6.5254, acc = 0.5000\nEpoch 5: last batch loss = 7.3800, acc = 0.5000\nEpoch 6: last batch loss = 7.7586, acc = 0.5000\nEpoch 7: last batch loss = 10.4724, acc = 0.0000\nEpoch 8: last batch loss = 9.4423, acc = 0.5000\nEpoch 9: last batch loss = 4.1888, acc = 1.0000\nEpoch 10: last batch loss = 11.2127, acc = 0.0000\nEpoch 11: last batch loss = 9.0417, acc = 0.5000\nEpoch 12: last batch loss = 7.9847, acc = 0.5000\nEpoch 13: last batch loss = 3.7879, acc = 1.0000\nEpoch 14: last batch loss = 6.8455, acc = 0.5000\nEpoch 15: last batch loss = 6.5204, acc = 0.5000\nEpoch 16: last batch loss = 9.2386, acc = 0.5000\nEpoch 17: last batch loss = 6.2447, acc = 0.5000\nEpoch 18: last batch loss = 3.9107, acc = 1.0000\nEpoch 19: last batch loss = 5.7645, acc = 1.0000\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ამოცანა 1: დახაზეთ ზარალის ფუნქციისა და სიზუსტის გრაფიკები ტრენინგის დროს და დამოწმების მონაცემები\n\nამოცანა 2: სცადეთ გადაჭრათ MNIST კლასიფიკაციის პრობლემა ამ კოდის გამოყენებით. მინიშნება: გამოიყენეთ `softmax_crossentropy_with_logits` ან `sparse_softmax_cross_entropy_with_logits` დაკარგვის ფუნქციად. პირველ შემთხვევაში თქვენ უნდა მიაწოდოთ მოსალოდნელი გამომავალი მნიშვნელობები one-hot დაშიფვრაში, ხოლო მეორე შემთხვევაში - როგორც მთელი კლასის რიცხვი.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## კერასი\n### ღრმა სწავლა ადამიანებისთვის\n\n* Keras არის ბიბლიოთეკა, რომელიც თავდაპირველად შეიქმნა ფრანსუა შოლეტის მიერ, რათა იმუშაოს Tensorflow-ზე, CNTK-სა და Theano-ზე, რათა გააერთიანოს ყველა ქვედა დონის ჩარჩო. თქვენ მაინც შეგიძლიათ დააინსტალიროთ Keras, როგორც ცალკე ბიბლიოთეკა, მაგრამ ამის გაკეთება არ არის რეკომენდებული. \n* ახლა Keras შედის Tensorflow ბიბლიოთეკის ნაწილად\n* თქვენ შეგიძლიათ მარტივად ააწყოთ ნერვული ქსელები ფენებისგან\n* შეიცავს `fit` ფუნქციას ყველა ვარჯიშის შესასრულებლად, პლუს უამრავ ფუნქციას ტიპიურ მონაცემებთან მუშაობისთვის (სურათები, ტექსტი და ა.შ.)\n* ბევრი ნიმუში\n* ფუნქციური API vs. Sequential API\n\nKeras უზრუნველყოფს უფრო მაღალი დონის აბსტრაქციას ნერვული ქსელებისთვის, რაც საშუალებას გვაძლევს ვიმოქმედოთ ფენების, მოდელებისა და ოპტიმიზატორების თვალსაზრისით და არა ტენსორებისა და გრადიენტების თვალსაზრისით.\n\nკლასიკური ღრმა სწავლის წიგნი Keras-ის შემქმნელისგან: ღრმა სწავლა პითონთან ერთად\n\n### ფუნქციური API\n\nფუნქციური API-ს გამოყენებისას, ჩვენ განვსაზღვრავთ შესასვლელს ქსელში, როგორც `keras.Input` და შემდეგ გამოვთვალოთ გამომავალი გამოთვლების სერიის გავლით. და ბოლოს, ჩვენ განვსაზღვრავთ მოდელს, როგორც ობიექტს, რომელიც აქცევს შეყვანას გამოსავალად.\n\nმას შემდეგ რაც მივიღეთ model ობიექტი, ჩვენ გვჭირდება:\n* შეადგინეთ იგი, დაკარგვის ფუნქციის და ოპტიმიზატორის მითითებით, რომელიც გვინდა გამოვიყენოთ ჩვენს მოდელთან ერთად\n* გაავარჯიშეთ `fit` ფუნქციის დარეკვით ტრენინგის (და შესაძლოა ვალიდაციის) მონაცემებით\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "inputs = tf.keras.Input(shape=(2,))\nz = tf.keras.layers.Dense(1,kernel_initializer='glorot_uniform',activation='sigmoid')(inputs)\nmodel = tf.keras.models.Model(inputs,z)\n\nmodel.compile(tf.keras.optimizers.Adam(0.1),'binary_crossentropy',['accuracy'])\nmodel.summary()\nh = model.fit(train_x_norm,train_labels,batch_size=8,epochs=15)",
+   "executionCount": 64,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Model: \"model\"\n_________________________________________________________________\n Layer (type)                Output Shape              Param #   \n=================================================================\n input_1 (InputLayer)        [(None, 2)]               0         \n                                                                 \n dense (Dense)               (None, 1)                 3         \n                                                                 \n=================================================================\nTotal params: 3\nTrainable params: 3\nNon-trainable params: 0\n_________________________________________________________________\nEpoch 1/15\n9/9 [==============================] - 1s 2ms/step - loss: 0.7812 - accuracy: 0.2857\nEpoch 2/15\n9/9 [==============================] - 0s 2ms/step - loss: 0.7142 - accuracy: 0.4000\nEpoch 3/15\n9/9 [==============================] - 0s 2ms/step - loss: 0.6683 - accuracy: 0.6143\nEpoch 4/15\n9/9 [==============================] - 0s 2ms/step - loss: 0.6221 - accuracy: 0.8429\nEpoch 5/15\n9/9 [==============================] - 0s 2ms/step - loss: 0.5843 - accuracy: 0.8857\nEpoch 6/15\n9/9 [==============================] - 0s 2ms/step - loss: 0.5447 - accuracy: 0.9429\nEpoch 7/15\n9/9 [==============================] - 0s 2ms/step - loss: 0.5135 - accuracy: 0.9286\nEpoch 8/15\n9/9 [==============================] - 0s 2ms/step - loss: 0.4878 - accuracy: 0.9429\nEpoch 9/15\n9/9 [==============================] - 0s 2ms/step - loss: 0.4679 - accuracy: 0.9429\nEpoch 10/15\n9/9 [==============================] - 0s 2ms/step - loss: 0.4446 - accuracy: 0.9429\nEpoch 11/15\n9/9 [==============================] - 0s 2ms/step - loss: 0.4349 - accuracy: 0.8714\nEpoch 12/15\n9/9 [==============================] - 0s 2ms/step - loss: 0.4156 - accuracy: 0.9286\nEpoch 13/15\n9/9 [==============================] - 0s 2ms/step - loss: 0.4019 - accuracy: 0.9429\nEpoch 14/15\n9/9 [==============================] - 0s 2ms/step - loss: 0.3908 - accuracy: 0.9286\nEpoch 15/15\n9/9 [==============================] - 0s 2ms/step - loss: 0.3777 - accuracy: 0.9286\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plt.plot(h.history['accuracy'])",
+   "executionCount": 65,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[<matplotlib.lines.Line2D at 0x12894b95250>]"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/03f612b6216dccd9.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "### თანმიმდევრული API\n\nალტერნატიულად, ჩვენ შეგვიძლია დავიწყოთ მოდელზე ფიქრი, როგორც შრეების თანმიმდევრობა და უბრალოდ დავაზუსტოთ ეს შრეები `model` ობიექტზე დამატებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model = tf.keras.models.Sequential()\nmodel.add(tf.keras.layers.Dense(5,activation='sigmoid',input_shape=(2,)))\nmodel.add(tf.keras.layers.Dense(1,activation='sigmoid'))\n\nmodel.compile(tf.keras.optimizers.Adam(0.1),'binary_crossentropy',['accuracy'])\nmodel.summary()\nmodel.fit(train_x_norm,train_labels,validation_data=(test_x_norm,test_labels),batch_size=8,epochs=15)",
+   "executionCount": 66,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Model: \"sequential\"\n_________________________________________________________________\n Layer (type)                Output Shape              Param #   \n=================================================================\n dense_1 (Dense)             (None, 5)                 15        \n                                                                 \n dense_2 (Dense)             (None, 1)                 6         \n                                                                 \n=================================================================\nTotal params: 21\nTrainable params: 21\nNon-trainable params: 0\n_________________________________________________________________\nEpoch 1/15\n9/9 [==============================] - 1s 64ms/step - loss: 0.6994 - accuracy: 0.5000 - val_loss: 0.6719 - val_accuracy: 0.4667\nEpoch 2/15\n9/9 [==============================] - 0s 6ms/step - loss: 0.6635 - accuracy: 0.5429 - val_loss: 0.6531 - val_accuracy: 0.4667\nEpoch 3/15\n9/9 [==============================] - 0s 5ms/step - loss: 0.6469 - accuracy: 0.5857 - val_loss: 0.5775 - val_accuracy: 1.0000\nEpoch 4/15\n9/9 [==============================] - 0s 4ms/step - loss: 0.5639 - accuracy: 0.9143 - val_loss: 0.5395 - val_accuracy: 0.7333\nEpoch 5/15\n9/9 [==============================] - 0s 5ms/step - loss: 0.5236 - accuracy: 0.7143 - val_loss: 0.4498 - val_accuracy: 0.9333\nEpoch 6/15\n9/9 [==============================] - 0s 5ms/step - loss: 0.4573 - accuracy: 0.8714 - val_loss: 0.3584 - val_accuracy: 1.0000\nEpoch 7/15\n9/9 [==============================] - 0s 5ms/step - loss: 0.3867 - accuracy: 0.8714 - val_loss: 0.2989 - val_accuracy: 0.9333\nEpoch 8/15\n9/9 [==============================] - 0s 7ms/step - loss: 0.3388 - accuracy: 0.8857 - val_loss: 0.2204 - val_accuracy: 1.0000\nEpoch 9/15\n9/9 [==============================] - 0s 6ms/step - loss: 0.2815 - accuracy: 0.9429 - val_loss: 0.1957 - val_accuracy: 1.0000\nEpoch 10/15\n9/9 [==============================] - 0s 6ms/step - loss: 0.2692 - accuracy: 0.8857 - val_loss: 0.1323 - val_accuracy: 1.0000\nEpoch 11/15\n9/9 [==============================] - 0s 5ms/step - loss: 0.2591 - accuracy: 0.9429 - val_loss: 0.1105 - val_accuracy: 1.0000\nEpoch 12/15\n9/9 [==============================] - 0s 6ms/step - loss: 0.2229 - accuracy: 0.9286 - val_loss: 0.1051 - val_accuracy: 1.0000\nEpoch 13/15\n9/9 [==============================] - 0s 5ms/step - loss: 0.2146 - accuracy: 0.9143 - val_loss: 0.0919 - val_accuracy: 1.0000\nEpoch 14/15\n9/9 [==============================] - 0s 5ms/step - loss: 0.2031 - accuracy: 0.9429 - val_loss: 0.0859 - val_accuracy: 1.0000\nEpoch 15/15\n9/9 [==============================] - 0s 5ms/step - loss: 0.1997 - accuracy: 0.9429 - val_loss: 0.0829 - val_accuracy: 1.0000\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<keras.callbacks.History at 0x12894cfba30>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## კლასიფიკაციის დაკარგვის ფუნქციები\n\nმნიშვნელოვანია სწორად მიუთითოთ დაკარგვის ფუნქცია და აქტივაციის ფუნქცია ქსელის ბოლო ფენაზე. ძირითადი წესები შემდეგია:\n* თუ ქსელს აქვს ერთი გამომავალი (ორობითი კლასიფიკაცია), ჩვენ ვიყენებთ sigmoid აქტივაციის ფუნქციას, მრავალკლასიანი კლასიფიკაციისთვის - softmax\n* თუ გამომავალი კლასი წარმოდგენილია როგორც one-hot კოდირება, დანაკარგის ფუნქცია იქნება ჯვარედინი ენტროპიის დაკარგვა (კატეგორიული ჯვარედინი ენტროპია), თუ გამომავალი შეიცავს კლასის ნომერს - მწირი კატეგორიული ჯვარედინი ენტროპია.  ორობითი კლასიფიკაციისთვის - გამოიყენეთ ორობითი ჯვარედინი ენტროპია (იგივე ლოგის დაკარგვა)\n* მულტილეიბლიანი კლასიფიკაცია არის ის, როდესაც შეგვიძლია ერთდროულად რამდენიმე კლასს მიეკუთვნოს ობიექტი. ამ შემთხვევაში, ჩვენ გვჭირდება ეტიკეტების დაშიფვრა one-hot კოდირების გამოყენებით და გამოვიყენოთ sigmoid როგორც აქტივაციის ფუნქცია, ისე რომ თითოეული კლასის ალბათობა იყოს 0-დან 1-მდე.\n\n| კლასიფიკაცია | ეტიკეტის ფორმატი | აქტივაციის ფუნქცია | დაკარგვა |\n|---------------------------------------|---------------|----------|\n| ორობითი | 1 კლასის ალბათობა | სიგმოიდური | ბინარული კროსენტროპია |\n| ორობითი | one-hot კოდირება (2 გამომავალი) | softmax | კატეგორიული კროსენტროპია |\n| მრავალკლასიანი |  one-hot კოდირება | softmax | კატეგორიული კროსენტროპია |\n| მრავალკლასიანი | კლასის ნომერი | softmax | იშვიათი კატეგორიული კროსენტროპია |\n| მრავალნიშანი | one-hot კოდირება | სიგმოიდური | კატეგორიული კროსენტროპია |\n\n> ბინარული კლასიფიკაცია ასევე შეიძლება განიხილებოდეს, როგორც მრავალკლასიანი კლასიფიკაციის განსაკუთრებული შემთხვევა ორი გამოსავლით. ამ შემთხვევაში, ჩვენ უნდა გამოვიყენოთ softmax.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "ამოცანა 3: \nგამოიყენეთ Keras MNIST კლასიფიკატორის მოსამზადებლად:\n* გაითვალისწინეთ, რომ Keras შეიცავს რამდენიმე სტანდარტულ მონაცემთა ნაკრებს, მათ შორის MNIST. Keras-ის MNIST-ის გამოსაყენებლად საჭიროა მხოლოდ რამდენიმე ხაზი კოდი (დამატებითი ინფორმაცია აქ)\n* სცადეთ რამდენიმე ქსელის კონფიგურაცია, სხვადასხვა რაოდენობის ფენებით/ნეირონებით, აქტივაციის ფუნქციებით.\n\nრა არის საუკეთესო სიზუსტე, რისი მიღწევაც შეძელით?\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## Takeaways\n\n* Tensorflow საშუალებას გაძლევთ იმუშაოთ ტენსორებზე დაბალ დონეზე, თქვენ გაქვთ ყველაზე მეტი მოქნილობა.\n* არსებობს მოსახერხებელი ხელსაწყოები მონაცემებთან (`td.Data`) და ფენებთან მუშაობისთვის (`tf.layers`)\n* დამწყებთათვის/ტიპიური ამოცანებისთვის რეკომენდებულია Keras-ის გამოყენება, რომელიც საშუალებას გაძლევთ შექმნათ ქსელები ფენებიდან.\n* თუ საჭიროა არასტანდარტული არქიტექტურა, შეგიძლიათ განახორციელოთ საკუთარი Keras ფენა და შემდეგ გამოიყენოთ Keras მოდელებში\n* კარგი იდეაა გადახედოთ PyTorch-საც და შევადაროთ მიდგომები.\n\nკარგი ნიმუში ნოუთბუქის შემქმნელი Keras on Keras და Tensorflow 2.0 შეგიძლიათ იხილოთ აქ.\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/3-NeuralNetworks/05-Frameworks/IntroKerasTF.ipynb"
+}

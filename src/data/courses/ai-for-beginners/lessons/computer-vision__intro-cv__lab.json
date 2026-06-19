@@ -1,0 +1,52 @@
+{
+ "kind": "markdown",
+ "courseSlug": "ai-for-beginners",
+ "slug": "computer-vision/intro-cv/lab",
+ "segments": [
+  "computer-vision",
+  "intro-cv",
+  "lab"
+ ],
+ "title": "მოძრაობების გამოვლენა ოპტიკური ნაკადის გამოყენებით",
+ "module": {
+  "id": "4-ComputerVision",
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა",
+  "icon": "eye"
+ },
+ "lessonNumber": 6,
+ "orderInModule": 1060,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/4-ComputerVision/06-IntroCV/lab/README.md"
+ },
+ "prev": {
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა"
+ },
+ "next": {
+  "slug": "computer-vision/intro-cv",
+  "title": "შესავალი კომპიუტერულ ხედვაში"
+ },
+ "markdown": "ლაბორატორიული დავალება AI დამწყებთათვის სასწავლო პროგრამა-დან.\n\n## ამოცანა\n\nგანვიხილოთ ამ ვიდეოს, რომელშიც ადამიანის ხელი მოძრაობს მარცხნივ/მარჯვნივ/ზემოთ/ქვემოთ სტაბილურ ფონზე.\n\n![Palm Movement Frame](/courses/ai-for-beginners/4-ComputerVision/06-IntroCV/images/palm-movement.png)\n\nთქვენი მიზანი შეძლებს გამოიყენოს ოპტიკური ნაკადი, რათა დადგინდეს, ვიდეოს რომელი ნაწილები შეიცავს მოძრაობებს ზემოთ/ქვემოთ/მარცხნივ/მარჯვნივ.\n\nგაჭიმვის მიზანი იქნება ხელის/თითის მოძრაობის თვალყურის დევნება კანის ტონის გამოყენებით, როგორც აღწერილია ამ ბლოგის პოსტში ან აქ.\n\n## საწყისი ნოუთბუქი\n\nდაიწყეთ ლაბორატორია MovementDetection.ipynb გახსნით\n\n## Takeaway\n\nზოგჯერ, შედარებით რთული ამოცანები, როგორიცაა მოძრაობის ამოცნობა ან თითის წვერი ამოცნობა, შეიძლება გადაწყდეს მხოლოდ კომპიუტერული ხედვით. ამრიგად, ძალიან სასარგებლოა იმის ცოდნა, თუ რა შეუძლიათ OpenCV-ის მსგავსი ბიბლიოთეკების გაკეთებას.\n",
+ "headings": [
+  {
+   "id": "ამოცანა",
+   "text": "ამოცანა",
+   "level": 2
+  },
+  {
+   "id": "საწყისი-ნოუთბუქი",
+   "text": "საწყისი ნოუთბუქი",
+   "level": 2
+  },
+  {
+   "id": "takeaway",
+   "text": "Takeaway",
+   "level": 2
+  }
+ ],
+ "readingMinutes": 1
+}

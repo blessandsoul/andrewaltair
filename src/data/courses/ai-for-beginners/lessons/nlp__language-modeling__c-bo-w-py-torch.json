@@ -1,0 +1,253 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "nlp/language-modeling/c-bo-w-py-torch",
+ "segments": [
+  "nlp",
+  "language-modeling",
+  "c-bo-w-py-torch"
+ ],
+ "title": "სასწავლო CBoW მოდელი",
+ "module": {
+  "id": "5-NLP",
+  "slug": "nlp",
+  "title": "ბუნებრივი ენის დამუშავება",
+  "icon": "messages"
+ },
+ "lessonNumber": 15,
+ "orderInModule": 1150.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/5-NLP/15-LanguageModeling/CBoW-PyTorch.ipynb"
+ },
+ "prev": {
+  "slug": "nlp/language-modeling/lab",
+  "title": "ტრენინგის სკიპ-გრამის მოდელი"
+ },
+ "next": {
+  "slug": "nlp/language-modeling/c-bo-w-tf",
+  "title": "სასწავლო CBoW მოდელი"
+ },
+ "framework": "pytorch",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "ეს ნოუთბუქები არის AI დამწყებთათვის სასწავლო პროგრამა-ის ნაწილი\n\nამ მაგალითში ჩვენ განვიხილავთ სასწავლო CBoW ენის მოდელს, რომ მივიღოთ საკუთარი Word2Vec ჩაშენებული სივრცე. ჩვენ გამოვიყენებთ AG News მონაცემთა ბაზას, როგორც ტექსტის წყაროს.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import torch\nimport torchtext\nimport os\nimport collections\nimport builtins\nimport random\nimport numpy as np",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "device = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჯერ ავტვირთოთ ჩვენი მონაცემთა ნაკრები და განვსაზღვროთ ტოკენიზატორი და ლექსიკა. ჩვენ დავაყენებთ `vocab_size`-ზე 5000-ზე, რათა ცოტა შევზღუდოთ გამოთვლები.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def load_dataset(ngrams = 1, min_freq = 1, vocab_size = 5000 , lines_cnt = 500):\n    tokenizer = torchtext.data.utils.get_tokenizer('basic_english')\n    print(\"Loading dataset...\")\n    test_dataset, train_dataset  = torchtext.datasets.AG_NEWS(root='./data')\n    train_dataset = list(train_dataset)\n    test_dataset = list(test_dataset)\n    classes = ['World', 'Sports', 'Business', 'Sci/Tech']\n    print('Building vocab...')\n    counter = collections.Counter()\n    for i, (_, line) in enumerate(train_dataset):\n        counter.update(torchtext.data.utils.ngrams_iterator(tokenizer(line),ngrams=ngrams))\n        if i == lines_cnt:\n            break\n    vocab = torchtext.vocab.Vocab(collections.Counter(dict(counter.most_common(vocab_size))), min_freq=min_freq)\n    return train_dataset, test_dataset, classes, vocab, tokenizer",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "train_dataset, test_dataset, _, vocab, tokenizer = load_dataset()",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Loading dataset...\nBuilding vocab...\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def encode(x, vocabulary, tokenizer = tokenizer):\n    return [vocabulary[s] for s in tokenizer(x)]",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## CBoW მოდელი\n\nCBoW სწავლობს სიტყვის წინასწარმეტყველებას $2N$ მეზობელ სიტყვებზე დაყრდნობით. მაგალითად, როდესაც $N=1$, ჩვენ მივიღებთ შემდეგ წყვილებს წინადადებიდან I like to train networks: (like,I), (I, like), (to, like), (like,to), (train,to), (to, train), (networks, train), (train,networks). აქ, პირველი სიტყვა არის მეზობელი სიტყვა, რომელიც გამოიყენება შეყვანის სახით, ხოლო მეორე სიტყვა არის ის, რასაც ჩვენ ვიწინასწარმეტყველებთ.\n\nშემდეგი სიტყვის პროგნოზირებისთვის ქსელის ასაშენებლად, ჩვენ უნდა მივაწოდოთ მეზობელი სიტყვა შეყვანის სახით და მივიღოთ სიტყვის ნომერი, როგორც გამოსავალი. CBoW ქსელის არქიტექტურა შემდეგია:\n\n* შეყვანის სიტყვა გადადის ჩაშენების ფენაში. სწორედ ეს ჩაშენებული ფენა იქნება ჩვენი Word2Vec ემბედინგი, ამიტომ ჩვენ განვსაზღვრავთ მას ცალკე, როგორც `embedder` ცვლადი. ჩვენ გამოვიყენებთ ჩაშენების ზომას = 30 ამ მაგალითში, მიუხედავად იმისა, რომ თქვენ შეიძლება გქონდეთ ექსპერიმენტი უფრო მაღალი ზომებით (რეალური word2vec აქვს 300)\n* ჩაშენების ვექტორი შემდეგ გადაეცემა ხაზოვან ფენას, რომელიც იწინასწარმეტყველებს გამომავალ სიტყვას. ამრიგად, მას აქვს `vocab_size` ნეირონები.\n\nგამოსასვლელად, თუ გამოვიყენებთ `CrossEntropyLoss`-ს, როგორც დაკარგვის ფუნქციას, ჩვენ ასევე მოგვიწევს მხოლოდ სიტყვების რიცხვების მიწოდება, როგორც მოსალოდნელი შედეგები, ერთჯერადი კოდირების გარეშე.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "vocab_size = len(vocab)\n\nembedder = torch.nn.Embedding(num_embeddings = vocab_size, embedding_dim = 30)\nmodel = torch.nn.Sequential(\n    embedder,\n    torch.nn.Linear(in_features = 30, out_features = vocab_size),\n)\n\nprint(model)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Sequential(\n  (0): Embedding(5002, 30)\n  (1): Linear(in_features=30, out_features=5002, bias=True)\n)\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## ტრენინგის მონაცემების მომზადება\n\nახლა მოდით დავაპროგრამოთ მთავარი ფუნქცია, რომელიც გამოთვლის CBoW სიტყვების წყვილებს ტექსტიდან. ეს ფუნქცია საშუალებას მოგვცემს დავაზუსტოთ ფანჯრის ზომა და დააბრუნოს წყვილების ნაკრები - შემავალი და გამომავალი სიტყვა. გაითვალისწინეთ, რომ ამ ფუნქციის გამოყენება შესაძლებელია როგორც სიტყვებზე, ასევე ვექტორებზე/ტენზორებზე - რაც მოგვცემს ტექსტის დაშიფვრის საშუალებას, სანამ გადავიტანთ მას `to_cbow` ფუნქციაზე.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def to_cbow(sent,window_size=2):\n    res = []\n    for i,x in enumerate(sent):\n        for j in range(max(0,i-window_size),min(i+window_size+1,len(sent))):\n            if i!=j:\n                res.append([sent[j],x])\n    return res\n\nprint(to_cbow(['I','like','to','train','networks']))\nprint(to_cbow(encode('I like to train networks', vocab)))",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[['like', 'I'], ['to', 'I'], ['I', 'like'], ['to', 'like'], ['train', 'like'], ['I', 'to'], ['like', 'to'], ['train', 'to'], ['networks', 'to'], ['like', 'train'], ['to', 'train'], ['networks', 'train'], ['to', 'networks'], ['train', 'networks']]\n[[232, 172], [5, 172], [172, 232], [5, 232], [0, 232], [172, 5], [232, 5], [0, 5], [1202, 5], [232, 0], [5, 0], [1202, 0], [5, 1202], [0, 1202]]\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით მოვამზადოთ ტრენინგის მონაცემთა ბაზა. ჩვენ გადავხედავთ ყველა სიახლეს, დავურეკეთ `to_cbow`-ს, რათა მივიღოთ სიტყვების წყვილების სია და დავამატოთ ეს წყვილები `X` და `Y`. დროის გულისთვის ჩვენ განვიხილავთ მხოლოდ პირველ 10000 სიახლეს - შეგიძლიათ მარტივად მოხსნათ შეზღუდვა იმ შემთხვევაში, თუ მეტი დრო გექნებათ ლოდინი და გსურთ მიიღოთ უკეთესი ემბედინგები :)\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "X = []\nY = []\nfor i, x in zip(range(10000), train_dataset):\n    for w1, w2 in to_cbow(encode(x[1], vocab), window_size = 5):\n        X.append(w1)\n        Y.append(w2)\n\nX = torch.tensor(X)\nY = torch.tensor(Y)",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ ასევე გადავიყვანთ ამ მონაცემებს ერთ მონაცემთა ბაზაში და შევქმნით მონაცემთა ჩამტვირთველს:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class SimpleIterableDataset(torch.utils.data.IterableDataset):\n    def __init__(self, X, Y):\n        super(SimpleIterableDataset).__init__()\n        self.data = []\n        for i in range(len(X)):\n            self.data.append( (Y[i], X[i]) )\n        random.shuffle(self.data)\n\n    def __iter__(self):\n        return iter(self.data)",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ ასევე გადავიყვანთ ამ მონაცემებს ერთ მონაცემთა ბაზაში და შევქმნით მონაცემთა ჩამტვირთველს:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "ds = SimpleIterableDataset(X, Y)\ndl = torch.utils.data.DataLoader(ds, batch_size = 256)",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მოდით გავაკეთოთ რეალური ტრენინგი. ჩვენ გამოვიყენებთ `SGD` ოპტიმიზატორს საკმაოდ მაღალი სწავლის სიჩქარით. ასევე შეგიძლიათ სცადოთ თამაში სხვა ოპტიმიზატორებთან, როგორიცაა `Adam`. დასაწყისისთვის ჩვენ ვივარჯიშებთ 10 ეპოქისთვის - და შეგიძლიათ ხელახლა გაუშვათ ეს უჯრედი, თუ გსურთ კიდევ უფრო დაბალი დანაკარგი.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def train_epoch(net, dataloader, lr = 0.01, optimizer = None, loss_fn = torch.nn.CrossEntropyLoss(), epochs = None, report_freq = 1):\n    optimizer = optimizer or torch.optim.Adam(net.parameters(), lr = lr)\n    loss_fn = loss_fn.to(device)\n    net.train()\n\n    for i in range(epochs):\n        total_loss, j = 0, 0, \n        for labels, features in dataloader:\n            optimizer.zero_grad()\n            features, labels = features.to(device), labels.to(device)\n            out = net(features)\n            loss = loss_fn(out, labels)\n            loss.backward()\n            optimizer.step()\n            total_loss += loss\n            j += 1\n        if i % report_freq == 0:\n            print(f\"Epoch: {i+1}: loss={total_loss.item()/j}\")\n\n    return total_loss.item()/j",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "train_epoch(net = model, dataloader = dl, optimizer = torch.optim.SGD(model.parameters(), lr = 0.1), loss_fn = torch.nn.CrossEntropyLoss(), epochs = 10)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch: 1: loss=5.664632366860172\nEpoch: 2: loss=5.632101973960962\nEpoch: 3: loss=5.610399051405015\nEpoch: 4: loss=5.594621561080262\nEpoch: 5: loss=5.582538017415446\nEpoch: 6: loss=5.572900234519603\nEpoch: 7: loss=5.564951676341915\nEpoch: 8: loss=5.558288112064614\nEpoch: 9: loss=5.552576955031129\nEpoch: 10: loss=5.547634165194347\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "5.547634165194347"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## ვცდილობ Word2Vec\n\nWord2Vec-ის გამოსაყენებლად, მოდით გამოვყოთ ვექტორები, რომლებიც შეესაბამება ჩვენს ლექსიკაში ყველა სიტყვას:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "vectors = torch.stack([embedder(torch.tensor(vocab[s])) for s in vocab.itos], 0)",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ვნახოთ, მაგალითად, როგორ არის დაშიფრული სიტყვა Paris ვექტორში:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "paris_vec = embedder(torch.tensor(vocab['paris']))\nprint(paris_vec)",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "tensor([-0.0915,  2.1224, -0.0281, -0.6819,  1.1219,  0.6458, -1.3704, -1.3314,\n        -1.1437,  0.4496,  0.2301, -0.3515, -0.8485,  1.0481,  0.4386, -0.8949,\n         0.5644,  1.0939, -2.5096,  3.2949, -0.2601, -0.8640,  0.1421, -0.0804,\n        -0.5083, -1.0560,  0.9753, -0.5949, -1.6046,  0.5774],\n       grad_fn=<EmbeddingBackward>)\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "საინტერესოა Word2Vec-ის გამოყენება სინონიმების მოსაძებნად. შემდეგი ფუნქცია დააბრუნებს `n` უახლოეს სიტყვებს მოცემულ შენატანს. მათი საპოვნელად, ჩვენ გამოვთვალეთ $|w_i - v|$-ის ნორმა, სადაც $v$ არის ვექტორი, რომელიც შეესაბამება ჩვენს შეყვანილ სიტყვას და $w_i$ არის $i$-th სიტყვის კოდირება ლექსიკაში. შემდეგ ვახარისხებთ მასივს და ვაბრუნებთ შესაბამის ინდექსებს `argsort`-ის გამოყენებით და ვიღებთ სიის პირველ `n` ელემენტებს, რომლებიც შიფრავს ყველაზე ახლო სიტყვების პოზიციებს ლექსიკაში.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def close_words(x, n = 5):\n  vec = embedder(torch.tensor(vocab[x]))\n  top5 = np.linalg.norm(vectors.detach().numpy() - vec.detach().numpy(), axis = 1).argsort()[:n]\n  return [ vocab.itos[x] for x in top5 ]\n\nclose_words('microsoft')",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "['microsoft', 'quoted', 'lp', 'rate', 'top']"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "close_words('basketball')",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "['basketball', 'lot', 'sinai', 'states', 'healthdaynews']"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "close_words('funds')",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "['funds', 'travel', 'sydney', 'japan', 'business']"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## Takeaway\n\nჭკვიანური ტექნიკის გამოყენებით, როგორიცაა CBoW, ჩვენ შეგვიძლია მოვამზადოთ Word2Vec მოდელი. თქვენ ასევე შეგიძლიათ სცადოთ skip-gram მოდელის გაწვრთნა, რომელიც გაწვრთნილი იქნება მეზობელი სიტყვის პროგნოზირებისთვის, რომელიც მოცემულია ცენტრალურში და ნახოთ რამდენად კარგად მუშაობს იგი.\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/5-NLP/15-LanguageModeling/CBoW-PyTorch.ipynb"
+}

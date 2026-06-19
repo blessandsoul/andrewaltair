@@ -1,0 +1,57 @@
+{
+ "kind": "markdown",
+ "courseSlug": "ai-for-beginners",
+ "slug": "other/deep-rl/lab",
+ "segments": [
+  "other",
+  "deep-rl",
+  "lab"
+ ],
+ "title": "სავარჯიშო მთის მანქანა გაქცევისთვის",
+ "module": {
+  "id": "6-Other",
+  "slug": "other",
+  "title": "სხვა AI ტექნიკები",
+  "icon": "puzzle"
+ },
+ "lessonNumber": 22,
+ "orderInModule": 1220,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/6-Other/22-DeepRL/lab/README.md"
+ },
+ "prev": {
+  "slug": "other/genetic-algorithms/diophantine",
+  "title": "დიოფანტინის განტოლებები"
+ },
+ "next": {
+  "slug": "other/deep-rl",
+  "title": "ღრმა განმტკიცების სწავლა"
+ },
+ "markdown": "ლაბორატორიული დავალება AI დამწყებთათვის სასწავლო პროგრამა-დან.\n\n## ამოცანა\n\nთქვენი მიზანია მოამზადოთ RL აგენტი სამთო მანქანა-ის გასაკონტროლებლად OpenAI Environment-ში.\n\n![Mountain Car](/courses/ai-for-beginners/6-Other/22-DeepRL/lab/images/mountaincar.png)\n\n## გარემო\n\nMountain Car გარემო შედგება ხეობაში ჩარჩენილი მანქანისგან. თქვენი მიზანია გადახტეთ ხეობიდან და მიაღწიოთ დროშას. მოქმედებები, რომლებიც შეგიძლიათ შეასრულოთ არის აჩქარება მარცხნივ, მარჯვნივ, ან არაფრის გაკეთება. თქვენ შეგიძლიათ დააკვირდეთ მანქანის პოზიციას x ღერძის გასწვრივ და სიჩქარეს.\n\n## მითითებული ნოუთბუქი\n\nდაიწყეთ ლაბორატორია MountainCar.ipynb გახსნით\n\n## Takeaway\n\nთქვენ უნდა გაიგოთ ამ ლაბორატორიაში, რომ RL ალგორითმების ახალ გარემოში მიღება ხშირად საკმაოდ მარტივია, რადგან OpenAI Gym-ს აქვს იგივე ინტერფეისი ყველა გარემოსთვის და ალგორითმები, როგორც ასეთი, დიდწილად არ არის დამოკიდებული გარემოს ბუნებაზე. თქვენ შეგიძლიათ პითონის კოდის რესტრუქტურიზაციაც კი ისე, რომ ნებისმიერი გარემო გადასცეს RL ალგორითმს, როგორც პარამეტრს.\n",
+ "headings": [
+  {
+   "id": "ამოცანა",
+   "text": "ამოცანა",
+   "level": 2
+  },
+  {
+   "id": "გარემო",
+   "text": "გარემო",
+   "level": 2
+  },
+  {
+   "id": "მითითებული-ნოუთბუქი",
+   "text": "მითითებული ნოუთბუქი",
+   "level": 2
+  },
+  {
+   "id": "takeaway",
+   "text": "Takeaway",
+   "level": 2
+  }
+ ],
+ "readingMinutes": 1
+}

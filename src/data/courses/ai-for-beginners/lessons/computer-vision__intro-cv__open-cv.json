@@ -1,0 +1,370 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "computer-vision/intro-cv/open-cv",
+ "segments": [
+  "computer-vision",
+  "intro-cv",
+  "open-cv"
+ ],
+ "title": "Computer Vision და OpenCV",
+ "module": {
+  "id": "4-ComputerVision",
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა",
+  "icon": "eye"
+ },
+ "lessonNumber": 6,
+ "orderInModule": 1060.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/4-ComputerVision/06-IntroCV/OpenCV.ipynb"
+ },
+ "prev": {
+  "slug": "computer-vision/intro-cv",
+  "title": "შესავალი კომპიუტერულ ხედვაში"
+ },
+ "next": {
+  "slug": "computer-vision/intro-cv/lab/movement-detection",
+  "title": "პალმის მოძრაობის გამოვლენა ოპტიკური ნაკადის გამოყენებით"
+ },
+ "framework": "generic",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "ეს ნოუთბუქი AI დამწყებთათვის სასწავლო პროგრამა-ის ნაწილია.\n\nOpenCV ითვლება დე ფაქტო სტანდარტად გამოსახულების დამუშავებისთვის. ის შეიცავს უამრავ სასარგებლო ალგორითმს, რომელიც დანერგილია C++-ში. შეგიძლიათ დარეკოთ OpenCV პითონიდანაც.\n\nამ ნოუთბუქებში ჩვენ მოგცემთ OpenCV-ის გამოყენების მაგალითებს. დამატებითი ინფორმაციისთვის შეგიძლიათ ეწვიოთ ისწავლეთ OpenCV ონლაინ კურსს.\n\nპირველ რიგში, მოდით `import cv2`, ისევე როგორც რამდენიმე სხვა სასარგებლო ბიბლიოთეკა:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import cv2\nimport matplotlib.pyplot as plt\nimport numpy as np\n\ndef display_images(l,titles=None,fontsize=12):\n    n=len(l)\n    fig,ax = plt.subplots(1,n)\n    for i,im in enumerate(l):\n        ax[i].imshow(im)\n        ax[i].axis('off')\n        if titles is not None:\n            ax[i].set_title(titles[i],fontsize=fontsize)\n    fig.set_size_inches(fig.get_size_inches()*n)\n    plt.tight_layout()\n    plt.show()\n",
+   "executionCount": 1,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## სურათების ჩატვირთვა\n\nპითონში სურათები შეიძლება მოხერხებულად იყოს წარმოდგენილი NumPy მასივებით. მაგალითად, 320x200 პიქსელის ზომის ნაცრისფერი გამოსახულება შეინახება 200x320 მასივში, ხოლო იმავე განზომილების ფერადი გამოსახულება ექნება 200x320x3 (3 ფერადი არხისთვის).\n\nდავიწყოთ სურათის ჩატვირთვით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "im = cv2.imread('data/braille.jpeg')\nprint(im.shape)\nplt.imshow(im)",
+   "executionCount": 2,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "(242, 531, 3)\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<matplotlib.image.AxesImage at 0x19a755cc640>"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/cecabe1f1f383e72.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "როგორც ხედავთ, ეს არის ბრაილის ტექსტის გამოსახულება. ვინაიდან ჩვენ ძალიან არ გვაინტერესებს რეალური ფერი, შეგვიძლია მისი გადაყვანა შავ-თეთრად:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "bw_im = cv2.cvtColor(im,cv2.COLOR_BGR2GRAY)\nprint(bw_im.shape)\nplt.imshow(bw_im, cmap='gray')",
+   "executionCount": 98,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "(242, 531)\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<matplotlib.image.AxesImage at 0x1de4dfef6a0>"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/0123d77dac182bb9.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## ბრაილის სურათების დამუშავება\n\nთუ გვინდა გამოვიყენოთ გამოსახულების კლასიფიკაცია ტექსტის ამოსაცნობად, ჩვენ უნდა ამოვაჭრათ ცალკეული სიმბოლოები, რათა ისინი გავხადოთ MNIST გამოსახულებების მსგავსი, რომლებიც ადრე ვნახეთ. ეს შეიძლება გაკეთდეს ობიექტის გამოვლენა ტექნიკის გამოყენებით, რომელსაც მოგვიანებით განვიხილავთ, მაგრამ ასევე შეგვიძლია ვცადოთ ამისთვის სუფთა კომპიუტერული ხედვის გამოყენება. კარგი აღწერა იმის შესახებ, თუ როგორ შეიძლება კომპიუტერული ხედვის გამოყენება პერსონაჟების განცალკევებისთვის, შეგიძლიათ იხილოთ ამ ბლოგის პოსტში - აქ მხოლოდ კომპიუტერული ხედვის ზოგიერთ ტექნიკაზე გავამახვილებთ ყურადღებას.\n\nპირველ რიგში, შევეცადოთ ოდნავ გავაუმჯობესოთ გამოსახულება. ჩვენ შეგვიძლია გამოვიყენოთ ბარიერი (კარგად აღწერილი ამ OpenCV სტატიაში) იდეა:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "im = cv2.blur(bw_im,(3,3))\nim = cv2.adaptiveThreshold(im, 255, cv2.ADAPTIVE_THRESH_MEAN_C,\n                           cv2.THRESH_BINARY_INV, 5, 4)\nim = cv2.medianBlur(im, 3)\n_,im = cv2.threshold(im, 0, 255, cv2.THRESH_OTSU)\nim = cv2.GaussianBlur(im, (3,3), 0)\n_,im = cv2.threshold(im, 0, 255, cv2.THRESH_OTSU)\nplt.imshow(im)",
+   "executionCount": 99,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<matplotlib.image.AxesImage at 0x1de4e26d9a0>"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/782ea0805331dbe6.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "სურათებთან მუშაობისთვის საჭიროა ცალკეული წერტილების „ამოღება“, ანუ გადავიყვანოთ სურათები ცალკეული წერტილების კოორდინატებად. ჩვენ შეგვიძლია ამის გაკეთება ფუნქციების ამოღების ტექნიკის გამოყენებით, როგორიცაა SIFT, SURF ან ORB:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "orb = cv2.ORB_create(5000)\nf,d = orb.detectAndCompute(im,None)\nprint(f\"First 5 points: { [f[i].pt for i in range(5)]}\")",
+   "executionCount": 100,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "First 5 points: [(307.20001220703125, 40.80000305175781), (297.6000061035156, 114.00000762939453), (423.6000061035156, 133.20001220703125), (242.40000915527344, 144.0), (103.68000793457031, 57.60000228881836)]\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით დავხატოთ ყველა პუნქტი, რათა დავრწმუნდეთ, რომ ყველაფერი სწორად მივიღეთ:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def plot_dots(dots):\n    img = np.zeros((250,500))\n    for x in dots:\n        cv2.circle(img,(int(x[0]),int(x[1])),3,(255,0,0))\n    plt.imshow(img)\n\npts = [x.pt for x in f]\nplot_dots(pts)  ",
+   "executionCount": 109,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/cfaa3e833506173f.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ცალკეული სიმბოლოების გამოსაყოფად, ჩვენ უნდა ვიცოდეთ მთელი ტექსტის შეზღუდვის ველი. ამის გასარკვევად, ჩვენ შეგვიძლია უბრალოდ გამოვთვალოთ min და max კოორდინატები:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "min_x, min_y, max_x, max_y = [int(f([z[i] for z in pts])) for f in (min,max) for i in (0,1)]\nmin_y+=13\nplt.imshow(im[min_y:max_y,min_x:max_x])",
+   "executionCount": 120,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<matplotlib.image.AxesImage at 0x1de74b0fac0>"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/247582919a1c6fd9.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ასევე, ამ ტექსტის ნაწილობრივი როტაცია შესაძლებელია და მისი სრულყოფილად გასწორების მიზნით ჩვენ უნდა გავაკეთოთ ეგრეთ წოდებული პერსპექტიული ტრანსფორმაცია. ჩვენ ავიღებთ $(x_{min},y_{min}), (x_{min},y_{max}), (x_{max},y_{min}), (x_{max},y_{max})$ წერტილებით განსაზღვრულ ოთხკუთხედს და გავასწორებთ ახალ სურათს პროპორციული ზომებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "off = 5\nsrc_pts = np.array([(min_x-off,min_y-off),(min_x-off,max_y+off),\n                    (max_x+off,min_y-off),(max_x+off,max_y+off)])\nw = int(max_x-min_x+off*2)\nh = int(max_y-min_y+off*2)\ndst_pts = np.array([(0,0),(0,h),(w,0),(w,h)])\nho,m = cv2.findHomography(src_pts,dst_pts)\ntrim = cv2.warpPerspective(im,ho,(w,h))\nplt.imshow(trim)",
+   "executionCount": 122,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<matplotlib.image.AxesImage at 0x1de74cf0f70>"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/efccc0fdd930ed36.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მას შემდეგ რაც მივიღებთ ამ კარგად გასწორებულ სურათს, შედარებით ადვილი უნდა იყოს მისი ნაწილებად დაჭრა:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "char_h = 36\nchar_w = 24\ndef slice(img):\n    dy,dx = img.shape\n    y = 0\n    while y+char_h<dy:\n        x=0\n        while x+char_w<dx:\n            # Skip empty lines\n            if np.max(img[y:y+char_h,x:x+char_w])>0:\n                yield img[y:y+char_h,x:x+char_w]\n            x+=char_w\n        y+=char_h\n\nsliced = list(slice(trim))\ndisplay_images(sliced)",
+   "executionCount": 164,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/4b9562710d568c6e.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "თქვენ ნახეთ, რომ საკმაოდ ბევრი დავალების შესრულება შესაძლებელია სუფთა გამოსახულების დამუშავების გამოყენებით, ყოველგვარი AIს გარეშე. თუ ჩვენ შეგვიძლია გამოვიყენოთ კომპიუტერული ხედვის ტექნიკა, რათა გავამარტივოთ ნერვული ქსელის მუშაობა - ეს აუცილებლად უნდა გავაკეთოთ, რადგან ეს მოგვცემს საშუალებას მოვაგვაროთ პრობლემები მცირე რაოდენობის სასწავლო მონაცემებით.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## მოძრაობის გამოვლენა ჩარჩოს განსხვავების გამოყენებით\n\nვიდეო ნაკადზე მოძრაობის გამოვლენა ძალიან ხშირი ამოცანაა. მაგალითად, ის საშუალებას გვაძლევს მივიღოთ გაფრთხილებები, როდესაც რაღაც ხდება სათვალთვალო კამერაზე. If we want to understand what's happening on the camera, we can then use a neural network - but it is much cheaper to use neural network when we know that something is going on.\n\nThe main idea of motion detection is simple. თუ კამერა ფიქსირდება, მაშინ კამერის ჩარჩოები საკმაოდ მსგავსი უნდა იყოს ერთმანეთის. ვინაიდან ჩარჩოები წარმოდგენილია როგორც მასივები, მხოლოდ ამ მასივების გამოკლებით ორ მომდევნო კადრს მივიღებთ პიქსელების განსხვავებას, რომელიც დაბალი უნდა იყოს სტატიკური ჩარჩოებისთვის და უფრო მაღალი გახდება, როდესაც სურათზე მნიშვნელოვანი მოძრაობა იქნება.\n\nჩვენ დავიწყებთ იმით, რომ ვისწავლოთ ვიდეოს გახსნა და მისი გადაქცევა კადრების თანმიმდევრობით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "vid = cv2.VideoCapture('data/motionvideo.mp4')\n\nc = 0\nframes = []\nwhile vid.isOpened():\n    ret, frame = vid.read()\n    if not ret:\n        break\n    frames.append(frame)\n    c+=1\nvid.release()\nprint(f\"Total frames: {c}\")\ndisplay_images(frames[::150])",
+   "executionCount": 42,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Total frames: 876\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<Figure size 2592x1728 with 6 Axes>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "Since color is not so important for motion detection, we will convert all frames to grayscale. Then, we will compute the frame differences, and plot their norms to visually see the amount of activity going on: \n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "bwframes = [cv2.cvtColor(x,cv2.COLOR_BGR2GRAY) for x in frames]\ndiffs = [(p2-p1) for p1,p2 in zip(bwframes[:-1],bwframes[1:])]\ndiff_amps = np.array([np.linalg.norm(x) for x in diffs])\nplt.plot(diff_amps)\ndisplay_images(diffs[::150],titles=diff_amps[::150])",
+   "executionCount": 56,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/4db913f24605ca63.png"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/8360a13b5d6a7761.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "დავუშვათ, რომ გვინდა შევქმნათ მოხსენება, რომელიც აჩვენებს, თუ რა მოხდა კამერის წინ, შესაბამისი სურათის ჩვენებით ყოველ ჯერზე, როცა რაღაც მოხდება. ამისათვის ჩვენ ალბათ გვინდა გავარკვიოთ \"მოვლენის\" საწყისი და დასასრული ჩარჩო და გამოვაჩინოთ შუა ჩარჩო. გარკვეული ხმაურის მოსაშორებლად, ჩვენ ასევე გავასწორებთ ზემოთ მოცემულ მრუდს მოძრავი საშუალო ფუნქციით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def moving_average(x, w):\n    return np.convolve(x, np.ones(w), 'valid') / w\n\nthreshold = 13000\n\nplt.plot(moving_average(diff_amps,10))\nplt.axhline(y=threshold, color='r', linestyle='-')",
+   "executionCount": 57,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<matplotlib.lines.Line2D at 0x1de72d816d0>"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/7be3df12f3a7487e.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა ჩვენ შეგვიძლია გავარკვიოთ ჩარჩოები, რომლებსაც აქვთ ცვლილებების რაოდენობა ზღურბლზე ზემოთ `np.where`-ის გამოყენებით და გამოვყოთ თანმიმდევრული კადრების თანმიმდევრობა, რომელიც 30 ფრეიმზე მეტია:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "active_frames = np.where(diff_amps>threshold)[0]\n\ndef subsequence(seq,min_length=30):\n    ss = []\n    for i,x in enumerate(seq[:-1]):\n        ss.append(x)\n        if x+1 != seq[i+1]:\n            if len(ss)>min_length:\n                return ss\n            ss.clear()\n\nsub = subsequence(active_frames)\nprint(sub)\n",
+   "executionCount": 149,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322]\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "და ბოლოს ჩვენ შეგვიძლია გამოვხატოთ სურათი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plt.imshow(frames[(sub[0]+sub[-1])//2])",
+   "executionCount": 150,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<matplotlib.image.AxesImage at 0x1de74da5b80>"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/56fabe578cc308d5.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "თქვენ შეიძლება შეამჩნიოთ, რომ ამ სურათზე ფერადი სქემა არ გამოიყურება სწორად! ეს იმიტომ ხდება, რომ OpenCV ისტორიული მიზეზების გამო ატვირთავს სურათებს BGR ფერთა სივრცეში, ხოლო matplotlib იყენებს უფრო ტრადიციულ RGB ფერის წესრიგს. უმეტეს შემთხვევაში, აზრი აქვს სურათების RGB-ში გადაყვანას მათი ჩატვირთვისთანავე.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plt.imshow(cv2.cvtColor(frames[(sub[0]+sub[-1])//2],cv2.COLOR_BGR2RGB))",
+   "executionCount": 151,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<matplotlib.image.AxesImage at 0x1dec94969d0>"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/a28b9fee5f7ee1d4.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## ამოიღეთ მოძრაობა ოპტიკური ნაკადის გამოყენებით\n\nმიუხედავად იმისა, რომ მხოლოდ ორი თანმიმდევრული ჩარჩოს შედარება საშუალებას გვაძლევს დავინახოთ ცვლილებების რაოდენობა, ის არ გვაძლევს ინფორმაციას იმის შესახებ, თუ რა მოძრაობს რეალურად და სად. ამ ინფორმაციის მისაღებად, არსებობს ტექნიკა, სახელწოდებით ოპტიკური ნაკადი:\n\n* მკვრივი ოპტიკური ნაკადი ითვლის ვექტორულ ველს, რომელიც აჩვენებს თითოეულ პიქსელს სად მოძრაობს იგი\n* მწირი ოპტიკური ნაკადი ეფუძნება გამოსახულების ზოგიერთი გამორჩეული მახასიათებლის აღებას (მაგ. კიდეები) და მათი ტრაექტორიის აგებას ჩარჩოდან ჩარჩოში.\n\nწაიკითხეთ მეტი ოპტიკური ნაკადის შესახებ ამ დიდ ტუტორიალში.\n\nმოდით გამოვთვალოთ მკვრივი ოპტიკური ნაკადი ჩვენს ჩარჩოებს შორის:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "flows = [cv2.calcOpticalFlowFarneback(f1, f2, None, 0.5, 3, 15, 3, 5, 1.2, 0) \n         for f1,f2 in zip(bwframes[:-1],bwframes[1:])]\nflows[0].shape",
+   "executionCount": 152,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "(180, 320, 2)"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "როგორც ხედავთ, თითოეული ჩარჩოსთვის ნაკადს აქვს ჩარჩოს განზომილება და 2 არხი, რომელიც შეესაბამება ოპტიკური ნაკადის ვექტორის x და y კომპონენტებს.\n\n2D ოპტიკური ნაკადის ჩვენება ცოტა რთულია, მაგრამ ჩვენ შეგვიძლია გამოვიყენოთ ერთი ჭკვიანი იდეა. თუ ოპტიკურ ნაკადს გადავიყვანთ პოლარულ კოორდინატებად, მაშინ მივიღებთ ორ კომპონენტს თითოეული პიქსელისთვის: მიმართულება და ინტენსივობა. ჩვენ შეგვიძლია წარმოვადგინოთ ინტენსივობა პიქსელის ინტენსივობით, ხოლო მიმართულება სხვადასხვა ფერებით. ჩვენ შევქმნით სურათს HSV (Hue-Saturation-Value) ფერის სივრცე-ში, სადაც ელფერი განისაზღვრება მიმართულებით, მნიშვნელობა - ინტენსივობით და გაჯერება იქნება 255.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def flow_to_hsv(flow):\n    hsvImg = np.zeros((flow.shape[0],flow.shape[1],3),dtype=np.uint8)\n    mag, ang = cv2.cartToPolar(flow[..., 0], flow[..., 1])\n    hsvImg[..., 0] = 0.5 * ang * 180 / np.pi\n    hsvImg[..., 1] = 255\n    hsvImg[..., 2] = cv2.normalize(mag, None, 0, 255, cv2.NORM_MINMAX)\n    return cv2.cvtColor(hsvImg, cv2.COLOR_HSV2BGR)\n\nstart = sub[0]\nstop = sub[-1]\nprint(start,stop)\n\nfrms = [flow_to_hsv(x) for x in flows[start:stop]]\ndisplay_images(frms[::25])",
+   "executionCount": 158,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "195 322\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/86cd02f41a3655d0.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ასე რომ, ამ ჩარჩოებში მომწვანო ფერი შეესაბამება მარცხნივ მოძრაობას, ხოლო ლურჯი - მარჯვნივ მოძრაობას.\n\nოპტიკური ნაკადი შეიძლება იყოს შესანიშნავი ინსტრუმენტი მოძრაობის ზოგადი მიმართულების შესახებ დასკვნების გამოსატანად. მაგალითად, თუ ხედავთ, რომ ჩარჩოში ყველა პიქსელი მოძრაობს მეტ-ნაკლებად ერთი მიმართულებით - შეგიძლიათ დაასკვნათ, რომ არის კამერის მოძრაობა და შეეცადეთ ამის კომპენსირება.\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/4-ComputerVision/06-IntroCV/OpenCV.ipynb"
+}

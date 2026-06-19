@@ -1,0 +1,31 @@
+{
+  "_note": "Cleanup rules applied at ingest time (scripts/ingest-ai-for-beginners.ts). terminology = literal find/replace on markdown bodies + notebook markdown cells (NOT code). altText = English image alt -> Georgian. Source files in AI-For-Beginners-ka stay untouched; output is clean. Terminology decisions from the lang_checker audit.",
+  "terminology": [
+    { "find": "[\\u{1F000}-\\u{1FAFF}\\u{2600}-\\u{27BF}\\u{2B00}-\\u{2BFF}\\u{FE0F}\\u{200D}]", "replace": "", "regex": true, "flags": "gu" },
+    { "find": "**AIს **", "replace": "**AI**-ს " },
+    { "find": "ჟეტონები", "replace": "ტოკენები" },
+    { "find": "ჟეტონი", "replace": "ტოკენი" },
+    { "find": "ერთი ცხელი კოდირება", "replace": "one-hot კოდირება" },
+    { "find": "ერთ ცხელ კოდირებას", "replace": "one-hot კოდირებას" },
+    { "find": "ერთ ცხელ", "replace": "one-hot" },
+    { "find": "ერთი ცხელი", "replace": "one-hot" },
+    { "find": "ჩაშენებები", "replace": "ემბედინგები" },
+    { "find": "ჩაშენება", "replace": "ემბედინგი" },
+    { "find": "რვეულები", "replace": "ნოუთბუქები" },
+    { "find": "რვეული", "replace": "ნოუთბუქი" }
+  ],
+  "altText": {
+    "Summary of Introduction of AI content in a doodle": "AI-ის შესავლის შინაარსის მონახაზი",
+    "Photo of a person": "ადამიანის ფოტო",
+    "Photo of a Cat": "კატის ფოტო",
+    "ML for Beginners": "ML დამწყებთათვის",
+    "ILSVRC Accuracy": "ILSVRC სიზუსტე",
+    "Brief History of AI": "AI-ის მოკლე ისტორია",
+    "the Turing test's evolution": "ტურინგის ტესტის ევოლუცია",
+    "Summary of Symbolic AI content": "სიმბოლური AI-ის შინაარსის მონახაზი",
+    "Knowledge representation spectrum": "ცოდნის წარმოდგენის სპექტრი",
+    "Human Architecture": "ადამიანის არქიტექტურა",
+    "Knowledge-Based System": "ცოდნაზე დაფუძნებული სისტემა",
+    "AND-OR Tree": "AND-OR ხე"
+  }
+}

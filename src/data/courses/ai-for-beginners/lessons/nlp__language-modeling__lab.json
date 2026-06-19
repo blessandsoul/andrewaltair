@@ -1,0 +1,52 @@
+{
+ "kind": "markdown",
+ "courseSlug": "ai-for-beginners",
+ "slug": "nlp/language-modeling/lab",
+ "segments": [
+  "nlp",
+  "language-modeling",
+  "lab"
+ ],
+ "title": "ტრენინგის სკიპ-გრამის მოდელი",
+ "module": {
+  "id": "5-NLP",
+  "slug": "nlp",
+  "title": "ბუნებრივი ენის დამუშავება",
+  "icon": "messages"
+ },
+ "lessonNumber": 15,
+ "orderInModule": 1150,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/5-NLP/15-LanguageModeling/lab/README.md"
+ },
+ "prev": {
+  "slug": "nlp/language-modeling",
+  "title": "ენის მოდელირება"
+ },
+ "next": {
+  "slug": "nlp/language-modeling/c-bo-w-py-torch",
+  "title": "სასწავლო CBoW მოდელი"
+ },
+ "markdown": "ლაბორატორიული დავალება AI დამწყებთათვის სასწავლო პროგრამა-დან.\n\n## ამოცანა\n\nამ ლაბორატორიაში ჩვენ გამოგიწვევთ Word2Vec მოდელის გაწვრთნაზე Skip-Gram ტექნიკის გამოყენებით. ავარჯიშეთ ქსელი ჩაშენებით, რათა წინასწარ განსაზღვროთ მეზობელი სიტყვები $N$-tokens-ის მასშტაბით Skip-Gram ფანჯარაში. შეგიძლიათ გამოიყენოთ კოდი ამ გაკვეთილიდან და ოდნავ შეცვალოთ იგი.\n\n## The Dataset\n\nშეგიძლიათ გამოიყენოთ ნებისმიერი წიგნი. შეგიძლიათ იპოვოთ ბევრი უფასო ტექსტი პროექტი გუტენბერგი-ზე, მაგალითად, აქ არის პირდაპირი ბმული ალისის თავგადასავალი საოცრებათა ქვეყანაში) ლუის კეროლის მიერ. ან შეგიძლიათ გამოიყენოთ შექსპირის პიესები, რომლებიც შეგიძლიათ მიიღოთ შემდეგი კოდის გამოყენებით:\n\n```python\npath_to_file = tf.keras.utils.get_file(\n   'shakespeare.txt', \n   'https://storage.googleapis.com/download.tensorflow.org/data/shakespeare.txt')\ntext = open(path_to_file, 'rb').read().decode(encoding='utf-8')\n```\n\n## გამოიკვლიეთ!\n\nთუ დრო გაქვთ და გსურთ უფრო ღრმად შეხვიდეთ საკითხში, შეეცადეთ შეისწავლოთ რამდენიმე რამ:\n\n* როგორ მოქმედებს ჩაშენების ზომა შედეგებზე?\n* როგორ მოქმედებს ტექსტის სხვადასხვა სტილი შედეგზე?\n* აიღეთ რამდენიმე ძალიან განსხვავებული ტიპის სიტყვა და მათი სინონიმები, მიიღეთ მათი ვექტორული წარმოდგენები, გამოიყენეთ PCA ზომები 2-მდე შესამცირებლად და დახაზეთ ისინი 2D სივრცეში. ხედავთ რაიმე შაბლონებს?\n",
+ "headings": [
+  {
+   "id": "ამოცანა",
+   "text": "ამოცანა",
+   "level": 2
+  },
+  {
+   "id": "the-dataset",
+   "text": "The Dataset",
+   "level": 2
+  },
+  {
+   "id": "გამოიკვლიეთ",
+   "text": "გამოიკვლიეთ!",
+   "level": 2
+  }
+ ],
+ "readingMinutes": 1
+}

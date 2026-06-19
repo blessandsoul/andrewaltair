@@ -1,0 +1,57 @@
+{
+ "kind": "markdown",
+ "courseSlug": "ai-for-beginners",
+ "slug": "computer-vision/object-detection/lab",
+ "segments": [
+  "computer-vision",
+  "object-detection",
+  "lab"
+ ],
+ "title": "თავის ამოცნობა ჰოლივუდის თავების მონაცემთა ნაკრების გამოყენებით",
+ "module": {
+  "id": "4-ComputerVision",
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა",
+  "icon": "eye"
+ },
+ "lessonNumber": 11,
+ "orderInModule": 1110,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/4-ComputerVision/11-ObjectDetection/lab/README.md"
+ },
+ "prev": {
+  "slug": "computer-vision/ga-ns/style-transfer",
+  "title": "სტილის ტრანსფერი"
+ },
+ "next": {
+  "slug": "computer-vision/object-detection",
+  "title": "ობიექტის ამოცნობა"
+ },
+ "markdown": "ლაბორატორიული დავალება AI დამწყებთათვის სასწავლო პროგრამა-დან.\n\n## ამოცანა\n\nვიდეოსათვალთვალო კამერის ნაკადზე ადამიანების რაოდენობის დათვლა მნიშვნელოვანი ამოცანაა, რომელიც საშუალებას მოგვცემს გამოვთვალოთ მაღაზიებში ვიზიტორთა რაოდენობა, რესტორანში დატვირთული საათები და ა.შ. ამ ამოცანის გადასაჭრელად, ჩვენ უნდა შევძლოთ ადამიანის თავების აღმოჩენა სხვადასხვა კუთხიდან. ობიექტების აღმოჩენის მოდელის მომზადებისთვის ადამიანის თავების აღმოსაჩენად, ჩვენ შეგვიძლია გამოვიყენოთ ჰოლივუდის თავების მონაცემთა ნაკრები.\n\n## The Dataset\n\nჰოლივუდის თავების მონაცემთა ნაკრები შეიცავს 369,846 ადამიანის თავს, რომლებიც ანოტირებულია ჰოლივუდის ფილმების 224,740 ფილმის კადრში. ის მოწოდებულია https://host.robots.ox.ac.uk/pascal/VOC/ ფორმატში, სადაც თითოეული სურათისთვის არის ასევე XML აღწერილობის ფაილი, რომელიც ასე გამოიყურება:\n\n```xml\n<annotation>\n\t<folder>HollywoodHeads</folder>\n\t<filename>mov_021_149390.jpeg</filename>\n\t<source>\n\t\t<database>HollywoodHeads 2015 Database</database>\n\t\t<annotation>HollywoodHeads 2015</annotation>\n\t\t<image>WILLOW</image>\n\t</source>\n\t<size>\n\t\t<width>608</width>\n\t\t<height>320</height>\n\t\t<depth>3</depth>\n\t</size>\n\t<segmented>0</segmented>\n\t<object>\n\t\t<name>head</name>\n\t\t<bndbox>\n\t\t\t<xmin>201</xmin>\n\t\t\t<ymin>1</ymin>\n\t\t\t<xmax>480</xmax>\n\t\t\t<ymax>263</ymax>\n\t\t</bndbox>\n\t\t<difficult>0</difficult>\n\t</object>\n\t<object>\n\t\t<name>head</name>\n\t\t<bndbox>\n\t\t\t<xmin>3</xmin>\n\t\t\t<ymin>4</ymin>\n\t\t\t<xmax>241</xmax>\n\t\t\t<ymax>285</ymax>\n\t\t</bndbox>\n\t\t<difficult>0</difficult>\n\t</object>\n</annotation>\n```\n\nამ მონაცემთა ნაკრებში არის ობიექტების მხოლოდ ერთი კლასი `head` და თითოეული ხელმძღვანელისთვის თქვენ მიიღებთ შეზღუდვის ველის კოორდინატებს. შეგიძლიათ XML გაანალიზოთ Python ბიბლიოთეკების გამოყენებით, ან გამოიყენოთ ამ ბიბლიოთეკას პირდაპირ PASCAL VOC ფორმატთან გასამკლავებლად.\n\n## სასწავლო ობიექტების ამოცნობა\n\nთქვენ შეგიძლიათ მოამზადოთ ობიექტის აღმოჩენის მოდელი ერთ-ერთი შემდეგი გზით:\n\n* გამოიყენეთ Azure Custom Vision და ეს არის Python API, რომ პროგრამულად მოამზადოთ მოდელი ღრუბელში. მორგებული ხედვა ვერ შეძლებს რამდენიმე ასეულზე მეტ სურათს გამოიყენოს მოდელის ტრენინგისთვის, ამიტომ შეიძლება დაგჭირდეთ მონაცემთა ნაკრების შეზღუდვა.\n* მაგალითის გამოყენება კერასის გაკვეთილი-დან RetunaNet მოდელის მოსამზადებლად.\n* torchvision.models.detection.RetinaNet ჩაშენებული მოდულის გამოყენება ჩირაღდნის ხედვაში.\n\n## Takeaway\n\nობიექტების გამოვლენა არის ამოცანა, რომელიც ხშირად საჭიროა ინდუსტრიაში. მიუხედავად იმისა, რომ არსებობს გარკვეული სერვისები, რომლებიც შეიძლება გამოყენებულ იქნას ობიექტების აღმოჩენის შესასრულებლად (როგორიცაა Azure Custom Vision), მნიშვნელოვანია გვესმოდეს, თუ როგორ მუშაობს ობიექტის ამოცნობა და შეძლოთ საკუთარი მოდელების მომზადება.\n",
+ "headings": [
+  {
+   "id": "ამოცანა",
+   "text": "ამოცანა",
+   "level": 2
+  },
+  {
+   "id": "the-dataset",
+   "text": "The Dataset",
+   "level": 2
+  },
+  {
+   "id": "სასწავლო-ობიექტების-ამოცნობა",
+   "text": "სასწავლო ობიექტების ამოცნობა",
+   "level": 2
+  },
+  {
+   "id": "takeaway",
+   "text": "Takeaway",
+   "level": 2
+  }
+ ],
+ "readingMinutes": 2
+}

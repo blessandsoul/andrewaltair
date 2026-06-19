@@ -1,0 +1,160 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "neural-networks/frameworks/lab/lab-frameworks",
+ "segments": [
+  "neural-networks",
+  "frameworks",
+  "lab",
+  "lab-frameworks"
+ ],
+ "title": "კლასიფიკაცია PyTorch/TensorFlow-ით",
+ "module": {
+  "id": "3-NeuralNetworks",
+  "slug": "neural-networks",
+  "title": "ნეირონული ქსელები",
+  "icon": "network"
+ },
+ "lessonNumber": 5,
+ "orderInModule": 1050.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/3-NeuralNetworks/05-Frameworks/lab/LabFrameworks.ipynb"
+ },
+ "prev": {
+  "slug": "neural-networks/frameworks",
+  "title": "ნერვული ქსელის ჩარჩოები"
+ },
+ "next": {
+  "slug": "neural-networks/frameworks/intro-keras",
+  "title": "უმარტივესი შესავალი ნერვულ ქსელებში Keras-ით"
+ },
+ "framework": "generic",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "ლაბორატორიული დავალება AI დამწყებთათვის სასწავლო პროგრამა-დან.\n\n## ნაწილი 1: ირისის კლასიფიკაცია\n\nირისის მონაცემთა ნაკრები შეიცავს 3 სხვადასხვა კლასის ირისის 150 ჩანაწერს. თითოეული ჩანაწერი შეიცავს 4 ციფრულ პარამეტრს: სეპალის სიგრძე/სიგანე და ფურცლის სიგრძე/სიგანე. ეს არის მარტივი მონაცემთა ნაკრების მაგალითი, რისთვისაც არ გჭირდებათ ძლიერი ნერვული ქსელი.\n\n### მონაცემთა ნაკრების მიღება\n\nIris მონაცემთა ნაკრები ჩაშენებულია Scikit Learn-ში, ასე რომ, ჩვენ შეგვიძლია მარტივად მივიღოთ იგი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "from sklearn.datasets import load_iris\nfrom sklearn.model_selection import train_test_split\n\niris = load_iris()\nfeatures = iris['data']\nlabels = iris['target']\nclass_names = iris['target_names']\nfeature_names = iris['feature_names']\n\nprint(f\"Features: {feature_names}, Classes: {class_names}\")",
+   "executionCount": 1,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Features: ['sepal length (cm)', 'sepal width (cm)', 'petal length (cm)', 'petal width (cm)'], Classes: ['setosa' 'versicolor' 'virginica']\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "### მონაცემების ვიზუალიზაცია\n\nხშირ შემთხვევაში, აზრი აქვს მონაცემების ვიზუალიზაციას, რათა დავინახოთ, გამოიყურება თუ არა ისინი განცალკევებით - ეს გვარწმუნებს, რომ ჩვენ უნდა შევძლოთ კარგი კლასიფიკაციის მოდელის აგება. იმის გამო, რომ ჩვენ გვაქვს რამდენიმე მახასიათებელი, ჩვენ შეგვიძლია ავაშენოთ წყვილი 2D სკატერის ნაკვეთები, რომლებიც აჩვენებენ სხვადასხვა კლასებს სხვადასხვა წერტილოვანი ფერებით. ეს შეიძლება ავტომატურად გაკეთდეს პაკეტით, რომელსაც ეწოდება seaborn:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import seaborn as sns\nimport pandas as pd\n\ndf = pd.DataFrame(features,columns=feature_names).join(pd.DataFrame(labels,columns=['Label']))\n\ndf",
+   "executionCount": 11,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "     sepal length (cm)  sepal width (cm)  petal length (cm)  petal width (cm)  \\\n0                  5.1               3.5                1.4               0.2   \n1                  4.9               3.0                1.4               0.2   \n2                  4.7               3.2                1.3               0.2   \n3                  4.6               3.1                1.5               0.2   \n4                  5.0               3.6                1.4               0.2   \n..                 ...               ...                ...               ...   \n145                6.7               3.0                5.2               2.3   \n146                6.3               2.5                5.0               1.9   \n147                6.5               3.0                5.2               2.0   \n148                6.2               3.4                5.4               2.3   \n149                5.9               3.0                5.1               1.8   \n\n     Label  \n0        0  \n1        0  \n2        0  \n3        0  \n4        0  \n..     ...  \n145      2  \n146      2  \n147      2  \n148      2  \n149      2  \n\n[150 rows x 5 columns]"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "sns.pairplot(df,hue='Label')",
+   "executionCount": 12,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<seaborn.axisgrid.PairGrid at 0x14f4f772f70>"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/fc7cb9a4a4e85e17.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "### მონაცემების ნორმალიზება და დაშიფვრა\n\nნერვული ქსელის ტრენინგისთვის მონაცემების მოსამზადებლად, ჩვენ უნდა მოვახდინოთ შეყვანის ნორმალიზება დიაპაზონში [0..1]. ეს შეიძლება გაკეთდეს მარტივი `numpy` ოპერაციების გამოყენებით, ან Scikit Learn მეთოდები.\n\nასევე, თქვენ უნდა გადაწყვიტოთ, გსურთ თუ არა სამიზნე ეტიკეტი იყოს ერთჯერადი კოდირებული თუ არა. PyTorch და TensorFlow საშუალებას გაძლევთ იკვებოთ კლასის რიცხვში, როგორც მთელი რიცხვი (0-დან N-1-მდე), ან როგორც one-hot კოდირებული ვექტორი. ნერვული ქსელის სტრუქტურის შექმნისას თქვენ უნდა მიუთითოთ დაკარგვის ფუნქცია შესაბამისად (მაგ. მწირი კატეგორიული ჯვარედინი ჯვარედინი რიცხვითი წარმოდგენისთვის და კროსენტროპიის დაკარგვა one-hot კოდირებისთვის). ერთჯერადი კოდირება ასევე შეიძლება იყოს შესრულებულია Sklearn-ის გამოყენებით, ან კოდის ამ ნაწილის გამოყენებით:\n\n```python\nn_values = np.max(labels) + 1\nlabels_onehot = np.eye(n_values)[labels]\n``` \n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Code to normalize and encode the data",
+   "executionCount": 13,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "### დაყავით მონაცემები Train და Test\n\nიმის გამო, რომ ჩვენ არ გვაქვს ცალკეული მატარებლისა და სატესტო მონაცემთა ნაკრები, უნდა გავყოთ ის შესავალი მატარებლისა და ტესტირების მონაცემთა ნაკრები Sklearn-ის გამოყენებით\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Split the data",
+   "executionCount": 14,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "### განსაზღვრეთ და მოამზადეთ ნერვული ქსელი\n\nახლა თქვენ მზად ხართ წახვიდეთ, შემოიტანოთ სასურველი ჩარჩო, განსაზღვროთ ნერვული ქსელი და დაიწყოთ ვარჯიში, დააკვირდით მატარებლის ქცევას და ვალიდაციის სიზუსტეს.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Define the network",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Train the network",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Visualize train/validation accuracy graph",
+   "executionCount": 15,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "### ექსპერიმენტი\n\nახლა თქვენ შეგიძლიათ ექსპერიმენტი გააკეთოთ სხვადასხვა ქსელის არქიტექტურით, რათა ნახოთ, როგორ იმოქმედებს ეს შედეგზე. სცადეთ:\n1. ერთშრიანი ქსელი 3 ნეირონით (ტოლია კლასების რაოდენობაზე)\n1. ორფენიანი ქსელი მცირე/საშუალო/დიდი ფარული ფენით\n1. მეტი ფენის გამოყენება\n\nდარწმუნდით, რომ დააკვირდით გადაჭარბებულ მორგებას, როდესაც იყენებთ მდიდარ მოდელს უამრავი ნეირონით (პარამეტრით).\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Experiment",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## ნაწილი 2: MNIST ტრენინგი\n\nორივე Keras და PyTorch შეიცავს MNIST-ს, როგორც ჩაშენებულ მონაცემთა ბაზას, ასე რომ თქვენ შეგიძლიათ მარტივად მიიღოთ ის კოდის რამდენიმე ხაზით (კერასი, PyTorch). თქვენ ასევე შეძლებთ ჩატვირთოთ როგორც მატარებლის, ასევე ტესტირების მონაცემთა ნაკრები მათი ხელით გაყოფის გარეშე.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# Load the dataset",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა თქვენ უნდა შეასრულოთ ზემოთ მოყვანილი ნაბიჯები, რათა დარწმუნდეთ, რომ მონაცემთა ბაზა ნორმალიზებულია (ეს ალბათ უკვე იქნებოდა), განსაზღვრეთ და მოამზადეთ ნერვული ქსელი.\n\n## Takeaway\n\n1. ნერვული ქსელები შეიძლება გამოვიყენოთ მანქანური სწავლების ტრადიციული ამოცანებისთვის. თუმცა, ისინი ხშირ შემთხვევაში ზედმეტად ძლიერია და შეიძლება გამოიწვიოს გადაჭარბებული მორგება.\n1. ამ დავალებაში მნიშვნელოვანია, რომ დააკვირდეთ ზედმეტად მორგებულ ქცევას და შეეცადოთ თავიდან აიცილოთ იგი.\n1. Keras-ის მსგავსი ჩარჩოებით, ზოგჯერ ნერვული ქსელის სწავლება საკმაოდ მარტივია. მაგრამ თქვენ უნდა გესმოდეთ რა ხდება.\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/3-NeuralNetworks/05-Frameworks/lab/LabFrameworks.ipynb"
+}

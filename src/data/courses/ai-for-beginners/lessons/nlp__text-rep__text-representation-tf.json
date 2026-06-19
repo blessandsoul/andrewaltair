@@ -1,0 +1,302 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "nlp/text-rep/text-representation-tf",
+ "segments": [
+  "nlp",
+  "text-rep",
+  "text-representation-tf"
+ ],
+ "title": "ტექსტის კლასიფიკაციის",
+ "module": {
+  "id": "5-NLP",
+  "slug": "nlp",
+  "title": "ბუნებრივი ენის დამუშავება",
+  "icon": "messages"
+ },
+ "lessonNumber": 13,
+ "orderInModule": 1130.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/5-NLP/13-TextRep/TextRepresentationTF.ipynb"
+ },
+ "prev": {
+  "slug": "nlp/text-rep/text-representation-py-torch",
+  "title": "ტექსტის კლასიფიკაციის"
+ },
+ "next": {
+  "slug": "nlp/embeddings",
+  "title": "ემბედინგები"
+ },
+ "framework": "tensorflow",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "ამ მოდულში ჩვენ დავიწყებთ მარტივი ტექსტის კლასიფიკაციის ამოცანას AG_NEWS მონაცემთა ნაკრების საფუძველზე: ჩვენ დავყოფთ ახალი ამბების სათაურებს 4 კატეგორიად: მსოფლიო, სპორტი, ბიზნესი და მეცნიერება/ტექნიკა.\n\n## The Dataset\n\nმონაცემთა ნაკრების ჩასატვირთად, ჩვენ გამოვიყენებთ TensorFlow მონაცემთა ნაკრები API-ს.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import tensorflow as tf\nfrom tensorflow import keras\nimport tensorflow_datasets as tfds\n\n# In this tutorial, we will be training a lot of models. In order to use GPU memory cautiously,\n# we will set tensorflow option to grow GPU memory allocation when required.\nphysical_devices = tf.config.list_physical_devices('GPU') \nif len(physical_devices)>0:\n    tf.config.experimental.set_memory_growth(physical_devices[0], True)\n\ndataset = tfds.load('ag_news_subset')",
+   "executionCount": 1,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა ჩვენ შეგვიძლია წვდომა მონაცემთა ნაკრების სასწავლო და სატესტო ნაწილებზე შესაბამისად `dataset['train']` და `dataset['test']` გამოყენებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "ds_train = dataset['train']\nds_test = dataset['test']\n\nprint(f\"Length of train dataset = {len(ds_train)}\")\nprint(f\"Length of test dataset = {len(ds_test)}\")",
+   "executionCount": 3,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Length of train dataset = 120000\nLength of test dataset = 7600\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით ამობეჭდოთ პირველი 10 ახალი სათაური ჩვენი მონაცემთა ბაზიდან:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "classes = ['World', 'Sports', 'Business', 'Sci/Tech']\n\nfor i,x in zip(range(5),ds_train):\n    print(f\"{x['label']} ({classes[x['label']]}) -> {x['title']} {x['description']}\")",
+   "executionCount": 4,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "3 (Sci/Tech) -> b'AMD Debuts Dual-Core Opteron Processor' b'AMD #39;s new dual-core Opteron chip is designed mainly for corporate computing applications, including databases, Web services, and financial transactions.'\n1 (Sports) -> b\"Wood's Suspension Upheld (Reuters)\" b'Reuters - Major League Baseball\\\\Monday announced a decision on the appeal filed by Chicago Cubs\\\\pitcher Kerry Wood regarding a suspension stemming from an\\\\incident earlier this season.'\n2 (Business) -> b'Bush reform may have blue states seeing red' b'President Bush #39;s  quot;revenue-neutral quot; tax reform needs losers to balance its winners, and people claiming the federal deduction for state and local taxes may be in administration planners #39; sights, news reports say.'\n3 (Sci/Tech) -> b\"'Halt science decline in schools'\" b'Britain will run out of leading scientists unless science education is improved, says Professor Colin Pillinger.'\n1 (Sports) -> b'Gerrard leaves practice' b'London, England (Sports Network) - England midfielder Steven Gerrard injured his groin late in Thursday #39;s training session, but is hopeful he will be ready for Saturday #39;s World Cup qualifier against Austria.'\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## ტექსტის ვექტორიზაცია\n\nახლა ჩვენ უნდა გადავიყვანოთ ტექსტი რიცხვებად, რომლებიც შეიძლება იყოს წარმოდგენილი როგორც ტენსორები. თუ გვინდა სიტყვების დონეზე წარმოდგენა, ჩვენ უნდა გავაკეთოთ ორი რამ:\n\n* გამოიყენეთ ტოკენიზატორი ტექსტის ტოკენებად გასაყოფად.\n* შექმენით ამ ნიშნების ლექსიკა.\n\n### ლექსიკის ზომის შეზღუდვა\n\nAG News მონაცემთა ნაკრების მაგალითში, ლექსიკის ზომა საკმაოდ დიდია, 100 ათას სიტყვაზე მეტი. ზოგადად, ჩვენ არ გვჭირდება სიტყვები, რომლებიც იშვიათად გვხვდება ტექსტში &mdash; მხოლოდ რამდენიმე წინადადება ექნება მათ და მოდელი მათგან ვერ ისწავლის. ამრიგად, აზრი აქვს ლექსიკის ზომის შეზღუდვას უფრო მცირე რიცხვით, არგუმენტის გადაცემით ვექტორიზატორის კონსტრუქტორზე:\n\nორივე ამ ნაბიჯის დამუშავება შესაძლებელია TextVectorization ფენის გამოყენებით. მოდით შევქმნათ ვექტორიზატორის ობიექტი და შემდეგ გამოვიძახოთ `adapt` მეთოდი, რომ გადავხედოთ მთელ ტექსტს და შევქმნათ ლექსიკა:\n\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "vocab_size = 50000\nvectorizer = keras.layers.experimental.preprocessing.TextVectorization(max_tokens=vocab_size)\nvectorizer.adapt(ds_train.take(500).map(lambda x: x['title']+' '+x['description']))",
+   "executionCount": 5,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "> შენიშვნა, რომ ჩვენ ვიყენებთ მთელი მონაცემთა ნაკრების მხოლოდ ქვეჯგუფს ლექსიკის შესაქმნელად. ჩვენ ამას ვაკეთებთ იმისთვის, რომ დავაჩქაროთ შესრულების დრო და არ დაგელოდოთ. თუმცა, ჩვენ ვიღებთ რისკს, რომ მთელი თარიღის ზოგიერთი სიტყვა არ მოხვდება ლექსიკაში და იგნორირებული იქნება ტრენინგის დროს. ამდენად, მთელი ლექსიკის ზომის გამოყენება და მთელი მონაცემთა ნაკრების გაშვება `adapt`-ის განმავლობაში უნდა გაზარდოს საბოლოო სიზუსტე, მაგრამ არა მნიშვნელოვნად.\n\nახლა ჩვენ შეგვიძლია მივიღოთ ფაქტობრივი ლექსიკა:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "vocab = vectorizer.get_vocabulary()\nvocab_size = len(vocab)\nprint(vocab[:10])\nprint(f\"Length of vocabulary: {vocab_size}\")",
+   "executionCount": 6,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "['', '[UNK]', 'the', 'to', 'a', 'in', 'of', 'and', 'on', 'for']\nLength of vocabulary: 5335\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ვექტორიზატორის გამოყენებით, ჩვენ შეგვიძლია მარტივად დავაშიფროთ ნებისმიერი ტექსტი რიცხვების ნაკრებში:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "vectorizer('I love to play with my words')",
+   "executionCount": 7,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<tf.Tensor: shape=(7,), dtype=int64, numpy=array([ 112, 3695,    3,  304,   11, 1041,    1], dtype=int64)>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## სიტყვების ჩანთა ტექსტის წარმოდგენა\n\nიმის გამო, რომ სიტყვები წარმოადგენს მნიშვნელობას, ზოგჯერ ჩვენ შეგვიძლია გავარკვიოთ ტექსტის ნაწილის მნიშვნელობა მხოლოდ ცალკეული სიტყვების დათვალიერებით, წინადადებაში მათი თანმიმდევრობის მიუხედავად. მაგალითად, ახალი ამბების კლასიფიკაციისას, სიტყვები, როგორიცაა ამინდი და თოვლი, სავარაუდოდ მიუთითებს * ამინდის პროგნოზს*, ხოლო სიტყვები, როგორიცაა * აქციები * და *დოლარი * ჩაითვლება ფინანსურ ამბებში.\n\nსიტყვების ტომარა (BoW) ვექტორული წარმოდგენა ყველაზე მარტივია ტრადიციული ვექტორული წარმოდგენის გასაგებად. თითოეული სიტყვა უკავშირდება ვექტორულ ინდექსს და ვექტორული ელემენტი შეიცავს მოცემულ დოკუმენტში თითოეული სიტყვის გაჩენის რაოდენობას.\n\n![Image showing how a bag of words vector representation is represented in memory.](/courses/ai-for-beginners/5-NLP/13-TextRep/images/bag-of-words-example.png)\n\n> შენიშვნა: თქვენ ასევე შეგიძლიათ BoW წარმოიდგინოთ, როგორც ტექსტში ცალკეული სიტყვებისთვის one-hot კოდირებული ვექტორის ჯამი.\n\nქვემოთ მოცემულია მაგალითი იმისა, თუ როგორ უნდა გენერიროთ სიტყვების ჩანთა-გამოსახვა Scikit Learn პითონის ბიბლიოთეკის გამოყენებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "from sklearn.feature_extraction.text import CountVectorizer\nsc_vectorizer = CountVectorizer()\ncorpus = [\n        'I like hot dogs.',\n        'The dog ran fast.',\n        'Its hot outside.',\n    ]\nsc_vectorizer.fit_transform(corpus)\nsc_vectorizer.transform(['My dog likes hot dogs on a hot day.']).toarray()",
+   "executionCount": 8,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "array([[1, 1, 0, 2, 0, 0, 0, 0, 0]], dtype=int64)"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ ასევე შეგვიძლია გამოვიყენოთ Keras-ის ვექტორიზატორი, რომელიც ზემოთ განვსაზღვრეთ, თითოეული სიტყვის რიცხვი გადავიყვანოთ one-hot კოდირებად და დავამატოთ ყველა ეს ვექტორი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def to_bow(text):\n    return tf.reduce_sum(tf.one_hot(vectorizer(text),vocab_size),axis=0)\n\nto_bow('My dog likes hot dogs on a hot day.').numpy()",
+   "executionCount": 9,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "array([0., 5., 0., ..., 0., 0., 0.], dtype=float32)"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "> შენიშვნა: შეიძლება გაგიკვირდეთ, რომ შედეგი განსხვავდება წინა მაგალითისგან. მიზეზი ის არის, რომ Keras-ის მაგალითში ვექტორის სიგრძე შეესაბამება ლექსიკის ზომას, რომელიც აგებულია მთელი AG News-ის მონაცემთა ნაკრებიდან, ხოლო Scikit Learn მაგალითში ჩვენ ავაშენეთ ლექსიკა ნიმუშის ტექსტიდან.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## BoW კლასიფიკატორის სწავლება\n\nახლა, როდესაც ვისწავლეთ, როგორ ავაშენოთ ჩვენი ტექსტის სიტყვების ჩანთა, მოდით მოვამზადოთ კლასიფიკატორი, რომელიც იყენებს მას. უპირველეს ყოვლისა, ჩვენ უნდა გადავიყვანოთ ჩვენი მონაცემთა ნაკრები სიტყვების ჩანთაში. ამის მიღწევა შესაძლებელია `map` ფუნქციის გამოყენებით შემდეგი გზით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "batch_size = 128\n\nds_train_bow = ds_train.map(lambda x: (to_bow(x['title']+x['description']),x['label'])).batch(batch_size)\nds_test_bow = ds_test.map(lambda x: (to_bow(x['title']+x['description']),x['label'])).batch(batch_size)",
+   "executionCount": 11,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მოდით განვსაზღვროთ მარტივი კლასიფიკატორის ნერვული ქსელი, რომელიც შეიცავს ერთ ხაზოვან ფენას. შეყვანის ზომაა `vocab_size`, ხოლო გამომავალი ზომა შეესაბამება კლასების რაოდენობას (4). იმის გამო, რომ ჩვენ ვხსნით კლასიფიკაციის ამოცანას, საბოლოო აქტივაციის ფუნქციაა softmax:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model = keras.models.Sequential([\n    keras.layers.Dense(4,activation='softmax',input_shape=(vocab_size,))\n])\nmodel.compile(loss='sparse_categorical_crossentropy',optimizer='adam',metrics=['acc'])\nmodel.fit(ds_train_bow,validation_data=ds_test_bow)",
+   "executionCount": 12,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "938/938 [==============================] - 66s 70ms/step - loss: 0.6144 - acc: 0.8427 - val_loss: 0.4416 - val_acc: 0.8697\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<keras.callbacks.History at 0x20c70a947f0>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ვინაიდან ჩვენ გვაქვს 4 კლასი, 80%-ზე მეტი სიზუსტე კარგი შედეგია.\n\n## კლასიფიკატორის ტრენინგი, როგორც ერთი ქსელი\n\nიმის გამო, რომ ვექტორიზატორი ასევე არის Keras ფენა, ჩვენ შეგვიძლია განვსაზღვროთ ქსელი, რომელიც მოიცავს მას და ვავარჯიშოთ იგი ბოლომდე. ამ გზით ჩვენ არ გვჭირდება მონაცემთა ნაკრების ვექტორიზაცია `map`-ის გამოყენებით, ჩვენ შეგვიძლია უბრალოდ გადავიტანოთ თავდაპირველი მონაცემთა ნაკრები ქსელის შეყვანაში.\n\n> შენიშვნა: ჩვენ მაინც მოგვიწევს რუკების გამოყენება ჩვენს მონაცემთა ბაზაში, რათა გადაიყვანოთ ველები ლექსიკონებიდან (როგორიცაა `title`, `description` და `label`) ტოპებად. თუმცა, დისკიდან მონაცემების ჩატვირთვისას, პირველ რიგში შეგვიძლია შევქმნათ მონაცემთა ბაზა საჭირო სტრუქტურით.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def extract_text(x):\n    return x['title']+' '+x['description']\n\ndef tupelize(x):\n    return (extract_text(x),x['label'])\n\ninp = keras.Input(shape=(1,),dtype=tf.string)\nx = vectorizer(inp)\nx = tf.reduce_sum(tf.one_hot(x,vocab_size),axis=1)\nout = keras.layers.Dense(4,activation='softmax')(x)\nmodel = keras.models.Model(inp,out)\nmodel.summary()\n\nmodel.compile(loss='sparse_categorical_crossentropy',optimizer='adam',metrics=['acc'])\nmodel.fit(ds_train.map(tupelize).batch(batch_size),validation_data=ds_test.map(tupelize).batch(batch_size))\n",
+   "executionCount": 13,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Model: \"model\"\n_________________________________________________________________\n Layer (type)                Output Shape              Param #   \n=================================================================\n input_1 (InputLayer)        [(None, 1)]               0         \n                                                                 \n text_vectorization (TextVec  (None, None)             0         \n torization)                                                     \n                                                                 \n tf.one_hot (TFOpLambda)     (None, None, 5335)        0         \n                                                                 \n tf.math.reduce_sum (TFOpLam  (None, 5335)             0         \n bda)                                                            \n                                                                 \n dense_2 (Dense)             (None, 4)                 21344     \n                                                                 \n=================================================================\nTotal params: 21,344\nTrainable params: 21,344\nNon-trainable params: 0\n_________________________________________________________________\n938/938 [==============================] - 73s 77ms/step - loss: 0.6057 - acc: 0.8414 - val_loss: 0.4202 - val_acc: 0.8736\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<keras.callbacks.History at 0x20c721521f0>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## ბიგრამები, ტრიგრამები და n-გრამები\n\nსიტყვების თაიგულის მიდგომის ერთ-ერთი შეზღუდვა არის ის, რომ ზოგიერთი სიტყვა მრავალსიტყვიანი გამონათქვამების ნაწილია, მაგალითად, სიტყვა „ჰოტ-დოგს“ აქვს სრულიად განსხვავებული მნიშვნელობა სხვა კონტექსტში სიტყვებისგან „ცხელი“ და „დოგი“. თუ ჩვენ წარმოვადგენთ სიტყვებს \"ცხელი\" და \"ძაღლი\" ყოველთვის ერთი და იგივე ვექტორების გამოყენებით, ამან შეიძლება დააბნიოს ჩვენი მოდელი.\n\nამის გადასაჭრელად n-გრამების წარმოდგენები ხშირად გამოიყენება დოკუმენტების კლასიფიკაციის მეთოდებში, სადაც თითოეული სიტყვის, ორსიტყვიანი ან სამ-სიტყვის სიხშირე სასარგებლო თვისებაა კლასიფიკატორების ტრენინგისთვის. მაგალითად, ბიგრამების წარმოდგენებში, ორიგინალური სიტყვების გარდა, ლექსიკას დავამატებთ ყველა სიტყვათა წყვილს.\n\nქვემოთ მოცემულია მაგალითი იმისა, თუ როგორ უნდა შექმნათ სიტყვების წარმოდგენის ბიგრამიანი ტომარა Scikit Learn გამოყენებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "bigram_vectorizer = CountVectorizer(ngram_range=(1, 2), token_pattern=r'\\b\\w+\\b', min_df=1)\ncorpus = [\n        'I like hot dogs.',\n        'The dog ran fast.',\n        'Its hot outside.',\n    ]\nbigram_vectorizer.fit_transform(corpus)\nprint(\"Vocabulary:\\n\",bigram_vectorizer.vocabulary_)\nbigram_vectorizer.transform(['My dog likes hot dogs on a hot day.']).toarray()\n",
+   "executionCount": 14,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Vocabulary:\n {'i': 7, 'like': 11, 'hot': 4, 'dogs': 2, 'i like': 8, 'like hot': 12, 'hot dogs': 5, 'the': 16, 'dog': 0, 'ran': 14, 'fast': 3, 'the dog': 17, 'dog ran': 1, 'ran fast': 15, 'its': 9, 'outside': 13, 'its hot': 10, 'hot outside': 6}\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "array([[1, 0, 1, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],\n      dtype=int64)"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "n-გრამის მიდგომის მთავარი ნაკლი ის არის, რომ ლექსიკის ზომა ძალიან სწრაფად იწყებს ზრდას. პრაქტიკაში, ჩვენ უნდა გავაერთიანოთ n-გრამის წარმოდგენა განზომილების შემცირების ტექნიკასთან, როგორიცაა embeddings, რომელსაც განვიხილავთ შემდეგ ერთეულში.\n\nჩვენს AG News მონაცემთა ბაზაში n-გრამის გამოსაყენებლად, ჩვენ უნდა გადავცეთ `ngrams` პარამეტრი ჩვენს `TextVectorization` კონსტრუქტორს. ბიგრამების ლექსიკის სიგრძე მნიშვნელოვნად დიდია, ჩვენს შემთხვევაში ის 1,3 მილიონ ტოკენზე მეტია! ამრიგად, აზრი აქვს ბიგრამის ტოკენების შეზღუდვას გარკვეული გონივრული რაოდენობით.\n\nჩვენ შეგვიძლია გამოვიყენოთ იგივე კოდი, როგორც ზემოთ, კლასიფიკატორის მოსამზადებლად, თუმცა, ეს იქნება ძალიან არაეფექტური მეხსიერება. შემდეგ განყოფილებაში ჩვენ მოვამზადებთ ბიგრამის კლასიფიკატორს ჩაშენების გამოყენებით. იმავდროულად, შეგიძლიათ ექსპერიმენტი ჩაატაროთ ბიგრამის კლასიფიკატორის ტრენინგით ამ ნოუთბუქში და ნახოთ, შეგიძლიათ თუ არა უფრო მაღალი სიზუსტის მიღება.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## BoW ვექტორების ავტომატური გაანგარიშება\n\nზემოთ მოყვანილ მაგალითში ჩვენ ხელით გამოვთვალეთ BoW ვექტორები ცალკეული სიტყვების one-hot კოდირების შეჯამებით. თუმცა, TensorFlow-ის უახლესი ვერსია საშუალებას გვაძლევს ავტომატურად გამოვთვალოთ BoW ვექტორები `output_mode='count` პარამეტრის ვექტორიზატორის კონსტრუქტორზე გადაცემით. ეს მნიშვნელოვნად ამარტივებს ჩვენი მოდელის განსაზღვრას და სწავლებას:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model = keras.models.Sequential([\n    keras.layers.experimental.preprocessing.TextVectorization(max_tokens=vocab_size,output_mode='count'),\n    keras.layers.Dense(4,input_shape=(vocab_size,), activation='softmax')\n])\nprint(\"Training vectorizer\")\nmodel.layers[0].adapt(ds_train.take(500).map(extract_text))\nmodel.compile(loss='sparse_categorical_crossentropy',optimizer='adam',metrics=['acc'])\nmodel.fit(ds_train.map(tupelize).batch(batch_size),validation_data=ds_test.map(tupelize).batch(batch_size))",
+   "executionCount": 15,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Training vectorizer\n938/938 [==============================] - 7s 7ms/step - loss: 0.5929 - acc: 0.8486 - val_loss: 0.4168 - val_acc: 0.8772\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<keras.callbacks.History at 0x20c725217c0>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## ვადის სიხშირე - დოკუმენტის შებრუნებული სიხშირე (TF-IDF)\n\nBoW წარმოდგენაში, სიტყვების გამოვლინებები წონით ხდება იგივე ტექნიკის გამოყენებით, მიუხედავად თავად სიტყვისა. თუმცა, ცხადია, რომ ხშირი სიტყვები, როგორიცაა a და in გაცილებით ნაკლებად მნიშვნელოვანია კლასიფიკაციისთვის, ვიდრე სპეციალიზებული ტერმინები. NLP ამოცანების უმეტესობაში ზოგიერთი სიტყვა უფრო აქტუალურია, ვიდრე სხვები.\n\nTF-IDF ნიშნავს ტერმინი სიხშირე - დოკუმენტის შებრუნებული სიხშირე. ეს არის სიტყვების პაკეტის ვარიაცია, სადაც ორობითი 0/1 მნიშვნელობის ნაცვლად, რომელიც მიუთითებს სიტყვის გამოჩენაზე დოკუმენტში, გამოიყენება მცურავი წერტილის მნიშვნელობა, რომელიც დაკავშირებულია კორპუსში სიტყვის გაჩენის სიხშირესთან.\n\nუფრო ფორმალურად, $w_{ij}$ $i$ სიტყვის წონა დოკუმენტში $j$ განისაზღვრება როგორც:\n$$\nw_{ij} = tf_{ij}\\times\\log ({N\\ მეტი df_i})\n$$\nსადაც\n* $tf_{ij}$ არის $i$-ის შემთხვევების რაოდენობა $j$-ში, ანუ BoW მნიშვნელობა, რომელიც ადრე ვნახეთ.\n* $N$ არის კოლექციაში არსებული დოკუმენტების რაოდენობა\n* $df_i$ არის დოკუმენტების რაოდენობა, რომლებიც შეიცავს სიტყვას $i$ მთელ კოლექციაში\n\nTF-IDF მნიშვნელობა $w_{ij}$ იზრდება პროპორციულად, რამდენჯერაც ჩნდება სიტყვა დოკუმენტში და კომპენსირდება კორპუსში არსებული დოკუმენტების რაოდენობით, რომელიც შეიცავს სიტყვას, რაც ხელს უწყობს იმ ფაქტს, რომ ზოგიერთი სიტყვა უფრო ხშირად ჩნდება, ვიდრე სხვები. მაგალითად, თუ სიტყვა გამოჩნდება კოლექციის ყველა დოკუმენტში, $df_i=N$ და $w_{ij}=0$ და ეს ტერმინები სრულიად უგულებელყოფილი იქნება.\n\nთქვენ შეგიძლიათ მარტივად შექმნათ ტექსტის TF-IDF ვექტორიზაცია Scikit Learn-ის გამოყენებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "from sklearn.feature_extraction.text import TfidfVectorizer\nvectorizer = TfidfVectorizer(ngram_range=(1,2))\nvectorizer.fit_transform(corpus)\nvectorizer.transform(['My dog likes hot dogs on a hot day.']).toarray()",
+   "executionCount": 16,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "array([[0.43381609, 0.        , 0.43381609, 0.        , 0.65985664,\n        0.43381609, 0.        , 0.        , 0.        , 0.        ,\n        0.        , 0.        , 0.        , 0.        , 0.        ,\n        0.        ]])"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "Keras-ში `TextVectorization` ფენას შეუძლია ავტომატურად გამოთვალოს TF-IDF სიხშირეები `output_mode='tf-idf'` პარამეტრის გადაცემით. გავიმეოროთ ზემოთ გამოყენებული კოდი, რათა ვნახოთ, ზრდის თუ არა TF-IDF-ის გამოყენება სიზუსტეს:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model = keras.models.Sequential([\n    keras.layers.experimental.preprocessing.TextVectorization(max_tokens=vocab_size,output_mode='tf-idf'),\n    keras.layers.Dense(4,input_shape=(vocab_size,), activation='softmax')\n])\nprint(\"Training vectorizer\")\nmodel.layers[0].adapt(ds_train.take(500).map(extract_text))\nmodel.compile(loss='sparse_categorical_crossentropy',optimizer='adam',metrics=['acc'])\nmodel.fit(ds_train.map(tupelize).batch(batch_size),validation_data=ds_test.map(tupelize).batch(batch_size))",
+   "executionCount": 17,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Training vectorizer\n938/938 [==============================] - 12s 12ms/step - loss: 0.4197 - acc: 0.8662 - val_loss: 0.3432 - val_acc: 0.8849\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<keras.callbacks.History at 0x20c729dfd30>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## დასკვნა\n\nმიუხედავად იმისა, რომ TF-IDF წარმოდგენები იძლევა სიხშირის წონას სხვადასხვა სიტყვებს, ისინი ვერ წარმოადგენენ მნიშვნელობას ან წესრიგს. როგორც 1935 წელს თქვა ცნობილმა ენათმეცნიერმა J. R. Firth-მა, „სიტყვის სრული მნიშვნელობა ყოველთვის კონტექსტუალურია და კონტექსტის გარდა მნიშვნელობის შესწავლა არ შეიძლება სერიოზულად იქნას მიღებული“. ჩვენ ვისწავლით, თუ როგორ მივიღოთ ტექსტიდან კონტექსტური ინფორმაცია ენის მოდელირების გამოყენებით, მოგვიანებით კურსზე.\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/5-NLP/13-TextRep/TextRepresentationTF.ipynb"
+}

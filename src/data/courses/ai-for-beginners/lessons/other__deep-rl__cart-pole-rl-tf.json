@@ -1,0 +1,276 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "other/deep-rl/cart-pole-rl-tf",
+ "segments": [
+  "other",
+  "deep-rl",
+  "cart-pole-rl-tf"
+ ],
+ "title": "ტრენინგი RL Cartpole Balancing-ის გასაკეთებლად",
+ "module": {
+  "id": "6-Other",
+  "slug": "other",
+  "title": "სხვა AI ტექნიკები",
+  "icon": "puzzle"
+ },
+ "lessonNumber": 22,
+ "orderInModule": 1220.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/6-Other/22-DeepRL/CartPole-RL-TF.ipynb"
+ },
+ "prev": {
+  "slug": "other/deep-rl/cart-pole-rl-py-torch",
+  "title": "ტრენინგი RL Cartpole Balancing-ის გასაკეთებლად"
+ },
+ "next": {
+  "slug": "other/multiagent-systems",
+  "title": "მრავალ აგენტური სისტემები"
+ },
+ "framework": "tensorflow",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "ეს ნოუთბუქები AI დამწყებთათვის სასწავლო პროგრამა-ის ნაწილია. ის შთაგონებულია ეს ბლოგის პოსტი, ოფიციალური TensorFlow დოკუმენტაცია და ეს Keras RL მაგალითი-ით.\n\nამ მაგალითში, ჩვენ გამოვიყენებთ RL-ს, რათა მოვამზადოთ მოდელი, რათა დააბალანსოს ბოძები ეტლზე, რომელსაც შეუძლია მოძრაობდეს მარცხნივ და მარჯვნივ ჰორიზონტალური მასშტაბით. ჩვენ გამოვიყენებთ OpenAI სპორტული დარბაზი გარემოს ბოძის სიმულაციისთვის.\n\n> შენიშვნა: შეგიძლიათ ამ გაკვეთილის კოდი ადგილობრივად გაუშვათ (მაგ. Visual Studio Code-დან), ამ შემთხვევაში სიმულაცია გაიხსნება ახალ ფანჯარაში. კოდის ონლაინ გაშვებისას შეიძლება დაგჭირდეთ კოდის შესწორება, როგორც აღწერილია აქ.\n\nჩვენ დავიწყებთ იმით, რომ დარწმუნდებით, რომ სპორტული დარბაზი დაყენებულია:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import sys\n!{sys.executable} -m pip install gym pygame",
+   "executionCount": 1,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Defaulting to user installation because normal site-packages is not writeable\nRequirement already satisfied: gym in /home/leo/.local/lib/python3.10/site-packages (0.25.0)\nRequirement already satisfied: pygame in /home/leo/.local/lib/python3.10/site-packages (2.1.2)\nRequirement already satisfied: gym-notices>=0.0.4 in /home/leo/.local/lib/python3.10/site-packages (from gym) (0.0.7)\nRequirement already satisfied: cloudpickle>=1.2.0 in /home/leo/.local/lib/python3.10/site-packages (from gym) (2.1.0)\nRequirement already satisfied: numpy>=1.18.0 in /usr/lib/python3/dist-packages (from gym) (1.21.5)\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მოდით შევქმნათ CartPole გარემო და ვნახოთ როგორ ვიმოქმედოთ მასზე. გარემოს აქვს შემდეგი თვისებები:\n\n* სამოქმედო სივრცე არის შესაძლო მოქმედებების ერთობლიობა, რომელთა შესრულებაც შეგვიძლია სიმულაციის თითოეულ საფეხურზე\n* დაკვირვების სივრცე არის დაკვირვებების სივრცე, რომლის გაკეთებაც შეგვიძლია\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import gym\nimport pygame\nimport tqdm\n\nenv = gym.make(\"CartPole-v1\")\n\nprint(f\"Action space: {env.action_space}\")\nprint(f\"Observation space: {env.observation_space}\")",
+   "executionCount": 2,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Action space: Discrete(2)\nObservation space: Box([-4.8000002e+00 -3.4028235e+38 -4.1887903e-01 -3.4028235e+38], [4.8000002e+00 3.4028235e+38 4.1887903e-01 3.4028235e+38], (4,), float32)\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "/home/leo/.local/lib/python3.10/site-packages/gym/core.py:329: DeprecationWarning: WARN: Initializing wrapper in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future.\n  deprecation(\n/home/leo/.local/lib/python3.10/site-packages/gym/wrappers/step_api_compatibility.py:39: DeprecationWarning: WARN: Initializing environment in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future.\n  deprecation(\n",
+     "stream": "stderr"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ვნახოთ როგორ მუშაობს სიმულაცია. შემდეგი ციკლი აწარმოებს სიმულაციას, სანამ `env.step` არ დააბრუნებს შეწყვეტის დროშას `done`. ჩვენ შემთხვევით ავირჩევთ მოქმედებებს `env.action_space.sample()`-ის გამოყენებით, რაც ნიშნავს, რომ ექსპერიმენტი, სავარაუდოდ, ძალიან სწრაფად ჩავარდება (CartPole გარემო მთავრდება, როდესაც CartPole-ის სიჩქარე, მისი პოზიცია ან კუთხე გარკვეულ საზღვრებს მიღმაა).\n\n> სიმულაცია გაიხსნება ახალ ფანჯარაში. თქვენ შეგიძლიათ რამდენჯერმე გაუშვათ კოდი და ნახოთ როგორ იქცევა იგი.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "env.reset()\n\ndone = False\ntotal_reward = 0\nwhile not done:\n   env.render()\n   obs, rew, done, info = env.step(env.action_space.sample())\n   total_reward += rew\n   print(f\"{obs} -> {rew}\")\nprint(f\"Total reward: {total_reward}\")\n\nenv.close()",
+   "executionCount": 3,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "/home/leo/.local/lib/python3.10/site-packages/gym/core.py:57: DeprecationWarning: WARN: You are calling render method, but you didn't specified the argument render_mode at environment initialization. To maintain backward compatibility, the environment will render in human mode.\nIf you want to render in human mode, initialize the environment in this way: gym.make('EnvName', render_mode='human') and don't call the render method.\nSee here for more information: https://www.gymlibrary.ml/content/api/\n  deprecation(\n",
+     "stream": "stderr"
+    },
+    {
+     "kind": "text",
+     "text": "[ 0.00425272 -0.19994313  0.00917169  0.34113726] -> 1.0\n[ 0.00025386 -0.00495286  0.01599443  0.05136059] -> 1.0\n[ 1.5480528e-04  1.8993615e-01  1.7021643e-02 -2.3623335e-01] -> 1.0\n[ 0.00395353  0.38481084  0.01229698 -0.5234989 ] -> 1.0\n[ 0.01164974  0.18951797  0.001827   -0.22696657] -> 1.0\n[ 0.0154401   0.38461378 -0.00271233 -0.51907265] -> 1.0\n[ 0.02313238  0.5797738  -0.01309379 -0.812609  ] -> 1.0\n[ 0.03472786  0.38483363 -0.02934597 -0.5240733 ] -> 1.0\n[ 0.04242453  0.580356   -0.03982743 -0.8258571 ] -> 1.0\n[ 0.05403165  0.38580072 -0.05634458 -0.54596174] -> 1.0\n[ 0.06174766  0.19151384 -0.06726381 -0.27155042] -> 1.0\n[ 0.06557794 -0.00258703 -0.07269482 -0.00081817] -> 1.0\n[ 0.0655262  -0.19659522 -0.07271118  0.26807207] -> 1.0\n[ 0.0615943  -0.00051497 -0.06734974 -0.04662942] -> 1.0\n[ 0.061584    0.19550486 -0.06828233 -0.3597784 ] -> 1.0\n[ 0.06549409  0.00141663 -0.0754779  -0.08938391] -> 1.0\n[ 0.06552242 -0.19254686 -0.07726558  0.17856352] -> 1.0\n[ 0.06167149  0.00359088 -0.0736943  -0.1374588 ] -> 1.0\n[ 0.0617433   0.19968675 -0.07644348 -0.45245075] -> 1.0\n[ 0.06573704  0.3958018  -0.0854925  -0.7682167 ] -> 1.0\n[ 0.07365308  0.20195423 -0.10085683 -0.50361156] -> 1.0\n[ 0.07769216  0.0083876  -0.11092906 -0.24433874] -> 1.0\n[ 0.07785992 -0.18498953 -0.11581583  0.01139782] -> 1.0\n[ 0.07416012  0.01158649 -0.11558788 -0.31546465] -> 1.0\n[ 0.07439185  0.20814891 -0.12189718 -0.64224803] -> 1.0\n[ 0.07855483  0.01491799 -0.13474214 -0.3903015 ] -> 1.0\n[ 0.07885319 -0.17806001 -0.14254816 -0.14295265] -> 1.0\n[ 0.07529199  0.01878517 -0.14540721 -0.47699296] -> 1.0\n[ 0.07566769 -0.17401667 -0.15494707 -0.23344138] -> 1.0\n[ 0.07218736  0.0229406  -0.1596159  -0.57071024] -> 1.0\n[ 0.07264617  0.21989843 -0.1710301  -0.9091196 ] -> 1.0\n[ 0.07704414  0.02745241 -0.1892125  -0.6747003 ] -> 1.0\n[ 0.07759319 -0.16460665 -0.20270652 -0.4470505 ] -> 1.0\n[ 0.07430106 -0.35637102 -0.21164753 -0.22448184] -> 1.0\nTotal reward: 34.0\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "თქვენ შეგიძლიათ შეამჩნიოთ, რომ დაკვირვებები შეიცავს 4 რიცხვს. ისინი არიან:\n- ურიკის პოზიცია\n- ურიკის სიჩქარე\n- ბოძის კუთხე\n- ბოძის ბრუნვის სიჩქარე\n\n`rew` არის ჯილდო, რომელსაც ვიღებთ ყოველ ნაბიჯზე. თქვენ ხედავთ, რომ CartPole გარემოში თქვენ დაჯილდოვდებით 1 ქულით თითოეული სიმულაციური ნაბიჯისთვის და მიზანია მაქსიმალური ჯილდოს გაზრდა, ანუ დრო CartPole-ს შეუძლია დაბალანსება დაცემის გარეშე.\n\nგანმამტკიცებელი სწავლის დროს, ჩვენი მიზანია მოვამზადოთ პოლიტიკა $\\pi$, რომელიც $s$ თითოეულ შტატზე გვეტყვის რომელი ქმედება $a$ უნდა მივიღოთ, ასე რომ, არსებითად $a = \\pi(s)$.\n\nთუ გსურთ სავარაუდო გამოსავალი, შეგიძლიათ იფიქროთ პოლიტიკაზე, როგორც აბრუნებს ალბათობების ერთობლიობას თითოეული ქმედებისთვის, ანუ $\\pi(a|s)$ ნიშნავს ალბათობას, რომ ჩვენ უნდა განვახორციელოთ $a$ $s$ მდგომარეობაში.\n\n## პოლიტიკის გრადიენტის მეთოდი\n\nუმარტივეს RL ალგორითმში, სახელწოდებით პოლიტიკის გრადიენტი, ჩვენ მოვამზადებთ ნერვულ ქსელს შემდეგი მოქმედების პროგნოზირებისთვის.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import numpy as np\nimport tensorflow as tf\nfrom tensorflow import keras\nimport matplotlib.pyplot as plt\n\nnum_inputs = 4\nnum_actions = 2\n\nmodel = keras.Sequential([\n    keras.layers.Dense(128, activation=\"relu\",input_shape=(num_inputs,)),\n    keras.layers.Dense(num_actions, activation=\"softmax\")\n])\n\nmodel.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.Adam(learning_rate=0.01))",
+   "executionCount": 4,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "/usr/local/lib/python3.10/dist-packages/tensorflow/__init__.py:29: DeprecationWarning: The distutils package is deprecated and slated for removal in Python 3.12. Use setuptools or check PEP 632 for potential alternatives\n  import distutils as _distutils\n2022-07-24 16:50:47.597258: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory\n2022-07-24 16:50:47.597280: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.\n/usr/local/lib/python3.10/dist-packages/flatbuffers/compat.py:19: DeprecationWarning: the imp module is deprecated in favour of importlib and slated for removal in Python 3.12; see the module's documentation for alternative uses\n  import imp\n2022-07-24 16:50:49.838826: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:975] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero\n2022-07-24 16:50:49.839078: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory\n2022-07-24 16:50:49.839143: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcublas.so.11'; dlerror: libcublas.so.11: cannot open shared object file: No such file or directory\n2022-07-24 16:50:49.839194: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcublasLt.so.11'; dlerror: libcublasLt.so.11: cannot open shared object file: No such file or directory\n2022-07-24 16:50:49.839245: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcufft.so.10'; dlerror: libcufft.so.10: cannot open shared object file: No such file or directory\n2022-07-24 16:50:49.839295: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcurand.so.10'; dlerror: libcurand.so.10: cannot open shared object file: No such file or directory\n2022-07-24 16:50:49.839345: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcusolver.so.11'; dlerror: libcusolver.so.11: cannot open shared object file: No such file or directory\n2022-07-24 16:50:49.839392: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcusparse.so.11'; dlerror: libcusparse.so.11: cannot open shared object file: No such file or directory\n2022-07-24 16:50:49.839441: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcudnn.so.8'; dlerror: libcudnn.so.8: cannot open shared object file: No such file or directory\n2022-07-24 16:50:49.839449: W tensorflow/core/common_runtime/gpu/gpu_device.cc:1850] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.\nSkipping registering GPU devices...\n2022-07-24 16:50:49.839649: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA\nTo enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.\n",
+     "stream": "stderr"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ გავავარჯიშებთ ქსელს მრავალი ექსპერიმენტის ჩატარებით და ყოველი გაშვების შემდეგ ჩვენი ქსელის განახლებით. მოდით განვსაზღვროთ ფუნქცია, რომელიც ჩაატარებს ექსპერიმენტს და დააბრუნებს შედეგებს (ე.წ. კვალი) - ყველა მდგომარეობა, მოქმედება (და მათი რეკომენდებული ალბათობები) და ჯილდოები:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def run_episode(max_steps_per_episode = 10000,render=False):    \n    states, actions, probs, rewards = [],[],[],[]\n    state = env.reset()\n    for _ in range(max_steps_per_episode):\n        if render:\n            env.render()\n        action_probs = model(np.expand_dims(state,0))[0]\n        action = np.random.choice(num_actions, p=np.squeeze(action_probs))\n        nstate, reward, done, info = env.step(action)\n        if done:\n            break\n        states.append(state)\n        actions.append(action)\n        probs.append(action_probs)\n        rewards.append(reward)\n        state = nstate\n    return np.vstack(states), np.vstack(actions), np.vstack(probs), np.vstack(rewards)",
+   "executionCount": 5,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "შეგიძლიათ ერთი ეპიზოდის გაშვება მოუმზადებელი ქსელით და დააკვირდით, რომ ჯამური ჯილდო (AKA ეპიზოდის ხანგრძლივობა) ძალიან დაბალია:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "s,a,p,r = run_episode()\nprint(f\"Total reward: {np.sum(r)}\")",
+   "executionCount": 6,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Total reward: 27.0\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "პოლიტიკის გრადიენტის ალგორითმის ერთ-ერთი რთული ასპექტია ფასდაკლებული ჯილდოების გამოყენება. იდეა არის ის, რომ ჩვენ გამოვთვლით ჯამური ჯილდოების ვექტორს თამაშის ყოველ საფეხურზე და ამ პროცესის განმავლობაში ვამცირებთ ადრეულ ჯილდოებს რაღაც კოეფიციენტის $gamma$-ის გამოყენებით. ჩვენ ასევე ნორმალიზდება მიღებული ვექტორი, რადგან ჩვენ გამოვიყენებთ მას როგორც წონას, რომ გავლენა მოახდინოს ჩვენს ვარჯიშზე:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "eps = 0.0001\n\ndef discounted_rewards(rewards,gamma=0.99,normalize=True):\n    ret = []\n    s = 0\n    for r in rewards[::-1]:\n        s = r + gamma * s\n        ret.insert(0, s)\n    if normalize:\n        ret = (ret-np.mean(ret))/(np.std(ret)+eps)\n    return ret",
+   "executionCount": 7,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მოდით გავაკეთოთ რეალური ტრენინგი! ჩვენ გავუშვებთ 300 ეპიზოდს და თითოეულ ეპიზოდში გავაკეთებთ შემდეგს:\n\n1. ჩაატარეთ ექსპერიმენტი და შეაგროვეთ კვალი\n1. გამოთვალეთ სხვაობა (`gradients`) განხორციელებულ ქმედებებსა და პროგნოზირებულ ალბათობებს შორის. რაც უფრო ნაკლებია განსხვავება, მით უფრო დარწმუნებული ვართ, რომ სწორი ქმედება მივიღეთ.\n1. გამოთვალეთ ფასდაკლებული ჯილდოები და გაამრავლეთ გრადიენტები ფასდაკლებულ ჯილდოებზე - რაც დარწმუნდება, რომ უფრო მაღალი ჯილდოს მქონე ნაბიჯები უფრო მეტ გავლენას მოახდენს საბოლოო შედეგზე, ვიდრე დაბალი ჯილდოებით\n1. ჩვენი ნერვული ქსელისთვის მოსალოდნელი სამიზნე მოქმედებები ნაწილობრივ იქნება აღებული სავარაუდო ალბათობებიდან გაშვების დროს და ნაწილობრივ გამოთვლილი გრადიენტებიდან. ჩვენ გამოვიყენებთ `alpha` პარამეტრს, რათა განვსაზღვროთ, თუ რამდენად არის გათვალისწინებული გრადიენტები და ჯილდოები - ამას ეწოდება გაძლიერების ალგორითმის სწავლის სიჩქარე.\n1. და ბოლოს, ჩვენ ვავარჯიშებთ ჩვენს ქსელს მდგომარეობებზე და მოსალოდნელ ქმედებებზე და ვიმეორებთ პროცესს\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "alpha = 1e-4\n\nhistory = []\nfor epoch in range(300):\n    states, actions, probs, rewards = run_episode()\n    one_hot_actions = np.eye(2)[actions.T][0]\n    gradients = one_hot_actions-probs\n    dr = discounted_rewards(rewards)\n    gradients *= dr\n    target = alpha*np.vstack([gradients])+probs\n    model.train_on_batch(states,target)\n    history.append(np.sum(rewards))\n    if epoch%100==0:\n        print(f\"{epoch} -> {np.sum(rewards)}\")\n\nplt.plot(history)",
+   "executionCount": 8,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "0 -> 29.0\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "2022-07-24 16:50:51.475024: W tensorflow/core/data/root_dataset.cc:247] Optimization loop failed: CANCELLED: Operation was cancelled\n",
+     "stream": "stderr"
+    },
+    {
+     "kind": "text",
+     "text": "100 -> 135.0\n200 -> 484.0\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "2022-07-24 16:51:35.910774: W tensorflow/core/data/root_dataset.cc:247] Optimization loop failed: CANCELLED: Operation was cancelled\n2022-07-24 16:51:37.151017: W tensorflow/core/data/root_dataset.cc:247] Optimization loop failed: CANCELLED: Operation was cancelled\n2022-07-24 16:51:39.284311: W tensorflow/core/data/root_dataset.cc:247] Optimization loop failed: CANCELLED: Operation was cancelled\n2022-07-24 16:51:42.235074: W tensorflow/core/data/root_dataset.cc:247] Optimization loop failed: CANCELLED: Operation was cancelled\n2022-07-24 16:51:44.691458: W tensorflow/core/data/root_dataset.cc:247] Optimization loop failed: CANCELLED: Operation was cancelled\n2022-07-24 16:51:48.381946: W tensorflow/core/data/root_dataset.cc:247] Optimization loop failed: CANCELLED: Operation was cancelled\n",
+     "stream": "stderr"
+    },
+    {
+     "kind": "text",
+     "text": "[<matplotlib.lines.Line2D at 0x7f40201e7b20>]"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/9198c60b73ab5cd0.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მოდით გავუშვათ ეპიზოდი რენდერით შედეგის სანახავად:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "_ = run_episode(render=True)",
+   "executionCount": 10,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "---------------------------------------------------------------------------\nerror                                     Traceback (most recent call last)\n/tmp/ipykernel_44248/1459719159.py in <module>\n----> 1 _ = run_episode(render=True)\n\n/tmp/ipykernel_44248/3855001447.py in run_episode(max_steps_per_episode, render)\n      4     for _ in range(max_steps_per_episode):\n      5         if render:\n----> 6             env.render()\n      7         action_probs = model(np.expand_dims(state,0))[0]\n      8         action = np.random.choice(num_actions, p=np.squeeze(action_probs))\n\n~/.local/lib/python3.10/site-packages/gym/core.py in render(self, *args, **kwargs)\n     64                 )\n     65 \n---> 66             return render_func(self, *args, **kwargs)\n     67 \n     68         return render\n\n~/.local/lib/python3.10/site-packages/gym/core.py in render(self, *args, **kwargs)\n    429     def render(self, *args, **kwargs):\n    430         \"\"\"Renders the environment.\"\"\"\n--> 431         return self.env.render(*args, **kwargs)\n    432 \n    433     def close(self):\n\n~/.local/lib/python3.10/site-packages/gym/core.py in render(self, *args, **kwargs)\n     64                 )\n     65 \n---> 66             return render_func(self, *args, **kwargs)\n     67 \n     68         return render\n\n~/.local/lib/python3.10/site-packages/gym/wrappers/order_enforcing.py in render(self, *args, **kwargs)\n     49                 \"set `disable_render_order_enforcing=True` on the OrderEnforcer wrapper.\"\n     50             )\n---> 51         return self.env.render(*args, **kwargs)\n     52 \n     53     @property\n\n~/.local/lib/python3.10/site-packages/gym/core.py in render(self, *args, **kwargs)\n     64                 )\n     65 \n---> 66             return render_func(self, *args, **kwargs)\n     67 \n     68         return render\n\n~/.local/lib/python3.10/site-packages/gym/core.py in render(self, *args, **kwargs)\n    429     def render(self, *args, **kwargs):\n    430         \"\"\"Renders the environment.\"\"\"\n--> 431         return self.env.render(*args, **kwargs)\n    432 \n    433     def close(self):\n\n~/.local/lib/python3.10/site-packages/gym/core.py in render(self, *args, **kwargs)\n     64                 )\n     65 \n---> 66             return render_func(self, *args, **kwargs)\n     67 \n     68         return render\n\n~/.local/lib/python3.10/site-packages/gym/wrappers/env_checker.py in render(self, *args, **kwargs)\n     53             return env_render_passive_checker(self.env, *args, **kwargs)\n     54         else:\n---> 55             return self.env.render(*args, **kwargs)\n\n~/.local/lib/python3.10/site-packages/gym/core.py in render(self, *args, **kwargs)\n     64                 )\n     65 \n---> 66             return render_func(self, *args, **kwargs)\n     67 \n     68         return render\n\n~/.local/lib/python3.10/site-packages/gym/envs/classic_control/cartpole.py in render(self, mode)\n    215             return self.renderer.get_renders()\n    216         else:\n--> 217             return self._render(mode)\n    218 \n    219     def _render(self, mode=\"human\"):\n\n~/.local/lib/python3.10/site-packages/gym/envs/classic_control/cartpole.py in _render(self, mode)\n    296 \n    297         self.surf = pygame.transform.flip(self.surf, False, True)\n--> 298         self.screen.blit(self.surf, (0, 0))\n    299         if mode == \"human\":\n    300             pygame.event.pump()\n\nerror: display Surface quit",
+     "stream": "stderr"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "იმედია, ხედავთ, რომ ბოძს ახლა საკმაოდ კარგად შეუძლია წონასწორობა!\n\n## მსახიობი-კრიტიკოსი მოდელი\n\nActor-Critic მოდელი არის პოლიტიკის გრადიენტების შემდგომი განვითარება, რომელშიც ჩვენ ვაშენებთ ნერვულ ქსელს, რათა ვისწავლოთ როგორც პოლიტიკა, ასევე სავარაუდო ჯილდოები. ქსელს ექნება ორი გამომავალი (ან შეგიძლიათ იხილოთ როგორც ორი ცალკეული ქსელი):\n* აქტორი რეკომენდაციას გაუწევს განსახორციელებელ ქმედებას და გვაძლევს მდგომარეობის ალბათობის განაწილებას, როგორც პოლიტიკის გრადიენტულ მოდელში\n* კრიტიკოსი შეაფასებდა რა ჯილდოს მიიღებს ამ ქმედებებისგან. ის აბრუნებს მთლიან სავარაუდო ჯილდოს მომავალში მოცემულ მდგომარეობაში.\n\nმოდით განვსაზღვროთ ასეთი მოდელი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "num_inputs = 4\nnum_actions = 2\nnum_hidden = 128\n\ninputs = keras.layers.Input(shape=(num_inputs,))\ncommon = keras.layers.Dense(num_hidden, activation=\"relu\")(inputs)\naction = keras.layers.Dense(num_actions, activation=\"softmax\")(common)\ncritic = keras.layers.Dense(1)(common)\n\nmodel = keras.Model(inputs=inputs, outputs=[action, critic])",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ დაგვჭირდება ოდნავ შევცვალოთ ჩვენი `run_episode` ფუნქცია, რათა დავაბრუნოთ ასევე კრიტიკული შედეგები:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def run_episode(max_steps_per_episode = 10000,render=False):    \n    states, actions, probs, rewards, critic = [],[],[],[],[]\n    state = env.reset()\n    for _ in range(max_steps_per_episode):\n        if render:\n            env.render()\n        action_probs, est_rew = model(np.expand_dims(state,0))\n        action = np.random.choice(num_actions, p=np.squeeze(action_probs[0]))\n        nstate, reward, done, info = env.step(action)\n        if done:\n            break\n        states.append(state)\n        actions.append(action)\n        probs.append(tf.math.log(action_probs[0,action]))\n        rewards.append(reward)\n        critic.append(est_rew[0,0])\n        state = nstate\n    return states, actions, probs, rewards, critic",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა ჩვენ გავაგრძელებთ ძირითად სავარჯიშო ციკლს. ჩვენ გამოვიყენებთ ხელით ქსელის ტრენინგის პროცესს სათანადო დაკარგვის ფუნქციების გამოთვლით და ქსელის პარამეტრების განახლებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "optimizer = keras.optimizers.Adam(learning_rate=0.01)\nhuber_loss = keras.losses.Huber()\nepisode_count = 0\nrunning_reward = 0\n\nwhile True:  # Run until solved\n    state = env.reset()\n    episode_reward = 0\n    with tf.GradientTape() as tape:\n        _,_,action_probs, rewards, critic_values = run_episode()\n        episode_reward = np.sum(rewards)\n        \n        # Update running reward to check condition for solving\n        running_reward = 0.05 * episode_reward + (1 - 0.05) * running_reward\n\n        # Calculate discounted rewards that will be labels for our critic\n        dr = discounted_rewards(rewards)\n\n        # Calculating loss values to update our network\n        actor_losses = []\n        critic_losses = []\n        for log_prob, value, rew in zip(action_probs, critic_values, dr):\n            # When we took the action with probability `log_prob`, we received discounted reward of `rew`,\n            # while critic predicted it to be `value` \n            # First we calculate actor loss, to make actor predict actions that lead to higher rewards\n            diff = rew - value\n            actor_losses.append(-log_prob * diff)\n\n            # The critic loss is to minimize the difference between predicted reward `value` and actual\n            # discounted reward `rew`\n            critic_losses.append(\n                huber_loss(tf.expand_dims(value, 0), tf.expand_dims(rew, 0))\n            )\n\n        # Backpropagation\n        loss_value = sum(actor_losses) + sum(critic_losses)\n        grads = tape.gradient(loss_value, model.trainable_variables)\n        optimizer.apply_gradients(zip(grads, model.trainable_variables))\n\n    # Log details\n    episode_count += 1\n    if episode_count % 10 == 0:\n        template = \"running reward: {:.2f} at episode {}\"\n        print(template.format(running_reward, episode_count))\n\n    if running_reward > 195:  # Condition to consider the task solved\n        print(\"Solved at episode {}!\".format(episode_count))\n        break\n",
+   "executionCount": null,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "running reward: 5.82 at episode 10\nrunning reward: 9.43 at episode 20\nrunning reward: 10.30 at episode 30\nrunning reward: 10.28 at episode 40\nrunning reward: 11.00 at episode 50\nrunning reward: 13.01 at episode 60\nrunning reward: 21.78 at episode 70\nrunning reward: 40.54 at episode 80\nrunning reward: 73.70 at episode 90\nrunning reward: 100.19 at episode 100\nrunning reward: 159.20 at episode 110\nSolved at episode 114!\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით გავუშვათ ეპიზოდი და ვნახოთ რამდენად კარგია ჩვენი მოდელი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "_ = run_episode(render=True)",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "საბოლოოდ დავხუროთ გარემო.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "env.close()",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## Takeaway\n\nჩვენ ვნახეთ ორი RL ალგორითმი ამ დემოში: მარტივი პოლიტიკის გრადიენტი და უფრო დახვეწილი მსახიობი-კრიტიკოსი. თქვენ ხედავთ, რომ ეს ალგორითმები მოქმედებენ მდგომარეობის, მოქმედებისა და ჯილდოს აბსტრაქტული ცნებებით - ამგვარად, მათი გამოყენება შესაძლებელია ძალიან განსხვავებულ გარემოში.\n\nგანმტკიცების სწავლა საშუალებას გვაძლევს ვისწავლოთ პრობლემის გადაჭრის საუკეთესო სტრატეგია მხოლოდ საბოლოო ჯილდოს ნახვით. ის ფაქტი, რომ ჩვენ არ გვჭირდება ეტიკეტირებული მონაცემთა ნაკრები, საშუალებას გვაძლევს გავიმეოროთ სიმულაციები ბევრჯერ ჩვენი მოდელების ოპტიმიზაციისთვის. თუმცა, RL-ში ჯერ კიდევ ბევრი გამოწვევაა, რომელიც შეიძლება გაიგოთ, თუ გადაწყვეტთ მეტი ფოკუსირება მოახდინოთ AIს ამ საინტერესო სფეროზე.\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/6-Other/22-DeepRL/CartPole-RL-TF.ipynb"
+}

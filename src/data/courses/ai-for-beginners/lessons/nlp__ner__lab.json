@@ -1,0 +1,57 @@
+{
+ "kind": "markdown",
+ "courseSlug": "ai-for-beginners",
+ "slug": "nlp/ner/lab",
+ "segments": [
+  "nlp",
+  "ner",
+  "lab"
+ ],
+ "title": "NER",
+ "module": {
+  "id": "5-NLP",
+  "slug": "nlp",
+  "title": "ბუნებრივი ენის დამუშავება",
+  "icon": "messages"
+ },
+ "lessonNumber": 19,
+ "orderInModule": 1190,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/5-NLP/19-NER/lab/README.md"
+ },
+ "prev": {
+  "slug": "nlp/transformers/transformers-tf",
+  "title": "ყურადღების მექანიზმები და ტრანსფორმატორები"
+ },
+ "next": {
+  "slug": "nlp/ner",
+  "title": "დასახელებული ერთეულის ამოცნობა"
+ },
+ "markdown": "ლაბორატორიული დავალება AI დამწყებთათვის სასწავლო პროგრამა-დან.\n\n## ამოცანა\n\nამ ლაბორატორიაში თქვენ უნდა მოამზადოთ დასახელებული ერთეულის ამოცნობის მოდელი სამედიცინო ტერმინებისთვის.\n\n## The Dataset\n\nNER მოდელის მოსამზადებლად, ჩვენ გვჭირდება სათანადოდ ეტიკეტირებული მონაცემთა ნაკრები სამედიცინო პირებთან. BC5CDR მონაცემთა ნაკრები შეიცავს ეტიკეტირებულ დაავადებებს და ქიმიურ ერთეულებს 1500-ზე მეტი ნაშრომიდან. თქვენ შეგიძლიათ ჩამოტვირთოთ მონაცემთა ნაკრები მათ ვებ-გვერდზე რეგისტრაციის შემდეგ.\n\nBC5CDR მონაცემთა ნაკრები ასე გამოიყურება:\n\n```\n6794356|t|Tricuspid valve regurgitation and lithium carbonate toxicity in a newborn infant.\n6794356|a|A newborn with massive tricuspid regurgitation, atrial flutter, congestive heart failure, and a high serum lithium level is described. This is the first patient to initially manifest tricuspid regurgitation and atrial flutter, and the 11th described patient with cardiac disease among infants exposed to lithium compounds in the first trimester of pregnancy. Sixty-three percent of these infants had tricuspid valve involvement. Lithium carbonate may be a factor in the increasing incidence of congenital heart disease when taken during early pregnancy. It also causes neurologic depression, cyanosis, and cardiac arrhythmia when consumed prior to delivery.\n6794356\t0\t29\tTricuspid valve regurgitation\tDisease\tD014262\n6794356\t34\t51\tlithium carbonate\tChemical\tD016651\n6794356\t52\t60\ttoxicity\tDisease\tD064420\n...\n```\n\nამ მონაცემთა ბაზაში არის ქაღალდის სათაური და რეზიუმე პირველ ორ სტრიქონში, შემდეგ არის ცალკეული ერთეულები, საწყისი და დასასრული პოზიციებით სათაური+აბსტრაქტული ბლოკის ფარგლებში. ერთეულის ტიპის გარდა, თქვენ იღებთ ამ ერთეულის ონტოლოგიის ID-ს ზოგიერთი სამედიცინო ონტოლოგიის ფარგლებში.\n\nთქვენ დაგჭირდებათ პითონის კოდის დაწერა, რომ ის გადაიყვანოთ BIO კოდირებად.\n\n## ქსელი\n\nNER-ის პირველი მცდელობა შეიძლება გაკეთდეს LSTM ქსელის გამოყენებით, როგორც ჩვენს მაგალითში იხილეთ გაკვეთილის დროს. თუმცა, NLP ამოცანები, ტრანსფორმატორის არქიტექტურა, და კონკრეტულად BERT ენის მოდელები აჩვენებს ბევრად უკეთეს შედეგებს. წინასწარ გაწვრთნილ BERT-ის მოდელებს ესმით ენის ზოგადი სტრუქტურა და მათი დაზუსტება შესაძლებელია კონკრეტული ამოცანებისთვის შედარებით მცირე მონაცემთა ნაკრებით და გამოთვლითი ხარჯებით.\n\nვინაიდან ჩვენ ვგეგმავთ NER-ის გამოყენებას სამედიცინო სცენარზე, აზრი აქვს გამოვიყენოთ BERT მოდელი, რომელიც მომზადებულია სამედიცინო ტექსტებზე. Microsoft Research-მა გამოუშვა წინასწარ მომზადებული მოდელი, სახელწოდებით [PubMedBERT][PubMedBERT] ([publication][PubMedBERT-Pub]), რომელიც დაზუსტდა ტექსტების გამოყენებით PubMed საცავიდან.\n\nდე ფაქტო სტანდარტი ტრანსფორმატორის მოდელების მომზადებისთვის არის ჩახუტებული სახის ტრანსფორმერები ბიბლიოთეკა. ის ასევე შეიცავს საზოგადოების მიერ შენახული წინასწარ მომზადებული მოდელების საცავს, მათ შორის PubMedBERT-ს. ამ მოდელის ჩასატვირთად და გამოსაყენებლად, ჩვენ უბრალოდ გვჭირდება კოდის რამდენიმე ხაზი:\n\n```python\nmodel_name = \"microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract\"\nclasses = ... # number of classes: 2*entities+1\ntokenizer = AutoTokenizer.from_pretrained(model_name)\nmodel = BertForTokenClassification.from_pretrained(model_name, classes)\n```\n\nეს გვაძლევს თავად `model`-ს, რომელიც აგებულია ტოკენის კლასიფიკაციის ამოცანისთვის `classes` კლასების რაოდენობის გამოყენებით, ისევე როგორც `tokenizer` ობიექტს, რომელსაც შეუძლია შეყვანილი ტექსტის ტოკენებად დაყოფა. თქვენ დაგჭირდებათ მონაცემთა ნაკრების BIO ფორმატში გადაყვანა, PubMedBERT ტოკენიზაციის გათვალისწინებით. თქვენ შეგიძლიათ გამოიყენოთ პითონის კოდის ეს ნაწილი როგორც შთაგონება.\n\n## Takeaway\n\nეს ამოცანა ძალიან ახლოს არის იმ ფაქტობრივ დავალებასთან, რომელიც თქვენ სავარაუდოდ გაქვთ, თუ გსურთ მიიღოთ მეტი ინფორმაცია ბუნებრივი ენის ტექსტების დიდი ტომების შესახებ. ჩვენს შემთხვევაში, ჩვენ შეგვიძლია გამოვიყენოთ ჩვენი გაწვრთნილი მოდელი COVID-თან დაკავშირებული ნაშრომების ნაკრები-ზე და ვნახოთ, თუ რომელი შეხედულებების მიღებას შევძლებთ. ეს ბლოგის პოსტი და ეს ქაღალდი აღწერენ კვლევას, რომელიც შეიძლება გაკეთდეს ნაშრომების ამ კორპუსზე NER-ის გამოყენებით.\n",
+ "headings": [
+  {
+   "id": "ამოცანა",
+   "text": "ამოცანა",
+   "level": 2
+  },
+  {
+   "id": "the-dataset",
+   "text": "The Dataset",
+   "level": 2
+  },
+  {
+   "id": "ქსელი",
+   "text": "ქსელი",
+   "level": 2
+  },
+  {
+   "id": "takeaway",
+   "text": "Takeaway",
+   "level": 2
+  }
+ ],
+ "readingMinutes": 3
+}

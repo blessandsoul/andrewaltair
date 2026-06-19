@@ -1,0 +1,122 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "neural-networks/perceptron/lab/perceptron-multi-class",
+ "segments": [
+  "neural-networks",
+  "perceptron",
+  "lab",
+  "perceptron-multi-class"
+ ],
+ "title": "მრავალკლასიანი კლასიფიკაცია პერცეპტრონით",
+ "module": {
+  "id": "3-NeuralNetworks",
+  "slug": "neural-networks",
+  "title": "ნეირონული ქსელები",
+  "icon": "network"
+ },
+ "lessonNumber": 3,
+ "orderInModule": 1030.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/3-NeuralNetworks/03-Perceptron/lab/PerceptronMultiClass.ipynb"
+ },
+ "prev": {
+  "slug": "neural-networks/perceptron",
+  "title": "შესავალი ნერვულ ქსელებში: პერცეპტრონი"
+ },
+ "next": {
+  "slug": "neural-networks/perceptron/perceptron",
+  "title": "პერცეპტრონი"
+ },
+ "framework": "generic",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "ლაბორატორიული დავალება AI დამწყებთათვის სასწავლო პროგრამა-დან.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import matplotlib.pyplot as plt\nimport numpy as np\nimport pickle\nimport os",
+   "executionCount": 1,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ლექციიდან შეგიძლიათ გამოიყენოთ შემდეგი პერცეპტრონის სასწავლო კოდი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def train(positive_examples, negative_examples, num_iterations = 100):\n    num_dims = positive_examples.shape[1]\n    weights = np.zeros((num_dims,1)) # initialize weights\n    \n    pos_count = positive_examples.shape[0]\n    neg_count = negative_examples.shape[0]\n    \n    report_frequency = 10\n    \n    for i in range(num_iterations):\n        pos = random.choice(positive_examples)\n        neg = random.choice(negative_examples)\n\n        z = np.dot(pos, weights)   \n        if z < 0:\n            weights = weights + pos.reshape(weights.shape)\n\n        z  = np.dot(neg, weights)\n        if z >= 0:\n            weights = weights - neg.reshape(weights.shape)\n            \n        if i % report_frequency == 0:             \n            pos_out = np.dot(positive_examples, weights)\n            neg_out = np.dot(negative_examples, weights)        \n            pos_correct = (pos_out >= 0).sum() / float(pos_count)\n            neg_correct = (neg_out < 0).sum() / float(neg_count)\n            print(\"Iteration={}, pos correct={}, neg correct={}\".format(i,pos_correct,neg_correct))\n\n    return weights",
+   "executionCount": 6,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def accuracy(weights, test_x, test_labels):\n    res = np.dot(np.c_[test_x,np.ones(len(test_x))],weights)\n    return (res.reshape(test_labels.shape)*test_labels>=0).sum()/float(len(test_labels))\n\naccuracy(wts, test_x, test_labels)",
+   "executionCount": 13,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "1.0"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "### მონაცემთა ნაკრების კითხვა\n\nეს კოდი ჩამოტვირთავს მონაცემთა ბაზას საცავიდან ინტერნეტში. თქვენ ასევე შეგიძლიათ ხელით დააკოპიროთ მონაცემთა ნაკრები AI Curriculum-ის რეპოს `/data` დირექტორიადან.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "!rm *.pkl\nhttps://github.com/mnielsen/neural-networks-and-deep-learning/blob/master/data/mnist.pkl.gz!gzip -d mnist.pkl.gz",
+   "executionCount": 8,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "with open('mnist.pkl', 'rb') as mnist_pickle:\n    MNIST = pickle.load(mnist_pickle)",
+   "executionCount": 19,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "print(MNIST['Train']['Features'][0][130:180])\nprint(MNIST['Train']['Labels'][0])\nfeatures = MNIST['Train']['Features'].astype(np.float32) / 256.0\nlabels = MNIST['Train']['Labels']\nfig = plt.figure(figsize=(10,5))\nfor i in range(10):\n    ax = fig.add_subplot(1,10,i+1)\n    plt.imshow(features[i].reshape(28,28))\nplt.show()",
+   "executionCount": 20,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[  0   0 188 255  94   0   0   0   0   0   0   0   0   0   0   0   0   0\n   0   0   0   0   0   0   0   0   0   0   0 191 250 253  93   0   0   0\n   0   0   0   0   0   0   0   0   0   0   0   0   0   0]\n1\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/c39e9c9aba695a34.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "კოდი ერთი-სხვა-სხვა მონაცემთა ნაკრების შესაქმნელად ორნიშნა კლასიფიკაციისთვის. თქვენ უნდა შეცვალოთ ეს კოდი, რათა შექმნათ ერთი-ყველას თარიღების ნაკრები.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def set_mnist_pos_neg(positive_label, negative_label):\n    positive_indices = [i for i, j in enumerate(MNIST['Train']['Labels']) \n                          if j == positive_label]\n    negative_indices = [i for i, j in enumerate(MNIST['Train']['Labels']) \n                          if j == negative_label]\n\n    positive_images = MNIST['Train']['Features'][positive_indices]\n    negative_images = MNIST['Train']['Features'][negative_indices]\n\n    return positive_images, negative_images",
+   "executionCount": 23,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა თქვენ გჭირდებათ:\n1. შექმენით 10 ერთი ყველას წინააღმდეგ მონაცემთა ნაკრები ყველა ციფრისთვის\n1. ავარჯიშეთ 10 პერცეპტრონი\n1. განსაზღვრეთ `classify` ფუნქცია ციფრული კლასიფიკაციის შესასრულებლად\n1. გაზომეთ კლასიფიკაციის სიზუსტე და დაბეჭდეთ დაბნეულობის მატრიცა\n1. [სურვილისამებრ] შექმენით გაუმჯობესებული `classify` ფუნქცია, რომელიც ასრულებს კლასიფიკაციას ერთი მატრიცის გამრავლების გამოყენებით.\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/3-NeuralNetworks/03-Perceptron/lab/PerceptronMultiClass.ipynb"
+}

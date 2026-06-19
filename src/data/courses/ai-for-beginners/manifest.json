@@ -1,0 +1,1228 @@
+{
+  "slug": "ai-for-beginners",
+  "title": "AI დამწყებთათვის",
+  "language": "ka",
+  "attribution": {
+    "source": "Microsoft AI for Beginners",
+    "license": "MIT",
+    "url": "https://github.com/microsoft/AI-For-Beginners"
+  },
+  "modules": [
+    {
+      "id": "0-course-setup",
+      "order": 0,
+      "slug": "course-setup",
+      "title": "კურსის მომზადება",
+      "description": "გარემოს მომზადება, ნოუთბუქების გაშვება და კურსის სტრუქტურა.",
+      "icon": "settings",
+      "lessons": [
+        {
+          "slug": "course-setup/setup",
+          "segments": [
+            "course-setup",
+            "setup"
+          ],
+          "title": "ამ სასწავლო გეგმის დაწყება",
+          "lessonNumber": null,
+          "kind": "markdown",
+          "readingMinutes": 2
+        },
+        {
+          "slug": "course-setup/how-to-run",
+          "segments": [
+            "course-setup",
+            "how-to-run"
+          ],
+          "title": "როგორ გავუშვათ კოდი",
+          "lessonNumber": null,
+          "kind": "markdown",
+          "readingMinutes": 3
+        },
+        {
+          "slug": "course-setup/for-teachers",
+          "segments": [
+            "course-setup",
+            "for-teachers"
+          ],
+          "title": "განმანათლებლებისთვის",
+          "lessonNumber": null,
+          "kind": "markdown",
+          "readingMinutes": 2
+        }
+      ]
+    },
+    {
+      "id": "1-Intro",
+      "order": 1,
+      "slug": "intro",
+      "title": "შესავალი AI-ში",
+      "description": "რა არის ხელოვნური ინტელექტი, მისი ისტორია და ძირითადი მიდგომები.",
+      "icon": "brain",
+      "lessons": [
+        {
+          "slug": "intro",
+          "segments": [
+            "intro"
+          ],
+          "title": "შესავალი AI-ში",
+          "lessonNumber": null,
+          "kind": "markdown",
+          "readingMinutes": 9
+        }
+      ]
+    },
+    {
+      "id": "2-Symbolic",
+      "order": 2,
+      "slug": "symbolic",
+      "title": "სიმბოლური AI",
+      "description": "ცოდნის წარმოდგენა, საექსპერტო სისტემები და ონტოლოგიები.",
+      "icon": "sitemap",
+      "lessons": [
+        {
+          "slug": "symbolic",
+          "segments": [
+            "symbolic"
+          ],
+          "title": "ცოდნის წარმომადგენლობა და საექსპერტო სისტემები",
+          "lessonNumber": null,
+          "kind": "markdown",
+          "readingMinutes": 11
+        },
+        {
+          "slug": "symbolic/ms-concept-graph",
+          "segments": [
+            "symbolic",
+            "ms-concept-graph"
+          ],
+          "title": "კონცეფციის გრაფიკი ConceptNet-ის გამოყენებით",
+          "lessonNumber": null,
+          "kind": "notebook",
+          "framework": "generic"
+        },
+        {
+          "slug": "symbolic/family-ontology",
+          "segments": [
+            "symbolic",
+            "family-ontology"
+          ],
+          "title": "ოჯახური ურთიერთობების ონტოლოგია",
+          "lessonNumber": null,
+          "kind": "notebook",
+          "framework": "generic"
+        },
+        {
+          "slug": "symbolic/animals",
+          "segments": [
+            "symbolic",
+            "animals"
+          ],
+          "title": "ცხოველთა საექსპერტო სისტემის დანერგვა",
+          "lessonNumber": null,
+          "kind": "notebook",
+          "framework": "generic"
+        }
+      ]
+    },
+    {
+      "id": "3-NeuralNetworks",
+      "order": 3,
+      "slug": "neural-networks",
+      "title": "ნეირონული ქსელები",
+      "description": "პერცეპტრონი, მრავალშრიანი ქსელები და ფრეიმვორკები.",
+      "icon": "network",
+      "lessons": [
+        {
+          "slug": "neural-networks",
+          "segments": [
+            "neural-networks"
+          ],
+          "title": "შესავალი ნერვულ ქსელებში",
+          "lessonNumber": null,
+          "kind": "markdown",
+          "readingMinutes": 2
+        },
+        {
+          "slug": "neural-networks/perceptron/lab",
+          "segments": [
+            "neural-networks",
+            "perceptron",
+            "lab"
+          ],
+          "title": "მრავალკლასიანი კლასიფიკაცია პერცეპტრონით",
+          "lessonNumber": 3,
+          "kind": "markdown",
+          "readingMinutes": 1
+        },
+        {
+          "slug": "neural-networks/perceptron",
+          "segments": [
+            "neural-networks",
+            "perceptron"
+          ],
+          "title": "შესავალი ნერვულ ქსელებში: პერცეპტრონი",
+          "lessonNumber": 3,
+          "kind": "markdown",
+          "readingMinutes": 3
+        },
+        {
+          "slug": "neural-networks/perceptron/lab/perceptron-multi-class",
+          "segments": [
+            "neural-networks",
+            "perceptron",
+            "lab",
+            "perceptron-multi-class"
+          ],
+          "title": "მრავალკლასიანი კლასიფიკაცია პერცეპტრონით",
+          "lessonNumber": 3,
+          "kind": "notebook",
+          "framework": "generic"
+        },
+        {
+          "slug": "neural-networks/perceptron/perceptron",
+          "segments": [
+            "neural-networks",
+            "perceptron",
+            "perceptron"
+          ],
+          "title": "პერცეპტრონი",
+          "lessonNumber": 3,
+          "kind": "notebook",
+          "framework": "generic"
+        },
+        {
+          "slug": "neural-networks/own-framework/lab",
+          "segments": [
+            "neural-networks",
+            "own-framework",
+            "lab"
+          ],
+          "title": "MNIST კლასიფიკაცია ჩვენი საკუთარი ჩარჩოთი",
+          "lessonNumber": 4,
+          "kind": "markdown",
+          "readingMinutes": 1
+        },
+        {
+          "slug": "neural-networks/own-framework",
+          "segments": [
+            "neural-networks",
+            "own-framework"
+          ],
+          "title": "შესავალი ნერვულ ქსელებში. მრავალშრიანი პერცეტრონი",
+          "lessonNumber": 4,
+          "kind": "markdown",
+          "readingMinutes": 3
+        },
+        {
+          "slug": "neural-networks/own-framework/lab/my-fw-mnist",
+          "segments": [
+            "neural-networks",
+            "own-framework",
+            "lab",
+            "my-fw-mnist"
+          ],
+          "title": "MNIST ციფრული კლასიფიკაცია ჩვენი საკუთარი ჩარჩოთი",
+          "lessonNumber": 4,
+          "kind": "notebook",
+          "framework": "generic"
+        },
+        {
+          "slug": "neural-networks/own-framework/own-framework",
+          "segments": [
+            "neural-networks",
+            "own-framework",
+            "own-framework"
+          ],
+          "title": "მრავალშრიანი პერცეპტრონები",
+          "lessonNumber": 4,
+          "kind": "notebook",
+          "framework": "generic"
+        },
+        {
+          "slug": "neural-networks/frameworks/lab",
+          "segments": [
+            "neural-networks",
+            "frameworks",
+            "lab"
+          ],
+          "title": "კლასიფიკაცია PyTorch/TensorFlow-ით",
+          "lessonNumber": 5,
+          "kind": "markdown",
+          "readingMinutes": 1
+        },
+        {
+          "slug": "neural-networks/frameworks",
+          "segments": [
+            "neural-networks",
+            "frameworks"
+          ],
+          "title": "ნერვული ქსელის ჩარჩოები",
+          "lessonNumber": 5,
+          "kind": "markdown",
+          "readingMinutes": 5
+        },
+        {
+          "slug": "neural-networks/frameworks/lab/lab-frameworks",
+          "segments": [
+            "neural-networks",
+            "frameworks",
+            "lab",
+            "lab-frameworks"
+          ],
+          "title": "კლასიფიკაცია PyTorch/TensorFlow-ით",
+          "lessonNumber": 5,
+          "kind": "notebook",
+          "framework": "generic"
+        },
+        {
+          "slug": "neural-networks/frameworks/intro-keras",
+          "segments": [
+            "neural-networks",
+            "frameworks",
+            "intro-keras"
+          ],
+          "title": "უმარტივესი შესავალი ნერვულ ქსელებში Keras-ით",
+          "lessonNumber": 5,
+          "kind": "notebook",
+          "framework": "tensorflow"
+        },
+        {
+          "slug": "neural-networks/frameworks/intro-py-torch",
+          "segments": [
+            "neural-networks",
+            "frameworks",
+            "intro-py-torch"
+          ],
+          "title": "შესავალი PyTorch-ში",
+          "lessonNumber": 5,
+          "kind": "notebook",
+          "framework": "pytorch"
+        },
+        {
+          "slug": "neural-networks/frameworks/intro-keras-tf",
+          "segments": [
+            "neural-networks",
+            "frameworks",
+            "intro-keras-tf"
+          ],
+          "title": "შესავალი Tensorflow-სა და Keras-ში",
+          "lessonNumber": 5,
+          "kind": "notebook",
+          "framework": "tensorflow"
+        }
+      ]
+    },
+    {
+      "id": "4-ComputerVision",
+      "order": 4,
+      "slug": "computer-vision",
+      "title": "კომპიუტერული ხედვა",
+      "description": "კონვოლუციური ქსელები, ტრანსფერული სწავლება და გენერაცია.",
+      "icon": "eye",
+      "lessons": [
+        {
+          "slug": "computer-vision",
+          "segments": [
+            "computer-vision"
+          ],
+          "title": "კომპიუტერული ხედვა",
+          "lessonNumber": null,
+          "kind": "markdown",
+          "readingMinutes": 1
+        },
+        {
+          "slug": "computer-vision/intro-cv/lab",
+          "segments": [
+            "computer-vision",
+            "intro-cv",
+            "lab"
+          ],
+          "title": "მოძრაობების გამოვლენა ოპტიკური ნაკადის გამოყენებით",
+          "lessonNumber": 6,
+          "kind": "markdown",
+          "readingMinutes": 1
+        },
+        {
+          "slug": "computer-vision/intro-cv",
+          "segments": [
+            "computer-vision",
+            "intro-cv"
+          ],
+          "title": "შესავალი კომპიუტერულ ხედვაში",
+          "lessonNumber": 6,
+          "kind": "markdown",
+          "readingMinutes": 5
+        },
+        {
+          "slug": "computer-vision/intro-cv/open-cv",
+          "segments": [
+            "computer-vision",
+            "intro-cv",
+            "open-cv"
+          ],
+          "title": "Computer Vision და OpenCV",
+          "lessonNumber": 6,
+          "kind": "notebook",
+          "framework": "generic"
+        },
+        {
+          "slug": "computer-vision/intro-cv/lab/movement-detection",
+          "segments": [
+            "computer-vision",
+            "intro-cv",
+            "lab",
+            "movement-detection"
+          ],
+          "title": "პალმის მოძრაობის გამოვლენა ოპტიკური ნაკადის გამოყენებით",
+          "lessonNumber": 6,
+          "kind": "notebook",
+          "framework": "generic"
+        },
+        {
+          "slug": "computer-vision/conv-nets/lab",
+          "segments": [
+            "computer-vision",
+            "conv-nets",
+            "lab"
+          ],
+          "title": "ამოცანა",
+          "lessonNumber": 7,
+          "kind": "markdown",
+          "readingMinutes": 1
+        },
+        {
+          "slug": "computer-vision/conv-nets",
+          "segments": [
+            "computer-vision",
+            "conv-nets"
+          ],
+          "title": "კონვოლუციური ნერვული ქსელები",
+          "lessonNumber": 7,
+          "kind": "markdown",
+          "readingMinutes": 3
+        },
+        {
+          "slug": "computer-vision/conv-nets/cnn-architectures",
+          "segments": [
+            "computer-vision",
+            "conv-nets",
+            "cnn-architectures"
+          ],
+          "title": "კარგად ცნობილი CNN არქიტექტურა",
+          "lessonNumber": 7,
+          "kind": "markdown",
+          "readingMinutes": 3
+        },
+        {
+          "slug": "computer-vision/conv-nets/conv-nets-py-torch",
+          "segments": [
+            "computer-vision",
+            "conv-nets",
+            "conv-nets-py-torch"
+          ],
+          "title": "კონვოლუციური ნერვული ქსელები",
+          "lessonNumber": 7,
+          "kind": "notebook",
+          "framework": "pytorch"
+        },
+        {
+          "slug": "computer-vision/conv-nets/conv-nets-tf",
+          "segments": [
+            "computer-vision",
+            "conv-nets",
+            "conv-nets-tf"
+          ],
+          "title": "კონვოლუციური ნერვული ქსელები",
+          "lessonNumber": 7,
+          "kind": "notebook",
+          "framework": "tensorflow"
+        },
+        {
+          "slug": "computer-vision/conv-nets/lab/pet-faces",
+          "segments": [
+            "computer-vision",
+            "conv-nets",
+            "lab",
+            "pet-faces"
+          ],
+          "title": "მონაცემების მიღება",
+          "lessonNumber": 7,
+          "kind": "notebook",
+          "framework": "tensorflow"
+        },
+        {
+          "slug": "computer-vision/transfer-learning/lab",
+          "segments": [
+            "computer-vision",
+            "transfer-learning",
+            "lab"
+          ],
+          "title": "ოქსფორდის შინაური ცხოველების კლასიფიკაცია ტრანსფერული სწავლის გამოყენებით",
+          "lessonNumber": 8,
+          "kind": "markdown",
+          "readingMinutes": 1
+        },
+        {
+          "slug": "computer-vision/transfer-learning",
+          "segments": [
+            "computer-vision",
+            "transfer-learning"
+          ],
+          "title": "წინასწარ გაწვრთნილი ქსელები და გადაცემის სწავლა",
+          "lessonNumber": 8,
+          "kind": "markdown",
+          "readingMinutes": 4
+        },
+        {
+          "slug": "computer-vision/transfer-learning/training-tricks",
+          "segments": [
+            "computer-vision",
+            "transfer-learning",
+            "training-tricks"
+          ],
+          "title": "ღრმა სწავლის ტრენინგის ხრიკები",
+          "lessonNumber": 8,
+          "kind": "markdown",
+          "readingMinutes": 6
+        },
+        {
+          "slug": "computer-vision/transfer-learning/dropout",
+          "segments": [
+            "computer-vision",
+            "transfer-learning",
+            "dropout"
+          ],
+          "title": "მიტოვების ეფექტი",
+          "lessonNumber": 8,
+          "kind": "notebook",
+          "framework": "generic"
+        },
+        {
+          "slug": "computer-vision/transfer-learning/lab/oxford-pets",
+          "segments": [
+            "computer-vision",
+            "transfer-learning",
+            "lab",
+            "oxford-pets"
+          ],
+          "title": "მონაცემთა ნაკრების მომზადება ღრმა სწავლისთვის",
+          "lessonNumber": 8,
+          "kind": "notebook",
+          "framework": "generic"
+        },
+        {
+          "slug": "computer-vision/transfer-learning/adversarial-cat-tf",
+          "segments": [
+            "computer-vision",
+            "transfer-learning",
+            "adversarial-cat-tf"
+          ],
+          "title": "როგორ ხედავს ნერვული ქსელი კატას",
+          "lessonNumber": 8,
+          "kind": "notebook",
+          "framework": "tensorflow"
+        },
+        {
+          "slug": "computer-vision/transfer-learning/transfer-learning-py-torch",
+          "segments": [
+            "computer-vision",
+            "transfer-learning",
+            "transfer-learning-py-torch"
+          ],
+          "title": "წინასწარ მომზადებული მოდელები და გადაცემის სწავლა",
+          "lessonNumber": 8,
+          "kind": "notebook",
+          "framework": "pytorch"
+        },
+        {
+          "slug": "computer-vision/transfer-learning/transfer-learning-tf",
+          "segments": [
+            "computer-vision",
+            "transfer-learning",
+            "transfer-learning-tf"
+          ],
+          "title": "წინასწარ მომზადებული მოდელები და გადაცემის სწავლა",
+          "lessonNumber": 8,
+          "kind": "notebook",
+          "framework": "tensorflow"
+        },
+        {
+          "slug": "computer-vision/autoencoders",
+          "segments": [
+            "computer-vision",
+            "autoencoders"
+          ],
+          "title": "ავტოკოდერები",
+          "lessonNumber": 9,
+          "kind": "markdown",
+          "readingMinutes": 4
+        },
+        {
+          "slug": "computer-vision/autoencoders/auto-encoders-py-torch",
+          "segments": [
+            "computer-vision",
+            "autoencoders",
+            "auto-encoders-py-torch"
+          ],
+          "title": "ავტოინკოდერები",
+          "lessonNumber": 9,
+          "kind": "notebook",
+          "framework": "pytorch"
+        },
+        {
+          "slug": "computer-vision/autoencoders/autoencoders-tf",
+          "segments": [
+            "computer-vision",
+            "autoencoders",
+            "autoencoders-tf"
+          ],
+          "title": "ავტოკოდერები",
+          "lessonNumber": 9,
+          "kind": "notebook",
+          "framework": "tensorflow"
+        },
+        {
+          "slug": "computer-vision/ga-ns",
+          "segments": [
+            "computer-vision",
+            "ga-ns"
+          ],
+          "title": "გენერაციული საპირისპირო ქსელები",
+          "lessonNumber": 10,
+          "kind": "markdown",
+          "readingMinutes": 5
+        },
+        {
+          "slug": "computer-vision/ga-ns/gan-py-torch",
+          "segments": [
+            "computer-vision",
+            "ga-ns",
+            "gan-py-torch"
+          ],
+          "title": "გენერაციული საპირისპირო ქსელები",
+          "lessonNumber": 10,
+          "kind": "notebook",
+          "framework": "pytorch"
+        },
+        {
+          "slug": "computer-vision/ga-ns/gantf",
+          "segments": [
+            "computer-vision",
+            "ga-ns",
+            "gantf"
+          ],
+          "title": "გენერაციული საპირისპირო ქსელები",
+          "lessonNumber": 10,
+          "kind": "notebook",
+          "framework": "tensorflow"
+        },
+        {
+          "slug": "computer-vision/ga-ns/style-transfer-keras",
+          "segments": [
+            "computer-vision",
+            "ga-ns",
+            "style-transfer-keras"
+          ],
+          "title": "სტილის ტრანსფერი",
+          "lessonNumber": 10,
+          "kind": "notebook",
+          "framework": "tensorflow"
+        },
+        {
+          "slug": "computer-vision/ga-ns/style-transfer",
+          "segments": [
+            "computer-vision",
+            "ga-ns",
+            "style-transfer"
+          ],
+          "title": "სტილის ტრანსფერი",
+          "lessonNumber": 10,
+          "kind": "notebook",
+          "framework": "generic"
+        },
+        {
+          "slug": "computer-vision/object-detection/lab",
+          "segments": [
+            "computer-vision",
+            "object-detection",
+            "lab"
+          ],
+          "title": "თავის ამოცნობა ჰოლივუდის თავების მონაცემთა ნაკრების გამოყენებით",
+          "lessonNumber": 11,
+          "kind": "markdown",
+          "readingMinutes": 2
+        },
+        {
+          "slug": "computer-vision/object-detection",
+          "segments": [
+            "computer-vision",
+            "object-detection"
+          ],
+          "title": "ობიექტის ამოცნობა",
+          "lessonNumber": 11,
+          "kind": "markdown",
+          "readingMinutes": 5
+        },
+        {
+          "slug": "computer-vision/object-detection/object-detection",
+          "segments": [
+            "computer-vision",
+            "object-detection",
+            "object-detection"
+          ],
+          "title": "ობიექტის ამოცნობა",
+          "lessonNumber": 11,
+          "kind": "notebook",
+          "framework": "generic"
+        },
+        {
+          "slug": "computer-vision/segmentation/lab",
+          "segments": [
+            "computer-vision",
+            "segmentation",
+            "lab"
+          ],
+          "title": "ადამიანის სხეულის სეგმენტაცია",
+          "lessonNumber": 12,
+          "kind": "markdown",
+          "readingMinutes": 1
+        },
+        {
+          "slug": "computer-vision/segmentation",
+          "segments": [
+            "computer-vision",
+            "segmentation"
+          ],
+          "title": "სეგმენტაცია",
+          "lessonNumber": 12,
+          "kind": "markdown",
+          "readingMinutes": 3
+        },
+        {
+          "slug": "computer-vision/segmentation/semantic-segmentation-pytorch",
+          "segments": [
+            "computer-vision",
+            "segmentation",
+            "semantic-segmentation-pytorch"
+          ],
+          "title": "სეგმენტაცია",
+          "lessonNumber": 12,
+          "kind": "notebook",
+          "framework": "pytorch"
+        },
+        {
+          "slug": "computer-vision/segmentation/semantic-segmentation-tf",
+          "segments": [
+            "computer-vision",
+            "segmentation",
+            "semantic-segmentation-tf"
+          ],
+          "title": "სემანტიკური სეგმენტაცია",
+          "lessonNumber": 12,
+          "kind": "notebook",
+          "framework": "tensorflow"
+        },
+        {
+          "slug": "computer-vision/segmentation/lab/body-segmentation",
+          "segments": [
+            "computer-vision",
+            "segmentation",
+            "lab",
+            "body-segmentation"
+          ],
+          "title": "სხეულის სეგმენტაცია",
+          "lessonNumber": 12,
+          "kind": "notebook",
+          "framework": "generic"
+        }
+      ]
+    },
+    {
+      "id": "5-NLP",
+      "order": 5,
+      "slug": "nlp",
+      "title": "ბუნებრივი ენის დამუშავება",
+      "description": "ტექსტის წარმოდგენა, ემბედინგები, რეკურენტული ქსელები და ტრანსფორმერები.",
+      "icon": "messages",
+      "lessons": [
+        {
+          "slug": "nlp",
+          "segments": [
+            "nlp"
+          ],
+          "title": "ბუნებრივი ენის დამუშავება",
+          "lessonNumber": null,
+          "kind": "markdown",
+          "readingMinutes": 4
+        },
+        {
+          "slug": "nlp/text-rep",
+          "segments": [
+            "nlp",
+            "text-rep"
+          ],
+          "title": "ტექსტის წარმოდგენა ტენსორების სახით",
+          "lessonNumber": 13,
+          "kind": "markdown",
+          "readingMinutes": 4
+        },
+        {
+          "slug": "nlp/text-rep/text-representation-py-torch",
+          "segments": [
+            "nlp",
+            "text-rep",
+            "text-representation-py-torch"
+          ],
+          "title": "ტექსტის კლასიფიკაციის",
+          "lessonNumber": 13,
+          "kind": "notebook",
+          "framework": "pytorch"
+        },
+        {
+          "slug": "nlp/text-rep/text-representation-tf",
+          "segments": [
+            "nlp",
+            "text-rep",
+            "text-representation-tf"
+          ],
+          "title": "ტექსტის კლასიფიკაციის",
+          "lessonNumber": 13,
+          "kind": "notebook",
+          "framework": "tensorflow"
+        },
+        {
+          "slug": "nlp/embeddings",
+          "segments": [
+            "nlp",
+            "embeddings"
+          ],
+          "title": "ემბედინგები",
+          "lessonNumber": 14,
+          "kind": "markdown",
+          "readingMinutes": 4
+        },
+        {
+          "slug": "nlp/embeddings/embeddings-py-torch",
+          "segments": [
+            "nlp",
+            "embeddings",
+            "embeddings-py-torch"
+          ],
+          "title": "ემბედინგები",
+          "lessonNumber": 14,
+          "kind": "notebook",
+          "framework": "pytorch"
+        },
+        {
+          "slug": "nlp/embeddings/embeddings-tf",
+          "segments": [
+            "nlp",
+            "embeddings",
+            "embeddings-tf"
+          ],
+          "title": "ემბედინგები",
+          "lessonNumber": 14,
+          "kind": "notebook",
+          "framework": "tensorflow"
+        },
+        {
+          "slug": "nlp/language-modeling",
+          "segments": [
+            "nlp",
+            "language-modeling"
+          ],
+          "title": "ენის მოდელირება",
+          "lessonNumber": 15,
+          "kind": "markdown",
+          "readingMinutes": 2
+        },
+        {
+          "slug": "nlp/language-modeling/lab",
+          "segments": [
+            "nlp",
+            "language-modeling",
+            "lab"
+          ],
+          "title": "ტრენინგის სკიპ-გრამის მოდელი",
+          "lessonNumber": 15,
+          "kind": "markdown",
+          "readingMinutes": 1
+        },
+        {
+          "slug": "nlp/language-modeling/c-bo-w-py-torch",
+          "segments": [
+            "nlp",
+            "language-modeling",
+            "c-bo-w-py-torch"
+          ],
+          "title": "სასწავლო CBoW მოდელი",
+          "lessonNumber": 15,
+          "kind": "notebook",
+          "framework": "pytorch"
+        },
+        {
+          "slug": "nlp/language-modeling/c-bo-w-tf",
+          "segments": [
+            "nlp",
+            "language-modeling",
+            "c-bo-w-tf"
+          ],
+          "title": "სასწავლო CBoW მოდელი",
+          "lessonNumber": 15,
+          "kind": "notebook",
+          "framework": "tensorflow"
+        },
+        {
+          "slug": "nlp/rnn",
+          "segments": [
+            "nlp",
+            "rnn"
+          ],
+          "title": "განმეორებადი ნერვული ქსელები",
+          "lessonNumber": 16,
+          "kind": "markdown",
+          "readingMinutes": 5
+        },
+        {
+          "slug": "nlp/rnn/rnn-py-torch",
+          "segments": [
+            "nlp",
+            "rnn",
+            "rnn-py-torch"
+          ],
+          "title": "განმეორებადი ნერვული ქსელები",
+          "lessonNumber": 16,
+          "kind": "notebook",
+          "framework": "pytorch"
+        },
+        {
+          "slug": "nlp/rnn/rnntf",
+          "segments": [
+            "nlp",
+            "rnn",
+            "rnntf"
+          ],
+          "title": "განმეორებადი ნერვული ქსელები",
+          "lessonNumber": 16,
+          "kind": "notebook",
+          "framework": "tensorflow"
+        },
+        {
+          "slug": "nlp/generative-networks/lab",
+          "segments": [
+            "nlp",
+            "generative-networks",
+            "lab"
+          ],
+          "title": "Word-ის დონის ტექსტის გენერაცია RNN-ების გამოყენებით",
+          "lessonNumber": 17,
+          "kind": "markdown",
+          "readingMinutes": 1
+        },
+        {
+          "slug": "nlp/generative-networks",
+          "segments": [
+            "nlp",
+            "generative-networks"
+          ],
+          "title": "გენერაციული ქსელები",
+          "lessonNumber": 17,
+          "kind": "markdown",
+          "readingMinutes": 4
+        },
+        {
+          "slug": "nlp/generative-networks/generative-py-torch",
+          "segments": [
+            "nlp",
+            "generative-networks",
+            "generative-py-torch"
+          ],
+          "title": "გენერაციული ქსელები",
+          "lessonNumber": 17,
+          "kind": "notebook",
+          "framework": "pytorch"
+        },
+        {
+          "slug": "nlp/generative-networks/generative-tf",
+          "segments": [
+            "nlp",
+            "generative-networks",
+            "generative-tf"
+          ],
+          "title": "გენერაციული ქსელები",
+          "lessonNumber": 17,
+          "kind": "notebook",
+          "framework": "tensorflow"
+        },
+        {
+          "slug": "nlp/transformers",
+          "segments": [
+            "nlp",
+            "transformers"
+          ],
+          "title": "ყურადღების მექანიზმები და ტრანსფორმატორები",
+          "lessonNumber": 18,
+          "kind": "markdown",
+          "readingMinutes": 5
+        },
+        {
+          "slug": "nlp/transformers/transformers-py-torch",
+          "segments": [
+            "nlp",
+            "transformers",
+            "transformers-py-torch"
+          ],
+          "title": "ყურადღების მექანიზმები და ტრანსფორმატორები",
+          "lessonNumber": 18,
+          "kind": "notebook",
+          "framework": "pytorch"
+        },
+        {
+          "slug": "nlp/transformers/transformers-tf",
+          "segments": [
+            "nlp",
+            "transformers",
+            "transformers-tf"
+          ],
+          "title": "ყურადღების მექანიზმები და ტრანსფორმატორები",
+          "lessonNumber": 18,
+          "kind": "notebook",
+          "framework": "tensorflow"
+        },
+        {
+          "slug": "nlp/ner/lab",
+          "segments": [
+            "nlp",
+            "ner",
+            "lab"
+          ],
+          "title": "NER",
+          "lessonNumber": 19,
+          "kind": "markdown",
+          "readingMinutes": 3
+        },
+        {
+          "slug": "nlp/ner",
+          "segments": [
+            "nlp",
+            "ner"
+          ],
+          "title": "დასახელებული ერთეულის ამოცნობა",
+          "lessonNumber": 19,
+          "kind": "markdown",
+          "readingMinutes": 3
+        },
+        {
+          "slug": "nlp/ner/ner-tf",
+          "segments": [
+            "nlp",
+            "ner",
+            "ner-tf"
+          ],
+          "title": "დასახელებული ერთეულის ამოცნობა (NER)",
+          "lessonNumber": 19,
+          "kind": "notebook",
+          "framework": "tensorflow"
+        },
+        {
+          "slug": "nlp/lang-models",
+          "segments": [
+            "nlp",
+            "lang-models"
+          ],
+          "title": "წინასწარ მომზადებული დიდი ენის მოდელები",
+          "lessonNumber": 20,
+          "kind": "markdown",
+          "readingMinutes": 3
+        },
+        {
+          "slug": "nlp/lang-models/gpt-py-torch",
+          "segments": [
+            "nlp",
+            "lang-models",
+            "gpt-py-torch"
+          ],
+          "title": "ექსპერიმენტი OpenAI GPT-ით",
+          "lessonNumber": 20,
+          "kind": "notebook",
+          "framework": "pytorch"
+        }
+      ]
+    },
+    {
+      "id": "6-Other",
+      "order": 6,
+      "slug": "other",
+      "title": "სხვა AI ტექნიკები",
+      "description": "გენეტიკური ალგორითმები, განმტკიცებითი სწავლება და მულტი-აგენტური სისტემები.",
+      "icon": "puzzle",
+      "lessons": [
+        {
+          "slug": "other/genetic-algorithms",
+          "segments": [
+            "other",
+            "genetic-algorithms"
+          ],
+          "title": "გენეტიკური ალგორითმები",
+          "lessonNumber": 21,
+          "kind": "markdown",
+          "readingMinutes": 2
+        },
+        {
+          "slug": "other/genetic-algorithms/genetic",
+          "segments": [
+            "other",
+            "genetic-algorithms",
+            "genetic"
+          ],
+          "title": "გენეტიკური ალგორითმები",
+          "lessonNumber": 21,
+          "kind": "notebook",
+          "framework": "generic"
+        },
+        {
+          "slug": "other/genetic-algorithms/diophantine",
+          "segments": [
+            "other",
+            "genetic-algorithms",
+            "diophantine"
+          ],
+          "title": "დიოფანტინის განტოლებები",
+          "lessonNumber": 21,
+          "kind": "notebook",
+          "framework": "generic"
+        },
+        {
+          "slug": "other/deep-rl/lab",
+          "segments": [
+            "other",
+            "deep-rl",
+            "lab"
+          ],
+          "title": "სავარჯიშო მთის მანქანა გაქცევისთვის",
+          "lessonNumber": 22,
+          "kind": "markdown",
+          "readingMinutes": 1
+        },
+        {
+          "slug": "other/deep-rl",
+          "segments": [
+            "other",
+            "deep-rl"
+          ],
+          "title": "ღრმა განმტკიცების სწავლა",
+          "lessonNumber": 22,
+          "kind": "markdown",
+          "readingMinutes": 5
+        },
+        {
+          "slug": "other/deep-rl/lab/mountain-car",
+          "segments": [
+            "other",
+            "deep-rl",
+            "lab",
+            "mountain-car"
+          ],
+          "title": "# სავარჯიშო მთის მანქანა გაქცევისთვის",
+          "lessonNumber": 22,
+          "kind": "notebook",
+          "framework": "generic"
+        },
+        {
+          "slug": "other/deep-rl/cart-pole-rl-py-torch",
+          "segments": [
+            "other",
+            "deep-rl",
+            "cart-pole-rl-py-torch"
+          ],
+          "title": "ტრენინგი RL Cartpole Balancing-ის გასაკეთებლად",
+          "lessonNumber": 22,
+          "kind": "notebook",
+          "framework": "pytorch"
+        },
+        {
+          "slug": "other/deep-rl/cart-pole-rl-tf",
+          "segments": [
+            "other",
+            "deep-rl",
+            "cart-pole-rl-tf"
+          ],
+          "title": "ტრენინგი RL Cartpole Balancing-ის გასაკეთებლად",
+          "lessonNumber": 22,
+          "kind": "notebook",
+          "framework": "tensorflow"
+        },
+        {
+          "slug": "other/multiagent-systems",
+          "segments": [
+            "other",
+            "multiagent-systems"
+          ],
+          "title": "მრავალ აგენტური სისტემები",
+          "lessonNumber": 23,
+          "kind": "markdown",
+          "readingMinutes": 8
+        }
+      ]
+    },
+    {
+      "id": "7-Ethics",
+      "order": 7,
+      "slug": "ethics",
+      "title": "პასუხისმგებლიანი AI",
+      "description": "AI-ის ეთიკა და პასუხისმგებლიანი გამოყენების პრინციპები.",
+      "icon": "scale",
+      "lessons": [
+        {
+          "slug": "ethics",
+          "segments": [
+            "ethics"
+          ],
+          "title": "ეთიკური და პასუხისმგებელი AI",
+          "lessonNumber": null,
+          "kind": "markdown",
+          "readingMinutes": 3
+        }
+      ]
+    },
+    {
+      "id": "X-Extras",
+      "order": 8,
+      "slug": "extras",
+      "title": "დამატებები",
+      "description": "დამატებითი თემები: მულტიმოდალური ქსელები და სხვა.",
+      "icon": "sparkles",
+      "lessons": [
+        {
+          "slug": "extras/x1-multi-modal",
+          "segments": [
+            "extras",
+            "x1-multi-modal"
+          ],
+          "title": "მრავალმოდალური ქსელები",
+          "lessonNumber": null,
+          "kind": "markdown",
+          "readingMinutes": 4
+        },
+        {
+          "slug": "extras/x1-multi-modal/clip",
+          "segments": [
+            "extras",
+            "x1-multi-modal",
+            "clip"
+          ],
+          "title": "მულტიმოდალური მოდელები",
+          "lessonNumber": null,
+          "kind": "notebook",
+          "framework": "generic"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "modules": 9,
+    "lessons": 96,
+    "notebooks": 51
+  },
+  "generatedAt": "2026-06-19T04:48:25.832Z"
+}

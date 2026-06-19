@@ -1,0 +1,207 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "nlp/generative-networks/generative-tf",
+ "segments": [
+  "nlp",
+  "generative-networks",
+  "generative-tf"
+ ],
+ "title": "გენერაციული ქსელები",
+ "module": {
+  "id": "5-NLP",
+  "slug": "nlp",
+  "title": "ბუნებრივი ენის დამუშავება",
+  "icon": "messages"
+ },
+ "lessonNumber": 17,
+ "orderInModule": 1170.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/5-NLP/17-GenerativeNetworks/GenerativeTF.ipynb"
+ },
+ "prev": {
+  "slug": "nlp/generative-networks/generative-py-torch",
+  "title": "გენერაციული ქსელები"
+ },
+ "next": {
+  "slug": "nlp/transformers",
+  "title": "ყურადღების მექანიზმები და ტრანსფორმატორები"
+ },
+ "framework": "tensorflow",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "განმეორებადი ნერვული ქსელები (RNN) და მათი დახურული უჯრედების ვარიანტები, როგორიცაა გრძელვადიანი მოკლევადიანი მეხსიერების უჯრედები (LSTM) და დახურული განმეორებადი ერთეულები (GRU) უზრუნველყოფდნენ ენის მოდელირების მექანიზმს, ანუ მათ შეუძლიათ ისწავლონ სიტყვების დალაგება და შემდეგი სიტყვის პროგნოზირება თანმიმდევრობით. ეს გვაძლევს საშუალებას გამოვიყენოთ RNN-ები გენერაციული ამოცანებისთვის, როგორიცაა ჩვეულებრივი ტექსტის გენერირება, მანქანური თარგმანი და სურათის წარწერაც კი.\n\nRNN არქიტექტურაში, რომელიც განვიხილეთ წინა ერთეულში, თითოეული RNN ერთეული წარმოქმნის შემდეგ ფარულ მდგომარეობას, როგორც გამომავალს. თუმცა, ჩვენ ასევე შეგვიძლია დავამატოთ კიდევ ერთი გამომავალი თითოეულ განმეორებად ერთეულს, რომელიც მოგვცემს საშუალებას გამოვიტანოთ მიმდევრობა (რომელიც სიგრძით უდრის თავდაპირველ მიმდევრობას). უფრო მეტიც, ჩვენ შეგვიძლია გამოვიყენოთ RNN ერთეულები, რომლებიც არ იღებენ შეყვანას ყოველ საფეხურზე და უბრალოდ ავიღოთ საწყისი მდგომარეობის ვექტორი და შემდეგ გამოვიტანოთ გამომავლების თანმიმდევრობა.\n\nამ რვეულში ჩვენ ყურადღებას გავამახვილებთ მარტივ გენერაციულ მოდელებზე, რომლებიც დაგვეხმარება ტექსტის გენერირებაში. სიმარტივისთვის, მოდით ავაშენოთ სიმბოლოების დონის ქსელი, რომელიც ასო-ასო ტექსტს წარმოქმნის. ტრენინგის დროს ჩვენ უნდა ავიღოთ ტექსტის კორპუსი და დავყოთ ასოების თანმიმდევრობად.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import tensorflow as tf\nfrom tensorflow import keras\nimport tensorflow_datasets as tfds\nimport numpy as np\n\nds_train, ds_test = tfds.load('ag_news_subset').values()",
+   "executionCount": 1,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## პერსონაჟების ლექსიკის აგება\n\nსიმბოლოების დონის გენერაციული ქსელის ასაშენებლად, ჩვენ უნდა დავყოთ ტექსტი ცალკეულ სიმბოლოებად სიტყვების ნაცვლად. `TextVectorization` ფენას, რომელსაც ადრე ვიყენებდით, ამის გაკეთება არ შეუძლია, ამიტომ ჩვენ გვიწევს პარამეტრები:\n\n* ხელით ჩატვირთეთ ტექსტი და გააკეთეთ ტოკენიზაცია „ხელით“, როგორც კერასის ეს ოფიციალური მაგალითი-ში\n* გამოიყენეთ `Tokenizer` კლასი სიმბოლოების დონის ტოკენიზაციისთვის.\n\nჩვენ გადავალთ მეორე ვარიანტზე. `Tokenizer` ასევე შეიძლება გამოყენებულ იქნას სიტყვებად ტოკენიზაციისთვის, ასე რომ თქვენ უნდა შეძლოთ char-დონიდან სიტყვა-დონეზე გადართვა საკმაოდ მარტივად.\n\nსიმბოლოების დონის ტოკენიზაციის გასაკეთებლად, ჩვენ უნდა გადავცეთ `char_level=True` პარამეტრი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def extract_text(x):\n    return x['title']+' '+x['description']\n\ndef tupelize(x):\n    return (extract_text(x),x['label'])\n\ntokenizer = keras.preprocessing.text.Tokenizer(char_level=True,lower=False)\ntokenizer.fit_on_texts([x['title'].numpy().decode('utf-8') for x in ds_train])",
+   "executionCount": 2,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ ასევე გვინდა გამოვიყენოთ ერთი სპეციალური ტოკენი მიმდევრობის დასასრულის აღსანიშნავად, რომელსაც დავარქმევთ `<eos>`. მოდით, ხელით დავამატოთ იგი ლექსიკაში:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "eos_token = len(tokenizer.word_index)+1\ntokenizer.word_index['<eos>'] = eos_token\n\nvocab_size = eos_token + 1",
+   "executionCount": 3,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა, ტექსტის დაშიფვრად რიცხვების თანმიმდევრობით, შეგვიძლია გამოვიყენოთ:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "tokenizer.texts_to_sequences(['Hello, world!'])",
+   "executionCount": 4,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[[48, 2, 10, 10, 5, 44, 1, 25, 5, 8, 10, 13, 78]]"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## გენერაციული RNN-ის სწავლება სათაურების გენერირებისთვის\n\nგზა ჩვენ მოვამზადებთ RNN-ს ახალი ამბების სათაურების გენერირებისთვის შემდეგია. თითოეულ საფეხურზე ჩვენ ავიღებთ ერთ სათაურს, რომელიც შეიტანება RNN-ში და თითოეული შეყვანის სიმბოლოსთვის ვთხოვთ ქსელს შემდეგი გამომავალი სიმბოლოს გენერირებას:\n\n![Image showing an example RNN generation of the word 'HELLO'.](/courses/ai-for-beginners/5-NLP/17-GenerativeNetworks/images/rnn-generate.png)\n\nჩვენი თანმიმდევრობის ბოლო სიმბოლოსთვის, ჩვენ ვთხოვთ ქსელს შექმნას `<eos>` ტოკენი.\n\nმთავარი განსხვავება გენერაციულ RNN-ს შორის, რომელსაც ჩვენ აქ ვიყენებთ, არის ის, რომ ჩვენ ავიღებთ გამოსავალს RNN-ის თითოეული ნაბიჯიდან და არა მხოლოდ საბოლოო უჯრედიდან. ამის მიღწევა შესაძლებელია RNN უჯრედში `return_sequences` პარამეტრის მითითებით.\n\nამრიგად, ტრენინგის დროს, ქსელში შეყვანა იქნება გარკვეული სიგრძის დაშიფრული სიმბოლოების თანმიმდევრობა, ხოლო გამომავალი იქნება იგივე სიგრძის თანმიმდევრობა, მაგრამ გადატანილი ერთი ელემენტით და მთავრდება `<eos>`-ით. Minibatch შედგება რამდენიმე ასეთი თანმიმდევრობისგან და ჩვენ უნდა გამოვიყენოთ padding ყველა თანმიმდევრობის გასასწორებლად.\n\nმოდით შევქმნათ ფუნქციები, რომლებიც გარდაქმნის მონაცემთა ბაზას ჩვენთვის. იმის გამო, რომ ჩვენ გვსურს მიმდევრობების შევსება მინიჯგუფის დონეზე, ჩვენ ჯერ შევაგროვებთ მონაცემთა ბაზას `.batch()`-ის გამოძახებით, შემდეგ კი `map` ტრანსფორმაციის განსახორციელებლად. ამრიგად, ტრანსფორმაციის ფუნქცია პარამეტრად მიიღებს მთელ მინი პარტიას:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def title_batch(x):\n    x = [t.numpy().decode('utf-8') for t in x]\n    z = tokenizer.texts_to_sequences(x)\n    z = tf.keras.preprocessing.sequence.pad_sequences(z)\n    return tf.one_hot(z,vocab_size), tf.one_hot(tf.concat([z[:,1:],tf.constant(eos_token,shape=(len(z),1))],axis=1),vocab_size)",
+   "executionCount": 5,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "რამდენიმე მნიშვნელოვანი რამ, რასაც ჩვენ აქ ვაკეთებთ:\n* ჩვენ პირველად გამოვყოფთ ფაქტობრივ ტექსტს სიმებიანი ტენსორიდან\n* `text_to_sequences` გარდაქმნის სტრიქონების სიას მთელი რიცხვების ტენსორების სიაში\n* `pad_sequences` ამაგრებს ამ ტენსორებს მაქსიმალურ სიგრძემდე\n* ჩვენ საბოლოოდ ერთჯერად ვშიფრავთ ყველა სიმბოლოს, ასევე ვაკეთებთ შეცვლას და `<eos>` დამატებას. ჩვენ მალე დავინახავთ, რატომ გვჭირდება one-hot კოდირებული სიმბოლოები\n\nთუმცა, ეს ფუნქცია პითონიკურია, ანუ ის ავტომატურად ვერ გადაითარგმნება Tensorflow-ის გამოთვლით გრაფიკში. ჩვენ მივიღებთ შეცდომებს, თუ შევეცდებით ამ ფუნქციის გამოყენებას პირდაპირ `Dataset.map` ფუნქციაში. ჩვენ უნდა დავამაგროთ ეს პითონიკური ზარი `py_function` შეფუთვის გამოყენებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def title_batch_fn(x):\n    x = x['title']\n    a,b = tf.py_function(title_batch,inp=[x],Tout=(tf.float32,tf.float32))\n    return a,b",
+   "executionCount": 6,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "> შენიშვნა: Pythonic-ისა და Tensorflow-ის ტრანსფორმაციის ფუნქციებს შორის დიფერენცირება შეიძლება ცოტა ზედმეტად რთული მოგეჩვენოთ და შეიძლება გაგიჩნდეთ კითხვა, რატომ არ ვაქცევთ მონაცემთა ბაზას სტანდარტული Python ფუნქციების გამოყენებით `fit`-ზე გადაცემამდე. მიუხედავად იმისა, რომ ეს ნამდვილად შეიძლება გაკეთდეს, `Dataset.map`-ის გამოყენებას აქვს უზარმაზარი უპირატესობა, რადგან მონაცემთა ტრანსფორმაციის მილსადენი შესრულებულია Tensorflow გამოთვლითი გრაფიკის გამოყენებით, რომელიც იყენებს GPU გამოთვლებს და ამცირებს მონაცემთა გადაცემის საჭიროებას CPU/GPU-ს შორის.\n\nახლა ჩვენ შეგვიძლია ავაშენოთ ჩვენი გენერატორის ქსელი და დავიწყოთ ტრენინგი. ის შეიძლება დაფუძნდეს ნებისმიერ მორეციდივე უჯრედზე, რომელიც განვიხილეთ წინა განყოფილებაში (მარტივი, LSTM ან GRU). ჩვენს მაგალითში ჩვენ გამოვიყენებთ LSTM.\n\nიმის გამო, რომ ქსელი იღებს სიმბოლოებს შეყვანის სახით და ლექსიკის ზომა საკმაოდ მცირეა, ჩვენ არ გვჭირდება ჩაშენებული ფენა, one-hot კოდირებული შეყვანა შეიძლება პირდაპირ შევიდეს LSTM უჯრედში. გამომავალი ფენა იქნება `Dense` კლასიფიკატორი, რომელიც გადააქცევს LSTM გამომავალს one-hotი კოდირებულ ნიშნად.\n\nგარდა ამისა, ვინაიდან საქმე გვაქვს ცვლადი სიგრძის თანმიმდევრობებთან, შეგვიძლია გამოვიყენოთ `Masking` ფენა, რათა შევქმნათ ნიღაბი, რომელიც უგულებელყოფს სტრიქონის დაფარულ ნაწილს. ეს არ არის მკაცრად საჭირო, რადგან ჩვენ დიდად არ გვაინტერესებს ყველაფერი, რაც სცილდება `<eos>` ნიშანს, მაგრამ ჩვენ მას გამოვიყენებთ ამ ფენის ტიპის გარკვეული გამოცდილების მისაღებად. `input_shape` იქნება `(None, vocab_size)`, სადაც `None` მიუთითებს ცვლადი სიგრძის თანმიმდევრობას და გამომავალი ფორმა არის `(None,vocab_size)` ასევე, როგორც ხედავთ `summary`-დან:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model = keras.models.Sequential([\n    keras.layers.Masking(input_shape=(None,vocab_size)),\n    keras.layers.LSTM(128,return_sequences=True),\n    keras.layers.Dense(vocab_size,activation='softmax')\n])\n\nmodel.summary()\nmodel.compile(loss='categorical_crossentropy')\n\nmodel.fit(ds_train.batch(8).map(title_batch_fn))",
+   "executionCount": 7,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Model: \"sequential\"\n_________________________________________________________________\nLayer (type)                 Output Shape              Param #   \n=================================================================\nmasking (Masking)            (None, None, 84)          0         \n_________________________________________________________________\nlstm (LSTM)                  (None, None, 128)         109056    \n_________________________________________________________________\ndense (Dense)                (None, None, 84)          10836     \n=================================================================\nTotal params: 119,892\nTrainable params: 119,892\nNon-trainable params: 0\n_________________________________________________________________\n15000/15000 [==============================] - 229s 15ms/step - loss: 1.5385\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<tensorflow.python.keras.callbacks.History at 0x7fa40c1245e0>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## გამომავალი გენერირება\n\nახლა, როდესაც ჩვენ მოვამზადეთ მოდელი, გვსურს გამოვიყენოთ ის გარკვეული გამოსავლის გენერირებისთვის. უპირველეს ყოვლისა, ჩვენ გვჭირდება გზა, რათა გაშიფროს ტექსტი, რომელიც წარმოდგენილია სიმბოლური რიცხვების თანმიმდევრობით. ამისათვის ჩვენ შეგვიძლია გამოვიყენოთ `tokenizer.sequences_to_texts` ფუნქცია; თუმცა, ის კარგად არ მუშაობს პერსონაჟების დონის ტოკენიზაციასთან დაკავშირებით. ამიტომ ჩვენ ავიღებთ ტოკენების ლექსიკონს ტოკენიზატორიდან (ე.წ. `word_index`), ავაშენებთ საპირისპირო რუკას და დავწერთ ჩვენს დეკოდირების ფუნქციას:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "reverse_map = {val:key for key, val in tokenizer.word_index.items()}\n\ndef decode(x):\n    return ''.join([reverse_map[t] for t in x])",
+   "executionCount": 10,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა, მოდით გავაკეთოთ თაობა. ჩვენ დავიწყებთ ზოგიერთი სტრიქონით `start`, დაშიფვრით მას თანმიმდევრობით `inp`, შემდეგ კი ყოველ საფეხურზე მოვუწოდებთ ჩვენს ქსელს შემდეგი სიმბოლოს დასადგენად.\n\nქსელის გამომავალი `out` არის `vocab_size` ელემენტების ვექტორი, რომელიც წარმოადგენს თითოეული ტოკენის ალბათობას და ჩვენ შეგვიძლია ვიპოვოთ ყველაზე სავარაუდო ტოკენის ნომერი `argmax`-ის გამოყენებით. ჩვენ შემდეგ ვამატებთ ამ სიმბოლოს ტოკენების გენერირებულ სიას და ვაგრძელებთ გენერირებას. ერთი სიმბოლოს გენერირების ეს პროცესი `size`-ჯერ მეორდება სიმბოლოების საჭირო რაოდენობის შესაქმნელად და ჩვენ ადრე ვწყვეტთ, როდესაც `eos_token` შეგხვდებათ.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def generate(model,size=100,start='Today '):\n        inp = tokenizer.texts_to_sequences([start])[0]\n        chars = inp\n        for i in range(size):\n            out = model(tf.expand_dims(tf.one_hot(inp,vocab_size),0))[0][-1]\n            nc = tf.argmax(out)\n            if nc==eos_token:\n                break\n            chars.append(nc.numpy())\n            inp = inp+[nc]\n        return decode(chars)\n    \ngenerate(model)",
+   "executionCount": 12,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "'Today #39;s lead to strike for the strike for the strike for the strike (AFP)'"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## შერჩევის შედეგი ტრენინგის დროს\n\nიმის გამო, რომ ჩვენ არ გვაქვს რაიმე სასარგებლო მეტრიკა, როგორიცაა სიზუსტე, ერთადერთი გზა, რითაც შეგვიძლია დავინახოთ, რომ ჩვენი მოდელი უკეთესდება, არის შერჩევის გენერირებული სტრიქონი ტრენინგის დროს. ამისათვის ჩვენ გამოვიყენებთ გამოძახებას, ანუ ფუნქციებს, რომლებიც შეგვიძლია გადავიტანოთ `fit` ფუნქციაზე და რომლებიც პერიოდულად გამოიძახება ტრენინგის დროს.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "sampling_callback = keras.callbacks.LambdaCallback(\n  on_epoch_end = lambda batch, logs: print(generate(model))\n)\n\nmodel.fit(ds_train.batch(8).map(title_batch_fn),callbacks=[sampling_callback],epochs=3)",
+   "executionCount": 13,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch 1/3\n15000/15000 [==============================] - 226s 15ms/step - loss: 1.2703\nToday #39;s a lead in the company for the strike\nEpoch 2/3\n15000/15000 [==============================] - 227s 15ms/step - loss: 1.2057\nToday #39;s the Market Service on Security Start (AP)\nEpoch 3/3\n15000/15000 [==============================] - 226s 15ms/step - loss: 1.1752\nToday #39;s a line on the strike to start for the start\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<tensorflow.python.keras.callbacks.History at 0x7fa40c74e3d0>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ეს მაგალითი უკვე ქმნის საკმაოდ კარგ ტექსტს, მაგრამ მისი შემდგომი გაუმჯობესება შესაძლებელია რამდენიმე გზით:\n* მეტი ტექსტი. ჩვენ მხოლოდ სათაურები გამოვიყენეთ ჩვენი ამოცანისთვის, მაგრამ თქვენ შეგიძლიათ ექსპერიმენტი ჩაატაროთ სრული ტექსტით. გახსოვდეთ, რომ RNN-ები არც თუ ისე კარგია გრძელი მიმდევრობების მართვაში, ამიტომ აზრი აქვს ან დაყოთ ისინი მოკლე წინადადებებად, ან ყოველთვის ივარჯიშოთ გარკვეული წინასწარ განსაზღვრული მნიშვნელობის `num_chars` ფიქსირებულ მიმდევრობის სიგრძეზე (ვთქვათ, 256). თქვენ შეგიძლიათ სცადოთ შეცვალოთ ზემოთ მოცემული მაგალითი ასეთ არქიტექტურაში, გამოიყენეთ კერასის ოფიციალური გაკვეთილი როგორც შთაგონება.\n* მრავალშრიანი LSTM. აზრი აქვს სცადოთ LSTM უჯრედების 2 ან 3 ფენა. როგორც წინა განყოფილებაში აღვნიშნეთ, LSTM-ის თითოეული ფენა ამოიღებს გარკვეულ შაბლონებს ტექსტიდან, ხოლო სიმბოლოების დონის გენერატორის შემთხვევაში შეიძლება ველოდოთ, რომ ქვედა LSTM დონე პასუხისმგებელია სილაბების ამოღებაზე, ხოლო უფრო მაღალი დონეები - სიტყვებისა და სიტყვების კომბინაციებისთვის. ეს შეიძლება უბრალოდ განხორციელდეს LSTM კონსტრუქტორზე ფენების რაოდენობის პარამეტრის გადაცემით.\n* თქვენ ასევე შეიძლება გინდოდეთ ექსპერიმენტი GRU ერთეულებით და ნახოთ რომელი მათგანი უკეთესად მუშაობს და სხვადასხვა ფარული ფენის ზომები. ძალიან დიდმა დამალულმა ფენამ შეიძლება გამოიწვიოს გადაჭარბება (მაგ. ქსელი ისწავლის ზუსტ ტექსტს), ხოლო მცირე ზომამ შეიძლება არ გამოიწვიოს კარგი შედეგი.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## რბილი ტექსტის გენერაცია და ტემპერატურა\n\n`generate`-ის წინა განმარტებაში, ჩვენ ყოველთვის ვიღებდით სიმბოლოს ყველაზე დიდი ალბათობით, როგორც შემდეგი სიმბოლო გენერირებულ ტექსტში. ამან განაპირობა ის, რომ ტექსტი ხშირად „ტრიალებს“ ერთი და იგივე სიმბოლოების თანმიმდევრობას შორის, როგორც ამ მაგალითში:```\ntoday of the second the company and a second the company ...\n```\n\nთუმცა, თუ გადავხედავთ ალბათობის განაწილებას შემდეგი სიმბოლოსთვის, შეიძლება იყოს ის, რომ განსხვავება რამდენიმე უმაღლეს ალბათობას შორის არ არის დიდი, მაგ. ერთ სიმბოლოს შეიძლება ჰქონდეს ალბათობა 0.2, მეორეს - 0.19 და ა.შ. მაგალითად, \"play\" თანმიმდევრობით შემდეგი სიმბოლოს ძიებისას, შემდეგი სიმბოლო შეიძლება იყოს ან სივრცე, ან e (როგორც სიტყვაში player).\n\nეს მიგვიყვანს დასკვნამდე, რომ ყოველთვის არ არის „სამართლიანი“ პერსონაჟის უფრო მაღალი ალბათობით შერჩევა, რადგან მეორე უმაღლესის არჩევამ შესაძლოა მაინც მიგვიყვანოს შინაარსიან ტექსტამდე. უფრო გონივრული იქნება აირჩიოთ სიმბოლოები ქსელის გამომავალი ალბათობის განაწილებიდან.\n\nეს ნიმუში შეიძლება განხორციელდეს `np.multinomial` ფუნქციის გამოყენებით, რომელიც ახორციელებს ე.წ მულტინომიურ განაწილებას. ფუნქცია, რომელიც ახორციელებს ამ რბილი ტექსტის გენერაციას, განსაზღვრულია ქვემოთ:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def generate_soft(model,size=100,start='Today ',temperature=1.0):\n        inp = tokenizer.texts_to_sequences([start])[0]\n        chars = inp\n        for i in range(size):\n            out = model(tf.expand_dims(tf.one_hot(inp,vocab_size),0))[0][-1]\n            probs = tf.exp(tf.math.log(out)/temperature).numpy().astype(np.float64)\n            probs = probs/np.sum(probs)\n            nc = np.argmax(np.random.multinomial(1,probs,1))\n            if nc==eos_token:\n                break\n            chars.append(nc)\n            inp = inp+[nc]\n        return decode(chars)\n\nwords = ['Today ','On Sunday ','Moscow, ','President ','Little red riding hood ']\n    \nfor i in [0.3,0.8,1.0,1.3,1.8]:\n    print(f\"\\n--- Temperature = {i}\")\n    for j in range(5):\n        print(generate_soft(model,size=300,start=words[j],temperature=i))",
+   "executionCount": 33,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "\n--- Temperature = 0.3\nToday #39;s strike #39; to start at the store return\nOn Sunday PO to Be Data Profit Up (Reuters)\nMoscow, SP wins straight to the Microsoft #39;s control of the space start\nPresident olding of the blast start for the strike to pay &lt;b&gt;...&lt;/b&gt;\nLittle red riding hood ficed to the spam countered in European &lt;b&gt;...&lt;/b&gt;\n\n--- Temperature = 0.8\nToday countie strikes ryder missile faces food market blut\nOn Sunday collores lose-toppy of sale of Bullment in &lt;b&gt;...&lt;/b&gt;\nMoscow, IBM Diffeiting in Afghan Software Hotels (Reuters)\nPresident Ol Luster for Profit Peaced Raised (AP)\nLittle red riding hood dace on depart talks #39; bank up\n\n--- Temperature = 1.0\nToday wits House buiting debate fixes #39; supervice stake again\nOn Sunday arling digital poaching In for level\nMoscow, DS Up 7, Top Proble Protest Caprey Mamarian Strike\nPresident teps help of roubler stepted lessabul-Dhalitics (AFP)\nLittle red riding hood signs on cash in Carter-youb\n\n--- Temperature = 1.3\nToday wits flawer ro, pSIA figat's co DroftwavesIs Talo up\nOn Sunday hround elitwing wint EU Powerburlinetien\nMoscow, Bazz #39;s sentries olymen winnelds' next for Olympite Huc?\nPresident lost securitys from power Elections in Smiltrials\nLittle red riding hood vides profit, exponituity, profitmainalist-at said listers\n\n--- Temperature = 1.8\nToday #39;It: He deat: N.KA Asside\nOn Sunday i arry Par aldeup patient Wo stele1\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "---------------------------------------------------------------------------\nKeyError                                  Traceback (most recent call last)\n<ipython-input-33-db32367a0feb> in <module>\n     18     print(f\"\\n--- Temperature = {i}\")\n     19     for j in range(5):\n---> 20         print(generate_soft(model,size=300,start=words[j],temperature=i))\n\n<ipython-input-33-db32367a0feb> in generate_soft(model, size, start, temperature)\n     11             chars.append(nc)\n     12             inp = inp+[nc]\n---> 13         return decode(chars)\n     14 \n     15 words = ['Today ','On Sunday ','Moscow, ','President ','Little red riding hood ']\n\n<ipython-input-10-3f5fa6130b1d> in decode(x)\n      2 \n      3 def decode(x):\n----> 4     return ''.join([reverse_map[t] for t in x])\n\n<ipython-input-10-3f5fa6130b1d> in <listcomp>(.0)\n      2 \n      3 def decode(x):\n----> 4     return ''.join([reverse_map[t] for t in x])\n\nKeyError: 0",
+     "stream": "stderr"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ შემოვიღეთ კიდევ ერთი პარამეტრი, სახელწოდებით ტემპერატურა, რომელიც გამოიყენება იმის საჩვენებლად, თუ რამდენად უნდა დავიცვათ ყველაზე მაღალი ალბათობა. თუ ტემპერატურა 1.0-ია, ჩვენ ვაკეთებთ სამართლიან მრავალწევრებულ შერჩევას და როდესაც ტემპერატურა მიდის უსასრულობამდე - ყველა ალბათობა თანაბარი ხდება და შემთხვევით ვირჩევთ შემდეგ სიმბოლოს. ქვემოთ მოცემულ მაგალითში შეგვიძლია შევამჩნიოთ, რომ ტექსტი უაზრო ხდება, როდესაც ტემპერატურას ძალიან გავზრდით და ემსგავსება \"ციკლურ\" მძიმე გენერირებულ ტექსტს, როდესაც ის 0-ს მიუახლოვდება.\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/5-NLP/17-GenerativeNetworks/GenerativeTF.ipynb"
+}

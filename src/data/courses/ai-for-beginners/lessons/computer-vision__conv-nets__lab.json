@@ -1,0 +1,57 @@
+{
+ "kind": "markdown",
+ "courseSlug": "ai-for-beginners",
+ "slug": "computer-vision/conv-nets/lab",
+ "segments": [
+  "computer-vision",
+  "conv-nets",
+  "lab"
+ ],
+ "title": "ამოცანა",
+ "module": {
+  "id": "4-ComputerVision",
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა",
+  "icon": "eye"
+ },
+ "lessonNumber": 7,
+ "orderInModule": 1070,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/4-ComputerVision/07-ConvNets/lab/README.md"
+ },
+ "prev": {
+  "slug": "computer-vision/intro-cv/lab/movement-detection",
+  "title": "პალმის მოძრაობის გამოვლენა ოპტიკური ნაკადის გამოყენებით"
+ },
+ "next": {
+  "slug": "computer-vision/conv-nets",
+  "title": "კონვოლუციური ნერვული ქსელები"
+ },
+ "markdown": "შინაური ცხოველების სახეების # კლასიფიკაცია\n\nლაბორატორიული დავალება AI დამწყებთათვის სასწავლო პროგრამა-დან.\n\n## ამოცანა\n\nწარმოიდგინეთ, რომ საჭიროა შეიმუშაოთ და განაცხადოთ შინაური ცხოველების საბავშვო ბაღში ყველა შინაური ცხოველის კატალოგისთვის. ასეთი აპლიკაციის ერთ-ერთი შესანიშნავი თვისება იქნება ჯიშის ავტომატურად აღმოჩენა ფოტოსურათიდან. ეს წარმატებით შეიძლება გაკეთდეს ნერვული ქსელების გამოყენებით.\n\nთქვენ უნდა ივარჯიშოთ კონვოლუციური ნერვული ქსელი, რათა დაალაგოთ კატებისა და ძაღლების სხვადასხვა ჯიშის შინაური ცხოველების სახეები მონაცემთა ნაკრების გამოყენებით.\n\n## The Dataset\n\nჩვენ გამოვიყენებთ Oxford-IIIT Pet Dataset-ს, რომელიც შეიცავს 37 სხვადასხვა ჯიშის ძაღლებისა და კატების სურათებს.\n\n![Dataset we will deal with](/courses/ai-for-beginners/4-ComputerVision/07-ConvNets/lab/images/data.png)\n\nმონაცემთა ნაკრების ჩამოსატვირთად გამოიყენეთ კოდის ეს ნაწყვეტი:\n\n```python\n!wget https://thor.robots.ox.ac.uk/~vgg/data/pets/images.tar.gz\n!tar xfz images.tar.gz\n!rm images.tar.gz\n```\n\nშენიშვნა: Oxford-IIIT Pet Dataset სურათები ორგანიზებულია ფაილის სახელით (მაგ., `Abyssinian_1.jpg`, `Bengal_2.jpg`). ნოუთბუქი შეიცავს კოდს ამ სურათების ორგანიზებისთვის ჯიშის სპეციფიკურ ქვედირექტორიებში, უფრო მარტივი კლასიფიკაციისთვის.\n\n## მითითებული ნოუთბუქი\n\nდაიწყეთ ლაბორატორია PetFaces.ipynb გახსნით\n\n## Takeaway\n\nთქვენ გადაწყვიტეთ სურათის კლასიფიკაციის შედარებით რთული პრობლემა ნულიდან! საკმაოდ ბევრი გაკვეთილი იყო და თქვენ მაინც შეძელით გონივრული სიზუსტის მიღება! ასევე აზრი აქვს top-k სიზუსტის გაზომვას, რადგან ადვილია ზოგიერთი კლასის აღრევა, რომლებიც აშკარად არ განსხვავდება ადამიანებისგანაც კი.\n",
+ "headings": [
+  {
+   "id": "ამოცანა",
+   "text": "ამოცანა",
+   "level": 2
+  },
+  {
+   "id": "the-dataset",
+   "text": "The Dataset",
+   "level": 2
+  },
+  {
+   "id": "მითითებული-ნოუთბუქი",
+   "text": "მითითებული ნოუთბუქი",
+   "level": 2
+  },
+  {
+   "id": "takeaway",
+   "text": "Takeaway",
+   "level": 2
+  }
+ ],
+ "readingMinutes": 1
+}

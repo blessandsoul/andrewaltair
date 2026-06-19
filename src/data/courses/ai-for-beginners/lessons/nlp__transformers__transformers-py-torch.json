@@ -1,0 +1,151 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "nlp/transformers/transformers-py-torch",
+ "segments": [
+  "nlp",
+  "transformers",
+  "transformers-py-torch"
+ ],
+ "title": "ყურადღების მექანიზმები და ტრანსფორმატორები",
+ "module": {
+  "id": "5-NLP",
+  "slug": "nlp",
+  "title": "ბუნებრივი ენის დამუშავება",
+  "icon": "messages"
+ },
+ "lessonNumber": 18,
+ "orderInModule": 1180.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/5-NLP/18-Transformers/TransformersPyTorch.ipynb"
+ },
+ "prev": {
+  "slug": "nlp/transformers",
+  "title": "ყურადღების მექანიზმები და ტრანსფორმატორები"
+ },
+ "next": {
+  "slug": "nlp/transformers/transformers-tf",
+  "title": "ყურადღების მექანიზმები და ტრანსფორმატორები"
+ },
+ "framework": "pytorch",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "განმეორებადი ქსელების ერთი მთავარი ნაკლი არის ის, რომ ყველა სიტყვას თანმიმდევრობით ერთნაირი გავლენა აქვს შედეგზე. ეს იწვევს არაოპტიმალურ შესრულებას სტანდარტული LSTM შიფრატორ-დეკოდერის მოდელების თანმიმდევრობით მიმდევრობით დავალებებისთვის, როგორიცაა დასახელებული ერთეულის ამოცნობა და მანქანური თარგმანი. სინამდვილეში, შეყვანის თანმიმდევრობის კონკრეტული სიტყვები ხშირად უფრო მეტ გავლენას ახდენს თანმიმდევრულ გამოსავალზე, ვიდრე სხვები.\n\nგანვიხილოთ თანმიმდევრობით-მიმდევრობის მოდელი, როგორიცაა მანქანური თარგმანი. იგი ხორციელდება ორი განმეორებადი ქსელით, სადაც ერთი ქსელი (ენკოდერი) აქცევს შეყვანის თანმიმდევრობას დამალულ მდგომარეობაში, ხოლო მეორე, დეკოდერი, ამ ფარულ მდგომარეობას თარგმნის შედეგში. ამ მიდგომის პრობლემა ის არის, რომ ქსელის საბოლოო მდგომარეობას გაუჭირდება წინადადების დასაწყისის დამახსოვრება, რაც იწვევს მოდელის უხარისხობას გრძელ წინადადებებზე.\n\nყურადღების მექანიზმები უზრუნველყოფს თითოეული შეყვანის ვექტორის კონტექსტური ზემოქმედების შეწონვის საშუალებას RNN-ის თითოეულ გამომავალ პროგნოზზე. მისი განხორციელების გზა არის მალსახმობების შექმნა შეყვანის RNN-ის შუალედურ მდგომარეობასა და გამომავალ RNN-ს შორის. ამ გზით, $y_t$ გამომავალი სიმბოლოს გენერირებისას, ჩვენ გავითვალისწინებთ ყველა შეყვანის დამალულ მდგომარეობას $h_i$, სხვადასხვა წონის კოეფიციენტებით $\\alpha_{t,i}$.\n\n![Image showing an encoder/decoder model with an additive attention layer](/courses/ai-for-beginners/5-NLP/18-Transformers/images/encoder-decoder-attention.png)\nკოდერ-დეკოდერის მოდელი დანამატის ყურადღების მექანიზმით ბაჰდანაუ და სხვები, 2015 წ-ში, ციტირებულია ეს ბლოგის პოსტი-დან\n\nსაყურადღებო მატრიცა $\\{\\alpha_{i,j}\\}$ წარმოადგენს ხარისხს, რომელსაც გარკვეული შემავალი სიტყვები უკრავს მოცემული სიტყვის წარმოქმნისას გამომავალი თანმიმდევრობით. ქვემოთ მოცემულია ასეთი მატრიცის მაგალითი:\n\n![Image showing a sample alignment found by RNNsearch-50, taken from Bahdanau - arviz.org](/courses/ai-for-beginners/5-NLP/18-Transformers/images/bahdanau-fig3.png)\n\nსურათი აღებულია ბაჰდანაუ და სხვები, 2015 წ-დან (ნახ.3)\n\nყურადღების მექანიზმები პასუხისმგებელნი არიან ბუნებრივი ენის დამუშავების თანამედროვე ან თითქმის მიმდინარე მდგომარეობის დიდ ნაწილზე. თუმცა ყურადღების მიქცევა მნიშვნელოვნად ზრდის მოდელის პარამეტრების რაოდენობას, რამაც გამოიწვია სკალირების პრობლემები RNN-ებთან. RNN-ების სკალირების მთავარი შეზღუდვა ის არის, რომ მოდელების განმეორებითი ბუნება რთულს ხდის ტრენინგის ჯგუფურ და პარალელიზებას. RNN-ში, თანმიმდევრობის თითოეული ელემენტი უნდა დამუშავდეს თანმიმდევრული თანმიმდევრობით, რაც ნიშნავს, რომ მისი ადვილად პარალელიზება შეუძლებელია.\n\nამ შეზღუდვასთან ერთად ყურადღების მექანიზმების გამოყენებამ განაპირობა თანამედროვე ტრანსფორმატორის მოდელების შექმნა, რომლებიც ჩვენ ვიცით და ვიყენებთ დღეს BERT-დან OpenGPT3-მდე.\n\n## ტრანსფორმატორის მოდელები\n\nშეფასების საფეხურზე ყოველი წინა პროგნოზის კონტექსტის გადაცემის ნაცვლად, ტრანსფორმატორის მოდელები იყენებს პოზიციურ კოდირებას (positional encoding) და ყურადღების მექანიზმს (attention mechanism) ტექსტის მოცემულ ფანჯარაში შეყვანის კონტექსტის აღსაბეჭდად. ქვემოთ მოყვანილი სურათი გვიჩვენებს, თუ როგორ შეუძლია ყურადღების მქონე პოზიციურ დაშიფვრებს კონტექსტის აღბეჭდვა მოცემულ ფანჯარაში.\n\n![Animated GIF showing how the evaluations are performed in transformer models.](/courses/ai-for-beginners/5-NLP/18-Transformers/images/transformer-animated-explanation.gif)\n\nიმის გამო, რომ თითოეული შეყვანის პოზიცია დამოუკიდებლად არის შედგენილი თითოეულ გამომავალ პოზიციაზე, ტრანსფორმატორებს შეუძლიათ უკეთესად გაატარონ პარალელიზაცია, ვიდრე RNN, რაც იძლევა ბევრად უფრო დიდ და უფრო გამოხატულ ენობრივ მოდელებს. თითოეული ყურადღების თავი შეიძლება გამოყენებულ იქნას სიტყვებს შორის განსხვავებული ურთიერთობების შესასწავლად, რაც აუმჯობესებს ბუნებრივი ენის დამუშავების ამოცანებს.\n\nBERT (ორმხრივი კოდირების წარმოდგენები ტრანსფორმერებისგან) არის ძალიან დიდი მრავალშრიანი ტრანსფორმატორის ქსელი 12 ფენით BERT-base-ისთვის და 24 BERT-large-ისთვის. მოდელი პირველად წინასწარ ივარჯიშება ტექსტური მონაცემების დიდ კორპუსზე (ვიკიპედია + წიგნები) უკონტროლო ტრენინგის გამოყენებით (წინადადებაში ნიღბიანი სიტყვების პროგნოზირება). წინასწარი ტრენინგის დროს მოდელი შთანთქავს ენის გაგების მნიშვნელოვან დონეს, რომელიც შემდეგ შეიძლება გამოყენებულ იქნას სხვა მონაცემთა ნაკრებებთან ერთად ზუსტი დარეგულირების გამოყენებით. ამ პროცესს ეწოდება ტრანსფერული სწავლა.\n\n![picture from http://jalammar.github.io/illustrated-bert/](/courses/ai-for-beginners/5-NLP/18-Transformers/images/jalammarBERT-language-modeling-masked-lm.png)\n\nტრანსფორმატორის არქიტექტურის მრავალი ვარიაციაა, მათ შორის BERT, DistilBERT. BigBird, OpenGPT3 და სხვა, რომელთა დარეგულირება შესაძლებელია. HuggingFace პაკეტი უზრუნველყოფს საცავს PyTorch-ით ამ მრავალი არქიტექტურის სწავლებისთვის.\n\n## BERT-ის გამოყენება ტექსტის კლასიფიკაციისთვის\n\nვნახოთ, როგორ გამოვიყენოთ წინასწარ მომზადებული BERT მოდელი ჩვენი ტრადიციული ამოცანის გადასაჭრელად: თანმიმდევრობის კლასიფიკაცია. ჩვენ დავახარისხებთ ჩვენს თავდაპირველ AG News მონაცემთა ბაზას.\n\nპირველ რიგში, მოდით ჩატვირთოთ HuggingFace ბიბლიოთეკა და ჩვენი მონაცემთა ნაკრები:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import torch\nimport torchtext\nfrom torchnlp import *\nimport transformers\ntrain_dataset, test_dataset, classes, vocab = load_dataset()\nvocab_len = len(vocab)",
+   "executionCount": 10,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Loading dataset...\nBuilding vocab...\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "იმის გამო, რომ ჩვენ გამოვიყენებთ წინასწარ გაწვრთნილ BERT მოდელს, დაგვჭირდება კონკრეტული ტოკენიზატორის გამოყენება. პირველ რიგში, ჩვენ ჩატვირთავთ ტოკენიზერს, რომელიც დაკავშირებულია წინასწარ გაწვრთნილ BERT მოდელთან.\n\nHuggingFace ბიბლიოთეკა შეიცავს წინასწარ მომზადებული მოდელების საცავს, რომელიც შეგიძლიათ გამოიყენოთ მხოლოდ მათი სახელების მითითებით `from_pretrained` ფუნქციების არგუმენტად. მოდელისთვის საჭირო ყველა ორობითი ფაილი ავტომატურად ჩამოიტვირთება.\n\nთუმცა, გარკვეულ დროს დაგჭირდებათ საკუთარი მოდელების ჩატვირთვა, ამ შემთხვევაში შეგიძლიათ მიუთითოთ დირექტორია, რომელიც შეიცავს ყველა შესაბამის ფაილს, მათ შორის პარამეტრებს ტოკენიზატორისთვის, `config.json` ფაილი მოდელის პარამეტრებით, ბინარული წონებით და ა.შ.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# To load the model from Internet repository using model name. \n# Use this if you are running from your own copy of the notebooks\nbert_model = 'bert-base-uncased' \n\n# To load the model from the directory on disk. Use this for Microsoft Learn module, because we have\n# prepared all required files for you.\nbert_model = './bert'\n\ntokenizer = transformers.BertTokenizer.from_pretrained(bert_model)\n\nMAX_SEQ_LEN = 128\nPAD_INDEX = tokenizer.convert_tokens_to_ids(tokenizer.pad_token)\nUNK_INDEX = tokenizer.convert_tokens_to_ids(tokenizer.unk_token)",
+   "executionCount": 11,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "`tokenizer` ობიექტი შეიცავს `encode` ფუნქციას, რომელიც შეიძლება პირდაპირ იქნას გამოყენებული ტექსტის დაშიფვრისთვის:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "tokenizer.encode('PyTorch is a great framework for NLP')",
+   "executionCount": 15,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[101, 1052, 22123, 2953, 2818, 2003, 1037, 2307, 7705, 2005, 17953, 2361, 102]"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "შემდეგ, შევქმნათ იტერატორები, რომლებსაც გამოვიყენებთ ტრენინგის დროს მონაცემების წვდომისთვის. იმის გამო, რომ BERT იყენებს საკუთარი კოდირების ფუნქციას, ჩვენ დაგვჭირდება განვსაზღვროთ შეფუთვის ფუნქცია, რომელიც ადრე განვსაზღვრეთ `padify`-ს:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def pad_bert(b):\n    # b is the list of tuples of length batch_size\n    #   - first element of a tuple = label, \n    #   - second = feature (text sequence)\n    # build vectorized sequence\n    v = [tokenizer.encode(x[1]) for x in b]\n    # compute max length of a sequence in this minibatch\n    l = max(map(len,v))\n    return ( # tuple of two tensors - labels and features\n        torch.LongTensor([t[0] for t in b]),\n        torch.stack([torch.nn.functional.pad(torch.tensor(t),(0,l-len(t)),mode='constant',value=0) for t in v])\n    )\n\ntrain_loader = torch.utils.data.DataLoader(train_dataset, batch_size=8, collate_fn=pad_bert, shuffle=True)\ntest_loader = torch.utils.data.DataLoader(test_dataset, batch_size=8, collate_fn=pad_bert)",
+   "executionCount": 4,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენს შემთხვევაში, ჩვენ გამოვიყენებთ წინასწარ გაწვრთნილ BERT მოდელს სახელწოდებით `bert-base-uncased`. მოდით ჩატვირთოთ მოდელი `BertForSequenceClassfication` პაკეტის გამოყენებით. ეს უზრუნველყოფს, რომ ჩვენს მოდელს უკვე აქვს საჭირო არქიტექტურა კლასიფიკაციისთვის, საბოლოო კლასიფიკატორის ჩათვლით. თქვენ იხილავთ გამაფრთხილებელ შეტყობინებას, რომელშიც ნათქვამია, რომ საბოლოო კლასიფიკატორის წონა არ არის ინიციალიზებული და მოდელი საჭიროებს წინასწარ მომზადებას - ეს აბსოლუტურად ნორმალურია, რადგან ეს არის ზუსტად ის, რის გაკეთებასაც ჩვენ ვაპირებთ!\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model = transformers.BertForSequenceClassification.from_pretrained(bert_model,num_labels=4).to(device)",
+   "executionCount": 9,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Some weights of the model checkpoint at ./bert were not used when initializing BertForSequenceClassification: ['cls.predictions.bias', 'cls.predictions.transform.dense.weight', 'cls.predictions.transform.dense.bias', 'cls.predictions.decoder.weight', 'cls.seq_relationship.weight', 'cls.seq_relationship.bias', 'cls.predictions.transform.LayerNorm.weight', 'cls.predictions.transform.LayerNorm.bias']\n- This IS expected if you are initializing BertForSequenceClassification from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).\n- This IS NOT expected if you are initializing BertForSequenceClassification from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).\nSome weights of BertForSequenceClassification were not initialized from the model checkpoint at ./bert and are newly initialized: ['classifier.weight', 'classifier.bias']\nYou should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.\n",
+     "stream": "stderr"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა ჩვენ მზად ვართ ვარჯიშის დასაწყებად! იმის გამო, რომ BERT უკვე წინასწარ არის მომზადებული, ჩვენ გვინდა დავიწყოთ საკმაოდ მცირე სწავლის სიჩქარით, რათა არ გავანადგუროთ საწყისი წონა.\n\nყველა მძიმე სამუშაო შესრულებულია `BertForSequenceClassification` მოდელით. როდესაც ჩვენ მოვუწოდებთ მოდელს სასწავლო მონაცემებზე, ის აბრუნებს როგორც დანაკარგს, ასევე ქსელის გამომავალს შეყვანის მინი პარტიისთვის. ჩვენ ვიყენებთ დანაკარგს პარამეტრების ოპტიმიზაციისთვის (`loss.backward()` აკეთებს უკან გადასასვლელად), და `out` გამოთვლითი ტრენინგის სიზუსტისთვის, მიღებული ეტიკეტების `labs` (გამოთვლილი `argmax` გამოყენებით) მოსალოდნელ `labels`-თან შედარებით.\n\nპროცესის გასაკონტროლებლად, ჩვენ ვაგროვებთ დანაკარგს და სიზუსტეს რამდენიმე გამეორებაზე და ვბეჭდავთ მათ ყოველ `report_freq` სასწავლო ციკლში.\n\nამ ტრენინგს, სავარაუდოდ, საკმაოდ დიდი დრო დასჭირდება, ამიტომ ჩვენ ვზღუდავთ გამეორებების რაოდენობას.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "optimizer = torch.optim.Adam(model.parameters(), lr=2e-5)\n\nreport_freq = 50\niterations = 500 # make this larger to train for longer time!\n\nmodel.train()\n\ni,c = 0,0\nacc_loss = 0\nacc_acc = 0\n\nfor labels,texts in train_loader:\n    labels = labels.to(device)-1 # get labels in the range 0-3         \n    texts = texts.to(device)\n    loss, out = model(texts, labels=labels)[:2]\n    labs = out.argmax(dim=1)\n    acc = torch.mean((labs==labels).type(torch.float32))\n    optimizer.zero_grad()\n    loss.backward()\n    optimizer.step()\n    acc_loss += loss\n    acc_acc += acc\n    i+=1\n    c+=1\n    if i%report_freq==0:\n        print(f\"Loss = {acc_loss.item()/c}, Accuracy = {acc_acc.item()/c}\")\n        c = 0\n        acc_loss = 0\n        acc_acc = 0\n    iterations-=1\n    if not iterations:\n        break",
+   "executionCount": 6,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Loss = 1.1254194641113282, Accuracy = 0.585\nLoss = 0.6194715118408203, Accuracy = 0.83\nLoss = 0.46665248870849607, Accuracy = 0.8475\nLoss = 0.4309701919555664, Accuracy = 0.8575\nLoss = 0.35427074432373046, Accuracy = 0.8825\nLoss = 0.3306886291503906, Accuracy = 0.8975\nLoss = 0.30340143203735354, Accuracy = 0.8975\nLoss = 0.26139299392700194, Accuracy = 0.915\nLoss = 0.26708646774291994, Accuracy = 0.9225\nLoss = 0.3667240524291992, Accuracy = 0.8675\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "თქვენ ხედავთ (განსაკუთრებით თუ გაზრდით გამეორებების რაოდენობას და დიდხანს დაელოდებით), რომ BERT კლასიფიკაცია საკმაოდ კარგ სიზუსტეს გვაძლევს! ეს იმიტომ ხდება, რომ BERT-ს უკვე კარგად ესმის ენის სტრუქტურა და ჩვენ მხოლოდ საბოლოო კლასიფიკატორის დაზუსტება გვჭირდება. თუმცა, იმის გამო, რომ BERT არის დიდი მოდელი, მთელი სასწავლო პროცესი დიდ დროს იღებს და მოითხოვს სერიოზულ გამოთვლით ძალას! (GPU და სასურველია ერთზე მეტი).\n\n> შენიშვნა: ჩვენს მაგალითში, ჩვენ ვიყენებდით ერთ-ერთ ყველაზე პატარა წინასწარ მომზადებულ BERT მოდელს. არსებობს უფრო დიდი მოდელები, რომლებიც, სავარაუდოდ, უკეთეს შედეგს მოიტანენ.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## მოდელის მუშაობის შეფასება\n\nახლა ჩვენ შეგვიძლია შევაფასოთ ჩვენი მოდელის შესრულება ტესტის მონაცემთა ბაზაზე. შეფასების ციკლი საკმაოდ ჰგავს ტრენინგს, მაგრამ არ უნდა დაგვავიწყდეს მოდელის შეფასების რეჟიმში გადართვა `model.eval()`-ის დარეკვით.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model.eval()\niterations = 100\nacc = 0\ni = 0\nfor labels,texts in test_loader:\n    labels = labels.to(device)-1      \n    texts = texts.to(device)\n    _, out = model(texts, labels=labels)[:2]\n    labs = out.argmax(dim=1)\n    acc += torch.mean((labs==labels).type(torch.float32))\n    i+=1\n    if i>iterations: break\n        \nprint(f\"Final accuracy: {acc.item()/i}\")",
+   "executionCount": 10,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Final accuracy: 0.9047029702970297\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## Takeaway\n\nამ განყოფილებაში ჩვენ დავინახეთ, თუ რამდენად ადვილია წინასწარ მომზადებული ენის მოდელის აღება ტრანსფორმერების ბიბლიოთეკიდან და მისი ადაპტირება ტექსტის კლასიფიკაციის ამოცანასთან. ანალოგიურად, BERT მოდელები შეიძლება გამოყენებულ იქნას ერთეულის ამოღების, კითხვებზე პასუხის გაცემის და სხვა NLP ამოცანებისთვის.\n\nტრანსფორმატორის მოდელები წარმოადგენს უახლეს მიღწევას (state-of-the-art) NLP-ში და უმეტეს შემთხვევაში ეს უნდა იყოს პირველი გამოსავალი, რომლითაც დაიწყებთ ექსპერიმენტებს პერსონალური NLP გადაწყვეტილებების განხორციელებისას. თუმცა, ამ მოდულში განხილული განმეორებადი ნერვული ქსელების ძირითადი პრინციპების გაგება ძალზე მნიშვნელოვანია, თუ გსურთ შექმნათ მოწინავე ნერვული მოდელები.\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/5-NLP/18-Transformers/TransformersPyTorch.ipynb"
+}

@@ -1,0 +1,208 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "computer-vision/segmentation/semantic-segmentation-tf",
+ "segments": [
+  "computer-vision",
+  "segmentation",
+  "semantic-segmentation-tf"
+ ],
+ "title": "სემანტიკური სეგმენტაცია",
+ "module": {
+  "id": "4-ComputerVision",
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა",
+  "icon": "eye"
+ },
+ "lessonNumber": 12,
+ "orderInModule": 1120.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/4-ComputerVision/12-Segmentation/SemanticSegmentationTF.ipynb"
+ },
+ "prev": {
+  "slug": "computer-vision/segmentation/semantic-segmentation-pytorch",
+  "title": "სეგმენტაცია"
+ },
+ "next": {
+  "slug": "computer-vision/segmentation/lab/body-segmentation",
+  "title": "სხეულის სეგმენტაცია"
+ },
+ "framework": "tensorflow",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "სეგმენტაცია არის კომპიუტერული ხედვის ერთ-ერთი მთავარი ამოცანა. სურათის თითოეული პიქსელისთვის თქვენ უნდა მიუთითოთ კლასი (ფონი შედის). სემანტიკური სეგმენტაცია მხოლოდ პიქსელის კლასს ეუბნება, მაგალითად სეგმენტაცია ყოფს კლასებს სხვადასხვა ინსტანციებად.\n\nმაგალითად, სეგმენტაცია ათი მანქანა არის განსხვავებული ობიექტი, სემანტიკური სეგმენტაციისთვის ყველა მანქანა არის ერთი კლასი.\n\n![](/courses/ai-for-beginners/4-ComputerVision/12-Segmentation/images/instance_vs_semantic.jpeg)\n\n> სურათი ეს ბლოგის პოსტი-დან\n\nთითქმის ყველა არქიტექტურას აქვს იგივე სტრუქტურა. პირველი ნაწილი არის ენკოდერი, რომელიც ამოიღებს მახასიათებლებს შეყვანის სურათიდან, მეორე ნაწილი არის დეკოდერი, რომელიც გარდაქმნის ამ ფუნქციებს იმავე სიმაღლისა და სიგანის სურათად და არხების გარკვეული რაოდენობა, შეიძლება ტოლი იყოს კლასების რაოდენობაზე.\n\n![](/courses/ai-for-beginners/4-ComputerVision/12-Segmentation/images/segm.png)\n\n> სურათი ამ პუბლიკაციას-დან\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import tensorflow as tf\nimport tensorflow.keras.layers as keras\nimport matplotlib.pyplot as plt\nfrom tqdm import tqdm\nimport numpy as np\nfrom skimage.io import imread\nfrom skimage.transform import resize\nimport os\nimport tensorflow.keras.optimizers as optimizers\nimport tensorflow.keras.losses as losses\nfrom tensorflow.keras.preprocessing.image import ImageDataGenerator\ntf.random.set_seed(42)\nnp.random.seed(42)",
+   "executionCount": 210,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "train_size = 0.8\nlr = 3e-4\nweight_decay = 8e-9\nbatch_size = 64\nepochs = 100",
+   "executionCount": 211,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## მონაცემთა ნაკრები\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "!apt-get install rar\n!wget https://www.dropbox.com/s/k88qukc20ljnbuo/PH2Dataset.rar\n!unrar x -Y PH2Dataset.rar",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def load_dataset(train_part, root='PH2Dataset'):\n    images = []\n    masks = []\n\n    for root, dirs, files in os.walk(os.path.join(root, 'PH2 Dataset images')):\n        if root.endswith('_Dermoscopic_Image'):\n            images.append(imread(os.path.join(root, files[0])))\n        if root.endswith('_lesion'):\n            masks.append(imread(os.path.join(root, files[0])))\n\n    size = (256, 256)\n    images = np.array([resize(image, size, mode='constant', anti_aliasing=True,) for image in images])\n    masks = np.expand_dims(np.array([resize(mask, size, mode='constant', anti_aliasing=False) > 0.5 for mask in masks]), axis=3)\n\n    indices = np.random.permutation(range(len(images)))\n    train_part = int(train_part * len(images))\n    train_ind = indices[:train_part]\n    test_ind = indices[train_part:]\n\n    X_train = tf.cast(images[train_ind, :, :, :], tf.float32)\n    y_train = tf.cast(masks[train_ind, :, :, :], tf.float32)\n\n    X_test = tf.cast(images[test_ind, :, :, :], tf.float32)\n    y_test = tf.cast(masks[test_ind, :, :, :], tf.float32)\n\n    return (X_train, y_train), (X_test, y_test)",
+   "executionCount": 198,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "(X_train, y_train), (X_test, y_test) = load_dataset(train_size)",
+   "executionCount": 199,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def plotn(n, data):\n    images, masks = data[0], data[1]\n    fig, ax = plt.subplots(1, n)\n    fig1, ax1 = plt.subplots(1, n)\n    for i, (img, mask) in enumerate(zip(images, masks)):\n        if i == n:\n            break\n        ax[i].imshow(img)\n        ax1[i].imshow(mask[:, :, 0])\n    plt.show()",
+   "executionCount": 200,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით დავხატოთ რამდენიმე სურათი შესაბამისი ნიღბებით.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plotn(5, (X_train, y_train))",
+   "executionCount": 201,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/ab8da52c3895a645.png"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/122d4b7d09007904.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## სეგნეტი\n\nმარტივი ენკოდერი - დეკოდერის არქიტექტურა კონვოლუციებით, გაერთიანებები ენკოდერში და კონვოლუციებში, დეკოდერში ასიმპლინგები.\n\n![](/courses/ai-for-beginners/4-ComputerVision/12-Segmentation/images/segnet.png)\n\n* Badrinarayanan, V., Kendall, A., & Cipolla, R. (2015). SegNet: ღრმა კონვოლუციონალური\nენკოდერ-დეკოდერის არქიტექტურა გამოსახულების სეგმენტაციისთვის\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class SegNet(tf.keras.Model):\n    def __init__(self):\n        super().__init__()\n        self.enc_conv0 = keras.Conv2D(16, kernel_size=3, padding='same')\n        self.bn0 = keras.BatchNormalization()\n        self.relu0 = keras.Activation('relu')\n        self.pool0 = keras.MaxPool2D()\n\n        self.enc_conv1 = keras.Conv2D(32, kernel_size=3, padding='same')\n        self.relu1 = keras.Activation('relu')\n        self.bn1 = keras.BatchNormalization()\n        self.pool1 = keras.MaxPool2D()\n\n        self.enc_conv2 = keras.Conv2D(64, kernel_size=3, padding='same')\n        self.relu2 = keras.Activation('relu')\n        self.bn2 = keras.BatchNormalization()\n        self.pool2 = keras.MaxPool2D()\n\n        self.enc_conv3 = keras.Conv2D(128, kernel_size=3, padding='same')\n        self.relu3 = keras.Activation('relu')\n        self.bn3 = keras.BatchNormalization()\n        self.pool3 = keras.MaxPool2D()\n\n        self.bottleneck_conv = keras.Conv2D(256, kernel_size=(3, 3), padding='same')\n\n        self.upsample0 =  keras.UpSampling2D(interpolation='bilinear')\n        self.dec_conv0 = keras.Conv2D(128, kernel_size=3, padding='same')\n        self.dec_relu0 = keras.Activation('relu')\n        self.dec_bn0 = keras.BatchNormalization()\n\n        self.upsample1 =  keras.UpSampling2D(interpolation='bilinear')\n        self.dec_conv1 = keras.Conv2D(64, kernel_size=3, padding='same')\n        self.dec_relu1 = keras.Activation('relu')\n        self.dec_bn1 = keras.BatchNormalization()\n\n        self.upsample2 =  keras.UpSampling2D(interpolation='bilinear')\n        self.dec_conv2 = keras.Conv2D(32, kernel_size=3, padding='same')\n        self.dec_relu2 = keras.Activation('relu')\n        self.dec_bn2 = keras.BatchNormalization()\n\n        self.upsample3 =  keras.UpSampling2D(interpolation='bilinear')\n        self.dec_conv3 = keras.Conv2D(1, kernel_size=1)\n\n    def call(self, input):\n        e0 = self.pool0(self.relu0(self.bn0(self.enc_conv0(input))))\n        e1 = self.pool1(self.relu1(self.bn1(self.enc_conv1(e0))))\n        e2 = self.pool2(self.relu2(self.bn2(self.enc_conv2(e1))))\n        e3 = self.pool3(self.relu3(self.bn3(self.enc_conv3(e2))))\n\n        b = self.bottleneck_conv(e3)\n\n        d0 = self.dec_relu0(self.dec_bn0(self.upsample0(self.dec_conv0(b))))\n        d1 = self.dec_relu1(self.dec_bn1(self.upsample1(self.dec_conv1(d0))))\n        d2 = self.dec_relu2(self.dec_bn2(self.upsample2(self.dec_conv2(d1))))\n        d3 = self.dec_conv3(self.upsample3(d2))\n\n        return d3",
+   "executionCount": 212,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model = SegNet()\noptimizer = optimizers.Adam(learning_rate=lr, decay=weight_decay)\nloss_fn = losses.BinaryCrossentropy(from_logits=True)\n\nmodel.compile(loss=loss_fn, optimizer=optimizer)",
+   "executionCount": 213,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def train(datasets, model, epochs, batch_size):\n    train_dataset, test_dataset = datasets[0], datasets[1]\n\n    model.fit(train_dataset[0], train_dataset[1],\n                epochs=epochs,\n                batch_size=batch_size,\n                shuffle=True,\n                validation_data=(test_dataset[0], test_dataset[1]))",
+   "executionCount": 214,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "train(((X_train, y_train), (X_test, y_test)), model, epochs, batch_size)",
+   "executionCount": 215,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch 1/100\n3/3 [==============================] - 2s 298ms/step - loss: 0.6123 - val_loss: 0.6960\nEpoch 2/100\n3/3 [==============================] - 1s 197ms/step - loss: 0.3332 - val_loss: 0.6874\nEpoch 3/100\n3/3 [==============================] - 1s 199ms/step - loss: 0.2715 - val_loss: 0.6707\nEpoch 4/100\n3/3 [==============================] - 1s 205ms/step - loss: 0.2508 - val_loss: 0.6544\nEpoch 5/100\n3/3 [==============================] - 1s 286ms/step - loss: 0.2290 - val_loss: 0.6403\nEpoch 6/100\n3/3 [==============================] - 1s 235ms/step - loss: 0.2110 - val_loss: 0.6242\nEpoch 7/100\n3/3 [==============================] - 1s 231ms/step - loss: 0.1986 - val_loss: 0.6138\nEpoch 8/100\n3/3 [==============================] - 1s 197ms/step - loss: 0.1923 - val_loss: 0.6068\nEpoch 9/100\n3/3 [==============================] - 1s 203ms/step - loss: 0.1789 - val_loss: 0.6018\nEpoch 10/100\n3/3 [==============================] - 1s 199ms/step - loss: 0.1714 - val_loss: 0.5979\nEpoch 11/100\n3/3 [==============================] - 1s 201ms/step - loss: 0.1745 - val_loss: 0.5945\nEpoch 12/100\n3/3 [==============================] - 1s 196ms/step - loss: 0.1613 - val_loss: 0.5912\nEpoch 13/100\n3/3 [==============================] - 1s 199ms/step - loss: 0.1570 - val_loss: 0.5877\nEpoch 14/100\n3/3 [==============================] - 1s 201ms/step - loss: 0.1547 - val_loss: 0.5861\nEpoch 15/100\n3/3 [==============================] - 1s 204ms/step - loss: 0.1546 - val_loss: 0.5862\nEpoch 16/100\n3/3 [==============================] - 1s 197ms/step - loss: 0.1527 - val_loss: 0.5853\nEpoch 17/100\n3/3 [==============================] - 1s 197ms/step - loss: 0.1456 - val_loss: 0.5865\nEpoch 18/100\n3/3 [==============================] - 1s 202ms/step - loss: 0.1567 - val_loss: 0.5903\nEpoch 19/100\n3/3 [==============================] - 1s 198ms/step - loss: 0.1429 - val_loss: 0.5939\nEpoch 20/100\n3/3 [==============================] - 1s 207ms/step - loss: 0.1432 - val_loss: 0.5960\nEpoch 21/100\n3/3 [==============================] - 1s 201ms/step - loss: 0.1438 - val_loss: 0.5940\nEpoch 22/100\n3/3 [==============================] - 1s 204ms/step - loss: 0.1449 - val_loss: 0.5933\nEpoch 23/100\n3/3 [==============================] - 1s 201ms/step - loss: 0.1424 - val_loss: 0.5972\nEpoch 24/100\n3/3 [==============================] - 1s 201ms/step - loss: 0.1407 - val_loss: 0.5999\nEpoch 25/100\n3/3 [==============================] - 1s 206ms/step - loss: 0.1370 - val_loss: 0.6001\nEpoch 26/100\n3/3 [==============================] - 1s 215ms/step - loss: 0.1371 - val_loss: 0.6021\nEpoch 27/100\n3/3 [==============================] - 1s 200ms/step - loss: 0.1345 - val_loss: 0.6194\nEpoch 28/100\n3/3 [==============================] - 1s 200ms/step - loss: 0.1312 - val_loss: 0.6287\nEpoch 29/100\n3/3 [==============================] - 1s 199ms/step - loss: 0.1304 - val_loss: 0.6154\nEpoch 30/100\n3/3 [==============================] - 1s 201ms/step - loss: 0.1265 - val_loss: 0.6151\nEpoch 31/100\n3/3 [==============================] - 1s 201ms/step - loss: 0.1219 - val_loss: 0.6220\nEpoch 32/100\n3/3 [==============================] - 1s 210ms/step - loss: 0.1200 - val_loss: 0.6249\nEpoch 33/100\n3/3 [==============================] - 1s 199ms/step - loss: 0.1151 - val_loss: 0.6268\nEpoch 34/100\n3/3 [==============================] - 1s 202ms/step - loss: 0.1139 - val_loss: 0.6328\nEpoch 35/100\n3/3 [==============================] - 1s 200ms/step - loss: 0.1117 - val_loss: 0.6297\nEpoch 36/100\n3/3 [==============================] - 1s 200ms/step - loss: 0.1081 - val_loss: 0.6288\nEpoch 37/100\n3/3 [==============================] - 1s 204ms/step - loss: 0.1064 - val_loss: 0.6330\nEpoch 38/100\n3/3 [==============================] - 1s 202ms/step - loss: 0.1056 - val_loss: 0.6385\nEpoch 39/100\n3/3 [==============================] - 1s 204ms/step - loss: 0.1086 - val_loss: 0.6446\nEpoch 40/100\n3/3 [==============================] - 1s 199ms/step - loss: 0.1047 - val_loss: 0.6595\nEpoch 41/\n… (გამოტანა შემოკლებულია)",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "predictions = []\nimage_mask = []\nplots = 5\n\nfor i, (img, mask) in enumerate(zip(X_test, y_test)):\n    if i == plots:\n        break\n    img = tf.expand_dims(img, 0)\n    pred = np.array(model.predict(img))\n    predictions.append(pred[0, :, :, 0] > 0.5)\n    image_mask.append(mask)\nplotn(plots, (predictions, image_mask))",
+   "executionCount": 216,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/73f5f6a46dafd8d3.png"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/a7aa57af19cb14a8.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## U-Net\n\nძალიან მარტივი არქიტექტურა, რომელიც იყენებს გამოტოვების კავშირებს. კავშირების გამოტოვება თითოეულ კონვოლუციურ დონეზე ეხმარება ქსელს არ დაკარგოს ინფორმაცია ფუნქციების შესახებ ორიგინალური შეყვანიდან ამ დონეზე.\n\nU-Net-ს ჩვეულებრივ აქვს ნაგულისხმევი ენკოდერი ფუნქციების ამოღებისთვის, მაგალითად resnet50.\n\n![](/courses/ai-for-beginners/4-ComputerVision/12-Segmentation/images/unet.png)\n\n* რონებერგერი, ოლაფი, ფილიპ ფიშერი და თომას ბროქსი. U-Net: კონვოლუციური ქსელები ბიოსამედიცინო გამოსახულების სეგმენტაციისთვის.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class UNet(tf.keras.Model):\n    def __init__(self):\n        super().__init__()\n        self.enc_conv0 = keras.Conv2D(16, kernel_size=3, padding='same')\n        self.bn0 = keras.BatchNormalization()\n        self.relu0 = keras.Activation('relu')\n        self.pool0 = keras.MaxPool2D()\n\n        self.enc_conv1 = keras.Conv2D(32, kernel_size=3, padding='same')\n        self.relu1 = keras.Activation('relu')\n        self.bn1 = keras.BatchNormalization()\n        self.pool1 = keras.MaxPool2D()\n\n        self.enc_conv2 = keras.Conv2D(64, kernel_size=3, padding='same')\n        self.relu2 = keras.Activation('relu')\n        self.bn2 = keras.BatchNormalization()\n        self.pool2 = keras.MaxPool2D()\n\n        self.enc_conv3 = keras.Conv2D(128, kernel_size=3, padding='same')\n        self.relu3 = keras.Activation('relu')\n        self.bn3 = keras.BatchNormalization()\n        self.pool3 = keras.MaxPool2D()\n\n        self.bottleneck_conv = keras.Conv2D(256, kernel_size=(3, 3), padding='same')\n\n        self.upsample0 =  keras.UpSampling2D(interpolation='bilinear')\n        self.dec_conv0 = keras.Conv2D(128, kernel_size=3, padding='same', input_shape=[None, 384, None, None])\n        self.dec_relu0 = keras.Activation('relu')\n        self.dec_bn0 = keras.BatchNormalization()\n\n        self.upsample1 =  keras.UpSampling2D(interpolation='bilinear')\n        self.dec_conv1 = keras.Conv2D(64, kernel_size=3, padding='same', input_shape=[None, 192, None, None])\n        self.dec_relu1 = keras.Activation('relu')\n        self.dec_bn1 = keras.BatchNormalization()\n\n        self.upsample2 =  keras.UpSampling2D(interpolation='bilinear')\n        self.dec_conv2 = keras.Conv2D(32, kernel_size=3, padding='same', input_shape=[None, 96, None, None])\n        self.dec_relu2 = keras.Activation('relu')\n        self.dec_bn2 = keras.BatchNormalization()\n\n        self.upsample3 =  keras.UpSampling2D(interpolation='bilinear')\n        self.dec_conv3 = keras.Conv2D(1, kernel_size=1, input_shape=[None, 48, None, None])\n\n        self.cat0 = keras.Concatenate(axis=3)\n        self.cat1 = keras.Concatenate(axis=3)\n        self.cat2 = keras.Concatenate(axis=3)\n        self.cat3 = keras.Concatenate(axis=3)\n\n    def call(self, input):\n        e0 = self.pool0(self.relu0(self.bn0(self.enc_conv0(input))))\n        e1 = self.pool1(self.relu1(self.bn1(self.enc_conv1(e0))))\n        e2 = self.pool2(self.relu2(self.bn2(self.enc_conv2(e1))))\n        e3 = self.pool3(self.relu3(self.bn3(self.enc_conv3(e2))))\n\n        cat0 = self.relu0(self.bn0(self.enc_conv0(input)))\n        cat1 = self.relu1(self.bn1(self.enc_conv1(e0)))\n        cat2 = self.relu2(self.bn2(self.enc_conv2(e1)))\n        cat3 = self.relu3(self.bn3(self.enc_conv3(e2)))\n\n        b = self.bottleneck_conv(e3)\n\n        cat_tens0 = self.cat0([self.upsample0(b), cat3])\n        d0 = self.dec_relu0(self.dec_bn0(self.dec_conv0(cat_tens0)))\n\n        cat_tens1 = self.cat1([self.upsample1(d0), cat2])\n        d1 = self.dec_relu1(self.dec_bn1(self.dec_conv1(cat_tens1)))\n\n        cat_tens2 = self.cat2([self.upsample2(d1), cat1])\n        d2 = self.dec_relu2(self.dec_bn2(self.dec_conv2(cat_tens2)))\n\n        cat_tens3 = self.cat3([self.upsample3(d2), cat0])\n        d3 = self.dec_conv3(cat_tens3)\n\n        return d3",
+   "executionCount": 217,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model = UNet()\noptimizer = optimizers.Adam(learning_rate=lr, decay=weight_decay)\nloss_fn = losses.BinaryCrossentropy(from_logits=True)\n\nmodel.compile(loss=loss_fn, optimizer=optimizer)",
+   "executionCount": 221,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "train(((X_train, y_train), (X_test, y_test)), model, epochs, batch_size)",
+   "executionCount": 222,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch 1/100\n3/3 [==============================] - 5s 482ms/step - loss: 0.5073 - val_loss: 0.6237\nEpoch 2/100\n3/3 [==============================] - 1s 368ms/step - loss: 0.3388 - val_loss: 0.6192\nEpoch 3/100\n3/3 [==============================] - 1s 363ms/step - loss: 0.2867 - val_loss: 0.6133\nEpoch 4/100\n3/3 [==============================] - 1s 367ms/step - loss: 0.2624 - val_loss: 0.6043\nEpoch 5/100\n3/3 [==============================] - 1s 365ms/step - loss: 0.2435 - val_loss: 0.5949\nEpoch 6/100\n3/3 [==============================] - 1s 364ms/step - loss: 0.2320 - val_loss: 0.5844\nEpoch 7/100\n3/3 [==============================] - 1s 369ms/step - loss: 0.2201 - val_loss: 0.5781\nEpoch 8/100\n3/3 [==============================] - 1s 362ms/step - loss: 0.2119 - val_loss: 0.5673\nEpoch 9/100\n3/3 [==============================] - 1s 367ms/step - loss: 0.2047 - val_loss: 0.5588\nEpoch 10/100\n3/3 [==============================] - 1s 360ms/step - loss: 0.1946 - val_loss: 0.5544\nEpoch 11/100\n3/3 [==============================] - 1s 368ms/step - loss: 0.1959 - val_loss: 0.5412\nEpoch 12/100\n3/3 [==============================] - 1s 366ms/step - loss: 0.1814 - val_loss: 0.5346\nEpoch 13/100\n3/3 [==============================] - 1s 366ms/step - loss: 0.1780 - val_loss: 0.5336\nEpoch 14/100\n3/3 [==============================] - 1s 368ms/step - loss: 0.1727 - val_loss: 0.5344\nEpoch 15/100\n3/3 [==============================] - 1s 367ms/step - loss: 0.1715 - val_loss: 0.5280\nEpoch 16/100\n3/3 [==============================] - 1s 368ms/step - loss: 0.1691 - val_loss: 0.5166\nEpoch 17/100\n3/3 [==============================] - 1s 365ms/step - loss: 0.1641 - val_loss: 0.5133\nEpoch 18/100\n3/3 [==============================] - 1s 366ms/step - loss: 0.1707 - val_loss: 0.5221\nEpoch 19/100\n3/3 [==============================] - 1s 367ms/step - loss: 0.1628 - val_loss: 0.5239\nEpoch 20/100\n3/3 [==============================] - 1s 363ms/step - loss: 0.1615 - val_loss: 0.5177\nEpoch 21/100\n3/3 [==============================] - 1s 362ms/step - loss: 0.1577 - val_loss: 0.5221\nEpoch 22/100\n3/3 [==============================] - 1s 369ms/step - loss: 0.1566 - val_loss: 0.5044\nEpoch 23/100\n3/3 [==============================] - 1s 365ms/step - loss: 0.1561 - val_loss: 0.5046\nEpoch 24/100\n3/3 [==============================] - 1s 366ms/step - loss: 0.1469 - val_loss: 0.5063\nEpoch 25/100\n3/3 [==============================] - 1s 368ms/step - loss: 0.1437 - val_loss: 0.4947\nEpoch 26/100\n3/3 [==============================] - 1s 371ms/step - loss: 0.1428 - val_loss: 0.4857\nEpoch 27/100\n3/3 [==============================] - 1s 366ms/step - loss: 0.1449 - val_loss: 0.4850\nEpoch 28/100\n3/3 [==============================] - 1s 367ms/step - loss: 0.1426 - val_loss: 0.4875\nEpoch 29/100\n3/3 [==============================] - 1s 392ms/step - loss: 0.1444 - val_loss: 0.4638\nEpoch 30/100\n3/3 [==============================] - 1s 365ms/step - loss: 0.1341 - val_loss: 0.4796\nEpoch 31/100\n3/3 [==============================] - 1s 367ms/step - loss: 0.1357 - val_loss: 0.4689\nEpoch 32/100\n3/3 [==============================] - 1s 365ms/step - loss: 0.1351 - val_loss: 0.4550\nEpoch 33/100\n3/3 [==============================] - 1s 366ms/step - loss: 0.1294 - val_loss: 0.4419\nEpoch 34/100\n3/3 [==============================] - 1s 369ms/step - loss: 0.1271 - val_loss: 0.4100\nEpoch 35/100\n3/3 [==============================] - 1s 368ms/step - loss: 0.1265 - val_loss: 0.4188\nEpoch 36/100\n3/3 [==============================] - 1s 367ms/step - loss: 0.1214 - val_loss: 0.4285\nEpoch 37/100\n3/3 [==============================] - 1s 371ms/step - loss: 0.1206 - val_loss: 0.4129\nEpoch 38/100\n3/3 [==============================] - 1s 365ms/step - loss: 0.1230 - val_loss: 0.4196\nEpoch 39/100\n3/3 [==============================] - 1s 369ms/step - loss: 0.1213 - val_loss: 0.3899\nEpoch 40/100\n3/3 [==============================] - 1s 365ms/step - loss: 0.1184 - val_loss: 0.3972\nEpoch 41/\n… (გამოტანა შემოკლებულია)",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "predictions = []\nimage_mask = []\nplots = 5\n\nfor i, (img, mask) in enumerate(zip(X_test, y_test)):\n    if i == plots:\n        break\n    img = tf.expand_dims(img, 0)\n    pred = np.array(model.predict(img))\n    predictions.append(pred[0, :, :, 0] > 0.5)\n    image_mask.append(mask)\nplotn(plots, (predictions, image_mask))",
+   "executionCount": 228,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/43ba66b8da196295.png"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/a7aa57af19cb14a8.png"
+    }
+   ]
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/4-ComputerVision/12-Segmentation/SemanticSegmentationTF.ipynb"
+}

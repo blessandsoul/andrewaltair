@@ -1,0 +1,428 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "neural-networks/own-framework/own-framework",
+ "segments": [
+  "neural-networks",
+  "own-framework",
+  "own-framework"
+ ],
+ "title": "მრავალშრიანი პერცეპტრონები",
+ "module": {
+  "id": "3-NeuralNetworks",
+  "slug": "neural-networks",
+  "title": "ნეირონული ქსელები",
+  "icon": "network"
+ },
+ "lessonNumber": 4,
+ "orderInModule": 1040.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/3-NeuralNetworks/04-OwnFramework/OwnFramework.ipynb"
+ },
+ "prev": {
+  "slug": "neural-networks/own-framework/lab/my-fw-mnist",
+  "title": "MNIST ციფრული კლასიფიკაცია ჩვენი საკუთარი ჩარჩოთი"
+ },
+ "next": {
+  "slug": "neural-networks/frameworks/lab",
+  "title": "კლასიფიკაცია PyTorch/TensorFlow-ით"
+ },
+ "framework": "generic",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "## საკუთარი ნერვული ჩარჩოს აგება\n\n> ეს ნოუთბუქი AI დამწყებთათვის სასწავლო გეგმები-ის ნაწილია. ეწვიეთ საცავს სასწავლო მასალების სრული ნაკრებისთვის.\n\nამ ნოუთბუქში ჩვენ თანდათან ავაშენებთ საკუთარ ნერვულ ჩარჩოს, რომელსაც შეუძლია გადაჭრას მრავალკლასიანი კლასიფიკაციის ამოცანები, ასევე რეგრესია მრავალშრიანი პრეცეპტრონებით.\n\nპირველი, მოდით შემოვიტანოთ რამდენიმე საჭირო ბიბლიოთეკა.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "%matplotlib nbagg\nimport matplotlib.pyplot as plt \nfrom matplotlib import gridspec\nfrom sklearn.datasets import make_classification\nimport numpy as np\n# pick the seed for reproducibility - change it to explore the effects of random variations\nnp.random.seed(0)\nimport random",
+   "executionCount": 14,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## მონაცემთა ნაკრების ნიმუში\n\nროგორც ადრე, ჩვენ დავიწყებთ მარტივი ნიმუშის ნაკრებით ორი პარამეტრით.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "n = 100\nX, Y = make_classification(n_samples = n, n_features=2,\n                           n_redundant=0, n_informative=2, flip_y=0.2)\nX = X.astype(np.float32)\nY = Y.astype(np.int32)\n\n# Split into train and test dataset\ntrain_x, test_x = np.split(X, [n*8//10])\ntrain_labels, test_labels = np.split(Y, [n*8//10])",
+   "executionCount": 15,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def plot_dataset(suptitle, features, labels):\n    # prepare the plot\n    fig, ax = plt.subplots(1, 1)\n    #pylab.subplots_adjust(bottom=0.2, wspace=0.4)\n    fig.suptitle(suptitle, fontsize = 16)\n    ax.set_xlabel('$x_i[0]$ -- (feature 1)')\n    ax.set_ylabel('$x_i[1]$ -- (feature 2)')\n\n    colors = ['r' if l else 'b' for l in labels]\n    ax.scatter(features[:, 0], features[:, 1], marker='o', c=colors, s=100, alpha = 0.5)\n    fig.show()",
+   "executionCount": 16,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plot_dataset('Scatterplot of the training data', train_x, train_labels)\nplt.show()",
+   "executionCount": 17,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<IPython.core.display.Javascript object>"
+    },
+    {
+     "kind": "text",
+     "text": "<IPython.core.display.HTML object>"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "print(train_x[:5])\nprint(train_labels[:5])",
+   "executionCount": 18,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[[ 1.3382818  -0.98613256]\n [ 0.5128146   0.43299454]\n [-0.4473693  -0.2680512 ]\n [-0.9865851  -0.28692   ]\n [-1.0693829   0.41718036]]\n[1 1 0 0 0]\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## მანქანათმცოდნეობის პრობლემა\n\nდავუშვათ, ჩვენ გვაქვს შეყვანილი მონაცემთა ნაკრები $\\langle X,Y\\rangle$, სადაც $X$ არის ფუნქციების ნაკრები და $Y$ - შესაბამისი ლეიბლები. რეგრესიის პრობლემისთვის $y_i\\in\\mathbb{R}$, ხოლო კლასიფიკაციისთვის იგი წარმოდგენილია კლასის ნომრით $y_i\\in\\{0,\\dots,n\\}$.\n\nმანქანათმცოდნეობის ნებისმიერი მოდელი შეიძლება წარმოდგენილი იყოს $f_\\theta(x)$ ფუნქციით, სადაც $\\theta$ არის პარამეტრების ნაკრები. ჩვენი მიზანია ვიპოვოთ ისეთი პარამეტრები $\\theta$, რომ ჩვენი მოდელი საუკეთესოდ მოერგოს მონაცემთა ბაზას. კრიტერიუმი განისაზღვრება დაკარგვის ფუნქციით $\\mathcal{L}$ და ჩვენ უნდა ვიპოვოთ ოპტიმალური მნიშვნელობა\n\n$$\n\\theta = \\mathrm{argmin}_\\theta \\mathcal{L}(f_\\theta(X),Y)\n$$\n"
+  },
+  {
+   "type": "markdown",
+   "source": "დაკარგვის ფუნქცია დამოკიდებულია მოგვარებულ პრობლემაზე.\n\n### დაკარგვის ფუნქციები რეგრესიისთვის\n\nრეგრესიისთვის ჩვენ ხშირად ვიყენებთ აბსოლუტურ შეცდომას $\\mathcal{L}_{abs}(\\theta) = \\sum_{i=1}^n |y_i - f_{\\theta}(x_i)|$, ან საშუალო კვადრატულ შეცდომას: $\\mathcal{L}_{sq}(\\theta) = ^_} f_{\\theta}(x_i))^2$\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "# helper function for plotting various loss functions\ndef plot_loss_functions(suptitle, functions, ylabels, xlabel):\n    fig, ax = plt.subplots(1,len(functions), figsize=(9, 3))\n    plt.subplots_adjust(bottom=0.2, wspace=0.4)\n    fig.suptitle(suptitle)\n    for i, fun in enumerate(functions):\n        ax[i].set_xlabel(xlabel)\n        if len(ylabels) > i:\n            ax[i].set_ylabel(ylabels[i])\n        ax[i].plot(x, fun)\n    plt.show()",
+   "executionCount": 19,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "x = np.linspace(-2, 2, 101)\nplot_loss_functions(\n    suptitle = 'Common loss functions for regression',\n    functions = [np.abs(x), np.power(x, 2)],\n    ylabels   = ['$\\mathcal{L}_{abs}}$ (absolute loss)',\n                 '$\\mathcal{L}_{sq}$ (squared loss)'],\n    xlabel    = '$y - f(x_i)$')",
+   "executionCount": 20,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<IPython.core.display.Javascript object>"
+    },
+    {
+     "kind": "text",
+     "text": "<IPython.core.display.HTML object>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "### დაკარგვის ფუნქციები კლასიფიკაციისთვის\n\nმოდით განვიხილოთ ბინარული კლასიფიკაცია ერთი წუთით. ამ შემთხვევაში გვაქვს ორი კლასი, დანომრილი 0 და 1. ქსელის გამომავალი $f_\\theta(x_i)\\in [0,1]$ არსებითად განსაზღვრავს 1 კლასის არჩევის ალბათობას.\n\n0-1 წაგება\n\n0-1 ზარალი იგივეა, რაც მოდელის სიზუსტის გამოთვლა - ჩვენ ვიანგარიშებთ სწორი კლასიფიკაციის რაოდენობას:\n\n$$\\mathcal{L}_{0-1} = \\sum_{i=1}^n l_i \\quad l_i = \\დაწყება{შემთხვევები}\n         0 & (f(x_i)<0.5 \\მიწა y_i=0) \\lor (f(x_i)<0.5 \\მიწა y_i=1) \\\\\n         1 & \\mathrm{ სხვაგვარად}\n       \\დასასრული{შემთხვევები} \\\\\n$$\n\nთუმცა, სიზუსტე თავისთავად არ აჩვენებს, რამდენად შორს ვართ სწორი კლასიფიკაციისგან. შესაძლოა, ჩვენ ცოტათი გამოვტოვეთ სწორი კლასი და ეს გარკვეულწილად \"უკეთესი\" (იმ გაგებით, რომ ჩვენ გვჭირდება წონების გამოსწორება ბევრად ნაკლები), ვიდრე მნიშვნელოვნად გამოტოვებული. ამრიგად, უფრო ხშირად გამოიყენება ლოგისტიკური დანაკარგი, რაც ამას ითვალისწინებს.\n\nლოგისტიკური დანაკარგი\n\n$$\\mathcal{L}_{log} = \\sum_{i=1}^n -y\\log(f_{\\theta}(x_i)) - (1-y)\\log(1-f_\\theta(x_i))$$\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "x = np.linspace(0,1,100)\ndef zero_one(d):\n    if d < 0.5:\n        return 0\n    return 1\nzero_one_v = np.vectorize(zero_one)\n\ndef logistic_loss(fx):\n    # assumes y == 1\n    return -np.log(fx)",
+   "executionCount": 21,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plot_loss_functions(suptitle = 'Common loss functions for classification (class=1)',\n                   functions = [zero_one_v(x), logistic_loss(x)],\n                   ylabels    = ['$\\mathcal{L}_{0-1}}$ (0-1 loss)',\n                                 '$\\mathcal{L}_{log}$ (logistic loss)'],\n                   xlabel     = '$p$')\n",
+   "executionCount": 22,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "C:\\Users\\dmitryso\\AppData\\Local\\Temp/ipykernel_55820/331859503.py:10: RuntimeWarning: divide by zero encountered in log\n  return -np.log(fx)\n",
+     "stream": "stderr"
+    },
+    {
+     "kind": "text",
+     "text": "<IPython.core.display.Javascript object>"
+    },
+    {
+     "kind": "text",
+     "text": "<IPython.core.display.HTML object>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ლოჯისტიკური დანაკარგის გასაგებად, განიხილეთ მოსალოდნელი გამომავალი ორი შემთხვევა:\n* თუ ჩვენ ველოდებით, რომ გამომავალი იქნება 1 ($y=1$), მაშინ დანაკარგი არის $-log f_\\theta(x_i)$. დანაკარგი არის 0, რაც ქსელი პროგნოზირებს 1-ს 1-ის ალბათობით და იზრდება მაშინ, როდესაც 1-ის ალბათობა მცირდება.\n* თუ ჩვენ ველოდებით, რომ გამომავალი იქნება 0 ($y=0$), დანაკარგი არის $-log(1-f_\\theta(x_i))$. აქ, $1-f_\\theta(x_i)$ არის 0-ის ალბათობა, რომელიც პროგნოზირებულია ქსელის მიერ და ჟურნალის დაკარგვის მნიშვნელობა იგივეა, რაც აღწერილია წინა შემთხვევაში.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## ნერვული ქსელის არქიტექტურა\n\nჩვენ შევქმენით მონაცემთა ბაზა ბინარული კლასიფიკაციის პრობლემისთვის. თუმცა, მოდი თავიდანვე მივიჩნიოთ მრავალკლასიან კლასიფიკაციად, რათა შემდეგ ადვილად გადავიტანოთ ჩვენი კოდი მრავალკლასიან კლასიფიკაციაზე. ამ შემთხვევაში, ჩვენს ერთ ფენიან პერცეპტრონს ექნება შემდეგი არქიტექტურა:\n\n![](/courses/ai-for-beginners/3-NeuralNetworks/04-OwnFramework/images/NeuroArch.png)\n\nქსელის ორი გამომავალი შეესაბამება ორ კლასს, ხოლო კლასი, რომელსაც აქვს უმაღლესი მნიშვნელობა ორ გამოსავალს შორის, შეესაბამება სწორ გადაწყვეტას.\n\nმოდელი განისაზღვრება როგორც\n$$\nf_\\theta(x) = W\\ჯერ x + b\n$$\nსადაც $$\\theta = \\langle W,b\\rangle$$ არის პარამეტრები.\n\nჩვენ განვსაზღვრავთ ამ ხაზოვან ფენას, როგორც პითონის კლასს `forward` ფუნქციით, რომელიც ასრულებს გამოთვლას. ის იღებს შეყვანის მნიშვნელობას $x$ და აწარმოებს ფენის გამომავალს. პარამეტრები `W` და `b` ინახება ფენის კლასში და ინიციალიზებულია შექმნისას შემთხვევითი მნიშვნელობებით და ნულებით შესაბამისად.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class Linear:\n    def __init__(self,nin,nout):\n        self.W = np.random.normal(0, 1.0/np.sqrt(nin), (nout, nin))\n        self.b = np.zeros((1,nout))\n        \n    def forward(self, x):\n        return np.dot(x, self.W.T) + self.b\n    \nnet = Linear(2,2)\nnet.forward(train_x[0:5])",
+   "executionCount": 23,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "array([[ 1.77202116, -0.25384488],\n       [ 0.28370828, -0.39610552],\n       [-0.30097433,  0.30513182],\n       [-0.8120485 ,  0.56079421],\n       [-1.23519653,  0.3394973 ]])"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ხშირ შემთხვევაში, უფრო ეფექტურია მუშაობა არა ერთ შეყვანის მნიშვნელობაზე, არამედ შეყვანის მნიშვნელობების ვექტორზე. იმის გამო, რომ ჩვენ ვიყენებთ Numpy ოპერაციებს, შეგვიძლია გადავიტანოთ შეყვანის მნიშვნელობების ვექტორი ჩვენს ქსელში და ის მოგვცემს გამომავალი მნიშვნელობების ვექტორს.\n\n## Softmax: შედეგების გადაქცევა ალბათობებად\n\nროგორც ხედავთ, ჩვენი შედეგები არ არის ალბათობა - მათ შეუძლიათ მიიღონ ნებისმიერი მნიშვნელობა. იმისათვის, რომ გადავიტანოთ ისინი ალბათებად, ჩვენ გვჭირდება მნიშვნელობების ნორმალიზება ყველა კლასში. ეს კეთდება softmax ფუნქციის გამოყენებით: $$\\sigma(\\mathbf{z}_c) = \\frac{e^{z_c}}{\\sum_{j} e^{z_j}}, \\quad\\mathrm{for}\\quad c\\in 1 .. |C|$$\n\n![](https://raw.githubusercontent.com/shwars/NeuroWorkshop/master/images/NeuroArch-softmax.PNG)\n\n> ქსელის გამომავალი $\\sigma(\\mathbf{z})$ შეიძლება განიმარტოს, როგორც ალბათობის განაწილება $C$ კლასების სიმრავლეზე: $q = \\sigma(\\mathbf{z}_c) = \\hat{p}(c | x)$\n\nჩვენ განვსაზღვრავთ `Softmax` ფენას იმავე წესით, როგორც კლასი `forward` ფუნქციით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class Softmax:\n    def forward(self,z):\n        zmax = z.max(axis=1,keepdims=True)\n        expz = np.exp(z-zmax)\n        Z = expz.sum(axis=1,keepdims=True)\n        return expz / Z\n\nsoftmax = Softmax()\nsoftmax.forward(net.forward(train_x[0:10]))",
+   "executionCount": 24,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "array([[0.88348621, 0.11651379],\n       [0.66369714, 0.33630286],\n       [0.35294795, 0.64705205],\n       [0.20216095, 0.79783905],\n       [0.17154828, 0.82845172],\n       [0.24279153, 0.75720847],\n       [0.18915732, 0.81084268],\n       [0.17282951, 0.82717049],\n       [0.13897531, 0.86102469],\n       [0.72746882, 0.27253118]])"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "თქვენ ხედავთ, რომ ჩვენ ახლა ვიღებთ ალბათობას, როგორც გამოსავალს, ანუ თითოეული გამომავალი ვექტორის ჯამი არის ზუსტად 1.\n\nთუ 2 კლასზე მეტი გვაქვს, softmax ნორმალიზებს ალბათობას ყველა მათგანში. აქ არის ქსელის არქიტექტურის დიაგრამა, რომელიც ასრულებს MNIST ციფრული კლასიფიკაციას:\n\n![MNIST Classifier](/courses/ai-for-beginners/3-NeuralNetworks/04-OwnFramework/images/Cross-Entropy-Loss.PNG)\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## ჯვარედინი ენტროპიის დაკარგვა\n\nდანაკარგის ფუნქცია კლასიფიკაციაში, როგორც წესი, არის ლოგისტიკური ფუნქცია, რომელიც შეიძლება განზოგადდეს როგორც ჯვარედინი ენტროპიის დანაკარგი. ჯვარედინი ენტროპიის დაკარგვა არის ფუნქცია, რომელსაც შეუძლია გამოთვალოს მსგავსება ორ თვითნებურ განაწილებას შორის. თქვენ შეგიძლიათ იპოვოთ უფრო დეტალური განხილვა ამის შესახებ ვიკიპედიაზე.\n\nჩვენს შემთხვევაში, პირველი განაწილება არის ჩვენი ქსელის სავარაუდო გამომავალი, ხოლო მეორე არის ეგრეთ წოდებული one-hot განაწილება, რომელიც განსაზღვრავს, რომ მოცემულ $c$ კლასს აქვს შესაბამისი ალბათობა 1 (ყველა დანარჩენი არის 0). ასეთ შემთხვევაში ჯვარედინი ენტროპიის დანაკარგი შეიძლება გამოითვალოს $-\\log p_c$, სადაც $c$ არის მოსალოდნელი კლასი და $p_c$ არის ამ კლასის შესაბამისი ალბათობა, რომელიც მოცემულია ჩვენი ნერვული ქსელის მიერ.\n\n> თუ ქსელის დაბრუნების ალბათობა 1 მოსალოდნელი კლასისთვის, ჯვარედინი ენტროპიის დანაკარგი იქნება 0. რაც უფრო უახლოვდება რეალური კლასის ალბათობა 0-ს, მით მეტია ჯვარედინი ენტროპიის დანაკარგი (და ის შეიძლება აწიოს უსასრულობამდე!).\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def plot_cross_ent():\n    p = np.linspace(0.01, 0.99, 101) # estimated probability p(y|x)\n    cross_ent_v = np.vectorize(cross_ent)\n    f3, ax = plt.subplots(1,1, figsize=(8, 3))\n    l1, = plt.plot(p, cross_ent_v(p, 1), 'r--')\n    l2, = plt.plot(p, cross_ent_v(p, 0), 'r-')\n    plt.legend([l1, l2], ['$y = 1$', '$y = 0$'], loc = 'upper center', ncol = 2)\n    plt.xlabel('$\\hat{p}(y|x)$', size=18)\n    plt.ylabel('$\\mathcal{L}_{CE}$', size=18)\n    plt.show()",
+   "executionCount": 25,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def cross_ent(prediction, ground_truth):\n    t = 1 if ground_truth > 0.5 else 0\n    return -t * np.log(prediction) - (1 - t) * np.log(1 - prediction)\nplot_cross_ent()",
+   "executionCount": 26,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<IPython.core.display.Javascript object>"
+    },
+    {
+     "kind": "text",
+     "text": "<IPython.core.display.HTML object>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ჯვარედინი ენტროპიის დაკარგვა კვლავ განისაზღვროს, როგორც ცალკე ფენა, მაგრამ `forward` ფუნქციას ექნება ორი შეყვანის მნიშვნელობა: ქსელის წინა ფენების გამომავალი `p` და მოსალოდნელი კლასი `y`:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class CrossEntropyLoss:\n    def forward(self,p,y):\n        self.p = p\n        self.y = y\n        p_of_y = p[np.arange(len(y)), y]\n        log_prob = np.log(p_of_y)\n        return -log_prob.mean() # average over all input samples\n\ncross_ent_loss = CrossEntropyLoss()\np = softmax.forward(net.forward(train_x[0:10]))\ncross_ent_loss.forward(p,train_labels[0:10])",
+   "executionCount": 27,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "1.429664938969559"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "> მნიშვნელოვანი: Loss ფუნქცია აბრუნებს რიცხვს, რომელიც აჩვენებს რამდენად კარგი (ან ცუდი) მუშაობს ჩვენი ქსელი. მან უნდა დაგვიბრუნოს ერთი რიცხვი მთელი მონაცემთა ნაკრებისთვის, ან მონაცემთა ნაკრების ნაწილისთვის (მინი პარტია). ამრიგად, ჯვარედინი ენტროპიის დანაკარგის გამოთვლის შემდეგ შეყვანის ვექტორის თითოეული ცალკეული კომპონენტისთვის, ჩვენ უნდა შევაფასოთ (ან დავამატოთ) ყველა კომპონენტი ერთად - რაც ხდება `.mean()`-ზე გამოძახებით.\n\n## გამოთვლითი გრაფიკი\n\n![](/courses/ai-for-beginners/3-NeuralNetworks/04-OwnFramework/images/ComputeGraph.png)\n\nამ მომენტამდე ჩვენ განვსაზღვრეთ სხვადასხვა კლასი ქსელის სხვადასხვა ფენისთვის. ამ ფენების შემადგენლობა შეიძლება წარმოდგენილი იყოს როგორც გამოთვლითი გრაფიკი. ახლა ჩვენ შეგვიძლია გამოვთვალოთ დანაკარგი მოცემული სასწავლო მონაცემთა ნაკრებისთვის (ან მისი ნაწილისთვის) შემდეგი გზით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "z = net.forward(train_x[0:10])\np = softmax.forward(z)\nloss = cross_ent_loss.forward(p,train_labels[0:10])\nprint(loss)",
+   "executionCount": 28,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "1.429664938969559\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## ზარალის მინიმიზაციის პრობლემა და ქსელის ტრენინგი\n\nმას შემდეგ, რაც ჩვენ განვსაზღვრავთ ქსელს, როგორც $f_\\theta$ და მივცემთ დაკარგვის ფუნქციას $\\mathcal{L}(Y,f_\\theta(X))$, ჩვენ შეგვიძლია განვიხილოთ $\\mathcal{L}$, როგორც $\\theta$-ის ფუნქცია ჩვენი ფიქსირებული სასწავლო მონაცემთა ნაკრების მიხედვით: $\\mathcal{L}(\\theta) = \\mathcal{L}(Y,f)_\n\nამ შემთხვევაში, ქსელის ტრენინგი იქნება $\\mathcal{L}$-ის მინიმიზაციის პრობლემა $\\theta$ არგუმენტით:\n$$\n\\theta = \\mathrm{argmin}_{\\theta} \\mathcal{L}(Y,f_\\theta(X))\n$$\n\nარსებობს ფუნქციების ოპტიმიზაციის ცნობილი მეთოდი, რომელსაც ეწოდება გრადიენტული წარმოშობა. იდეა იმაში მდგომარეობს, რომ ჩვენ შეგვიძლია გამოვთვალოთ დაკარგვის ფუნქციის წარმოებული (მრავალგანზომილებიან შემთხვევაში მოვუწოდებთ გრადიენტს) პარამეტრებთან მიმართებაში და შევცვალოთ პარამეტრები ისე, რომ შეცდომა შემცირდეს.\n\nგრადიენტური დაღმართი მუშაობს შემდეგნაირად:\n * პარამეტრების ინიცირება რამდენიმე შემთხვევითი მნიშვნელობებით $w^{(0)}$, $b^{(0)}$\n * რამდენჯერმე გაიმეორეთ შემდეგი ნაბიჯი:\n\n$$\\ დასაწყისი{გასწორება}\n W^{(i+1)}&=W^{(i)}-\\eta\\frac{\\partial\\mathcal{L}}{\\partial W}\\\\\n b^{(i+1)}&=b^{(i)}-\\eta\\frac{\\partial\\mathcal{L}}{\\partial b}\n \\ბოლო{გასწორება}\n $$\n\nტრენინგის დროს, ოპტიმიზაციის საფეხურები უნდა გამოითვალოს მთელი მონაცემთა ნაკრების გათვალისწინებით (გახსოვდეთ, რომ დანაკარგი გამოითვლება როგორც ჯამი/საშუალო ყველა სასწავლო ნიმუშში). თუმცა, რეალურ ცხოვრებაში ჩვენ ვიღებთ მონაცემთა ნაკრების მცირე ნაწილს, რომელსაც ეწოდება მინი პარტიები და ვიანგარიშებთ გრადიენტებს მონაცემთა ქვეჯგუფის საფუძველზე. იმის გამო, რომ ქვესიმრავლე ყოველ ჯერზე შემთხვევით მიიღება, ასეთ მეთოდს ეწოდება სტოქასტური გრადიენტული დაღმართი (SGD).\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## უკან გამრავლება\n\n![](/courses/ai-for-beginners/3-NeuralNetworks/04-OwnFramework/images/ComputeGraph.png)\n\n$$\\def\\L{\\mathcal{L}}\\def\\zz#1#2{\\frac{\\partial#1}{\\partial#2}}\n\\დაწყება{გასწორება}\n\\zz{\\L}{W} =& \\zz{\\L}{p}\\zz{p}{z}\\zz{z}{W}\\cr\n\\zz{\\L}{b} =& \\zz{\\L}{p}\\zz{p}{z}\\zz{z}{b}\n\\ბოლო{გასწორება}\n$$\n"
+  },
+  {
+   "type": "markdown",
+   "source": "$\\partial\\mathcal{L}/\\partial W$-ის გამოსათვლელად ჩვენ შეგვიძლია გამოვიყენოთ ჯაჭვის წესი კომპოზიტური ფუნქციის წარმოებულების გამოსათვლელად, როგორც ხედავთ ზემოთ მოცემულ ფორმულებში. იგი შეესაბამება შემდეგ იდეას:\n\n* დავუშვათ, მოცემული შეყვანისას გვაქვს $\\Delta\\mathcal{L}$-ის დანაკარგი\n* მისი მინიმიზაციისთვის, ჩვენ უნდა დავარეგულიროთ softmax გამომავალი $p$ მნიშვნელობით $\\Delta p = (\\partial\\mathcal{L}/\\partial p)\\Delta\\mathcal{L}$  \n* ეს შეესაბამება $z$ კვანძის ცვლილებებს $\\Delta z = (\\partial\\mathcal{p}/\\partial z)\\Delta p$-ით\n* ამ შეცდომის შესამცირებლად, ჩვენ უნდა დავარეგულიროთ პარამეტრები: $\\Delta W = (\\partial\\mathcal{z}/\\partial W)\\Delta z$ (და იგივე $b$-ისთვის)\n\n![](/courses/ai-for-beginners/3-NeuralNetworks/04-OwnFramework/images/ComputeGraphGrad.PNG)\n\nეს პროცესი იწყებს ზარალის შეცდომის განაწილებას ქსელის გამოსვლიდან მის პარამეტრებზე. ამრიგად, პროცესს ეწოდება უკან გავრცელება.\n\nქსელის ტრენინგის ერთი გავლა ორი ნაწილისგან შედგება:\n* Forward pass, როდესაც ვიანგარიშებთ დაკარგვის ფუნქციის მნიშვნელობას მოცემული შეყვანის მინი პარტიისთვის\n* უკან გადასასვლელი, როდესაც ვცდილობთ ამ შეცდომის მინიმიზაციას გამოთვლითი გრაფიკის მეშვეობით მოდელის პარამეტრებზე მისი გადანაწილებით.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "### უკან გამრავლების განხორციელება\n\n* მოდით დავამატოთ `backward` ფუნქცია ჩვენს თითოეულ კვანძს, რომელიც გამოთვლის წარმოებულს და გაავრცელებს შეცდომას უკან გადასვლის დროს.\n* ჩვენ ასევე უნდა განვახორციელოთ პარამეტრების განახლებები ზემოთ აღწერილი პროცედურის მიხედვით\n\nჩვენ უნდა გამოვთვალოთ წარმოებულები თითოეული ფენისთვის ხელით, მაგალითად წრფივი ფენისთვის $z = x\\ჯერ W+b$:\n$$\\ დასაწყისი{გასწორება}\n\\frac{\\partial z}{\\partial W} &= x \\\\\n\\frac{\\partial z}{\\partial b} &= 1 \\\\\n\\end{align}$$\n\nთუ ჩვენ გვჭირდება შეცდომის ანაზღაურება $\\Delta z$ ფენის გამოსავალზე, ჩვენ უნდა განვაახლოთ წონა შესაბამისად:\n$$\\ დასაწყისი{გასწორება}\n\\დელტა x &= \\დელტა z \\ჯერ W \\\\\n\\Delta W &= \\frac{\\partial z}{\\partial W} \\Delta z = \\Delta z \\ჯერ x \\\\\n\\Delta b &= \\frac{\\partial z}{\\partial b} \\Delta z = \\დელტა z \\\\\n\\end{align}$$\n\nმნიშვნელოვანია: გამოთვლები კეთდება არა თითოეული სასწავლო ნიმუშისთვის დამოუკიდებლად, არამედ მთლიანი მინი პარტიისთვის. პარამეტრების საჭირო განახლებები $\\Delta W$ და $\\Delta b$ გამოითვლება მთელ მინი პარტიაში და შესაბამის ვექტორებს აქვთ ზომები: $x\\in\\mathbb{R}^{\\mathrm{minibatch}\\, \\times\\, \\mathrm{ncclass}}$\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class Linear:\n    def __init__(self,nin,nout):\n        self.W = np.random.normal(0, 1.0/np.sqrt(nin), (nout, nin))\n        self.b = np.zeros((1,nout))\n        self.dW = np.zeros_like(self.W)\n        self.db = np.zeros_like(self.b)\n        \n    def forward(self, x):\n        self.x=x\n        return np.dot(x, self.W.T) + self.b\n    \n    def backward(self, dz):\n        dx = np.dot(dz, self.W)\n        dW = np.dot(dz.T, self.x)\n        db = dz.sum(axis=0)\n        self.dW = dW\n        self.db = db\n        return dx\n    \n    def update(self,lr):\n        self.W -= lr*self.dW\n        self.b -= lr*self.db",
+   "executionCount": 29,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ანალოგიურად, ჩვენ შეგვიძლია განვსაზღვროთ `backward` ფუნქცია ჩვენი დანარჩენი ფენებისთვის:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class Softmax:\n    def forward(self,z):\n        self.z = z\n        zmax = z.max(axis=1,keepdims=True)\n        expz = np.exp(z-zmax)\n        Z = expz.sum(axis=1,keepdims=True)\n        return expz / Z\n    def backward(self,dp):\n        p = self.forward(self.z)\n        pdp = p * dp\n        return pdp - p * pdp.sum(axis=1, keepdims=True)\n    \nclass CrossEntropyLoss:\n    def forward(self,p,y):\n        self.p = p\n        self.y = y\n        p_of_y = p[np.arange(len(y)), y]\n        log_prob = np.log(p_of_y)\n        return -log_prob.mean()\n    def backward(self,loss):\n        dlog_softmax = np.zeros_like(self.p)\n        dlog_softmax[np.arange(len(self.y)), self.y] -= 1.0/len(self.y)\n        return dlog_softmax / self.p",
+   "executionCount": 30,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## მოდელის ვარჯიში\n\nახლა ჩვენ მზად ვართ დავწეროთ სავარჯიშო მარყუჟი, რომელიც გაივლის ჩვენს მონაცემთა ბაზას და შევასრულოთ ოპტიმიზაციის მინი პარტია მინიჯგუფის მიხედვით. მონაცემთა ნაკრების ერთ სრულ გავლას ხშირად უწოდებენ ეპოქას:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "lin = Linear(2,2)\nsoftmax = Softmax()\ncross_ent_loss = CrossEntropyLoss()\n\nlearning_rate = 0.1\n\npred = np.argmax(lin.forward(train_x),axis=1)\nacc = (pred==train_labels).mean()\nprint(\"Initial accuracy: \",acc)\n\nbatch_size=4\nfor i in range(0,len(train_x),batch_size):\n    xb = train_x[i:i+batch_size]\n    yb = train_labels[i:i+batch_size]\n    \n    # forward pass\n    z = lin.forward(xb)\n    p = softmax.forward(z)\n    loss = cross_ent_loss.forward(p,yb)\n    \n    # backward pass\n    dp = cross_ent_loss.backward(loss)\n    dz = softmax.backward(dp)\n    dx = lin.backward(dz)\n    lin.update(learning_rate)\n    \npred = np.argmax(lin.forward(train_x),axis=1)\nacc = (pred==train_labels).mean()\nprint(\"Final accuracy: \",acc)\n    ",
+   "executionCount": 31,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Initial accuracy:  0.725\nFinal accuracy:  0.825\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "სასიამოვნოა იმის დანახვა, თუ როგორ შეგვიძლია გავზარდოთ მოდელის სიზუსტე დაახლოებით 50%-დან დაახლოებით 80%-მდე ერთ ეპოქაში.\n\n## ქსელის კლასი\n\nვინაიდან ხშირ შემთხვევაში ნერვული ქსელი მხოლოდ ფენების კომპოზიციაა, ჩვენ შეგვიძლია ავაშენოთ კლასი, რომელიც საშუალებას მოგვცემს დავაწყოთ ფენები ერთად და გავაკეთოთ მათში წინ და უკან გადასვლები ამ ლოგიკის მკაფიოდ დაპროგრამების გარეშე. ჩვენ ვინახავთ შრეების სიას `Net` კლასში და ვიყენებთ `add()` ფუნქციას ახალი ფენების დასამატებლად:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class Net:\n    def __init__(self):\n        self.layers = []\n    \n    def add(self,l):\n        self.layers.append(l)\n        \n    def forward(self,x):\n        for l in self.layers:\n            x = l.forward(x)\n        return x\n    \n    def backward(self,z):\n        for l in self.layers[::-1]:\n            z = l.backward(z)\n        return z\n    \n    def update(self,lr):\n        for l in self.layers:\n            if 'update' in l.__dir__():\n                l.update(lr)",
+   "executionCount": 32,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ამ `Net` კლასით ჩვენი მოდელის განმარტება და ტრენინგი უფრო დახვეწილი ხდება:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "net = Net()\nnet.add(Linear(2,2))\nnet.add(Softmax())\nloss = CrossEntropyLoss()\n\ndef get_loss_acc(x,y,loss=CrossEntropyLoss()):\n    p = net.forward(x)\n    l = loss.forward(p,y)\n    pred = np.argmax(p,axis=1)\n    acc = (pred==y).mean()\n    return l,acc\n\nprint(\"Initial loss={}, accuracy={}: \".format(*get_loss_acc(train_x,train_labels)))\n\ndef train_epoch(net, train_x, train_labels, loss=CrossEntropyLoss(), batch_size=4, lr=0.1):\n    for i in range(0,len(train_x),batch_size):\n        xb = train_x[i:i+batch_size]\n        yb = train_labels[i:i+batch_size]\n\n        p = net.forward(xb)\n        l = loss.forward(p,yb)\n        dp = loss.backward(l)\n        dx = net.backward(dp)\n        net.update(lr)\n \ntrain_epoch(net,train_x,train_labels)\n        \nprint(\"Final loss={}, accuracy={}: \".format(*get_loss_acc(train_x,train_labels)))\nprint(\"Test loss={}, accuracy={}: \".format(*get_loss_acc(test_x,test_labels)))",
+   "executionCount": 33,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Initial loss=0.6212072429381601, accuracy=0.6875: \nFinal loss=0.44369925927417986, accuracy=0.8: \nTest loss=0.4767711377257787, accuracy=0.85: \n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## სასწავლო პროცესის შედგენა\n\nკარგი იქნებოდა ვიზუალურად თუ როგორ მიმდინარეობს ქსელის წვრთნა! ჩვენ განვსაზღვრავთ `train_and_plot` ფუნქციას ამისთვის. ქსელის მდგომარეობის ვიზუალიზაციისთვის ჩვენ გამოვიყენებთ დონის რუკას, ანუ გამოვხატავთ ქსელის გამომავალი სხვადასხვა მნიშვნელობებს სხვადასხვა ფერის გამოყენებით.\n\n> არ ინერვიულოთ, თუ არ გესმით ქვემოთ მოცემული შედგენის კოდი - უფრო მნიშვნელოვანია გაიგოთ ძირითადი ნერვული ქსელის კონცეფციები.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def train_and_plot(n_epoch, net, loss=CrossEntropyLoss(), batch_size=4, lr=0.1):\n    fig, ax = plt.subplots(2, 1)\n    ax[0].set_xlim(0, n_epoch + 1)\n    ax[0].set_ylim(0,1)\n\n    train_acc = np.empty((n_epoch, 3))\n    train_acc[:] = np.NAN\n    valid_acc = np.empty((n_epoch, 3))\n    valid_acc[:] = np.NAN\n\n    for epoch in range(1, n_epoch + 1):\n\n        train_epoch(net,train_x,train_labels,loss,batch_size,lr)\n        tloss, taccuracy = get_loss_acc(train_x,train_labels,loss)\n        train_acc[epoch-1, :] = [epoch, tloss, taccuracy]\n        vloss, vaccuracy = get_loss_acc(test_x,test_labels,loss)\n        valid_acc[epoch-1, :] = [epoch, vloss, vaccuracy]\n        \n        ax[0].set_ylim(0, max(max(train_acc[:, 2]), max(valid_acc[:, 2])) * 1.1)\n\n        plot_training_progress(train_acc[:, 0], (train_acc[:, 2],\n                                                 valid_acc[:, 2]), fig, ax[0])\n        plot_decision_boundary(net, fig, ax[1])\n        fig.canvas.draw()\n        fig.canvas.flush_events()\n\n    return train_acc, valid_acc",
+   "executionCount": 34,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import matplotlib.cm as cm\n\ndef plot_decision_boundary(net, fig, ax):\n    draw_colorbar = True\n    # remove previous plot\n    while ax.collections:\n        ax.collections.pop()\n        draw_colorbar = False\n\n    # generate countour grid\n    x_min, x_max = train_x[:, 0].min() - 1, train_x[:, 0].max() + 1\n    y_min, y_max = train_x[:, 1].min() - 1, train_x[:, 1].max() + 1\n    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1),\n                         np.arange(y_min, y_max, 0.1))\n    grid_points = np.c_[xx.ravel().astype('float32'), yy.ravel().astype('float32')]\n    n_classes = max(train_labels)+1\n    while train_x.shape[1] > grid_points.shape[1]:\n        # pad dimensions (plot only the first two)\n        grid_points = np.c_[grid_points,\n                            np.empty(len(xx.ravel())).astype('float32')]\n        grid_points[:, -1].fill(train_x[:, grid_points.shape[1]-1].mean())\n\n    # evaluate predictions\n    prediction = np.array(net.forward(grid_points))\n    # for two classes: prediction difference\n    if (n_classes == 2):\n        Z = np.array([0.5+(p[0]-p[1])/2.0 for p in prediction]).reshape(xx.shape)\n    else:\n        Z = np.array([p.argsort()[-1]/float(n_classes-1) for p in prediction]).reshape(xx.shape)\n    \n    # draw contour\n    levels = np.linspace(0, 1, 40)\n    cs = ax.contourf(xx, yy, Z, alpha=0.4, levels = levels)\n    if draw_colorbar:\n        fig.colorbar(cs, ax=ax, ticks = [0, 0.5, 1])\n    c_map = [cm.jet(x) for x in np.linspace(0.0, 1.0, n_classes) ]\n    colors = [c_map[l] for l in train_labels]\n    ax.scatter(train_x[:, 0], train_x[:, 1], marker='o', c=colors, s=60, alpha = 0.5)",
+   "executionCount": 35,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def plot_training_progress(x, y_data, fig, ax):\n    styles = ['k--', 'g-']\n    # remove previous plot\n    while ax.lines:\n        ax.lines.pop()\n    # draw updated lines\n    for i in range(len(y_data)):\n        ax.plot(x, y_data[i], styles[i])\n    ax.legend(ax.lines, ['training accuracy', 'validation accuracy'],\n              loc='upper center', ncol = 2)",
+   "executionCount": 36,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "%matplotlib nbagg \nnet = Net()\nnet.add(Linear(2,2))\nnet.add(Softmax())\n\nres = train_and_plot(30,net,lr=0.005)",
+   "executionCount": 37,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<IPython.core.display.Javascript object>"
+    },
+    {
+     "kind": "text",
+     "text": "<IPython.core.display.HTML object>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ზემოთ მოცემული უჯრედის გაშვების შემდეგ თქვენ უნდა შეძლოთ ინტერაქტიულად ნახოთ, თუ როგორ იცვლება კლასებს შორის საზღვარი ვარჯიშის დროს. გაითვალისწინეთ, რომ ჩვენ ავირჩიეთ ძალიან მცირე სწავლის მაჩვენებელი, რათა დავინახოთ, როგორ ხდება პროცესი.\n\n## მრავალ ფენიანი მოდელები\n\nზემოთ მოყვანილი ქსელი აგებულია რამდენიმე ფენისგან, მაგრამ ჩვენ მაინც გვქონდა მხოლოდ ერთი `Linear` ფენა, რომელიც ასრულებს რეალურ კლასიფიკაციას. რა მოხდება, თუ გადავწყვეტთ რამდენიმე ასეთი ფენის დამატებას?\n\nგასაკვირია, რომ ჩვენი კოდი იმუშავებს! თუმცა, ძალიან მნიშვნელოვანი ისაა, რომ ხაზოვან ფენებს შორის უნდა გვქონდეს არაწრფივი აქტივაციის ფუნქცია, როგორიცაა `tanh`. ასეთი არაწრფივობის გარეშე, რამდენიმე წრფივ ფენას ექნებოდა იგივე გამომსახველობითი ძალა, როგორც მხოლოდ ერთ ფენას - რადგან წრფივი ფუნქციების შემადგენლობა ასევე წრფივია!\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class Tanh:\n    def forward(self,x):\n        y = np.tanh(x)\n        self.y = y\n        return y\n    def backward(self,dy):\n        return (1.0-self.y**2)*dy",
+   "executionCount": 38,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "რამდენიმე ფენის დამატებას აზრი აქვს, რადგან ერთი ფენის ქსელისგან განსხვავებით, მრავალშრიანი მოდელი შეძლებს ზუსტად კლასიფიცირდეს კომპლექტები, რომლებიც არ არის წრფივად განცალკევებული. ანუ, მოდელი რამდენიმე ფენით იქნება reacher.\n\n> შეიძლება დადასტურდეს, რომ საკმარისი რაოდენობის ნეირონებით, ორ ფენიან მოდელს შეუძლია მონაცემთა წერტილების ნებისმიერი ამოზნექილი ნაკრების კლასიფიკაცია, ხოლო სამ ფენიან ქსელს შეუძლია პრაქტიკულად ნებისმიერი ნაკრების კლასიფიკაცია.\n\nმათემატიკურად, მრავალშრიანი პერცეტრონი წარმოდგენილი იქნება უფრო რთული ფუნქციით $f_\\theta$, რომელიც შეიძლება გამოითვალოს რამდენიმე ეტაპად:\n* $z_1 = W_1\\ჯერ x+b_1$\n* $z_2 = W_2\\ჯერ\\ალფა(z_1)+b_2$\n* $f = \\sigma(z_2)$\n\nაქ $\\alpha$ არის არაწრფივი აქტივაციის ფუნქცია, $\\sigma$ არის softmax ფუნქცია და $\\theta=\\langle W_1,b_1,W_2,b_2\\rangle$ არის პარამეტრები.\n\nგრადიენტული დაღმართის ალგორითმი იგივე დარჩება, მაგრამ უფრო რთული იქნება გრადიენტების გამოთვლა. იმის გათვალისწინებით,\n ჯაჭვის დიფერენციაციის წესი, ჩვენ შეგვიძლია გამოვთვალოთ წარმოებულები შემდეგნაირად:\n\n$$\\ დასაწყისი{გასწორება}\n\\frac{\\partial\\mathcal{L}}{\\partial W_2} &= \\color{red}{\\frac{\\partial\\mathcal{L}}{\\partial\\sigma}\\frac{\\partial\\sigma}{\\partial z_2}}\\color{black}{\\frac{\\partial z_2}{\\partial\\\\_\n\\frac{\\partial\\mathcal{L}}{\\partial W_1} &= \\color{red}{\\frac{\\partial\\mathcal{L}}{\\partial\\sigma}\\frac{\\partial\\sigma}{\\partial z_2}}\\color{black}{\\frac{\\partial z_2}{\\frac\\partial\\partial z_1}\\frac{\\partial z_1}{\\partial W_1}}\n\\ბოლო{გასწორება}\n$$\n\nგაითვალისწინეთ, რომ ყველა ამ გამონათქვამის დასაწყისი ისევ იგივეა, და ამრიგად, ჩვენ შეგვიძლია გავაგრძელოთ უკან გავრცელება ერთი წრფივი ფენის მიღმა, რათა დაარეგულიროთ შემდგომი წონა გამოთვლით გრაფიკზე.\n\nახლა მოდით ექსპერიმენტი ორ ფენიანი ქსელით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "net = Net()\nnet.add(Linear(2,10))\nnet.add(Tanh())\nnet.add(Linear(10,2))\nnet.add(Softmax())\nloss = CrossEntropyLoss()",
+   "executionCount": 39,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "res = train_and_plot(30,net,lr=0.01)",
+   "executionCount": 40,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<IPython.core.display.Javascript object>"
+    },
+    {
+     "kind": "text",
+     "text": "<IPython.core.display.HTML object>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## რატომ არ გამოიყენოთ ყოველთვის მრავალ ფენიანი მოდელი?\n\nჩვენ ვნახეთ, რომ მრავალშრიანი მოდელი უფრო ძლიერი და გამომსახველობითია ვიდრე ერთშრიანი. შეიძლება გაინტერესებთ, რატომ არ ვიყენებთ ყოველთვის მრავალ ფენიან მოდელს. ამ კითხვაზე პასუხი გადაჭარბებულია.\n\nამ ტერმინს უფრო მოგვიანებით განვიხილავთ, მაგრამ იდეა შემდეგია: რაც უფრო ძლიერია მოდელი, მით უკეთესია სასწავლო მონაცემების მიახლოება და მეტი მონაცემი სჭირდება მას სათანადო განზოგადება ახალი მონაცემებისთვის, რომელიც აქამდე არ უნახავს.\n\nხაზოვანი მოდელი:\n* ჩვენ სავარაუდოდ მივიღებთ ვარჯიშის მაღალ დანაკარგს - ეგრეთ წოდებულ underfitting, როდესაც მოდელს არ აქვს საკმარისი ძალა ყველა მონაცემის სწორად გამოყოფისთვის. \n* ვალიდაციის დაკარგვა და ტრენინგის დაკარგვა მეტ-ნაკლებად იგივეა. მოდელი, სავარაუდოდ, კარგად განზოგადდება ტესტის მონაცემებისთვის.\n\nკომპლექსური მრავალშრიანი მოდელი\n* ვარჯიშის დაბალი დანაკარგი - მოდელს შეუძლია კარგად მოახდინოს ვარჯიშის მონაცემების მიახლოება, რადგან მას აქვს საკმარისი გამოხატვის ძალა.\n* ვალიდაციის დაკარგვა შეიძლება ბევრად აღემატებოდეს ვარჯიშის დაკარგვას და შეიძლება გაიზარდოს ვარჯიშის დროს - ეს იმიტომ ხდება, რომ მოდელი \"იმახსოვრებს\" სავარჯიშო ქულებს და კარგავს \"ზოგად სურათს\".\n\n![Overfitting](/courses/ai-for-beginners/3-NeuralNetworks/04-OwnFramework/images/overfit.png)\n\n> ამ სურათზე `x` ნიშნავს ტრენინგის მონაცემებს, `o` - ვალიდაციის მონაცემებს. მარცხნივ - ხაზოვანი მოდელი (ერთ ფენა), ის საკმაოდ კარგად აახლოებს მონაცემთა ბუნებას. მარჯვენა - გადაჭარბებული მოდელი, მოდელი მშვენივრად უახლოვდება ტრენინგის მონაცემებს, მაგრამ წყვეტს აზრს სხვა მონაცემებთან (ვალიდაციის შეცდომა ძალიან მაღალია)\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## Takeaways\n\n* მარტივი მოდელები (ნაკლები ფენა, ნაკლები ნეირონები) დაბალი რაოდენობის პარამეტრებით („დაბალი სიმძლავრე“) ნაკლებად სავარაუდოა, რომ გადაჭარბებული იყოს\n* უფრო რთული მოდელები (მეტი ფენა, მეტი ნეირონი თითოეულ შრეზე, მაღალი სიმძლავრე) სავარაუდოდ გადაჭარბებული იქნება. ჩვენ უნდა დავაკვირდეთ ვალიდაციის შეცდომას, რათა დავრწმუნდეთ, რომ ის არ იზრდება შემდგომი ტრენინგის დროს\n* უფრო რთულ მოდელებს მეტი მონაცემები სჭირდებათ ვარჯიშისთვის.\n* ზედმეტი მორგების პრობლემის გადაჭრა შეგიძლიათ შემდეგი გზით:\n    - თქვენი მოდელის გამარტივება\n    - ტრენინგის მონაცემების რაოდენობის გაზრდა\n* მიკერძოება-ვარიანტობის გაცვლა არის ტერმინი, რომელიც გვიჩვენებს, რომ თქვენ უნდა მიიღოთ კომპრომისი\n    - მოდელის სიმძლავრესა და მონაცემთა რაოდენობას შორის,\n    - ზედმეტ მორგებასა და დაქვეითებას შორის\n* არ არსებობს ერთი რეცეპტი, თუ რამდენი ფენის პარამეტრი გჭირდებათ - საუკეთესო გზაა ექსპერიმენტი\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## კრედიტები\n\nეს ნოუთბუქი არის AI დამწყებთათვის სასწავლო გეგმები-ის ნაწილი და მომზადებულია დიმიტრი სოშნიკოვი-ის მიერ. ის შთაგონებულია ნეირონული ქსელის სემინარიდან Microsoft Research Cambridge-ში. ზოგიერთი კოდი და საილუსტრაციო მასალა აღებულია კატია ჰოფმანი, მეთიუ ჯონსონი და რიოტო ტომიოკა პრეზენტაციებიდან და ნეიროვორკშოპი საცავიდან.\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/3-NeuralNetworks/04-OwnFramework/OwnFramework.ipynb"
+}

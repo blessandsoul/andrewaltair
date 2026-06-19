@@ -1,0 +1,340 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "nlp/transformers/transformers-tf",
+ "segments": [
+  "nlp",
+  "transformers",
+  "transformers-tf"
+ ],
+ "title": "ყურადღების მექანიზმები და ტრანსფორმატორები",
+ "module": {
+  "id": "5-NLP",
+  "slug": "nlp",
+  "title": "ბუნებრივი ენის დამუშავება",
+  "icon": "messages"
+ },
+ "lessonNumber": 18,
+ "orderInModule": 1180.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/5-NLP/18-Transformers/TransformersTF.ipynb"
+ },
+ "prev": {
+  "slug": "nlp/transformers/transformers-py-torch",
+  "title": "ყურადღების მექანიზმები და ტრანსფორმატორები"
+ },
+ "next": {
+  "slug": "nlp/ner/lab",
+  "title": "NER"
+ },
+ "framework": "tensorflow",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "განმეორებადი ქსელების ერთი მთავარი ნაკლი არის ის, რომ ყველა სიტყვას თანმიმდევრობით ერთნაირი გავლენა აქვს შედეგზე. ეს იწვევს არაოპტიმალურ შესრულებას სტანდარტული LSTM შიფრატორ-დეკოდერის მოდელების თანმიმდევრობით მიმდევრობით დავალებებისთვის, როგორიცაა დასახელებული ერთეულის ამოცნობა და მანქანური თარგმანი. სინამდვილეში, შეყვანის თანმიმდევრობის კონკრეტული სიტყვები ხშირად უფრო მეტ გავლენას ახდენს თანმიმდევრულ გამოსავალზე, ვიდრე სხვები.\n\nგანვიხილოთ თანმიმდევრობით-მიმდევრობის მოდელი, როგორიცაა მანქანური თარგმანი. იგი ხორციელდება ორი განმეორებადი ქსელით, სადაც ერთი ქსელი (ენკოდერი) აქცევს შეყვანის თანმიმდევრობას დამალულ მდგომარეობაში, ხოლო მეორე, დეკოდერი, ამ ფარულ მდგომარეობას თარგმნის შედეგში. ამ მიდგომის პრობლემა ის არის, რომ ქსელის საბოლოო მდგომარეობას გაუჭირდება წინადადების დასაწყისის დამახსოვრება, რაც იწვევს მოდელის უხარისხობას გრძელ წინადადებებზე.\n\nყურადღების მექანიზმები უზრუნველყოფს თითოეული შეყვანის ვექტორის კონტექსტური ზემოქმედების შეწონვის საშუალებას RNN-ის თითოეულ გამომავალ პროგნოზზე. მისი განხორციელების გზა არის მალსახმობების შექმნა შეყვანის RNN-ის შუალედურ მდგომარეობასა და გამომავალ RNN-ს შორის. ამ გზით, $y_t$ გამომავალი სიმბოლოს გენერირებისას, ჩვენ გავითვალისწინებთ ყველა შეყვანის დამალულ მდგომარეობას $h_i$, სხვადასხვა წონის კოეფიციენტებით $\\alpha_{t,i}$.\n\n![Image showing an encoder/decoder model with an additive attention layer](/courses/ai-for-beginners/5-NLP/18-Transformers/images/encoder-decoder-attention.png)\nკოდერ-დეკოდერის მოდელი დანამატის ყურადღების მექანიზმით ბაჰდანაუ და სხვები, 2015 წ-ში, ციტირებულია ეს ბლოგის პოსტი-დან\n\nსაყურადღებო მატრიცა $\\{\\alpha_{i,j}\\}$ წარმოადგენს ხარისხს, რომელსაც გარკვეული შემავალი სიტყვები უკრავს მოცემული სიტყვის წარმოქმნისას გამომავალი თანმიმდევრობით. ქვემოთ მოცემულია ასეთი მატრიცის მაგალითი:\n\n![Image showing a sample alignment found by RNNsearch-50, taken from Bahdanau - arviz.org](/courses/ai-for-beginners/5-NLP/18-Transformers/images/bahdanau-fig3.png)\n\nსურათი აღებულია ბაჰდანაუ და სხვები, 2015 წ-დან (ნახ.3)\n\nყურადღების მექანიზმები პასუხისმგებელნი არიან ბუნებრივი ენის დამუშავების თანამედროვე ან თითქმის მიმდინარე მდგომარეობის დიდ ნაწილზე. თუმცა ყურადღების მიქცევა მნიშვნელოვნად ზრდის მოდელის პარამეტრების რაოდენობას, რამაც გამოიწვია სკალირების პრობლემები RNN-ებთან. RNN-ების სკალირების მთავარი შეზღუდვა ის არის, რომ მოდელების განმეორებითი ბუნება რთულს ხდის ტრენინგის ჯგუფურ და პარალელიზებას. RNN-ში, თანმიმდევრობის თითოეული ელემენტი უნდა დამუშავდეს თანმიმდევრული თანმიმდევრობით, რაც ნიშნავს, რომ მისი ადვილად პარალელიზება შეუძლებელია.\n\nამ შეზღუდვასთან ერთად ყურადღების მექანიზმების გამოყენებამ განაპირობა თანამედროვე ტრანსფორმატორის მოდელების შექმნა, რომლებიც ჩვენ ვიცით და ვიყენებთ დღეს BERT-დან OpenGPT3-მდე.\n\n## ტრანსფორმატორის მოდელები\n\nშეფასების საფეხურზე ყოველი წინა პროგნოზის კონტექსტის გადაგზავნის ნაცვლად, ტრანსფორმატორის მოდელები იყენებს პოზიციურ კოდირებას (positional encoding) და ყურადღების მექანიზმს (attention mechanism) მოცემული შეყვანის კონტექსტის აღსაბეჭდად ტექსტის მოწოდებულ ფანჯარაში. ქვემოთ მოყვანილი სურათი გვიჩვენებს, თუ როგორ შეუძლია ყურადღების მქონე პოზიციურ დაშიფვრებს კონტექსტის აღბეჭდვა მოცემულ ფანჯარაში.\n\n![Animated GIF showing how the evaluations are performed in transformer models.](/courses/ai-for-beginners/5-NLP/18-Transformers/images/transformer-animated-explanation.gif)\n\nიმის გამო, რომ თითოეული შეყვანის პოზიცია დამოუკიდებლად არის შედგენილი თითოეულ გამომავალ პოზიციაზე, ტრანსფორმატორებს შეუძლიათ უკეთესად გაატარონ პარალელიზაცია, ვიდრე RNN, რაც იძლევა ბევრად უფრო დიდ და უფრო გამოხატულ ენობრივ მოდელებს. თითოეული ყურადღების თავი შეიძლება გამოყენებულ იქნას სიტყვებს შორის განსხვავებული ურთიერთობების შესასწავლად, რაც აუმჯობესებს ბუნებრივი ენის დამუშავების ამოცანებს.\n\n## მარტივი ტრანსფორმატორის მოდელის აშენება\n\nKeras არ შეიცავს ჩაშენებულ ტრანსფორმატორის ფენას, მაგრამ ჩვენ შეგვიძლია ავაშენოთ საკუთარი. როგორც ადრე, ჩვენ ყურადღებას გავამახვილებთ AG News მონაცემთა ნაკრების ტექსტურ კლასიფიკაციაზე, მაგრამ აღსანიშნავია, რომ ტრანსფორმატორის მოდელები საუკეთესო შედეგს აჩვენებს უფრო რთულ NLP ამოცანებში.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import tensorflow as tf\nfrom tensorflow import keras\nimport tensorflow_datasets as tfds\nimport numpy as np\n\nds_train, ds_test = tfds.load('ag_news_subset').values()\n\ndef extract_text(x):\n    return x['title']+' '+x['description']\n\ndef tupelize(x):\n    return (extract_text(x),x['label'])",
+   "executionCount": 1,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახალი შრეები Keras-ში უნდა იყოს ქვეკლასი `Layer` კლასში და დანერგოს `call` მეთოდი. დავიწყოთ Positional Embedding ფენით. ჩვენ გამოვიყენებთ ზოგიერთი კოდი Keras-ის ოფიციალური დოკუმენტაციიდან. ჩვენ ვივარაუდებთ, რომ ყველა შეყვანის თანმიმდევრობას ვამაგრებთ `maxlen` სიგრძით.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class TokenAndPositionEmbedding(keras.layers.Layer):\n    def __init__(self, maxlen, vocab_size, embed_dim):\n        super(TokenAndPositionEmbedding, self).__init__()\n        self.token_emb = keras.layers.Embedding(input_dim=vocab_size, output_dim=embed_dim)\n        self.pos_emb = keras.layers.Embedding(input_dim=maxlen, output_dim=embed_dim)\n        self.maxlen = maxlen\n\n    def call(self, x):\n        maxlen = self.maxlen\n        positions = tf.range(start=0, limit=maxlen, delta=1)\n        positions = self.pos_emb(positions)\n        x = self.token_emb(x)\n        return x+positions",
+   "executionCount": 2,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ეს ფენა შედგება ორი `Embedding` ფენისგან: ტოკენების ჩასართავად (როგორც ჩვენ უკვე განვიხილეთ) და ტოკენის პოზიციები. ტოკენების პოზიციები იქმნება, როგორც ნატურალური რიცხვების თანმიმდევრობა 0-დან `maxlen`-მდე `tf.range`-ის გამოყენებით და შემდეგ გადადის ჩაშენების ფენაში. შემდეგ ემატება ორი მიღებული ჩანერგვის ვექტორი, რომლებიც წარმოქმნიან ფორმის შეყვანის პოზიციურად ჩაშენებულ რეპორტაჟს `maxlen`$\\ჯერ$`embed_dim`.\n\n![](/courses/ai-for-beginners/5-NLP/18-Transformers/images/pos-embedding.png)\n\nახლა მოდით განვახორციელოთ ტრანსფორმატორის ბლოკი. ის მიიღებს ადრე განსაზღვრული ჩაშენების ფენის გამომავალს:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class TransformerBlock(keras.layers.Layer):\n    def __init__(self, embed_dim, num_heads, ff_dim, rate=0.1):\n        super(TransformerBlock, self).__init__()\n        self.att = keras.layers.MultiHeadAttention(num_heads=num_heads, key_dim=embed_dim, name='attn')\n        self.ffn = keras.Sequential(\n            [keras.layers.Dense(ff_dim, activation=\"relu\"), keras.layers.Dense(embed_dim),]\n        )\n        self.layernorm1 = keras.layers.LayerNormalization(epsilon=1e-6)\n        self.layernorm2 = keras.layers.LayerNormalization(epsilon=1e-6)\n        self.dropout1 = keras.layers.Dropout(rate)\n        self.dropout2 = keras.layers.Dropout(rate)\n\n    def call(self, inputs, training):\n        attn_output = self.att(inputs, inputs)\n        attn_output = self.dropout1(attn_output, training=training)\n        out1 = self.layernorm1(inputs + attn_output)\n        ffn_output = self.ffn(out1)\n        ffn_output = self.dropout2(ffn_output, training=training)\n        return self.layernorm2(out1 + ffn_output)",
+   "executionCount": 3,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ტრანსფორმატორი იყენებს `MultiHeadAttention`-ს პოზიციურად დაშიფრულ შეყვანაზე, რათა წარმოქმნას `maxlen`$\\ჯერ$`embed_dim` განზომილების ყურადღების ვექტორი, რომელიც შერეულია შეყვანთან და ნორმალიზდება `LayerNormalizaton`-ის გამოყენებით.\n\n> შენიშვნა: `LayerNormalization` მსგავსია `BatchNormalization`-ისა, რომელიც განხილულია ამ სასწავლო ბილიკის Computer Vision ნაწილში, მაგრამ ის ახდენს წინა ფენის შედეგების ნორმალიზებას თითოეული სასწავლო ნიმუშისთვის დამოუკიდებლად, რათა მიიყვანოს მათ დიაპაზონში [-1..1].\n\nამ ფენის გამომავალი შემდეგ გადადის `Dense` ქსელში (ჩვენს შემთხვევაში - ორფენიანი პერცეტრონი) და შედეგი ემატება საბოლოო გამომავალს (რომელიც ისევ ნორმალიზდება).\n\n![](/courses/ai-for-beginners/5-NLP/18-Transformers/images/transformer-layer.png)\n\nახლა ჩვენ მზად ვართ განვსაზღვროთ სრული ტრანსფორმატორის მოდელი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "embed_dim = 32  # Embedding size for each token\nnum_heads = 2  # Number of attention heads\nff_dim = 32  # Hidden layer size in feed forward network inside transformer\nmaxlen = 256\nvocab_size = 20000\n\nmodel = keras.models.Sequential([\n    keras.layers.experimental.preprocessing.TextVectorization(max_tokens=vocab_size,output_sequence_length=maxlen, input_shape=(1,)),\n    TokenAndPositionEmbedding(maxlen, vocab_size, embed_dim),\n    TransformerBlock(embed_dim, num_heads, ff_dim),\n    keras.layers.GlobalAveragePooling1D(),\n    keras.layers.Dropout(0.1),\n    keras.layers.Dense(20, activation=\"relu\"),\n    keras.layers.Dropout(0.1),\n    keras.layers.Dense(4, activation=\"softmax\")\n])\n\nmodel.summary()",
+   "executionCount": 4,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Model: \"sequential_1\"\n_________________________________________________________________\nLayer (type)                 Output Shape              Param #   \n=================================================================\ntext_vectorization (TextVect (None, 256)               0         \n_________________________________________________________________\ntoken_and_position_embedding (None, 256, 32)           648192    \n_________________________________________________________________\ntransformer_block (Transform (None, 256, 32)           10656     \n_________________________________________________________________\nglobal_average_pooling1d (Gl (None, 32)                0         \n_________________________________________________________________\ndropout_2 (Dropout)          (None, 32)                0         \n_________________________________________________________________\ndense_2 (Dense)              (None, 20)                660       \n_________________________________________________________________\ndropout_3 (Dropout)          (None, 20)                0         \n_________________________________________________________________\ndense_3 (Dense)              (None, 4)                 84        \n=================================================================\nTotal params: 659,592\nTrainable params: 659,592\nNon-trainable params: 0\n_________________________________________________________________\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "print('Training tokenizer')\nmodel.layers[0].adapt(ds_train.map(extract_text))\nmodel.compile(loss='sparse_categorical_crossentropy',metrics=['acc'], optimizer='adam')\nmodel.fit(ds_train.map(tupelize).batch(128),validation_data=ds_test.map(tupelize).batch(128))",
+   "executionCount": 5,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Training tokenizer\n938/938 [==============================] - 45s 39ms/step - loss: 0.4978 - acc: 0.8068 - val_loss: 0.2808 - val_acc: 0.9124\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<tensorflow.python.keras.callbacks.History at 0x7f9c2427a0d0>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## BERT ტრანსფორმატორის მოდელები\n\nBERT (ორმხრივი კოდირების წარმოდგენები ტრანსფორმერებისგან) არის ძალიან დიდი მრავალშრიანი ტრანსფორმატორის ქსელი 12 ფენით BERT-base-ისთვის და 24 BERT-large-ისთვის. მოდელი პირველად წინასწარ ივარჯიშება ტექსტური მონაცემების დიდ კორპუსზე (ვიკიპედია + წიგნები) უკონტროლო ტრენინგის გამოყენებით (წინადადებაში ნიღბიანი სიტყვების პროგნოზირება). წინასწარი ტრენინგის დროს მოდელი შთანთქავს ენის გაგების მნიშვნელოვან დონეს, რომელიც შემდეგ შეიძლება გამოყენებულ იქნას სხვა მონაცემთა ნაკრებებთან ერთად ზუსტი დარეგულირების გამოყენებით. ამ პროცესს ეწოდება ტრანსფერული სწავლა.\n\n![picture from http://jalammar.github.io/illustrated-bert/](/courses/ai-for-beginners/5-NLP/18-Transformers/images/jalammarBERT-language-modeling-masked-lm.png)\n\nტრანსფორმატორის არქიტექტურის მრავალი ვარიაციაა, მათ შორის BERT, DistilBERT. BigBird, OpenGPT3 და სხვა, რომელთა დარეგულირება შესაძლებელია.\n\nვნახოთ, როგორ შეგვიძლია გამოვიყენოთ წინასწარ მომზადებული BERT მოდელი ჩვენი ტრადიციული თანმიმდევრობის კლასიფიკაციის პრობლემის გადასაჭრელად. ჩვენ ვისესხებთ იდეას და კოდს ოფიციალური დოკუმენტაცია-დან.\n\nწინასწარ მომზადებული მოდელების ჩასატვირთად, ჩვენ გამოვიყენებთ Tensorflow hub. პირველი, მოდით ჩატვირთოთ BERT-ის სპეციფიკური ვექტორიზატორი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import tensorflow_text \nimport tensorflow_hub as hub\nvectorizer = hub.KerasLayer('https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/3')",
+   "executionCount": 1,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "---------------------------------------------------------------------------\nModuleNotFoundError                       Traceback (most recent call last)\n~\\AppData\\Local\\Temp/ipykernel_41180/4216669875.py in <module>\n----> 1 import tensorflow_text\n      2 import tensorflow_hub as hub\n      3 vectorizer = hub.KerasLayer('https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/3')\n\nModuleNotFoundError: No module named 'tensorflow_text'",
+     "stream": "stderr"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "vectorizer(['I love transformers'])",
+   "executionCount": 7,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "{'input_type_ids': <tf.Tensor: shape=(1, 128), dtype=int32, numpy=\n array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],\n       dtype=int32)>,\n 'input_word_ids': <tf.Tensor: shape=(1, 128), dtype=int32, numpy=\n array([[  101,  1045,  2293, 19081,   102,     0,     0,     0,     0,\n             0,     0,     0,     0,     0,     0,     0,     0,     0,\n             0,     0,     0,     0,     0,     0,     0,     0,     0,\n             0,     0,     0,     0,     0,     0,     0,     0,     0,\n             0,     0,     0,     0,     0,     0,     0,     0,     0,\n             0,     0,     0,     0,     0,     0,     0,     0,     0,\n             0,     0,     0,     0,     0,     0,     0,     0,     0,\n             0,     0,     0,     0,     0,     0,     0,     0,     0,\n             0,     0,     0,     0,     0,     0,     0,     0,     0,\n             0,     0,     0,     0,     0,     0,     0,     0,     0,\n             0,     0,     0,     0,     0,     0,     0,     0,     0,\n             0,     0,     0,     0,     0,     0,     0,     0,     0,\n             0,     0,     0,     0,     0,     0,     0,     0,     0,\n             0,     0,     0,     0,     0,     0,     0,     0,     0,\n             0,     0]], dtype=int32)>,\n 'input_mask': <tf.Tensor: shape=(1, 128), dtype=int32, numpy=\n array([[1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],\n       dtype=int32)>}"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მნიშვნელოვანია, რომ გამოიყენოთ იგივე ვექტორიზატორი, რომელზედაც ივარჯიშეს თავდაპირველი ქსელი. ასევე, BERT ვექტორიზატორი აბრუნებს სამ კომპონენტს:\n* `input_word_ids`, რომელიც წარმოადგენს ნიშანთა რიცხვების თანმიმდევრობას შეყვანის წინადადებისთვის\n* `input_mask`, რომელიც გვიჩვენებს მიმდევრობის რომელი ნაწილი შეიცავს რეალურ შეყვანას და რომელი ავსებს. ის მსგავსია `Masking` ფენით წარმოებული ნიღბისა\n* `input_type_ids` გამოიყენება ენის მოდელირების ამოცანებისთვის და საშუალებას გაძლევთ მიუთითოთ ორი შეყვანის წინადადება ერთი თანმიმდევრობით.\n\nშემდეგ, ჩვენ შეგვიძლია გამოვიყენოთ BERT ფუნქციების ამომყვანი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "bert = hub.KerasLayer('https://tfhub.dev/tensorflow/small_bert/bert_en_uncased_L-4_H-128_A-2/1')",
+   "executionCount": 8,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "z = bert(vectorizer(['I love transformers']))\nfor i,x in z.items():\n    print(f\"{i} -> { len(x) if isinstance(x, list) else x.shape }\")",
+   "executionCount": 9,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "pooled_output -> (1, 128)\nencoder_outputs -> 4\nsequence_output -> (1, 128, 128)\ndefault -> (1, 128)\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ასე რომ, BERT ფენა აბრუნებს უამრავ სასარგებლო შედეგს:\n* `pooled_output` არის თანმიმდევრობით ყველა ტოკენის საშუალო გამოანგარიშების შედეგი. თქვენ შეგიძლიათ ნახოთ იგი, როგორც მთელი ქსელის ინტელექტუალური სემანტიკური ჩანერგვა. ეს უდრის `GlobalAveragePooling1D` ფენის გამოსავალს ჩვენს წინა მოდელში.\n* `sequence_output` არის ბოლო ტრანსფორმატორის ფენის გამოსავალი (შეესაბამება `TransformerBlock`-ის გამომავალს ჩვენს ზემოთ მოდელში)\n* `encoder_outputs` არის ყველა ტრანსფორმატორის ფენის გამოსავალი. მას შემდეგ, რაც ჩვენ ჩატვირთეთ 4-ფენიანი BERT მოდელი (როგორც ალბათ მიხვდებით სახელიდან, რომელიც შეიცავს `4_H`), მას აქვს 4 ტენსორი. ბოლო იგივეა, რაც `sequence_output`.\n\nახლა ჩვენ განვსაზღვრავთ ბოლოდან ბოლომდე კლასიფიკაციის მოდელს. ჩვენ გამოვიყენებთ ფუნქციური მოდელის განმარტებას, როდესაც განვსაზღვრავთ მოდელის შეყვანას, შემდეგ კი გამოვიყენებთ გამონათქვამების სერიას მისი გამოსავლის გამოსათვლელად. ჩვენ ასევე გავაკეთებთ BERT მოდელის წონებს არასავარჯიშოს და ვავარჯიშებთ მხოლოდ საბოლოო კლასიფიკატორს:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "inp = keras.Input(shape=(),dtype=tf.string)\nx = vectorizer(inp)\nx = bert(x)\nx = keras.layers.Dropout(0.1)(x['pooled_output'])\nout = keras.layers.Dense(4,activation='softmax')(x)\nmodel = keras.models.Model(inp,out)\nbert.trainable = False\nmodel.summary()",
+   "executionCount": 10,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Model: \"model\"\n__________________________________________________________________________________________________\nLayer (type)                    Output Shape         Param #     Connected to                     \n==================================================================================================\ninput_1 (InputLayer)            [(None,)]            0                                            \n__________________________________________________________________________________________________\nkeras_layer (KerasLayer)        {'input_type_ids': ( 0           input_1[0][0]                    \n__________________________________________________________________________________________________\nkeras_layer_1 (KerasLayer)      {'pooled_output': (N 4782465     keras_layer[0][0]                \n                                                                 keras_layer[0][1]                \n                                                                 keras_layer[0][2]                \n__________________________________________________________________________________________________\ndropout_4 (Dropout)             (None, 128)          0           keras_layer_1[0][5]              \n__________________________________________________________________________________________________\ndense_4 (Dense)                 (None, 4)            516         dropout_4[0][0]                  \n==================================================================================================\nTotal params: 4,782,981\nTrainable params: 516\nNon-trainable params: 4,782,465\n__________________________________________________________________________________________________\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model.compile(loss='sparse_categorical_crossentropy',metrics=['acc'], optimizer='adam')\nmodel.fit(ds_train.map(tupelize).batch(128),validation_data=ds_test.map(tupelize).batch(128))",
+   "executionCount": 11,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "938/938 [==============================] - 528s 559ms/step - loss: 0.8056 - acc: 0.6983 - val_loss: 0.5953 - val_acc: 0.7888\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<tensorflow.python.keras.callbacks.History at 0x7f9bb1e36d00>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "იმისდა მიუხედავად, რომ რამდენიმე სავარჯიშო პარამეტრია, პროცესი საკმაოდ ნელია, რადგან BERT ფუნქციების ამომყვანი გამოთვლით მძიმეა. როგორც ჩანს, ჩვენ ვერ მივაღწიეთ გონივრულ სიზუსტეს, არც ტრენინგის ან მოდელის პარამეტრების ნაკლებობის გამო.\n\nვცადოთ BERT-ის წონების გაყინვა და ისიც ვავარჯიშოთ. ეს მოითხოვს ძალიან მცირე სწავლის სიჩქარეს და ასევე უფრო ფრთხილად სასწავლო სტრატეგიას დათბობით, AdamW ოპტიმიზატორის გამოყენებით. ჩვენ გამოვიყენებთ `tf-models-official` პაკეტს ოპტიმიზატორის შესაქმნელად:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "from official.nlp import optimization \nbert.trainable=True\nmodel.summary()\nepochs = 3\nopt = optimization.create_optimizer(\n    init_lr=3e-5,\n    num_train_steps=epochs*len(ds_train),\n    num_warmup_steps=0.1*epochs*len(ds_train),\n    optimizer_type='adamw')\n\nmodel.compile(loss='sparse_categorical_crossentropy',metrics=['acc'], optimizer=opt)\nmodel.fit(ds_train.map(tupelize).batch(128),validation_data=ds_test.map(tupelize).batch(128))",
+   "executionCount": 12,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Model: \"model\"\n__________________________________________________________________________________________________\nLayer (type)                    Output Shape         Param #     Connected to                     \n==================================================================================================\ninput_1 (InputLayer)            [(None,)]            0                                            \n__________________________________________________________________________________________________\nkeras_layer (KerasLayer)        {'input_type_ids': ( 0           input_1[0][0]                    \n__________________________________________________________________________________________________\nkeras_layer_1 (KerasLayer)      {'pooled_output': (N 4782465     keras_layer[0][0]                \n                                                                 keras_layer[0][1]                \n                                                                 keras_layer[0][2]                \n__________________________________________________________________________________________________\ndropout_4 (Dropout)             (None, 128)          0           keras_layer_1[0][5]              \n__________________________________________________________________________________________________\ndense_4 (Dense)                 (None, 4)            516         dropout_4[0][0]                  \n==================================================================================================\nTotal params: 4,782,981\nTrainable params: 4,782,980\nNon-trainable params: 1\n__________________________________________________________________________________________________\n938/938 [==============================] - 629s 664ms/step - loss: 0.6344 - acc: 0.7658 - val_loss: 0.4876 - val_acc: 0.8247\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<tensorflow.python.keras.callbacks.History at 0x7f9bb0bd0070>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "როგორც ხედავთ, ტრენინგი საკმაოდ ნელა მიმდინარეობს - მაგრამ შეიძლება დაგჭირდეთ ექსპერიმენტი და მოამზადოთ მოდელი რამდენიმე ეპოქისთვის (5-10) და ნახოთ, შეგიძლიათ თუ არა საუკეთესო შედეგის მიღება იმ მიდგომებთან შედარებით, რომლებიც ადრე ვიყენებდით.\n\n## Huggingface Transformers Library\n\nტრანსფორმატორის მოდელების გამოყენების კიდევ ერთი ძალიან გავრცელებული (და ცოტა უფრო მარტივი) გზაა HuggingFace პაკეტი, რომელიც უზრუნველყოფს მარტივ სამშენებლო ბლოკებს სხვადასხვა NLP ამოცანებისთვის. ის ხელმისაწვდომია როგორც Tensorflow-სთვის, ასევე PyTorch-ისთვის, კიდევ ერთი ძალიან პოპულარული ნერვული ქსელის ჩარჩოსთვის.\n\n> შენიშვნა: თუ არ გაინტერესებთ როგორ მუშაობს Transformers ბიბლიოთეკა - შეგიძლიათ გადახვიდეთ ამ ნოუთბუქის ბოლომდე, რადგან ვერაფერს ნახავთ არსებითად განსხვავებულს იმისგან, რაც ზემოთ გავაკეთეთ. ჩვენ ვიმეორებთ BERT მოდელის ტრენინგის იგივე ნაბიჯებს სხვადასხვა ბიბლიოთეკის და არსებითად უფრო დიდი მოდელის გამოყენებით. ამრიგად, პროცესი მოიცავს საკმაოდ ხანგრძლივ ტრენინგს, ასე რომ თქვენ შეგიძლიათ უბრალოდ გადახედოთ კოდს.\n\nვნახოთ, როგორ შეიძლება ჩვენი პრობლემის გადაჭრა Hugging Face Transformers-ის გამოყენებით.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "პირველი რაც უნდა გავაკეთოთ არის მოდელის არჩევა, რომელსაც გამოვიყენებთ. ზოგიერთი ჩაშენებული მოდელის გარდა, Huggingface შეიცავს ონლაინ მოდელის საცავი-ს, სადაც შეგიძლიათ იპოვოთ უფრო მეტი წინასწარ მომზადებული მოდელი საზოგადოების მიერ. ყველა ამ მოდელის ჩატვირთვა და გამოყენება შესაძლებელია მხოლოდ მოდელის სახელის მითითებით. მოდელისთვის საჭირო ყველა ორობითი ფაილი ავტომატურად ჩამოიტვირთება.\n\nგარკვეულ დროს მოგიწევთ საკუთარი მოდელების ჩატვირთვა, ამ შემთხვევაში შეგიძლიათ მიუთითოთ დირექტორია, რომელიც შეიცავს ყველა შესაბამის ფაილს, მათ შორის ტოკენიზატორის პარამეტრებს, `config.json` ფაილს მოდელის პარამეტრებით, ორობითი წონებით და ა.შ.\n\nმოდელის სახელიდან ჩვენ შეგვიძლია განვსაზღვროთ როგორც მოდელი, ასევე ტოკენიზატორი. დავიწყოთ ტოკენიზატორით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import transformers\n\n# To load the model from Internet repository using model name. \n# Use this if you are running from your own copy of the notebooks\nbert_model = 'bert-base-uncased' \n\n# To load the model from the directory on disk. Use this for Microsoft Learn module, because we have\n# prepared all required files for you.\n#bert_model = './bert'\n\ntokenizer = transformers.BertTokenizer.from_pretrained(bert_model)\n\nMAX_SEQ_LEN = 128\nPAD_INDEX = tokenizer.convert_tokens_to_ids(tokenizer.pad_token)\nUNK_INDEX = tokenizer.convert_tokens_to_ids(tokenizer.unk_token)",
+   "executionCount": 2,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "`tokenizer` ობიექტი შეიცავს `encode` ფუნქციას, რომელიც შეიძლება პირდაპირ იქნას გამოყენებული ტექსტის დაშიფვრისთვის:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "tokenizer.encode('Tensorflow is a great framework for NLP')",
+   "executionCount": 3,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "[101, 23435, 12314, 2003, 1037, 2307, 7705, 2005, 17953, 2361, 102]"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ ასევე შეგვიძლია გამოვიყენოთ ტოკენიზატორი, რათა დაშიფროთ თანმიმდევრობა, რომელიც შესაფერისია მოდელზე გადასასვლელად, ანუ `token_ids`, `input_mask` ველების ჩათვლით და ა.შ.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "tokenizer(['Hello, there'],return_tensors='tf')",
+   "executionCount": 4,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "{'input_ids': <tf.Tensor: shape=(1, 5), dtype=int32, numpy=array([[ 101, 7592, 1010, 2045,  102]], dtype=int32)>, 'token_type_ids': <tf.Tensor: shape=(1, 5), dtype=int32, numpy=array([[0, 0, 0, 0, 0]], dtype=int32)>, 'attention_mask': <tf.Tensor: shape=(1, 5), dtype=int32, numpy=array([[1, 1, 1, 1, 1]], dtype=int32)>}"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენს შემთხვევაში, ჩვენ გამოვიყენებთ წინასწარ გაწვრთნილ BERT მოდელს სახელწოდებით `bert-base-uncased`. uncased მიუთითებს, რომ მოდელი არ არის რეგისტრირებული.\n\nმოდელის მომზადებისას, ჩვენ უნდა მივაწოდოთ ტოკენიზებული თანმიმდევრობა, როგორც შეყვანა, და ამით ჩვენ შევქმნით მონაცემთა დამუშავების მილს. ვინაიდან `tokenizer.encode` არის პითონის ფუნქცია, ჩვენ გამოვიყენებთ იგივე მიდგომას, როგორც ბოლო ერთეულში, მისი გამოძახებით `py_function`-ის გამოყენებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def process(x):\n    return tokenizer.encode(x.numpy().decode('utf-8'),return_tensors='tf',padding='max_length',max_length=MAX_SEQ_LEN,truncation=True)[0]\n\ndef process_fn(x):\n    s = x['title']+' '+x['description']\n    e = tf.py_function(process,inp=[s],Tout=(tf.int32))\n    e.set_shape(MAX_SEQ_LEN)\n    return e,x['label']",
+   "executionCount": 31,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა ჩვენ შეგვიძლია ჩატვირთოთ რეალური მოდელი `BertForSequenceClassfication` პაკეტის გამოყენებით. ეს უზრუნველყოფს, რომ ჩვენს მოდელს უკვე აქვს საჭირო არქიტექტურა კლასიფიკაციისთვის, საბოლოო კლასიფიკატორის ჩათვლით. თქვენ იხილავთ გამაფრთხილებელ შეტყობინებას, რომელშიც ნათქვამია, რომ საბოლოო კლასიფიკატორის წონა არ არის ინიციალიზებული და მოდელი საჭიროებს წინასწარ მომზადებას - ეს აბსოლუტურად ნორმალურია, რადგან ეს არის ზუსტად ის, რის გაკეთებასაც ჩვენ ვაპირებთ!\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model = transformers.TFBertForSequenceClassification.from_pretrained(bert_model,num_labels=4,output_attentions=False)",
+   "executionCount": 32,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model.summary()",
+   "executionCount": 33,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Model: \"tf_bert_for_sequence_classification_1\"\n_________________________________________________________________\nLayer (type)                 Output Shape              Param #   \n=================================================================\nbert (TFBertMainLayer)       multiple                  109482240 \n_________________________________________________________________\ndropout_75 (Dropout)         multiple                  0         \n_________________________________________________________________\nclassifier (Dense)           multiple                  3076      \n=================================================================\nTotal params: 109,485,316\nTrainable params: 109,485,316\nNon-trainable params: 0\n_________________________________________________________________\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "როგორც ხედავთ `summary()`-დან, მოდელი შეიცავს თითქმის 110 მილიონ პარამეტრს! სავარაუდოდ, თუ გვსურს მარტივი კლასიფიკაციის დავალება შედარებით მცირე მონაცემთა ბაზაზე, არ გვინდა BERT საბაზისო ფენის მომზადება:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model.layers[0].trainable = False\nmodel.summary()",
+   "executionCount": 34,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Model: \"tf_bert_for_sequence_classification_1\"\n_________________________________________________________________\nLayer (type)                 Output Shape              Param #   \n=================================================================\nbert (TFBertMainLayer)       multiple                  109482240 \n_________________________________________________________________\ndropout_75 (Dropout)         multiple                  0         \n_________________________________________________________________\nclassifier (Dense)           multiple                  3076      \n=================================================================\nTotal params: 109,485,316\nTrainable params: 3,076\nNon-trainable params: 109,482,240\n_________________________________________________________________\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა ჩვენ მზად ვართ ვარჯიშის დასაწყებად!\n\n> შენიშვნა: სრულმასშტაბიანი BERT მოდელის ტრენინგი შეიძლება ძალიან შრომატევადი იყოს! ამრიგად, ჩვენ მას მხოლოდ პირველი 32 პარტიისთვის ვავარჯიშებთ. ეს მხოლოდ იმის ჩვენებაა, თუ როგორ არის მოწყობილი მოდელის ტრენინგი. თუ გაინტერესებთ სრულმასშტაბიანი ტრენინგის ცდა - უბრალოდ წაშალეთ `steps_per_epoch` და `validation_steps` პარამეტრები და მოემზადეთ ლოდინისთვის!\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model.compile('adam','sparse_categorical_crossentropy',['acc'])\ntf.get_logger().setLevel('ERROR')\nmodel.fit(ds_train.map(process_fn).batch(32),validation_data=ds_test.map(process_fn).batch(32),steps_per_epoch=32,validation_steps=2)",
+   "executionCount": 30,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "32/32 [==============================] - 142s 4s/step - loss: 1.3896 - acc: 0.2500 - val_loss: 1.3863 - val_acc: 0.2480\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<tensorflow.python.keras.callbacks.History at 0x7f1d40a4b6a0>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "თუ გაზრდით გამეორებების რაოდენობას და საკმარისად დიდხანს დაელოდებით და ვარჯიშობთ რამდენიმე ეპოქის განმავლობაში, შეგიძლიათ ველით, რომ BERT კლასიფიკაცია გვაძლევს საუკეთესო სიზუსტეს! ეს იმიტომ ხდება, რომ BERT-ს უკვე კარგად ესმის ენის სტრუქტურა და ჩვენ მხოლოდ საბოლოო კლასიფიკატორის დაზუსტება გვჭირდება. თუმცა, იმის გამო, რომ BERT არის დიდი მოდელი, მთელი სასწავლო პროცესი დიდ დროს იღებს და მოითხოვს სერიოზულ გამოთვლით ძალას! (GPU და სასურველია ერთზე მეტი).\n\n> შენიშვნა: ჩვენს მაგალითში, ჩვენ ვიყენებდით ერთ-ერთ ყველაზე პატარა წინასწარ მომზადებულ BERT მოდელს. არსებობს უფრო დიდი მოდელები, რომლებიც, სავარაუდოდ, უკეთეს შედეგს მოიტანენ.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## Takeaway\n\nამ ერთეულში ჩვენ ვნახეთ უახლესი მოდელის არქიტექტურები ტრანსფორმატორებზე. ჩვენ გამოვიყენეთ ისინი ჩვენი ტექსტის კლასიფიკაციის ამოცანისთვის, მაგრამ ანალოგიურად, BERT მოდელები შეიძლება გამოყენებულ იქნას ერთეულების ამოღების, კითხვებზე პასუხის გაცემის და სხვა NLP ამოცანებისთვის.\n\nტრანსფორმატორის მოდელები წარმოადგენს უახლეს მიღწევას (state-of-the-art) NLP-ში და უმეტეს შემთხვევაში ეს უნდა იყოს პირველი გამოსავალი, რომლითაც დაიწყებთ ექსპერიმენტებს პერსონალური NLP გადაწყვეტილებების განხორციელებისას. თუმცა, ამ მოდულში განხილული განმეორებადი ნერვული ქსელების ძირითადი პრინციპების გაგება ძალზე მნიშვნელოვანია, თუ გსურთ შექმნათ მოწინავე ნერვული მოდელები.\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/5-NLP/18-Transformers/TransformersTF.ipynb"
+}

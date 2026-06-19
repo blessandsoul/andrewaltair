@@ -1,0 +1,57 @@
+{
+ "kind": "markdown",
+ "courseSlug": "ai-for-beginners",
+ "slug": "computer-vision/segmentation/lab",
+ "segments": [
+  "computer-vision",
+  "segmentation",
+  "lab"
+ ],
+ "title": "ადამიანის სხეულის სეგმენტაცია",
+ "module": {
+  "id": "4-ComputerVision",
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა",
+  "icon": "eye"
+ },
+ "lessonNumber": 12,
+ "orderInModule": 1120,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/4-ComputerVision/12-Segmentation/lab/README.md"
+ },
+ "prev": {
+  "slug": "computer-vision/object-detection/object-detection",
+  "title": "ობიექტის ამოცნობა"
+ },
+ "next": {
+  "slug": "computer-vision/segmentation",
+  "title": "სეგმენტაცია"
+ },
+ "markdown": "ლაბორატორიული დავალება AI დამწყებთათვის სასწავლო პროგრამა-დან.\n\n## ამოცანა\n\nვიდეოს წარმოებაში, მაგალითად, ამინდის პროგნოზში, ხშირად გვჭირდება კამერიდან ადამიანის გამოსახულების ამოჭრა და სხვა კადრების თავზე განთავსება. ეს ჩვეულებრივ კეთდება chroma key ტექნიკის გამოყენებით, როდესაც ადამიანი გადაიღეს ერთიანი ფერის ფონის წინ, რომელიც შემდეგ ამოღებულია. ამ ლაბორატორიაში ჩვენ მოვამზადებთ ნერვული ქსელის მოდელს ადამიანის სილუეტის ამოსაჭრელად.\n\n## The Dataset\n\nჩვენ გამოვიყენებთ სეგმენტაციის სრული სხეული MADS მონაცემთა ნაკრები-ს Kaggle-დან. ჩამოტვირთეთ მონაცემთა ნაკრები ხელით Kaggle-დან.\n\n## მითითებული ნოუთბუქი\n\nდაიწყეთ ლაბორატორია BodySegmentation.ipynb გახსნით\n\n## Takeaway\n\nსხეულის სეგმენტაცია მხოლოდ ერთ-ერთი საერთო დავალებაა, რომლის შესრულებაც შეგვიძლია ადამიანების გამოსახულებით. სხვა მნიშვნელოვანი ამოცანები მოიცავს ჩონჩხის გამოვლენას და პოზის ამოცნობას. გადახედეთ OpenPose ბიბლიოთეკას, რათა ნახოთ, როგორ შეიძლება ამ ამოცანების განხორციელება.\n",
+ "headings": [
+  {
+   "id": "ამოცანა",
+   "text": "ამოცანა",
+   "level": 2
+  },
+  {
+   "id": "the-dataset",
+   "text": "The Dataset",
+   "level": 2
+  },
+  {
+   "id": "მითითებული-ნოუთბუქი",
+   "text": "მითითებული ნოუთბუქი",
+   "level": 2
+  },
+  {
+   "id": "takeaway",
+   "text": "Takeaway",
+   "level": 2
+  }
+ ],
+ "readingMinutes": 1
+}

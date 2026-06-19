@@ -1,0 +1,89 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "computer-vision/transfer-learning/dropout",
+ "segments": [
+  "computer-vision",
+  "transfer-learning",
+  "dropout"
+ ],
+ "title": "მიტოვების ეფექტი",
+ "module": {
+  "id": "4-ComputerVision",
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა",
+  "icon": "eye"
+ },
+ "lessonNumber": 8,
+ "orderInModule": 1080.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/4-ComputerVision/08-TransferLearning/Dropout.ipynb"
+ },
+ "prev": {
+  "slug": "computer-vision/transfer-learning/training-tricks",
+  "title": "ღრმა სწავლის ტრენინგის ხრიკები"
+ },
+ "next": {
+  "slug": "computer-vision/transfer-learning/lab/oxford-pets",
+  "title": "მონაცემთა ნაკრების მომზადება ღრმა სწავლისთვის"
+ },
+ "framework": "generic",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "ვნახოთ, რა გავლენას ახდენს სწავლის მიტოვება ტრენინგზე. ჩვენ გამოვიყენებთ MNIST მონაცემთა ბაზას და მარტივ კონვოლუციურ ქსელს ამისათვის:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "from tensorflow import keras\nimport numpy as np\nimport matplotlib.pyplot as plt\n\n(x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()\n\nx_train = x_train.astype(\"float32\") / 255\nx_test = x_test.astype(\"float32\") / 255\n\nx_train = np.expand_dims(x_train, -1)\nx_test = np.expand_dims(x_test, -1)\n",
+   "executionCount": 3,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ განვსაზღვრავთ `train` ფუნქციას, რომელიც იზრუნებს ყველა სასწავლო პროცესზე, მათ შორის:\n* ნერვული ქსელის არქიტექტურის განსაზღვრა მიტოვებული სიჩქარით `d`\n* შესაბამისი ტრენინგის პარამეტრების მითითება (ოპტიმიზატორი და დაკარგვის ფუნქცია)\n* ტრენინგის ჩატარება და ისტორიის შეგროვება\n\nშემდეგ ჩვენ გავუშვებთ ამ ფუნქციას სხვადასხვა გამოტოვებული მნიშვნელობისთვის:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def train(d):\n    print(f\"Training with dropout = {d}\")\n    model = keras.Sequential([\n        keras.layers.Conv2D(32, kernel_size=(3, 3), activation=\"relu\", input_shape=(28,28,1)),\n        keras.layers.MaxPooling2D(pool_size=(2, 2)),\n        keras.layers.Conv2D(64, kernel_size=(3, 3), activation=\"relu\"),\n        keras.layers.MaxPooling2D(pool_size=(2, 2)),\n        keras.layers.Flatten(),\n        keras.layers.Dropout(d),\n        keras.layers.Dense(10, activation=\"softmax\")\n    ])\n    model.compile(loss='sparse_categorical_crossentropy',optimizer='adam',metrics=['acc'])\n    hist = model.fit(x_train,y_train,validation_data=(x_test,y_test),epochs=5,batch_size=64)\n    return hist\n\nres = { d : train(d) for d in [0,0.2,0.5,0.8] }",
+   "executionCount": 7,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Training with dropout = 0\nEpoch 1/5\n938/938 [==============================] - 26s 27ms/step - loss: 0.1949 - acc: 0.9435 - val_loss: 0.0596 - val_acc: 0.9802\nEpoch 2/5\n938/938 [==============================] - 27s 29ms/step - loss: 0.0592 - acc: 0.9816 - val_loss: 0.0433 - val_acc: 0.9857\nEpoch 3/5\n938/938 [==============================] - 26s 28ms/step - loss: 0.0438 - acc: 0.9867 - val_loss: 0.0472 - val_acc: 0.9849\nEpoch 4/5\n938/938 [==============================] - 27s 28ms/step - loss: 0.0355 - acc: 0.9890 - val_loss: 0.0353 - val_acc: 0.9882\nEpoch 5/5\n938/938 [==============================] - 26s 28ms/step - loss: 0.0294 - acc: 0.9910 - val_loss: 0.0305 - val_acc: 0.9894\nTraining with dropout = 0.2\nEpoch 1/5\n938/938 [==============================] - 29s 31ms/step - loss: 0.2097 - acc: 0.9377 - val_loss: 0.0655 - val_acc: 0.9781\nEpoch 2/5\n938/938 [==============================] - 31s 33ms/step - loss: 0.0676 - acc: 0.9792 - val_loss: 0.0409 - val_acc: 0.9852\nEpoch 3/5\n938/938 [==============================] - 28s 30ms/step - loss: 0.0514 - acc: 0.9837 - val_loss: 0.0384 - val_acc: 0.9871\nEpoch 4/5\n938/938 [==============================] - 28s 29ms/step - loss: 0.0424 - acc: 0.9871 - val_loss: 0.0343 - val_acc: 0.9889\nEpoch 5/5\n938/938 [==============================] - 30s 32ms/step - loss: 0.0356 - acc: 0.9893 - val_loss: 0.0343 - val_acc: 0.9885\nTraining with dropout = 0.5\nEpoch 1/5\n938/938 [==============================] - 30s 31ms/step - loss: 0.2586 - acc: 0.9212 - val_loss: 0.0666 - val_acc: 0.9797\nEpoch 2/5\n938/938 [==============================] - 28s 30ms/step - loss: 0.0860 - acc: 0.9734 - val_loss: 0.0441 - val_acc: 0.9860\nEpoch 3/5\n938/938 [==============================] - 29s 31ms/step - loss: 0.0674 - acc: 0.9792 - val_loss: 0.0414 - val_acc: 0.9868\nEpoch 4/5\n938/938 [==============================] - 30s 32ms/step - loss: 0.0564 - acc: 0.9822 - val_loss: 0.0326 - val_acc: 0.9886\nEpoch 5/5\n938/938 [==============================] - 29s 31ms/step - loss: 0.0511 - acc: 0.9843 - val_loss: 0.0298 - val_acc: 0.9899\nTraining with dropout = 0.8\nEpoch 1/5\n938/938 [==============================] - 31s 32ms/step - loss: 0.3832 - acc: 0.8766 - val_loss: 0.0849 - val_acc: 0.9732\nEpoch 2/5\n938/938 [==============================] - 29s 31ms/step - loss: 0.1563 - acc: 0.9521 - val_loss: 0.0686 - val_acc: 0.9797\nEpoch 3/5\n938/938 [==============================] - 32s 34ms/step - loss: 0.1253 - acc: 0.9616 - val_loss: 0.0490 - val_acc: 0.9854\nEpoch 4/5\n938/938 [==============================] - 33s 35ms/step - loss: 0.1105 - acc: 0.9658 - val_loss: 0.0395 - val_acc: 0.9872\nEpoch 5/5\n938/938 [==============================] - 34s 36ms/step - loss: 0.1022 - acc: 0.9680 - val_loss: 0.0363 - val_acc: 0.9878\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მოდით დავხატოთ ვალიდაციის სიზუსტის გრაფიკები სხვადასხვა გამოტოვების მნიშვნელობებისთვის, რათა დავინახოთ რამდენად სწრაფად მიდის ტრენინგი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "for d,h in res.items():\n    plt.plot(h.history['val_acc'],label=str(d))\nplt.legend()",
+   "executionCount": 16,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<matplotlib.legend.Legend at 0x235bc70f0d0>"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/3aab1e07e94d5836.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ამ გრაფიკიდან თქვენ ალბათ შეძლებთ იხილოთ შემდეგი:\n* მიტოვების მნიშვნელობები 0.2-0.5 დიაპაზონში, თქვენ ნახავთ უსწრაფეს ვარჯიშს საუკეთესო საერთო შედეგებს\n* მიტოვების გარეშე ($d=0$), თქვენ სავარაუდოდ დაინახავთ ნაკლებად სტაბილურ და ნელ სასწავლო პროცესს\n* მაღალი მიტოვება (0.8) აუარესებს მდგომარეობას\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/4-ComputerVision/08-TransferLearning/Dropout.ipynb"
+}

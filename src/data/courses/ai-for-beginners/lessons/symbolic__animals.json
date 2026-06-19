@@ -1,0 +1,150 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "symbolic/animals",
+ "segments": [
+  "symbolic",
+  "animals"
+ ],
+ "title": "ცხოველთა საექსპერტო სისტემის დანერგვა",
+ "module": {
+  "id": "2-Symbolic",
+  "slug": "symbolic",
+  "title": "სიმბოლური AI",
+  "icon": "sitemap"
+ },
+ "lessonNumber": null,
+ "orderInModule": 140,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/2-Symbolic/Animals.ipynb"
+ },
+ "prev": {
+  "slug": "symbolic/family-ontology",
+  "title": "ოჯახური ურთიერთობების ონტოლოგია"
+ },
+ "next": {
+  "slug": "neural-networks",
+  "title": "შესავალი ნერვულ ქსელებში"
+ },
+ "framework": "generic",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "მაგალითი AI დამწყებთათვის სასწავლო პროგრამა-დან.\n\nამ ნიმუშში ჩვენ განვახორციელებთ ცოდნაზე დაფუძნებულ მარტივ სისტემას, რათა განვსაზღვროთ ცხოველი ზოგიერთი ფიზიკური მახასიათებლების საფუძველზე. სისტემა შეიძლება წარმოდგენილი იყოს შემდეგი AND-OR ხით (ეს არის მთელი ხის ნაწილი, ჩვენ შეგვიძლია მარტივად დავამატოთ კიდევ რამდენიმე წესი):\n\n![](/courses/ai-for-beginners/2-Symbolic/images/AND-OR-Tree.png)\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## ჩვენი საკუთარი საექსპერტო სისტემების გარსი ჩამორჩენილი დასკვნის საშუალებით\n\nშევეცადოთ განვსაზღვროთ ცოდნის წარმოდგენის მარტივი ენა წარმოების წესებზე დაყრდნობით. ჩვენ გამოვიყენებთ პითონის კლასებს, როგორც საკვანძო სიტყვებს წესების დასადგენად. არსებითად იქნებოდა 3 ტიპის კლასი:\n* `Ask` წარმოადგენს შეკითხვას, რომელიც უნდა დაუსვას მომხმარებელს. ის შეიცავს შესაძლო პასუხების კომპლექტს.\n* `If` წარმოადგენს წესს და ეს მხოლოდ სინტაქსური შაქარია წესის შინაარსის შესანახად\n* `AND`/`OR` არის კლასები, რომლებიც წარმოადგენენ ხის და/ან ტოტებს. ისინი უბრალოდ ინახავენ არგუმენტების სიას შიგნით. კოდის გასამარტივებლად, ყველა ფუნქციონალობა განისაზღვრება მშობლის კლასში `Content`\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class Ask():\n    def __init__(self,choices=['y','n']):\n        self.choices = choices\n    def ask(self):\n        if max([len(x) for x in self.choices])>1:\n            for i,x in enumerate(self.choices):\n                print(\"{0}. {1}\".format(i,x),flush=True)\n            x = int(input())\n            return self.choices[x]\n        else:\n            print(\"/\".join(self.choices),flush=True)\n            return input()\n\nclass Content():\n    def __init__(self,x):\n        self.x=x\n        \nclass If(Content):\n    pass\n\nclass AND(Content):\n    pass\n\nclass OR(Content):\n    pass",
+   "executionCount": 1,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენს სისტემაში სამუშაო მეხსიერება შეიცავს ფაქტების სიას, როგორც ატრიბუტ-მნიშვნელობის წყვილებს. ცოდნის ბაზა შეიძლება განისაზღვროს, როგორც ერთი დიდი ლექსიკონი, რომელიც ასახავს მოქმედებებს (ახალი ფაქტები, რომლებიც უნდა იყოს ჩასმული სამუშაო მეხსიერებაში) პირობებთან, გამოხატული როგორც AND-OR გამონათქვამები. ასევე, ზოგიერთი ფაქტი შეიძლება იყოს `Ask`-ed.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "rules = {\n    'default': Ask(['y','n']),\n    'color' : Ask(['red-brown','black and white','other']),\n    'pattern' : Ask(['dark stripes','dark spots']),\n    'mammal': If(OR(['hair','gives milk'])),\n    'carnivor': If(OR([AND(['sharp teeth','claws','forward-looking eyes']),'eats meat'])),\n    'ungulate': If(['mammal',OR(['has hooves','chews cud'])]),\n    'bird': If(OR(['feathers',AND(['flies','lies eggs'])])),\n    'animal:monkey' : If(['mammal','carnivor','color:red-brown','pattern:dark spots']),\n    'animal:tiger' : If(['mammal','carnivor','color:red-brown','pattern:dark stripes']),\n    'animal:giraffe' : If(['ungulate','long neck','long legs','pattern:dark spots']),\n    'animal:zebra' : If(['ungulate','pattern:dark stripes']),\n    'animal:ostrich' : If(['bird','long nech','color:black and white','cannot fly']),\n    'animal:pinguin' : If(['bird','swims','color:black and white','cannot fly']),\n    'animal:albatross' : If(['bird','flies well'])\n}",
+   "executionCount": 2,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "უკან დასკვნის შესასრულებლად, ჩვენ განვსაზღვრავთ `Knowledgebase` კლასს. ის შეიცავს:\n* სამუშაო `memory` - ლექსიკონი, რომელიც ასახავს მნიშვნელობებს ატრიბუტებს\n* ცოდნის ბაზა `rules` ზემოთ განსაზღვრულ ფორმატში\n\nორი ძირითადი მეთოდია:\n* `get` ატრიბუტის მნიშვნელობის მისაღებად, საჭიროების შემთხვევაში დასკვნის გაკეთება. მაგალითად, `get('color')` მიიღებს ფერის სლოტის მნიშვნელობას (საჭიროების შემთხვევაში ითხოვს მნიშვნელობას და ინახავს მნიშვნელობას შემდგომი გამოყენებისთვის სამუშაო მეხსიერებაში). თუ ჩვენ ვთხოვთ `get('color:blue')`, ის ითხოვს ფერს და შემდეგ დააბრუნებს `y`/`n` მნიშვნელობას ფერის მიხედვით.\n* `eval` ასრულებს ფაქტობრივ დასკვნას, ანუ კვეთს AND/OR ხეს, აფასებს ქვემიზნებს და ა.შ.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class KnowledgeBase():\n    def __init__(self,rules):\n        self.rules = rules\n        self.memory = {}\n        \n    def get(self,name):\n        if ':' in name:\n            k,v = name.split(':')\n            vv = self.get(k)\n            return 'y' if v==vv else 'n'\n        if name in self.memory.keys():\n            return self.memory[name]\n        for fld in self.rules.keys():\n            if fld==name or fld.startswith(name+\":\"):\n                # print(\" + proving {}\".format(fld))\n                value = 'y' if fld==name else fld.split(':')[1]\n                res = self.eval(self.rules[fld],field=name)\n                if res!='y' and res!='n' and value=='y':\n                    self.memory[name] = res\n                    return res\n                if res=='y':\n                    self.memory[name] = value\n                    return value\n        # field is not found, using default\n        res = self.eval(self.rules['default'],field=name)\n        self.memory[name]=res\n        return res\n                \n    def eval(self,expr,field=None):\n        # print(\" + eval {}\".format(expr))\n        if isinstance(expr,Ask):\n            print(field)\n            return expr.ask()\n        elif isinstance(expr,If):\n            return self.eval(expr.x)\n        elif isinstance(expr,AND) or isinstance(expr,list):\n            expr = expr.x if isinstance(expr,AND) else expr\n            for x in expr:\n                if self.eval(x)=='n':\n                    return 'n'\n            return 'y'\n        elif isinstance(expr,OR):\n            for x in expr.x:\n                if self.eval(x)=='y':\n                    return 'y'\n            return 'n'\n        elif isinstance(expr,str):\n            return self.get(expr)\n        else:\n            print(\"Unknown expr: {}\".format(expr))",
+   "executionCount": 3,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მოდით განვსაზღვროთ ჩვენი ცხოველთა ცოდნის ბაზა და ჩავატაროთ კონსულტაცია. გაითვალისწინეთ, რომ ეს ზარი დაგისვამთ კითხვებს. თქვენ შეგიძლიათ უპასუხოთ აკრეფით `y`/`n` დიახ-არა კითხვებისთვის, ან ნომრის (0..N) მითითებით კითხვებისთვის, რომელთა პასუხები უფრო გრძელია, მრავალჯერადი არჩევანით.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "kb = KnowledgeBase(rules)\nkb.get('animal')",
+   "executionCount": 4,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "hair\ny/n\nsharp teeth\ny/n\nclaws\ny/n\nforward-looking eyes\ny/n\ncolor\n0. red-brown\n1. black and white\n2. other\nhas hooves\ny/n\nlong neck\ny/n\nlong legs\ny/n\npattern\n0. dark stripes\n1. dark spots\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "'giraffe'"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## Experta-ს გამოყენება წინსვლის დასკვნისთვის\n\nშემდეგ მაგალითში, ჩვენ შევეცდებით განვახორციელოთ წინა დასკვნა ცოდნის წარმოდგენის ერთ-ერთი ბიბლიოთეკის გამოყენებით, ექსპერტი. Experta არის ბიბლიოთეკა Python-ში წინა დასკვნის სისტემების შესაქმნელად, რომელიც შექმნილია კლასიკური ძველი სისტემის კლიპები-ის მსგავსი.\n\nჩვენ ასევე შეგვეძლო განგვეხორციელებინა წინ მიჯაჭვულობა მრავალი პრობლემის გარეშე, მაგრამ გულუბრყვილო განხორციელებები, როგორც წესი, არც თუ ისე ეფექტურია. უფრო ეფექტური წესების შესატყვისად გამოიყენება სპეციალური ალგორითმი რეტე.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import sys\n!{sys.executable} -m pip install git+https://github.com/nilp0inter/experta",
+   "executionCount": 5,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Collecting git+https://github.com/nilp0inter/experta\n  Cloning https://github.com/nilp0inter/experta to /tmp/pip-req-build-7qurtwk3\n  Running command git clone --filter=blob:none --quiet https://github.com/nilp0inter/experta /tmp/pip-req-build-7qurtwk3\n  Resolved https://github.com/nilp0inter/experta to commit c6d5834b123861f5ae09e7d07027dc98bec58741\n  Installing build dependencies ... \u001b[?25ldone\n\u001b[?25h  Getting requirements to build wheel ... \u001b[?25ldone\n\u001b[?25h  Preparing metadata (pyproject.toml) ... \u001b[?25ldone\n\u001b[?25hRequirement already satisfied: frozendict~=2.4.6 in /opt/conda/envs/ai4beg/lib/python3.12/site-packages (from experta==1.9.5.dev1) (2.4.7)\nCollecting schema~=0.6.7 (from experta==1.9.5.dev1)\n  Downloading schema-0.6.8-py2.py3-none-any.whl.metadata (14 kB)\nDownloading schema-0.6.8-py2.py3-none-any.whl (14 kB)\nBuilding wheels for collected packages: experta\n  Building wheel for experta (pyproject.toml) ... \u001b[?25ldone\n\u001b[?25h  Created wheel for experta: filename=experta-1.9.5.dev1-py3-none-any.whl size=34804 sha256=888c459512a5e713f4b674caa9a0f96cfdf07ec0d6eb56cc318ce0653d218014\n  Stored in directory: /tmp/pip-ephem-wheel-cache-1eeii9zy/wheels/3d/e8/bb/22d7956359603fa8dd679aa09f5b8efb3f29991c3986fdc787\nSuccessfully built experta\nInstalling collected packages: schema, experta\n   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2/2 [experta]\nSuccessfully installed experta-1.9.5.dev1 schema-0.6.8\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "from experta import *\n#import experta",
+   "executionCount": 13,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ განვსაზღვრავთ ჩვენს სისტემას, როგორც კლასს, რომელიც ქვეკლასებს `KnowledgeEngine`. თითოეული წესი განისაზღვრება ცალკეული ფუნქციით `@Rule` ანოტაციით, რომელიც განსაზღვრავს, როდის უნდა გააქტიურდეს წესი. წესის შიგნით, ჩვენ შეგვიძლია დავამატოთ ახალი ფაქტები `declare` ფუნქციის გამოყენებით, და ამ ფაქტების დამატება გამოიწვევს კიდევ რამდენიმე წესს, რომელიც გამოიძახება წინა დასკვნის ძრავით.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class Animals(KnowledgeEngine):\n    @Rule(OR(\n           AND(Fact('sharp teeth'),Fact('claws'),Fact('forward looking eyes')),\n           Fact('eats meat')))\n    def cornivor(self):\n        self.declare(Fact('carnivor'))\n        \n    @Rule(OR(Fact('hair'),Fact('gives milk')))\n    def mammal(self):\n        self.declare(Fact('mammal'))\n\n    @Rule(Fact('mammal'),\n          OR(Fact('has hooves'),Fact('chews cud')))\n    def hooves(self):\n        self.declare('ungulate')\n        \n    @Rule(OR(Fact('feathers'),AND(Fact('flies'),Fact('lays eggs'))))\n    def bird(self):\n        self.declare('bird')\n        \n    @Rule(Fact('mammal'),Fact('carnivor'),\n          Fact(color='red-brown'),\n          Fact(pattern='dark spots'))\n    def monkey(self):\n        self.declare(Fact(animal='monkey'))\n\n    @Rule(Fact('mammal'),Fact('carnivor'),\n          Fact(color='red-brown'),\n          Fact(pattern='dark stripes'))\n    def tiger(self):\n        self.declare(Fact(animal='tiger'))\n\n    @Rule(Fact('ungulate'),\n          Fact('long neck'),\n          Fact('long legs'),\n          Fact(pattern='dark spots'))\n    def giraffe(self):\n        self.declare(Fact(animal='giraffe'))\n\n    @Rule(Fact('ungulate'),\n          Fact(pattern='dark stripes'))\n    def zebra(self):\n        self.declare(Fact(animal='zebra'))\n\n    @Rule(Fact('bird'),\n          Fact('long neck'),\n          Fact('cannot fly'),\n          Fact(color='black and white'))\n    def straus(self):\n        self.declare(Fact(animal='ostrich'))\n\n    @Rule(Fact('bird'),\n          Fact('swims'),\n          Fact('cannot fly'),\n          Fact(color='black and white'))\n    def pinguin(self):\n        self.declare(Fact(animal='pinguin'))\n\n    @Rule(Fact('bird'),\n          Fact('flies well'))\n    def albatros(self):\n        self.declare(Fact(animal='albatross'))\n        \n    @Rule(Fact(animal=MATCH.a))\n    def print_result(self,a):\n          print('Animal is {}'.format(a))\n                    \n    def factz(self,l):\n        for x in l:\n            self.declare(x)",
+   "executionCount": 14,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "მას შემდეგ, რაც ჩვენ განვსაზღვრავთ ცოდნის ბაზას, ჩვენ ვავსებთ ჩვენს სამუშაო მეხსიერებას რამდენიმე საწყისი ფაქტებით და შემდეგ გამოვიძახებთ `run()` მეთოდს დასკვნის შესასრულებლად. შედეგად, თქვენ ხედავთ, რომ სამუშაო მეხსიერებას ემატება ახალი დასკვნა ფაქტები, მათ შორის ცხოველის შესახებ საბოლოო ფაქტი (თუ ჩვენ სწორად დავაყენეთ ყველა საწყისი ფაქტი).\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "ex1 = Animals()\nex1.reset()\nex1.factz([\n    Fact(color='red-brown'),\n    Fact(pattern='dark stripes'),\n    Fact('sharp teeth'),\n    Fact('claws'),\n    Fact('forward looking eyes'),\n    Fact('gives milk')])\nex1.run()\nex1.facts",
+   "executionCount": 15,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Animal is tiger\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "FactList([(0, InitialFact()),\n          (1, Fact(color='red-brown')),\n          (2, Fact(pattern='dark stripes')),\n          (3, Fact('sharp teeth')),\n          (4, Fact('claws')),\n          (5, Fact('forward looking eyes')),\n          (6, Fact('gives milk')),\n          (7, Fact('mammal')),\n          (8, Fact('carnivor')),\n          (9, Fact(animal='tiger'))])"
+    }
+   ]
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/2-Symbolic/Animals.ipynb"
+}

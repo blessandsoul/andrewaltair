@@ -1,0 +1,207 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "nlp/ner/ner-tf",
+ "segments": [
+  "nlp",
+  "ner",
+  "ner-tf"
+ ],
+ "title": "დასახელებული ერთეულის ამოცნობა (NER)",
+ "module": {
+  "id": "5-NLP",
+  "slug": "nlp",
+  "title": "ბუნებრივი ენის დამუშავება",
+  "icon": "messages"
+ },
+ "lessonNumber": 19,
+ "orderInModule": 1190.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/5-NLP/19-NER/NER-TF.ipynb"
+ },
+ "prev": {
+  "slug": "nlp/ner",
+  "title": "დასახელებული ერთეულის ამოცნობა"
+ },
+ "next": {
+  "slug": "nlp/lang-models",
+  "title": "წინასწარ მომზადებული დიდი ენის მოდელები"
+ },
+ "framework": "tensorflow",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "ეს ნოუთბუქი არის AI დამწყებთათვის სასწავლო პროგრამა-დან.\n\nამ მაგალითში ჩვენ ვისწავლით, თუ როგორ მოვამზადოთ NER მოდელი ანოტირებული კორპუსი დასახელებული ერთეულის ამოცნობისთვის მონაცემთა ნაკრებიდან Kaggle-დან. სანამ გააგრძელებთ, გთხოვთ, გადმოწეროთ ner_dataset.csv ფაილი მიმდინარე დირექტორიაში.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import pandas as pd\nfrom tensorflow import keras\nimport numpy as np",
+   "executionCount": 62,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## მონაცემთა ნაკრების მომზადება\n\nჩვენ დავიწყებთ მონაცემთა ბაზის წაკითხვით მონაცემთა ჩარჩოში. თუ გსურთ გაიგოთ მეტი პანდების გამოყენების შესახებ, ეწვიეთ გაკვეთილი მონაცემთა დამუშავების შესახებ ჩვენს მონაცემთა მეცნიერება დამწყებთათვის-ში\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "df = pd.read_csv('ner_dataset.csv',encoding='unicode-escape')\ndf.head()",
+   "executionCount": 3,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "    Sentence #           Word  POS Tag\n0  Sentence: 1      Thousands  NNS   O\n1          NaN             of   IN   O\n2          NaN  demonstrators  NNS   O\n3          NaN           have  VBP   O\n4          NaN        marched  VBN   O"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით მივიღოთ უნიკალური ტეგები და შევქმნათ საძიებო ლექსიკონები, რომლებიც შეგვიძლია გამოვიყენოთ ტეგების კლასის ნომრებად გადაქცევისთვის:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "tags = df.Tag.unique()\ntags",
+   "executionCount": 4,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "array(['O', 'B-geo', 'B-gpe', 'B-per', 'I-geo', 'B-org', 'I-org', 'B-tim',\n       'B-art', 'I-art', 'I-per', 'I-gpe', 'I-tim', 'B-nat', 'B-eve',\n       'I-eve', 'I-nat'], dtype=object)"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "id2tag = dict(enumerate(tags))\ntag2id = { v : k for k,v in id2tag.items() }\n\nid2tag[0]",
+   "executionCount": 8,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "'O'"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა ჩვენ იგივე უნდა გავაკეთოთ ლექსიკასთან დაკავშირებით. სიმარტივისთვის შევქმნით ლექსიკას სიტყვების სიხშირის გათვალისწინების გარეშე; რეალურ ცხოვრებაში შეიძლება დაგჭირდეთ Keras vectorizer-ის გამოყენება და სიტყვების რაოდენობის შეზღუდვა.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "vocab = set(df['Word'].apply(lambda x: x.lower()))\nid2word = { i+1 : v for i,v in enumerate(vocab) }\nid2word[0] = '<UNK>'\nvocab.add('<UNK>')\nword2id = { v : k for k,v in id2word.items() }",
+   "executionCount": 14,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ უნდა შევქმნათ წინადადებების ნაკრები ტრენინგისთვის. მოდით გადავხედოთ თავდაპირველ მონაცემთა ბაზას და გამოვყოთ ყველა ცალკეული წინადადება `X` (სიტყვების სია) და `Y` (ნიშანთა სია):\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "X,Y = [],[]\ns,t = [],[]\nfor i,row in df[['Sentence #','Word','Tag']].iterrows():\n    if pd.isna(row['Sentence #']):\n        s.append(row['Word'])\n        t.append(row['Tag'])\n    else:\n        if len(s)>0:\n            X.append(s)\n            Y.append(t)\n        s,t = [row['Word']],[row['Tag']]\nX.append(s)\nY.append(t)\n",
+   "executionCount": 41,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ ახლა ვექტორიზაციას მოვახდენთ ყველა სიტყვასა და ნიშანს:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def vectorize(seq):\n    return [word2id[x.lower()] for x in seq]\n\ndef tagify(seq):\n    return [tag2id[x] for x in seq]\n\nXv = list(map(vectorize,X))\nYv = list(map(tagify,Y))\n\nXv[0], Yv[0]",
+   "executionCount": 93,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "([10386,\n  23515,\n  4134,\n  29620,\n  7954,\n  13583,\n  21193,\n  12222,\n  27322,\n  18258,\n  5815,\n  15880,\n  5355,\n  25242,\n  31327,\n  18258,\n  27067,\n  23515,\n  26444,\n  14412,\n  358,\n  26551,\n  5011,\n  30558],\n [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0])"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "სიმარტივისთვის, ჩვენ ყველა წინადადებას ჩავსვამთ 0 ტოკენებით მაქსიმალურ სიგრძემდე. რეალურ ცხოვრებაში, შეიძლება გვსურს გამოვიყენოთ უფრო ჭკვიანი სტრატეგია და ბალიშების თანმიმდევრობა მხოლოდ ერთი მინი პარტიაში.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "X_data = keras.preprocessing.sequence.pad_sequences(Xv,padding='post')\nY_data = keras.preprocessing.sequence.pad_sequences(Yv,padding='post')",
+   "executionCount": 51,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## ტოკენის კლასიფიკაციის ქსელის განსაზღვრა\n\nჩვენ გამოვიყენებთ ორ ფენის ორმხრივ LSTM ქსელს ტოკენის კლასიფიკაციისთვის. იმისათვის, რომ გამოვიყენოთ მკვრივი კლასიფიკატორი ბოლო LSTM ფენის თითოეულ გამოსავალზე, ჩვენ გამოვიყენებთ `TimeDistributed` კონსტრუქციას, რომელიც იმეორებს იმავე მკვრივ ფენას LSTM-ის თითოეულ გამოსავალზე ყოველ საფეხურზე:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "maxlen = X_data.shape[1]\nvocab_size = len(vocab)\nnum_tags = len(tags)\nmodel = keras.models.Sequential([\n    keras.layers.Embedding(vocab_size, 300, input_length=maxlen),\n    keras.layers.Bidirectional(keras.layers.LSTM(units=100, activation='tanh', return_sequences=True)),\n    keras.layers.Bidirectional(keras.layers.LSTM(units=100, activation='tanh', return_sequences=True)),\n    keras.layers.TimeDistributed(keras.layers.Dense(num_tags, activation='softmax'))\n])\nmodel.compile(loss='sparse_categorical_crossentropy',optimizer='adam',metrics=['acc'])\nmodel.summary()",
+   "executionCount": 94,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Model: \"sequential_3\"\n_________________________________________________________________\n Layer (type)                Output Shape              Param #   \n=================================================================\n embedding_4 (Embedding)     (None, 104, 300)          9545400   \n                                                                 \n bidirectional_6 (Bidirectio  (None, 104, 200)         320800    \n nal)                                                            \n                                                                 \n bidirectional_7 (Bidirectio  (None, 104, 200)         240800    \n nal)                                                            \n                                                                 \n time_distributed_3 (TimeDis  (None, 104, 17)          3417      \n tributed)                                                       \n                                                                 \n=================================================================\nTotal params: 10,110,417\nTrainable params: 10,110,417\nNon-trainable params: 0\n_________________________________________________________________\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "გაითვალისწინეთ, რომ ჩვენ ცალსახად ვაზუსტებთ `maxlen`-ს ჩვენი მონაცემთა ნაკრებისთვის - იმ შემთხვევაში, თუ გვინდა, რომ ქსელმა შეძლოს ცვლადი სიგრძის თანმიმდევრობების დამუშავება, ჩვენ უნდა ვიყოთ უფრო ჭკვიანები ქსელის განსაზღვრისას.\n\nმოდით ახლა ვავარჯიშოთ მოდელი. სიჩქარისთვის ჩვენ მხოლოდ ერთი ეპოქისთვის ვივარჯიშებთ, მაგრამ შეგიძლიათ უფრო დიდხანს სცადოთ ვარჯიში. ასევე, შეიძლება დაგჭირდეთ მონაცემთა ნაკრების გარკვეული ნაწილის გამოყოფა, როგორც სასწავლო მონაცემთა ბაზა, რათა დააკვირდეთ ვალიდაციის სიზუსტეს.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model.fit(X_data,Y_data)",
+   "executionCount": 57,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "1499/1499 [==============================] - 740s 488ms/step - loss: 0.0667 - acc: 0.9841\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "text",
+     "text": "<keras.callbacks.History at 0x16f0bb2a310>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## შედეგის ტესტირება\n\nახლა ვნახოთ, როგორ მუშაობს ჩვენი ერთეულის ამოცნობის მოდელი ნიმუშის წინადადებაზე:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "sent = 'John Smith went to Paris to attend a conference in cancer development institute'\nwords = sent.lower().split()\nv = keras.preprocessing.sequence.pad_sequences([[word2id[x] for x in words]],padding='post',maxlen=maxlen)\nres = model(v)[0]",
+   "executionCount": 91,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "r = np.argmax(res.numpy(),axis=1)\nfor i,w in zip(r,words):\n    print(f\"{w} -> {id2tag[i]}\")",
+   "executionCount": 92,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "john -> B-per\nsmith -> I-per\nwent -> O\nto -> O\nparis -> B-geo\nto -> O\nattend -> O\na -> O\nconference -> O\nin -> O\ncancer -> B-org\ndevelopment -> I-org\ninstitute -> I-org\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## Takeaway\n\nთუნდაც მარტივი LSTM მოდელი აჩვენებს გონივრულ შედეგებს NER-ზე. თუმცა, ბევრად უკეთესი შედეგების მისაღებად, შეიძლება დაგჭირდეთ დიდი წინასწარ მომზადებული ენის მოდელების გამოყენება, როგორიცაა BERT. BERT-ის ტრენინგი NER-ისთვის Huggingface Transformers ბიბლიოთეკის გამოყენებით აღწერილია აქ.\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/5-NLP/19-NER/NER-TF.ipynb"
+}

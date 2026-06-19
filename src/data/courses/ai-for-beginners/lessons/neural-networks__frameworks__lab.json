@@ -1,0 +1,47 @@
+{
+ "kind": "markdown",
+ "courseSlug": "ai-for-beginners",
+ "slug": "neural-networks/frameworks/lab",
+ "segments": [
+  "neural-networks",
+  "frameworks",
+  "lab"
+ ],
+ "title": "კლასიფიკაცია PyTorch/TensorFlow-ით",
+ "module": {
+  "id": "3-NeuralNetworks",
+  "slug": "neural-networks",
+  "title": "ნეირონული ქსელები",
+  "icon": "network"
+ },
+ "lessonNumber": 5,
+ "orderInModule": 1050,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/3-NeuralNetworks/05-Frameworks/lab/README.md"
+ },
+ "prev": {
+  "slug": "neural-networks/own-framework/own-framework",
+  "title": "მრავალშრიანი პერცეპტრონები"
+ },
+ "next": {
+  "slug": "neural-networks/frameworks",
+  "title": "ნერვული ქსელის ჩარჩოები"
+ },
+ "markdown": "ლაბორატორიული დავალება AI დამწყებთათვის სასწავლო პროგრამა-დან.\n\n## ამოცანა\n\nგადაწყვიტეთ ორი კლასიფიკაციის პრობლემა ერთ და მრავალშრიანი სრულად დაკავშირებული ქსელების გამოყენებით PyTorch-ის ან TensorFlow-ის გამოყენებით:\n\n1. ირისის კლასიფიკაცია პრობლემა - ტაბულური შეყვანის მონაცემების პრობლემის მაგალითი, რომელიც შეიძლება დამუშავდეს კლასიკური მანქანათმცოდნეობით. თქვენი მიზანი იქნება ირისების კლასიფიკაცია 3 კლასად, 4 რიცხვითი პარამეტრის საფუძველზე.\n1. MNIST ხელნაწერი ციფრების კლასიფიკაციის პრობლემა, რომელიც ადრე ვნახეთ.\n\nსცადეთ სხვადასხვა ქსელის არქიტექტურა საუკეთესო სიზუსტის მისაღწევად, რაც შეგიძლიათ მიიღოთ.\n\n## მითითებული ნოუთბუქი\n\nდაიწყეთ ლაბორატორია LabFrameworks.ipynb გახსნით\n",
+ "headings": [
+  {
+   "id": "ამოცანა",
+   "text": "ამოცანა",
+   "level": 2
+  },
+  {
+   "id": "მითითებული-ნოუთბუქი",
+   "text": "მითითებული ნოუთბუქი",
+   "level": 2
+  }
+ ],
+ "readingMinutes": 1
+}

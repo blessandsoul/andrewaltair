@@ -1,0 +1,47 @@
+{
+ "kind": "markdown",
+ "courseSlug": "ai-for-beginners",
+ "slug": "nlp/generative-networks/lab",
+ "segments": [
+  "nlp",
+  "generative-networks",
+  "lab"
+ ],
+ "title": "Word-ის დონის ტექსტის გენერაცია RNN-ების გამოყენებით",
+ "module": {
+  "id": "5-NLP",
+  "slug": "nlp",
+  "title": "ბუნებრივი ენის დამუშავება",
+  "icon": "messages"
+ },
+ "lessonNumber": 17,
+ "orderInModule": 1170,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/5-NLP/17-GenerativeNetworks/lab/README.md"
+ },
+ "prev": {
+  "slug": "nlp/rnn/rnntf",
+  "title": "განმეორებადი ნერვული ქსელები"
+ },
+ "next": {
+  "slug": "nlp/generative-networks",
+  "title": "გენერაციული ქსელები"
+ },
+ "markdown": "ლაბორატორიული დავალება AI დამწყებთათვის სასწავლო პროგრამა-დან.\n\n## ამოცანა\n\nამ ლაბორატორიაში, თქვენ უნდა აიღოთ ნებისმიერი წიგნი და გამოიყენოთ იგი, როგორც მონაცემთა ნაკრები, რათა მოამზადოთ ტექსტის დონის გენერატორი.\n\n## The Dataset\n\nშეგიძლიათ გამოიყენოთ ნებისმიერი წიგნი. შეგიძლიათ იპოვოთ ბევრი უფასო ტექსტი პროექტი გუტენბერგი-ზე, მაგალითად, აქ არის პირდაპირი ბმული ალისის თავგადასავალი საოცრებათა ქვეყანაში) ლუის კეროლის მიერ.\n",
+ "headings": [
+  {
+   "id": "ამოცანა",
+   "text": "ამოცანა",
+   "level": 2
+  },
+  {
+   "id": "the-dataset",
+   "text": "The Dataset",
+   "level": 2
+  }
+ ],
+ "readingMinutes": 1
+}

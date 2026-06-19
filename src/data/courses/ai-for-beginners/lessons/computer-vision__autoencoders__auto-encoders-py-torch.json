@@ -1,0 +1,488 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "computer-vision/autoencoders/auto-encoders-py-torch",
+ "segments": [
+  "computer-vision",
+  "autoencoders",
+  "auto-encoders-py-torch"
+ ],
+ "title": "ავტოინკოდერები",
+ "module": {
+  "id": "4-ComputerVision",
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა",
+  "icon": "eye"
+ },
+ "lessonNumber": 9,
+ "orderInModule": 1090.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/4-ComputerVision/09-Autoencoders/AutoEncodersPyTorch.ipynb"
+ },
+ "prev": {
+  "slug": "computer-vision/autoencoders",
+  "title": "ავტოკოდერები"
+ },
+ "next": {
+  "slug": "computer-vision/autoencoders/autoencoders-tf",
+  "title": "ავტოკოდერები"
+ },
+ "framework": "pytorch",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "CNN-ების მომზადებისას, ერთ-ერთი პრობლემა ის არის, რომ ჩვენ გვჭირდება ბევრი ეტიკეტირებული მონაცემები. გამოსახულების კლასიფიკაციის შემთხვევაში, ჩვენ გვჭირდება სურათების გამოყოფა სხვადასხვა კლასებად, რაც არის ხელით ძალისხმევა.\n\nთუმცა, ჩვენ შეიძლება გვსურს გამოვიყენოთ ნედლეული (არა მარკირებული) მონაცემები CNN-ის ფუნქციების ამომყვანების ტრენინგისთვის, რასაც თვით ზედამხედველობითი სწავლება ეწოდება. ეტიკეტების ნაცვლად, ჩვენ გამოვიყენებთ ტრენინგ სურათებს როგორც ქსელის შეყვანის, ასევე გამოსავლის სახით. autoencoder-ის მთავარი იდეა არის ის, რომ ჩვენ გვექნება კოდერის ქსელი, რომელიც გარდაქმნის შეყვანის სურათს რაღაც ლატენტურ სივრცეში (ჩვეულებრივ, ეს არის მხოლოდ მცირე ზომის ვექტორი), შემდეგ დეკოდერის ქსელი, რომლის მიზანი იქნება ორიგინალური სურათის რეკონსტრუქცია.\n\nიმის გამო, რომ ჩვენ ვამზადებთ ავტოენკოდერს, რათა აღბეჭდოს რაც შეიძლება მეტი ინფორმაცია ორიგინალური სურათიდან ზუსტი რეკონსტრუქციისთვის, ქსელი ცდილობს მოიძიოს შეყვანის სურათების საუკეთესო ემბედინგი მნიშვნელობის დასაფიქსირებლად.\n\n![AutoEncoder Diagram](/courses/ai-for-beginners/4-ComputerVision/09-Autoencoders/images/autoencoder_schema.jpg)\n\n> სურათი კერას ბლოგი-დან\n\nმოდით შევქმნათ უმარტივესი ავტოკოდერი MNIST-ისთვის!\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import torch\nimport torchvision\nimport matplotlib.pyplot as plt\nfrom torchvision import transforms\nfrom torch import nn\nfrom torch import optim\nfrom tqdm import tqdm\nimport numpy as np\nimport torch.nn.functional as F\ntorch.manual_seed(42)\nnp.random.seed(42)",
+   "executionCount": 182,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "განსაზღვრეთ ტრენინგის პარამეტრები და შეამოწმეთ არის თუ არა GPU ხელმისაწვდომი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "device = 'cuda:0' if torch.cuda.is_available() else 'cpu'\ntrain_size = 0.9\nlr = 1e-3\neps = 1e-8\nbatch_size = 256\nepochs = 30",
+   "executionCount": 183,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "შემდეგი ფუნქცია ჩატვირთავს MNIST მონაცემთა ბაზას და გამოიყენებს მასზე მითითებულ გარდაქმნებს. ის ასევე დაყოფს მას მატარებლის/ტესტის მონაცემთა ნაკრებებად.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def mnist(train_part, transform=None):\n    dataset = torchvision.datasets.MNIST('.', download=True, transform=transform)\n    train_part = int(train_part * len(dataset))\n    train_dataset, test_dataset = torch.utils.data.random_split(dataset, [train_part, len(dataset) - train_part])\n    return train_dataset, test_dataset",
+   "executionCount": 184,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მოდით ჩატვირთოთ მონაცემთა ნაკრები და განვსაზღვროთ მონაცემთა ჩამტვირთველები მატარებლისა და ტესტირებისთვის:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "transform = transforms.Compose([transforms.ToTensor()])\n\ntrain_dataset, test_dataset = mnist(train_size, transform)\n\ntrain_dataloader = torch.utils.data.DataLoader(train_dataset, drop_last=True, batch_size=batch_size, shuffle=True)\ntest_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False)\ndataloaders = (train_dataloader, test_dataloader)",
+   "executionCount": 187,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def plotn(n, data, noisy=False, super_res=None):\n    fig, ax = plt.subplots(1, n)\n    for i, z in enumerate(data):\n        if i == n:\n            break\n        preprocess = z[0].reshape(1, 28, 28) if z[0].shape[1] == 28 else z[0].reshape(1, 14, 14) if z[0].shape[1] == 14 else z[0]\n        if super_res is not None:\n            _transform = transforms.Resize((int(preprocess.shape[1] / super_res), int(preprocess.shape[2] / super_res)))\n            preprocess = _transform(preprocess)\n\n        if noisy:\n            shapes = list(preprocess.shape)\n            preprocess += noisify(shapes)\n\n        ax[i].imshow(preprocess[0])\n    plt.show()",
+   "executionCount": 188,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def noisify(shapes):\n    return np.random.normal(loc=0.5, scale=0.3, size=shapes)",
+   "executionCount": 250,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plotn(5, train_dataset)",
+   "executionCount": 190,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/eebd8dc983b0d60a.png"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class Encoder(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.conv1 = nn.Conv2d(1, 16, kernel_size=(3, 3), padding='same')\n        self.maxpool1 = nn.MaxPool2d(kernel_size=(2, 2))\n        self.conv2 = nn.Conv2d(16, 8, kernel_size=(3, 3), padding='same')\n        self.maxpool2 = nn.MaxPool2d(kernel_size=(2, 2))\n        self.conv3 = nn.Conv2d(8, 8, kernel_size=(3, 3), padding='same')\n        self.maxpool3 = nn.MaxPool2d(kernel_size=(2, 2), padding=(1, 1))\n        self.relu = nn.ReLU()\n\n    def forward(self, input):\n        hidden1 = self.maxpool1(self.relu(self.conv1(input)))\n        hidden2 = self.maxpool2(self.relu(self.conv2(hidden1)))\n        encoded = self.maxpool3(self.relu(self.conv3(hidden2)))\n        return encoded",
+   "executionCount": 191,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class Decoder(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.conv1 = nn.Conv2d(8, 8, kernel_size=(3, 3), padding='same')\n        self.upsample1 = nn.Upsample(scale_factor=(2, 2))\n        self.conv2 = nn.Conv2d(8, 8, kernel_size=(3, 3), padding='same')\n        self.upsample2 = nn.Upsample(scale_factor=(2, 2))\n        self.conv3 = nn.Conv2d(8, 16, kernel_size=(3, 3))\n        self.upsample3 = nn.Upsample(scale_factor=(2, 2))\n        self.conv4 = nn.Conv2d(16, 1, kernel_size=(3, 3), padding='same')\n        self.relu = nn.ReLU()\n        self.sigmoid = nn.Sigmoid()\n\n    def forward(self, input):\n        hidden1 = self.upsample1(self.relu(self.conv1(input)))\n        hidden2 = self.upsample2(self.relu(self.conv2(hidden1)))\n        hidden3 = self.upsample3(self.relu(self.conv3(hidden2)))\n        decoded = self.sigmoid(self.conv4(hidden3))\n        return decoded",
+   "executionCount": 192,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class AutoEncoder(nn.Module):\n    def __init__(self, super_resolution=False):\n        super().__init__()\n        if not super_resolution:\n            self.encoder = Encoder()\n        else:\n            self.encoder = SuperResolutionEncoder()\n        self.decoder = Decoder()\n\n    def forward(self, input):\n        encoded = self.encoder(input)\n        decoded = self.decoder(encoded)\n        return decoded",
+   "executionCount": 193,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model = AutoEncoder().to(device)\noptimizer = optim.Adam(model.parameters(), lr=lr, eps=eps)\nloss_fn = nn.BCELoss()",
+   "executionCount": 194,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def train(dataloaders, model, loss_fn, optimizer, epochs, device, noisy=None, super_res=None):\n    tqdm_iter = tqdm(range(epochs))\n    train_dataloader, test_dataloader = dataloaders[0], dataloaders[1]\n\n    for epoch in tqdm_iter:\n        model.train()\n        train_loss = 0.0\n        test_loss = 0.0\n\n        for batch in train_dataloader:\n            imgs, labels = batch\n            shapes = list(imgs.shape)\n\n            if super_res is not None:\n                shapes[2], shapes[3] = int(shapes[2] / super_res), int(shapes[3] / super_res)\n                _transform = transforms.Resize((shapes[2], shapes[3]))\n                imgs_transformed = _transform(imgs)\n                imgs_transformed = imgs_transformed.to(device)\n\n            imgs = imgs.to(device)\n            labels = labels.to(device)\n\n            if noisy is not None:\n                noisy_tensor = noisy[0]\n            else:\n                noisy_tensor = torch.zeros(tuple(shapes)).to(device)\n\n            if super_res is None:\n                imgs_noisy = imgs + noisy_tensor\n            else:\n                imgs_noisy = imgs_transformed + noisy_tensor\n\n            imgs_noisy = torch.clamp(imgs_noisy, 0., 1.)\n\n            preds = model(imgs_noisy)\n            loss = loss_fn(preds, imgs)\n\n            optimizer.zero_grad()\n            loss.backward()\n            optimizer.step()\n\n            train_loss += loss.item()\n\n        model.eval()\n        with torch.no_grad():\n            for batch in test_dataloader:\n                imgs, labels = batch\n                shapes = list(imgs.shape)\n\n                if super_res is not None:\n                    shapes[2], shapes[3] = int(shapes[2] / super_res), int(shapes[3] / super_res)\n                    _transform = transforms.Resize((shapes[2], shapes[3]))\n                    imgs_transformed = _transform(imgs)\n                    imgs_transformed = imgs_transformed.to(device)\n\n\n                imgs = imgs.to(device)\n                labels = labels.to(device)\n\n                if noisy is not None:\n                    test_noisy_tensor = noisy[1]\n                else:\n                    test_noisy_tensor = torch.zeros(tuple(shapes)).to(device)\n\n                if super_res is None:\n                    imgs_noisy = imgs + test_noisy_tensor\n                else:\n                    imgs_noisy = imgs_transformed + test_noisy_tensor\n\n                imgs_noisy = torch.clamp(imgs_noisy, 0., 1.)\n\n                preds = model(imgs_noisy)\n                loss = loss_fn(preds, imgs)\n\n                test_loss += loss.item()\n\n        train_loss /= len(train_dataloader)\n        test_loss /= len(test_dataloader)\n\n        tqdm_dct = {'train loss:': train_loss, 'test loss:': test_loss}\n        tqdm_iter.set_postfix(tqdm_dct, refresh=True)\n        tqdm_iter.refresh()",
+   "executionCount": 259,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "train(dataloaders, model, loss_fn, optimizer, epochs, device)",
+   "executionCount": 196,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "100%|██████████| 30/30 [06:49<00:00, 13.65s/it, train loss:=0.104, test loss:=0.104]\n",
+     "stream": "stderr"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model.eval()\npredictions = []\nplots = 5\nfor i, data in enumerate(test_dataset):\n    if i == plots:\n        break\n    predictions.append(model(data[0].to(device).unsqueeze(0)).detach().cpu())\nplotn(plots, test_dataset)\nplotn(plots, predictions)",
+   "executionCount": 197,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/4a0417dbc0d7d3ae.png"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/15edd381c18e6c29.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "> ამოცანა 1: შეეცადეთ მოამზადოთ ავტოენკოდერი ძალიან მცირე ფარული ვექტორის ზომით, მაგ. 2 და დახაზეთ წერტილები, რომლებიც შეესაბამება სხვადასხვა ციფრს. მინიშნება: გამოიყენეთ სრულად დაკავშირებული მკვრივი ფენა კონვოლუტონური ნაწილის შემდეგ, რათა შეამციროთ ვექტორის ზომა საჭირო მნიშვნელობამდე.\n\n> ამოცანა 2: დაწყებული სხვადასხვა ციფრიდან, მიიღეთ მათი ფარული სივრცის წარმოდგენები და ნახეთ, რა გავლენას ახდენს ლატენტურ სივრცეში გარკვეული ხმაურის დამატება მიღებულ ციფრებზე.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## დენოიზირება\n\nავტოინკოდერები შეიძლება ეფექტურად იქნას გამოყენებული სურათებიდან ხმაურის მოსაშორებლად. დენოიზერის მომზადების მიზნით, ჩვენ დავიწყებთ ხმაურის გარეშე გამოსახულებებით და დავამატებთ მათ ხელოვნურ ხმაურს. შემდეგ, ჩვენ გამოვკვებავთ ავტოინკოდერს ხმაურიანი სურათებით, როგორც შეყვანის სახით, და ხმაურის გარეშე გამოსახულებით, როგორც გამომავალი.\n\nვნახოთ, როგორ მუშაობს ეს MNIST-ისთვის:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plotn(5, train_dataset, noisy=True)",
+   "executionCount": 260,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/1552650f7611f2bc.png"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model = AutoEncoder().to(device)\noptimizer = optim.Adam(model.parameters(), lr=lr, eps=eps)\nloss_fn = nn.BCELoss()",
+   "executionCount": 276,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "noisy_tensor = torch.FloatTensor(noisify([256, 1, 28, 28])).to(device)\ntest_noisy_tensor = torch.FloatTensor(noisify([1, 1, 28, 28])).to(device)\nnoisy_tensors = (noisy_tensor, test_noisy_tensor)",
+   "executionCount": 277,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "train(dataloaders, model, loss_fn, optimizer, 100, device, noisy=noisy_tensors)",
+   "executionCount": 278,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "100%|██████████| 100/100 [22:29<00:00, 13.49s/it, train loss:=0.134, test loss:=0.133]\n",
+     "stream": "stderr"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model.eval()\npredictions = []\nnoise = []\nplots = 5\nfor i, data in enumerate(test_dataset):\n    if i == plots:\n        break\n    shapes = data[0].shape\n    noisy_data = data[0] + test_noisy_tensor[0].detach().cpu()\n    noise.append(noisy_data)\n    predictions.append(model(noisy_data.to(device).unsqueeze(0)).detach().cpu())\nplotn(plots, noise)\nplotn(plots, predictions)",
+   "executionCount": 279,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/1da460794a2a43ef.png"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/5c116f64c6297d22.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "> სავარჯიშო: ნახეთ, როგორ მუშაობს MNIST ციფრებზე მომზადებული დენოიზერი სხვადასხვა სურათზე. მაგალითად, შეგიძლიათ აიღოთ მოდის MNIST მონაცემთა ნაკრები, რომელსაც აქვს სურათის იგივე ზომა. გაითვალისწინეთ, რომ დენოიზერი კარგად მუშაობს მხოლოდ იმავე ტიპის გამოსახულებაზე, რომელზედაც ივარჯიშეს (ანუ შეყვანის მონაცემების იგივე ალბათობის განაწილებისთვის).\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## სუპერ რეზოლუცია\n\nდენოიზერის მსგავსად, ჩვენ შეგვიძლია მოვამზადოთ ავტოენკოდერები გამოსახულების გარჩევადობის გაზრდის მიზნით. სუპერ გარჩევადობის ქსელის მოსამზადებლად, ჩვენ დავიწყებთ მაღალი გარჩევადობის სურათებით და ავტომატურად შევამცირებთ მათ მასშტაბებს ქსელის შეყვანის შესაქმნელად. ამის შემდეგ ჩვენ გამოვკვებავთ ავტოინკოდერს მცირე სურათებით, როგორც შეყვანის სახით და მაღალი გარჩევადობის სურათებს, როგორც გამოსავალს.\n\nამისათვის მოდით შევამციროთ სურათი 14x14-მდე მატარებელში.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "super_res_koeff = 2.0\nplotn(5, train_dataset, super_res=super_res_koeff)",
+   "executionCount": 202,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/83f66d7334a327b0.png"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class SuperResolutionEncoder(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.conv1 = nn.Conv2d(1, 16, kernel_size=(3, 3), padding='same')\n        self.maxpool1 = nn.MaxPool2d(kernel_size=(2, 2))\n        self.conv2 = nn.Conv2d(16, 8, kernel_size=(3, 3), padding='same')\n        self.maxpool2 = nn.MaxPool2d(kernel_size=(2, 2), padding=(1, 1))\n        self.relu = nn.ReLU()\n\n    def forward(self, input):\n        hidden1 = self.maxpool1(self.relu(self.conv1(input)))\n        encoded = self.maxpool2(self.relu(self.conv2(hidden1)))\n        return encoded",
+   "executionCount": 203,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model = AutoEncoder(super_resolution=True).to(device)\noptimizer = optim.Adam(model.parameters(), lr=lr, eps=eps)\nloss_fn = nn.BCELoss()",
+   "executionCount": 204,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "train(dataloaders, model, loss_fn, optimizer, epochs, device, super_res=2.0)",
+   "executionCount": 205,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "100%|██████████| 30/30 [06:43<00:00, 13.47s/it, train loss:=0.102, test loss:=0.103]\n",
+     "stream": "stderr"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model.eval()\npredictions = []\nplots = 5\nshapes = test_dataset[0][0].shape\n\nfor i, data in enumerate(test_dataset):\n    if i == plots:\n        break\n    _transform = transforms.Resize((int(shapes[1] / super_res_koeff), int(shapes[2] / super_res_koeff)))\n    predictions.append(model(_transform(data[0]).to(device).unsqueeze(0)).detach().cpu())\nplotn(plots, test_dataset, super_res=super_res_koeff)\nplotn(plots, predictions)",
+   "executionCount": 206,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/d1bdc8e596ec24ae.png"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/d212310ab95d7df8.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "> სავარჯიშო: სცადეთ ავარჯიშოთ სუპერ გარჩევადობის ქსელი CIFAR-10-ზე 2x და 4x გაფართოებისთვის. გამოიყენეთ ხმაური, როგორც შემავალი 4x გაფართოების მოდელი და დააკვირდით შედეგს.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "# ვარიაციული ავტომატური შიფრები (VAE)\n\nტრადიციული ავტოკოდერები გარკვეულწილად ამცირებენ შეყვანის მონაცემების განზომილებას, აცნობიერებენ შეყვანის სურათების მნიშვნელოვან მახასიათებლებს. თუმცა, ლატენტურ ვექტორებს ხშირად დიდი აზრი არ აქვს. სხვა სიტყვებით რომ ვთქვათ, MNIST მონაცემთა ნაკრების მაგალითზე აყვანა, იმის გარკვევა, თუ რომელი ციფრები შეესაბამება სხვადასხვა ლატენტურ ვექტორებს, არ არის ადვილი ამოცანა, რადგან ახლო ფარული ვექტორები აუცილებლად არ შეესაბამება იმავე ციფრებს.\n\nმეორეს მხრივ, გენერაციული მოდელების მოსამზადებლად უმჯობესია ლატენტური სივრცის გარკვეული გაგება. ეს იდეა მიგვიყვანს ვარიაციული ავტომატური კოდირებით (VAE).\n\nVAE არის ავტოკოდერი, რომელიც სწავლობს ფარული პარამეტრების სტატისტიკური განაწილების წინასწარმეტყველებას, ე.წ. ლატენტური განაწილების. მაგალითად, შეგვიძლია ვივარაუდოთ, რომ ფარული ვექტორები განაწილებული იქნება $N(\\mathrm{z\\_mean},e^{\\mathrm{z\\_log}})$, სადაც $\\mathrm{z\\_mean}, \\mathrm{z\\_log} \\in\\mathbb{R}^d$. Encoder in VAE სწავლობს ამ პარამეტრების პროგნოზირებას, შემდეგ კი დეკოდერი იღებს შემთხვევით ვექტორს ამ განაწილებიდან ობიექტის რეკონსტრუქციისთვის.\n\nშეჯამება:\n\n* შეყვანის ვექტორიდან ჩვენ ვიწინასწარმეტყველებთ `z_mean` და `z_log`-ს (თვითონ სტანდარტული გადახრის პროგნოზირების ნაცვლად, ჩვენ ვიწინასწარმეტყველებთ მის ლოგარითმს)\n * ჩვენ ვატარებთ ვექტორს `sample(z_val in code)` განაწილებიდან $N(\\mathrm{z\\_mean},e^{\\mathrm{z\\_log\\_sigma}})$\n * დეკოდერი ცდილობს ორიგინალური სურათის გაშიფვრას `sample` შეყვანის ვექტორის გამოყენებით\n\n![](/courses/ai-for-beginners/4-ComputerVision/09-Autoencoders/images/vae.png)\n\n> სურათი ეს ბლოგის პოსტი-დან ისააკ დიკემანის მიერ\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class VAEEncoder(nn.Module):\n    def __init__(self, device):\n        super().__init__()\n        self.intermediate_dim = 512\n        self.latent_dim = 2\n        self.linear = nn.Linear(784, self.intermediate_dim)\n        self.z_mean = nn.Linear(self.intermediate_dim, self.latent_dim)\n        self.z_log = nn.Linear(self.intermediate_dim, self.latent_dim)\n        self.relu = nn.ReLU()\n        self.device = device\n\n    def forward(self, input):\n        bs = input.shape[0]\n\n        hidden = self.relu(self.linear(input))\n        z_mean = self.z_mean(hidden)\n        z_log = self.z_log(hidden)\n\n        eps = torch.FloatTensor(np.random.normal(size=(bs, self.latent_dim))).to(device)\n        z_val = z_mean + torch.exp(z_log) * eps\n        return z_mean, z_log, z_val",
+   "executionCount": 207,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class VAEDecoder(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.intermediate_dim = 512\n        self.latent_dim = 2\n        self.linear = nn.Linear(self.latent_dim, self.intermediate_dim)\n        self.output = nn.Linear(self.intermediate_dim, 784)\n        self.relu = nn.ReLU()\n        self.sigmoid = nn.Sigmoid()\n\n    def forward(self, input):\n        hidden = self.relu(self.linear(input))\n        decoded = self.sigmoid(self.output(hidden))\n        return decoded",
+   "executionCount": 208,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class VAEAutoEncoder(nn.Module):\n    def __init__(self, device):\n        super().__init__()\n        self.encoder = VAEEncoder(device)\n        self.decoder = VAEDecoder()\n        self.z_vals = None\n\n    def forward(self, input):\n        bs, c, h, w = input.shape[0], input.shape[1], input.shape[2], input.shape[3]\n        input = input.view(bs, -1)\n        encoded = self.encoder(input)\n        self.z_vals = encoded\n        decoded = self.decoder(encoded[2])\n        return decoded\n    \n    def get_zvals(self):\n        return self.z_vals",
+   "executionCount": 209,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ვარიაციური ავტომატური შიფრები იყენებენ კომპლექსურ დაკარგვის ფუნქციას, რომელიც შედგება ორი ნაწილისგან:\n* რეკონსტრუქციის დაკარგვა არის დაკარგვის ფუნქცია, რომელიც გვიჩვენებს, რამდენად ახლოს არის რეკონსტრუქციული სურათი მიზანთან (შეიძლება იყოს MSE). ეს არის იგივე დაკარგვის ფუნქცია, როგორც ჩვეულებრივ ავტოენკოდერებში.\n* KL დაკარგვა, რაც უზრუნველყოფს ფარული ცვლადი განაწილების ნორმალურ განაწილებასთან ახლოს ყოფნას. იგი ეფუძნება კულბეკ-ლეიბლერის დივერგენცია ცნებას - მეტრიკა, რათა შეფასდეს, რამდენად მსგავსია ორი სტატისტიკური განაწილება.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def vae_loss(preds, targets, z_vals):\n    mse = nn.MSELoss()\n    reconstruction_loss = mse(preds, targets.view(targets.shape[0], -1)) * 784.0\n    temp = 1.0 + z_vals[1] - torch.square(z_vals[0]) - torch.exp(z_vals[1])\n    kl_loss = -0.5 * torch.sum(temp, axis=-1)\n    return torch.mean(reconstruction_loss + kl_loss)",
+   "executionCount": 210,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model = VAEAutoEncoder(device).to(device)\noptimizer = optim.RMSprop(model.parameters(), lr=lr, eps=eps)",
+   "executionCount": 211,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def train_vae(dataloaders, model, optimizer, epochs, device):\n    tqdm_iter = tqdm(range(epochs))\n    train_dataloader, test_dataloader = dataloaders[0], dataloaders[1]\n\n    for epoch in tqdm_iter:\n        model.train()\n        train_loss = 0.0\n        test_loss = 0.0\n\n        for batch in train_dataloader:\n            imgs, labels = batch\n            imgs = imgs.to(device)\n            labels = labels.to(device)\n\n            preds = model(imgs)\n            z_vals = model.get_zvals()\n            loss = vae_loss(preds, imgs, z_vals)\n\n            optimizer.zero_grad()\n            loss.backward()\n            optimizer.step()\n\n            train_loss += loss.item()\n\n        model.eval()\n        with torch.no_grad():\n            for batch in test_dataloader:\n                imgs, labels = batch\n                imgs = imgs.to(device)\n                labels = labels.to(device)\n\n                preds = model(imgs)\n                z_vals = model.get_zvals()\n                loss = vae_loss(preds, imgs, z_vals)\n\n                test_loss += loss.item()\n\n        train_loss /= len(train_dataloader)\n        test_loss /= len(test_dataloader)\n\n        tqdm_dct = {'train loss:': train_loss, 'test loss:': test_loss}\n        tqdm_iter.set_postfix(tqdm_dct, refresh=True)\n        tqdm_iter.refresh()",
+   "executionCount": 212,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "train_vae(dataloaders, model, optimizer, epochs, device)",
+   "executionCount": 213,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "100%|██████████| 30/30 [04:54<00:00,  9.83s/it, train loss:=35.1, test loss:=35.6]\n",
+     "stream": "stderr"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model.eval()\npredictions = []\nplots = 5\nfor i, data in enumerate(test_dataset):\n    if i == plots:\n        break\n    predictions.append(model(data[0].to(device).unsqueeze(0)).view(1, 28, 28).detach().cpu())\nplotn(plots, test_dataset)\nplotn(plots, predictions)",
+   "executionCount": 214,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/4a0417dbc0d7d3ae.png"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/0f96831a5295d804.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "> ამოცანა: ჩვენს ნიმუშში ჩვენ მოვამზადეთ სრულად დაკავშირებული VAE. ახლა აიღეთ CNN ზემოთ არსებული ტრადიციული ავტომატური კოდირებიდან და შექმენით CNN-ზე დაფუძნებული VAE.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "# საპირისპირო ავტომატური შიფრები (AAE)\n"
+  },
+  {
+   "type": "markdown",
+   "source": "Adversarial Auto-Encoders არის გენერაციული საპირისპირო ქსელებისა და ვარიაციური ავტომატური შიფრების კომბინაცია.\n\nენკოდერი იქნება გენერატორი, დისკრიმინატორი ისწავლის რეალური სურათების შიფრატორის გამომავალი გენერირებისგან გარჩევას. შიფრატორის გამომავალი არის განაწილება, ამ გამომავალი დეკოდერი შეეცდება სურათის გაშიფვრას.\n\nამ მიდგომაში გვაქვს სამი დაკარგვის ფუნქცია: გენერატორის დაკარგვა, დისკრიმინატორის დაკარგვა GAN-ისგან და რეკონსტრუქციის დანაკარგი VAE-სგან.\n\n![](/courses/ai-for-beginners/4-ComputerVision/09-Autoencoders/images/aae.png)\n\n> სურათი ეს ბლოგის პოსტი-დან ფელიპე დუკაუდან\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class AAEEncoder(nn.Module):\n    def __init__(self, input_dim, inter_dim, latent_dim):\n        super().__init__()\n        self.linear1 = nn.Linear(input_dim, inter_dim)\n        self.linear2 = nn.Linear(inter_dim, inter_dim)\n        self.linear3 = nn.Linear(inter_dim, inter_dim)\n        self.linear4 = nn.Linear(inter_dim, latent_dim)\n        self.relu = nn.ReLU()\n        \n    def forward(self, input):\n        hidden1 = self.relu(self.linear1(input))\n        hidden2 = self.relu(self.linear2(hidden1))\n        hidden3 = self.relu(self.linear3(hidden2))\n        encoded = self.linear4(hidden3)\n        return encoded",
+   "executionCount": 215,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class AAEDecoder(nn.Module):\n    def __init__(self, latent_dim, inter_dim, output_dim):\n        super().__init__()\n        self.linear1 = nn.Linear(latent_dim, inter_dim)\n        self.linear2 = nn.Linear(inter_dim, inter_dim)\n        self.linear3 = nn.Linear(inter_dim, inter_dim)\n        self.linear4 = nn.Linear(inter_dim, output_dim)\n        self.relu = nn.ReLU()\n        self.sigmoid = nn.Sigmoid()\n        \n    def forward(self, input):\n        hidden1 = self.relu(self.linear1(input))\n        hidden2 = self.relu(self.linear2(hidden1))\n        hidden3 = self.relu(self.linear3(hidden2))\n        decoded = self.sigmoid(self.linear4(hidden3))\n        return decoded",
+   "executionCount": 216,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class AAEDiscriminator(nn.Module):\n    def __init__(self, latent_dim, inter_dim):\n        super().__init__()\n        self.latent_dim = latent_dim\n        self.inter_dim = inter_dim\n        self.linear1 = nn.Linear(latent_dim, inter_dim)\n        self.linear2 = nn.Linear(inter_dim, inter_dim)\n        self.linear3 = nn.Linear(inter_dim, inter_dim)\n        self.linear4 = nn.Linear(inter_dim, inter_dim)\n        self.linear5 = nn.Linear(inter_dim, 1)\n        self.relu = nn.ReLU()\n        self.sigmoid = nn.Sigmoid()\n        \n    def forward(self, input):\n        hidden1 = self.relu(self.linear1(input))\n        hidden2 = self.relu(self.linear2(hidden1))\n        hidden3 = self.relu(self.linear3(hidden2))\n        hidden4 = self.relu(self.linear4(hidden3))\n        decoded = self.sigmoid(self.linear4(hidden4))\n        return decoded\n    \n    def get_dims(self):\n        return self.latent_dim, self.inter_dim\n        ",
+   "executionCount": 217,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "input_dims = 784\ninter_dims = 1000\nlatent_dims = 150",
+   "executionCount": 218,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "aae_encoder = AAEEncoder(input_dims, inter_dims, latent_dims).to(device)\naae_decoder = AAEDecoder(latent_dims, inter_dims, input_dims).to(device)\naae_discriminator = AAEDiscriminator(latent_dims, int(inter_dims / 2)).to(device)",
+   "executionCount": 219,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "lr = 1e-4\nregularization_lr = 5e-5",
+   "executionCount": 220,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "optim_encoder = optim.Adam(aae_encoder.parameters(), lr=lr)\noptim_encoder_regularization = optim.Adam(aae_encoder.parameters(), lr=regularization_lr)\noptim_decoder = optim.Adam(aae_decoder.parameters(), lr=lr)\noptim_discriminator = optim.Adam(aae_discriminator.parameters(), lr=regularization_lr)",
+   "executionCount": 221,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def train_aae(dataloaders, models, optimizers, epochs, device):\n    tqdm_iter = tqdm(range(epochs))\n    train_dataloader, test_dataloader = dataloaders[0], dataloaders[1]\n    \n    enc, dec, disc = models[0], models[1], models[2]\n    optim_enc, optim_enc_reg, optim_dec, optim_disc = optimizers[0], optimizers[1], optimizers[2], optimizers[3]\n    \n    eps = 1e-9\n\n    for epoch in tqdm_iter:\n        enc.train()\n        dec.train()\n        disc.train()\n\n        train_reconst_loss = 0.0\n        train_disc_loss = 0.0\n        train_enc_loss = 0.0\n        \n        test_reconst_loss = 0.0\n        test_disc_loss = 0.0\n        test_enc_loss = 0.0\n\n        for batch in train_dataloader:\n            imgs, labels = batch\n            imgs = imgs.view(imgs.shape[0], -1).to(device)\n            labels = labels.to(device)\n            \n            enc.zero_grad()\n            dec.zero_grad()\n            disc.zero_grad()\n             \n            encoded = enc(imgs)\n            decoded = dec(encoded)\n            \n            reconstruction_loss = F.binary_cross_entropy(decoded, imgs)\n            reconstruction_loss.backward()\n            \n            optim_enc.step()\n            optim_dec.step()\n            enc.eval()\n\n            latent_dim, disc_inter_dim = disc.get_dims()\n            real = torch.randn(imgs.shape[0], latent_dim).to(device)\n            \n            disc_real = disc(real)\n            disc_fake = disc(enc(imgs))\n            \n            disc_loss = -torch.mean(torch.log(disc_real + eps) + torch.log(1.0 - disc_fake + eps))\n            disc_loss.backward()\n            \n            optim_dec.step()\n            enc.train()\n            \n            disc_fake = disc(enc(imgs))\n            enc_loss = -torch.mean(torch.log(disc_fake + eps))\n            enc_loss.backward()\n            \n            optim_enc_reg.step()\n\n            train_reconst_loss += reconstruction_loss.item()\n            train_disc_loss += disc_loss.item()\n            train_enc_loss += enc_loss.item()\n\n        enc.eval()\n        dec.eval()\n        disc.eval()\n\n        with torch.no_grad():\n            for batch in test_dataloader:\n                imgs, labels = batch\n                imgs = imgs.view(imgs.shape[0], -1).to(device)\n                labels = labels.to(device)\n\n                encoded = enc(imgs)\n                decoded = dec(encoded)\n\n                reconstruction_loss = F.binary_cross_entropy(decoded, imgs)\n\n                latent_dim, disc_inter_dim = disc.get_dims()\n                real = torch.randn(imgs.shape[0], latent_dim).to(device)\n\n                disc_real = disc(real)\n                disc_fake = disc(enc(imgs))\n                disc_loss = -torch.mean(torch.log(disc_real + eps) + torch.log(1.0 - disc_fake + eps))\n\n                disc_fake = disc(enc(imgs))\n                enc_loss = -torch.mean(torch.log(disc_fake + eps))\n\n                test_reconst_loss += reconstruction_loss.item()\n                test_disc_loss += disc_loss.item()\n                test_enc_loss += enc_loss.item()\n\n        train_reconst_loss /= len(train_dataloader)\n        train_disc_loss /= len(train_dataloader)\n        train_enc_loss /= len(train_dataloader)\n        \n        test_reconst_loss /= len(test_dataloader)\n        test_disc_loss /= len(test_dataloader)\n        test_enc_loss /= len(test_dataloader)\n\n        tqdm_dct = {'train reconst loss:': train_reconst_loss, 'train disc loss:': train_disc_loss, 'train enc loss': train_enc_loss, \\\n                        'test reconst loss:': test_reconst_loss, 'test disc loss:': test_disc_loss, 'test enc loss': test_enc_loss}\n        tqdm_iter.set_postfix(tqdm_dct, refresh=True)\n        tqdm_iter.refresh()",
+   "executionCount": 222,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "models = (aae_encoder, aae_decoder, aae_discriminator)\noptimizers = (optim_encoder, optim_encoder_regularization, optim_decoder, optim_discriminator)",
+   "executionCount": 223,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "train_aae(dataloaders, models, optimizers, epochs, device)",
+   "executionCount": 224,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "100%|██████████| 30/30 [09:22<00:00, 18.75s/it, train reconst loss:=0.0919, train disc loss:=1.39, train enc loss=0.692, test reconst loss:=0.0945, test disc loss:=1.39, test enc loss=0.692]\n",
+     "stream": "stderr"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "aae_encoder.eval()\naae_decoder.eval()\npredictions = []\nplots = 10\nfor i, data in enumerate(test_dataset):\n    if i == plots:\n        break\n    pred = aae_decoder(aae_encoder(data[0].to(device).unsqueeze(0).view(1, 784)))\n    predictions.append(pred.view(1, 28, 28).detach().cpu())\nplotn(plots, test_dataset)\nplotn(plots, predictions)",
+   "executionCount": 225,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/c18735ac6e90733a.png"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/fb5b193a631ee94e.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## დამატებითი მასალები\n\n* ბლოგის პოსტი NeuroHive-ზე\n* ვარიაციური ავტოენკოდერები განმარტებულია\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/4-ComputerVision/09-Autoencoders/AutoEncodersPyTorch.ipynb"
+}

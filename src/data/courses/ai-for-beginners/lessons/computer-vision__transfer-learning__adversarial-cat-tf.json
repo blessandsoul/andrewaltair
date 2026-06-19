@@ -1,0 +1,375 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "computer-vision/transfer-learning/adversarial-cat-tf",
+ "segments": [
+  "computer-vision",
+  "transfer-learning",
+  "adversarial-cat-tf"
+ ],
+ "title": "როგორ ხედავს ნერვული ქსელი კატას",
+ "module": {
+  "id": "4-ComputerVision",
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა",
+  "icon": "eye"
+ },
+ "lessonNumber": 8,
+ "orderInModule": 1080.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/4-ComputerVision/08-TransferLearning/AdversarialCat_TF.ipynb"
+ },
+ "prev": {
+  "slug": "computer-vision/transfer-learning/lab/oxford-pets",
+  "title": "მონაცემთა ნაკრების მომზადება ღრმა სწავლისთვის"
+ },
+ "next": {
+  "slug": "computer-vision/transfer-learning/transfer-learning-py-torch",
+  "title": "წინასწარ მომზადებული მოდელები და გადაცემის სწავლა"
+ },
+ "framework": "tensorflow",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "ImageNet-ზე წინასწარ გაწვრთნილ ნერვულ ქსელს შეუძლია ამოიცნოს ნებისმიერი 1000 სხვადასხვა კლასის ობიექტი, როგორიცაა სხვადასხვა ჯიშის კატა. საინტერესო იქნებოდა, თუ როგორ გამოიყურება იდეალური სიამის კატა ნერვული ქსელისთვის.\n\n> რა თქმა უნდა, თქვენ შეგიძლიათ შეცვალოთ siamese cat ნებისმიერი სხვა ImageNet კლასით.\n\nდასაწყებად, მოდით ჩატვირთოთ VGG ქსელი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import tensorflow as tf\nfrom tensorflow import keras\nimport matplotlib.pyplot as plt\nimport numpy as np\nfrom IPython.display import clear_output\nfrom PIL import Image\nimport json\nnp.set_printoptions(precision=3,suppress=True)\n\nmodel = keras.applications.VGG16(weights='imagenet',include_top=True)\nclasses = json.loads(open('imagenet_classes.json','r').read())",
+   "executionCount": 1,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "2022-06-17 13:28:58.931467: I tensorflow/core/platform/cpu_feature_guard.cc:151] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA\nTo enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.\n2022-06-17 13:28:59.603736: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1525] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 15401 MB memory:  -> device: 0, name: Tesla P100-PCIE-16GB, pci bus id: 0001:00:00.0, compute capability: 6.0\n",
+     "stream": "stderr"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## Optimizing for Result\n\nიდეალური კატის ვიზუალიზაციისთვის ჩვენ დავიწყებთ შემთხვევითი ხმაურის გამოსახულებით და შევეცდებით გამოვიყენოთ გრადიენტული დაღმართის ოპტიმიზაციის ტექნიკა სურათის დასარეგულირებლად, რათა ქსელმა შეძლოს კატის ამოცნობა.\n\n![Optimization Loop](/courses/ai-for-beginners/4-ComputerVision/08-TransferLearning/images/ideal-cat-loop.png)\n\nHere is our starting image:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "x = tf.Variable(tf.random.normal((1,224,224,3)))\n\ndef normalize(img):\n    return (img-tf.reduce_min(img))/(tf.reduce_max(img)-tf.reduce_min(img))\n\nplt.imshow(normalize(x[0]))",
+   "executionCount": 2,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<matplotlib.image.AxesImage at 0x7f90a0277ac0>"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/6b20a7a9e1f13769.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "> ჩვენ ვიყენებთ `normalize` ფუნქციას ჩვენი მნიშვნელობების 0-1 დიაპაზონში მოსაყვანად.\n\nთუ ამ სურათზე ჩვენს VGG ქსელს დავუძახებთ, მივიღებთ ალბათობების მეტ-ნაკლებად შემთხვევით განაწილებას:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def plot_result(x):\n    res = model(x)[0]\n    cls = tf.argmax(res)\n    print(f\"Predicted class: {cls} ({classes[cls]})\")\n    print(f\"Probability of predicted class = {res[cls]}\")\n    fig,ax = plt.subplots(1,2,figsize=(15,2.5),gridspec_kw = { \"width_ratios\" : [1,5]} )\n    ax[0].imshow(normalize(x[0]))\n    ax[0].axis('off')\n    ax[1].bar(range(1000),res,width=3)\n    plt.show()\n\nplot_result(x)",
+   "executionCount": 3,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "2022-06-17 13:29:02.100818: I tensorflow/stream_executor/cuda/cuda_dnn.cc:368] Loaded cuDNN version 8303\n2022-06-17 13:29:02.570980: I tensorflow/core/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory\n",
+     "stream": "stderr"
+    },
+    {
+     "kind": "text",
+     "text": "Predicted class: 669 (mosquito net)\nProbability of predicted class = 0.05466596782207489\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/792efa4cd58cc0f0.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "> მიუხედავად იმისა, რომ შეიძლება ჩანდეს, რომ ერთ-ერთი კლასის ალბათობა გაცილებით მაღალია, ვიდრე სხვები, ის მაინც ძალიან დაბალია - შეხედეთ მასშტაბს, რომ ნახოთ, რომ რეალური ალბათობა ჯერ კიდევ დაახლოებით 5%-ია.\n\nახლა მოდით ავირჩიოთ ერთი სამიზნე კატეგორია (მაგ. სიამური კატა) და დავიწყოთ გამოსახულების კორექტირება გრადიენტული დაღმართის გამოყენებით. თუ $x$ არის შეყვანის სურათი, ხოლო $V$ არის VGG ქსელი, ჩვენ გამოვთვლით ზარალის ფუნქციას $\\mathcal{L} = \\mathcal{L}(c,V(x))$ (სადაც $c$ არის სამიზნე კატეგორია) და დავარეგულიროთ $x$ შემდეგი ფორმულის გამოყენებით:\n$$\nx^{(i+1)} = x^{(i)} - \\eta{\\partial \\mathcal{L}\\over\\partial x}\n$$\nზარალის ფუნქცია იქნება ჯვარედინი ენტროპიის დაკარგვა, რადგან ჩვენ ვადარებთ ორ ალბათობის განაწილებას. ჩვენს შემთხვევაში, რადგან კლასი წარმოდგენილია რიცხვით და არა one-hot დაშიფრული ვექტორით, ჩვენ გამოვიყენებთ სპარს კატეგორიულ ჯვარედინი ენტროპიას.\n\nჩვენ გავიმეორებთ ამ პროცესს რამდენიმე ეპოქის განმავლობაში, გამოსახულებას ვბეჭდავთ.\n\n> უმჯობესია შეასრულოთ ეს კოდი GPU-ზე ჩართული გამოთვლებზე, ან შეამციროთ ეპოქების რაოდენობა, რათა მინიმუმამდე დაიყვანოთ ლოდინის დრო.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "target = [284] # Siamese cat\n\ndef cross_entropy_loss(target,res):\n    return tf.reduce_mean(keras.metrics.sparse_categorical_crossentropy(target,res))\n\ndef optimize(x,target,epochs=1000,show_every=None,loss_fn=cross_entropy_loss, eta=1.0):\n    if show_every is None:\n        show_every = epochs // 10\n    for i in range(epochs):\n        with tf.GradientTape() as t:\n            res = model(x)\n            loss = loss_fn(target,res)\n            grads = t.gradient(loss,x)\n            x.assign_sub(eta*grads)\n            if i%show_every == 0:\n                clear_output(wait=True)\n                print(f\"Epoch: {i}, loss: {loss}\")\n                plt.imshow(normalize(x[0]))\n                plt.show()\n\noptimize(x,target)",
+   "executionCount": 4,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch: 900, loss: 0.5220473408699036\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/345ae7974f9e1290.png"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plot_result(x)",
+   "executionCount": 5,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Predicted class: 284 (Siamese cat, Siamese)\nProbability of predicted class = 0.6449142098426819\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/87fa713f0f747947.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ ახლა მივიღეთ სურათი, რომელიც ჰგავს კატას ნერვული ქსელისთვის, მიუხედავად იმისა, რომ ჩვენთვის ის მაინც ხმაურს ჰგავს. თუ ოპტიმიზაციას ვაკეთებთ ცოტა ხანს - სავარაუდოდ მივიღებთ იდეალური ხმაურიანი კატის იმიჯს, რომლის ალბათობა 1-თან ახლოსაა.\n\n## ხმაურის გრძნობა\n\nThis noise does not make a lot of sense for us, but most probably it contains a lot of low-level filters that are typical for a cat. თუმცა, იმის გამო, რომ იდეალური შედეგისთვის შეყვანის ოპტიმიზაციის ძალიან ბევრი გზა არსებობს, ოპტიმიზაციის ალგორითმი არ არის მოტივირებული ვიზუალურად გასაგები შაბლონების მოსაძებნად.\n\nTo make this look a little bit less like a noise, we can introduce an additional term to the loss function - variation loss. ის ზომავს რამდენად მსგავსია გამოსახულების მეზობელი პიქსელები. თუ ამ ტერმინს დავამატებთ ჩვენს დაკარგვის ფუნქციას, ეს აიძულებს ოპტიმიზატორს მოძებნოს გადაწყვეტილებები ნაკლები ხმაურით და, შესაბამისად, ჰქონდეს მეტი ცნობადი დეტალი.\n\n> პრაქტიკაში, კარგი შედეგების მისაღებად ჩვენ გვჭირდება დაბალანსება ჯვარედინი ენტროპიის დაკარგვასა და ვარიაციულ დანაკარგს შორის. ჩვენს ფუნქციაში შემოგთავაზებთ ციფრულ კოეფიციენტებს და შეგიძლიათ მათთან თამაში და დააკვირდეთ როგორ იცვლება გამოსახულება.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def total_loss(target,res):\n    return 10*tf.reduce_mean(keras.metrics.sparse_categorical_crossentropy(target,res)) + \\\n           0.005*tf.image.total_variation(x,res)\n\noptimize(x,target,loss_fn=total_loss)",
+   "executionCount": 6,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch: 900, loss: [27.257]\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/908ffa16a055e78e.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "This is the ideal image of a cat for our neural network, and we can also see some of the familiar features, such as eyes and ears. There are many of them, which makes neural network even more certain that this is a cat.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plot_result(x)",
+   "executionCount": 7,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Predicted class: 284 (Siamese cat, Siamese)\nProbability of predicted class = 0.9201651215553284\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/ba84d637a072379e.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ასევე ვნახოთ, როგორ გამოიყურება სხვა ობიექტი VGG-სთვის:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "x = tf.Variable(tf.random.normal((1,224,224,3)))\noptimize(x,[340],loss_fn=total_loss) # zebra",
+   "executionCount": 8,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch: 900, loss: [29.59]\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/8c796c239421f87c.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## მოწინააღმდეგე შეტევები\n\nვინაიდან იდეალური კატის გამოსახულება შეიძლება გამოიყურებოდეს შემთხვევითი ხმაურით, ეს გვაფიქრებინებს, რომ ჩვენ შეგვიძლია ოდნავ შევცვალოთ ნებისმიერი სურათი ისე, რომ მან შეცვალოს მისი კლასი. მოდით, ცოტათი ექსპერიმენტი ჩავატაროთ. ჩვენ დავიწყებთ ძაღლის გამოსახულებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "img = Image.open('images/dog-from-unsplash.jpg')\nimg = img.crop((200,20,600,420)).resize((224,224))\nimg = np.array(img)\nplt.imshow(img)",
+   "executionCount": 9,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<matplotlib.image.AxesImage at 0x7f8fd816e0a0>"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/547bc665bf1d1de5.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ ვხედავთ, რომ ეს სურათი აშკარად არის აღიარებული, როგორც ძაღლი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plot_result(np.expand_dims(img,axis=0))",
+   "executionCount": 10,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Predicted class: 171 (Italian greyhound)\nProbability of predicted class = 0.9281901121139526\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/c1fcaa707a19e75d.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა ჩვენ გამოვიყენებთ ამ სურათს საწყის წერტილად და შევეცდებით მისი ოპტიმიზაციას, რომ გახდეს კატა:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "x = tf.Variable(np.expand_dims(img,axis=0).astype(np.float32)/255.0)\noptimize(x,target,epochs=100)",
+   "executionCount": 11,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch: 90, loss: 0.15769274532794952\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/ab00767abe1a6c65.png"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plot_result(x)",
+   "executionCount": 12,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Predicted class: 284 (Siamese cat, Siamese)\nProbability of predicted class = 0.8651191592216492\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/040843695d67f035.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ასე რომ, ზემოთ მოცემული სურათი შესანიშნავი კატაა, VGG ქსელის თვალსაზრისით!\n\n## ექსპერიმენტი ResNet-ით\n\nLet's now see how this same image is classified by a different model, say, ResNet:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "model = keras.applications.ResNet50(weights='imagenet',include_top=True)",
+   "executionCount": 13,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "> ვინაიდან ჩვენ გამოვიყენეთ `model` როგორც გლობალური ცვლადი, ამიერიდან ყველა ფუნქცია გამოიყენებს ResNet-ს VGG-ის ნაცვლად\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plot_result(x)",
+   "executionCount": 14,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Predicted class: 111 (nematode, nematode worm, roundworm)\nProbability of predicted class = 0.13089127838611603\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/871e76886f3b7863.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "როგორც ჩანს, შედეგი საკმაოდ განსხვავებულია. ეს საკმაოდ მოსალოდნელია, რადგან კატისთვის ოპტიმიზაციისას გავითვალისწინეთ VGG ქსელის ბუნება, დაბალი დონის ფილტრები და ა.შ. ვინაიდან ResNet-ს აქვს სხვადასხვა ფილტრები, ის სხვადასხვა შედეგს იძლევა. ეს გვაძლევს წარმოდგენას, თუ როგორ დავიცვათ თავი მოწინააღმდეგეების თავდასხმებისგან - სხვადასხვა მოდელების ანსამბლის გამოყენებით.\n\nვნახოთ, როგორ გამოიყურება იდეალური ზებრა ResNet-ისთვის:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "x = tf.Variable(tf.random.normal((1,224,224,3)))\noptimize(x,target=[340],epochs=500,loss_fn=total_loss)",
+   "executionCount": 15,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch: 450, loss: [46.166]\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/3733bf5ee692961d.png"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plot_result(x)",
+   "executionCount": 16,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Predicted class: 340 (zebra)\nProbability of predicted class = 0.8876020312309265\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/57db943c9564113d.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ეს სურათი საკმაოდ განსხვავებულია, რაც გვეუბნება, რომ ნერვული ქსელის არქიტექტურა, ალბათ, საკმაოდ მნიშვნელოვან როლს ასრულებს ობიექტების ამოცნობაში.\n\n> ამოცანა: შეეცადეთ განახორციელოთ საპირისპირო მიმაგრება ResNet-ზე და შეადარეთ შედეგები.\n\n## სხვადასხვა ოპტიმიზატორების გამოყენება\n\nIn our example, we have been using the simplest optimization technique - gradient descent. However, Keras framework contains different built-in ოპტიმიზატორები, and we can use them instead of gradient descent. ეს მოითხოვს ძალიან მცირე ცვლილებას ჩვენს კოდში - ჩვენ შევცვლით ნაწილს, სადაც ვარეგულირებთ შეყვანის სურათს `x.assign_sub(eta*grads)` ოპტიმიზატორის `apply_gradients` ფუნქციაზე გამოძახებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def optimize(x,target,epochs=1000,show_every=None,loss_fn=cross_entropy_loss,optimizer=keras.optimizers.SGD(learning_rate=1)):\n    if show_every is None:\n        show_every = epochs // 10\n    for i in range(epochs):\n        with tf.GradientTape() as t:\n            res = model(x)\n            loss = loss_fn(target,res)\n            grads = t.gradient(loss,x)\n            optimizer.apply_gradients([(grads,x)])\n            if i%show_every == 0:\n                clear_output(wait=True)\n                print(f\"Epoch: {i}, loss: {loss}\")\n                plt.imshow(normalize(x[0]))\n                plt.show()\n\nx = tf.Variable(tf.random.normal((1,224,224,3)))\n\noptimize(x,[898],loss_fn=total_loss) # water bottle",
+   "executionCount": 17,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Epoch: 900, loss: [41.451]\n",
+     "stream": "stdout"
+    },
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/91ff9e29d439ab56.png"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## დასკვნა\n\nჩვენ შევძელით კატის იდეალური გამოსახულების (ისევე როგორც ნებისმიერი სხვა ობიექტის) ვიზუალიზაცია წინასწარ გაწვრთნილ CNN-ში, გრადიენტული დაღმართის ოპტიმიზაციის გამოყენებით, რათა დაარეგულიროთ შემავალი სურათი წონის ნაცვლად. მთავარი ხრიკი გამოსახულების მისაღებად, რომელიც გარკვეულწილად აზრიანია, იყო ვარიაციის დაკარგვის გამოყენება, როგორც დამატებითი დანაკარგის ფუნქცია, რაც აიძულებს გამოსახულებას უფრო გლუვი გამოიყურებოდეს.\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/4-ComputerVision/08-TransferLearning/AdversarialCat_TF.ipynb"
+}

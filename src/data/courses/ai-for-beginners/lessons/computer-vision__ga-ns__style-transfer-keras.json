@@ -1,0 +1,265 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "computer-vision/ga-ns/style-transfer-keras",
+ "segments": [
+  "computer-vision",
+  "ga-ns",
+  "style-transfer-keras"
+ ],
+ "title": "სტილის ტრანსფერი",
+ "module": {
+  "id": "4-ComputerVision",
+  "slug": "computer-vision",
+  "title": "კომპიუტერული ხედვა",
+  "icon": "eye"
+ },
+ "lessonNumber": 10,
+ "orderInModule": 1100.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/4-ComputerVision/10-GANs/StyleTransfer_Keras.ipynb"
+ },
+ "prev": {
+  "slug": "computer-vision/ga-ns/gantf",
+  "title": "გენერაციული საპირისპირო ქსელები"
+ },
+ "next": {
+  "slug": "computer-vision/ga-ns/style-transfer",
+  "title": "სტილის ტრანსფერი"
+ },
+ "framework": "tensorflow",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "ქვემოთ მოყვანილი მაგალითი არის შთაგონებული ამ ბლოგის პოსტით და ბევრი კოდი არის ნასესხები იქიდან. სტილის გადაცემის კიდევ ერთი კარგი მაგალითი CNTK ჩარჩოს გამოყენებით არის აქ. აქ არის ორიგინალური ნაშრომი მხატვრული სტილის ტრანსფერი-ზე.\n\nსტილის გადაცემის ძირითადი იდეები შემდეგია:\n\n* თეთრი ხმაურიდან დაწყებული, ჩვენ ვცდილობთ მიმდინარე სურათის $x$-ის ოპტიმიზაციას, რათა მინიმუმამდე დავიყვანოთ დაკარგვის ფუნქცია\n* დაკარგვის ფუნქცია შედგება სამი კომპონენტისგან $\\mathcal{L(x)} = \\alpha\\mathcal{L}_c(x,i) + \\beta\\mathcal{L}_s(x,s)+\\gamma\\mathcal{L}_t(x)$\n   - $\\mathcal{L}_c$ - შინაარსის დაკარგვა - აჩვენებს, რამდენად ახლოსაა მიმდინარე სურათი $x$ ორიგინალ სურათთან $i$\n   - $\\mathcal{L}_s$ - სტილის დაკარგვა - გვიჩვენებს, რამდენად ახლოსაა მიმდინარე სურათი $x$ სურათის სტილისთვის $s$\n   - $\\mathcal{L}_t$ - ვარიაციის სრული დანაკარგი (ჩვენ არ განვიხილავთ მას ჩვენს მაგალითში) - დარწმუნდება, რომ მიღებული სურათი არის გლუვი, ანუ ის აჩვენებს სურათის მეზობელი პიქსელების საშუალო კვადრატულ შეცდომას $x$\n   \nდაკარგვის ეს ფუნქციები უნდა იყოს შემუშავებული ჭკვიანურად, ისე, რომ მაგალითად სტილის დაკარგვა შეესაბამებოდეს სურათების მსგავს სტილებს და არა რეალურ შინაარსს. ამისათვის ჩვენ შევადარებთ CNN-ის რამდენიმე ღრმა მახასიათებლის ფენას, რომელიც ათვალიერებს სურათს.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "დავიწყოთ რამდენიმე სურათის ჩატვირთვით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "!curl https://cdn.pixabay.com/photo/2016/05/18/00/27/franz-marc-1399594_960_720.jpg > images/style.jpg\n!curl https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Golden_tabby_and_white_kitten_n01.jpg/1280px-Golden_tabby_and_white_kitten_n01.jpg > images/image.jpg",
+   "executionCount": 1,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\n  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\n  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\n100  210k  100  210k    0     0   208k      0  0:00:01  0:00:01 --:--:--  208k\n  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\n  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\n100  131k  100  131k    0     0   184k      0 --:--:-- --:--:-- --:--:--  185k\n",
+     "stream": "stderr"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import cv2\nimport numpy as np\nimport matplotlib.pyplot as plt\nfrom scipy.optimize import fmin_l_bfgs_b",
+   "executionCount": 2,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით, ავტვირთოთ ეს სურათები და შევცვალოთ მათი ზომა $512\\times512$-მდე. ასევე, ჩვენ გამოვქმნით შედეგად გამოსახულებას `img_result` შემთხვევითი მასივის სახით.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "img_size = 256\n\ndef load_image(fn):\n  x = cv2.imread(fn)\n  return cv2.cvtColor(x, cv2.COLOR_BGR2RGB)\n\nimg_style = load_image('images/style.jpg')\nimg_content = load_image('images/image.jpg')\nimg_content = img_content[:,200:200+857,:]\nimg_content = cv2.resize(img_content,(img_size,img_size))\nimg_style = img_style[:,200:200+671,:]\nimg_style = cv2.resize(img_style,(img_size,img_size))\n\nimg_result = np.random.randint(256,size=(img_size,img_size,3)).astype(np.float64)\n\nfig,ax = plt.subplots(1,3)\nax[0].imshow(img_content)\nax[1].imshow(img_style)\nax[2].imshow(img_result.astype(np.int))\nplt.show()",
+   "executionCount": 5,
+   "outputs": [
+    {
+     "kind": "image",
+     "src": "/courses/ai-for-beginners/_nb/576b7b55da5a3e19.png"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import tensorflow as tf\nfrom tf.keras import backend as K\nfrom tf.keras.applications.vgg16 import preprocess_input\nfrom tf.keras.applications import VGG16\nfrom tf.keras.preprocessing.image import load_img, img_to_array\ntf_session = K.get_session()",
+   "executionCount": 2,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "img_content_var = K.variable(preprocess_input(np.expand_dims(img_content, axis=0)), dtype='float32')\nimg_style_var = K.variable(preprocess_input(np.expand_dims(img_style, axis=0)), dtype='float32')\nimg_result_1 = preprocess_input(np.expand_dims(img_result, axis=0))\nimg_result_holder = K.placeholder(shape=(1, img_size, img_size, 3))",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "სტილის დაკარგვისა და შინაარსის დაკარგვის გამოსათვლელად, ჩვენ უნდა ვიმუშაოთ CNN-ის მიერ ამოღებულ ფუნქციების სივრცეში. ჩვენ შეგვიძლია გამოვიყენოთ სხვადასხვა CNN არქიტექტურა, მაგრამ სიმარტივისთვის ჩვენ ავირჩევთ VGG-16-ს, წინასწარ მომზადებულ ImageNet-ზე.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "cModel = VGG16(include_top=False, weights='imagenet', input_tensor=img_content_var)\nsModel = VGG16(include_top=False, weights='imagenet', input_tensor=img_style_var)\ngModel = VGG16(include_top=False, weights='imagenet', input_tensor=img_result_holder)",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "მოდით შევხედოთ მოდელის არქიტექტურას:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "gModel.summary()",
+   "executionCount": 7,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "_________________________________________________________________\nLayer (type)                 Output Shape              Param #   \n=================================================================\ninput_3 (InputLayer)         (None, None, None, 3)     0         \n_________________________________________________________________\nblock1_conv1 (Conv2D)        (None, None, None, 64)    1792      \n_________________________________________________________________\nblock1_conv2 (Conv2D)        (None, None, None, 64)    36928     \n_________________________________________________________________\nblock1_pool (MaxPooling2D)   (None, None, None, 64)    0         \n_________________________________________________________________\nblock2_conv1 (Conv2D)        (None, None, None, 128)   73856     \n_________________________________________________________________\nblock2_conv2 (Conv2D)        (None, None, None, 128)   147584    \n_________________________________________________________________\nblock2_pool (MaxPooling2D)   (None, None, None, 128)   0         \n_________________________________________________________________\nblock3_conv1 (Conv2D)        (None, None, None, 256)   295168    \n_________________________________________________________________\nblock3_conv2 (Conv2D)        (None, None, None, 256)   590080    \n_________________________________________________________________\nblock3_conv3 (Conv2D)        (None, None, None, 256)   590080    \n_________________________________________________________________\nblock3_pool (MaxPooling2D)   (None, None, None, 256)   0         \n_________________________________________________________________\nblock4_conv1 (Conv2D)        (None, None, None, 512)   1180160   \n_________________________________________________________________\nblock4_conv2 (Conv2D)        (None, None, None, 512)   2359808   \n_________________________________________________________________\nblock4_conv3 (Conv2D)        (None, None, None, 512)   2359808   \n_________________________________________________________________\nblock4_pool (MaxPooling2D)   (None, None, None, 512)   0         \n_________________________________________________________________\nblock5_conv1 (Conv2D)        (None, None, None, 512)   2359808   \n_________________________________________________________________\nblock5_conv2 (Conv2D)        (None, None, None, 512)   2359808   \n_________________________________________________________________\nblock5_conv3 (Conv2D)        (None, None, None, 512)   2359808   \n_________________________________________________________________\nblock5_pool (MaxPooling2D)   (None, None, None, 512)   0         \n=================================================================\nTotal params: 14,714,688\nTrainable params: 14,714,688\nNon-trainable params: 0\n_________________________________________________________________\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## შინაარსის დაკარგვა\n\nშინაარსის დაკარგვა აჩვენებს, რამდენად ახლოსაა ჩვენი ამჟამინდელი სურათი $x$ თავდაპირველ სურათთან. ის უყურებს შუალედურ ფუნქციების ფენებს CNN-ში და ითვლის კვადრატულ შეცდომას. შიგთავსის დაკარგვა $l$ ფენაზე განისაზღვრება როგორც\n$$\n\\mathcal{L}_c = {1\\over2}\\sum_{i,j} (F_{ij}^{(l)}-P_{ij}^{(l)})^2\n$$\nსადაც $F^{(l)}$ და $P^{(l)}$ -- მახასიათებლები $l$-ზე.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def get_feature_reps(x, layer_names, model):\n    featMatrices = []\n    for ln in layer_names:\n        selectedLayer = model.get_layer(ln)\n        featRaw = selectedLayer.output\n        featRawShape = K.shape(featRaw).eval(session=tf_session)\n        N_l = featRawShape[-1]\n        M_l = featRawShape[1]*featRawShape[2]\n        featMatrix = K.reshape(featRaw, (M_l, N_l))\n        featMatrix = K.transpose(featMatrix)\n        featMatrices.append(featMatrix)\n    return featMatrices\n\ndef get_content_loss(F, P):\n    cLoss = 0.5*K.sum(K.square(F - P))\n    return cLoss",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ვნახოთ, როგორ მოქმედებს სხვადასხვა ფენის ფუნქციები სურათზე. ამისათვის ჩვენ შევეცდებით მინიმუმამდე დავიყვანოთ შინაარსის დაკარგვა მხოლოდ ერთი ფენისთვის. ჩვენ გამოვიყენებთ `fmin_l_bfgs_b` ფუნქციას SciPy-დან, რომელიც იღებს ფუნქციის მინიმიზაციას და მის გრადიენტს (ჩვენს შემთხვევაში, `help_loss` ფუნქცია აბრუნებს დაკარგვის ფუნქციასაც და გრადიენტსაც).\n\nმნიშვნელოვანი: ჩვენს შემთხვევაში, ყველა გამოთვლა ხორციელდება GPU-aware TensorFlow ჩარჩოს გამოყენებით. `helper_loss` ფუნქცია აბრუნებს გამოთვლით გრაფიკს, რომელიც შეიძლება გამოყენებულ იქნას მოცემული სურათის დანაკარგის გამოსათვლელად და ის იყენებს `K.gradients`-ს გრადიენტების ავტომატურად გამოსათვლელად.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "layer='block4_conv2'\nP = get_feature_reps(x=img_content_var, layer_names=[layer], model=cModel)[0]\nx = img_result.flatten()\ndef helper_loss(img):\n    R = get_feature_reps(img,[layer],gModel)[0]\n    return get_content_loss(R,P)\n  \ndef help_loss(x):\n    if x.shape != (1, img_size, img_size, 3):\n        x = x.reshape((1,img_size, img_size, 3))\n    keras_fcn = K.function([gModel.input], [helper_loss(gModel.input)])\n    keras_grad = K.function([gModel.input], K.gradients(helper_loss(gModel.input),[gModel.input]))\n    return keras_fcn([x])[0].astype('float64'),keras_grad([x])[0].flatten().astype('float64')\n\nx, _, _ = fmin_l_bfgs_b(help_loss, x, maxiter=30, disp=True)",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def postprocess_array(x):\n    # Zero-center by mean pixel\n    if x.shape != (img_size, img_size, 3):\n        x = x.reshape((img_size, img_size, 3))\n    x[..., 0] += 103.939\n    x[..., 1] += 116.779\n    x[..., 2] += 123.68\n    # 'BGR'->'RGB'\n    x = x[..., ::-1]\n    x = np.clip(x, 0, 255)\n    x = x.astype('uint8')\n    return x\n",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "plt.imshow(postprocess_array(x.copy()))\nplt.show()",
+   "executionCount": 22,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<matplotlib.figure.Figure at 0x7fb265464b00>"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "layer='block3_conv2'\nP = get_feature_reps(x=img_content_var, layer_names=[layer], model=cModel)[0]\nx = img_result.flatten()\nx, _, _ = fmin_l_bfgs_b(help_loss, x, maxiter=30, disp=True)\nplt.imshow(postprocess_array(x.copy()))\nplt.show()",
+   "executionCount": 26,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<matplotlib.figure.Figure at 0x7fb2620b26d8>"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "layer='block5_conv1'\nP = get_feature_reps(x=img_content_var, layer_names=[layer], model=cModel)[0]\nx = img_result.flatten()\nx, _, _ = fmin_l_bfgs_b(help_loss, x, maxiter=30, disp=True)\nplt.imshow(postprocess_array(x.copy()))\nplt.show()",
+   "executionCount": 28,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<matplotlib.figure.Figure at 0x7fb2620b2908>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## სტილის დაკარგვა\n"
+  },
+  {
+   "type": "markdown",
+   "source": "სტილის დაკარგვა არის Style Transfer-ის მთავარი იდეა. ჩვენ ვადარებთ არა რეალურ მახასიათებლებს, არამედ მათ გრამის მატრიცებს, რომლებიც განისაზღვრება როგორც $$G=A\\ჯერ A^T$$\n\nგრამ მატრიცა კორელაციური მატრიცის მსგავსია და ის გვიჩვენებს, თუ როგორ არის დამოკიდებული ზოგიერთი ფილტრი სხვებზე. Style Loss გამოითვლება, როგორც დანაკარგების ჯამი სხვადასხვა ფენებიდან, რომლებიც ხშირად განიხილება შეწონილი კოეფიციენტებით.\n\nმთლიანი დაკარგვის ფუნქცია სტილის გადაცემისთვის არის შინაარსის დაკარგვის და სტილის დაკარგვის ჯამი.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def get_Gram_matrix(F):\n    G = K.dot(F, K.transpose(F))\n    return G\n\ndef get_style_loss(ws, Gs, As):\n    sLoss = K.variable(0.)\n    for w, G, A in zip(ws, Gs, As):\n        M_l = K.int_shape(G)[1]\n        N_l = K.int_shape(G)[0]\n        G_gram = get_Gram_matrix(G)\n        A_gram = get_Gram_matrix(A)\n        sLoss+= w*0.25*K.sum(K.square(G_gram - A_gram))/ (N_l**2 * M_l**2)\n    return sLoss\n  \ndef get_total_loss(gImPlaceholder, alpha=1.0, beta=30.0):\n    F = get_feature_reps(gImPlaceholder, layer_names=[content_layer_name], model=gModel)[0]\n    Gs = get_feature_reps(gImPlaceholder, layer_names=style_layer_names, model=gModel)\n    contentLoss = get_content_loss(F, P)\n    styleLoss = get_style_loss(ws, Gs, As)\n    totalLoss = alpha*contentLoss + beta*styleLoss\n    return totalLoss\n ",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## ეს ყველაფერი ერთად\n\nაქ `calualate_loss` ფუნქცია გამოთვლის მთლიან დანაკარგს:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def calculate_loss(gImArr):\n  \"\"\"\n  Calculate total loss using K.function\n  \"\"\"\n  if gImArr.shape != (1, img_size, img_size, 3):\n        gImArr = gImArr.reshape((1,img_size, img_size, 3))\n  loss_fcn = K.function([gModel.input], [get_total_loss(gModel.input)])\n  grad_fcn = K.function([gModel.input], \n                        K.gradients(get_total_loss(gModel.input), [gModel.input]))\n  return loss_fcn([gImArr])[0].astype('float64'),grad_fcn([gImArr])[0].flatten().astype('float64')\n\ncontent_layer_name = 'block4_conv2'\nstyle_layer_names = ['block1_conv1','block2_conv1','block3_conv1','block4_conv1']\n\nP = get_feature_reps(x=img_content_var, layer_names=[content_layer_name], model=cModel)[0]\nAs = get_feature_reps(x=img_style_var, layer_names=style_layer_names, model=sModel)\nws = np.ones(len(style_layer_names))/float(len(style_layer_names))\n\nimg_result = np.random.randint(256,size=(img_size,img_size,3)).astype(np.float64)\nimg_result_1 = preprocess_input(np.expand_dims(img_result, axis=0))\n\niterations = 10\nx_opt = img_result_1.flatten()",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ქვემოთ მოცემული კოდი ასრულებს დანაკარგის რეალურ ოპტიმიზაციას. გაითვალისწინეთ, რომ GPU-სთან ერთად ოპტიმიზაციას მნიშვნელოვანი დრო სჭირდება. შეგიძლიათ რამდენჯერმე გაუშვათ ქვემოთ მოცემული უჯრედი შედეგის გასაუმჯობესებლად.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "xopt, f_val, info= fmin_l_bfgs_b(calculate_loss, x_opt, maxiter=iterations, disp=True)\nplt.imshow(postprocess_array(xopt.copy()))\nplt.show()",
+   "executionCount": 16,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<matplotlib.figure.Figure at 0x7f43494f9630>"
+    }
+   ]
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "iterations = 20\nxopt, f_val, info= fmin_l_bfgs_b(calculate_loss, xopt, fprime=get_grad,\n                            maxiter=iterations, disp=True)\nplt.imshow(postprocess_array(xopt.copy()))\nplt.show()",
+   "executionCount": 14,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<matplotlib.figure.Figure at 0x7f28933be2d0>"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## დაამატეთ ვარიაციის დაკარგვა\n\nვარიაციის დაკარგვა საშუალებას გვაძლევს გავხადოთ სურათი ნაკლებად ხმაურიანი მეზობელ პიქსელებს შორის სხვაობის მინიმიზაციის გზით.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def total_variation_loss(x):\n    a = K.square(x[:,:img_size-1,:img_size-1,:] - x[:, 1:, :img_size-1,:])\n    b = K.square(x[:,:img_size-1,:img_size-1,:] - x[:, :img_size-1, 1:,:])\n    return K.sum(K.pow(a + b, 1.25))\n  \ndef get_total_loss(gImPlaceholder, alpha=1.0, beta=30.0):\n    F = get_feature_reps(gImPlaceholder, layer_names=[content_layer_name], model=gModel)[0]\n    Gs = get_feature_reps(gImPlaceholder, layer_names=style_layer_names, model=gModel)\n    contentLoss = get_content_loss(F, P)\n    styleLoss = get_style_loss(ws, Gs, As)\n    variationLoss = total_variation_loss(gImPlaceholder)\n    totalLoss = alpha*contentLoss + beta*styleLoss + variationLoss\n    return totalLoss\n\nimg_result = np.random.randint(256,size=(img_size,img_size,3)).astype(np.float64)\nimg_result_1 = preprocess_input(np.expand_dims(img_result, axis=0))\niterations = 10\nx_opt = img_result_1.flatten()\n",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "xopt, f_val, info= fmin_l_bfgs_b(calculate_loss, x_opt, maxiter=iterations, disp=True)\nplt.imshow(postprocess_array(xopt.copy()))\nplt.show()",
+   "executionCount": 44,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "<matplotlib.figure.Figure at 0x7fb25130ba58>"
+    }
+   ]
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/4-ComputerVision/10-GANs/StyleTransfer_Keras.ipynb"
+}

@@ -1,0 +1,167 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "nlp/generative-networks/generative-py-torch",
+ "segments": [
+  "nlp",
+  "generative-networks",
+  "generative-py-torch"
+ ],
+ "title": "გენერაციული ქსელები",
+ "module": {
+  "id": "5-NLP",
+  "slug": "nlp",
+  "title": "ბუნებრივი ენის დამუშავება",
+  "icon": "messages"
+ },
+ "lessonNumber": 17,
+ "orderInModule": 1170.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/5-NLP/17-GenerativeNetworks/GenerativePyTorch.ipynb"
+ },
+ "prev": {
+  "slug": "nlp/generative-networks",
+  "title": "გენერაციული ქსელები"
+ },
+ "next": {
+  "slug": "nlp/generative-networks/generative-tf",
+  "title": "გენერაციული ქსელები"
+ },
+ "framework": "pytorch",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "განმეორებადი ნერვული ქსელები (RNN) და მათი დახურული უჯრედების ვარიანტები, როგორიცაა გრძელვადიანი მოკლევადიანი მეხსიერების უჯრედები (LSTM) და დახურული განმეორებადი ერთეულები (GRU) უზრუნველყოფდნენ ენის მოდელირების მექანიზმს, ანუ მათ შეუძლიათ ისწავლონ სიტყვების დალაგება და შემდეგი სიტყვის პროგნოზირება თანმიმდევრობით. ეს გვაძლევს საშუალებას გამოვიყენოთ RNN-ები გენერაციული ამოცანებისთვის, როგორიცაა ჩვეულებრივი ტექსტის გენერირება, მანქანური თარგმანი და სურათის წარწერაც კი.\n\nRNN არქიტექტურაში, რომელიც განვიხილეთ წინა ერთეულში, თითოეული RNN ერთეული წარმოქმნის შემდეგ ფარულ მდგომარეობას, როგორც გამომავალს. თუმცა, ჩვენ ასევე შეგვიძლია დავამატოთ კიდევ ერთი გამომავალი თითოეულ განმეორებად ერთეულს, რომელიც მოგვცემს საშუალებას გამოვიტანოთ მიმდევრობა (რომელიც სიგრძით უდრის თავდაპირველ მიმდევრობას). უფრო მეტიც, ჩვენ შეგვიძლია გამოვიყენოთ RNN ერთეულები, რომლებიც არ იღებენ შეყვანას ყოველ საფეხურზე და უბრალოდ ავიღოთ საწყისი მდგომარეობის ვექტორი და შემდეგ გამოვიტანოთ გამომავლების თანმიმდევრობა.\n\nამ რვეულში ჩვენ ყურადღებას გავამახვილებთ მარტივ გენერაციულ მოდელებზე, რომლებიც დაგვეხმარება ტექსტის გენერირებაში. სიმარტივისთვის, მოდით ავაშენოთ სიმბოლოების დონის ქსელი, რომელიც ასო-ასო ტექსტს წარმოქმნის. ტრენინგის დროს ჩვენ უნდა ავიღოთ ტექსტის კორპუსი და დავყოთ ასოების თანმიმდევრობად.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import torch\nimport torchtext\nimport numpy as np\nfrom torchnlp import *\ntrain_dataset,test_dataset,classes,vocab = load_dataset()",
+   "executionCount": 1,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Loading dataset...\nBuilding vocab...\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## პერსონაჟების ლექსიკის აგება\n\nსიმბოლოების დონის გენერაციული ქსელის ასაშენებლად, ჩვენ უნდა დავყოთ ტექსტი ცალკეულ სიმბოლოებად სიტყვების ნაცვლად. ეს შეიძლება გაკეთდეს სხვა ტოკენიზატორის განსაზღვრით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def char_tokenizer(words):\n    return list(words) #[word for word in words]\n\ncounter = collections.Counter()\nfor (label, line) in train_dataset:\n    counter.update(char_tokenizer(line))\nvocab = torchtext.vocab.vocab(counter)\n\nvocab_size = len(vocab)\nprint(f\"Vocabulary size = {vocab_size}\")\nprint(f\"Encoding of 'a' is {vocab.get_stoi()['a']}\")\nprint(f\"Character with code 13 is {vocab.get_itos()[13]}\")",
+   "executionCount": 2,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Vocabulary size = 82\nEncoding of 'a' is 1\nCharacter with code 13 is c\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ვნახოთ მაგალითი იმისა, თუ როგორ შეგვიძლია დაშიფროთ ტექსტი ჩვენი მონაცემთა ნაკრებიდან:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def enc(x):\n    return torch.LongTensor(encode(x,voc=vocab,tokenizer=char_tokenizer))\n\nenc(train_dataset[0][1])",
+   "executionCount": 3,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "tensor([ 0,  1,  2,  2,  3,  4,  5,  6,  3,  7,  8,  1,  9, 10,  3, 11,  2,  1,\n        12,  3,  7,  1, 13, 14,  3, 15, 16,  5, 17,  3,  5, 18,  8,  3,  7,  2,\n         1, 13, 14,  3, 19, 20,  8, 21,  5,  8,  9, 10, 22,  3, 20,  8, 21,  5,\n         8,  9, 10,  3, 23,  3,  4, 18, 17,  9,  5, 23, 10,  8,  2,  2,  8,  9,\n        10, 24,  3,  0,  1,  2,  2,  3,  4,  5,  9,  8,  8,  5, 25, 10,  3, 26,\n        12, 27, 16, 26,  2, 27, 16, 28, 29, 30,  1, 16, 26,  3, 17, 31,  3, 21,\n         2,  5,  9,  1, 23, 13, 32, 16, 27, 13, 10, 24,  3,  1,  9,  8,  3, 10,\n         8,  8, 27, 16, 28,  3, 28,  9,  8,  8, 16,  3,  1, 28,  1, 27, 16,  6])"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "## გენერაციული RNN-ის ტრენინგი\n\nგზა ჩვენ მოვამზადებთ RNN ტექსტის გენერირებას შემდეგია. თითოეულ საფეხურზე ჩვენ ავიღებთ `nchars` სიგრძის სიმბოლოების თანმიმდევრობას და ვთხოვთ ქსელს, შექმნას შემდეგი გამომავალი სიმბოლო თითოეული შეყვანის სიმბოლოსთვის:\n\n![Image showing an example RNN generation of the word 'HELLO'.](/courses/ai-for-beginners/5-NLP/17-GenerativeNetworks/images/rnn-generate.png)\n\nრეალური სცენარიდან გამომდინარე, შეიძლება ასევე გვსურს შევიტანოთ რამდენიმე სპეციალური სიმბოლო, როგორიცაა მიმდევრობის დასასრული `<eos>`. ჩვენს შემთხვევაში, ჩვენ უბრალოდ გვინდა გავავარჯიშოთ ქსელი გაუთავებელი ტექსტის გენერირებისთვის, რითაც დავაფიქსირებთ თითოეული მიმდევრობის ზომას `nchars` ტოკენის ტოლი. შესაბამისად, თითოეული ტრენინგის მაგალითი შედგება `nchars` შეყვანისგან და `nchars` გამოსავლებისგან (რომლებიც შეყვანის თანმიმდევრობით ერთი სიმბოლოა მარცხნივ გადატანილი). მინი პარტია შედგება რამდენიმე ასეთი თანმიმდევრობისგან.\n\nმინი პარტიების გენერირების ხერხი არის ავიღოთ ყოველი ახალი ამბების ტექსტი `l` სიგრძით, და შევქმნათ ყველა შესაძლო შეყვანა-გამომავალი კომბინაციები მისგან (იქნება `l-nchars` ასეთი კომბინაციები). ისინი შექმნიან ერთ მინი პარტიას და მინი პარტიების ზომა განსხვავებული იქნება ყოველი ვარჯიშის ეტაპზე.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "nchars = 100\n\ndef get_batch(s,nchars=nchars):\n    ins = torch.zeros(len(s)-nchars,nchars,dtype=torch.long,device=device)\n    outs = torch.zeros(len(s)-nchars,nchars,dtype=torch.long,device=device)\n    for i in range(len(s)-nchars):\n        ins[i] = enc(s[i:i+nchars])\n        outs[i] = enc(s[i+1:i+nchars+1])\n    return ins,outs\n\nget_batch(train_dataset[0][1])",
+   "executionCount": 4,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "(tensor([[ 0,  1,  2,  ..., 28, 29, 30],\n         [ 1,  2,  2,  ..., 29, 30,  1],\n         [ 2,  2,  3,  ..., 30,  1, 16],\n         ...,\n         [20,  8, 21,  ...,  1, 28,  1],\n         [ 8, 21,  5,  ..., 28,  1, 27],\n         [21,  5,  8,  ...,  1, 27, 16]]),\n tensor([[ 1,  2,  2,  ..., 29, 30,  1],\n         [ 2,  2,  3,  ..., 30,  1, 16],\n         [ 2,  3,  4,  ...,  1, 16, 26],\n         ...,\n         [ 8, 21,  5,  ..., 28,  1, 27],\n         [21,  5,  8,  ...,  1, 27, 16],\n         [ 5,  8,  9,  ..., 27, 16,  6]]))"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მოდით განვსაზღვროთ გენერატორის ქსელი. ის შეიძლება დაფუძნდეს ნებისმიერ მორეციდივე უჯრედზე, რომელიც განვიხილეთ წინა განყოფილებაში (მარტივი, LSTM ან GRU). ჩვენს მაგალითში ჩვენ გამოვიყენებთ LSTM.\n\nიმის გამო, რომ ქსელი იღებს სიმბოლოებს შეყვანის სახით, ხოლო ლექსიკის ზომა საკმაოდ მცირეა, ჩვენ არ გვჭირდება ფენის ჩასმა, one-hot კოდირებული შეყვანა შეიძლება პირდაპირ გადავიდეს LSTM უჯრედში. თუმცა, იმის გამო, რომ სიმბოლოების რიცხვებს შეყვანის სახით გადავცემთ, საჭიროა მათი ერთჯერადი კოდირება LSTM-ზე გადასვლამდე. ეს კეთდება `one_hot` ფუნქციის გამოძახებით `forward` უღელტეხილის დროს. გამომავალი ენკოდერი იქნება წრფივი ფენა, რომელიც გადააქცევს დამალულ მდგომარეობას one-hot დაშიფრულ გამოსავალად.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "class LSTMGenerator(torch.nn.Module):\n    def __init__(self, vocab_size, hidden_dim):\n        super().__init__()\n        self.rnn = torch.nn.LSTM(vocab_size,hidden_dim,batch_first=True)\n        self.fc = torch.nn.Linear(hidden_dim, vocab_size)\n\n    def forward(self, x, s=None):\n        x = torch.nn.functional.one_hot(x,vocab_size).to(torch.float32)\n        x,s = self.rnn(x,s)\n        return self.fc(x),s",
+   "executionCount": 5,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ტრენინგის დროს გვსურს შეგვეძლოს გენერირებული ტექსტის ნიმუშის აღება. ამისათვის ჩვენ განვსაზღვრავთ `generate` ფუნქციას, რომელიც გამოიმუშავებს `size` სიგრძის გამომავალ სტრიქონს, დაწყებული საწყისი სტრიქონიდან `start`.\n\nმისი მუშაობის გზა შემდეგია. პირველ რიგში, ჩვენ გადავიტანთ მთელ დაწყების სტრიქონს ქსელში და ავიღებთ გამომავალ მდგომარეობას `s` და შემდეგ პროგნოზირებულ სიმბოლოს `out`. ვინაიდან `out` არის ერთჯერადი კოდირებული, ჩვენ ვიღებთ `argmax` სიმბოლოს `nc`-ის ინდექსის მისაღებად ლექსიკაში და ვიყენებთ `itos` რეალური სიმბოლოს გასარკვევად და მივამატებთ მას სიმბოლოების სიაში ____CODE_6. ერთი სიმბოლოს გენერირების პროცესი მეორდება `size`-ჯერ, სიმბოლოების საჭირო რაოდენობის შესაქმნელად.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def generate(net,size=100,start='today '):\n        chars = list(start)\n        out, s = net(enc(chars).view(1,-1).to(device))\n        for i in range(size):\n            nc = torch.argmax(out[0][-1])\n            chars.append(vocab.get_itos()[nc])\n            out, s = net(nc.view(1,-1),s)\n        return ''.join(chars)",
+   "executionCount": 8,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მოდით გავატაროთ ტრენინგი! სავარჯიშო ციკლი თითქმის იგივეა, რაც ჩვენს ყველა წინა მაგალითში, მაგრამ სიზუსტის ნაცვლად ჩვენ ვბეჭდავთ ნიმუშის გენერირებულ ტექსტს ყოველ 1000 ეპოქაში.\n\nგანსაკუთრებული ყურადღება უნდა მიექცეს დანაკარგის გამოთვლას. ჩვენ უნდა გამოვთვალოთ დანაკარგი one-hot კოდირებული გამომავალი `out` და მოსალოდნელი ტექსტი `text_out`, რომელიც არის სიმბოლოების ინდექსების სია. საბედნიეროდ, `cross_entropy` ფუნქცია მოელის ქსელის არანორმალიზებულ გამომავალს, როგორც პირველ არგუმენტს, ხოლო კლასის ნომერს, როგორც მეორეს, რაც ზუსტად ის არის, რაც გვაქვს. ის ასევე ახორციელებს ავტომატურ საშუალოდ გაანგარიშებას მინიპაკეტის ზომაზე.\n\nჩვენ ასევე ვზღუდავთ ტრენინგს `samples_to_train` ნიმუშებით, რათა დიდხანს არ დაველოდოთ. ჩვენ მოგიწოდებთ, ექსპერიმენტი ჩაატაროთ და სცადოთ უფრო გრძელი ვარჯიში, შესაძლოა რამდენიმე ეპოქისთვის (ამ შემთხვევაში თქვენ დაგჭირდებათ ამ კოდის გარშემო კიდევ ერთი ციკლის შექმნა).\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "net = LSTMGenerator(vocab_size,64).to(device)\n\nsamples_to_train = 10000\noptimizer = torch.optim.Adam(net.parameters(),0.01)\nloss_fn = torch.nn.CrossEntropyLoss()\nnet.train()\nfor i,x in enumerate(train_dataset):\n    # x[0] is class label, x[1] is text\n    if len(x[1])-nchars<10:\n        continue\n    samples_to_train-=1\n    if not samples_to_train: break\n    text_in, text_out = get_batch(x[1])\n    optimizer.zero_grad()\n    out,s = net(text_in)\n    loss = torch.nn.functional.cross_entropy(out.view(-1,vocab_size),text_out.flatten()) #cross_entropy(out,labels)\n    loss.backward()\n    optimizer.step()\n    if i%1000==0:\n        print(f\"Current loss = {loss.item()}\")\n        print(generate(net))",
+   "executionCount": 9,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "Current loss = 4.398899078369141\ntoday sr sr sr sr sr sr sr sr sr sr sr sr sr sr sr sr sr sr sr sr sr sr sr sr sr sr sr sr sr sr sr sr sr s\nCurrent loss = 2.161320447921753\ntoday and to the tor to to the tor to to the tor to to the tor to to the tor to to the tor to to the tor t\nCurrent loss = 1.6722588539123535\ntoday and the court to the could to the could to the could to the could to the could to the could to the c\nCurrent loss = 2.423795223236084\ntoday and a second to the conternation of the conternation of the conternation of the conternation of the \nCurrent loss = 1.702607274055481\ntoday and the company to the company to the company to the company to the company to the company to the co\nCurrent loss = 1.692358136177063\ntoday and the company to the company to the company to the company to the company to the company to the co\nCurrent loss = 1.9722288846969604\ntoday and the control the control the control the control the control the control the control the control \nCurrent loss = 1.8705692291259766\ntoday and the second to the second to the second to the second to the second to the second to the second t\nCurrent loss = 1.7626899480819702\ntoday and a security and a security and a security and a security and a security and a security and a secu\nCurrent loss = 1.5574463605880737\ntoday and the company and the company and the company and the company and the company and the company and \nCurrent loss = 1.5620026588439941\ntoday and the be that the be the be that the be the be that the be the be that the be the be that the be t\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ეს მაგალითი უკვე ქმნის საკმაოდ კარგ ტექსტს, მაგრამ მისი შემდგომი გაუმჯობესება შესაძლებელია რამდენიმე გზით:\n* უკეთესი მინი პარტია. ტრენინგისთვის მონაცემების მომზადების გზა იყო ერთი ნიმუშიდან ერთი მინი პარტიის გენერირება. ეს არ არის იდეალური, რადგან მინი პარტიები ყველა სხვადასხვა ზომისაა და ზოგიერთი მათგანის გენერირებაც კი შეუძლებელია, რადგან ტექსტი უფრო მცირეა ვიდრე `nchars`. ასევე, მცირე მინი პარტიები საკმარისად არ იტვირთება GPU-ს. უფრო გონივრული იქნება, რომ ყველა ნიმუშიდან მივიღოთ ტექსტის ერთი დიდი ნაწილი, შემდეგ შევქმნათ ყველა შემავალი-გამომავალი წყვილი, შევურიოთ ისინი და შევქმნათ თანაბარი ზომის მინი პარტიები.\n* მრავალშრიანი LSTM. აზრი აქვს სცადოთ LSTM უჯრედების 2 ან 3 ფენა. როგორც წინა განყოფილებაში აღვნიშნეთ, LSTM-ის თითოეული ფენა ამოიღებს გარკვეულ შაბლონებს ტექსტიდან, ხოლო სიმბოლოების დონის გენერატორის შემთხვევაში შეიძლება ველოდოთ, რომ ქვედა LSTM დონე პასუხისმგებელია სილაბების ამოღებაზე, ხოლო უფრო მაღალი დონეები - სიტყვებისა და სიტყვების კომბინაციებისთვის. ეს შეიძლება უბრალოდ განხორციელდეს LSTM კონსტრუქტორზე ფენების რაოდენობის პარამეტრის გადაცემით.\n* თქვენ ასევე შეიძლება გინდოდეთ ექსპერიმენტი GRU ერთეულებით და ნახოთ რომელი მათგანი უკეთესად მუშაობს და სხვადასხვა ფარული ფენის ზომები. ძალიან დიდმა დამალულმა ფენამ შეიძლება გამოიწვიოს გადაჭარბება (მაგ. ქსელი ისწავლის ზუსტ ტექსტს), ხოლო მცირე ზომამ შეიძლება არ გამოიწვიოს კარგი შედეგი.\n"
+  },
+  {
+   "type": "markdown",
+   "source": "## რბილი ტექსტის გენერაცია და ტემპერატურა\n\n`generate`-ის წინა განმარტებაში, ჩვენ ყოველთვის ვიღებდით სიმბოლოს ყველაზე დიდი ალბათობით, როგორც შემდეგი სიმბოლო გენერირებულ ტექსტში. ამან განაპირობა ის, რომ ტექსტი ხშირად „ტრიალებს“ ერთი და იგივე სიმბოლოების თანმიმდევრობას შორის, როგორც ამ მაგალითში:```\ntoday of the second the company and a second the company ...\n```\n\nთუმცა, თუ გადავხედავთ ალბათობის განაწილებას შემდეგი სიმბოლოსთვის, შეიძლება იყოს ის, რომ განსხვავება რამდენიმე უმაღლეს ალბათობას შორის არ არის დიდი, მაგ. ერთ სიმბოლოს შეიძლება ჰქონდეს ალბათობა 0.2, მეორეს - 0.19 და ა.შ. მაგალითად, \"play\" თანმიმდევრობით შემდეგი სიმბოლოს ძიებისას, შემდეგი სიმბოლო შეიძლება იყოს ან სივრცე, ან e (როგორც სიტყვაში player).\n\nეს მიგვიყვანს დასკვნამდე, რომ ყოველთვის არ არის „სამართლიანი“ პერსონაჟის უფრო მაღალი ალბათობით შერჩევა, რადგან მეორე უმაღლესის არჩევამ შესაძლოა მაინც მიგვიყვანოს შინაარსიან ტექსტამდე. უფრო გონივრული იქნება აირჩიოთ სიმბოლოები ქსელის გამომავალი ალბათობის განაწილებიდან.\n\nეს ნიმუში შეიძლება განხორციელდეს `multinomial` ფუნქციის გამოყენებით, რომელიც ახორციელებს ე.წ მულტინომიურ განაწილებას. ფუნქცია, რომელიც ახორციელებს ამ რბილი ტექსტის გენერაციას, განსაზღვრულია ქვემოთ:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def generate_soft(net,size=100,start='today ',temperature=1.0):\n        chars = list(start)\n        out, s = net(enc(chars).view(1,-1).to(device))\n        for i in range(size):\n            #nc = torch.argmax(out[0][-1])\n            out_dist = out[0][-1].div(temperature).exp()\n            nc = torch.multinomial(out_dist,1)[0]\n            chars.append(vocab.get_itos()[nc])\n            out, s = net(nc.view(1,-1),s)\n        return ''.join(chars)\n    \nfor i in [0.3,0.8,1.0,1.3,1.8]:\n    print(f\"--- Temperature = {i}\\n{generate_soft(net,size=300,start='Today ',temperature=i)}\\n\")",
+   "executionCount": 10,
+   "outputs": [
+    {
+     "kind": "text",
+     "text": "--- Temperature = 0.3\nToday and a company and complete an all the land the restrational the as a security and has provers the pay to and a report and the computer in the stand has filities and working the law the stations for a company and with the company and the final the first company and refight of the state and and workin\n\n--- Temperature = 0.8\nToday he oniis its first to Aus bomblaties the marmation a to manan  boogot that pirate assaid a relaid their that goverfin the the Cappets Ecrotional Assonia Cition targets it annight the w scyments Blamity #39;s TVeer Diercheg Reserals fran envyuil that of ster said access what succers of Dour-provelith\n\n--- Temperature = 1.0\nToday holy they a 11 will meda a toket subsuaties, engins for Chanos, they's has stainger past to opening orital his thempting new Nattona was al innerforder advan-than #36;s night year his religuled talitatian what the but with Wednesday to Justment will wemen of Mark CCC Camp as Timed Nae wome a leaders\n\n--- Temperature = 1.3\nToday gpone 2.5 fech atcusion poor cocles toparsdorM.cht Line Pamage put 43 his calt lowed to the book, that has authh-the silia rruch ailing to'ory andhes beutirsimi- Aefffive heading offil an auf eacklets is charged evis, Gunymy oy) Mony has it after-sloythyor loveId out filme, the Natabl -Najuntaxiggs \n\n--- Temperature = 1.8\nToday plary, P.slan chly\\401 mardregationly #39;t 8.1Mide) closes ,filtcon alfly playin roven!\\grea.-QFBEP: Iss onfarchQ/itilia CCf Zivesigntwasta orce.-Peul-aw.uicrin of fuglinfsut aftaningwo, MIEX awayew Aice Woiduar Corvagiugge oppo esig ThusBratourid canthly-RyI.co lagitems\\eexciaishes.conBabntusmor I\n\n",
+     "stream": "stdout"
+    }
+   ]
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ შემოვიღეთ კიდევ ერთი პარამეტრი, სახელწოდებით ტემპერატურა, რომელიც გამოიყენება იმის საჩვენებლად, თუ რამდენად უნდა დავიცვათ ყველაზე მაღალი ალბათობა. თუ ტემპერატურა 1.0-ია, ჩვენ ვაკეთებთ სამართლიან მრავალწევრებულ შერჩევას და როდესაც ტემპერატურა მიდის უსასრულობამდე - ყველა ალბათობა თანაბარი ხდება და შემთხვევით ვირჩევთ შემდეგ სიმბოლოს. ქვემოთ მოცემულ მაგალითში შეგვიძლია შევამჩნიოთ, რომ ტექსტი უაზრო ხდება, როდესაც ტემპერატურას ძალიან გავზრდით და ემსგავსება \"ციკლურ\" მძიმე გენერირებულ ტექსტს, როდესაც ის 0-ს მიუახლოვდება.\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/5-NLP/17-GenerativeNetworks/GenerativePyTorch.ipynb"
+}

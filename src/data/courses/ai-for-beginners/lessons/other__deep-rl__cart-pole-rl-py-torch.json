@@ -1,0 +1,198 @@
+{
+ "kind": "notebook",
+ "courseSlug": "ai-for-beginners",
+ "slug": "other/deep-rl/cart-pole-rl-py-torch",
+ "segments": [
+  "other",
+  "deep-rl",
+  "cart-pole-rl-py-torch"
+ ],
+ "title": "ტრენინგი RL Cartpole Balancing-ის გასაკეთებლად",
+ "module": {
+  "id": "6-Other",
+  "slug": "other",
+  "title": "სხვა AI ტექნიკები",
+  "icon": "puzzle"
+ },
+ "lessonNumber": 22,
+ "orderInModule": 1220.4,
+ "attribution": {
+  "source": "Microsoft AI for Beginners",
+  "license": "MIT",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "sourcePath": "lessons/6-Other/22-DeepRL/CartPole-RL-PyTorch.ipynb"
+ },
+ "prev": {
+  "slug": "other/deep-rl/lab/mountain-car",
+  "title": "# სავარჯიშო მთის მანქანა გაქცევისთვის"
+ },
+ "next": {
+  "slug": "other/deep-rl/cart-pole-rl-tf",
+  "title": "ტრენინგი RL Cartpole Balancing-ის გასაკეთებლად"
+ },
+ "framework": "pytorch",
+ "cells": [
+  {
+   "type": "markdown",
+   "source": "ეს ნოუთბუქები AI დამწყებთათვის სასწავლო პროგრამა-ის ნაწილია. ის შთაგონებულია ოფიციალური PyTorch გაკვეთილი და ეს Cartpole PyTorch განხორციელება-ით.\n\nამ მაგალითში, ჩვენ გამოვიყენებთ RL-ს, რათა მოვამზადოთ მოდელი, რათა დააბალანსოს ბოძები ეტლზე, რომელსაც შეუძლია მოძრაობდეს მარცხნივ და მარჯვნივ ჰორიზონტალური მასშტაბით. ჩვენ გამოვიყენებთ OpenAI სპორტული დარბაზი გარემოს ბოძის სიმულაციისთვის.\n\n> შენიშვნა: შეგიძლიათ ამ გაკვეთილის კოდი ადგილობრივად გაუშვათ (მაგ. Visual Studio Code-დან), ამ შემთხვევაში სიმულაცია გაიხსნება ახალ ფანჯარაში. კოდის ონლაინ გაშვებისას შეიძლება დაგჭირდეთ კოდის შესწორება, როგორც აღწერილია აქ.\n\nჩვენ დავიწყებთ იმით, რომ დარწმუნდებით, რომ სპორტული დარბაზი დაყენებულია:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import sys\n!{sys.executable} -m pip install gym",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მოდით შევქმნათ CartPole გარემო და ვნახოთ როგორ ვიმოქმედოთ მასზე. გარემოს აქვს შემდეგი თვისებები:\n\n* სამოქმედო სივრცე არის შესაძლო მოქმედებების ერთობლიობა, რომელთა შესრულებაც შეგვიძლია სიმულაციის თითოეულ საფეხურზე\n* დაკვირვების სივრცე არის დაკვირვებების სივრცე, რომლის გაკეთებაც შეგვიძლია\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import gym\n\nenv = gym.make(\"CartPole-v1\")\n\nprint(f\"Action space: {env.action_space}\")\nprint(f\"Observation space: {env.observation_space}\")",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ვნახოთ როგორ მუშაობს სიმულაცია. შემდეგი ციკლი აწარმოებს სიმულაციას, სანამ `env.step` არ დააბრუნებს შეწყვეტის დროშას `done`. ჩვენ შემთხვევით ავირჩევთ მოქმედებებს `env.action_space.sample()`-ის გამოყენებით, რაც ნიშნავს, რომ ექსპერიმენტი, სავარაუდოდ, ძალიან სწრაფად ჩავარდება (CartPole გარემო მთავრდება, როდესაც CartPole-ის სიჩქარე, მისი პოზიცია ან კუთხე გარკვეულ საზღვრებს მიღმაა).\n\n> სიმულაცია გაიხსნება ახალ ფანჯარაში. თქვენ შეგიძლიათ რამდენჯერმე გაუშვათ კოდი და ნახოთ როგორ იქცევა იგი.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "env.reset()\n\ndone = False\ntotal_reward = 0\nwhile not done:\n   env.render()\n   obs, rew, done, info = env.step(env.action_space.sample())\n   total_reward += rew\n   print(f\"{obs} -> {rew}\")\nprint(f\"Total reward: {total_reward}\")",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "თქვენ შეგიძლიათ შეამჩნიოთ, რომ დაკვირვებები შეიცავს 4 რიცხვს. ისინი არიან:\n- ურიკის პოზიცია\n- ურიკის სიჩქარე\n- ბოძის კუთხე\n- ბოძის ბრუნვის სიჩქარე\n\n`rew` არის ჯილდო, რომელსაც ვიღებთ ყოველ ნაბიჯზე. თქვენ ხედავთ, რომ CartPole გარემოში თქვენ დაჯილდოვდებით 1 ქულით თითოეული სიმულაციური ნაბიჯისთვის და მიზანია მაქსიმალური ჯილდოს გაზრდა, ანუ დრო CartPole-ს შეუძლია დაბალანსება დაცემის გარეშე.\n\nგანმამტკიცებელი სწავლის დროს, ჩვენი მიზანია მოვამზადოთ პოლიტიკა $\\pi$, რომელიც $s$ თითოეულ შტატზე გვეტყვის რომელი ქმედება $a$ უნდა მივიღოთ, ასე რომ, არსებითად $a = \\pi(s)$.\n\nთუ გსურთ სავარაუდო გამოსავალი, შეგიძლიათ იფიქროთ პოლიტიკაზე, როგორც აბრუნებს ალბათობების ერთობლიობას თითოეული ქმედებისთვის, ანუ $\\pi(a|s)$ ნიშნავს ალბათობას, რომ ჩვენ უნდა განვახორციელოთ $a$ $s$ მდგომარეობაში.\n\n## პოლიტიკის გრადიენტის მეთოდი\n\nუმარტივეს RL ალგორითმში, სახელწოდებით პოლიტიკის გრადიენტი, ჩვენ მოვამზადებთ ნერვულ ქსელს შემდეგი მოქმედების პროგნოზირებისთვის.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "import numpy as np\nimport matplotlib.pyplot as plt\nimport torch\n\nnum_inputs = 4\nnum_actions = 2\n\nmodel = torch.nn.Sequential(\n    torch.nn.Linear(num_inputs, 128, bias=False, dtype=torch.float32),\n    torch.nn.ReLU(),\n    torch.nn.Linear(128, num_actions, bias = False, dtype=torch.float32),\n    torch.nn.Softmax(dim=1)\n)",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ გავავარჯიშებთ ქსელს მრავალი ექსპერიმენტის ჩატარებით და ყოველი გაშვების შემდეგ ჩვენი ქსელის განახლებით. მოდით განვსაზღვროთ ფუნქცია, რომელიც ჩაატარებს ექსპერიმენტს და დააბრუნებს შედეგებს (ე.წ. კვალი) - ყველა მდგომარეობა, მოქმედება (და მათი რეკომენდებული ალბათობები) და ჯილდოები:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def run_episode(max_steps_per_episode = 10000,render=False):    \n    states, actions, probs, rewards = [],[],[],[]\n    state = env.reset()\n    for _ in range(max_steps_per_episode):\n        if render:\n            env.render()\n        action_probs = model(torch.from_numpy(np.expand_dims(state,0)))[0]\n        action = np.random.choice(num_actions, p=np.squeeze(action_probs.detach().numpy()))\n        nstate, reward, done, info = env.step(action)\n        if done:\n            break\n        states.append(state)\n        actions.append(action)\n        probs.append(action_probs.detach().numpy())\n        rewards.append(reward)\n        state = nstate\n    return np.vstack(states), np.vstack(actions), np.vstack(probs), np.vstack(rewards)",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "შეგიძლიათ ერთი ეპიზოდის გაშვება მოუმზადებელი ქსელით და დააკვირდით, რომ ჯამური ჯილდო (AKA ეპიზოდის ხანგრძლივობა) ძალიან დაბალია:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "s, a, p, r = run_episode()\nprint(f\"Total reward: {np.sum(r)}\")",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "პოლიტიკის გრადიენტის ალგორითმის ერთ-ერთი რთული ასპექტია ფასდაკლებული ჯილდოების გამოყენება. იდეა არის ის, რომ ჩვენ გამოვთვლით ჯამური ჯილდოების ვექტორს თამაშის ყოველ საფეხურზე და ამ პროცესის განმავლობაში ვამცირებთ ადრეულ ჯილდოებს რაღაც კოეფიციენტის $gamma$-ის გამოყენებით. ჩვენ ასევე ნორმალიზდება მიღებული ვექტორი, რადგან ჩვენ გამოვიყენებთ მას როგორც წონას, რომ გავლენა მოახდინოს ჩვენს ვარჯიშზე:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "eps = 0.0001\n\ndef discounted_rewards(rewards,gamma=0.99,normalize=True):\n    ret = []\n    s = 0\n    for r in rewards[::-1]:\n        s = r + gamma * s\n        ret.insert(0, s)\n    if normalize:\n        ret = (ret-np.mean(ret))/(np.std(ret)+eps)\n    return ret",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მოდით გავაკეთოთ რეალური ტრენინგი! ჩვენ გავუშვებთ 300 ეპიზოდს და თითოეულ ეპიზოდში გავაკეთებთ შემდეგს:\n\n1. ჩაატარეთ ექსპერიმენტი და შეაგროვეთ კვალი\n1. გამოთვალეთ სხვაობა (`gradients`) განხორციელებულ ქმედებებსა და პროგნოზირებულ ალბათობებს შორის. რაც უფრო ნაკლებია განსხვავება, მით უფრო დარწმუნებული ვართ, რომ სწორი ქმედება მივიღეთ.\n1. გამოთვალეთ ფასდაკლებული ჯილდოები და გაამრავლეთ გრადიენტები ფასდაკლებულ ჯილდოებზე - რაც დარწმუნდება, რომ უფრო მაღალი ჯილდოს მქონე ნაბიჯები უფრო მეტ გავლენას მოახდენს საბოლოო შედეგზე, ვიდრე დაბალი ჯილდოებით\n1. ჩვენი ნერვული ქსელისთვის მოსალოდნელი სამიზნე მოქმედებები ნაწილობრივ იქნება აღებული სავარაუდო ალბათობებიდან გაშვების დროს და ნაწილობრივ გამოთვლილი გრადიენტებიდან. ჩვენ გამოვიყენებთ `alpha` პარამეტრს, რათა განვსაზღვროთ, თუ რამდენად არის გათვალისწინებული გრადიენტები და ჯილდოები - ამას ეწოდება გაძლიერების ალგორითმის სწავლის სიჩქარე.\n1. და ბოლოს, ჩვენ ვავარჯიშებთ ჩვენს ქსელს მდგომარეობებზე და მოსალოდნელ ქმედებებზე და ვიმეორებთ პროცესს\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "optimizer = torch.optim.Adam(model.parameters(), lr=0.01)\n\ndef train_on_batch(x, y):\n    x = torch.from_numpy(x)\n    y = torch.from_numpy(y)\n    optimizer.zero_grad()\n    predictions = model(x)\n    loss = -torch.mean(torch.log(predictions) * y)\n    loss.backward()\n    optimizer.step()\n    return loss",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "alpha = 1e-4\n\nhistory = []\nfor epoch in range(300):\n    states, actions, probs, rewards = run_episode()\n    one_hot_actions = np.eye(2)[actions.T][0]\n    gradients = one_hot_actions-probs\n    dr = discounted_rewards(rewards)\n    gradients *= dr\n    target = alpha*np.vstack([gradients])+probs\n    train_on_batch(states,target)\n    history.append(np.sum(rewards))\n    if epoch%100==0:\n        print(f\"{epoch} -> {np.sum(rewards)}\")\n\nplt.plot(history)",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა მოდით გავუშვათ ეპიზოდი რენდერით შედეგის სანახავად:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "_ = run_episode(render=True)",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "იმედია, ხედავთ, რომ ბოძს ახლა საკმაოდ კარგად შეუძლია წონასწორობა!\n\n## მსახიობი-კრიტიკოსი მოდელი\n\nActor-Critic მოდელი არის პოლიტიკის გრადიენტების შემდგომი განვითარება, რომელშიც ჩვენ ვაშენებთ ნერვულ ქსელს, რათა ვისწავლოთ როგორც პოლიტიკა, ასევე სავარაუდო ჯილდოები. ქსელს ექნება ორი გამომავალი (ან შეგიძლიათ იხილოთ როგორც ორი ცალკეული ქსელი):\n* აქტორი რეკომენდაციას გაუწევს განსახორციელებელ ქმედებას და გვაძლევს მდგომარეობის ალბათობის განაწილებას, როგორც პოლიტიკის გრადიენტულ მოდელში\n* კრიტიკოსი შეაფასებდა რა ჯილდოს მიიღებს ამ ქმედებებისგან. ის აბრუნებს მთლიან სავარაუდო ჯილდოს მომავალში მოცემულ მდგომარეობაში.\n\nმოდით განვსაზღვროთ ასეთი მოდელი:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "from itertools import count\nimport torch.nn.functional as F",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "device = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\nenv = gym.make(\"CartPole-v1\")\n\nstate_size = env.observation_space.shape[0]\naction_size = env.action_space.n\nlr = 0.0001\n\nclass Actor(torch.nn.Module):\n    def __init__(self, state_size, action_size):\n        super(Actor, self).__init__()\n        self.state_size = state_size\n        self.action_size = action_size\n        self.linear1 = torch.nn.Linear(self.state_size, 128)\n        self.linear2 = torch.nn.Linear(128, 256)\n        self.linear3 = torch.nn.Linear(256, self.action_size)\n\n    def forward(self, state):\n        output = F.relu(self.linear1(state))\n        output = F.relu(self.linear2(output))\n        output = self.linear3(output)\n        distribution = torch.distributions.Categorical(F.softmax(output, dim=-1))\n        return distribution\n\n\nclass Critic(torch.nn.Module):\n    def __init__(self, state_size, action_size):\n        super(Critic, self).__init__()\n        self.state_size = state_size\n        self.action_size = action_size\n        self.linear1 = torch.nn.Linear(self.state_size, 128)\n        self.linear2 = torch.nn.Linear(128, 256)\n        self.linear3 = torch.nn.Linear(256, 1)\n\n    def forward(self, state):\n        output = F.relu(self.linear1(state))\n        output = F.relu(self.linear2(output))\n        value = self.linear3(output)\n        return value",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ჩვენ ოდნავ უნდა შევცვალოთ ჩვენი `discounted_rewards` და `run_episode` ფუნქციები:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "def discounted_rewards(next_value, rewards, masks, gamma=0.99):\n    R = next_value\n    returns = []\n    for step in reversed(range(len(rewards))):\n        R = rewards[step] + gamma * R * masks[step]\n        returns.insert(0, R)\n    return returns\n\ndef run_episode(actor, critic, n_iters):\n    optimizerA = torch.optim.Adam(actor.parameters())\n    optimizerC = torch.optim.Adam(critic.parameters())\n    for iter in range(n_iters):\n        state = env.reset()\n        log_probs = []\n        values = []\n        rewards = []\n        masks = []\n        entropy = 0\n        env.reset()\n\n        for i in count():\n            env.render()\n            state = torch.FloatTensor(state).to(device)\n            dist, value = actor(state), critic(state)\n\n            action = dist.sample()\n            next_state, reward, done, _ = env.step(action.cpu().numpy())\n\n            log_prob = dist.log_prob(action).unsqueeze(0)\n            entropy += dist.entropy().mean()\n\n            log_probs.append(log_prob)\n            values.append(value)\n            rewards.append(torch.tensor([reward], dtype=torch.float, device=device))\n            masks.append(torch.tensor([1-done], dtype=torch.float, device=device))\n\n            state = next_state\n\n            if done:\n                print('Iteration: {}, Score: {}'.format(iter, i))\n                break\n\n\n        next_state = torch.FloatTensor(next_state).to(device)\n        next_value = critic(next_state)\n        returns = discounted_rewards(next_value, rewards, masks)\n\n        log_probs = torch.cat(log_probs)\n        returns = torch.cat(returns).detach()\n        values = torch.cat(values)\n\n        advantage = returns - values\n\n        actor_loss = -(log_probs * advantage.detach()).mean()\n        critic_loss = advantage.pow(2).mean()\n\n        optimizerA.zero_grad()\n        optimizerC.zero_grad()\n        actor_loss.backward()\n        critic_loss.backward()\n        optimizerA.step()\n        optimizerC.step()\n",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "ახლა ჩვენ გავაგრძელებთ ძირითად სავარჯიშო ციკლს. ჩვენ გამოვიყენებთ ხელით ქსელის ტრენინგის პროცესს სათანადო დაკარგვის ფუნქციების გამოთვლით და ქსელის პარამეტრების განახლებით:\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "\nactor = Actor(state_size, action_size).to(device)\ncritic = Critic(state_size, action_size).to(device)\nrun_episode(actor, critic, n_iters=100)",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "საბოლოოდ დავხუროთ გარემო.\n"
+  },
+  {
+   "type": "code",
+   "language": "python",
+   "source": "env.close()",
+   "executionCount": null,
+   "outputs": []
+  },
+  {
+   "type": "markdown",
+   "source": "## Takeaway\n\nჩვენ ვნახეთ ორი RL ალგორითმი ამ დემოში: მარტივი პოლიტიკის გრადიენტი და უფრო დახვეწილი მსახიობი-კრიტიკოსი. თქვენ ხედავთ, რომ ეს ალგორითმები მოქმედებენ მდგომარეობის, მოქმედებისა და ჯილდოს აბსტრაქტული ცნებებით - ამგვარად, მათი გამოყენება შესაძლებელია ძალიან განსხვავებულ გარემოში.\n\nგანმტკიცების სწავლა საშუალებას გვაძლევს ვისწავლოთ პრობლემის გადაჭრის საუკეთესო სტრატეგია მხოლოდ საბოლოო ჯილდოს ნახვით. ის ფაქტი, რომ ჩვენ არ გვჭირდება ეტიკეტირებული მონაცემთა ნაკრები, საშუალებას გვაძლევს გავიმეოროთ სიმულაციები ბევრჯერ ჩვენი მოდელების ოპტიმიზაციისთვის. თუმცა, RL-ში ჯერ კიდევ ბევრი გამოწვევაა, რომელიც შეიძლება გაიგოთ, თუ გადაწყვეტთ მეტი ფოკუსირება მოახდინოთ AIს ამ საინტერესო სფეროზე.\n"
+  }
+ ],
+ "sourceNotebookUrl": "https://github.com/microsoft/AI-For-Beginners/blob/main/lessons/6-Other/22-DeepRL/CartPole-RL-PyTorch.ipynb"
+}
