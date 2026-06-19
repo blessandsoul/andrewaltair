@@ -205,31 +205,7 @@ export async function GET(request: NextRequest) {
               )}
             </div>
 
-            {/* Bottom Bar: Stats — default view only; hidden for post + insight */}
-            {type !== 'post' && type !== 'insight' && (
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '60px',
-                  marginTop: '60px',
-                  paddingTop: '40px',
-                  borderTop: '1px solid rgba(255,255,255,0.1)',
-                  width: '100%',
-                  justifyContent: 'center',
-                }}
-              >
-                {[
-                  { label: 'გამოცდილება', value: '8+ წელი' },
-                  { label: 'პროექტი', value: '100+' },
-                  { label: 'კლიენტი', value: '50+' },
-                ].map((stat, i) => (
-                  <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <span style={{ fontSize: '32px', fontWeight: 700, color: '#f3f4f6' }}>{stat.value}</span>
-                    <span style={{ fontSize: '18px', color: '#6b7280', marginTop: '4px' }}>{stat.label}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+            {/* Stats row removed per user directive 2026-06-19 — never render site stats (8+ წელი / პროექტი / კლიენტი) on any OG card. */}
           </div>
 
           {/* Footer Domain */}
