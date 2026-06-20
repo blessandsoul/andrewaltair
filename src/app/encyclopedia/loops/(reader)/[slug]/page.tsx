@@ -1,4 +1,4 @@
-import { getArticleById } from "@/data/loopsContent";
+import { getArticleById, getAllArticles, getAdjacentArticles } from "@/data/loopsContent";
 import { notFound } from "next/navigation";
 import LoopsArticleRenderer from "@/components/loops/LoopsArticleRenderer";
 import ArticleSchema, { BreadcrumbSchema, FAQSchema } from "@/components/blog/ArticleSchema";
@@ -79,6 +79,10 @@ export default async function LoopsArticlePage({ params }: Props) {
         notFound();
     }
 
+    const all = getAllArticles();
+    const index = all.findIndex((a) => a.id === slug);
+    const { prev, next } = getAdjacentArticles(slug);
+
     return (
         <>
             <ArticleSchema
@@ -103,7 +107,12 @@ export default async function LoopsArticlePage({ params }: Props) {
 
             {jsonData.faq_schema && <FAQSchema items={jsonData.faq_schema} />}
 
-            <LoopsArticleRenderer data={jsonData} />
+            <LoopsArticleRenderer
+                data={jsonData}
+                position={{ index, total: all.length }}
+                prev={prev ? { id: prev.id, title: prev.title } : null}
+                next={next ? { id: next.id, title: next.title } : null}
+            />
         </>
     );
 }

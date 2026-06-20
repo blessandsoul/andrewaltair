@@ -7,8 +7,8 @@ import { LoopIcon } from './loopIcons';
 export default function LoopCycleDiagram({ section }: { section: LoopCycleSection }) {
     const stroke = '#4f46e5'; // indigo-600, brand-anchored
     return (
-        <section className="px-4 md:px-6 py-8 md:py-12">
-            <div className="max-w-4xl mx-auto">
+        <section>
+            <div>
                 {section.heading && (
                     <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">{section.heading}</h2>
                 )}

@@ -74,35 +74,46 @@ export default function LoopsReaderSidebar() {
                 </div>
 
                 <nav className="flex-1 overflow-y-auto p-4">
-                    <p className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                        გაკვეთილები
-                    </p>
-                    <ul className="space-y-1">
-                        {filteredArticles.map((article, idx) => {
-                            const isActive = currentSlug === article.id;
-                            return (
-                                <li key={article.id}>
-                                    <Link
-                                        href={`/encyclopedia/loops/${article.id}`}
-                                        onClick={() => setIsOpen(false)}
-                                        className={`
-                                            flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm
-                                            transition-all duration-200
-                                            ${isActive
-                                                ? 'bg-indigo-100 text-indigo-700 font-medium'
-                                                : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
-                                            }
-                                        `}
-                                    >
-                                        <span className={`shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold ${isActive ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
-                                            {idx + 1}
-                                        </span>
-                                        <span className="truncate">{article.title}</span>
-                                    </Link>
-                                </li>
-                            );
-                        })}
-                    </ul>
+                    {LOOPS_DATA.categories.map((cat) => {
+                        const items = cat.articles.filter(
+                            (a) => !search.trim() || a.title.toLowerCase().includes(search.toLowerCase())
+                        );
+                        if (items.length === 0) return null;
+                        return (
+                            <div key={cat.id} className="mb-5">
+                                <p className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                    {cat.title}
+                                </p>
+                                <ul className="space-y-1">
+                                    {items.map((article) => {
+                                        const idx = allArticles.findIndex((a) => a.id === article.id);
+                                        const isActive = currentSlug === article.id;
+                                        return (
+                                            <li key={article.id}>
+                                                <Link
+                                                    href={`/encyclopedia/loops/${article.id}`}
+                                                    onClick={() => setIsOpen(false)}
+                                                    className={`
+                                                        flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm
+                                                        transition-all duration-200
+                                                        ${isActive
+                                                            ? 'bg-indigo-100 text-indigo-700 font-medium'
+                                                            : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                                                        }
+                                                    `}
+                                                >
+                                                    <span className={`shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold ${isActive ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                                                        {idx + 1}
+                                                    </span>
+                                                    <span className="truncate">{article.title}</span>
+                                                </Link>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            </div>
+                        );
+                    })}
 
                     {filteredArticles.length === 0 && (
                         <p className="px-3 py-4 text-sm text-gray-500 text-center">

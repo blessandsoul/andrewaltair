@@ -9,8 +9,8 @@ export default function LoopInfoCards({ section }: { section: LoopCardsSection }
         : 'sm:grid-cols-2';
 
     return (
-        <section className="px-4 md:px-6 py-8 md:py-12">
-            <div className="max-w-4xl mx-auto">
+        <section>
+            <div>
                 {section.heading && (
                     <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">{section.heading}</h2>
                 )}
