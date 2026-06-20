@@ -143,6 +143,30 @@ const certificates: Certificate[] = [
     issuer: 'Anthropic',
     skills: ['Google Vertex AI', 'Claude', 'Google Cloud', 'LLM Deployment', 'Cloud', 'Anthropic'],
   },
+  {
+    file: 'certificate-yztpd7892ca6-1781968602.jpg',
+    title: 'Claude Platform 101',
+    issuer: 'Anthropic',
+    skills: ['Claude Platform', 'Console', 'Prompt Engineering', 'API', 'Claude', 'Anthropic'],
+  },
+  {
+    file: 'certificate-7wuuj9n2zqcr-1781968784.jpg',
+    title: 'Claude Code 101',
+    issuer: 'Anthropic',
+    skills: ['Claude Code', 'AI Coding', 'CLI', 'Agentic Workflows', 'Software Development', 'Anthropic'],
+  },
+  {
+    file: 'certificate-qpka3ijtsngj-1781968982.jpg',
+    title: 'AI Fluency for Small Businesses',
+    issuer: 'Anthropic',
+    skills: ['AI Fluency', 'Small Business', 'AI Adoption', 'Responsible AI', 'PayPal', 'Claude', 'Anthropic'],
+  },
+  {
+    file: 'certificate-5mzkkt3kqbbj-1781969165.jpg',
+    title: 'AI Fluency: AI Capabilities & Limitations',
+    issuer: 'Anthropic',
+    skills: ['AI Fluency', 'AI Capabilities', 'AI Limitations', 'Responsible AI', 'Claude', 'Anthropic'],
+  },
 ]
 
 // Deduplicate by file (remove (1) duplicates)
