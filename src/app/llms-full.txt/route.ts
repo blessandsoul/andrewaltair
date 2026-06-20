@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
 import Post from '@/models/Post'
 import { getAllArticles } from '@/data/vibeCodingContent'
+import { getAllArticles as getAllLoopsArticles } from '@/data/loopsContent'
 
 export const dynamic = 'force-dynamic';
 
@@ -36,6 +37,15 @@ export async function GET() {
             .map((article) => {
                 const desc = article.description || article.title
                 return `- [${article.title}](${baseUrl}/encyclopedia/vibe-coding/${article.id}) - ${desc}`
+            })
+            .join('\n')
+
+        // Generate LOOPS course section
+        const loopsArticles = getAllLoopsArticles() as ExtendedArticle[]
+        const loopsSection = loopsArticles
+            .map((article) => {
+                const desc = article.description || article.title
+                return `- [${article.title}](${baseUrl}/encyclopedia/loops/${article.id}) - ${desc}`
             })
             .join('\n')
 
@@ -108,6 +118,14 @@ Comprehensive educational content about Vibe Coding methodology.
 
 #### Articles (${libraryArticles.length} total):
 ${librarySection}
+
+---
+
+### /encyclopedia/loops - AI Loops (Free Mini Course)
+Free Georgian mini course about AI agent loops: what a loop is, triggers and goals, real examples, and where loops fit. Beginner level, with infographics.
+
+#### Lessons (${loopsArticles.length} total):
+${loopsSection}
 
 ---
 

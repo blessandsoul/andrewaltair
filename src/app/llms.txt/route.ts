@@ -91,6 +91,9 @@ Total published articles: ${totalPosts}
 ### /encyclopedia/vibe-coding
 Educational library about Vibe Coding methodology - programming with AI assistance. Comprehensive course for beginners and advanced users.
 
+### /encyclopedia/loops
+Free Georgian mini course about AI agent loops (Loops): what a loop is, triggers and goals, real examples, and where loops fit. Explained simply, beginner level, with infographics.
+
 ### /services
 Professional AI consulting services:
 - AI Business Integration

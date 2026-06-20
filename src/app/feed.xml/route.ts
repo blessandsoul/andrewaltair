@@ -3,6 +3,7 @@ import dbConnect from '@/lib/db'
 import Post from '@/models/Post'
 import Insight from '@/models/Insight'
 import { getAllArticles } from '@/data/vibeCodingContent'
+import { getAllArticles as getAllLoopsArticles } from '@/data/loopsContent'
 
 export const dynamic = 'force-dynamic';
 
@@ -60,6 +61,17 @@ export async function GET() {
       <category>Vibe Coding</category>
     </item>`).join('')
 
+    const loopsItems = getAllLoopsArticles().slice(0, 20).map((article) => `
+    <item>
+      <title><![CDATA[${article.title}]]></title>
+      <link>${baseUrl}/encyclopedia/loops/${article.id}</link>
+      <guid isPermaLink="true">${baseUrl}/encyclopedia/loops/${article.id}</guid>
+      <description><![CDATA[${(article as unknown as { description?: string }).description || article.title}]]></description>
+      <pubDate>${new Date().toUTCString()}</pubDate>
+      <author>Andrew Altair</author>
+      <category>Loops</category>
+    </item>`).join('')
+
     const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
@@ -82,6 +94,7 @@ export async function GET() {
     ${feedItems}
     ${insightItems}
     ${libraryItems}
+    ${loopsItems}
   </channel>
 </rss>`
 

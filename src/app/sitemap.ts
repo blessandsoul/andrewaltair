@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { getAllArticles } from '@/data/vibeCodingContent'
+import { getAllArticles as getAllLoopsArticles } from '@/data/loopsContent'
 import dbConnect from '@/lib/db'
 import Post from '@/models/Post'
 import Insight from '@/models/Insight'
@@ -97,6 +98,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             priority: 0.8,
         },
         {
+            url: `${baseUrl}/encyclopedia/loops`,
+            lastModified: DEPLOY_DATE,
+            changeFrequency: 'weekly',
+            priority: 0.8,
+        },
+        {
             url: `${baseUrl}/services`,
             lastModified: DEPLOY_DATE,
             changeFrequency: 'monthly',
@@ -139,6 +146,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const libraryArticles = getAllArticles()
     const libraryUrls: MetadataRoute.Sitemap = libraryArticles.map((article) => ({
         url: `${baseUrl}/encyclopedia/vibe-coding/${article.id}`,
+        lastModified: DEPLOY_DATE,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+    }))
+
+    // LOOPS course articles (static data)
+    const loopsUrls: MetadataRoute.Sitemap = getAllLoopsArticles().map((article) => ({
+        url: `${baseUrl}/encyclopedia/loops/${article.id}`,
         lastModified: DEPLOY_DATE,
         changeFrequency: 'weekly' as const,
         priority: 0.8,
@@ -265,5 +280,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ),
     ]
 
-    return [...staticPages, ...libraryUrls, ...blogUrls, ...insightUrls, ...tutorialUrls, ...promptUrls, ...botEntries, ...courseUrls]
+    return [...staticPages, ...libraryUrls, ...loopsUrls, ...blogUrls, ...insightUrls, ...tutorialUrls, ...promptUrls, ...botEntries, ...courseUrls]
 }

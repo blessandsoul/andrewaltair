@@ -24,13 +24,15 @@ import {
     TbChartPie,
     TbCode,
     TbFlame,
-    TbSchool
+    TbSchool,
+    TbRefresh
 } from 'react-icons/tb';
 import { useState } from 'react';
 import Link from 'next/link';
 import { EncyclopediaSearch, useEncyclopediaSearch } from './EncyclopediaSearch';
 import { getTotalArticleCount as getTotalArticleCountVibe } from '@/data/vibeCodingContent';
 import { getTotalArticleCount } from '@/data/ai2026Content';
+import { getTotalArticleCount as getTotalArticleCountLoops } from '@/data/loopsContent';
 import aiBeginnersManifest from '@/data/courses/ai-for-beginners/manifest.json';
 
 export default function EncyclopediaPage() {
@@ -188,6 +190,40 @@ export default function EncyclopediaPage() {
                                             <span>{aiBeginnersManifest.totals.lessons} გაკვეთილი</span>
                                         </div>
                                         <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+                                            <TbArrowRight size={18} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </Link>
+                    </motion.div>
+
+                    {/* LOOPS */}
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="group">
+                        <Link href="/encyclopedia/loops">
+                            <div className="bg-white rounded-2xl shadow-xl p-6 border border-indigo-100 hover:shadow-2xl transition-all hover:scale-[1.02] cursor-pointer h-full group relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-indigo-100 transition-colors" />
+
+                                <div className="relative z-10">
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                            <TbRefresh size={28} className="text-white" />
+                                        </div>
+                                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 border border-emerald-200">
+                                            <TbGift size={14} className="text-emerald-600" />
+                                            <span className="text-xs font-semibold text-emerald-700">უფასო</span>
+                                        </div>
+                                    </div>
+
+                                    <h2 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">ციკლები (Loops)</h2>
+                                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">როგორ ამუშავებ AI აგენტს დამოუკიდებლად, მიზნის მიღწევამდე. მარტივი მინი კურსი.</p>
+
+                                    <div className="flex items-center justify-between pt-4 border-t border-indigo-50">
+                                        <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                                            <TbBook size={16} className="text-indigo-500" />
+                                            <span>~{getTotalArticleCountLoops()} გაკვეთილი</span>
+                                        </div>
+                                        <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
                                             <TbArrowRight size={18} />
                                         </div>
                                     </div>

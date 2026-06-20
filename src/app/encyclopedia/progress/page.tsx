@@ -15,6 +15,7 @@ const mockProgress = {
     streak: 5,
     sections: [
         { name: "Vibe Coding", slug: "vibe-coding", total: 3, read: 0, color: "from-violet-500 to-purple-500" },
+        { name: "ციკლები (Loops)", slug: "loops", total: 4, read: 0, color: "from-indigo-500 to-violet-500" },
     ],
     recentArticles: [
         // { title: "რა არის Prompt Engineering?", slug: "what-is-prompt-engineering", section: "prompt-engineering", readAt: "დღეს 14:30" },

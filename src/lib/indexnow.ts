@@ -114,6 +114,7 @@ export async function indexMainPages(): Promise<IndexNowResult> {
         '/services',
         '/videos',
         '/encyclopedia/vibe-coding',
+        '/encyclopedia/loops',
         '/mystic',
         '/bots',
     ])
