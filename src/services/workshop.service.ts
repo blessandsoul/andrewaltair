@@ -1238,6 +1238,33 @@ export class WorkshopService {
         }
     }
 
+    /**
+     * Repair chat sender names at read time. A message freezes the sender name at post time; if the
+     * participant row was missing then (e.g. a returning student who skipped the name gate after a
+     * room reset, so they were never re-joined) the name was saved blank and the UI shows the
+     * anonymous label. Here we re-resolve any BLANK name from the CURRENT participant roster
+     * (server-side, so a client still cannot spoof a name), falling back to a Guest label. Blank names
+     * are intentional only in anonymous mode, which we leave untouched. Returns a clientId -> name map
+     * covering only the messages that need a fix, so the common all-named case costs zero extra queries.
+     */
+    private static async resolveBlankNames(
+        roomId: mongoose.Types.ObjectId,
+        rows: IWorkshopMessage[],
+    ): Promise<Map<string, string>> {
+        const blanks = rows.filter((m) => !m.name && m.clientId)
+        if (blanks.length === 0) return new Map()
+        const room = await WorkshopRoom.findById(roomId, { 'settings.anonymousNames': 1 }).lean<{
+            settings?: { anonymousNames?: boolean }
+        }>()
+        if (room?.settings?.anonymousNames) return new Map() // anonymous mode: names are blank on purpose
+        const ids = [...new Set(blanks.map((m) => m.clientId))]
+        const parts = await WorkshopParticipant.find({ roomId, clientId: { $in: ids } })
+            .select({ clientId: 1, name: 1 })
+            .lean<{ clientId: string; name: string }[]>()
+        const roster = new Map(parts.map((p) => [p.clientId, p.name]))
+        return new Map(ids.map((id) => [id, roster.get(id) || 'სტუმარი']))
+    }
+
     /** Public projector/phone slice: the live chat wall (last 12) + the one live question. Bounded + cheap. */
     static async getLiveMessages(
         roomId: mongoose.Types.ObjectId,
@@ -1252,10 +1279,11 @@ export class WorkshopService {
                 .sort({ createdAt: -1 })
                 .lean<IWorkshopMessage>(),
         ])
+        const nameMap = await this.resolveBlankNames(roomId, q ? [...chat, q] : chat)
         return {
-            messages: chat.reverse().map((m) => this.mapMessage(m)),
+            messages: chat.reverse().map((m) => ({ ...this.mapMessage(m), name: nameMap.get(m.clientId) ?? m.name })),
             question: q
-                ? { name: q.name, text: q.text, votes: q.votes ?? 0, ...(q.answer ? { answer: q.answer } : {}) }
+                ? { name: nameMap.get(q.clientId) ?? q.name, text: q.text, votes: q.votes ?? 0, ...(q.answer ? { answer: q.answer } : {}) }
                 : null,
         }
     }
@@ -1267,7 +1295,8 @@ export class WorkshopService {
             .sort({ createdAt: -1 })
             .limit(120)
             .lean<IWorkshopMessage[]>()
-        return rows.map((m) => ({ ...this.mapMessage(m), clientId: m.clientId }))
+        const nameMap = await this.resolveBlankNames(roomId, rows)
+        return rows.map((m) => ({ ...this.mapMessage(m), name: nameMap.get(m.clientId) ?? m.name, clientId: m.clientId }))
     }
 
     /** Host moderation action: move a message between new/live/done/hidden.

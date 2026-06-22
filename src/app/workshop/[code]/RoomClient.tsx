@@ -53,6 +53,19 @@ export default function RoomClient({ code }: { code: string }) {
         setName(localStorage.getItem(NAME_KEY))
     }, [])
 
+    // Re-assert the server participant row whenever we have a cached name (so we skip NameGate).
+    // After a room reset/recreate the row is wiped, but localStorage still holds the name, so without
+    // this the student stays "nameless" server-side and chat/answers/talkback show them as anonymous.
+    // joinRoom is an idempotent upsert, so re-joining an existing participant is a cheap no-op.
+    useEffect(() => {
+        if (!clientId || !name) return
+        fetch(`/api/workshop/rooms/${code}/join`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, clientId }),
+        }).catch(() => {})
+    }, [code, clientId, name])
+
     const pollUrl =
         clientId && name
             ? `/api/workshop/rooms/${code}?clientId=${encodeURIComponent(clientId)}`
@@ -155,9 +168,7 @@ export default function RoomClient({ code }: { code: string }) {
                 <CenterNote title={state.title} sub={STR.student.lobbySub(state.participantCount)} />
                 <p className="mt-6 text-center text-muted-foreground/70 text-sm">{STR.student.lobbyHello(name)}</p>
                 {state.settings?.broadcastEnabled && (
-                    <div className="mb-3 mt-4">
-                        <WatchTile code={code} clientId={clientId} canSpeak={state.canSpeak} handRaised={state.handRaised} caption={state.liveCaption} />
-                    </div>
+                    <WatchTile code={code} clientId={clientId} canSpeak={state.canSpeak} handRaised={state.handRaised} caption={state.liveCaption} />
                 )}
                 <MessageDock code={code} clientId={clientId} liveMessages={state.liveMessages ?? []} chatEnabled={state.settings?.chatEnabled ?? true} questionsEnabled={state.settings?.questionsEnabled ?? true} />
             </ScreenShell>
@@ -193,9 +204,7 @@ export default function RoomClient({ code }: { code: string }) {
                 />
             )}
             {state.settings?.broadcastEnabled && (
-                <div className="mb-3 mt-4">
-                    <WatchTile code={code} clientId={clientId} />
-                </div>
+                <WatchTile code={code} clientId={clientId} canSpeak={state.canSpeak} handRaised={state.handRaised} caption={state.liveCaption} />
             )}
             <MessageDock code={code} clientId={clientId} liveMessages={state.liveMessages ?? []} chatEnabled={state.settings?.chatEnabled ?? true} questionsEnabled={state.settings?.questionsEnabled ?? true} />
         </ScreenShell>

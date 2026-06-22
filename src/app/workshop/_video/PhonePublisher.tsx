@@ -4,12 +4,13 @@ import { useEffect, useState, type ReactNode } from 'react'
 import {
     LiveKitRoom,
     RoomAudioRenderer,
+    useLocalParticipant,
     useMediaDeviceSelect,
     useTracks,
     VideoTrack,
 } from '@livekit/components-react'
 import { Track, VideoPresets, ScreenSharePresets } from 'livekit-client'
-import { Video, VideoOff, SwitchCamera, Radio } from 'lucide-react'
+import { Mic, MicOff, Video, VideoOff, SwitchCamera, Radio } from 'lucide-react'
 import { STR } from '@/data/workshop-strings'
 
 /**
@@ -70,7 +71,9 @@ export default function PhonePublisher({ hostKey }: { hostKey: string }) {
             token={conn.token}
             connect
             video
-            audio
+            // Mic starts OFF: the phone is the camera, the teacher narrates from the computer mic
+            // (HostMicPublisher on the pult). The mic button below re-enables phone audio if needed.
+            audio={false}
             options={{
                 // Rear camera at 1080p so viewers get a sharp top simulcast layer.
                 videoCaptureDefaults: { facingMode: 'environment', resolution: VideoPresets.h1080.resolution },
@@ -94,6 +97,7 @@ export default function PhonePublisher({ hostKey }: { hostKey: string }) {
 function PhoneUI({ onStop }: { onStop: () => void }) {
     const tracks = useTracks([Track.Source.Camera], { onlySubscribed: false })
     const cam = tracks.find((t) => t.participant.isLocal && t.source === Track.Source.Camera)
+    const { localParticipant, isMicrophoneEnabled } = useLocalParticipant()
     const { devices, activeDeviceId, setActiveMediaDevice } = useMediaDeviceSelect({ kind: 'videoinput' })
     const flip = () => {
         if (devices.length < 2) return
@@ -117,6 +121,16 @@ function PhoneUI({ onStop }: { onStop: () => void }) {
                 </span>
             </div>
             <div className="flex items-center justify-center gap-4 bg-black px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
+                <button
+                    type="button"
+                    onClick={() => localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled)}
+                    aria-label={isMicrophoneEnabled ? STR.broadcast.micMute : STR.broadcast.micUnmute}
+                    className={`inline-flex size-14 items-center justify-center rounded-full border ${
+                        isMicrophoneEnabled ? 'border-transparent bg-[image:var(--ws-cta)] text-white' : 'border-white/30 text-white'
+                    }`}
+                >
+                    {isMicrophoneEnabled ? <Mic size={22} /> : <MicOff size={22} />}
+                </button>
                 {devices.length > 1 && (
                     <button
                         type="button"

@@ -38,6 +38,8 @@ import { STR } from '@/data/workshop-strings'
 
 // Heavy LiveKit bundle loads only when the host actually goes live, not on every remote mount.
 const BroadcastPublisher = dynamic(() => import('@/app/workshop/_video/BroadcastPublisher'), { ssr: false })
+// Audio-only computer-mic publisher, mounted in iPhone mode so the phone gives video + the laptop gives sound.
+const HostMicPublisher = dynamic(() => import('@/app/workshop/_video/HostMicPublisher'), { ssr: false })
 
 /**
  * HOST REMOTE, control surface (laptop second window or the host's phone).
@@ -267,6 +269,11 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                         <div className="flex items-center justify-between gap-3">
                             <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
                                 <Radio size={15} className={broadcasting ? 'text-destructive' : ''} /> {STR.broadcast.title}
+                                {(state.raisedHands?.length ?? 0) > 0 && (
+                                    <span className="inline-flex animate-pulse items-center gap-1 rounded-full bg-secondary/15 px-2 py-0.5 text-secondary">
+                                        <Hand size={12} /> {state.raisedHands!.length}
+                                    </span>
+                                )}
                             </span>
                             <Button
                                 onClick={toggleBroadcast}
@@ -319,6 +326,11 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                                     <div className="size-44 rounded-xl bg-background" />
                                 )}
                                 <p className="text-center text-xs font-medium text-muted-foreground">{STR.broadcast.phoneScanHint}</p>
+                                {/* phone = picture, this laptop's mic = sound */}
+                                <div className="mt-1 w-full max-w-xs space-y-1.5">
+                                    <p className="text-center text-[11px] font-medium text-muted-foreground">{STR.broadcast.phoneAudioHint}</p>
+                                    <HostMicPublisher hostKey={hostKey} />
+                                </div>
                             </div>
                         )}
                         {broadcasting && (

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
     LiveKitRoom,
     RoomAudioRenderer,
@@ -9,6 +9,7 @@ import {
     useTracks,
     VideoTrack,
 } from '@livekit/components-react'
+import { motion, useMotionValue } from 'framer-motion'
 import { Track, ConnectionState, type RemoteTrackPublication } from 'livekit-client'
 import { Radio, MonitorUp, ChevronDown, ChevronUp, Loader2, Headphones, Video, VideoOff, Mic, MicOff, Hand } from 'lucide-react'
 import { STR } from '@/data/workshop-strings'
@@ -56,45 +57,47 @@ export default function WatchTile({
         }
     }, [code, clientId, canSpeak])
 
-    if (!conn)
-        return (
-            <Shell variant={variant}>
-                <Hint text={STR.broadcast.connecting} spin />
-            </Shell>
-        )
-
     return (
-        <>
-            <LiveKitRoom
-                serverUrl={conn.url}
-                token={conn.token}
-                connect
-                audio={false}
-                video={false}
-                // adaptiveStream picks a simulcast layer by the rendered tile size, so a small tile
-                // gets a blurry low layer. Keep it ON for the student phone (saves their data, they
-                // also have the audio-only toggle), but OFF for the projector PiP so it always pulls
-                // the sharp top layer and downscales it into the corner.
-                options={{ adaptiveStream: variant === 'tile' }}
-                className="contents"
-            >
-                {/* Students hear the host. The projector PiP stays muted: host publisher + projector
-                    often share one machine/room, and playing the host mic there would feed back. */}
-                {variant === 'tile' && <RoomAudioRenderer />}
-                <Feed
-                    variant={variant}
-                    collapsed={collapsed}
-                    onToggle={() => setCollapsed((v) => !v)}
-                    audioOnly={audioOnly}
-                    onAudioToggle={() => setAudioOnly((v) => !v)}
-                    caption={caption}
-                />
-                {variant === 'tile' && canSpeak && <SpeakerControls />}
-            </LiveKitRoom>
-            {variant === 'tile' && !canSpeak && (
-                <RaiseHand code={code} clientId={clientId} handRaised={handRaised} />
+        <FloatingFrame variant={variant}>
+            {!conn ? (
+                <Shell>
+                    <Hint text={STR.broadcast.connecting} spin />
+                </Shell>
+            ) : (
+                <>
+                    <LiveKitRoom
+                        serverUrl={conn.url}
+                        token={conn.token}
+                        connect
+                        audio={false}
+                        video={false}
+                        // Always pull the sharp top simulcast layer and downscale it into the tile. We used
+                        // to let adaptiveStream pick a layer by the rendered tile size, but a small tile then
+                        // got a blurry low layer (looked nothing like a real video call). The SFU still drops
+                        // this viewer to a lower layer on its own when ITS network is congested, and the
+                        // audio-only toggle is the data saver, so quality stays high without tile-size guessing.
+                        options={{ adaptiveStream: false }}
+                        className="contents"
+                    >
+                        {/* Students hear the host. The projector PiP stays muted: host publisher + projector
+                            often share one machine/room, and playing the host mic there would feed back. */}
+                        {variant === 'tile' && <RoomAudioRenderer />}
+                        <Feed
+                            variant={variant}
+                            collapsed={collapsed}
+                            onToggle={() => setCollapsed((v) => !v)}
+                            audioOnly={audioOnly}
+                            onAudioToggle={() => setAudioOnly((v) => !v)}
+                            caption={caption}
+                        />
+                        {variant === 'tile' && canSpeak && <SpeakerControls />}
+                    </LiveKitRoom>
+                    {variant === 'tile' && !canSpeak && (
+                        <RaiseHand code={code} clientId={clientId} handRaised={handRaised} />
+                    )}
+                </>
             )}
-        </>
+        </FloatingFrame>
     )
 }
 
@@ -208,7 +211,7 @@ function Feed({
     }
 
     return (
-        <Shell variant={variant}>
+        <Shell>
             {showVideo ? (
                 <>
                     <VideoTrack trackRef={primary} className="h-full w-full object-cover" />
@@ -283,16 +286,73 @@ function Hint({ text, spin }: { text: string; spin?: boolean }) {
     )
 }
 
-function Shell({ variant, children }: { variant: 'tile' | 'pip'; children: ReactNode }) {
-    const box =
-        variant === 'pip'
-            ? 'absolute bottom-4 right-4 z-40 aspect-video w-52 shadow-2xl'
-            : 'relative aspect-video w-full'
+function Shell({ children }: { children: ReactNode }) {
     return (
-        <div
-            className={`${box} flex items-center justify-center overflow-hidden rounded-2xl border border-border bg-foreground/90 backdrop-blur`}
-        >
+        <div className="relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-2xl border border-border bg-foreground/90 shadow-2xl backdrop-blur">
             {children}
+        </div>
+    )
+}
+
+/**
+ * Floating, draggable container for the video window. Both the projector and each participant can
+ * drag it out of the way of content (it sometimes covers the slide / the quiz). It is `fixed`, so it
+ * floats above the page and is positioned by a remembered offset; the offset persists per surface in
+ * localStorage so the spot follows the user across rounds and reloads. Drag works with touch (phones)
+ * because framer-motion uses Pointer Events. The bounds wrapper is pointer-events-none so clicks pass
+ * through to the page everywhere except the window itself.
+ */
+const POS_KEY = { pip: 'w_pip_pos', tile: 'w_student_pip_pos' } as const
+
+function FloatingFrame({ variant, children }: { variant: 'tile' | 'pip'; children: ReactNode }) {
+    const boundsRef = useRef<HTMLDivElement>(null)
+    const x = useMotionValue(0)
+    const y = useMotionValue(0)
+    const [dragging, setDragging] = useState(false)
+
+    // Restore the remembered offset once on mount.
+    useEffect(() => {
+        try {
+            const raw = localStorage.getItem(POS_KEY[variant])
+            if (!raw) return
+            const p = JSON.parse(raw) as { x?: number; y?: number }
+            if (Number.isFinite(p.x) && Number.isFinite(p.y)) {
+                x.set(p.x as number)
+                y.set(p.y as number)
+            }
+        } catch {
+            // ignore a corrupt stored value, start from the default corner
+        }
+    }, [variant, x, y])
+
+    const persist = () => {
+        setDragging(false)
+        try {
+            localStorage.setItem(POS_KEY[variant], JSON.stringify({ x: x.get(), y: y.get() }))
+        } catch {
+            // storage full / blocked, position just will not persist
+        }
+    }
+
+    // Projector defaults to the bottom-right (its content is centered); a participant phone defaults to
+    // the top-right so it does not sit on the answer buttons or the message bar.
+    const anchor = variant === 'pip' ? 'bottom-0 right-0' : 'top-0 right-0'
+    const width = variant === 'pip' ? 'w-52' : 'w-40 sm:w-52'
+
+    return (
+        <div ref={boundsRef} className="pointer-events-none fixed inset-3 z-40">
+            <motion.div
+                drag
+                dragConstraints={boundsRef}
+                dragMomentum={false}
+                dragElastic={0.12}
+                onDragStart={() => setDragging(true)}
+                onDragEnd={persist}
+                style={{ x, y, touchAction: 'none' }}
+                className={`pointer-events-auto absolute ${anchor} ${width} cursor-grab space-y-2 active:cursor-grabbing ${dragging ? 'z-50' : ''}`}
+            >
+                {children}
+            </motion.div>
         </div>
     )
 }
