@@ -1,0 +1,39 @@
+# Recording add-on for the workshop broadcast (LiveKit Egress).
+# Egress runs a headless Chrome that joins the room, composites the layout, and writes an MP4.
+#
+# Merge it with the base compose so egress + redis share the livekit network:
+#   docker compose -f docker-compose.yml -f egress-compose.yml up -d
+#
+# Also enable the `redis:` block in livekit.yaml (the SFU and egress coordinate over redis),
+# and put the SAME api key/secret pair here as in livekit.yaml + the app env.
+# Recordings land in ./recordings on the host as workshop-<CODE>-<time>.mp4.
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: livekit-redis
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+
+  egress:
+    image: livekit/egress:v1.8
+    container_name: livekit-egress
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      # Same pair as livekit.yaml `keys:` and the app LIVEKIT_API_KEY / LIVEKIT_API_SECRET.
+      EGRESS_CONFIG_BODY: |
+        log_level: info
+        api_key: APIreplace_me
+        api_secret: replace_me_with_a_long_random_secret_at_least_32_chars
+        ws_url: ws://livekit:7880
+        insecure: true
+        redis:
+          address: redis:6379
+    # Headless Chrome needs extra shared memory + this capability to render the composite.
+    shm_size: "1gb"
+    cap_add:
+      - SYS_ADMIN
+    volumes:
+      - ./recordings:/out

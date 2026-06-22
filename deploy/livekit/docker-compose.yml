@@ -1,0 +1,16 @@
+# Self-hosted LiveKit for the workshop host broadcast.
+# Run on the Hetzner VPS. Reverse proxy (Coolify / Traefik) fronts wss on 443 -> 7880.
+# Open UDP 50000-50200 and TCP 7881 on the host firewall (media path, bypasses the proxy).
+
+services:
+  livekit:
+    image: livekit/livekit-server:v1.8
+    container_name: livekit
+    restart: unless-stopped
+    command: ["--config", "/etc/livekit.yaml"]
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml:ro
+    ports:
+      - "7880:7880/tcp" # signaling (proxy points livekit.andrewaltair.ge here)
+      - "7881:7881/tcp" # TCP media fallback
+      - "50000-50200:50000-50200/udp" # primary media path

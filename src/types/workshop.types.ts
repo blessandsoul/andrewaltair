@@ -131,6 +131,10 @@ export interface IWorkshopRoomSettings {
     gamification: boolean; // points / leaderboard / streaks / badges / reactions / wheel
     teamMode: boolean; // opt-in — split the room into teams (off by default)
     teamCount: number;
+    chatEnabled: boolean; // live chat available to participants
+    questionsEnabled: boolean; // audience questions available
+    chatAutoShow: boolean; // auto-approve non-risky chat to the wall (no per-message tap)
+    broadcastEnabled: boolean; // host camera/mic live broadcast (LiveKit) shown to viewers
 }
 
 export const DEFAULT_ROOM_SETTINGS: IWorkshopRoomSettings = {
@@ -158,6 +162,10 @@ export const DEFAULT_ROOM_SETTINGS: IWorkshopRoomSettings = {
     gamification: true,
     teamMode: false,
     teamCount: 2,
+    chatEnabled: true,
+    questionsEnabled: true,
+    chatAutoShow: false,
+    broadcastEnabled: false,
 };
 
 // Client-readable subset of room settings. Server-only flags (autoReveal, graceSec,
@@ -176,6 +184,36 @@ export interface RoomSettingsDTO {
     language: 'ka' | 'ru';
     gamification: boolean; // phone needs to know whether to render points/streak/reactions
     teamMode: boolean;
+    chatEnabled: boolean;
+    questionsEnabled: boolean;
+    chatAutoShow: boolean;
+    broadcastEnabled: boolean; // phone/projector need to know whether to mount the watch tile
+}
+
+// ── Live chat + audience questions ────────────────────────────────────────────
+export const MESSAGE_KINDS = ['chat', 'question'] as const;
+export type MessageKind = (typeof MESSAGE_KINDS)[number];
+export type MessageStatus = 'new' | 'live' | 'done' | 'hidden';
+
+// One chat message / question, as sent to clients. `id` is the Mongo _id string.
+export interface ChatMessage {
+    id: string;
+    kind: MessageKind;
+    name: string; // blank when anonymousNames
+    text: string;
+    status: MessageStatus;
+    votes: number; // upvotes (questions) / likes (chat)
+    risky?: boolean; // flagged by the content guard (host-only)
+    answer?: string; // host's on-screen answer (questions)
+    clientId?: string; // host-only (moderation queue) — to mute the sender
+    createdAt: string;
+}
+// The single question popped big on the projector.
+export interface ChatLiveQuestion {
+    name: string;
+    text: string;
+    votes?: number;
+    answer?: string; // host's on-screen answer
 }
 
 export interface StudentState {
@@ -193,6 +231,9 @@ export interface StudentState {
     // gamification (present only when settings.gamification)
     me?: MyGame | null;
     reactions?: Reaction[];
+    // live chat wall (last ~12 host-approved messages) + the one live question, public, bounded
+    liveMessages?: ChatMessage[];
+    liveQuestion?: ChatLiveQuestion | null;
     progress?: number; // 0..1 — interactive rounds completed ("video assembling")
     spotlightName?: string | null; // wheel-of-names result
     spotlightAt?: number | null; // nonce — re-fires the wheel even on a repeat pick
@@ -202,6 +243,15 @@ export interface StudentState {
     usedQuestions?: number[];
     activeQuestion?: ActiveQuestion | null;
     canPickQuestion?: boolean; // this student was spun up and may tap a question
+    handRaised?: boolean; // broadcast: this student raised a hand to speak
+    canSpeak?: boolean; // broadcast: host granted this student the mic (talkback)
+    liveCaption?: string | null; // broadcast: latest live subtitle line
+}
+
+/** A participant in the raise-hand / speaker lists, with their roster name for the host UI. */
+export interface RaisedHand {
+    clientId: string;
+    name: string;
 }
 
 export interface TextResultItem {
@@ -412,6 +462,9 @@ export interface HostState {
     leaderboard?: LeaderboardEntry[];
     teams?: TeamScore[];
     reactions?: Reaction[];
+    // live chat wall + the one live question (drives the projector chat panel + overlay)
+    liveMessages?: ChatMessage[];
+    liveQuestion?: ChatLiveQuestion | null;
     progress?: number; // 0..1
     spotlightName?: string | null;
     spotlightAt?: number | null;
@@ -421,6 +474,11 @@ export interface HostState {
     questions?: WorkshopQuestion[]; // the deck's question list (host pult)
     usedQuestions?: number[]; // already-asked question numbers (greyed, not re-pickable)
     activeQuestion?: ActiveQuestion | null; // the question popped on the projector
+    // broadcast talkback
+    raisedHands?: RaisedHand[]; // students asking to speak
+    speakers?: RaisedHand[]; // students currently granted the mic
+    liveCaption?: string | null; // broadcast: latest live subtitle line
+    recording?: boolean; // broadcast: an Egress recording is currently running
 }
 
 export const HOST_ACTIONS = {

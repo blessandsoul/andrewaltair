@@ -33,6 +33,20 @@ const nextConfig = {
       ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://counter.top.ge https://www.google-analytics.com https://aistaff.ge"
       : "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://counter.top.ge https://www.google-analytics.com https://aistaff.ge";
 
+    // LiveKit signaling endpoint the browser must reach for the workshop broadcast.
+    // Derived from NEXT_PUBLIC_LIVEKIT_URL so dev (ws://localhost) and prod (wss://livekit.*) both work.
+    let lkConnect = '';
+    try {
+      const lkUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL || process.env.LIVEKIT_URL || '';
+      if (lkUrl) {
+        const u = new URL(lkUrl);
+        const secure = u.protocol === 'wss:' || u.protocol === 'https:';
+        lkConnect = `${secure ? 'wss' : 'ws'}://${u.host} ${secure ? 'https' : 'http'}://${u.host}`;
+      }
+    } catch {
+      lkConnect = '';
+    }
+
     return [
       // Block indexing of admin pages at HTTP header level
       {
@@ -70,7 +84,7 @@ const nextConfig = {
           },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
+            value: 'camera=(self), microphone=(self), geolocation=()',
           },
           {
             key: 'Strict-Transport-Security',
@@ -78,7 +92,7 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: `default-src 'self'; ${scriptSrc}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://aistaff.ge wss://aistaff.ge https://region1.google-analytics.com https://www.google-analytics.com https://generativelanguage.googleapis.com; frame-src 'self' https://aistaff.ge https://www.youtube.com https://player.vimeo.com; media-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests`,
+            value: `default-src 'self'; ${scriptSrc}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' ${lkConnect} https://aistaff.ge wss://aistaff.ge https://region1.google-analytics.com https://www.google-analytics.com https://generativelanguage.googleapis.com; frame-src 'self' https://aistaff.ge https://www.youtube.com https://player.vimeo.com; media-src 'self' https: blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests`,
           },
         ],
       },

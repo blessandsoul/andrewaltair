@@ -30,6 +30,7 @@ export function LobbyView({ qr, code, roster }: LobbyViewProps) {
                     <p className="mt-5 text-5xl font-bold tracking-[0.25em] text-primary">{code}</p>
                 </motion.div>
                 <p className="mt-5 text-xl text-muted-foreground">{STR.display.scanQr}</p>
+                <p className="mt-2 text-base font-semibold text-secondary">{STR.chat.lobbyHint}</p>
             </div>
 
             {/* Roster — each newcomer pops in with a spring */}

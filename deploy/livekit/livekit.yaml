@@ -1,0 +1,46 @@
+# LiveKit server config, self-hosted for the workshop host broadcast.
+# Docs: https://docs.livekit.io/home/self-hosting/deployment/
+#
+# TLS is terminated by the reverse proxy (Coolify / Traefik) for wss on 443, which
+# proxies to this container on 7880. LiveKit itself serves plain ws on 7880.
+# Media flows over UDP 50000-50200 (or TCP 7881 fallback) straight to the VPS, NOT
+# through the proxy, so those ports must be open on the host firewall.
+
+port: 7880
+
+rtc:
+  tcp_port: 7881
+  port_range_start: 50000
+  port_range_end: 50200
+  # Advertise the VPS public IP to clients so UDP media can reach the box.
+  use_external_ip: true
+
+keys:
+  # Placeholder. Generate a real pair and put the SAME pair in the app .env
+  # (LIVEKIT_API_KEY / LIVEKIT_API_SECRET):
+  #   docker run --rm livekit/livekit-server generate-keys
+  APIreplace_me: "replace_me_with_a_long_random_secret_at_least_32_chars"
+
+# Auto-stop webhook: the server posts signed events to the app, which flips the broadcast
+# flag off when the host leaves ungracefully (closed tab / crash). Signed with the key above.
+webhook:
+  api_key: APIreplace_me
+  urls:
+    - https://andrewaltair.ge/api/workshop/livekit-webhook
+
+logging:
+  level: info
+
+# Redis is required ONLY for recording (Egress): the SFU and the egress container coordinate
+# over it. Leave it off for the plain broadcast (single node needs no redis). To record, enable
+# this block and bring up the egress overlay:
+#   docker compose -f docker-compose.yml -f egress-compose.yml up -d
+# redis:
+#   address: redis:6379
+
+# Optional embedded TURN for networks that block UDP. Needs its own cert + DNS,
+# so it stays off by default. The TCP 7881 fallback already covers most cases.
+# turn:
+#   enabled: true
+#   tls_port: 5349
+#   domain: livekit.andrewaltair.ge

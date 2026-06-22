@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import dynamic from 'next/dynamic'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Clapperboard, Zap } from 'lucide-react'
+import { Clapperboard, Zap, Mic } from 'lucide-react'
 import { useRoomPoll } from '@/hooks/useRoomPoll'
-import type { HostState } from '@/types/workshop.types'
+import type { HostState, ChatMessage, ChatLiveQuestion } from '@/types/workshop.types'
 import { ReconnectBanner } from '@/components/workshop/ReconnectBanner'
 import ResultsBoard from './components/ResultsBoard'
 import TeachSlide from './components/TeachSlide'
@@ -14,15 +15,22 @@ import { EnableSoundOverlay } from './EnableSoundOverlay'
 import { EndStats } from './EndStats'
 import { PanelOverlay, QuestionOverlay, ReactionsOverlay, WheelOverlay } from './GameOverlays'
 import { Leaderboard } from './Leaderboard'
+import { ChatWall, ChatQuestionMoment } from './ChatWall'
 import { useDisplayAudio } from './useDisplayAudio'
 import { STR } from '@/data/workshop-strings'
 
+// Host video PiP, loaded only when broadcasting (keeps LiveKit out of the projector base bundle).
+const WatchTile = dynamic(() => import('@/app/workshop/_video/WatchTile'), { ssr: false })
+
 /**
- * PROJECTED display — the screen shared in Meet.
+ * PROJECTED display, the screen the host presents.
  * No controls here: the host drives rounds from /remote.
  */
 export default function DisplayClient({ hostKey }: { hostKey: string }) {
     const { data: state, error, isLoading, connectionLost } = useRoomPoll<HostState>(`/api/workshop/host/${hostKey}`)
+    // Fast, light poll just for the chat wall + pinned question, so moderation reflects in ~1s.
+    const liveUrl = state?.code ? `/api/workshop/rooms/${state.code}/live` : null
+    const { data: live } = useRoomPoll<{ messages: ChatMessage[]; question: ChatLiveQuestion | null }>(liveUrl, 1200)
     const [qr, setQr] = useState<{ qrDataUrl: string; joinUrl: string } | null>(null)
     const { soundOn, audioPrompted, dismissPrompt, enableSound, toggleSound } = useDisplayAudio(state)
     const prevPhaseRef = useRef<string | null>(null)
@@ -80,6 +88,9 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
         !!state.round.durationSec &&
         !!state.round.phaseStartedAt
     const answering = state.round && (state.round.phase === 'open' || state.round.phase === 'revote')
+    // chat: prefer the fast /live poll, fall back to the host-state snapshot
+    const liveMessages = live?.messages ?? state.liveMessages ?? []
+    const liveQuestion = live?.question ?? state.liveQuestion ?? null
     // F3: keep an image visible on photo-dependent rounds (lives OUTSIDE the keyed panel).
     // A round-pinned image (e.g. broken.jpg on the detective round) wins over the voted photo.
     const roundHeroSrc = !inLobby && state.status !== 'ended' ? state.round?.roundImage : undefined
@@ -201,6 +212,7 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                     !(state.round?.type === 'text' && state.round?.phase === 'revealed') && (
                         <Leaderboard entries={state.leaderboard!} teams={state.teams} />
                     )}
+                {liveMessages.length > 0 && <ChatWall messages={liveMessages} />}
             </div>
 
             {/* Gamification overlays — floating reactions + wheel-of-names spin */}
@@ -238,7 +250,24 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                 )}
             </AnimatePresence>
 
-            {/* One-time enable-sound gate — the browser needs a click to unlock audio */}
+            {/* Audience question pinned big from the pult (chat) — a single centered takeover */}
+            <AnimatePresence>
+                {liveQuestion && <ChatQuestionMoment question={liveQuestion} />}
+            </AnimatePresence>
+
+            {/* Host camera PiP, muted on the projector to avoid feeding back the host mic */}
+            {state.settings?.broadcastEnabled && state.code && (
+                <WatchTile code={state.code} clientId="projector" variant="pip" caption={state.liveCaption} />
+            )}
+
+            {/* Talkback spotlight: who currently holds the mic */}
+            {state.settings?.broadcastEnabled && (state.speakers?.length ?? 0) > 0 && (
+                <div className="absolute bottom-4 left-1/2 z-40 inline-flex -translate-x-1/2 items-center gap-2 rounded-full bg-[image:var(--ws-cta)] px-4 py-1.5 text-sm font-bold text-white shadow-xl">
+                    <Mic size={15} /> {state.speakers!.map((s) => s.name).join(', ')} · {STR.broadcast.speakingNow}
+                </div>
+            )}
+
+            {/* One-time enable-sound gate: the browser needs a click to unlock audio */}
             <AnimatePresence>
                 {!soundOn && !audioPrompted && <EnableSoundOverlay onEnable={enableSound} onSkip={dismissPrompt} />}
             </AnimatePresence>

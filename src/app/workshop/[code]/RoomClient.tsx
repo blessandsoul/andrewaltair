@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import dynamic from 'next/dynamic'
 import { useRoomPoll } from '@/hooks/useRoomPoll'
 import { useStudentSound } from '@/hooks/useStudentSound'
 import type { StudentState } from '@/types/workshop.types'
@@ -10,7 +11,11 @@ import NameGate from './components/NameGate'
 import CurrentRound from './components/CurrentRound'
 import StudentQuestionPanel from './components/StudentQuestionPanel'
 import { DiplomaView } from './components/DiplomaView'
+import { MessageDock } from './components/MessageDock'
 import { STR } from '@/data/workshop-strings'
+
+// Host video broadcast tile, loaded only when the host is live (keeps LiveKit out of the base bundle).
+const WatchTile = dynamic(() => import('@/app/workshop/_video/WatchTile'), { ssr: false })
 
 const CLIENT_ID_KEY = 'w_client_id'
 const NAME_KEY = 'w_name'
@@ -149,6 +154,12 @@ export default function RoomClient({ code }: { code: string }) {
                 {soundGate}
                 <CenterNote title={state.title} sub={STR.student.lobbySub(state.participantCount)} />
                 <p className="mt-6 text-center text-muted-foreground/70 text-sm">{STR.student.lobbyHello(name)}</p>
+                {state.settings?.broadcastEnabled && (
+                    <div className="mb-3 mt-4">
+                        <WatchTile code={code} clientId={clientId} canSpeak={state.canSpeak} handRaised={state.handRaised} caption={state.liveCaption} />
+                    </div>
+                )}
+                <MessageDock code={code} clientId={clientId} liveMessages={state.liveMessages ?? []} chatEnabled={state.settings?.chatEnabled ?? true} questionsEnabled={state.settings?.questionsEnabled ?? true} />
             </ScreenShell>
         )
     }
@@ -181,6 +192,12 @@ export default function RoomClient({ code }: { code: string }) {
                     myPrediction={state.myPrediction}
                 />
             )}
+            {state.settings?.broadcastEnabled && (
+                <div className="mb-3 mt-4">
+                    <WatchTile code={code} clientId={clientId} />
+                </div>
+            )}
+            <MessageDock code={code} clientId={clientId} liveMessages={state.liveMessages ?? []} chatEnabled={state.settings?.chatEnabled ?? true} questionsEnabled={state.settings?.questionsEnabled ?? true} />
         </ScreenShell>
     )
 }

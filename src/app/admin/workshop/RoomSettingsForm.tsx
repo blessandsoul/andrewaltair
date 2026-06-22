@@ -33,6 +33,10 @@ const BOOL_FIELDS: { key: BoolKey; label: string }[] = [
     { key: 'confetti', label: 'Конфетти при показе' },
     { key: 'gamification', label: '🎮 Геймификация (очки, бейджи, реакции)' },
     { key: 'teamMode', label: '🎨 Командный режим' },
+    { key: 'chatEnabled', label: '💬 Чат участников' },
+    { key: 'questionsEnabled', label: '❓ Вопросы из зала' },
+    { key: 'chatAutoShow', label: '⚡ Авто-показ чата (без модерации)' },
+    { key: 'broadcastEnabled', label: '📹 Видео-вещание ведущего' },
 ]
 
 const NUM_FIELDS: { key: NumKey; label: string; min: number; max: number; step: number; fmt: (v: number) => string }[] = [

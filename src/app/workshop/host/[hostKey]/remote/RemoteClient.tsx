@@ -10,7 +10,14 @@ import {
     OctagonX,
     MonitorPlay,
     History as HistoryIcon,
+    Radio,
+    Video,
+    VideoOff,
+    Mic,
+    Hand,
+    Circle,
 } from 'lucide-react'
+import dynamic from 'next/dynamic'
 import { useRoomPoll } from '@/hooks/useRoomPoll'
 import type { HostState } from '@/types/workshop.types'
 import CountdownRing from '@/components/workshop/CountdownRing'
@@ -24,12 +31,16 @@ import { Roster } from './Roster'
 import { PinList } from './PinList'
 import { MultiResponders } from './MultiResponders'
 import { PromptVault } from './PromptVault'
+import { MessageModeration } from './MessageModeration'
 import { StatusPill } from './StatusPill'
 import { HistoryDrawer } from './HistoryDrawer'
 import { STR } from '@/data/workshop-strings'
 
+// Heavy LiveKit bundle loads only when the host actually goes live, not on every remote mount.
+const BroadcastPublisher = dynamic(() => import('@/app/workshop/_video/BroadcastPublisher'), { ssr: false })
+
 /**
- * HOST REMOTE — control surface (laptop second window or the host's phone).
+ * HOST REMOTE, control surface (laptop second window or the host's phone).
  * The projected display lives at /workshop/host/[hostKey] and has no controls.
  */
 export default function RemoteClient({ hostKey }: { hostKey: string }) {
@@ -38,6 +49,7 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
     const [notesOpen, setNotesOpen] = useState(true)
     const [stopConfirm, setStopConfirm] = useState(false)
     const [historyOpen, setHistoryOpen] = useState(false)
+    const [broadcasting, setBroadcasting] = useState(false)
 
     const act = useCallback(
         async (action: string, responseId?: string, targetClientId?: string, count?: number) => {
@@ -61,6 +73,23 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
         },
         [hostKey, actionBusy, refresh]
     )
+
+    // Go live / stop the host camera + mic. Flips the room flag viewers gate on, then
+    // mounts/unmounts the publisher (which acquires/releases the camera).
+    const toggleBroadcast = useCallback(async () => {
+        const next = !broadcasting
+        setBroadcasting(next)
+        try {
+            await fetch(`/api/workshop/host/${hostKey}/control`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'setBroadcast', enabled: next }),
+            })
+            refresh()
+        } catch {
+            setBroadcasting(!next) // revert the toggle if the flag did not save
+        }
+    }, [broadcasting, hostKey, refresh])
 
     // Hotkeys: Space=primary, R=reveal, ArrowRight=next, E=end
     useEffect(() => {
@@ -220,7 +249,113 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                         onAction={act}
                     />
 
-                    {/* Round 28 — clickable Q&A list (host pops a question; «answered» greys it) */}
+                    {/* Host camera + mic broadcast (LiveKit). Go live puts the host on every viewer screen. */}
+                    <div className="mx-5 mb-3 space-y-3 rounded-2xl border border-border bg-card p-4 shadow-sm">
+                        <div className="flex items-center justify-between gap-3">
+                            <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                                <Radio size={15} className={broadcasting ? 'text-destructive' : ''} /> {STR.broadcast.title}
+                            </span>
+                            <Button
+                                onClick={toggleBroadcast}
+                                variant={broadcasting ? 'destructive' : 'default'}
+                                size="sm"
+                                className="min-h-10 gap-2"
+                            >
+                                {broadcasting ? (
+                                    <>
+                                        <VideoOff size={16} /> {STR.broadcast.stopLive}
+                                    </>
+                                ) : (
+                                    <>
+                                        <Video size={16} /> {STR.broadcast.goLive}
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+                        {!broadcasting && state.settings?.broadcastEnabled && (
+                            <p className="text-xs font-medium text-warning">{STR.broadcast.stillLive}</p>
+                        )}
+                        {broadcasting && (
+                            <div className="mx-auto w-full max-w-xs">
+                                <BroadcastPublisher hostKey={hostKey} code={state.code} lang={state.settings?.language ?? 'ka'} />
+                            </div>
+                        )}
+                        {broadcasting && (
+                            <div className="flex items-center justify-between gap-3">
+                                <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                                    <Circle size={13} className={state.recording ? 'fill-destructive text-destructive' : ''} /> {STR.broadcast.record}
+                                </span>
+                                <Button
+                                    onClick={() => act(state.recording ? 'stopRecording' : 'startRecording')}
+                                    variant={state.recording ? 'destructive' : 'default'}
+                                    size="sm"
+                                    className="min-h-10 gap-2"
+                                >
+                                    {state.recording ? STR.broadcast.recordStop : STR.broadcast.record}
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Talkback: raised hands to grant, active speakers to revoke */}
+                    {state.settings?.broadcastEnabled &&
+                        ((state.raisedHands?.length ?? 0) > 0 || (state.speakers?.length ?? 0) > 0) && (
+                            <div className="mx-5 mb-3 space-y-3 rounded-2xl border border-border bg-card p-4 shadow-sm">
+                                {(state.speakers?.length ?? 0) > 0 && (
+                                    <div className="space-y-1.5">
+                                        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                                            {STR.broadcast.speakersTitle}
+                                        </p>
+                                        {state.speakers!.map((s) => (
+                                            <div
+                                                key={s.clientId}
+                                                className="flex items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/5 px-3 py-2"
+                                            >
+                                                <span className="inline-flex items-center gap-2 text-sm font-semibold">
+                                                    <Mic size={14} className="text-primary" /> {s.name}
+                                                </span>
+                                                <Button
+                                                    onClick={() => act('revokeSpeak', undefined, s.clientId)}
+                                                    disabled={actionBusy}
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-8 text-destructive"
+                                                >
+                                                    {STR.broadcast.revoke}
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                {(state.raisedHands?.length ?? 0) > 0 && (
+                                    <div className="space-y-1.5">
+                                        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                                            {STR.broadcast.raisedHandsTitle}
+                                        </p>
+                                        {state.raisedHands!.map((h) => (
+                                            <div
+                                                key={h.clientId}
+                                                className="flex items-center justify-between gap-2 rounded-xl border border-border bg-background px-3 py-2"
+                                            >
+                                                <span className="inline-flex items-center gap-2 text-sm">
+                                                    <Hand size={14} className="text-secondary" /> {h.name}
+                                                </span>
+                                                <Button
+                                                    onClick={() => act('grantSpeak', undefined, h.clientId)}
+                                                    disabled={actionBusy}
+                                                    size="sm"
+                                                    className="h-8"
+                                                >
+                                                    {STR.broadcast.grant}
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                    {/* Round 28: clickable Q&A list (host pops a question; «answered» greys it) */}
                     {state.round?.key === 't_close' && (
                         <QuestionPanel
                             questions={state.questions ?? []}
@@ -253,6 +388,9 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
 
                     {/* Live per-name picks for find-the-mistake (multi) rounds, host reads finders aloud */}
                     {multiResponders.length > 0 && <MultiResponders responders={multiResponders} />}
+
+                    {/* Live chat + audience questions, host moderation (own poll) */}
+                    <MessageModeration hostKey={hostKey} />
 
                     {/* STOP */}
                     <div className="mt-auto px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-3 space-y-3">

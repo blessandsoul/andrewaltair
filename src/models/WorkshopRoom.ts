@@ -53,6 +53,13 @@ export interface IWorkshopRoom extends Document {
     usedQuestions?: number[]; // already-asked question numbers (greyed, not re-pickable)
     activeQuestion?: { n: number; at: number }; // the question popped on the projector (transient)
     questionPickerIds?: string[]; // clientIds the host spun up who may self-pick a question
+    mutedClientIds?: string[]; // chat: clientIds the host muted (their messages auto-hidden)
+    raisedHands?: string[]; // broadcast: clientIds asking to speak (raise hand)
+    speakerClientIds?: string[]; // broadcast: clientIds the host granted the mic (talkback / co-host)
+    broadcastStartedAt?: Date | null; // broadcast: when the current live session started (null when off)
+    broadcastSeconds?: number; // broadcast: accumulated air-time across sessions
+    transcript?: { at: number; text: string }[]; // broadcast: live-caption finals, for the recap
+    recordingEgressId?: string | null; // broadcast: active Egress recording id (null when not recording)
     settings: IWorkshopRoomSettings; // per-room config chosen at creation
     createdAt: Date;
     updatedAt: Date;
@@ -136,6 +143,10 @@ const WorkshopSettingsSchema = new Schema<IWorkshopRoomSettings>(
         gamification: { type: Boolean, default: true },
         teamMode: { type: Boolean, default: false },
         teamCount: { type: Number, default: 2 },
+        chatEnabled: { type: Boolean, default: true },
+        questionsEnabled: { type: Boolean, default: true },
+        chatAutoShow: { type: Boolean, default: false },
+        broadcastEnabled: { type: Boolean, default: false },
     },
     { _id: false }
 );
@@ -197,6 +208,13 @@ const WorkshopRoomSchema = new Schema<IWorkshopRoom>(
         usedQuestions: { type: [Number], default: undefined },
         activeQuestion: { type: Schema.Types.Mixed, default: undefined },
         questionPickerIds: { type: [String], default: undefined },
+        mutedClientIds: { type: [String], default: undefined },
+        raisedHands: { type: [String], default: undefined },
+        speakerClientIds: { type: [String], default: undefined },
+        broadcastStartedAt: { type: Date, default: null },
+        broadcastSeconds: { type: Number, default: 0 },
+        transcript: { type: [{ at: Number, text: String, _id: false }], default: undefined },
+        recordingEgressId: { type: String, default: null },
         settings: {
             type: WorkshopSettingsSchema,
             default: () => ({}),

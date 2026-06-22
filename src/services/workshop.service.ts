@@ -2,6 +2,7 @@ import crypto from 'crypto'
 import * as QRCode from 'qrcode'
 import mongoose from 'mongoose'
 import dbConnect from '@/lib/db'
+import { startRoomRecording, stopRoomRecording } from '@/lib/livekit'
 import WorkshopRoom, {
     type IWorkshopRoom,
     type IWorkshopRound,
@@ -10,6 +11,7 @@ import WorkshopRoom, {
 } from '@/models/WorkshopRoom'
 import WorkshopParticipant from '@/models/WorkshopParticipant'
 import WorkshopResponse, { type IWorkshopResponse } from '@/models/WorkshopResponse'
+import WorkshopMessage, { type IWorkshopMessage } from '@/models/WorkshopMessage'
 import { WORKSHOP_TEMPLATES, DEMO_RESPONSES, DEMO_NAMES, isWorkshopTemplateId } from '@/data/workshop-templates'
 import { resolveDeep, tr } from '@/data/workshop-i18n'
 import type {
@@ -34,6 +36,9 @@ import type {
     MyGame,
     DiplomaData,
     WorkshopQuestion,
+    ChatMessage,
+    ChatLiveQuestion,
+    RaisedHand,
 } from '@/types/workshop.types'
 import { REACTION_KINDS } from '@/types/workshop.types'
 
@@ -76,6 +81,8 @@ const scoresCache = new Map<string, { value: ScoreSummary; exp: number }>()
 const REACTION_TTL_MS = 5000
 type ReactionBuf = { id: number; kind: string; name: string; at: number }
 const reactionsBuffer = new Map<string, ReactionBuf[]>()
+const CAPTION_TTL_MS = 8000
+const captionBuffer = new Map<string, { text: string; at: number }>()
 const REACTION_KIND_SET = new Set<string>(REACTION_KINDS)
 let reactionSeq = 0
 
@@ -139,6 +146,12 @@ const BLOCKED_NAME_WORDS = ['admin', 'fuck', 'shit', 'хуй', 'пизд', 'бл
 function isBlockedName(name: string): boolean {
     const low = name.toLowerCase()
     return BLOCKED_NAME_WORDS.some((w) => low.includes(w))
+}
+
+// Soft content guard for message BODIES (a host hint, never a hard block): profanity or PII (email/phone).
+const PII_RE = /([\w.+-]+@[\w-]+\.[\w.-]+)|(\+?\d[\d\s().-]{7,}\d)/
+function flagRisky(text: string): boolean {
+    return isBlockedName(text) || PII_RE.test(text)
 }
 
 const FAKE_NAMES = ['გიორგი', 'ნინო', 'დათო', 'მარიამი', 'ლუკა', 'ანა', 'საბა', 'თეკლა'] as const
@@ -587,6 +600,10 @@ export class WorkshopService {
             language: s?.language ?? d.language,
             gamification: s?.gamification ?? d.gamification,
             teamMode: s?.teamMode ?? d.teamMode,
+            chatEnabled: s?.chatEnabled ?? d.chatEnabled,
+            questionsEnabled: s?.questionsEnabled ?? d.questionsEnabled,
+            chatAutoShow: s?.chatAutoShow ?? d.chatAutoShow,
+            broadcastEnabled: s?.broadcastEnabled ?? d.broadcastEnabled,
         }
     }
 
@@ -660,6 +677,8 @@ export class WorkshopService {
             }
         }
 
+        const live = await this.getLiveMessages(room._id)
+
         return {
             status: room.status,
             title: room.title,
@@ -671,6 +690,11 @@ export class WorkshopService {
             serverNow: new Date().toISOString(),
             settings: this.pickClientSettings(room),
             ...q,
+            liveMessages: live.messages,
+            liveQuestion: live.question,
+            handRaised: !!(clientId && (room.raisedHands ?? []).includes(clientId)),
+            canSpeak: !!(clientId && (room.speakerClientIds ?? []).includes(clientId)),
+            liveCaption: this.getLiveCaption(room._id),
             ...(gamified
                 ? {
                       me,
@@ -1152,6 +1176,296 @@ export class WorkshopService {
         if (arr.length) reactionsBuffer.set(key, arr)
         else reactionsBuffer.delete(key)
         return arr.map((r) => ({ id: r.id, kind: r.kind, name: r.name }))
+    }
+
+    /** Latest live caption (in-memory, no DB) for the subtitle overlay. */
+    static pushCaption(roomId: mongoose.Types.ObjectId, text: string): void {
+        const clean = text.trim().slice(0, 300)
+        if (!clean) return
+        captionBuffer.set(String(roomId), { text: clean, at: Date.now() })
+    }
+
+    /** The current caption if it is fresh (<8s), else null. */
+    static getLiveCaption(roomId: mongoose.Types.ObjectId): string | null {
+        const key = String(roomId)
+        const c = captionBuffer.get(key)
+        if (!c) return null
+        if (c.at < Date.now() - CAPTION_TTL_MS) {
+            captionBuffer.delete(key)
+            return null
+        }
+        return c.text
+    }
+
+    // ── Live chat + audience questions ────────────────────────────────────────
+    /** Persist a chat/question message. The name is server-resolved from the
+     *  participant (blank when anonymousNames) so a client cannot spoof a name. */
+    static async postMessage(params: {
+        room: IWorkshopRoom
+        clientId: string
+        kind: 'chat' | 'question'
+        text: string
+        anon?: boolean
+    }): Promise<{ ok: boolean; reason?: 'disabled' | 'muted' }> {
+        await dbConnect()
+        const { room, clientId, kind } = params
+        const text = params.text.trim().slice(0, 280)
+        if (!text) return { ok: false }
+        const settings = room.settings
+        if (kind === 'chat' && settings?.chatEnabled === false) return { ok: false, reason: 'disabled' }
+        if (kind === 'question' && settings?.questionsEnabled === false) return { ok: false, reason: 'disabled' }
+        if ((room.mutedClientIds ?? []).includes(clientId)) return { ok: false, reason: 'muted' }
+        const anon = params.anon || (settings?.anonymousNames ?? false)
+        const p = await WorkshopParticipant.findOne({ roomId: room._id, clientId }).lean<{ name: string }>()
+        const name = anon ? '' : (p?.name ?? '')
+        // auto-show: a non-risky chat message goes straight to the wall when the room enables it
+        const autoLive = kind === 'chat' && (settings?.chatAutoShow ?? false) && !flagRisky(text)
+        await WorkshopMessage.create({ roomId: room._id, clientId, name, kind, text, status: autoLive ? 'live' : 'new' })
+        return { ok: true }
+    }
+
+    private static mapMessage(m: IWorkshopMessage): ChatMessage {
+        return {
+            id: String(m._id),
+            kind: m.kind,
+            name: m.name,
+            text: m.text,
+            status: m.status,
+            votes: m.votes ?? 0,
+            risky: flagRisky(m.text),
+            ...(m.answer ? { answer: m.answer } : {}),
+            createdAt: m.createdAt.toISOString(),
+        }
+    }
+
+    /** Public projector/phone slice: the live chat wall (last 12) + the one live question. Bounded + cheap. */
+    static async getLiveMessages(
+        roomId: mongoose.Types.ObjectId,
+    ): Promise<{ messages: ChatMessage[]; question: ChatLiveQuestion | null }> {
+        await dbConnect()
+        const [chat, q] = await Promise.all([
+            WorkshopMessage.find({ roomId, kind: 'chat', status: 'live' })
+                .sort({ createdAt: -1 })
+                .limit(12)
+                .lean<IWorkshopMessage[]>(),
+            WorkshopMessage.findOne({ roomId, kind: 'question', status: 'live' })
+                .sort({ createdAt: -1 })
+                .lean<IWorkshopMessage>(),
+        ])
+        return {
+            messages: chat.reverse().map((m) => this.mapMessage(m)),
+            question: q
+                ? { name: q.name, text: q.text, votes: q.votes ?? 0, ...(q.answer ? { answer: q.answer } : {}) }
+                : null,
+        }
+    }
+
+    /** Host moderation queue: everything not hidden, newest first. Drives the pult's 2nd poll. */
+    static async getMessageQueue(roomId: mongoose.Types.ObjectId): Promise<ChatMessage[]> {
+        await dbConnect()
+        const rows = await WorkshopMessage.find({ roomId, status: { $ne: 'hidden' } })
+            .sort({ createdAt: -1 })
+            .limit(120)
+            .lean<IWorkshopMessage[]>()
+        return rows.map((m) => ({ ...this.mapMessage(m), clientId: m.clientId }))
+    }
+
+    /** Host moderation action: move a message between new/live/done/hidden.
+     *  Single-live-question invariant: putting a question on the screen first demotes
+     *  any other live question back to the queue, so only ONE question is ever live
+     *  (dismissing it then actually clears the projector). */
+    static async setMessageStatus(
+        roomId: mongoose.Types.ObjectId,
+        messageId: string,
+        status: 'new' | 'live' | 'done' | 'hidden',
+        answer?: string,
+    ): Promise<{ ok: boolean }> {
+        await dbConnect()
+        if (!mongoose.Types.ObjectId.isValid(messageId)) return { ok: false }
+        const _id = new mongoose.Types.ObjectId(messageId)
+        if (status === 'live') {
+            const msg = await WorkshopMessage.findOne({ _id, roomId }).lean<IWorkshopMessage>()
+            if (msg?.kind === 'question') {
+                await WorkshopMessage.updateMany(
+                    { roomId, kind: 'question', status: 'live', _id: { $ne: _id } },
+                    { $set: { status: 'new' } },
+                )
+            }
+        }
+        const set: { status: string; answer?: string } = { status }
+        if (typeof answer === 'string') set.answer = answer.trim().slice(0, 280)
+        const res = await WorkshopMessage.updateOne({ _id, roomId }, { $set: set })
+        return { ok: res.matchedCount > 0 }
+    }
+
+    /** A participant up-votes a question / likes a chat message (deduped by clientId). */
+    static async voteMessage(
+        roomId: mongoose.Types.ObjectId,
+        messageId: string,
+        clientId: string,
+    ): Promise<{ ok: boolean }> {
+        await dbConnect()
+        if (!mongoose.Types.ObjectId.isValid(messageId)) return { ok: false }
+        const res = await WorkshopMessage.updateOne(
+            { _id: new mongoose.Types.ObjectId(messageId), roomId, voters: { $ne: clientId } },
+            { $addToSet: { voters: clientId }, $inc: { votes: 1 } },
+        )
+        return { ok: res.modifiedCount > 0 }
+    }
+
+    /** Host mutes a participant: their visible messages are hidden and future ones dropped. */
+    static async muteParticipant(roomId: mongoose.Types.ObjectId, clientId: string): Promise<{ ok: boolean }> {
+        await dbConnect()
+        await WorkshopRoom.updateOne({ _id: roomId }, { $addToSet: { mutedClientIds: clientId } })
+        await WorkshopMessage.updateMany(
+            { roomId, clientId, status: { $in: ['new', 'live'] } },
+            { $set: { status: 'hidden' } },
+        )
+        return { ok: true }
+    }
+
+    /** On enable, stamp the air-time clock; on disable, fold the elapsed seconds into the total. */
+    private static async applyBroadcast(
+        filter: mongoose.QueryFilter<IWorkshopRoom>,
+        enabled: boolean,
+    ): Promise<void> {
+        await dbConnect()
+        if (enabled) {
+            await WorkshopRoom.updateOne(filter, {
+                $set: { 'settings.broadcastEnabled': true, broadcastStartedAt: new Date() },
+            })
+            return
+        }
+        const room = await WorkshopRoom.findOne(filter).select('broadcastStartedAt').lean<{ broadcastStartedAt?: Date | null }>()
+        const startedMs = room?.broadcastStartedAt ? new Date(room.broadcastStartedAt).getTime() : 0
+        const add = startedMs ? Math.max(0, Math.round((Date.now() - startedMs) / 1000)) : 0
+        const update: mongoose.UpdateQuery<IWorkshopRoom> = {
+            $set: { 'settings.broadcastEnabled': false, broadcastStartedAt: null },
+        }
+        if (add) update.$inc = { broadcastSeconds: add }
+        await WorkshopRoom.updateOne(filter, update)
+    }
+
+    /** Host camera/mic broadcast on or off. Viewers gate their watch tile on this flag. */
+    static async setBroadcast(roomId: mongoose.Types.ObjectId, enabled: boolean): Promise<{ ok: boolean }> {
+        await this.applyBroadcast({ _id: roomId }, enabled)
+        return { ok: true }
+    }
+
+    /** Same, keyed by join code. Used by the LiveKit webhook (it knows the room name = code). */
+    static async setBroadcastByCode(code: string, enabled: boolean): Promise<{ ok: boolean }> {
+        await this.applyBroadcast({ code: code.toUpperCase() }, enabled)
+        return { ok: true }
+    }
+
+    /** Append a finalized caption line to the transcript (for the end recap). */
+    static async appendTranscript(roomId: mongoose.Types.ObjectId, text: string): Promise<{ ok: boolean }> {
+        await dbConnect()
+        const clean = text.trim().slice(0, 300)
+        if (!clean) return { ok: true }
+        await WorkshopRoom.updateOne(
+            { _id: roomId },
+            { $push: { transcript: { $each: [{ at: Date.now(), text: clean }], $slice: -500 } } },
+        )
+        return { ok: true }
+    }
+
+    /** Total air-time seconds + the transcript, for the projector end screen. */
+    static async getBroadcastRecap(
+        room: IWorkshopRoom,
+    ): Promise<{ seconds: number; transcript: { at: number; text: string }[] }> {
+        const live = room.broadcastStartedAt
+            ? Math.max(0, Math.round((Date.now() - new Date(room.broadcastStartedAt).getTime()) / 1000))
+            : 0
+        return { seconds: (room.broadcastSeconds ?? 0) + live, transcript: room.transcript ?? [] }
+    }
+
+    /** Start the room composite recording (Egress) and remember its id so a later stop can target it. */
+    static async startRecording(room: IWorkshopRoom): Promise<{ egressId: string }> {
+        await dbConnect()
+        if (room.recordingEgressId) return { egressId: room.recordingEgressId }
+        const egressId = await startRoomRecording(room.code)
+        await WorkshopRoom.updateOne({ _id: room._id }, { $set: { recordingEgressId: egressId } })
+        return { egressId }
+    }
+
+    /** Stop the room recording (if any) and clear the stored egress id. */
+    static async stopRecording(room: IWorkshopRoom): Promise<{ ok: boolean }> {
+        await dbConnect()
+        const id = room.recordingEgressId
+        if (id) {
+            try {
+                await stopRoomRecording(id)
+            } catch {
+                // egress already gone or the container is down: clear the id anyway so the UI resets
+            }
+        }
+        await WorkshopRoom.updateOne({ _id: room._id }, { $set: { recordingEgressId: null } })
+        return { ok: true }
+    }
+
+    /** Student raises (or lowers) a hand to speak during the broadcast. */
+    static async raiseHand(
+        roomId: mongoose.Types.ObjectId,
+        clientId: string,
+        raise: boolean,
+    ): Promise<{ ok: boolean }> {
+        await dbConnect()
+        await WorkshopRoom.updateOne(
+            { _id: roomId },
+            raise ? { $addToSet: { raisedHands: clientId } } : { $pull: { raisedHands: clientId } },
+        )
+        return { ok: true }
+    }
+
+    /** Host grants a student the mic (talkback): add to speakers, drop the raised hand. */
+    static async grantSpeak(roomId: mongoose.Types.ObjectId, clientId: string): Promise<{ ok: boolean }> {
+        await dbConnect()
+        await WorkshopRoom.updateOne(
+            { _id: roomId },
+            { $addToSet: { speakerClientIds: clientId }, $pull: { raisedHands: clientId } },
+        )
+        return { ok: true }
+    }
+
+    /** Host revokes the mic from a student. */
+    static async revokeSpeak(roomId: mongoose.Types.ObjectId, clientId: string): Promise<{ ok: boolean }> {
+        await dbConnect()
+        await WorkshopRoom.updateOne({ _id: roomId }, { $pull: { speakerClientIds: clientId } })
+        return { ok: true }
+    }
+
+    /** Is this client an approved speaker? Drives the publisher token in the watch-token route. */
+    static async isSpeaker(code: string, clientId: string): Promise<boolean> {
+        await dbConnect()
+        const room = await WorkshopRoom.findOne({ code: code.toUpperCase() })
+            .select('speakerClientIds')
+            .lean<{ speakerClientIds?: string[] }>()
+        return !!room?.speakerClientIds?.includes(clientId)
+    }
+
+    /** Name-resolved raised-hand + speaker lists for the host pult. */
+    static async getSpeakerLists(room: IWorkshopRoom): Promise<{ raisedHands: RaisedHand[]; speakers: RaisedHand[] }> {
+        const raised = room.raisedHands ?? []
+        const speakers = room.speakerClientIds ?? []
+        const ids = [...new Set([...raised, ...speakers])]
+        if (ids.length === 0) return { raisedHands: [], speakers: [] }
+        const parts = await WorkshopParticipant.find({ roomId: room._id, clientId: { $in: ids } })
+            .select('clientId name')
+            .lean<{ clientId: string; name: string }[]>()
+        const nameOf = new Map(parts.map((p) => [p.clientId, p.name]))
+        const toRH = (id: string): RaisedHand => ({ clientId: id, name: nameOf.get(id) ?? 'სტუმარი' })
+        return { raisedHands: raised.map(toRH), speakers: speakers.map(toRH) }
+    }
+
+    /** Chat + questions (newest last) for the end-of-workshop recap. */
+    static async getChatLog(roomId: mongoose.Types.ObjectId): Promise<ChatMessage[]> {
+        await dbConnect()
+        const rows = await WorkshopMessage.find({ roomId, status: { $ne: 'hidden' } })
+            .sort({ createdAt: 1 })
+            .limit(300)
+            .lean<IWorkshopMessage[]>()
+        return rows.map((m) => this.mapMessage(m))
     }
 
     /** Drop cached tallies for a round (all phases) — call after a (re)answer. */

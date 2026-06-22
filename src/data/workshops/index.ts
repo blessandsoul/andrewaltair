@@ -6,10 +6,12 @@
 // model pick it up automatically — `WorkshopTemplateId` widens via `satisfies`.
 
 import { adiWorkshop, adiWorkshopDemo } from "./adi-workshop";
+import { azbukaAi, azbukaAiDemo } from "./azbuka-ai";
 import type { WorkshopTemplate, DemoRoundAnswers } from "./types";
 
 export const WORKSHOP_TEMPLATES = {
   "adi-workshop": adiWorkshop,
+  "azbuka-ai": azbukaAi,
 } satisfies Record<string, WorkshopTemplate>;
 
 export type WorkshopTemplateId = keyof typeof WORKSHOP_TEMPLATES;
@@ -37,6 +39,7 @@ export const DEMO_RESPONSES: Record<
   Record<string, DemoRoundAnswers>
 > = {
   "adi-workshop": adiWorkshopDemo,
+  "azbuka-ai": azbukaAiDemo,
 };
 
 export type {

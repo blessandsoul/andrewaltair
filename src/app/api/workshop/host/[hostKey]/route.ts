@@ -34,6 +34,9 @@ export async function GET(
         const round = WorkshopService.getHostStateRound(room)
         if (round) round.pinned = pinned
 
+        const live = await WorkshopService.getLiveMessages(room._id)
+        const speakerLists = await WorkshopService.getSpeakerLists(room)
+
         const gamified = room.settings?.gamification ?? true
         const [scores, fastest] = gamified
             ? await Promise.all([WorkshopService.getScores(room), WorkshopService.getFastest(room)])
@@ -53,6 +56,12 @@ export async function GET(
             selectedPhoto: room.selectedPhoto ?? null,
             serverNow: new Date().toISOString(),
             settings: WorkshopService.pickClientSettings(room),
+            liveMessages: live.messages,
+            liveQuestion: live.question,
+            raisedHands: speakerLists.raisedHands,
+            speakers: speakerLists.speakers,
+            liveCaption: WorkshopService.getLiveCaption(room._id),
+            recording: !!room.recordingEgressId,
             ...WorkshopService.questionStateFor(room), // round 28 Q&A (t_close only)
             ...(gamified
                 ? {
