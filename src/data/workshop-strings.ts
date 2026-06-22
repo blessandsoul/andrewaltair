@@ -321,12 +321,11 @@ export const STR = {
         smooth: 'გლუვი', // RU: плавность
         cameraLabel: 'კამერა', // RU: камера (выбор устройства)
         micLabel: 'მიკროფონი', // RU: микрофон (выбор устройства)
-        sourceTitle: 'ვიდეო-წყარო', // RU: источник видео
-        sourceLocal: 'ეს კამერა', // RU: эта камера
-        sourceIphone: 'iPhone', // RU: iPhone
-        phoneWaiting: 'ველოდები iPhone-ს...', // RU: жду iPhone
-        phoneConnected: 'iPhone დაკავშირდა', // RU: iPhone подключён
-        phoneOpenHint: 'გახსენი phone.html iPhone-ზე', // RU: открой phone.html на iPhone
+        cameraModeDesktop: 'ეს მოწყობილობა', // RU: это устройство (камера)
+        cameraModeIphone: 'iPhone', // RU: iPhone (камера)
+        phoneScanHint: 'დაასკანერე QR iPhone-ით', // RU: отсканируй QR айфоном
+        phoneStart: 'ეთერის დაწყება', // RU: начать эфир
+        phoneStop: 'შეჩერება', // RU: остановить
     },
 
     stepper: {

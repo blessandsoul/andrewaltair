@@ -50,6 +50,8 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
     const [stopConfirm, setStopConfirm] = useState(false)
     const [historyOpen, setHistoryOpen] = useState(false)
     const [broadcasting, setBroadcasting] = useState(false)
+    const [cameraMode, setCameraMode] = useState<'desktop' | 'iphone'>('desktop')
+    const [phoneQr, setPhoneQr] = useState<string | null>(null)
 
     const act = useCallback(
         async (action: string, responseId?: string, targetClientId?: string, count?: number) => {
@@ -115,6 +117,17 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
         window.addEventListener('keydown', onKey)
         return () => window.removeEventListener('keydown', onKey)
     }, [state, act])
+
+    // Fetch the phone-camera QR once, when the host switches to iPhone mode.
+    useEffect(() => {
+        if (cameraMode !== 'iphone' || phoneQr) return
+        fetch(`/api/workshop/host/${hostKey}?phoneQr=1`, { cache: 'no-store' })
+            .then((r) => r.json())
+            .then((j) => {
+                if (j.success && j.data.phoneQrDataUrl) setPhoneQr(j.data.phoneQrDataUrl)
+            })
+            .catch(() => {})
+    }, [cameraMode, phoneQr, hostKey])
 
     if (error === 403) {
         return (
@@ -272,12 +285,40 @@ export default function RemoteClient({ hostKey }: { hostKey: string }) {
                                 )}
                             </Button>
                         </div>
+                        {/* camera source: this device's webcam, or the phone via QR */}
+                        <div className="flex gap-1.5">
+                            {([['desktop', STR.broadcast.cameraModeDesktop], ['iphone', STR.broadcast.cameraModeIphone]] as const).map(([m, label]) => (
+                                <button
+                                    key={m}
+                                    type="button"
+                                    onClick={() => setCameraMode(m)}
+                                    className={`flex-1 rounded-lg border px-2 py-1.5 text-xs font-semibold transition ${
+                                        cameraMode === m
+                                            ? 'border-transparent bg-[image:var(--ws-cta)] text-white'
+                                            : 'border-border bg-background text-foreground hover:bg-accent'
+                                    }`}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
                         {!broadcasting && state.settings?.broadcastEnabled && (
                             <p className="text-xs font-medium text-warning">{STR.broadcast.stillLive}</p>
                         )}
-                        {broadcasting && (
+                        {broadcasting && cameraMode === 'desktop' && (
                             <div className="mx-auto w-full max-w-xs">
                                 <BroadcastPublisher hostKey={hostKey} code={state.code} lang={state.settings?.language ?? 'ka'} />
+                            </div>
+                        )}
+                        {broadcasting && cameraMode === 'iphone' && (
+                            <div className="flex flex-col items-center gap-2 py-2">
+                                {phoneQr ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={phoneQr} alt="iPhone QR" className="size-44 rounded-xl border border-border" />
+                                ) : (
+                                    <div className="size-44 rounded-xl bg-background" />
+                                )}
+                                <p className="text-center text-xs font-medium text-muted-foreground">{STR.broadcast.phoneScanHint}</p>
                             </div>
                         )}
                         {broadcasting && (

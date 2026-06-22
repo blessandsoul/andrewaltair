@@ -12,7 +12,6 @@ import {
 import { Track, LocalVideoTrack, VideoPresets, ScreenSharePresets } from 'livekit-client'
 import { Mic, MicOff, Video, VideoOff, MonitorUp, MonitorX, SwitchCamera, Sparkles, Captions, Camera, Settings, Radio } from 'lucide-react'
 import { STR } from '@/data/workshop-strings'
-import { usePhoneCameraSource } from './usePhoneCameraSource'
 
 /**
  * Host publisher tile + control bar, lives in the host remote. Fetches a publisher token,
@@ -31,7 +30,6 @@ export default function BroadcastPublisher({
 }) {
     const [conn, setConn] = useState<{ url: string; token: string } | null>(null)
     const [err, setErr] = useState<string | null>(null)
-    const [source, setSource] = useState<'local' | 'iphone'>('local')
 
     useEffect(() => {
         let alive = true
@@ -66,7 +64,7 @@ export default function BroadcastPublisher({
             serverUrl={conn.url}
             token={conn.token}
             connect
-            video={source === 'local'}
+            video
             audio
             options={{
                 // Capture + publish at 1080p so viewers have a sharp top simulcast layer to pull.
@@ -84,22 +82,12 @@ export default function BroadcastPublisher({
         >
             {/* lets the host hear a talkback speaker (host token subscribes) */}
             <RoomAudioRenderer />
-            <PublisherUI code={code} lang={lang} source={source} setSource={setSource} />
+            <PublisherUI code={code} lang={lang} />
         </LiveKitRoom>
     )
 }
 
-function PublisherUI({
-    code,
-    lang,
-    source,
-    setSource,
-}: {
-    code: string
-    lang: 'ka' | 'ru'
-    source: 'local' | 'iphone'
-    setSource: (s: 'local' | 'iphone') => void
-}) {
+function PublisherUI({ code, lang }: { code: string; lang: 'ka' | 'ru' }) {
     const { localParticipant, isCameraEnabled, isMicrophoneEnabled, isScreenShareEnabled } = useLocalParticipant()
 
     // Live captions: the host browser transcribes speech and posts lines to the caption route,
@@ -221,56 +209,6 @@ function PublisherUI({
         }
     }
 
-    // iPhone source (PHONE_CAMERA): receive the phone track over P2P and republish it into LiveKit.
-    const phone = usePhoneCameraSource(source === 'iphone')
-    const publishedRef = useRef<MediaStreamTrack | null>(null)
-    useEffect(() => {
-        if (source !== 'iphone') return
-        const t = phone.videoTrack
-        if (!t || publishedRef.current === t) return
-        const prev = publishedRef.current
-        const run = async () => {
-            if (prev) await localParticipant.unpublishTrack(prev, false).catch(() => {})
-            await localParticipant.setCameraEnabled(false).catch(() => {})
-            try {
-                await localParticipant.publishTrack(t, {
-                    source: Track.Source.Camera,
-                    videoEncoding: VideoPresets.h1080.encoding,
-                    videoSimulcastLayers: [VideoPresets.h720, VideoPresets.h360],
-                    degradationPreference: 'maintain-resolution',
-                })
-                publishedRef.current = t
-            } catch {
-                // publish failed, leave the preview empty
-            }
-        }
-        run()
-    }, [source, phone.videoTrack, localParticipant])
-
-    // Drop the phone track on unmount or stop-live so it does not linger published.
-    useEffect(() => {
-        return () => {
-            const t = publishedRef.current
-            if (t) {
-                localParticipant.unpublishTrack(t, false).catch(() => {})
-                publishedRef.current = null
-            }
-        }
-    }, [localParticipant])
-
-    const switchSource = async (next: 'local' | 'iphone') => {
-        if (next === source) return
-        if (next === 'local') {
-            const t = publishedRef.current
-            if (t) {
-                await localParticipant.unpublishTrack(t, false).catch(() => {})
-                publishedRef.current = null
-            }
-            await localParticipant.setCameraEnabled(true).catch(() => {})
-        }
-        setSource(next)
-    }
-
     // Background blur runs a MediaPipe processor on the camera track, loaded on demand
     // (the WASM is heavy) so it never bloats the base bundle.
     const [blurOn, setBlurOn] = useState(false)
@@ -350,7 +288,7 @@ function PublisherUI({
                     label={isScreenShareEnabled ? STR.broadcast.screenStop : STR.broadcast.screen}
                     icon={isScreenShareEnabled ? <MonitorX size={16} /> : <MonitorUp size={16} />}
                 />
-                {source === 'local' && devices.length > 1 && (
+                {devices.length > 1 && (
                     <CtlBtn tone="neutral" onClick={flip} label={STR.broadcast.flip} icon={<SwitchCamera size={16} />} />
                 )}
                 <CtlBtn
@@ -378,53 +316,24 @@ function PublisherUI({
             {settingsOpen && (
                 <div className="space-y-3 rounded-2xl border border-border bg-card p-3 shadow-sm">
                     <div>
-                        <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{STR.broadcast.sourceTitle}</p>
+                        <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{STR.broadcast.quality}</p>
                         <div className="flex gap-1.5">
-                            {([['local', STR.broadcast.sourceLocal], ['iphone', STR.broadcast.sourceIphone]] as const).map(([s, label]) => (
+                            {(['1080', '720', '360'] as const).map((q) => (
                                 <button
-                                    key={s}
+                                    key={q}
                                     type="button"
-                                    onClick={() => switchSource(s)}
+                                    onClick={() => applyQuality(q)}
                                     className={`flex-1 rounded-lg border px-2 py-1.5 text-xs font-semibold transition ${
-                                        source === s
+                                        quality === q
                                             ? 'border-transparent bg-[image:var(--ws-cta)] text-white'
                                             : 'border-border bg-background text-foreground hover:bg-accent'
                                     }`}
                                 >
-                                    {label}
+                                    {q}p
                                 </button>
                             ))}
                         </div>
-                        {source === 'iphone' && (
-                            <p className="mt-1.5 text-[11px] font-medium text-muted-foreground">
-                                {phone.state === 'connected' ? STR.broadcast.phoneConnected : STR.broadcast.phoneWaiting}
-                                {phone.state !== 'connected' && (
-                                    <span className="mt-0.5 block opacity-70">{STR.broadcast.phoneOpenHint}</span>
-                                )}
-                            </p>
-                        )}
                     </div>
-                    {source === 'local' && (
-                        <div>
-                            <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{STR.broadcast.quality}</p>
-                            <div className="flex gap-1.5">
-                                {(['1080', '720', '360'] as const).map((q) => (
-                                    <button
-                                        key={q}
-                                        type="button"
-                                        onClick={() => applyQuality(q)}
-                                        className={`flex-1 rounded-lg border px-2 py-1.5 text-xs font-semibold transition ${
-                                            quality === q
-                                                ? 'border-transparent bg-[image:var(--ws-cta)] text-white'
-                                                : 'border-border bg-background text-foreground hover:bg-accent'
-                                        }`}
-                                    >
-                                        {q}p
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
                     <div>
                         <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{STR.broadcast.motion}</p>
                         <div className="flex gap-1.5">
@@ -444,7 +353,7 @@ function PublisherUI({
                             ))}
                         </div>
                     </div>
-                    {source === 'local' && devices.length > 0 && (
+                    {devices.length > 0 && (
                         <label className="block">
                             <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{STR.broadcast.cameraLabel}</span>
                             <select

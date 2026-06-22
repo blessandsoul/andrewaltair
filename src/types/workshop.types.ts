@@ -458,6 +458,8 @@ export interface HostState {
     settings: RoomSettingsDTO; // per-room config (audience / sound / poll / etc.)
     qrDataUrl?: string;
     joinUrl?: string;
+    phoneQrDataUrl?: string; // QR to the phone-camera publisher page (pult, iPhone mode)
+    phoneUrl?: string;
     // gamification (present only when settings.gamification)
     leaderboard?: LeaderboardEntry[];
     teams?: TeamScore[];

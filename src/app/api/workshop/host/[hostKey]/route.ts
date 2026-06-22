@@ -83,6 +83,12 @@ export async function GET(
             state.joinUrl = joinUrl
             state.qrDataUrl = await WorkshopService.generateQR(joinUrl)
         }
+        // Phone-camera page QR, fetched once by the pult when iPhone mode is picked.
+        if (request.nextUrl.searchParams.get('phoneQr') === '1') {
+            const phoneUrl = `${BASE_URL}/workshop/host/${hostKey}/phone`
+            state.phoneUrl = phoneUrl
+            state.phoneQrDataUrl = await WorkshopService.generateQR(phoneUrl)
+        }
 
         return apiSuccess(state)
     } catch {

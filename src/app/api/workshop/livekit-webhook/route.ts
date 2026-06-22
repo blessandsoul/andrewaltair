@@ -21,9 +21,10 @@ export async function POST(request: NextRequest) {
         const code = event.room?.name
         if (!code) return apiSuccess({ ignored: true })
 
-        const hostLeft = event.event === 'participant_left' && event.participant?.identity === 'host'
+        const id = event.participant?.identity
+        const publisherLeft = event.event === 'participant_left' && (id === 'host' || id === 'phone-cam')
         const roomDone = event.event === 'room_finished'
-        if (hostLeft || roomDone) {
+        if (publisherLeft || roomDone) {
             await WorkshopService.setBroadcastByCode(code, false)
         }
         return apiSuccess({ ok: true })
