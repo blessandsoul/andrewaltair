@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
 import { getAllArticles } from '@/data/vibeCodingContent'
 import { getAllArticles as getAllLoopsArticles } from '@/data/loopsContent'
+import { getAllProjects } from '@/data/projectsData'
 import dbConnect from '@/lib/db'
 import Post from '@/models/Post'
 import Insight from '@/models/Insight'
@@ -104,6 +105,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             priority: 0.8,
         },
         {
+            url: `${baseUrl}/projects`,
+            lastModified: DEPLOY_DATE,
+            changeFrequency: 'monthly',
+            priority: 0.7,
+        },
+        {
             url: `${baseUrl}/services`,
             lastModified: DEPLOY_DATE,
             changeFrequency: 'monthly',
@@ -157,6 +164,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: DEPLOY_DATE,
         changeFrequency: 'weekly' as const,
         priority: 0.8,
+    }))
+
+    // Projects (portfolio, static data)
+    const projectsUrls: MetadataRoute.Sitemap = getAllProjects().map((project) => ({
+        url: `${baseUrl}/projects/${project.slug}`,
+        lastModified: DEPLOY_DATE,
+        changeFrequency: 'monthly' as const,
+        priority: 0.7,
     }))
 
     // Blog posts from MongoDB
@@ -280,5 +295,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ),
     ]
 
-    return [...staticPages, ...libraryUrls, ...loopsUrls, ...blogUrls, ...insightUrls, ...tutorialUrls, ...promptUrls, ...botEntries, ...courseUrls]
+    return [...staticPages, ...libraryUrls, ...loopsUrls, ...projectsUrls, ...blogUrls, ...insightUrls, ...tutorialUrls, ...promptUrls, ...botEntries, ...courseUrls]
 }

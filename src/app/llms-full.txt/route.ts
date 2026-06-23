@@ -3,6 +3,7 @@ import dbConnect from '@/lib/db'
 import Post from '@/models/Post'
 import { getAllArticles } from '@/data/vibeCodingContent'
 import { getAllArticles as getAllLoopsArticles } from '@/data/loopsContent'
+import { getAllProjects } from '@/data/projectsData'
 
 export const dynamic = 'force-dynamic';
 
@@ -47,6 +48,11 @@ export async function GET() {
                 const desc = article.description || article.title
                 return `- [${article.title}](${baseUrl}/encyclopedia/loops/${article.id}) - ${desc}`
             })
+            .join('\n')
+
+        // Generate Projects section
+        const projectsSection = getAllProjects()
+            .map((p) => `- [${p.title}](${baseUrl}/projects/${p.slug}) - ${p.tagline}. ${p.summary}`)
             .join('\n')
 
         // Generate posts section
@@ -126,6 +132,13 @@ Free Georgian mini course about AI agent loops: what a loop is, triggers and goa
 
 #### Lessons (${loopsArticles.length} total):
 ${loopsSection}
+
+---
+
+### /projects - Open Source Projects
+Systems and tools built in the open, each with its own writeup.
+
+${projectsSection}
 
 ---
 

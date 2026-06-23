@@ -94,6 +94,9 @@ Educational library about Vibe Coding methodology - programming with AI assistan
 ### /encyclopedia/loops
 Free Georgian mini course about AI agent loops (Loops): what a loop is, triggers and goals, real examples, and where loops fit. Explained simply, beginner level, with infographics.
 
+### /projects
+Open source projects and systems, each with its own writeup. Featuring Andrezi, a local-first memory governance layer for Claude Code agents.
+
 ### /services
 Professional AI consulting services:
 - AI Business Integration

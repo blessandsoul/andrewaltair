@@ -1,0 +1,350 @@
+/* Andrezi landing — scoped highland palette + signature contour/strata visuals.
+   Derived from Pshav-Khevsureti stone + shrine-glow: basalt slate + one amber accent.
+   No purple/blue gradient. One accent. Tinted shadows. */
+
+.page {
+  /* light highland: pale cool stone, carved slate, burnt amber */
+  --bg: #eceef1;
+  --bg-raised: #f7f8fa;
+  --line: #d6dadf;
+  --line-soft: #e3e6ea;
+  --mist: #515b66;
+  --mist-dim: #8a95a0;
+  --chalk: #1a2029;
+  --amber: #9c5a1f;
+  --amber-bright: #b56c2a;
+  --amber-glow: rgba(156, 90, 31, 0.10);
+  --on-amber: #fbf7f1;
+
+  background: var(--bg);
+  color: var(--mist);
+  font-family: var(--font-body, "Inter", sans-serif);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+:global(.dark) .page {
+  /* dark highland: basalt, carved chalk, shrine-glow amber */
+  --bg: #14171c;
+  --bg-raised: #1b2027;
+  --line: #2b323c;
+  --line-soft: #232932;
+  --mist: #8a94a1;
+  --mist-dim: #626c79;
+  --chalk: #e9eaed;
+  --amber: #d98a4b;
+  --amber-bright: #e6a868;
+  --amber-glow: rgba(217, 138, 75, 0.14);
+  --on-amber: #1a120a;
+}
+
+.shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+.backLink {
+  font-family: var(--font-code, "JetBrains Mono", monospace);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mist-dim);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 2.4rem;
+  transition: color 0.18s ease;
+}
+.backLink:hover { color: var(--amber); }
+
+/* eyebrow — inscribed label */
+.eyebrow {
+  font-family: var(--font-code, "JetBrains Mono", monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--amber);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.eyebrow::before {
+  content: "";
+  width: 22px;
+  height: 1px;
+  background: var(--amber);
+  opacity: 0.7;
+}
+
+.h2 {
+  font-family: var(--font-headline, "Manrope", sans-serif);
+  font-weight: 800;
+  color: var(--chalk);
+  font-size: clamp(1.7rem, 3.4vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 1.1rem 0 0;
+}
+
+.body {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--mist);
+}
+.body strong { color: var(--chalk); font-weight: 600; }
+
+/* ── HERO ─────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  min-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  isolation: isolate;
+  border-bottom: 1px solid var(--line);
+}
+.contour {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  opacity: 0.5;
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 38%, #000 38%, transparent 78%);
+  mask-image: radial-gradient(120% 90% at 50% 38%, #000 38%, transparent 78%);
+}
+.contour path {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.contour .peak { stroke: var(--amber); opacity: 0.55; }
+
+.heroWord {
+  font-family: var(--font-georgian, "Noto Sans Georgian", sans-serif);
+  font-weight: 700;
+  color: var(--chalk);
+  font-size: clamp(3.6rem, 13vw, 9.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+  margin: 0;
+  text-shadow: 0 0 60px rgba(217, 138, 75, 0.12);
+}
+.heroLatin {
+  font-family: var(--font-code, "JetBrains Mono", monospace);
+  font-size: 0.85rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--mist-dim);
+  margin-top: 1.3rem;
+}
+.heroTagline {
+  font-family: var(--font-headline, "Manrope", sans-serif);
+  font-weight: 700;
+  font-size: clamp(1.3rem, 3vw, 2rem);
+  color: var(--amber);
+  margin: 0.5rem 0 0;
+  letter-spacing: -0.01em;
+}
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4rem;
+  align-items: center;
+  margin-top: 2.6rem;
+  font-family: var(--font-code, "JetBrains Mono", monospace);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mist-dim);
+}
+.heroMeta span { display: inline-flex; align-items: center; gap: 0.5rem; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 10px var(--amber); }
+
+/* ── SECTION shell ────────────────────────────────────── */
+.section { padding: clamp(5rem, 11vw, 9rem) 0; border-bottom: 1px solid var(--line-soft); }
+.lead {
+  font-family: var(--font-headline, "Manrope", sans-serif);
+  font-weight: 700;
+  color: var(--chalk);
+  font-size: clamp(1.5rem, 3.6vw, 2.4rem);
+  line-height: 1.32;
+  letter-spacing: -0.02em;
+  max-width: 22ch;
+}
+.lead .amber { color: var(--amber); }
+.kicker { max-width: 56ch; margin-top: 1.5rem; }
+
+/* ── PROBLEM (four failures) — top-left lead, mono labels ── */
+.fails { margin-top: 3rem; display: grid; gap: 0; border-top: 1px solid var(--line); }
+.failItem {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 1.5rem;
+  padding: 1.6rem 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.failLabel {
+  font-family: var(--font-code, "JetBrains Mono", monospace);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  color: var(--amber);
+  text-transform: lowercase;
+}
+.failText { color: var(--mist); line-height: 1.6; }
+
+/* ── MYTH BRIDGE — folklore -> system, asymmetric ──────── */
+.bridge { margin-top: 3rem; display: grid; gap: 0; }
+.bridgeRow {
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr;
+  align-items: center;
+  gap: 0;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.bridgeRow:first-child { border-top: 1px solid var(--line); }
+.folk { padding-right: 1.4rem; }
+.folkWord {
+  font-family: var(--font-georgian, "Noto Sans Georgian", sans-serif);
+  font-weight: 700;
+  color: var(--chalk);
+  font-size: 1.25rem;
+}
+.folkRole { color: var(--mist-dim); font-size: 0.92rem; margin-top: 0.2rem; }
+.node { justify-self: center; width: 7px; height: 7px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 4px var(--amber-glow); }
+.sys { padding-left: 1.4rem; color: var(--mist); line-height: 1.55; font-size: 0.98rem; border-left: 1px solid var(--line); }
+.sys strong { color: var(--chalk); font-weight: 600; }
+
+/* ── ARCHITECTURE as elevation strata ─────────────────── */
+.strata { margin-top: 3rem; display: grid; gap: 10px; }
+.stratum {
+  position: relative;
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1.25rem 1.4rem 1.25rem 1.6rem;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 1.2rem;
+  align-items: baseline;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(20, 30, 45, 0.05);
+}
+.stratum::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--amber), transparent);
+  opacity: calc(0.3 + var(--depth) * 0.14);
+}
+.stratumNo {
+  font-family: var(--font-code, "JetBrains Mono", monospace);
+  font-size: 0.8rem;
+  color: var(--amber);
+  letter-spacing: 0.05em;
+}
+.stratumName { font-family: var(--font-headline, "Manrope", sans-serif); font-weight: 700; color: var(--chalk); font-size: 1.05rem; }
+.stratumDesc { color: var(--mist); font-size: 0.95rem; line-height: 1.55; margin-top: 0.3rem; }
+.stratumDesc code {
+  font-family: var(--font-code, "JetBrains Mono", monospace);
+  font-size: 0.85em;
+  color: var(--amber-bright);
+  background: var(--amber-glow);
+  padding: 0.05em 0.4em;
+  border-radius: 5px;
+}
+
+/* ── INSCRIPTION — honest framing as carved law ───────── */
+.inscription {
+  margin-top: 2.5rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(217,138,75,0.04), transparent 60%),
+    var(--bg-raised);
+  padding: clamp(1.8rem, 4vw, 2.8rem);
+}
+.clause { display: grid; grid-template-columns: 24px 1fr; gap: 0.9rem; padding: 0.85rem 0; }
+.clause + .clause { border-top: 1px solid var(--line-soft); }
+.clauseTick { color: var(--amber); font-family: var(--font-code, "JetBrains Mono", monospace); }
+.clauseText { color: var(--mist); line-height: 1.6; }
+.clauseText strong { color: var(--chalk); font-weight: 600; }
+
+/* ── CTA ──────────────────────────────────────────────── */
+.cta { padding: clamp(5rem, 12vw, 9rem) 0; text-align: left; }
+.ctaRow { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2.2rem; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-headline, "Manrope", sans-serif);
+  font-weight: 700;
+  font-size: 0.98rem;
+  padding: 0.95rem 1.5rem;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+.btnPrimary { background: var(--amber); color: var(--on-amber); box-shadow: 0 10px 34px var(--amber-glow); }
+.btnPrimary:hover { background: var(--amber-bright); transform: translateY(-2px); }
+.btnGhost { color: var(--chalk); border: 1px solid var(--line); }
+.btnGhost:hover { border-color: var(--amber); color: var(--amber-bright); transform: translateY(-2px); }
+.btn:active { transform: scale(0.96); }
+.btn:focus-visible,
+.backLink:focus-visible,
+.footnote a:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.footnote {
+  font-family: var(--font-code, "JetBrains Mono", monospace);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  color: var(--mist-dim);
+  margin-top: 3rem;
+  text-transform: uppercase;
+}
+.footnote a { color: var(--amber); text-decoration: none; }
+
+/* ── MOTION ───────────────────────────────────────────── */
+.drawPath {
+  stroke-dasharray: 2600;
+  stroke-dashoffset: 2600;
+  animation: draw 2.6s ease forwards;
+}
+.drawPath:nth-of-type(2) { animation-delay: 0.16s; }
+.drawPath:nth-of-type(3) { animation-delay: 0.32s; }
+.drawPath:nth-of-type(4) { animation-delay: 0.48s; }
+.drawPath:nth-of-type(5) { animation-delay: 0.64s; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+.heroEnter { animation: heroIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes heroIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawPath { animation: none; stroke-dashoffset: 0; }
+  .heroEnter { animation: none; }
+}
+
+/* ── TEXT WRAPPING (INTERFACE_POLISH T1) ──────────────── */
+.lead, .h2 { text-wrap: balance; }
+.body, .failText, .stratumDesc, .clauseText, .sys, .kicker { text-wrap: pretty; }
+
+/* ── RESPONSIVE ───────────────────────────────────────── */
+@media (max-width: 720px) {
+  .failItem { grid-template-columns: 1fr; gap: 0.4rem; }
+  .bridgeRow { grid-template-columns: 1fr; gap: 0.7rem; }
+  .node { display: none; }
+  .sys { border-left: none; padding-left: 0; padding-top: 0.3rem; }
+  .stratum { grid-template-columns: 1fr; gap: 0.4rem; }
+}

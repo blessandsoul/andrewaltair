@@ -32,6 +32,7 @@ import {
   TbCrown,
   TbChartBar,
   TbMessage2,
+  TbStack2,
 } from "react-icons/tb"
 import { useState } from "react"
 import { ThemeToggle } from "./ThemeToggle"
@@ -55,6 +56,7 @@ const exploreItems = [
   { href: "/videos", label: "ვიდეოები", icon: TbVideo, description: "YouTube გაკვეთილები" },
   { href: "/tools", label: "ხელსაწყოები", icon: TbSettings, description: "AI ხელსაწყოების რეიტინგი" },
   { href: "/encyclopedia", label: "ენციკლოპედია", icon: TbBook, description: "AI ცოდნის ბაზა" },
+  { href: "/projects", label: "პროექტები", icon: TbStack2, description: "ღია კოდის პროექტები" },
   { href: "/lessons", label: "გაკვეთილები", icon: TbBulb, description: "მიკრო-გაკვეთილები" },
   { href: "/about", label: "ჩვენს შესახებ", icon: TbUser, description: "Andrew Altair" },
 ]
