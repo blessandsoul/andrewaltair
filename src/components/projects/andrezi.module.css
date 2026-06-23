@@ -1,20 +1,20 @@
-/* Andrezi landing — scoped highland palette + signature contour/strata visuals.
+/* Andrezi landing, scoped highland palette + signature contour/strata visuals.
    Derived from Pshav-Khevsureti stone + shrine-glow: basalt slate + one amber accent.
    No purple/blue gradient. One accent. Tinted shadows. */
 
 .page {
-  /* light highland: pale cool stone, carved slate, burnt amber */
-  --bg: #eceef1;
-  --bg-raised: #f7f8fa;
-  --line: #d6dadf;
-  --line-soft: #e3e6ea;
-  --mist: #515b66;
-  --mist-dim: #8a95a0;
-  --chalk: #1a2029;
-  --amber: #9c5a1f;
-  --amber-bright: #b56c2a;
-  --amber-glow: rgba(156, 90, 31, 0.10);
-  --on-amber: #fbf7f1;
+  /* mapped to the site MD3 tokens, so it flips light/dark with the site */
+  --bg: var(--surface);
+  --bg-raised: var(--surface-container-lowest);
+  --line: var(--outline-variant);
+  --line-soft: var(--border);
+  --mist: var(--on-surface-variant);
+  --mist-dim: var(--outline);
+  --chalk: var(--on-surface);
+  --amber: var(--primary);
+  --amber-bright: var(--primary);
+  --amber-glow: color-mix(in oklab, var(--primary) 14%, transparent);
+  --on-amber: var(--primary-foreground);
 
   background: var(--bg);
   color: var(--mist);
@@ -24,21 +24,6 @@
   -webkit-font-smoothing: antialiased;
 }
 
-:global(.dark) .page {
-  /* dark highland: basalt, carved chalk, shrine-glow amber */
-  --bg: #14171c;
-  --bg-raised: #1b2027;
-  --line: #2b323c;
-  --line-soft: #232932;
-  --mist: #8a94a1;
-  --mist-dim: #626c79;
-  --chalk: #e9eaed;
-  --amber: #d98a4b;
-  --amber-bright: #e6a868;
-  --amber-glow: rgba(217, 138, 75, 0.14);
-  --on-amber: #1a120a;
-}
-
 .shell {
   max-width: 1080px;
   margin: 0 auto;
@@ -46,7 +31,7 @@
 }
 
 .backLink {
-  font-family: var(--font-code, "JetBrains Mono", monospace);
+  font-family: var(--font-code), "Noto Sans Georgian", monospace;
   font-size: 0.74rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -60,9 +45,9 @@
 }
 .backLink:hover { color: var(--amber); }
 
-/* eyebrow — inscribed label */
+/* eyebrow, inscribed label */
 .eyebrow {
-  font-family: var(--font-code, "JetBrains Mono", monospace);
+  font-family: var(--font-code), "Noto Sans Georgian", monospace;
   font-size: 0.72rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -131,10 +116,10 @@
   line-height: 0.92;
   letter-spacing: -0.01em;
   margin: 0;
-  text-shadow: 0 0 60px rgba(217, 138, 75, 0.12);
+  text-shadow: 0 0 60px var(--amber-glow);
 }
 .heroLatin {
-  font-family: var(--font-code, "JetBrains Mono", monospace);
+  font-family: var(--font-code), "Noto Sans Georgian", monospace;
   font-size: 0.85rem;
   letter-spacing: 0.4em;
   text-transform: uppercase;
@@ -155,7 +140,7 @@
   gap: 1.4rem;
   align-items: center;
   margin-top: 2.6rem;
-  font-family: var(--font-code, "JetBrains Mono", monospace);
+  font-family: var(--font-code), "Noto Sans Georgian", monospace;
   font-size: 0.74rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -178,7 +163,7 @@
 .lead .amber { color: var(--amber); }
 .kicker { max-width: 56ch; margin-top: 1.5rem; }
 
-/* ── PROBLEM (four failures) — top-left lead, mono labels ── */
+/* ── PROBLEM (four failures), top-left lead, mono labels ── */
 .fails { margin-top: 3rem; display: grid; gap: 0; border-top: 1px solid var(--line); }
 .failItem {
   display: grid;
@@ -188,7 +173,7 @@
   border-bottom: 1px solid var(--line-soft);
 }
 .failLabel {
-  font-family: var(--font-code, "JetBrains Mono", monospace);
+  font-family: var(--font-code), "Noto Sans Georgian", monospace;
   font-size: 0.82rem;
   letter-spacing: 0.06em;
   color: var(--amber);
@@ -196,7 +181,7 @@
 }
 .failText { color: var(--mist); line-height: 1.6; }
 
-/* ── MYTH BRIDGE — folklore -> system, asymmetric ──────── */
+/* ── MYTH BRIDGE, folklore -> system, asymmetric ──────── */
 .bridge { margin-top: 3rem; display: grid; gap: 0; }
 .bridgeRow {
   display: grid;
@@ -243,7 +228,7 @@
   opacity: calc(0.3 + var(--depth) * 0.14);
 }
 .stratumNo {
-  font-family: var(--font-code, "JetBrains Mono", monospace);
+  font-family: var(--font-code), "Noto Sans Georgian", monospace;
   font-size: 0.8rem;
   color: var(--amber);
   letter-spacing: 0.05em;
@@ -251,7 +236,7 @@
 .stratumName { font-family: var(--font-headline, "Manrope", sans-serif); font-weight: 700; color: var(--chalk); font-size: 1.05rem; }
 .stratumDesc { color: var(--mist); font-size: 0.95rem; line-height: 1.55; margin-top: 0.3rem; }
 .stratumDesc code {
-  font-family: var(--font-code, "JetBrains Mono", monospace);
+  font-family: var(--font-code), "Noto Sans Georgian", monospace;
   font-size: 0.85em;
   color: var(--amber-bright);
   background: var(--amber-glow);
@@ -259,19 +244,19 @@
   border-radius: 5px;
 }
 
-/* ── INSCRIPTION — honest framing as carved law ───────── */
+/* ── INSCRIPTION, honest framing as carved law ───────── */
 .inscription {
   margin-top: 2.5rem;
   border: 1px solid var(--line);
   border-radius: 14px;
   background:
-    linear-gradient(180deg, rgba(217,138,75,0.04), transparent 60%),
+    linear-gradient(180deg, color-mix(in oklab, var(--primary) 5%, transparent), transparent 60%),
     var(--bg-raised);
   padding: clamp(1.8rem, 4vw, 2.8rem);
 }
 .clause { display: grid; grid-template-columns: 24px 1fr; gap: 0.9rem; padding: 0.85rem 0; }
 .clause + .clause { border-top: 1px solid var(--line-soft); }
-.clauseTick { color: var(--amber); font-family: var(--font-code, "JetBrains Mono", monospace); }
+.clauseTick { color: var(--amber); font-family: var(--font-code), "Noto Sans Georgian", monospace; }
 .clauseText { color: var(--mist); line-height: 1.6; }
 .clauseText strong { color: var(--chalk); font-weight: 600; }
 
@@ -304,7 +289,7 @@
 }
 
 .footnote {
-  font-family: var(--font-code, "JetBrains Mono", monospace);
+  font-family: var(--font-code), "Noto Sans Georgian", monospace;
   font-size: 0.74rem;
   letter-spacing: 0.1em;
   color: var(--mist-dim);

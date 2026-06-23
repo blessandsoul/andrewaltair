@@ -1,16 +1,16 @@
-/* /projects index — shares the Andrezi highland palette for a cohesive portfolio surface. */
+/* /projects index, shares the Andrezi highland palette for a cohesive portfolio surface. */
 
 .page {
-  /* light highland: pale cool stone, carved slate, burnt amber */
-  --bg: #eceef1;
-  --bg-raised: #f7f8fa;
-  --line: #d6dadf;
-  --line-soft: #e3e6ea;
-  --mist: #515b66;
-  --mist-dim: #8a95a0;
-  --chalk: #1a2029;
-  --amber: #9c5a1f;
-  --amber-bright: #b56c2a;
+  /* mapped to the site MD3 tokens, so it flips light/dark with the site */
+  --bg: var(--surface);
+  --bg-raised: var(--surface-container-lowest);
+  --line: var(--outline-variant);
+  --line-soft: var(--border);
+  --mist: var(--on-surface-variant);
+  --mist-dim: var(--outline);
+  --chalk: var(--on-surface);
+  --amber: var(--primary);
+  --amber-bright: var(--primary);
 
   background: var(--bg);
   color: var(--mist);
@@ -19,22 +19,10 @@
   -webkit-font-smoothing: antialiased;
 }
 
-:global(.dark) .page {
-  --bg: #14171c;
-  --bg-raised: #1b2027;
-  --line: #2b323c;
-  --line-soft: #232932;
-  --mist: #8a94a1;
-  --mist-dim: #626c79;
-  --chalk: #e9eaed;
-  --amber: #d98a4b;
-  --amber-bright: #e6a868;
-}
-
 .shell { max-width: 1000px; margin: 0 auto; padding: 0 28px; }
 
 .eyebrow {
-  font-family: var(--font-code, "JetBrains Mono", monospace);
+  font-family: var(--font-code), "Noto Sans Georgian", monospace;
   font-size: 0.72rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -77,14 +65,14 @@
   position: absolute;
   left: 0; top: 0; bottom: 0;
   width: 3px;
-  background: linear-gradient(180deg, var(--accent, #d98a4b), transparent 75%);
+  background: linear-gradient(180deg, var(--primary), transparent 75%);
 }
-.card:hover { transform: translateY(-3px); border-color: color-mix(in oklab, var(--accent, #d98a4b) 50%, var(--line)); box-shadow: 0 16px 38px rgba(20, 30, 45, 0.09); }
+.card:hover { transform: translateY(-3px); border-color: color-mix(in oklab, var(--primary) 50%, var(--line)); box-shadow: 0 16px 38px rgba(20, 30, 45, 0.09); }
 .card:active { transform: scale(0.985); }
 .card:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
 
 .cardMeta {
-  font-family: var(--font-code, "JetBrains Mono", monospace);
+  font-family: var(--font-code), "Noto Sans Georgian", monospace;
   font-size: 0.72rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -93,7 +81,7 @@
   align-items: center;
   gap: 0.55rem;
 }
-.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent, #d98a4b); box-shadow: 0 0 10px var(--accent, #d98a4b); }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 10px var(--primary); }
 
 .cardHead { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 0.9rem; }
 .cardTitle {
@@ -115,7 +103,7 @@
 
 .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.3rem; }
 .tag {
-  font-family: var(--font-code, "JetBrains Mono", monospace);
+  font-family: var(--font-code), "Noto Sans Georgian", monospace;
   font-size: 0.7rem;
   letter-spacing: 0.05em;
   color: var(--mist-dim);

@@ -4,9 +4,9 @@ import AndreziLanding from "@/components/projects/AndreziLanding";
 const URL = "https://andrewaltair.ge/projects/andrezi";
 
 export const metadata: Metadata = {
-  title: "Andrezi, the memory that governs | Andrew Altair",
+  title: "Andrezi: მეხსიერება, რომელიც მართავს | Andrew Altair",
   description:
-    "A local-first memory governance layer for Claude Code agents, named after the Georgian highland word for the unwritten remembered law. Open source, MIT, stdlib-only.",
+    "ლოკალური მეხსიერების მართვის სისტემა Claude Code აგენტებისთვის. მას სახელი საქართველოს მთიანეთის იმ დაუწერელი, მეხსიერებაში შენახული სამართლის პატივსაცემად ჰქვია. პროექტი არის ღია კოდით, აქვს MIT ლიცენზია და იყენებს მხოლოდ სტანდარტულ ბიბლიოთეკებს.",
   keywords: [
     "Andrezi",
     "Claude Code",
@@ -18,17 +18,17 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: "/projects/andrezi" },
   openGraph: {
-    title: "Andrezi, the memory that governs",
+    title: "Andrezi: მეხსიერება, რომელიც მართავს",
     description:
-      "A local-first memory governance layer for Claude Code agents. Open source, MIT.",
+      "ლოკალური მეხსიერების მართვის სისტემა Claude Code აგენტებისთვის. ღია კოდი, MIT.",
     url: URL,
     type: "article",
     images: [{ url: `${URL}/opengraph-image`, width: 1200, height: 630, alt: "Andrezi" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Andrezi, the memory that governs",
-    description: "A local-first memory governance layer for Claude Code agents.",
+    title: "Andrezi: მეხსიერება, რომელიც მართავს",
+    description: "ლოკალური მეხსიერების მართვის სისტემა Claude Code აგენტებისთვის.",
     images: [`${URL}/opengraph-image`],
   },
 };

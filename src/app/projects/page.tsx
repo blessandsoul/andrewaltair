@@ -6,13 +6,13 @@ import { getAllProjects } from "@/data/projectsData";
 import styles from "@/components/projects/projectsIndex.module.css";
 
 export const metadata: Metadata = {
-  title: "Projects | Andrew Altair",
+  title: "პროექტები | Andrew Altair",
   description:
-    "Systems and tools built in the open: memory governance for AI agents and more. Each project with its own writeup, each one shipped.",
+    "ღიად შექმნილი სისტემები და ხელსაწყოები: AI აგენტების მეხსიერების მართვა და სხვა. თითოეულ პროექტს საკუთარი აღწერა აქვს და თითოეული მათგანი დანერგილია.",
   alternates: { canonical: "/projects" },
   openGraph: {
-    title: "Projects | Andrew Altair",
-    description: "Systems and tools built in the open.",
+    title: "პროექტები | Andrew Altair",
+    description: "ღიად შექმნილი სისტემები და ხელსაწყოები.",
     type: "website",
     url: "https://andrewaltair.ge/projects",
   },
@@ -25,10 +25,10 @@ export default function ProjectsPage() {
     <div className={styles.page}>
       <header className={styles.hero}>
         <div className={styles.shell}>
-          <span className={styles.eyebrow}>portfolio</span>
-          <h1 className={styles.title}>Things I build, in the open.</h1>
+          <span className={styles.eyebrow}>პორტფოლიო</span>
+          <h1 className={styles.title}>რასაც ვქმნი, ღიად ვქმნი.</h1>
           <p className={styles.sub}>
-            Systems and tools I am proud of. Each one has its own writeup, and each one is shipped, not a slide.
+            სისტემები და ხელსაწყოები, რომლებითაც ვამაყობ. თითოეულს საკუთარი აღწერა აქვს და თითოეული მათგანი რეალურად მუშაობს და არა მხოლოდ სლაიდებზე.
           </p>
         </div>
       </header>
@@ -43,7 +43,7 @@ export default function ProjectsPage() {
               style={{ "--accent": p.accent } as CSSProperties}
             >
               <span className={styles.cardMeta}>
-                <span className={styles.dot} /> {p.status === "live" ? "live" : "in progress"} · {p.year}
+                <span className={styles.dot} /> {p.status === "live" ? "აქტიური" : "პროცესშია"} · {p.year}
               </span>
               <div className={styles.cardHead}>
                 <h2 className={styles.cardTitle}>

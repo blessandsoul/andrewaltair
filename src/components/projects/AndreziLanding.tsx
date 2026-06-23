@@ -4,34 +4,34 @@ import { TbBrandGithub, TbArrowUpRight, TbChevronLeft } from "react-icons/tb";
 import styles from "./andrezi.module.css";
 
 const LAYERS = [
-  { name: "Durable typed memory", desc: "A bounded MEMORY.md index over typed memory files. The remembered rulings the agent lives by." },
-  { name: "Search floor", desc: "Stdlib FTS5, plus an optional local vector layer. Recall what the bounded index cannot hold." },
-  { name: "Run telemetry", desc: "Every tool call logged to SQLite, so you can mine recurring failures instead of only reacting." },
-  { name: "Zero-token recap", desc: "A deterministic git + run-log join writes the last session's recap; the next session re-injects it free." },
-  { name: "Read-gate", desc: "Record which authoritative spec was read this session, so a pre-write check can block generating from a summary." },
-  { name: "Single-spawn dispatch", desc: "Run a whole hook stage in one process and preserve blocking semantics." },
+  { name: "მყარი ტიპიზებული მეხსიერება", desc: "MEMORY.md-ის შეზღუდული ინდექსი ტიპიზებული მეხსიერების ფაილების თავზე. მეხსიერებაში შენახული წესები, რომლებითაც აგენტი ხელმძღვანელობს." },
+  { name: "ძებნის ბაზა", desc: "სტანდარტული ბიბლიოთეკის FTS5, პლუს არასავალდებულო ლოკალური ვექტორული დონე. პოულობს იმას, რასაც შეზღუდული ინდექსი ვერ იტევს." },
+  { name: "მუშაობის ტელემეტრია", desc: "თითოეული ხელსაწყოს გამოძახება იწერება SQLite-ში, რათა მხოლოდ რეაგირება კი არ მოახდინოთ, არამედ გააანალიზოთ განმეორებადი შეცდომები." },
+  { name: "ნულოვანი ტოკენების რეზიუმე", desc: "git-ისა და მუშაობის ჟურნალის დეტერმინირებული გაერთიანება ქმნის ბოლო სესიის რეზიუმეს; შემდეგი სესია მას უფასოდ, ტოკენების გარეშე იყენებს." },
+  { name: "წაკითხვის ფილტრი", desc: "იწერს, თუ რომელი ავტორიტეტული სპეციფიკაცია წაიკითხა აგენტმა ამ სესიაზე, რათა ჩაწერის წინა შემოწმებამ დაბლოკოს კოდის გენერირება უბრალო რეზიუმეზე დაყრდნობით." },
+  { name: "ერთპროცესიანი დისპეტჩერიზაცია", desc: "უშვებს მთელ ეტაპს ერთ პროცესში და ინარჩუნებს ბლოკირების ლოგიკას." },
 ];
 
 const BRIDGE: { word: string; role: string; sys: string; bold?: string[] }[] = [
-  { word: "ანდრეზი", role: "the remembered law", sys: "your durable typed memory, and the rules promoted from it" },
-  { word: "ხევისბერი", role: "the valley elder, keeper and judge", sys: "the hooks and hygiene that dedup, cap, and enforce" },
-  { word: "საუნჯე", role: "the guarded treasury", sys: "the bounded index that cannot bloat" },
-  { word: "ფასკუნჯი", role: "the bird that lifts the hero from the underworld", sys: "search and recall, retrieval from the depths" },
-  { word: "the rite", role: "by which the law may change", sys: "the frozen-snapshot rule: a memory takes effect next session, never mid-conversation", bold: ["frozen-snapshot rule"] },
+  { word: "ანდრეზი", role: "მეხსიერებაში შენახული კანონი", sys: "თქვენი მყარი, ტიპიზებული მეხსიერება და მისგან მიღებული წესები" },
+  { word: "ხევისბერი", role: "ხევისბერი, მცველი და მსაჯული", sys: "ფუნქციები და ჰიგიენა, რომლებიც შლის დუბლიკატებს, აწესებს ლიმიტებს და უზრუნველყოფს შესრულებას" },
+  { word: "საუნჯე", role: "დაცული საცავი", sys: "შეზღუდული ინდექსი, რომელიც ვერ გადაიტვირთება" },
+  { word: "ფასკუნჯი", role: "ფასკუნჯი, რომელსაც გმირი ქვესკნელიდან ამოჰყავს", sys: "ძებნა და ამოღება, ინფორმაციის ამოტანა სიღრმეებიდან" },
+  { word: "რიტუალი", role: "რომლის საშუალებითაც კანონი შეიძლება შეიცვალოს", sys: "გაყინული მომენტის წესი: მეხსიერება ძალაში შედის მომდევნო სესიაზე და არა შუა საუბრისას", bold: ["გაყინული მომენტის წესი"] },
 ];
 
 const FAILS = [
-  { label: "drift", text: "the agent re-derives a rule from a summary every session and slowly diverges from it." },
-  { label: "bloat", text: "the always-loaded memory grows until it crowds out the actual work." },
-  { label: "cold start", text: "every new session re-explains the project from scratch." },
-  { label: "unverified rules", text: "a lesson learned decays into a platitude nobody enforces." },
+  { label: "გადახრა", text: "აგენტი ყოველ სესიაზე რეზიუმედან ხელახლა აყალიბებს წესს და ნელ-ნელა შორდება პირვანდელ აზრს." },
+  { label: "გადატვირთვა", text: "მუდმივად ჩატვირთული მეხსიერება იზრდება იქამდე, სანამ ძირითად სამუშაო სივრცეს არ შეავიწროებს." },
+  { label: "ცივი სტარტი", text: "ყოველი ახალი სესია პროექტის არსის ნულიდან ახსნას მოითხოვს." },
+  { label: "გადაუმოწმებელი წესები", text: "გამოტანილი დასკვნა უბრალო ფრაზად იქცევა, რომლის შესრულებასაც არავინ აკონტროლებს." },
 ];
 
 const CLAUSES: { text: string; bold: string[] }[] = [
-  { text: "On a fresh machine you get an empty, well-engineered substrate. It becomes good the way an andrezi does: by living through real use, by promoting the rulings that keep recurring.", bold: [] },
-  { text: "The engine transfers. The mileage does not. You supply the content and the consistency.", bold: ["engine transfers", "mileage does not"] },
-  { text: "Only the generic core is open. The private memory, the rules and the specs, stay private.", bold: ["generic core is open"] },
-  { text: "If you want a drop-in agent-remembers-everything button, this is not that, and nothing honestly is.", bold: [] },
+  { text: "ახალ კომპიუტერზე თქვენ იღებთ ცარიელ, კარგად აწყობილ საფუძველს. ის კარგი ხდება ისე, როგორც ანდრეზი: რეალურ პრაქტიკაში ცხოვრებით, იმ წესების დამკვიდრებით, რომლებიც მუდმივად მეორდება.", bold: [] },
+  { text: "სისტემა გადადის. გამოცდილება არ გადადის. შინაარსს და თანმიმდევრულობას თქვენ უზრუნველყოფთ.", bold: ["სისტემა გადადის", "გამოცდილება არ გადადის"] },
+  { text: "მხოლოდ ზოგადი ბირთვია ღია. პირადი მეხსიერება, წესები და სპეციფიკაციები დახურული რჩება.", bold: ["ზოგადი ბირთვია ღია"] },
+  { text: "თუ ეძებთ მარტივ ღილაკს, რომლითაც აგენტს ყველაფერი დაამახსოვრდება, ეს პროექტი ამისთვის არ არის და, რეალურად, ასეთი რამ არც არსებობს.", bold: [] },
 ];
 
 // gentle highland elevation contours for the hero backdrop
@@ -63,16 +63,16 @@ export default function AndreziLanding() {
 
         <div className={`${styles.shell} ${styles.heroEnter}`}>
           <Link href="/projects" className={styles.backLink}>
-            <TbChevronLeft size={14} /> projects
+            <TbChevronLeft size={14} /> პროექტები
           </Link>
           <h1 className={styles.heroWord}>ანდრეზი</h1>
           <p className={styles.heroLatin}>a n d r e z i</p>
-          <p className={styles.heroTagline}>the memory that governs</p>
+          <p className={styles.heroTagline}>მეხსიერება, რომელიც მართავს</p>
           <div className={styles.heroMeta}>
             <span><span className={styles.dot} /> Andrew Altair</span>
-            <span>project 01</span>
+            <span>პროექტი 01</span>
             <span>2026</span>
-            <span>MIT, open source</span>
+            <span>MIT, ღია კოდი</span>
           </div>
         </div>
       </header>
@@ -80,12 +80,12 @@ export default function AndreziLanding() {
       {/* THE ANDREZI */}
       <section className={styles.section}>
         <div className={styles.shell}>
-          <span className={styles.eyebrow}>the andrezi</span>
+          <span className={styles.eyebrow}>ანდრეზი</span>
           <p className={styles.lead}>
-            In the high Georgian mountains, the <span className={styles.amber}>andrezi</span> is the unwritten remembered law a community carries and lives by.
+            საქართველოს მთიანეთში <span className={styles.amber}>ანდრეზი</span> არის დაუწერელი, მეხსიერებაში შენახული სამართალი, რომელსაც თემი ატარებს და რომლითაც ცხოვრობს.
           </p>
           <p className={`${styles.body} ${styles.kicker}`}>
-            Nothing is on paper. The law is kept by the people, recited by the valley elder, guarded at the shrine, and it governs how the community acts. A new ruling enters it only through the proper rite, never on a whim in the middle of a quarrel. <strong>Andrezi is that, for a software agent:</strong> a remembered law it carries across sessions, with a keeper that prunes it, a treasury that holds it, and a rite that changes it.
+            ქაღალდზე არაფერია დაწერილი. კანონს ხალხი ინახავს, ხევისბერი წარმოთქვამს, სალოცავი იცავს და ის განსაზღვრავს, თუ როგორ მოქმედებს თემი. ახალი წესი მასში მხოლოდ სათანადო რიტუალით შედის და არა ვინმეს ახირებით, შუა დავის დროს. <strong>Andrezi სწორედ ეს არის პროგრამული აგენტისთვის:</strong> მეხსიერებაში შენახული კანონი, რომელიც მას სესიიდან სესიაში გადააქვს. მას ჰყავს თავისი მცველი, რომელიც ფილტრავს მას, საცავი, რომელიც ინახავს და რიტუალი, რომელიც მას ცვლის.
           </p>
 
           <div className={styles.bridge}>
@@ -106,8 +106,8 @@ export default function AndreziLanding() {
       {/* WHY GOVERNANCE */}
       <section className={styles.section}>
         <div className={styles.shell}>
-          <span className={styles.eyebrow}>why governance, not storage</span>
-          <p className={styles.lead}>Most memory tools optimize storage and retrieval. The failures that actually bite are different.</p>
+          <span className={styles.eyebrow}>რატომ მართვა და არა შენახვა</span>
+          <p className={styles.lead}>მეხსიერების ხელსაწყოების უმეტესობა შენახვასა და ძებნას აუმჯობესებს. თუმცა, რეალური პრობლემები სრულიად სხვა რამეში ვლინდება.</p>
           <div className={styles.fails}>
             {FAILS.map((f) => (
               <div className={styles.failItem} key={f.label}>
@@ -122,8 +122,8 @@ export default function AndreziLanding() {
       {/* SIX LAYERS */}
       <section className={styles.section}>
         <div className={styles.shell}>
-          <span className={styles.eyebrow}>six layers</span>
-          <p className={styles.lead}>A bounded index over an unbounded floor, each layer useful on its own.</p>
+          <span className={styles.eyebrow}>ექვსი დონე</span>
+          <p className={styles.lead}>შეზღუდული ინდექსი უსასრულო ბაზის თავზე, სადაც თითოეული დონე დამოუკიდებლადაც სასარგებლოა.</p>
           <div className={styles.strata}>
             {LAYERS.map((l, i) => (
               <div className={styles.stratum} key={l.name}>
@@ -141,8 +141,8 @@ export default function AndreziLanding() {
       {/* HONEST FRAMING */}
       <section className={styles.section}>
         <div className={styles.shell}>
-          <span className={styles.eyebrow}>what it is, and is not</span>
-          <p className={styles.lead}>A framework you cultivate, not a magic memory you install.</p>
+          <span className={styles.eyebrow}>რა არის ეს და რა არ არის</span>
+          <p className={styles.lead}>ეს არის პლატფორმა, რომელსაც თავად ავითარებთ და არა ჯადოსნური მეხსიერება, რომელსაც უბრალოდ აინსტალირებთ.</p>
           <div className={styles.inscription}>
             {CLAUSES.map((c, i) => (
               <div className={styles.clause} key={i}>
@@ -157,18 +157,18 @@ export default function AndreziLanding() {
       {/* CTA */}
       <section className={styles.cta}>
         <div className={styles.shell}>
-          <span className={styles.eyebrow}>read the code</span>
-          <p className={styles.lead}>Stdlib-only, fail-open, everything local. MIT.</p>
+          <span className={styles.eyebrow}>კოდის ნახვა</span>
+          <p className={styles.lead}>იყენებს მხოლოდ სტანდარტულ ბიბლიოთეკებს, შეცდომისას ინარჩუნებს ხელმისაწვდომობას, ყველაფერი ლოკალურია. MIT.</p>
           <div className={styles.ctaRow}>
             <a className={`${styles.btn} ${styles.btnPrimary}`} href="https://github.com/andrewaltair/andrezi" target="_blank" rel="noopener noreferrer">
-              <TbBrandGithub size={18} /> View on GitHub
+              <TbBrandGithub size={18} /> ნახვა GitHub-ზე
             </a>
             <Link className={`${styles.btn} ${styles.btnGhost}`} href="/projects">
-              more projects <TbArrowUpRight size={16} />
+              სხვა პროექტები <TbArrowUpRight size={16} />
             </Link>
           </div>
           <p className={styles.footnote}>
-            github.com/andrewaltair/andrezi · MIT · built by <a href="/">Andrew Altair</a>
+            github.com/andrewaltair/andrezi · MIT · შექმნილია <a href="/">Andrew Altair</a>-ის მიერ
           </p>
         </div>
       </section>
