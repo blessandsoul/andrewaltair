@@ -33,7 +33,7 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
     const liveUrl = state?.code ? `/api/workshop/rooms/${state.code}/live` : null
     const { data: live } = useRoomPoll<{ messages: ChatMessage[]; question: ChatLiveQuestion | null }>(liveUrl, 1200)
     const [qr, setQr] = useState<{ qrDataUrl: string; joinUrl: string } | null>(null)
-    const { soundOn, audioPrompted, dismissPrompt, enableSound, toggleSound } = useDisplayAudio(state)
+    const { soundOn, audioPrompted, dismissPrompt, enableSound, toggleSound, fanfare, cheer } = useDisplayAudio(state)
     const prevPhaseRef = useRef<string | null>(null)
     const [wheelDismissed, setWheelDismissed] = useState(0) // hide the wheel until the next spin (newer spotlightAt)
     const [panelDismissed, setPanelDismissed] = useState(0) // hide the winners/top-answers panel until the next trigger
@@ -85,14 +85,29 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
             import('canvas-confetti').then((m) => {
                 m.default({ particleCount: 140, spread: 80, origin: { y: 0.6 } })
             })
+            if (soundOn) fanfare()
         }
         prevPhaseRef.current = phase
-    }, [state?.round?.phase, state?.round?.type, state?.settings?.confetti])
+    }, [state?.round?.phase, state?.round?.type, state?.settings?.confetti, soundOn, fanfare])
 
     // Reset the instant "answered" tally when a new round/phase opens (the poll reconciles it).
     useEffect(() => {
         setLiveResponded(0)
     }, [state?.round?.key, state?.round?.phase])
+
+    // A crowd cheer when reactions pour in, throttled so a storm is one swell not a buzz.
+    const cheerAtRef = useRef(0)
+    const cheerNRef = useRef(0)
+    useEffect(() => {
+        if (!soundOn || liveRx.length === 0) return
+        cheerNRef.current += 1
+        const now = Date.now()
+        if (now - cheerAtRef.current > 1500) {
+            cheerAtRef.current = now
+            cheer(Math.min(1, cheerNRef.current / 8))
+            cheerNRef.current = 0
+        }
+    }, [liveRx, soundOn, cheer])
 
     if (error === 403) {
         return (
