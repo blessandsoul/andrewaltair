@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { HelpCircle, Radio, FileText } from 'lucide-react'
 import type { RoomHistory, LeaderboardEntry, ChatMessage } from '@/types/workshop.types'
 import NameAvatar from '@/components/workshop/NameAvatar'
@@ -37,6 +37,7 @@ export function EndStats({
     const board = leaderboard ?? []
     const podium = board.slice(0, 3)
     const rest = board.slice(3)
+    const reduceMotion = useReducedMotion()
 
     useEffect(() => {
         let alive = true
@@ -70,6 +71,27 @@ export function EndStats({
             alive = false
         }
     }, [hostKey])
+
+    // Finale: a confetti crescendo timed to the moment the champion podium lands.
+    useEffect(() => {
+        if (reduceMotion) return
+        let cancelled = false
+        const t = window.setTimeout(() => {
+            import('canvas-confetti')
+                .then((m) => {
+                    if (cancelled) return
+                    m.default({ particleCount: 180, spread: 100, startVelocity: 52, origin: { y: 0.35 } })
+                    window.setTimeout(() => {
+                        if (!cancelled) m.default({ particleCount: 90, spread: 120, origin: { y: 0.4 } })
+                    }, 260)
+                })
+                .catch(() => {})
+        }, 380)
+        return () => {
+            cancelled = true
+            window.clearTimeout(t)
+        }
+    }, [reduceMotion])
 
     const questions = msgs.filter((m) => m.kind === 'question').sort((a, b) => b.votes - a.votes).slice(0, 12)
 
@@ -108,7 +130,7 @@ export function EndStats({
                                 key={e.clientId}
                                 initial={{ opacity: 0, y: 24 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ ...springPop, delay: 0.1 * slot }}
+                                transition={{ ...springPop, delay: slot === 0 ? 0.4 : 0.12 * (slot + 1) }}
                                 className={`flex w-[150px] flex-col items-center gap-2 ${h}`}
                             >
                                 <MedalIcon rank={slot + 1} size={44} />
