@@ -114,6 +114,23 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
         }
     }, [liveRx, soundOn, cheer])
 
+    // Host pressed "celebrate" on the pult: a big confetti burst + fanfare/cheer on the projector.
+    const prevCelebrateRef = useRef(0)
+    useEffect(() => {
+        const at = state?.celebrateAt ?? 0
+        if (at <= prevCelebrateRef.current) return
+        prevCelebrateRef.current = at
+        if (!reduceMotion) {
+            import('canvas-confetti')
+                .then((m) => m.default({ particleCount: 200, spread: 110, startVelocity: 55, origin: { y: 0.5 } }))
+                .catch(() => {})
+        }
+        if (soundOn) {
+            fanfare()
+            cheer(1)
+        }
+    }, [state?.celebrateAt, reduceMotion, soundOn, fanfare, cheer])
+
     if (error === 403) {
         return (
             <main className="flex min-h-dvh items-center justify-center">

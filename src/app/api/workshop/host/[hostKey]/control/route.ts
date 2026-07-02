@@ -32,6 +32,7 @@ const controlSchema = z.object({
         'revokeSpeak',
         'startRecording',
         'stopRecording',
+        'celebrate',
     ]),
     responseId: z.string().max(32).optional(),
     targetClientId: z.string().max(64).optional(),
@@ -108,6 +109,11 @@ export async function PATCH(
             } catch {
                 return apiError(ERROR_CODES.WORKSHOP_UPDATE_FAILED, 'Recording unavailable', 503)
             }
+            return apiSuccess({ done: true })
+        }
+        // host-triggered projector celebration (confetti + cheer on the big screen)
+        if (parsed.data.action === 'celebrate') {
+            WorkshopService.celebrate(room._id)
             return apiSuccess({ done: true })
         }
         const result = await WorkshopService.hostAdvance(

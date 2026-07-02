@@ -83,6 +83,7 @@ type ReactionBuf = { id: number; kind: string; name: string; at: number }
 const reactionsBuffer = new Map<string, ReactionBuf[]>()
 const CAPTION_TTL_MS = 8000
 const captionBuffer = new Map<string, { text: string; at: number }>()
+const celebrateBuffer = new Map<string, number>()
 const REACTION_KIND_SET = new Set<string>(REACTION_KINDS)
 let reactionSeq = 0
 
@@ -1177,6 +1178,23 @@ export class WorkshopService {
         if (arr.length) reactionsBuffer.set(key, arr)
         else reactionsBuffer.delete(key)
         return arr.map((r) => ({ id: r.id, kind: r.kind, name: r.name }))
+    }
+
+    /** Host-triggered projector celebration (in-memory nonce). Projector fires confetti on a new value. */
+    static celebrate(roomId: mongoose.Types.ObjectId): void {
+        celebrateBuffer.set(String(roomId), Date.now())
+    }
+
+    /** The celebration timestamp if fresh (<6s), else null. */
+    static getLiveCelebrate(roomId: mongoose.Types.ObjectId): number | null {
+        const key = String(roomId)
+        const at = celebrateBuffer.get(key)
+        if (!at) return null
+        if (at < Date.now() - 6000) {
+            celebrateBuffer.delete(key)
+            return null
+        }
+        return at
     }
 
     /** Latest live caption (in-memory, no DB) for the subtitle overlay. */

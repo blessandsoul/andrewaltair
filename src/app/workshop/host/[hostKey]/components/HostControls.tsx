@@ -270,6 +270,18 @@ export default function HostControls({
                         />
                     </div>
                 )}
+                {gamified && !inLobby && (
+                    <Button
+                        onClick={() => onAction('celebrate')}
+                        disabled={busy}
+                        variant="ghost"
+                        size="icon-lg"
+                        aria-label="celebrate"
+                        className="h-auto px-3.5 py-3.5 text-lg text-warning hover:bg-warning/10"
+                    >
+                        🎉
+                    </Button>
+                )}
                 {gamified && !inLobby && round && round.type !== 'teach' && (
                     <div className="flex items-center gap-0.5 rounded-xl border border-border px-1 py-1" title={STR.controls.topAnswers}>
                         <Button

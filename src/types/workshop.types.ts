@@ -481,6 +481,7 @@ export interface HostState {
     raisedHands?: RaisedHand[]; // students asking to speak
     speakers?: RaisedHand[]; // students currently granted the mic
     liveCaption?: string | null; // broadcast: latest live subtitle line
+    celebrateAt?: number | null; // host-triggered projector celebration nonce
     recording?: boolean; // broadcast: an Egress recording is currently running
 }
 
