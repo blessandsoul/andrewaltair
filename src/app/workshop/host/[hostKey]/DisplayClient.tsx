@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { Clapperboard, Zap, Mic } from 'lucide-react'
 import { useRoomPoll } from '@/hooks/useRoomPoll'
 import type { HostState, ChatMessage, ChatLiveQuestion, Reaction } from '@/types/workshop.types'
@@ -40,8 +40,10 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
     const [questionDismissed, setQuestionDismissed] = useState(0) // round 28: hide the popped question until the next pick
     // Instant reactions over the data channel: received here, merged with the polled copy
     // (shared id, so each reaction shows once) and handed to the floating overlay.
+    const reduceMotion = useReducedMotion()
     const [liveRx, setLiveRx] = useState<Reaction[]>([])
     const [liveResponded, setLiveResponded] = useState(0)
+    const [flashKey, setFlashKey] = useState(0)
     const onRealtime = useCallback((e: RealtimeEvent) => {
         if (e.t === 'reaction') {
             setLiveRx((prev) => [...prev, { id: e.id, kind: e.kind, name: e.name ?? '' }].slice(-40))
@@ -73,22 +75,25 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
             .catch(() => {})
     }, [hostKey])
 
-    // Confetti on quiz / choice / revote reveal
+    // Reveal beat: a flash + fanfare on every reveal, punchy confetti on the quiz-like ones.
     useEffect(() => {
         const phase = state?.round?.phase ?? null
-        if (
-            phase === 'revealed' &&
-            prevPhaseRef.current !== 'revealed' &&
-            state?.settings?.confetti !== false &&
-            (state?.round?.type === 'quiz' || state?.round?.type === 'choice' || state?.round?.type === 'choice_revote')
-        ) {
-            import('canvas-confetti').then((m) => {
-                m.default({ particleCount: 140, spread: 80, origin: { y: 0.6 } })
-            })
+        const type = state?.round?.type
+        const isReveal = phase === 'revealed' && prevPhaseRef.current !== 'revealed'
+        if (isReveal) {
+            if (!reduceMotion) setFlashKey((k) => k + 1)
             if (soundOn) fanfare()
+            if (
+                state?.settings?.confetti !== false &&
+                (type === 'quiz' || type === 'choice' || type === 'choice_revote')
+            ) {
+                import('canvas-confetti').then((m) => {
+                    m.default({ particleCount: 160, spread: 88, startVelocity: 45, origin: { y: 0.62 } })
+                })
+            }
         }
         prevPhaseRef.current = phase
-    }, [state?.round?.phase, state?.round?.type, state?.settings?.confetti, soundOn, fanfare])
+    }, [state?.round?.phase, state?.round?.type, state?.settings?.confetti, soundOn, fanfare, reduceMotion])
 
     // Reset the instant "answered" tally when a new round/phase opens (the poll reconciles it).
     useEffect(() => {
@@ -263,6 +268,17 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
 
             {/* Gamification overlays — floating reactions + wheel-of-names spin */}
             {state.settings?.gamification && <ReactionsOverlay reactions={mergedRx} />}
+
+            {/* Reveal flash: a quick brand-tinted pulse the instant results drop */}
+            {flashKey > 0 && !reduceMotion && (
+                <motion.div
+                    key={flashKey}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 0.5, 0] }}
+                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                    className="pointer-events-none fixed inset-0 z-45 bg-[image:var(--ws-cta)]"
+                />
+            )}
             <AnimatePresence>
                 {state.settings?.gamification && state.spotlightName && (state.spotlightAt ?? 0) > wheelDismissed && (
                     <WheelOverlay
