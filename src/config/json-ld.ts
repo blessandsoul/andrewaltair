@@ -42,10 +42,18 @@ export const personSchema = {
         'https://andrewaltair.medium.com',
         'https://www.crunchbase.com/person/andrew-altair'
     ],
-    worksFor: {
-        '@type': 'Organization',
-        '@id': 'https://andrewaltair.ge/#organization'
-    }
+    worksFor: [
+        {
+            '@type': 'Organization',
+            '@id': 'https://andrewaltair.ge/#organization'
+        },
+        {
+            // aiNOW sister brand (ainow.ge). Andrew is the founder-bridge; this
+            // edge, plus aiNowOrganizationSchema.founder below, links the two graphs.
+            '@type': 'Organization',
+            '@id': 'https://ainow.ge#organization'
+        }
+    ]
 };
 
 // Organization Schema
@@ -90,6 +98,59 @@ export const organizationSchema = {
         url: 'https://andrewaltair.ge/about',
         contactType: 'customer service',
         availableLanguage: ['ka', 'en']
+    }
+};
+
+// aiNOW Organization Schema (sister brand, ainow.ge).
+// @id is byte-identical to ainow.ge's own site node so Google merges the two
+// domains into one entity graph. The `founder` -> #person edge, together with
+// personSchema.worksFor above, is the reciprocal cross-domain association.
+// disambiguatingDescription is copied verbatim from ainow.ge to fight the
+// namesake dilution (AI Now Institute / ainow.jp).
+export const aiNowOrganizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': 'https://ainow.ge#organization',
+    name: 'aiNOW',
+    legalName: 'შპს ეი აი ნაუ',
+    alternateName: ['AI NOW Georgia', 'ვაიბ სააგენტო', 'Vibe Agency'],
+    url: 'https://ainow.ge',
+    logo: {
+        '@type': 'ImageObject',
+        url: 'https://ainow.ge/logo.png',
+        width: 192,
+        height: 192
+    },
+    disambiguatingDescription:
+        'AI marketing agency in Tbilisi, Georgia (the country), not affiliated with AI Now Institute or ainow.jp',
+    description: 'AI მარკეტინგული სააგენტო თბილისში: ჩატბოტები, კონტენტი, რეკლამა და ავტომატიზაცია ბიზნესისთვის.',
+    foundingDate: '2026-02-05',
+    areaServed: {
+        '@type': 'Country',
+        name: 'Georgia'
+    },
+    knowsAbout: [
+        'AI Marketing',
+        'AI Chatbot Development',
+        'AI Automation',
+        'AI Content Production',
+        'Generative Engine Optimization',
+        'LLM SEO',
+        'Meta Ads',
+        'Web Development'
+    ],
+    sameAs: [
+        'https://www.facebook.com/ainow.ge',
+        'https://www.instagram.com/ainow.ge/',
+        'https://t.me/ainow_ge',
+        'https://www.linkedin.com/company/ainowgeorgia',
+        'https://github.com/ainowgeorgia'
+    ],
+    founder: {
+        '@type': 'Person',
+        '@id': 'https://andrewaltair.ge/#person',
+        name: 'Andrew Altair',
+        url: 'https://andrewaltair.ge/about'
     }
 };
 

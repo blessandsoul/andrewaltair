@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { TbArrowLeft } from "react-icons/tb"
 import BlogPostClient from "./BlogPostClient"
+import { AiNowPromo } from "@/components/ainow/AiNowPromo"
 import { Metadata } from 'next'
 import { notFound, permanentRedirect } from 'next/navigation'
 import { lookupRedirect, legacySlugById } from '@/lib/seo-redirects'
@@ -287,6 +288,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           relatedPosts={relatedPosts}
           initialComments={initialComments}
         />
+        {/* aiNOW sister-brand promo at the end of every article (do-follow) */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+          <AiNowPromo variant="inline" context="blog" />
+        </div>
       </article>
     )
 }

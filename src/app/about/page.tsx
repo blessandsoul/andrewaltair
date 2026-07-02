@@ -7,6 +7,7 @@ import { AboutContactWidget } from "@/components/about/AboutContactWidget"
 import { AboutCertificates } from "@/components/about/AboutCertificates"
 import { AboutOnlineStatus } from "@/components/about/AboutOnlineStatus"
 import { AboutBioDetail } from "@/components/about/AboutBioDetail"
+import { AiNowPromo } from "@/components/ainow/AiNowPromo"
 import { TbCode, TbCpu, TbAnalyze, TbBrain } from "react-icons/tb"
 import { Card, CardContent } from "@/components/ui/card"
 import { brand } from "@/lib/brand"
@@ -134,6 +135,13 @@ export default function AboutPage() {
 
       {/* 5. Action Pathways */}
       <AboutStartPath />
+
+      {/* aiNOW: the company Andrew founded (entity signal + do-follow link) */}
+      <section className="py-16 border-b border-white/5">
+        <div className="container mx-auto px-6 lg:px-12 max-w-360">
+          <AiNowPromo variant="card" context="about" />
+        </div>
+      </section>
 
       {/* 6. Contact (Footer Anchor) */}
       <div id="contact">

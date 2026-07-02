@@ -39,6 +39,17 @@ export function Footer() {
             © {currentYear} Andrew Altair
           </p>
 
+          {/* Sister brand: aiNOW. Same-tab, do-follow on purpose (no rel=nofollow,
+              no target=_blank) so this sitewide keyword link passes entity signal
+              and referral to ainow.ge. */}
+          <a
+            href={brand.sisterBrand.url}
+            title={brand.sisterBrand.tagline}
+            className="text-xs font-medium text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            {brand.sisterBrand.anchor}
+          </a>
+
           {/* Social + Counters */}
           <div className="flex items-center gap-1">
             {socialLinks.map(({ href, icon: Icon, label }) => (

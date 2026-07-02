@@ -9,7 +9,8 @@ import { ConfirmDialogProvider } from "@/components/ui/confirm-dialog";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import { Agentation } from "agentation";
 import { siteMetadata, siteViewport } from "@/config/metadata";
-import { personSchema, organizationSchema, websiteSchema, faqPageSchema } from "@/config/json-ld";
+import { personSchema, organizationSchema, aiNowOrganizationSchema, websiteSchema, faqPageSchema } from "@/config/json-ld";
+import { safeJsonLd } from "@/lib/json-ld";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -78,6 +79,9 @@ export default function RootLayout({
         />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
+        {/* aiNOW sister-brand entity: merges by @id with ainow.ge#organization
+            and carries founder -> #person, associating the two domains for SEO */}
+        <script type="application/ld+json" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: safeJsonLd(aiNowOrganizationSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema) }} />
         {/* /feed.xml emits RSS 2.0 — advertising it as application/atom+xml was a

@@ -115,6 +115,15 @@ export const brand = {
     github: "https://github.com/andrewaltair",
   },
 
+  // Sister brand: aiNOW (B2B AI agency, ainow.ge). Andrew is the founder-bridge.
+  // Rendered as a sitewide do-follow footer link for cross-domain entity association.
+  sisterBrand: {
+    label: "aiNOW",
+    anchor: "aiNOW · AI სააგენტო",
+    url: "https://ainow.ge",
+    tagline: "AI რომელიც მუშაობს",
+  },
+
   // Categories for blog posts - articles is parent, others are subcategories
   categories: [
     {

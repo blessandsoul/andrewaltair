@@ -17,7 +17,7 @@ export const AI_TOOLS_DATA: AIToolsData = {
                     id: "ai-tools-2025",
                     title: "AI ინსტრუმენტები 2025",
                     isFree: true,
-                    content: `# AI ინსტრუმენტები 2025\n\n100+ ინსტრუმენტების კატალოგი.\n\n## 🎨 გამოსახულება\n- **Midjourney** - საუკეთესო ხარისხი\n- **DALL-E 3** - ChatGPT integration\n- **Flux** - Open source\n- **Ideogram** - ტექსტი გამოსახულებაში\n\n## 🎬 ვიდეო\n- **Runway** - Professional\n- **Pika** - Quick clips\n- **Kling** - Long videos\n- **Sora** - OpenAI (soon)\n\n## 🎵 აუდიო\n- **ElevenLabs** - Voice cloning\n- **Suno** - Music generation\n- **Murf** - Voiceovers\n\n**სრული რეიტინგი - პრემიუმ!**`
+                    content: `# AI ინსტრუმენტები 2025\n\n100+ ინსტრუმენტების კატალოგი.\n\n## 🎨 გამოსახულება\n- **Midjourney** - საუკეთესო ხარისხი\n- **DALL-E 3** - ChatGPT integration\n- **Flux** - Open source\n- **Ideogram** - ტექსტი გამოსახულებაში\n\n## 🎬 ვიდეო\n- **Runway** - Professional\n- **Pika** - Quick clips\n- **Kling** - Long videos\n- **Sora** - OpenAI (soon)\n\n## 🎵 აუდიო\n- **ElevenLabs** - Voice cloning\n- **Suno** - Music generation\n- **Murf** - Voiceovers\n\nამ ინსტრუმენტების ბიზნესისთვის გამოსაყენებლად კონტენტს ქმნის [AI კონტენტ სტუდია aiNOW](https://ainow.ge/services/content-studio).\n\n**სრული რეიტინგი - პრემიუმ!**`
                 }
             ]
         },

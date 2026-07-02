@@ -17,7 +17,7 @@ export const AI_AUTOMATION_DATA: AIAutomationData = {
                     id: "automation-intro",
                     title: "AI ავტომატიზაციის შესავალი",
                     isFree: true,
-                    content: `# AI ავტომატიზაცია\n\nბიზნეს პროცესების ავტომატიზაცია AI-ით.\n\n## 📊 ROI\n- **$2,000-10,000/თვე** დაზოგვა\n- **80%** დროის ეკონომია\n\n## 🔧 ინსტრუმენტები\n1. **Zapier** - No-code automation\n2. **Make.com** - Advanced workflows\n3. **n8n** - Self-hosted\n4. **ChatGPT API** - AI integration\n\n## 💡 მაგალითები\n- Email ავტომატიზაცია\n- CRM sync\n- Report generation\n- Customer support\n\n**დეტალური გაიდი - პრემიუმ!**`
+                    content: `# AI ავტომატიზაცია\n\nბიზნეს პროცესების ავტომატიზაცია AI-ით.\n\nროდესაც მზად ხართ ეს პრაქტიკაში დანერგოთ, ქართულ ბიზნესებს ავტომატიზაციაში ეხმარება [AI ავტომატიზაციის სააგენტო aiNOW](https://ainow.ge/services/automation).\n\n## 📊 ROI\n- **$2,000-10,000/თვე** დაზოგვა\n- **80%** დროის ეკონომია\n\n## 🔧 ინსტრუმენტები\n1. **Zapier** - No-code automation\n2. **Make.com** - Advanced workflows\n3. **n8n** - Self-hosted\n4. **ChatGPT API** - AI integration\n\n## 💡 მაგალითები\n- Email ავტომატიზაცია\n- CRM sync\n- Report generation\n- Customer support\n\n**დეტალური გაიდი - პრემიუმ!**`
                 },
                 {
                     id: "zapier-ai",

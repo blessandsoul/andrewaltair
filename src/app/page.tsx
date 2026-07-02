@@ -18,6 +18,7 @@ import { ArticlesSection } from "@/components/home/ArticlesSection"
 import { BotsSection } from "@/components/home/BotsSection"
 import { InsightsSection } from "@/components/home/InsightsSection"
 import { ServicesSection } from "@/components/home/ServicesSection"
+import { AiNowPromo } from "@/components/ainow/AiNowPromo"
 import { VideosSection } from "@/components/home/VideosSection"
 import { ForumTeaser } from "@/components/home/ForumTeaser"
 import { SocialProof } from "@/components/home/SocialProof"
@@ -271,6 +272,8 @@ export default async function Home() {
         <div className="px-4 sm:px-6 lg:px-8 space-y-16">
           {/* 2. The product — consulting + courses, second screen */}
           <ServicesSection />
+          {/* aiNOW sister brand, adjacent to Andrew's own services */}
+          <AiNowPromo variant="banner" context="home" />
         </div>
 
         {/* 3. What's hot now: featured carousel (8/12) + quick access (4/12) */}
