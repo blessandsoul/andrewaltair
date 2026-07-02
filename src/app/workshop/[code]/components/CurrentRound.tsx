@@ -12,6 +12,7 @@ import { BadgeIcon } from '@/components/workshop/badgeIcons'
 import { PHASE_THEME } from '@/components/workshop/phaseTheme'
 import { popIn, springPop } from '@/components/workshop/motion'
 import { ReactionBar } from './ReactionBar'
+import { useRealtimePublish } from '@/app/workshop/_realtime/RealtimeProvider'
 import { PredictionInput } from './inputs/PredictionInput'
 import TextRoundInput from './inputs/TextRoundInput'
 import ChoiceRoundInput from './inputs/ChoiceRoundInput'
@@ -63,6 +64,7 @@ export default function CurrentRound({
     const [submitError, setSubmitError] = useState<string | null>(null)
     // optimistic: show SubmittedState the instant POST succeeds, before the next poll confirms
     const [justSubmitted, setJustSubmitted] = useState<string | null>(null)
+    const publish = useRealtimePublish()
 
     // new round/phase → clear optimistic + editing state, haptic «new round» tap
     useEffect(() => {
@@ -92,6 +94,7 @@ export default function CurrentRound({
                 setEditing(false)
                 setJustSubmitted(`${round.key}:${round.phase}`)
                 if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(15)
+                publish({ t: 'answered' })
                 return true
             }
             if (res.status === 409) setSubmitError(STR.round.errClosed)

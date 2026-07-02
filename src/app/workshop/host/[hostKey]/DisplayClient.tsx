@@ -41,9 +41,13 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
     // Instant reactions over the data channel: received here, merged with the polled copy
     // (shared id, so each reaction shows once) and handed to the floating overlay.
     const [liveRx, setLiveRx] = useState<Reaction[]>([])
-    const onRx = useCallback((e: RealtimeEvent) => {
-        if (e.t !== 'reaction') return
-        setLiveRx((prev) => [...prev, { id: e.id, kind: e.kind, name: e.name ?? '' }].slice(-40))
+    const [liveResponded, setLiveResponded] = useState(0)
+    const onRealtime = useCallback((e: RealtimeEvent) => {
+        if (e.t === 'reaction') {
+            setLiveRx((prev) => [...prev, { id: e.id, kind: e.kind, name: e.name ?? '' }].slice(-40))
+        } else if (e.t === 'answered') {
+            setLiveResponded((n) => n + 1)
+        }
     }, [])
     const mergedRx = useMemo(() => {
         const seen = new Set<number>()
@@ -85,6 +89,11 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
         prevPhaseRef.current = phase
     }, [state?.round?.phase, state?.round?.type, state?.settings?.confetti])
 
+    // Reset the instant "answered" tally when a new round/phase opens (the poll reconciles it).
+    useEffect(() => {
+        setLiveResponded(0)
+    }, [state?.round?.key, state?.round?.phase])
+
     if (error === 403) {
         return (
             <main className="flex min-h-dvh items-center justify-center">
@@ -116,9 +125,11 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
     const showHero = !!(((state.selectedPhoto && state.round?.showsHeroPhoto) || roundHeroSrc) && !inLobby && state.status !== 'ended')
     const heroSrc = roundHeroSrc ?? state.selectedPhoto?.src
     const heroLabel = roundHeroSrc ? '' : state.selectedPhoto ? state.selectedPhoto.label.replace(/^[A-Z0-9]\s*·\s*/, '').trim() : ''
+    // The instant channel jumps this ahead of the ~2s poll; max() reconciles, cap at the room size.
+    const respondedShown = Math.min(state.participantCount, Math.max(liveResponded, state.responsesCount))
 
     return (
-        <RealtimeProvider code={state.code} identity="projector" onEvent={onRx}>
+        <RealtimeProvider code={state.code} identity="projector" onEvent={onRealtime}>
         <main className="relative flex h-dvh flex-col overflow-hidden">
             {connectionLost && <ReconnectBanner />}
 
@@ -128,7 +139,7 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                     <motion.div
                         className="h-full bg-[image:var(--ws-cta)]"
                         animate={{
-                            width: `${state.participantCount > 0 ? Math.min(100, Math.round((state.responsesCount / state.participantCount) * 100)) : 0}%`,
+                            width: `${state.participantCount > 0 ? Math.min(100, Math.round((respondedShown / state.participantCount) * 100)) : 0}%`,
                         }}
                         transition={{ type: 'spring', stiffness: 90, damping: 22 }}
                     />
