@@ -9,6 +9,7 @@ import { PostService } from "@/services/post.service"
 import { getInitialComments, commentJsonLd } from "@/lib/server-comments"
 import { stripBrand } from "@/lib/seo-title"
 import ViewBeacon from "@/components/analytics/ViewBeacon"
+import { safeJsonLd } from "@/lib/json-ld"
 
 // ISR: render on demand, serve cached for 5 min. No generateStaticParams on
 // purpose — pre-rendering ~200 posts at build OOMs the 1-CPU box. View counting
@@ -265,16 +266,16 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         {/* Inject Schema */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(newsArticleLd) }}
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(newsArticleLd) }}
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbLd) }}
         />
         {faqLd && (
           <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+            dangerouslySetInnerHTML={{ __html: safeJsonLd(faqLd) }}
           />
         )}
 
