@@ -3,6 +3,7 @@ import dbConnect from '@/lib/db';
 import Redirect from '@/models/Redirect';
 import { apiSuccess, apiError } from '@/lib/api-response';
 import { ERROR_CODES } from '@/lib/error-codes';
+import { verifyAdmin } from '@/lib/admin-auth';
 
 // GET - List all redirects
 export async function GET() {
@@ -28,6 +29,9 @@ export async function GET() {
 
 // POST - Create new redirect
 export async function POST(request: Request) {
+    if (!verifyAdmin(request)) {
+        return apiError(ERROR_CODES.ADMIN_UNAUTHORIZED, 'Admin access required', 401);
+    }
     try {
         await dbConnect();
 

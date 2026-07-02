@@ -50,19 +50,21 @@ function AnswerBody({ text }: { text: string }) {
 
 function AnswerCard({
     item,
+    index,
     onPin,
     readonly,
 }: {
     item: TextResultItem
+    index: number
     onPin: (action: string, responseId?: string) => void
     readonly: boolean
 }) {
     const accent = nameAccent(item.name)
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={springPop}
+            initial={{ opacity: 0, scale: 0.9, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ ...springPop, delay: Math.min(index * 0.04, 0.6) }}
             className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card py-1.5 pl-2.5 pr-2 shadow-sm"
         >
             {/* accent stripe in the participant's color */}
@@ -152,8 +154,8 @@ export default function TextWall({ items, onPin, readonly = false }: TextWallPro
                             gridAutoRows: `${cardH}px`,
                         }}
                     >
-                        {shown.map((item) => (
-                            <AnswerCard key={item.id} item={item} onPin={onPin} readonly={readonly} />
+                        {shown.map((item, i) => (
+                            <AnswerCard key={item.id} index={i} item={item} onPin={onPin} readonly={readonly} />
                         ))}
                     </motion.div>
                 </AnimatePresence>

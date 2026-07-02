@@ -56,7 +56,7 @@ export function LobbyView({ qr, code, roster }: LobbyViewProps) {
                                 initial="initial"
                                 animate="animate"
                                 transition={springPop}
-                                className="inline-flex items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-1.5 pr-4 text-sm font-medium shadow-sm"
+                                className={`inline-flex items-center gap-2 rounded-full border bg-card py-1.5 pl-1.5 pr-4 text-sm font-medium shadow-sm ${i === roster.length - 1 ? 'border-primary/50 ring-2 ring-primary/25' : 'border-border'}`}
                             >
                                 <NameAvatar name={name} size={24} />
                                 {name}

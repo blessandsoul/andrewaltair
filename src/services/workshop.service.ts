@@ -1158,12 +1158,12 @@ export class WorkshopService {
 
     /** Ephemeral reaction — appended to the in-memory buffer (no DB). Each gets a unique id
      *  (so same-millisecond bursts never collide) + the sender's name for the projector label. */
-    static pushReaction(roomId: mongoose.Types.ObjectId, kind: string, name: string): void {
+    static pushReaction(roomId: mongoose.Types.ObjectId, kind: string, name: string, id?: number): void {
         if (!REACTION_KIND_SET.has(kind)) return
         const key = String(roomId)
         const now = Date.now()
         const arr = (reactionsBuffer.get(key) ?? []).filter((x) => x.at > now - REACTION_TTL_MS)
-        arr.push({ id: ++reactionSeq, kind, name: name.slice(0, 24), at: now })
+        arr.push({ id: id ?? ++reactionSeq, kind, name: name.slice(0, 24), at: now })
         if (arr.length > 60) arr.splice(0, arr.length - 60)
         reactionsBuffer.set(key, arr)
     }

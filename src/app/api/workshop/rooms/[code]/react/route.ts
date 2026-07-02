@@ -12,6 +12,9 @@ const reactSchema = z.object({
     clientId: z.string().min(8).max(64),
     kind: z.string().min(1).max(12),
     name: z.string().max(40).optional(),
+    // Optional client-generated id so the instant data-channel copy and this HTTP copy
+    // share an id and the projector shows each reaction once (audit V014: not authoritative).
+    id: z.number().int().optional(),
 })
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ code: string }> }) {
@@ -25,7 +28,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         const parsed = reactSchema.safeParse(body)
         if (!parsed.success) return apiError(ERROR_CODES.VALIDATION_FAILED, 'Invalid reaction', 400)
         const anon = room.settings?.anonymousNames ?? false
-        WorkshopService.pushReaction(room._id, parsed.data.kind, anon ? '' : (parsed.data.name ?? ''))
+        WorkshopService.pushReaction(room._id, parsed.data.kind, anon ? '' : (parsed.data.name ?? ''), parsed.data.id)
         return apiSuccess({ ok: true })
     } catch {
         return apiError(ERROR_CODES.WORKSHOP_SUBMIT_FAILED, 'Failed to react', 500)

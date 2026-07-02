@@ -63,6 +63,37 @@ export function useDisplayAudio(state: HostState | null) {
         osc.stop(ctx.currentTime + 0.13)
     }
 
+    // A short rising fanfare for the reveal payoff (reuses the blip synth, no assets).
+    const fanfare = () => {
+        const notes: Array<[number, number]> = [[523, 659], [659, 784], [784, 1047]]
+        notes.forEach(([a, b], i) => window.setTimeout(() => blip(a, b, 0.12), i * 110))
+    }
+
+    // A crowd cheer swell: filtered white noise, brightness + length scaled by intensity 0..1.
+    const cheer = (intensity: number) => {
+        const ctx = audioRef.current
+        if (!ctx || ctx.state !== 'running') return
+        const amt = Math.min(1, Math.max(0, intensity))
+        const dur = 0.5 + amt * 0.8
+        const buffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * dur), ctx.sampleRate)
+        const data = buffer.getChannelData(0)
+        for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.5
+        const src = ctx.createBufferSource()
+        src.buffer = buffer
+        const bp = ctx.createBiquadFilter()
+        bp.type = 'bandpass'
+        bp.frequency.value = 900 + amt * 1400
+        bp.Q.value = 0.7
+        const gain = ctx.createGain()
+        const peak = 0.05 + amt * 0.1
+        gain.gain.setValueAtTime(0.001, ctx.currentTime)
+        gain.gain.exponentialRampToValueAtTime(peak, ctx.currentTime + 0.15)
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur)
+        src.connect(bp).connect(gain).connect(ctx.destination)
+        src.start()
+        src.stop(ctx.currentTime + dur)
+    }
+
     // The browser requires a user gesture to unlock audio — this is that gesture.
     const enableSound = async () => {
         if (!audioRef.current) audioRef.current = new AudioContext()
@@ -120,5 +151,5 @@ export function useDisplayAudio(state: HostState | null) {
         prevParticipantsRef.current = count
     }, [state?.participantCount, state?.status, soundOn])
 
-    return { soundOn, audioPrompted, dismissPrompt: () => setAudioPrompted(true), enableSound, toggleSound }
+    return { soundOn, audioPrompted, dismissPrompt: () => setAudioPrompted(true), enableSound, toggleSound, fanfare, cheer }
 }

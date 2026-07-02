@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { apiSuccess, apiError } from '@/lib/api-response';
 import { ERROR_CODES } from '@/lib/error-codes';
 import { MediaService } from '@/services/media.service';
+import { verifyAdmin } from '@/lib/admin-auth';
 
 // GET - List all media
 export async function GET(request: Request) {
@@ -24,6 +25,9 @@ export async function GET(request: Request) {
 
 // POST - Create new media
 export async function POST(request: Request) {
+    if (!verifyAdmin(request)) {
+        return apiError(ERROR_CODES.ADMIN_UNAUTHORIZED, 'Admin access required', 401);
+    }
     try {
         const data = await request.json();
         const media = await MediaService.createMedia(data);

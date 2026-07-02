@@ -11,6 +11,7 @@ import { parseInsightBody } from '@/lib/insight-content';
 import { getInitialComments, commentJsonLd } from '@/lib/server-comments';
 import { stripBrand } from '@/lib/seo-title';
 import ViewBeacon from '@/components/analytics/ViewBeacon';
+import { safeJsonLd } from '@/lib/json-ld';
 
 function safeEncodeURIComponent(str: string): string {
     try {
@@ -186,11 +187,11 @@ export default async function EnInsightPage({ params }: { params: Promise<{ slug
             <article>
                 <script
                     type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                    dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
                 />
                 <script
                     type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+                    dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbLd) }}
                 />
 
                 <ViewBeacon type="insight" id={insight._id || insight.id} />

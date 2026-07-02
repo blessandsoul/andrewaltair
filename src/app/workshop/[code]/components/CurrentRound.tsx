@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { PenLine, MessagesSquare, RotateCcw, Monitor, Hourglass, Check, Pencil, Flame, Target } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { RoundPhase, StudentRound, StudentState, RoundResults, MyGame } from '@/types/workshop.types'
@@ -12,6 +12,7 @@ import { BadgeIcon } from '@/components/workshop/badgeIcons'
 import { PHASE_THEME } from '@/components/workshop/phaseTheme'
 import { popIn, springPop } from '@/components/workshop/motion'
 import { ReactionBar } from './ReactionBar'
+import { useRealtimePublish } from '@/app/workshop/_realtime/RealtimeProvider'
 import { PredictionInput } from './inputs/PredictionInput'
 import TextRoundInput from './inputs/TextRoundInput'
 import ChoiceRoundInput from './inputs/ChoiceRoundInput'
@@ -63,6 +64,27 @@ export default function CurrentRound({
     const [submitError, setSubmitError] = useState<string | null>(null)
     // optimistic: show SubmittedState the instant POST succeeds, before the next poll confirms
     const [justSubmitted, setJustSubmitted] = useState<string | null>(null)
+    const publish = useRealtimePublish()
+    const reduceMotion = useReducedMotion()
+    const [combo, setCombo] = useState(0)
+    const prevStreakRef = useRef(0)
+
+    // Streak combo celebration: when the answer streak ticks up (>=2), flash it big.
+    useEffect(() => {
+        const s = me?.streak ?? 0
+        const prev = prevStreakRef.current
+        prevStreakRef.current = s
+        if (s >= 2 && s > prev) {
+            setCombo(s)
+            if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([20, 40, 60])
+            if (!reduceMotion) {
+                import('canvas-confetti')
+                    .then((m) => m.default({ particleCount: 60, spread: 70, origin: { y: 0.7 } }))
+                    .catch(() => {})
+            }
+            window.setTimeout(() => setCombo(0), 2200)
+        }
+    }, [me?.streak, reduceMotion])
 
     // new round/phase → clear optimistic + editing state, haptic «new round» tap
     useEffect(() => {
@@ -92,6 +114,7 @@ export default function CurrentRound({
                 setEditing(false)
                 setJustSubmitted(`${round.key}:${round.phase}`)
                 if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(15)
+                publish({ t: 'answered' })
                 return true
             }
             if (res.status === 409) setSubmitError(STR.round.errClosed)
@@ -282,6 +305,21 @@ export default function CurrentRound({
 
     return (
         <div>
+            <AnimatePresence>
+                {combo > 0 && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.5, y: 24 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        transition={springPop}
+                        className="pointer-events-none fixed inset-x-0 top-24 z-50 flex justify-center"
+                    >
+                        <span className="inline-flex items-center gap-2 rounded-full bg-[image:var(--ws-cta)] px-5 py-2 text-2xl font-extrabold text-primary-foreground shadow-xl">
+                            <Flame size={26} /> ×{combo}
+                        </span>
+                    </motion.div>
+                )}
+            </AnimatePresence>
             {header}
             <AnimatePresence mode="wait">
                 <motion.div

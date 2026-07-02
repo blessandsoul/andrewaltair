@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
         // Check for admin auth (simple secret check)
         const { searchParams } = new URL(request.url);
         const secret = searchParams.get('secret');
-        if (secret !== process.env.CRON_SECRET && secret !== 'migrate-now') {
+        if (!process.env.CRON_SECRET || secret !== process.env.CRON_SECRET) {
             return apiError(ERROR_CODES.AUTH_REQUIRED, 'Unauthorized', 401);
         }
 

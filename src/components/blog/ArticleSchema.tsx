@@ -1,5 +1,7 @@
 'use client'
 
+import { safeJsonLd } from '@/lib/json-ld'
+
 interface ArticleSchemaProps {
     title: string
     description: string
@@ -73,7 +75,7 @@ export default function ArticleSchema({
     return (
         <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema, null, 2) }}
+            dangerouslySetInnerHTML={{ __html: safeJsonLd(schema) }}
         />
     )
 }
@@ -94,7 +96,7 @@ export function BreadcrumbSchema({ items }: { items: { name: string; url: string
     return (
         <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema, null, 2) }}
+            dangerouslySetInnerHTML={{ __html: safeJsonLd(schema) }}
         />
     )
 }
@@ -119,7 +121,7 @@ export function WebsiteSchema() {
     return (
         <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema, null, 2) }}
+            dangerouslySetInnerHTML={{ __html: safeJsonLd(schema) }}
         />
     )
 }
@@ -144,7 +146,7 @@ export function FAQSchema({ items }: { items: { question: string; answer: string
     return (
         <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema, null, 2) }}
+            dangerouslySetInnerHTML={{ __html: safeJsonLd(schema) }}
         />
     )
 }

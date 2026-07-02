@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { Clapperboard, Zap, Mic } from 'lucide-react'
 import { useRoomPoll } from '@/hooks/useRoomPoll'
-import type { HostState, ChatMessage, ChatLiveQuestion } from '@/types/workshop.types'
+import type { HostState, ChatMessage, ChatLiveQuestion, Reaction } from '@/types/workshop.types'
 import { ReconnectBanner } from '@/components/workshop/ReconnectBanner'
 import ResultsBoard from './components/ResultsBoard'
 import TeachSlide from './components/TeachSlide'
@@ -18,6 +18,7 @@ import { Leaderboard } from './Leaderboard'
 import { ChatWall, ChatQuestionMoment } from './ChatWall'
 import { useDisplayAudio } from './useDisplayAudio'
 import { STR } from '@/data/workshop-strings'
+import { RealtimeProvider, type RealtimeEvent } from '@/app/workshop/_realtime/RealtimeProvider'
 
 // Host video PiP, loaded only when broadcasting (keeps LiveKit out of the projector base bundle).
 const WatchTile = dynamic(() => import('@/app/workshop/_video/WatchTile'), { ssr: false })
@@ -32,11 +33,35 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
     const liveUrl = state?.code ? `/api/workshop/rooms/${state.code}/live` : null
     const { data: live } = useRoomPoll<{ messages: ChatMessage[]; question: ChatLiveQuestion | null }>(liveUrl, 1200)
     const [qr, setQr] = useState<{ qrDataUrl: string; joinUrl: string } | null>(null)
-    const { soundOn, audioPrompted, dismissPrompt, enableSound, toggleSound } = useDisplayAudio(state)
+    const { soundOn, audioPrompted, dismissPrompt, enableSound, toggleSound, fanfare, cheer } = useDisplayAudio(state)
     const prevPhaseRef = useRef<string | null>(null)
     const [wheelDismissed, setWheelDismissed] = useState(0) // hide the wheel until the next spin (newer spotlightAt)
     const [panelDismissed, setPanelDismissed] = useState(0) // hide the winners/top-answers panel until the next trigger
     const [questionDismissed, setQuestionDismissed] = useState(0) // round 28: hide the popped question until the next pick
+    // Instant reactions over the data channel: received here, merged with the polled copy
+    // (shared id, so each reaction shows once) and handed to the floating overlay.
+    const reduceMotion = useReducedMotion()
+    const [liveRx, setLiveRx] = useState<Reaction[]>([])
+    const [liveResponded, setLiveResponded] = useState(0)
+    const [flashKey, setFlashKey] = useState(0)
+    const onRealtime = useCallback((e: RealtimeEvent) => {
+        if (e.t === 'reaction') {
+            setLiveRx((prev) => [...prev, { id: e.id, kind: e.kind, name: e.name ?? '' }].slice(-40))
+        } else if (e.t === 'answered') {
+            setLiveResponded((n) => n + 1)
+        }
+    }, [])
+    const mergedRx = useMemo(() => {
+        const seen = new Set<number>()
+        const out: Reaction[] = []
+        for (const r of [...(state?.reactions ?? []), ...liveRx]) {
+            if (!seen.has(r.id)) {
+                seen.add(r.id)
+                out.push(r)
+            }
+        }
+        return out
+    }, [state?.reactions, liveRx])
 
     // QR fetched once on mount
     useEffect(() => {
@@ -50,21 +75,44 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
             .catch(() => {})
     }, [hostKey])
 
-    // Confetti on quiz / choice / revote reveal
+    // Reveal beat: a flash + fanfare on every reveal, punchy confetti on the quiz-like ones.
     useEffect(() => {
         const phase = state?.round?.phase ?? null
-        if (
-            phase === 'revealed' &&
-            prevPhaseRef.current !== 'revealed' &&
-            state?.settings?.confetti !== false &&
-            (state?.round?.type === 'quiz' || state?.round?.type === 'choice' || state?.round?.type === 'choice_revote')
-        ) {
-            import('canvas-confetti').then((m) => {
-                m.default({ particleCount: 140, spread: 80, origin: { y: 0.6 } })
-            })
+        const type = state?.round?.type
+        const isReveal = phase === 'revealed' && prevPhaseRef.current !== 'revealed'
+        if (isReveal) {
+            if (!reduceMotion) setFlashKey((k) => k + 1)
+            if (soundOn) fanfare()
+            if (
+                state?.settings?.confetti !== false &&
+                (type === 'quiz' || type === 'choice' || type === 'choice_revote')
+            ) {
+                import('canvas-confetti').then((m) => {
+                    m.default({ particleCount: 160, spread: 88, startVelocity: 45, origin: { y: 0.62 } })
+                })
+            }
         }
         prevPhaseRef.current = phase
-    }, [state?.round?.phase, state?.round?.type, state?.settings?.confetti])
+    }, [state?.round?.phase, state?.round?.type, state?.settings?.confetti, soundOn, fanfare, reduceMotion])
+
+    // Reset the instant "answered" tally when a new round/phase opens (the poll reconciles it).
+    useEffect(() => {
+        setLiveResponded(0)
+    }, [state?.round?.key, state?.round?.phase])
+
+    // A crowd cheer when reactions pour in, throttled so a storm is one swell not a buzz.
+    const cheerAtRef = useRef(0)
+    const cheerNRef = useRef(0)
+    useEffect(() => {
+        if (!soundOn || liveRx.length === 0) return
+        cheerNRef.current += 1
+        const now = Date.now()
+        if (now - cheerAtRef.current > 1500) {
+            cheerAtRef.current = now
+            cheer(Math.min(1, cheerNRef.current / 8))
+            cheerNRef.current = 0
+        }
+    }, [liveRx, soundOn, cheer])
 
     if (error === 403) {
         return (
@@ -97,8 +145,11 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
     const showHero = !!(((state.selectedPhoto && state.round?.showsHeroPhoto) || roundHeroSrc) && !inLobby && state.status !== 'ended')
     const heroSrc = roundHeroSrc ?? state.selectedPhoto?.src
     const heroLabel = roundHeroSrc ? '' : state.selectedPhoto ? state.selectedPhoto.label.replace(/^[A-Z0-9]\s*·\s*/, '').trim() : ''
+    // The instant channel jumps this ahead of the ~2s poll; max() reconciles, cap at the room size.
+    const respondedShown = Math.min(state.participantCount, Math.max(liveResponded, state.responsesCount))
 
     return (
+        <RealtimeProvider code={state.code} identity="projector" onEvent={onRealtime}>
         <main className="relative flex h-dvh flex-col overflow-hidden">
             {connectionLost && <ReconnectBanner />}
 
@@ -108,7 +159,7 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                     <motion.div
                         className="h-full bg-[image:var(--ws-cta)]"
                         animate={{
-                            width: `${state.participantCount > 0 ? Math.min(100, Math.round((state.responsesCount / state.participantCount) * 100)) : 0}%`,
+                            width: `${state.participantCount > 0 ? Math.min(100, Math.round((respondedShown / state.participantCount) * 100)) : 0}%`,
                         }}
                         transition={{ type: 'spring', stiffness: 90, damping: 22 }}
                     />
@@ -216,7 +267,18 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
             </div>
 
             {/* Gamification overlays — floating reactions + wheel-of-names spin */}
-            {state.settings?.gamification && <ReactionsOverlay reactions={state.reactions} />}
+            {state.settings?.gamification && <ReactionsOverlay reactions={mergedRx} />}
+
+            {/* Reveal flash: a quick brand-tinted pulse the instant results drop */}
+            {flashKey > 0 && !reduceMotion && (
+                <motion.div
+                    key={flashKey}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 0.5, 0] }}
+                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                    className="pointer-events-none fixed inset-0 z-45 bg-[image:var(--ws-cta)]"
+                />
+            )}
             <AnimatePresence>
                 {state.settings?.gamification && state.spotlightName && (state.spotlightAt ?? 0) > wheelDismissed && (
                     <WheelOverlay
@@ -272,5 +334,6 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                 {!soundOn && !audioPrompted && <EnableSoundOverlay onEnable={enableSound} onSkip={dismissPrompt} />}
             </AnimatePresence>
         </main>
+        </RealtimeProvider>
     )
 }

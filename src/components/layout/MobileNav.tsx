@@ -28,8 +28,10 @@ export function MobileNav() {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-label={item.label}
+                aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex flex-col items-center gap-1 px-4 py-2 rounded-full transition-all duration-200",
+                  "flex flex-col items-center gap-1 px-4 py-2 rounded-full transition-[color,background-color] duration-200",
                   isActive
                     ? "bg-primary text-white"
                     : "text-on-surface-variant hover:text-on-surface"

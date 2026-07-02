@@ -53,7 +53,11 @@ async function mint(
         room,
         canPublish: opts.canPublish,
         canSubscribe: opts.canSubscribe,
-        canPublishData: false,
+        // Data messages (reactions / raised hands) are allowed for everyone incl.
+        // viewers: ephemeral UX only, and canPublish stays false so a viewer still
+        // cannot push a camera or mic. HTTP remains the source of truth; never trust
+        // a data payload for anything authoritative (identity is caller-set, audit V014).
+        canPublishData: true,
     })
     return at.toJwt()
 }

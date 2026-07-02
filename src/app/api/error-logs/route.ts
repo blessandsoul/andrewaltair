@@ -2,9 +2,13 @@ export const dynamic = 'force-dynamic'
 import { apiSuccess, apiError } from '@/lib/api-response';
 import { ERROR_CODES } from '@/lib/error-codes';
 import { SystemService } from '@/services/system.service';
+import { verifyAdmin } from '@/lib/admin-auth';
 
 // GET - List error logs
 export async function GET(request: Request) {
+    if (!verifyAdmin(request)) {
+        return apiError(ERROR_CODES.ADMIN_UNAUTHORIZED, 'Admin access required', 401);
+    }
     try {
         const { searchParams } = new URL(request.url);
         const level = searchParams.get('level') || undefined;
@@ -30,7 +34,10 @@ export async function POST(request: Request) {
 }
 
 // DELETE - Clear all logs
-export async function DELETE() {
+export async function DELETE(request: Request) {
+    if (!verifyAdmin(request)) {
+        return apiError(ERROR_CODES.ADMIN_UNAUTHORIZED, 'Admin access required', 401);
+    }
     try {
         await SystemService.clearErrorLogs();
         return apiSuccess(null, 'All logs cleared');
