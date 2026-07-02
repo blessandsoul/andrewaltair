@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { useRoomPoll } from '@/hooks/useRoomPoll'
 import { useStudentSound } from '@/hooks/useStudentSound'
@@ -12,6 +12,7 @@ import CurrentRound from './components/CurrentRound'
 import StudentQuestionPanel from './components/StudentQuestionPanel'
 import { DiplomaView } from './components/DiplomaView'
 import { MessageDock } from './components/MessageDock'
+import { RealtimeProvider, ReactionFloatLayer, type RealtimeEvent } from '@/app/workshop/_realtime/RealtimeProvider'
 import { STR } from '@/data/workshop-strings'
 
 // Host video broadcast tile, loaded only when the host is live (keeps LiveKit out of the base bundle).
@@ -42,6 +43,14 @@ export default function RoomClient({ code }: { code: string }) {
     const [name, setName] = useState<string | null>(null)
     const [pollMs, setPollMs] = useState(3000)
     const [soundDismissed, setSoundDismissed] = useState(false)
+    const [rx, setRx] = useState<{ id: number; kind: string }[]>([])
+    const rxSeq = useRef(0)
+    const onRt = useCallback((e: RealtimeEvent) => {
+        if (e.t !== 'reaction') return
+        const id = ++rxSeq.current
+        setRx((v) => [...v, { id, kind: e.kind }])
+        window.setTimeout(() => setRx((v) => v.filter((x) => x.id !== id)), 1600)
+    }, [])
 
     useEffect(() => {
         let id = localStorage.getItem(CLIENT_ID_KEY)
@@ -176,6 +185,7 @@ export default function RoomClient({ code }: { code: string }) {
     }
 
     return (
+        <RealtimeProvider code={code} identity={clientId} onEvent={onRt}>
         <ScreenShell>
             {soundGate}
             {connectionLost && <ReconnectBanner />}
@@ -208,5 +218,7 @@ export default function RoomClient({ code }: { code: string }) {
             )}
             <MessageDock code={code} clientId={clientId} liveMessages={state.liveMessages ?? []} chatEnabled={state.settings?.chatEnabled ?? true} questionsEnabled={state.settings?.questionsEnabled ?? true} />
         </ScreenShell>
+        <ReactionFloatLayer items={rx} />
+        </RealtimeProvider>
     )
 }

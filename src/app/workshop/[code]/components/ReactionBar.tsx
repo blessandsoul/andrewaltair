@@ -4,12 +4,14 @@ import { useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import type { LucideIcon } from 'lucide-react'
 import { REACTIONS } from '@/components/workshop/reactionIcons'
+import { useRealtimePublish } from '@/app/workshop/_realtime/RealtimeProvider'
 
 type Floater = { id: number; Icon: LucideIcon; color: string; dx: number }
 
 /** Always-on reactions: lucide icons, fire to the projector overlay plus an instant local burst. */
 export function ReactionBar({ code, clientId, name }: { code: string; clientId: string; name?: string }) {
     const reduceMotion = useReducedMotion()
+    const publish = useRealtimePublish()
     const [floaters, setFloaters] = useState<Floater[]>([])
     const seq = useRef(0)
 
@@ -22,6 +24,8 @@ export function ReactionBar({ code, clientId, name }: { code: string; clientId: 
             setFloaters((f) => [...f, { id, Icon, color, dx }])
             window.setTimeout(() => setFloaters((f) => f.filter((x) => x.id !== id)), 900)
         }
+        // Instant fan-out to everyone else in the room over the data channel.
+        publish({ t: 'reaction', kind })
         fetch(`/api/workshop/rooms/${code}/react`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

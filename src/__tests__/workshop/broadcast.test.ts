@@ -69,7 +69,7 @@ afterEach(() => vi.unstubAllEnvs())
 describe('A. token grants', () => {
     it('host publisher: canPublish true', async () => expect(grant(await createPublisherToken('ABCD', 'host')).video?.canPublish).toBe(true))
     it('host publisher: canSubscribe true', async () => expect(grant(await createPublisherToken('ABCD', 'host')).video?.canSubscribe).toBe(true))
-    it('host publisher: canPublishData false', async () => expect(grant(await createPublisherToken('ABCD', 'host')).video?.canPublishData).toBe(false))
+    it('host publisher: canPublishData true (realtime data channel)', async () => expect(grant(await createPublisherToken('ABCD', 'host')).video?.canPublishData).toBe(true))
     it('host publisher: roomJoin true', async () => expect(grant(await createPublisherToken('ABCD', 'host')).video?.roomJoin).toBe(true))
     it('host publisher: room === code', async () => expect(grant(await createPublisherToken('ABCD', 'host')).video?.room).toBe('ABCD'))
     it('host publisher: identity (sub) === host', async () => expect(grant(await createPublisherToken('ABCD', 'host')).sub).toBe('host'))
@@ -77,6 +77,7 @@ describe('A. token grants', () => {
     it('phone-cam publisher: can publish a camera', async () => expect(grant(await createPublisherToken('ABCD', 'phone-cam')).video?.canPublish).toBe(true))
     it('phone-cam publisher: room scoped to code', async () => expect(grant(await createPublisherToken('ZZZZ', 'phone-cam')).video?.room).toBe('ZZZZ'))
     it('viewer: canPublish FALSE (one-way lock)', async () => expect(grant(await createViewerToken('ABCD', 'client-12345')).video?.canPublish).toBe(false))
+    it('viewer: canPublishData true (data only, media stays locked)', async () => expect(grant(await createViewerToken('ABCD', 'client-12345')).video?.canPublishData).toBe(true))
     it('viewer: canSubscribe true', async () => expect(grant(await createViewerToken('ABCD', 'client-12345')).video?.canSubscribe).toBe(true))
     it('viewer: identity === clientId', async () => expect(grant(await createViewerToken('ABCD', 'client-12345')).sub).toBe('client-12345'))
     it('token expires ~3h ahead', async () => {
