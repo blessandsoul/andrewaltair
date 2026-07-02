@@ -1,19 +1,42 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
 import { Download, Share2, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { STR } from '@/data/workshop-strings'
 import { cn } from '@/lib/utils'
+import { popIn, springPop } from '@/components/workshop/motion'
 
 type DiplomaFormat = 'square' | 'story'
 
-/** Student end screen — their shareable workshop diploma (1080×1080 feed or 1080×1920 story). */
+/** Student end screen: their shareable workshop diploma (1080x1080 feed or 1080x1920 story). */
 export function DiplomaView({ code, clientId, name }: { code: string; clientId: string; name: string }) {
     const [format, setFormat] = useState<DiplomaFormat>('square')
     const [busy, setBusy] = useState(false)
+    const reduceMotion = useReducedMotion()
+    const celebrated = useRef(false)
     const url = `/api/workshop/rooms/${code}/diploma/${clientId}${format === 'story' ? '?format=story' : ''}`
     const fileName = `diploma-${name}-${format}.png`
+
+    // One-shot confetti when the diploma appears: the workshop payoff moment.
+    useEffect(() => {
+        if (reduceMotion || celebrated.current) return
+        celebrated.current = true
+        let cancelled = false
+        import('canvas-confetti')
+            .then((m) => {
+                if (cancelled) return
+                m.default({ particleCount: 130, spread: 78, origin: { y: 0.35 } })
+                setTimeout(() => {
+                    if (!cancelled) m.default({ particleCount: 70, spread: 100, startVelocity: 32, origin: { y: 0.4 } })
+                }, 220)
+            })
+            .catch(() => {})
+        return () => {
+            cancelled = true
+        }
+    }, [reduceMotion])
 
     const download = (): void => {
         const a = document.createElement('a')
@@ -37,14 +60,20 @@ export function DiplomaView({ code, clientId, name }: { code: string; clientId: 
                 await navigator.clipboard?.writeText(location.href)
             }
         } catch {
-            /* user cancelled / unsupported — silent */
+            /* user cancelled or unsupported, silent */
         } finally {
             setBusy(false)
         }
     }
 
     return (
-        <div className="flex flex-col items-center gap-4">
+        <motion.div
+            variants={reduceMotion ? undefined : popIn}
+            initial={reduceMotion ? false : 'initial'}
+            animate={reduceMotion ? undefined : 'animate'}
+            transition={springPop}
+            className="flex flex-col items-center gap-4"
+        >
             <p className="text-center text-2xl font-bold text-foreground">{STR.diploma.ready}</p>
 
             {/* format toggle: 1:1 feed vs 9:16 story */}
@@ -84,6 +113,6 @@ export function DiplomaView({ code, clientId, name }: { code: string; clientId: 
                     <Download size={18} />
                 </Button>
             </div>
-        </div>
+        </motion.div>
     )
 }

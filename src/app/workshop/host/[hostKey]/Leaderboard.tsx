@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
+import { springSoft } from '@/components/workshop/motion'
 import NameAvatar, { nameAccent } from '@/components/workshop/NameAvatar'
 import { BadgeIcon, MedalIcon } from '@/components/workshop/badgeIcons'
 import type { LeaderboardEntry, TeamScore } from '@/types/workshop.types'
@@ -16,6 +17,7 @@ const ROTATE_MS = 5000
 /** Projector right rail — team scoreboard (if any) + individuals. Fills the rail to its height;
  *  paginates (auto-cycling) ONLY when more people than fit; if all fit, no pager, no empty gap. */
 export function Leaderboard({ entries, teams }: { entries: LeaderboardEntry[]; teams?: TeamScore[] }) {
+    const reduceMotion = useReducedMotion()
     const listRef = useRef<HTMLDivElement>(null)
     const [perPage, setPerPage] = useState(8)
     const [page, setPage] = useState(0)
@@ -79,8 +81,10 @@ export function Leaderboard({ entries, teams }: { entries: LeaderboardEntry[]; t
                         {shown.map((e) => {
                             const accent = nameAccent(e.name)
                             return (
-                                <div
+                                <motion.div
                                     key={e.clientId}
+                                    layout={reduceMotion ? false : 'position'}
+                                    transition={springSoft}
                                     className="flex items-center gap-2 rounded-xl border border-border bg-card/70 px-2 py-1.5"
                                 >
                                     <span className="grid w-6 shrink-0 place-items-center text-sm font-bold tabular-nums text-muted-foreground">
@@ -90,7 +94,7 @@ export function Leaderboard({ entries, teams }: { entries: LeaderboardEntry[]; t
                                     <span className={cn('min-w-0 flex-1 truncate text-sm font-semibold', accent.text)}>{e.name}</span>
                                     {e.badges[0] && <BadgeIcon id={e.badges[0].id} size={16} />}
                                     <span className="shrink-0 text-sm font-bold tabular-nums text-primary">{e.points}</span>
-                                </div>
+                                </motion.div>
                             )
                         })}
                     </motion.div>
