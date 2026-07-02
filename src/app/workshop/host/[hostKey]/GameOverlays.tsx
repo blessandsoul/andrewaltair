@@ -59,7 +59,8 @@ export function ReactionsOverlay({ reactions }: { reactions?: Reaction[] }) {
                                 <Icon size={30} style={{ color }} />
                             </span>
                             {f.name && (
-                                <span className="rounded-full bg-foreground/80 px-2 py-0.5 text-xs font-semibold text-background">
+                                <span className="inline-flex items-center gap-1 rounded-full bg-foreground/80 py-0.5 pl-1 pr-2 text-xs font-semibold text-background">
+                                    <NameAvatar name={f.name} size={16} />
                                     {f.name}
                                 </span>
                             )}
