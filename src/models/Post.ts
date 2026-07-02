@@ -421,6 +421,12 @@ const PostSchema = new Schema<IPost>(
 // Create text index for search
 PostSchema.index({ title: 'text', excerpt: 'text', content: 'text', rawContent: 'text', numericId: 'text' });
 
+// Query indexes for the hot list/sort paths (see audit Q023, Q024, Q039, Q040)
+PostSchema.index({ status: 1, publishedAt: -1 });
+PostSchema.index({ status: 1, createdAt: -1 });
+PostSchema.index({ status: 1, views: -1 });
+PostSchema.index({ status: 1, order: 1, createdAt: 1 });
+
 const Post = mongoose.models.Post || mongoose.model<IPost>('Post', PostSchema);
 
 export default Post;

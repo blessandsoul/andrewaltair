@@ -83,6 +83,10 @@ const VideoSchema = new Schema<IVideo>(
     }
 );
 
+// Query indexes for home sort + analytics (see audit Q042)
+VideoSchema.index({ publishedAt: -1 });
+VideoSchema.index({ views: -1 });
+
 const Video = mongoose.models.Video || mongoose.model<IVideo>('Video', VideoSchema);
 
 export default Video;
