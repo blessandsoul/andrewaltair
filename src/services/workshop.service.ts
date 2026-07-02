@@ -83,6 +83,7 @@ type ReactionBuf = { id: number; kind: string; name: string; at: number }
 const reactionsBuffer = new Map<string, ReactionBuf[]>()
 const CAPTION_TTL_MS = 8000
 const captionBuffer = new Map<string, { text: string; at: number }>()
+const celebrateBuffer = new Map<string, number>()
 const REACTION_KIND_SET = new Set<string>(REACTION_KINDS)
 let reactionSeq = 0
 
@@ -367,7 +368,8 @@ export class WorkshopService {
     static async joinRoom(
         roomId: mongoose.Types.ObjectId,
         name: string,
-        clientId: string
+        clientId: string,
+        avatarEmoji?: string
     ): Promise<{ ok: true } | { ok: false; reason: 'full' | 'name' }> {
         await dbConnect()
         const room = await WorkshopRoom.findById(roomId, { settings: 1 }).lean<{ settings?: IWorkshopRoomSettings }>()
@@ -389,7 +391,7 @@ export class WorkshopService {
         await WorkshopParticipant.findOneAndUpdate(
             { roomId, clientId },
             {
-                $set: { name: clean || name, lastSeenAt: new Date() },
+                $set: { name: clean || name, lastSeenAt: new Date(), ...(avatarEmoji ? { avatarEmoji } : {}) },
                 $setOnInsert: { joinedAt: new Date(), ...(team ? { team } : {}) },
             },
             { upsert: true }
@@ -1178,6 +1180,23 @@ export class WorkshopService {
         return arr.map((r) => ({ id: r.id, kind: r.kind, name: r.name }))
     }
 
+    /** Host-triggered projector celebration (in-memory nonce). Projector fires confetti on a new value. */
+    static celebrate(roomId: mongoose.Types.ObjectId): void {
+        celebrateBuffer.set(String(roomId), Date.now())
+    }
+
+    /** The celebration timestamp if fresh (<6s), else null. */
+    static getLiveCelebrate(roomId: mongoose.Types.ObjectId): number | null {
+        const key = String(roomId)
+        const at = celebrateBuffer.get(key)
+        if (!at) return null
+        if (at < Date.now() - 6000) {
+            celebrateBuffer.delete(key)
+            return null
+        }
+        return at
+    }
+
     /** Latest live caption (in-memory, no DB) for the subtitle overlay. */
     static pushCaption(roomId: mongoose.Types.ObjectId, text: string): void {
         const clean = text.trim().slice(0, 300)
@@ -1724,11 +1743,12 @@ export class WorkshopService {
         await dbConnect()
         const parts = await WorkshopParticipant.find({ roomId })
             .sort({ joinedAt: 1 })
-            .lean<{ name: string; clientId: string; joinedAt: Date; lastSeenAt: Date }[]>()
+            .lean<{ name: string; avatarEmoji?: string; clientId: string; joinedAt: Date; lastSeenAt: Date }[]>()
         const now = Date.now()
         const windowMs = opts?.onlineWindowMs ?? DEFAULT_ROOM_SETTINGS.onlineWindowSec * 1000
         return parts.map((p, i) => ({
             name: opts?.anonymous ? `${ANON_LABEL} ${i + 1}` : p.name,
+            avatarEmoji: opts?.anonymous ? undefined : p.avatarEmoji,
             clientId: p.clientId,
             joinedAt: p.joinedAt.toISOString(),
             online: now - new Date(p.lastSeenAt).getTime() < windowMs,

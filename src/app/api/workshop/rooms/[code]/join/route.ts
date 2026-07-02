@@ -9,6 +9,7 @@ export const dynamic = 'force-dynamic'
 const joinSchema = z.object({
     name: z.string().trim().min(1).max(24),
     clientId: z.string().min(8).max(64),
+    avatarEmoji: z.string().max(8).optional(),
 })
 
 export async function POST(
@@ -29,7 +30,7 @@ export async function POST(
         if (!parsed.success) {
             return apiError(ERROR_CODES.VALIDATION_FAILED, 'Invalid name', 400)
         }
-        const result = await WorkshopService.joinRoom(room._id, parsed.data.name, parsed.data.clientId)
+        const result = await WorkshopService.joinRoom(room._id, parsed.data.name, parsed.data.clientId, parsed.data.avatarEmoji)
         if (!result.ok) {
             return result.reason === 'full'
                 ? apiError(ERROR_CODES.WORKSHOP_JOIN_FAILED, 'Room is full', 409)

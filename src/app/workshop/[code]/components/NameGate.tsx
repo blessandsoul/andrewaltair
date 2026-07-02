@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { STR } from '@/data/workshop-strings'
 
+const AVATARS = ['🦊', '🐼', '🦉', '🐸', '🐙', '🦄', '🐝', '🦁', '🐳', '🦖']
+
 interface NameGateProps {
     code: string
     clientId: string
@@ -15,6 +17,7 @@ export default function NameGate({ code, clientId, onJoined }: NameGateProps) {
     const [value, setValue] = useState('')
     const [busy, setBusy] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [emoji, setEmoji] = useState('')
 
     const join = async () => {
         const name = value.trim()
@@ -25,7 +28,7 @@ export default function NameGate({ code, clientId, onJoined }: NameGateProps) {
             const res = await fetch(`/api/workshop/rooms/${code}/join`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, clientId }),
+                body: JSON.stringify({ name, clientId, avatarEmoji: emoji || undefined }),
             })
             if (res.ok) {
                 onJoined(name)
@@ -53,6 +56,19 @@ export default function NameGate({ code, clientId, onJoined }: NameGateProps) {
                 <p className="text-sm uppercase tracking-widest text-muted-foreground font-semibold">{STR.nameGate.roomLabel(code)}</p>
                 <h1 className="text-3xl font-bold text-foreground">{STR.nameGate.title}</h1>
                 <p className="text-muted-foreground">{STR.nameGate.sub}</p>
+            </div>
+            <div className="flex flex-wrap justify-center gap-2">
+                {AVATARS.map((a) => (
+                    <button
+                        key={a}
+                        type="button"
+                        onClick={() => setEmoji((cur) => (cur === a ? '' : a))}
+                        aria-pressed={emoji === a}
+                        className={`grid size-10 place-items-center rounded-full border text-xl transition active:scale-[0.92] motion-reduce:active:scale-100 ${emoji === a ? 'border-primary bg-primary/10 ring-2 ring-primary/30' : 'border-border bg-card hover:bg-accent'}`}
+                    >
+                        {a}
+                    </button>
+                ))}
             </div>
             <Input
                 type="text"

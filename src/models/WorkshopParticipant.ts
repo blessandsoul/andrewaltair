@@ -4,6 +4,7 @@ export interface IWorkshopParticipant extends Document {
     _id: mongoose.Types.ObjectId;
     roomId: mongoose.Types.ObjectId;
     name: string;
+    avatarEmoji?: string;
     clientId: string;
     team?: number; // 1..teamCount — assigned at first join when teamMode is on
     joinedAt: Date;
@@ -24,6 +25,10 @@ const WorkshopParticipantSchema = new Schema<IWorkshopParticipant>(
             trim: true,
             minlength: 1,
             maxlength: 24,
+        },
+        avatarEmoji: {
+            type: String,
+            maxlength: 8,
         },
         clientId: {
             type: String,
