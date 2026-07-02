@@ -339,6 +339,7 @@ export type RoundResults =
 
 export interface RosterEntry {
     name: string;
+    avatarEmoji?: string;
     clientId: string; // host-only — used to kick a participant
     joinedAt: string;
     online: boolean;

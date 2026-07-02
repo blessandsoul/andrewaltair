@@ -8,7 +8,7 @@ import { STR } from '@/data/workshop-strings'
 interface LobbyViewProps {
     qr: { qrDataUrl: string; joinUrl: string } | null
     code: string
-    roster: string[]
+    roster: { name: string; avatarEmoji?: string }[]
 }
 
 /** Pre-round lobby — floating QR card + live roster of joined participants. */
@@ -49,17 +49,21 @@ export function LobbyView({ qr, code, roster }: LobbyViewProps) {
                 </p>
                 <div className="flex flex-wrap gap-2">
                     <AnimatePresence initial={false}>
-                        {roster.map((name, i) => (
+                        {roster.map((p, i) => (
                             <motion.span
-                                key={`${name}-${i}`}
+                                key={`${p.name}-${i}`}
                                 variants={staggerChild}
                                 initial="initial"
                                 animate="animate"
                                 transition={springPop}
                                 className={`inline-flex items-center gap-2 rounded-full border bg-card py-1.5 pl-1.5 pr-4 text-sm font-medium shadow-sm ${i === roster.length - 1 ? 'border-primary/50 ring-2 ring-primary/25' : 'border-border'}`}
                             >
-                                <NameAvatar name={name} size={24} />
-                                {name}
+                                {p.avatarEmoji ? (
+                                    <span className="grid size-6 place-items-center text-lg">{p.avatarEmoji}</span>
+                                ) : (
+                                    <NameAvatar name={p.name} size={24} />
+                                )}
+                                {p.name}
                             </motion.span>
                         ))}
                     </AnimatePresence>

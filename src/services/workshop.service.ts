@@ -367,7 +367,8 @@ export class WorkshopService {
     static async joinRoom(
         roomId: mongoose.Types.ObjectId,
         name: string,
-        clientId: string
+        clientId: string,
+        avatarEmoji?: string
     ): Promise<{ ok: true } | { ok: false; reason: 'full' | 'name' }> {
         await dbConnect()
         const room = await WorkshopRoom.findById(roomId, { settings: 1 }).lean<{ settings?: IWorkshopRoomSettings }>()
@@ -389,7 +390,7 @@ export class WorkshopService {
         await WorkshopParticipant.findOneAndUpdate(
             { roomId, clientId },
             {
-                $set: { name: clean || name, lastSeenAt: new Date() },
+                $set: { name: clean || name, lastSeenAt: new Date(), ...(avatarEmoji ? { avatarEmoji } : {}) },
                 $setOnInsert: { joinedAt: new Date(), ...(team ? { team } : {}) },
             },
             { upsert: true }
@@ -1724,11 +1725,12 @@ export class WorkshopService {
         await dbConnect()
         const parts = await WorkshopParticipant.find({ roomId })
             .sort({ joinedAt: 1 })
-            .lean<{ name: string; clientId: string; joinedAt: Date; lastSeenAt: Date }[]>()
+            .lean<{ name: string; avatarEmoji?: string; clientId: string; joinedAt: Date; lastSeenAt: Date }[]>()
         const now = Date.now()
         const windowMs = opts?.onlineWindowMs ?? DEFAULT_ROOM_SETTINGS.onlineWindowSec * 1000
         return parts.map((p, i) => ({
             name: opts?.anonymous ? `${ANON_LABEL} ${i + 1}` : p.name,
+            avatarEmoji: opts?.anonymous ? undefined : p.avatarEmoji,
             clientId: p.clientId,
             joinedAt: p.joinedAt.toISOString(),
             online: now - new Date(p.lastSeenAt).getTime() < windowMs,

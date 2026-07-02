@@ -240,7 +240,7 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                             {state.status === 'ended' ? (
                                 <EndStats hostKey={hostKey} photo={state.selectedPhoto} leaderboard={state.leaderboard} />
                             ) : inLobby ? (
-                                <LobbyView qr={qr} code={state.code} roster={state.roster.map((r) => r.name)} />
+                                <LobbyView qr={qr} code={state.code} roster={state.roster} />
                             ) : state.round?.type === 'teach' ? (
                                 <TeachSlide
                                     heading={state.round.prompt}
