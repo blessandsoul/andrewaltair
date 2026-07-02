@@ -59,6 +59,25 @@ Calibration: items below are L1/L2 verified (typecheck + lint + existing tests g
 
 Running total: 22 of ~300 catalog items implemented and verified (Batch 1 + Batch 2).
 
+## Batch 3 (6 items)
+
+| Item | Track | Change | Files | Status |
+|------|-------|--------|-------|--------|
+| V011 (pages) | security | wire safeJsonLd into the content-bearing article-page JSON-LD (7 sinks carrying comment/AI/scraped data) | src/app/insights/[slug]/page.tsx, src/app/blog/[slug]/page.tsx, src/app/en/insights/[slug]/page.tsx | done (completes V011 content sinks) |
+| Q023, Q024, Q039, Q040 | quality | Post query indexes: {status,publishedAt}, {status,createdAt}, {status,views}, {status,order,createdAt} | src/models/Post.ts | done |
+| Q042 | quality | Video query indexes: {publishedAt}, {views} | src/models/Video.ts | done |
+
+### Verification (Batch 3)
+- npx tsc --noEmit: exit 0.
+- npx next lint on the changed files: no warnings or errors.
+- npm run test (vitest): 202 passed / 202.
+
+### Notes (Batch 3)
+- Index builds run on the next deploy via mongoose autoIndex; non-destructive, a brief one-time build on large collections.
+- The JSON-LD XSS class is now closed for the content-bearing sinks (comment/AI/scraped data). About 33 remaining JSON-LD sinks carry static or admin-only data (home, about, bots, tools, services, layout); wrapping them in safeJsonLd is a low-risk defense-in-depth sweep, tracked as follow-up.
+
+Running total: 28 of ~300 catalog items implemented and verified (Batches 1 to 3).
+
 ## Not yet implemented
 The remaining ~286 catalog items stay a prioritized backlog in VULNERABILITIES.md, QUALITY.md, UIUX.md. Each file ends with a suggested fix order. High-value next batches:
 - Security: settings POST (V005), error-logs (V006), the remaining anonymous CRUD [G] routes (V016-V024, V050-V059), the isomorphic sanitize root fix (V012) and the JSON-LD escaper (V011).
