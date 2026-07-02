@@ -3,6 +3,7 @@
 import * as React from "react"
 import { TbMoon, TbSun } from "react-icons/tb"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 type Theme = "light" | "dark"
 
@@ -17,14 +18,16 @@ export function ThemeToggle() {
             setTheme(savedTheme)
             applyTheme(savedTheme)
         } else {
-            // Default to light
-            applyTheme("light")
+            // No saved choice: honor the OS preference on first paint
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+            const initial: Theme = prefersDark ? "dark" : "light"
+            setTheme(initial)
+            applyTheme(initial)
         }
     }, [])
 
     const applyTheme = (newTheme: Theme) => {
-        const root = document.documentElement
-        root.classList.toggle("dark", newTheme === "dark")
+        document.documentElement.classList.toggle("dark", newTheme === "dark")
     }
 
     const toggleTheme = () => {
@@ -36,25 +39,37 @@ export function ThemeToggle() {
 
     if (!mounted) {
         return (
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative" aria-hidden="true">
                 <TbSun className="h-5 w-5" />
             </Button>
         )
     }
+
+    const isLight = theme === "light"
 
     return (
         <Button
             variant="ghost"
             size="icon"
             onClick={toggleTheme}
-            className="relative group"
-            title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+            className="relative"
+            aria-label={isLight ? "ბნელ რეჟიმზე გადართვა" : "ნათელ რეჟიმზე გადართვა"}
+            title={isLight ? "ბნელ რეჟიმზე გადართვა" : "ნათელ რეჟიმზე გადართვა"}
         >
-            {theme === "light" ? (
-                <TbSun className="h-5 w-5 transition-transform group-hover:rotate-45" />
-            ) : (
-                <TbMoon className="h-5 w-5 transition-transform group-hover:-rotate-12" />
-            )}
+            <span className="relative inline-flex h-5 w-5 items-center justify-center">
+                <TbSun
+                    className={cn(
+                        "absolute h-5 w-5 transition-[transform,opacity,filter] duration-300 motion-reduce:transition-none",
+                        isLight ? "scale-100 opacity-100 blur-0" : "scale-50 opacity-0 blur-xs"
+                    )}
+                />
+                <TbMoon
+                    className={cn(
+                        "absolute h-5 w-5 transition-[transform,opacity,filter] duration-300 motion-reduce:transition-none",
+                        isLight ? "scale-50 opacity-0 blur-xs" : "scale-100 opacity-100 blur-0"
+                    )}
+                />
+            </span>
             <span className="sr-only">Toggle theme</span>
         </Button>
     )
