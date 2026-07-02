@@ -44,10 +44,9 @@ export default function RoomClient({ code }: { code: string }) {
     const [pollMs, setPollMs] = useState(3000)
     const [soundDismissed, setSoundDismissed] = useState(false)
     const [rx, setRx] = useState<{ id: number; kind: string }[]>([])
-    const rxSeq = useRef(0)
     const onRt = useCallback((e: RealtimeEvent) => {
         if (e.t !== 'reaction') return
-        const id = ++rxSeq.current
+        const id = e.id
         setRx((v) => [...v, { id, kind: e.kind }])
         window.setTimeout(() => setRx((v) => v.filter((x) => x.id !== id)), 1600)
     }, [])

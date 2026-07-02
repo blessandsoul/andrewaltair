@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Clapperboard, Zap, Mic } from 'lucide-react'
 import { useRoomPoll } from '@/hooks/useRoomPoll'
-import type { HostState, ChatMessage, ChatLiveQuestion } from '@/types/workshop.types'
+import type { HostState, ChatMessage, ChatLiveQuestion, Reaction } from '@/types/workshop.types'
 import { ReconnectBanner } from '@/components/workshop/ReconnectBanner'
 import ResultsBoard from './components/ResultsBoard'
 import TeachSlide from './components/TeachSlide'
@@ -18,6 +18,7 @@ import { Leaderboard } from './Leaderboard'
 import { ChatWall, ChatQuestionMoment } from './ChatWall'
 import { useDisplayAudio } from './useDisplayAudio'
 import { STR } from '@/data/workshop-strings'
+import { RealtimeProvider, type RealtimeEvent } from '@/app/workshop/_realtime/RealtimeProvider'
 
 // Host video PiP, loaded only when broadcasting (keeps LiveKit out of the projector base bundle).
 const WatchTile = dynamic(() => import('@/app/workshop/_video/WatchTile'), { ssr: false })
@@ -37,6 +38,24 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
     const [wheelDismissed, setWheelDismissed] = useState(0) // hide the wheel until the next spin (newer spotlightAt)
     const [panelDismissed, setPanelDismissed] = useState(0) // hide the winners/top-answers panel until the next trigger
     const [questionDismissed, setQuestionDismissed] = useState(0) // round 28: hide the popped question until the next pick
+    // Instant reactions over the data channel: received here, merged with the polled copy
+    // (shared id, so each reaction shows once) and handed to the floating overlay.
+    const [liveRx, setLiveRx] = useState<Reaction[]>([])
+    const onRx = useCallback((e: RealtimeEvent) => {
+        if (e.t !== 'reaction') return
+        setLiveRx((prev) => [...prev, { id: e.id, kind: e.kind, name: e.name ?? '' }].slice(-40))
+    }, [])
+    const mergedRx = useMemo(() => {
+        const seen = new Set<number>()
+        const out: Reaction[] = []
+        for (const r of [...(state?.reactions ?? []), ...liveRx]) {
+            if (!seen.has(r.id)) {
+                seen.add(r.id)
+                out.push(r)
+            }
+        }
+        return out
+    }, [state?.reactions, liveRx])
 
     // QR fetched once on mount
     useEffect(() => {
@@ -99,6 +118,7 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
     const heroLabel = roundHeroSrc ? '' : state.selectedPhoto ? state.selectedPhoto.label.replace(/^[A-Z0-9]\s*·\s*/, '').trim() : ''
 
     return (
+        <RealtimeProvider code={state.code} identity="projector" onEvent={onRx}>
         <main className="relative flex h-dvh flex-col overflow-hidden">
             {connectionLost && <ReconnectBanner />}
 
@@ -216,7 +236,7 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
             </div>
 
             {/* Gamification overlays — floating reactions + wheel-of-names spin */}
-            {state.settings?.gamification && <ReactionsOverlay reactions={state.reactions} />}
+            {state.settings?.gamification && <ReactionsOverlay reactions={mergedRx} />}
             <AnimatePresence>
                 {state.settings?.gamification && state.spotlightName && (state.spotlightAt ?? 0) > wheelDismissed && (
                     <WheelOverlay
@@ -272,5 +292,6 @@ export default function DisplayClient({ hostKey }: { hostKey: string }) {
                 {!soundOn && !audioPrompted && <EnableSoundOverlay onEnable={enableSound} onSkip={dismissPrompt} />}
             </AnimatePresence>
         </main>
+        </RealtimeProvider>
     )
 }

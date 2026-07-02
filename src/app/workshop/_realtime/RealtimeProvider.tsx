@@ -5,7 +5,7 @@ import { LiveKitRoom, useDataChannel } from '@livekit/components-react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { REACTION_BY_KIND } from '@/components/workshop/reactionIcons'
 
-export type RealtimeEvent = { t: 'reaction'; kind: string } | { t: 'hand'; raised: boolean }
+export type RealtimeEvent = { t: 'reaction'; kind: string; id: number; name?: string } | { t: 'hand'; raised: boolean }
 
 type Ctx = { publish: (e: RealtimeEvent) => void }
 const RealtimeCtx = createContext<Ctx>({ publish: () => {} })

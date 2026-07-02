@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import type { LucideIcon } from 'lucide-react'
 import { REACTIONS } from '@/components/workshop/reactionIcons'
@@ -13,23 +13,23 @@ export function ReactionBar({ code, clientId, name }: { code: string; clientId: 
     const reduceMotion = useReducedMotion()
     const publish = useRealtimePublish()
     const [floaters, setFloaters] = useState<Floater[]>([])
-    const seq = useRef(0)
 
     const send = (kind: string, Icon: LucideIcon, color: string): void => {
         if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(12)
+        const id = Math.floor(Math.random() * 2_000_000_000)
         // Instant local echo so the sender sees their tap land before the network round-trip.
         if (!reduceMotion) {
-            const id = ++seq.current
             const dx = Math.round((Math.random() - 0.5) * 44)
             setFloaters((f) => [...f, { id, Icon, color, dx }])
             window.setTimeout(() => setFloaters((f) => f.filter((x) => x.id !== id)), 900)
         }
-        // Instant fan-out to everyone else in the room over the data channel.
-        publish({ t: 'reaction', kind })
+        // Instant fan-out over the data channel, carrying the SAME id as the HTTP write
+        // so the projector shows each reaction once (data copy first, poll copy deduped).
+        publish({ t: 'reaction', kind, id, name })
         fetch(`/api/workshop/rooms/${code}/react`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ clientId, kind, name }),
+            body: JSON.stringify({ clientId, kind, name, id }),
         }).catch(() => {})
     }
 
