@@ -3,6 +3,7 @@ import dbConnect from '@/lib/db';
 import Settings from '@/models/Settings';
 import { apiSuccess, apiError } from '@/lib/api-response';
 import { ERROR_CODES } from '@/lib/error-codes';
+import { verifyAdmin } from '@/lib/admin-auth';
 
 // GET - Get all settings or by category
 export async function GET(request: Request) {
@@ -37,6 +38,9 @@ export async function GET(request: Request) {
 
 // POST - Create/Update setting
 export async function POST(request: Request) {
+    if (!verifyAdmin(request)) {
+        return apiError(ERROR_CODES.ADMIN_UNAUTHORIZED, 'Admin access required', 401);
+    }
     try {
         await dbConnect();
 

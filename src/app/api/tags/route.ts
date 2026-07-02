@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { TaxonomyService } from '@/services/taxonomy.service';
 import { apiSuccess, apiError } from '@/lib/api-response';
 import { ERROR_CODES } from '@/lib/error-codes';
+import { verifyAdmin } from '@/lib/admin-auth';
 
 // GET - List all tags
 export async function GET() {
@@ -16,6 +17,9 @@ export async function GET() {
 
 // POST - Create a new tag
 export async function POST(request: Request) {
+    if (!verifyAdmin(request)) {
+        return apiError(ERROR_CODES.ADMIN_UNAUTHORIZED, 'Admin access required', 401);
+    }
     try {
         const data = await request.json();
         const tag = await TaxonomyService.createTag(data);

@@ -3,6 +3,7 @@ import { NextRequest } from "next/server"
 import { apiSuccess, apiError } from '@/lib/api-response'
 import { ERROR_CODES } from '@/lib/error-codes'
 import { ToolService } from "@/services/tool.service"
+import { verifyAdmin } from '@/lib/admin-auth'
 
 // GET - Get all tools with filtering and pagination
 export async function GET(request: NextRequest) {
@@ -28,6 +29,9 @@ export async function GET(request: NextRequest) {
 
 // POST - Create a new tool
 export async function POST(request: NextRequest) {
+    if (!verifyAdmin(request)) {
+        return apiError(ERROR_CODES.ADMIN_UNAUTHORIZED, 'Admin access required', 401)
+    }
     try {
         const body = await request.json()
         const tool = await ToolService.createTool(body)
