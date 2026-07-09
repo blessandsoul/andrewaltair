@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 import type { ButtonHTMLAttributes } from "react"
 
 const gradientButtonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 font-semibold text-sm transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none",
+  "inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 font-semibold text-sm transition-[box-shadow,transform,background-color] duration-300 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] active:scale-[0.96] disabled:opacity-50 disabled:pointer-events-none",
   {
     variants: {
       variant: {

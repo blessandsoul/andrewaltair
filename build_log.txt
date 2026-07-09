@@ -1,0 +1,1555 @@
+
+> andrewaltair.ge@0.1.0 build
+> next build
+
+  ▲ Next.js 14.2.35
+  - Environments: .env.local
+  - Experiments (use with caution):
+    · cpus
+    · instrumentationHook
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+
+./src/app/admin/analytics/page.tsx
+190:8  Warning: React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/admin/bots/page.tsx
+734:69  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/admin/content/page.tsx
+85:8  Warning: React Hook React.useEffect has a missing dependency: 'saveDraft'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/admin/links/page.tsx
+739:25  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/admin/links/[id]/page.tsx
+455:25  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/admin/media/page.tsx
+613:37  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+686:57  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+760:29  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/admin/posts/page.tsx
+1566:45  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+1643:45  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/admin/tutorials/edit/[id]/page.tsx
+25:8  Warning: React Hook useEffect has a missing dependency: 'router'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/admin/videos/page.tsx
+588:41  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+704:29  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+1078:41  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+1279:29  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/bots/BotsPageClient.tsx
+426:37  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/bots/[id]/BotDetailClient.tsx
+140:8  Warning: React Hook useEffect has a missing dependency: 'fetchBot'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+151:8  Warning: React Hook useEffect has missing dependencies: 'checkPurchaseStatus', 'checkWishlistStatus', 'fetchComments', and 'fetchVersions'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+677:57  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+827:45  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/prompts/[slug]/PromptDetailClient.tsx
+164:8  Warning: React Hook useEffect has a missing dependency: 'navigateGallery'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/tools/page.tsx
+191:9  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/tools/[id]/page.tsx
+236:9  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/tutorials/page.tsx
+59:37  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/tutorials/[slug]/page_backup.tsx
+89:29  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/videos/[id]/page.tsx
+306:33  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+366:53  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/workshop/host/[hostKey]/LobbyView.tsx
+26:25  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/admin/editor/CardsGridExtension.tsx
+75:33  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/admin/PostEditor.tsx
+448:8  Warning: React Hook React.useEffect has a missing dependency: 'jsonInput'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+757:45  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+757:45  Warning: img elements must have an alt prop, either with meaningful text, or an empty string for decorative images.  jsx-a11y/alt-text
+773:45  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+773:45  Warning: img elements must have an alt prop, either with meaningful text, or an empty string for decorative images.  jsx-a11y/alt-text
+
+./src/components/admin/RealTimeAnalytics.tsx
+130:8  Warning: React Hook useEffect has a missing dependency: 'fetchStats'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/admin/RelatedPostsSuggestions.tsx
+190:41  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/admin/RepositoryEditor.tsx
+402:45  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+434:45  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/admin/TutorialEditor.tsx
+88:8  Warning: React Hook React.useEffect has a missing dependency: 'tutorial.modules'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+285:57  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+285:57  Warning: img elements must have an alt prop, either with meaningful text, or an empty string for decorative images.  jsx-a11y/alt-text
+290:63  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+290:63  Warning: img elements must have an alt prop, either with meaningful text, or an empty string for decorative images.  jsx-a11y/alt-text
+
+./src/components/admin/VideoEmbed.tsx
+95:9  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/blog/RichPostContent.tsx
+553:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/conversion/AIQuestJourney.tsx
+219:8  Warning: React Hook useEffect has a missing dependency: 'fetchQuests'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/conversion/MicroLessons.tsx
+227:8  Warning: React Hook useEffect has a missing dependency: 'fetchLessons'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/conversion/MysteryBox.tsx
+36:8  Warning: React Hook useEffect has a missing dependency: 'checkAvailability'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+45:8  Warning: React Hook useEffect has a missing dependency: 'checkAvailability'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/effects/PageTransition.tsx
+26:8  Warning: React Hook useEffect has a missing dependency: 'children'. Either include it or remove the dependency array. If 'setDisplayChildren' needs the current value of 'children', you can also switch to useReducer instead of useState and read 'children' in the reducer.  react-hooks/exhaustive-deps
+31:8  Warning: React Hook useEffect has a missing dependency: 'children'. Either include it or remove the dependency array. If 'setDisplayChildren' needs the current value of 'children', you can also switch to useReducer instead of useState and read 'children' in the reducer.  react-hooks/exhaustive-deps
+61:8  Warning: React Hook useEffect has a missing dependency: 'children'. Either include it or remove the dependency array. If 'setDisplayChildren' needs the current value of 'children', you can also switch to useReducer instead of useState and read 'children' in the reducer.  react-hooks/exhaustive-deps
+65:8  Warning: React Hook useEffect has a missing dependency: 'children'. Either include it or remove the dependency array. If 'setDisplayChildren' needs the current value of 'children', you can also switch to useReducer instead of useState and read 'children' in the reducer.  react-hooks/exhaustive-deps
+92:8  Warning: React Hook useEffect has a missing dependency: 'children'. Either include it or remove the dependency array. If 'setDisplayChildren' needs the current value of 'children', you can also switch to useReducer instead of useState and read 'children' in the reducer.  react-hooks/exhaustive-deps
+96:8  Warning: React Hook useEffect has a missing dependency: 'children'. Either include it or remove the dependency array. If 'setDisplayChildren' needs the current value of 'children', you can also switch to useReducer instead of useState and read 'children' in the reducer.  react-hooks/exhaustive-deps
+123:8  Warning: React Hook useEffect has a missing dependency: 'children'. Either include it or remove the dependency array. If 'setDisplayChildren' needs the current value of 'children', you can also switch to useReducer instead of useState and read 'children' in the reducer.  react-hooks/exhaustive-deps
+127:8  Warning: React Hook useEffect has a missing dependency: 'children'. Either include it or remove the dependency array. If 'setDisplayChildren' needs the current value of 'children', you can also switch to useReducer instead of useState and read 'children' in the reducer.  react-hooks/exhaustive-deps
+
+./src/components/encyclopedia/YouTubeEmbed.tsx
+17:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/engagement/ActivityFeed.tsx
+58:8  Warning: React Hook useEffect has a missing dependency: 'showNewActivity'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/engagement/AIAvatar.tsx
+44:8  Warning: React Hook useEffect has missing dependencies: 'selectedAvatar.greeting' and 'showAsWidget'. Either include them or remove the dependency array. You can also replace multiple useState variables with useReducer if 'setMessage' needs the current value of 'selectedAvatar.greeting'.  react-hooks/exhaustive-deps
+
+./src/components/interactive/ImageLightbox.tsx
+61:8  Warning: React Hook useLayoutEffect has a missing dependency: 'resetControlsTimer'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+105:8  Warning: React Hook useEffect has missing dependencies: 'onClose', 'paginate', 'resetControlsTimer', 'toggleZoom', 'zoomIn', and 'zoomOut'. Either include them or remove the dependency array. If 'onClose' changes too often, find the parent component that defines it and wrap that definition in useCallback.  react-hooks/exhaustive-deps
+
+./src/components/interactive/SearchDialog.tsx
+119:41  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/interactive/SocialProofToast.tsx
+246:30  Warning: The ref value 'toastTimeoutsRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'toastTimeoutsRef.current' to a variable inside the effect, and use that variable in the cleanup function.  react-hooks/exhaustive-deps
+
+./src/components/mystic/MysticHistory.tsx
+33:8  Warning: React Hook useEffect has a missing dependency: 'fetchHistory'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/prompt-builder/PromptAnalyticsDashboard.tsx
+25:8  Warning: React Hook useEffect has a missing dependency: 'fetchAnalytics'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/prompt-builder/PromptGallery.tsx
+32:8  Warning: React Hook useEffect has a missing dependency: 'fetchGallery'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/prompt-builder/PromptHistory.tsx
+37:8  Warning: React Hook useEffect has a missing dependency: 'fetchPrompts'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/prompt-builder/PromptTemplates.tsx
+38:8  Warning: React Hook useEffect has a missing dependency: 'fetchTemplates'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/prompt-builder/PromptVersions.tsx
+35:8  Warning: React Hook useEffect has a missing dependency: 'fetchVersions'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/universal/UniversalInteraction.tsx
+40:31  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+40:31  Warning: img elements must have an alt prop, either with meaningful text, or an empty string for decorative images.  jsx-a11y/alt-text
+60:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+60:17  Warning: img elements must have an alt prop, either with meaningful text, or an empty string for decorative images.  jsx-a11y/alt-text
+
+./src/components/universal/UniversalMedia.tsx
+13:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+31:13  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+66:13  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/universal/UniversalText.tsx
+16:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+84:13  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/features/profile/components/ProfileHeader.tsx
+170:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+247:45  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/features/profile/components/tabs/MediaTab.tsx
+56:37  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+90:33  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/hooks/useThrottledCallback.ts
+13:10  Warning: React Hook useCallback received a function whose dependencies are unknown. Pass an inline function instead.  react-hooks/exhaustive-deps
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+   Collecting page data ...
+(node:38212) [MONGOOSE] Warning: Duplicate schema index on {"slug":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38212) [MONGOOSE] Warning: Duplicate schema index on {"accessToken":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:38212) [MONGOOSE] Warning: Duplicate schema index on {"code":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:38212) [MONGOOSE] Warning: Duplicate schema index on {"certificateId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+ ⚠ Using edge runtime on a page currently disables static generation for that page
+   Generating static pages (0/86) ...
+   Generating static pages (21/86) 
+   Generating static pages (42/86) 
+OG Image generation error: B [Error]: Dynamic server usage: Route /api/og couldn't be rendered statically because it used `request.url`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at V (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:21778)
+    at Object.get (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:29465)
+    at x (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\app\api\og\route.js:1:1145)
+    at C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:38417
+    at C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\lib\trace\tracer.js:140:36
+    at NoopContextManager.with (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854)
+    at C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\lib\trace\tracer.js:122:103 {
+  description: "Route /api/og couldn't be rendered statically because it used `request.url`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Sitemap: Error fetching blog posts: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+revalidating cache with key: async()=>{let{bots:e}=await r.G.getAllBots({limit:100});return JSON.parse(JSON.stringify(e))}-bots-listing-[] MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+revalidating cache with key: async()=>{let{bots:e}=await r.G.getAllBots({limit:100});return JSON.parse(JSON.stringify(e))}-bots-listing-[] MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Sitemap: Error fetching tutorials: MongooseError: Cannot call `tutorials.find()` before initial connection is complete if `bufferCommands = false`. Make sure you `await mongoose.connect()` if you have `bufferCommands = false`.
+    at NativeCollection.<computed> [as find] (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:179:15)
+    at model.Query._find (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\query.js:2431:48)
+    at model.Query.exec (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\query.js:4627:80)
+    at async K (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\app\sitemap.xml\route.js:1:36975)
+    at async Z (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\app\sitemap.xml\route.js:1:38981)
+    at async C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:38411
+    at async e_.execute (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:27880)
+    at async e_.handle (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:39943)
+    at async exportAppRoute (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\export\routes\app-route.js:77:26)
+    at async exportPageImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\export\worker.js:175:20)
+Sitemap: Error fetching marketplace prompts: MongooseError: Cannot call `marketplaceprompts.find()` before initial connection is complete if `bufferCommands = false`. Make sure you `await mongoose.connect()` if you have `bufferCommands = false`.
+    at NativeCollection.<computed> [as find] (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:179:15)
+    at model.Query._find (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\query.js:2431:48)
+    at model.Query.exec (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\query.js:4627:80)
+    at async K (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\app\sitemap.xml\route.js:1:37260)
+    at async Z (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\app\sitemap.xml\route.js:1:38981)
+    at async C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:38411
+    at async e_.execute (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:27880)
+    at async e_.handle (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:39943)
+    at async exportAppRoute (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\export\routes\app-route.js:77:26)
+    at async exportPageImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\export\worker.js:175:20)
+Sitemap: Error fetching bots: MongooseError: Cannot call `bots.find()` before initial connection is complete if `bufferCommands = false`. Make sure you `await mongoose.connect()` if you have `bufferCommands = false`.
+    at NativeCollection.<computed> [as find] (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:179:15)
+    at model.Query._find (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\query.js:2431:48)
+    at model.Query.exec (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\query.js:4627:80)
+    at async K (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\app\sitemap.xml\route.js:1:37553)
+    at async Z (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\app\sitemap.xml\route.js:1:38981)
+    at async C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:38411
+    at async e_.execute (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:27880)
+    at async e_.handle (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:39943)
+    at async exportAppRoute (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\export\routes\app-route.js:77:26)
+    at async exportPageImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\export\worker.js:175:20)
+Sitemap: Error fetching insights: MongooseError: Cannot call `insights.find()` before initial connection is complete if `bufferCommands = false`. Make sure you `await mongoose.connect()` if you have `bufferCommands = false`.
+    at NativeCollection.<computed> [as find] (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:179:15)
+    at model.Query._find (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\query.js:2431:48)
+    at model.Query.exec (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\query.js:4627:80)
+    at async K (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\app\sitemap.xml\route.js:1:37874)
+    at async Z (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\app\sitemap.xml\route.js:1:38981)
+    at async C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:38411
+    at async e_.execute (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:27880)
+    at async e_.handle (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:39943)
+    at async exportAppRoute (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\export\routes\app-route.js:77:26)
+    at async exportPageImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\export\worker.js:175:20)
+   Generating static pages (64/86) 
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Error fetching repositories: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Error fetching repositories: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Error fetching posts: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Error fetching videos: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Error fetching prompts: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Error fetching insights: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Error fetching forum teaser: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Error fetching posts: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Error fetching videos: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Error fetching prompts: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Error fetching insights: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Error fetching forum teaser: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+ ✓ Generating static pages (86/86)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                                  Size     First Load JS
+┌ ○ /                                                        12 kB           183 kB
+├ ○ /_not-found                                              226 B          88.6 kB
+├ ○ /about                                                   13.8 kB         179 kB
+├ ○ /admin                                                   13.3 kB         253 kB
+├ ○ /admin/analytics                                         10.5 kB         123 kB
+├ ○ /admin/bots                                              10.5 kB         191 kB
+├ ○ /admin/categories                                        7.5 kB          150 kB
+├ ○ /admin/comments                                          11.2 kB         153 kB
+├ ○ /admin/content                                           335 kB          577 kB
+├ ○ /admin/encyclopedia                                      6.38 kB         157 kB
+├ ƒ /admin/encyclopedia/[id]/edit                            5.66 kB         192 kB
+├ ○ /admin/encyclopedia/categories/new                       4.24 kB         146 kB
+├ ○ /admin/encyclopedia/new                                  6.27 kB         193 kB
+├ ○ /admin/encyclopedia/sections/new                         4.55 kB         117 kB
+├ ○ /admin/forum                                             8.56 kB         121 kB
+├ ○ /admin/links                                             11.2 kB         166 kB
+├ ƒ /admin/links/[id]                                        5.34 kB         273 kB
+├ ○ /admin/login                                             4.8 kB          118 kB
+├ ○ /admin/media                                             11 kB           153 kB
+├ ○ /admin/posts                                             15.7 kB         167 kB
+├ ƒ /admin/posts/edit/[id]                                   1.57 kB         202 kB
+├ ○ /admin/posts/new                                         2.32 kB         202 kB
+├ ○ /admin/prompts                                           6.32 kB         162 kB
+├ ƒ /admin/prompts/[id]/edit                                 631 B           167 kB
+├ ○ /admin/prompts/new                                       210 B           166 kB
+├ ○ /admin/repositories                                      5.52 kB         132 kB
+├ ƒ /admin/repositories/edit/[id]                            726 B           141 kB
+├ ○ /admin/repositories/new                                  543 B           140 kB
+├ ○ /admin/seo                                               14.4 kB         157 kB
+├ ○ /admin/settings                                          5.55 kB         127 kB
+├ ○ /admin/tags                                              10.7 kB         153 kB
+├ ○ /admin/tools                                             9.85 kB         123 kB
+├ ○ /admin/tutorials                                         4.9 kB          110 kB
+├ ƒ /admin/tutorials/edit/[id]                               697 B           138 kB
+├ ○ /admin/tutorials/new                                     519 B           138 kB
+├ ○ /admin/users                                             13.3 kB         155 kB
+├ ○ /admin/vibe-codes                                        5.76 kB         132 kB
+├ ○ /admin/videos                                            10.9 kB         153 kB
+├ ○ /admin/workshop                                          8.02 kB         154 kB
+├ ○ /ai-health                                               155 B           176 kB
+├ ○ /ai-readiness                                            155 B           176 kB
+├ ƒ /api/admin/backfill-ids                                  0 B                0 B
+├ ƒ /api/admin/csrf                                          0 B                0 B
+├ ƒ /api/admin/forum                                         0 B                0 B
+├ ƒ /api/admin/forum/[id]                                    0 B                0 B
+├ ƒ /api/admin/forum/[id]/backfill                           0 B                0 B
+├ ƒ /api/admin/forum/[id]/generate                           0 B                0 B
+├ ƒ /api/admin/forum/[id]/resolve                            0 B                0 B
+├ ƒ /api/admin/link-groups                                   0 B                0 B
+├ ƒ /api/admin/link-groups/[id]                              0 B                0 B
+├ ƒ /api/admin/link-tags                                     0 B                0 B
+├ ƒ /api/admin/links                                         0 B                0 B
+├ ƒ /api/admin/links/[id]                                    0 B                0 B
+├ ƒ /api/admin/links/[id]/export                             0 B                0 B
+├ ƒ /api/admin/links/[id]/qr                                 0 B                0 B
+├ ƒ /api/admin/links/[id]/stats                              0 B                0 B
+├ ƒ /api/admin/links/top                                     0 B                0 B
+├ ƒ /api/admin/login                                         0 B                0 B
+├ ƒ /api/admin/logout                                        0 B                0 B
+├ ƒ /api/admin/settings                                      0 B                0 B
+├ ƒ /api/admin/verify                                        0 B                0 B
+├ ƒ /api/ai/text                                             0 B                0 B
+├ ƒ /api/analytics                                           0 B                0 B
+├ ƒ /api/auth/2fa                                            0 B                0 B
+├ ƒ /api/auth/google                                         0 B                0 B
+├ ƒ /api/auth/google/callback                                0 B                0 B
+├ ƒ /api/auth/login                                          0 B                0 B
+├ ƒ /api/auth/logout                                         0 B                0 B
+├ ƒ /api/auth/me                                             0 B                0 B
+├ ƒ /api/auth/register                                       0 B                0 B
+├ ƒ /api/auth/verify-email                                   0 B                0 B
+├ ƒ /api/backups                                             0 B                0 B
+├ ƒ /api/backups/[id]                                        0 B                0 B
+├ ƒ /api/bot-comments                                        0 B                0 B
+├ ƒ /api/bots                                                0 B                0 B
+├ ƒ /api/bots/[id]                                           0 B                0 B
+├ ƒ /api/bots/[id]/check-purchase                            0 B                0 B
+├ ƒ /api/bots/[id]/versions                                  0 B                0 B
+├ ƒ /api/bots/[id]/wishlist                                  0 B                0 B
+├ ƒ /api/bots/affiliates/links                               0 B                0 B
+├ ƒ /api/bots/affiliates/stats                               0 B                0 B
+├ ƒ /api/bots/seller/payouts                                 0 B                0 B
+├ ƒ /api/bots/submit                                         0 B                0 B
+├ ƒ /api/bots/subscriptions/plans                            0 B                0 B
+├ ƒ /api/bots/subscriptions/subscribe                        0 B                0 B
+├ ƒ /api/builder-prompts                                     0 B                0 B
+├ ƒ /api/builder-prompts/[id]                                0 B                0 B
+├ ƒ /api/builder-prompts/analytics                           0 B                0 B
+├ ƒ /api/builder-prompts/share/[token]                       0 B                0 B
+├ ƒ /api/builder-prompts/tests                               0 B                0 B
+├ ƒ /api/builder-prompts/tests/[id]                          0 B                0 B
+├ ƒ /api/categories                                          0 B                0 B
+├ ƒ /api/categories/[id]                                     0 B                0 B
+├ ƒ /api/comments                                            0 B                0 B
+├ ƒ /api/comments/[id]                                       0 B                0 B
+├ ƒ /api/contact                                             0 B                0 B
+├ ƒ /api/conversion/bookings                                 0 B                0 B
+├ ƒ /api/conversion/challenges                               0 B                0 B
+├ ƒ /api/conversion/deals                                    0 B                0 B
+├ ƒ /api/conversion/lessons                                  0 B                0 B
+├ ƒ /api/conversion/mystery-box                              0 B                0 B
+├ ƒ /api/conversion/quests                                   0 B                0 B
+├ ƒ /api/conversion/seed                                     0 B                0 B
+├ ƒ /api/conversion/skills                                   0 B                0 B
+├ ƒ /api/conversion/stats                                    0 B                0 B
+├ ƒ /api/conversion/testimonials                             0 B                0 B
+├ ƒ /api/cron-jobs                                           0 B                0 B
+├ ƒ /api/cron-jobs/[id]                                      0 B                0 B
+├ ƒ /api/cron/forum-daily                                    0 B                0 B
+├ ƒ /api/cron/seo-update                                     0 B                0 B
+├ ƒ /api/csrf                                                0 B                0 B
+├ ƒ /api/email                                               0 B                0 B
+├ ƒ /api/encyclopedia/articles                               0 B                0 B
+├ ƒ /api/encyclopedia/articles/[id]                          0 B                0 B
+├ ƒ /api/encyclopedia/articles/[id]/comments                 0 B                0 B
+├ ƒ /api/encyclopedia/articles/[id]/versions                 0 B                0 B
+├ ƒ /api/encyclopedia/categories                             0 B                0 B
+├ ƒ /api/encyclopedia/categories/[id]                        0 B                0 B
+├ ƒ /api/encyclopedia/certificates                           0 B                0 B
+├ ƒ /api/encyclopedia/migrate                                0 B                0 B
+├ ƒ /api/encyclopedia/search                                 0 B                0 B
+├ ƒ /api/encyclopedia/sections                               0 B                0 B
+├ ƒ /api/encyclopedia/sections/[id]                          0 B                0 B
+├ ƒ /api/error-logs                                          0 B                0 B
+├ ƒ /api/files/[...path]                                     0 B                0 B
+├ ƒ /api/folders                                             0 B                0 B
+├ ƒ /api/folders/[id]                                        0 B                0 B
+├ ƒ /api/forum/ask-council                                   0 B                0 B
+├ ƒ /api/forum/duel                                          0 B                0 B
+├ ƒ /api/forum/posts/[id]/react                              0 B                0 B
+├ ƒ /api/forum/quote                                         0 B                0 B
+├ ƒ /api/forum/subscribe                                     0 B                0 B
+├ ƒ /api/forum/suggest                                       0 B                0 B
+├ ƒ /api/forum/topics/[id]/ask                               0 B                0 B
+├ ƒ /api/forum/topics/[id]/comment                           0 B                0 B
+├ ƒ /api/health                                              0 B                0 B
+├ ƒ /api/indexnow                                            0 B                0 B
+├ ƒ /api/insights                                            0 B                0 B
+├ ƒ /api/insights/[id]                                       0 B                0 B
+├ ƒ /api/insights/[id]/ai-comments                           0 B                0 B
+├ ƒ /api/insights/[id]/react                                 0 B                0 B
+├ ƒ /api/jobs                                                0 B                0 B
+├ ƒ /api/link/[slug]                                         0 B                0 B
+├ ƒ /api/media                                               0 B                0 B
+├ ƒ /api/media/[id]                                          0 B                0 B
+├ ƒ /api/media/disk                                          0 B                0 B
+├ ƒ /api/media/disk/[...path]                                0 B                0 B
+├ ƒ /api/media/disk/folder                                   0 B                0 B
+├ ƒ /api/mystic/dream                                        0 B                0 B
+├ ƒ /api/mystic/fortune                                      0 B                0 B
+├ ƒ /api/mystic/history                                      0 B                0 B
+├ ƒ /api/mystic/horoscope                                    0 B                0 B
+├ ƒ /api/mystic/love                                         0 B                0 B
+├ ƒ /api/mystic/numerology                                   0 B                0 B
+├ ƒ /api/mystic/tarot                                        0 B                0 B
+├ ƒ /api/newsletter                                          0 B                0 B
+├ ƒ /api/notifications                                       0 B                0 B
+├ ƒ /api/notifications/[id]                                  0 B                0 B
+├ ƒ /api/og                                                  0 B                0 B
+├ ƒ /api/phone-lead                                          0 B                0 B
+├ ƒ /api/posts                                               0 B                0 B
+├ ƒ /api/posts/[id]                                          0 B                0 B
+├ ƒ /api/posts/[id]/ai-comments                              0 B                0 B
+├ ƒ /api/posts/[id]/react                                    0 B                0 B
+├ ƒ /api/posts/[id]/versions                                 0 B                0 B
+├ ƒ /api/posts/ai-suggest                                    0 B                0 B
+├ ƒ /api/posts/generate-code                                 0 B                0 B
+├ ƒ /api/posts/generate-tags                                 0 B                0 B
+├ ƒ /api/posts/parse-ai                                      0 B                0 B
+├ ƒ /api/posts/seo-analysis                                  0 B                0 B
+├ ƒ /api/posts/suggest-links                                 0 B                0 B
+├ ƒ /api/premium-request                                     0 B                0 B
+├ ƒ /api/products                                            0 B                0 B
+├ ƒ /api/profile                                             0 B                0 B
+├ ƒ /api/profile/avatar                                      0 B                0 B
+├ ƒ /api/prompt-builder                                      0 B                0 B
+├ ƒ /api/prompts                                             0 B                0 B
+├ ƒ /api/prompts/[id]                                        0 B                0 B
+├ ƒ /api/prompts/[id]/purchase                               0 B                0 B
+├ ƒ /api/prompts/[id]/reviews                                0 B                0 B
+├ ƒ /api/prompts/generate                                    0 B                0 B
+├ ƒ /api/prompts/parse                                       0 B                0 B
+├ ƒ /api/redirects                                           0 B                0 B
+├ ƒ /api/redirects/[id]                                      0 B                0 B
+├ ƒ /api/search                                              0 B                0 B
+├ ƒ /api/seed                                                0 B                0 B
+├ ƒ /api/seo                                                 0 B                0 B
+├ ƒ /api/services                                            0 B                0 B
+├ ƒ /api/sessions                                            0 B                0 B
+├ ƒ /api/settings                                            0 B                0 B
+├ ƒ /api/tags                                                0 B                0 B
+├ ƒ /api/tags/[id]                                           0 B                0 B
+├ ƒ /api/tasks                                               0 B                0 B
+├ ƒ /api/tasks/[id]                                          0 B                0 B
+├ ƒ /api/telegram/post                                       0 B                0 B
+├ ƒ /api/tools                                               0 B                0 B
+├ ƒ /api/tools/[id]                                          0 B                0 B
+├ ƒ /api/tools/[id]/view                                     0 B                0 B
+├ ƒ /api/tools/bulk                                          0 B                0 B
+├ ƒ /api/tools/bulk-import                                   0 B                0 B
+├ ƒ /api/tools/deduplicate                                   0 B                0 B
+├ ƒ /api/tools/seed                                          0 B                0 B
+├ ƒ /api/tracking/activities                                 0 B                0 B
+├ ƒ /api/tracking/anomalies                                  0 B                0 B
+├ ƒ /api/tracking/anomalies/test                             0 B                0 B
+├ ƒ /api/tracking/cleanup                                    0 B                0 B
+├ ƒ /api/tracking/clicks                                     0 B                0 B
+├ ƒ /api/tracking/engagement                                 0 B                0 B
+├ ƒ /api/tracking/export                                     0 B                0 B
+├ ƒ /api/tracking/funnel                                     0 B                0 B
+├ ƒ /api/tracking/performance                                0 B                0 B
+├ ƒ /api/tracking/realtime                                   0 B                0 B
+├ ƒ /api/tracking/stats                                      0 B                0 B
+├ ƒ /api/tracking/visitors                                   0 B                0 B
+├ ƒ /api/tutorials                                           0 B                0 B
+├ ƒ /api/tutorials/[id]                                      0 B                0 B
+├ ƒ /api/upload                                              0 B                0 B
+├ ƒ /api/user/profile                                        0 B                0 B
+├ ƒ /api/users                                               0 B                0 B
+├ ƒ /api/users/[id]                                          0 B                0 B
+├ ƒ /api/users/list                                          0 B                0 B
+├ ƒ /api/verify-telegram-code                                0 B                0 B
+├ ƒ /api/vibe-codes                                          0 B                0 B
+├ ƒ /api/vibe-codes/share-unlock                             0 B                0 B
+├ ƒ /api/videos                                              0 B                0 B
+├ ƒ /api/videos/[id]                                         0 B                0 B
+├ ƒ /api/videos/[id]/ai-comments                             0 B                0 B
+├ ƒ /api/videos/sync-duration                                0 B                0 B
+├ ƒ /api/views                                               0 B                0 B
+├ ƒ /api/workshop/host/[hostKey]                             0 B                0 B
+├ ƒ /api/workshop/host/[hostKey]/control                     0 B                0 B
+├ ƒ /api/workshop/host/[hostKey]/history                     0 B                0 B
+├ ƒ /api/workshop/rooms                                      0 B                0 B
+├ ƒ /api/workshop/rooms/[code]                               0 B                0 B
+├ ƒ /api/workshop/rooms/[code]/diploma/[clientId]            0 B                0 B
+├ ƒ /api/workshop/rooms/[code]/join                          0 B                0 B
+├ ƒ /api/workshop/rooms/[code]/me                            0 B                0 B
+├ ƒ /api/workshop/rooms/[code]/pick-question                 0 B                0 B
+├ ƒ /api/workshop/rooms/[code]/react                         0 B                0 B
+├ ƒ /api/workshop/rooms/[code]/respond                       0 B                0 B
+├ ƒ /api/youtube/channel                                     0 B                0 B
+├ ƒ /api/youtube/metadata                                    0 B                0 B
+├ ƒ /blog                                                    11.6 kB         163 kB
+├ ƒ /blog/[slug]                                             503 B           331 kB
+├ ○ /bots                                                    24 kB           175 kB
+├ ƒ /bots/[id]                                               9.22 kB         160 kB
+├ ○ /bots/add                                                7.4 kB          196 kB
+├ ○ /bots/affiliate                                          5.61 kB         156 kB
+├ ○ /bots/pricing                                            4.59 kB         155 kB
+├ ○ /demo-features                                           4.73 kB         126 kB
+├ ƒ /en/insights                                             2.58 kB         143 kB
+├ ƒ /en/insights/[slug]                                      458 B           141 kB
+├ ○ /encyclopedia                                            7.75 kB         171 kB
+├ ○ /encyclopedia/ai-2026                                    4.8 kB          159 kB
+├ ƒ /encyclopedia/ai-2026/[slug]                             2.91 kB         170 kB
+├ ○ /encyclopedia/ai-2026/library                            6.23 kB         160 kB
+├ ○ /encyclopedia/ai-for-beginners                           187 B          97.3 kB
+├ ƒ /encyclopedia/ai-for-beginners/[...slug]                 6.18 kB         210 kB
+├ ○ /encyclopedia/ai-for-beginners/library                   2.43 kB         158 kB
+├ ○ /encyclopedia/progress                                   187 B          97.3 kB
+├ ○ /encyclopedia/vibe-coding                                153 B           160 kB
+├ ƒ /encyclopedia/vibe-coding/[slug]                         7.82 kB         236 kB
+├ ƒ /encyclopedia/vibe-coding/[slug]/opengraph-image-1h7krt  0 B                0 B
+├ ○ /encyclopedia/vibe-coding/library                        6.13 kB         160 kB
+├ ƒ /feed.xml                                                0 B                0 B
+├ ○ /forgot-password                                         187 B          97.3 kB
+├ ƒ /forum                                                   3.39 kB         137 kB
+├ ƒ /forum/[slug]                                            8.26 kB         171 kB
+├ ○ /forum/duel                                              2.89 kB         166 kB
+├ ƒ /forum/leaderboard                                       1.22 kB         135 kB
+├ ○ /forum/map                                               1.22 kB         135 kB
+├ ƒ /forum/persona/[id]                                      2.98 kB         136 kB
+├ ○ /forum/quiz                                              3.49 kB         137 kB
+├ ƒ /forum/search                                            1.56 kB         164 kB
+├ ○ /icon.png                                                0 B                0 B
+├ ƒ /insights                                                2.58 kB         143 kB
+├ ƒ /insights/[slug]                                         458 B           141 kB
+├ ○ /lessons                                                 155 B           176 kB
+├ ƒ /link/[slug]                                             4.66 kB         118 kB
+├ ƒ /llms-full.txt                                           0 B                0 B
+├ ƒ /llms.txt                                                0 B                0 B
+├ ○ /login                                                   6.54 kB         128 kB
+├ ○ /manifest.webmanifest                                    0 B                0 B
+├ ○ /mystery-box                                             154 B           176 kB
+├ ○ /mystic                                                  29.6 kB         167 kB
+├ ƒ /mystic/[service]                                        4.34 kB         142 kB
+├ ƒ /news-sitemap.xml                                        0 B                0 B
+├ ○ /privacy                                                 187 B          97.3 kB
+├ ƒ /products                                                226 B          88.6 kB
+├ ○ /profile                                                 21.1 kB         172 kB
+├ ○ /prompt-builder                                          26.2 kB         172 kB
+├ ƒ /prompts                                                 13 kB           215 kB
+├ ƒ /prompts/[slug]                                          13.6 kB         178 kB
+├ ○ /quiz                                                    6.37 kB         128 kB
+├ ○ /register                                                7.55 kB         134 kB
+├ ○ /repositories                                            2.01 kB         126 kB
+├ ƒ /repositories/[slug]                                     2.76 kB         295 kB
+├ ○ /robots.txt                                              0 B                0 B
+├ ƒ /s/[id]                                                  0 B                0 B
+├ ○ /services                                                7.78 kB         198 kB
+├ ƒ /sitemap-videos.xml                                      0 B                0 B
+├ ○ /sitemap.xml                                             0 B                0 B
+├ ○ /terms                                                   226 B          88.6 kB
+├ ○ /tools                                                   10.1 kB         132 kB
+├ ƒ /tools/[id]                                              9.93 kB         145 kB
+├ ƒ /tutorials                                               187 B          97.3 kB
+├ ƒ /tutorials/[slug]                                        243 B           331 kB
+├ ○ /verify-email                                            2.55 kB         145 kB
+├ ○ /vibe                                                    153 B           160 kB
+├ ○ /vibe-coding                                             226 B          88.6 kB
+├ ƒ /videos                                                  2.33 kB         129 kB
+├ ƒ /videos/[id]                                             2.59 kB         141 kB
+├ ƒ /workshop/[code]                                         13.3 kB         159 kB
+├ ƒ /workshop/host/[hostKey]                                 15.1 kB         161 kB
+└ ƒ /workshop/host/[hostKey]/remote                          14.3 kB         200 kB
++ First Load JS shared by all                                88.4 kB
+  ├ chunks/2117-03749f3306ac9844.js                          31.9 kB
+  ├ chunks/fd9d1056-f7abd5b2957e3831.js                      53.6 kB
+  └ other shared chunks (total)                              2.86 kB
+
+
+ƒ Middleware                                                 27.4 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

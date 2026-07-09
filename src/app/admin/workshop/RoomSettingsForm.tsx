@@ -5,7 +5,6 @@ import { FlaskConical, Plus, Presentation, Wifi } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { DEFAULT_ROOM_SETTINGS, type IWorkshopRoomSettings } from '@/types/workshop.types'
 
@@ -22,35 +21,35 @@ type NumKey = {
 }[keyof IWorkshopRoomSettings]
 
 const BOOL_FIELDS: { key: BoolKey; label: string }[] = [
-    { key: 'studentSound', label: 'Звук на телефонах студентов' },
-    { key: 'hostAnswerSound', label: 'Звук ответов на проекторе' },
-    { key: 'autoReveal', label: 'Авто-показ результатов' },
-    { key: 'revealCorrect', label: 'Показывать правильный ответ' },
-    { key: 'anonymousNames', label: 'Анонимные ответы (скрыть имена)' },
-    { key: 'shuffleOptions', label: 'Перемешивать варианты' },
-    { key: 'nameFilter', label: 'Фильтр имён (мат / пустые)' },
-    { key: 'allowKick', label: 'Можно кикнуть участника' },
-    { key: 'confetti', label: 'Конфетти при показе' },
-    { key: 'gamification', label: '🎮 Геймификация (очки, бейджи, реакции)' },
-    { key: 'teamMode', label: '🎨 Командный режим' },
-    { key: 'chatEnabled', label: '💬 Чат участников' },
-    { key: 'questionsEnabled', label: '❓ Вопросы из зала' },
-    { key: 'chatAutoShow', label: '⚡ Авто-показ чата (без модерации)' },
-    { key: 'broadcastEnabled', label: '📹 Видео-вещание ведущего' },
+    { key: 'studentSound', label: 'ხმა სტუდენტების ტელეფონებზე' },
+    { key: 'hostAnswerSound', label: 'პასუხების ხმა პროექტორზე' },
+    { key: 'autoReveal', label: 'შედეგების ავტო-ჩვენება' },
+    { key: 'revealCorrect', label: 'სწორი პასუხის ჩვენება' },
+    { key: 'anonymousNames', label: 'ანონიმური პასუხები (სახელების დამალვა)' },
+    { key: 'shuffleOptions', label: 'ვარიანტების არევა' },
+    { key: 'nameFilter', label: 'სახელების ფილტრი (გინება / ცარიელი)' },
+    { key: 'allowKick', label: 'მონაწილის გაგდების უფლება' },
+    { key: 'confetti', label: 'კონფეტი ჩვენებისას' },
+    { key: 'gamification', label: '🎮 გეიმიფიკაცია (ქულები, ბეჯები, რეაქციები)' },
+    { key: 'teamMode', label: '🎨 გუნდური რეჟიმი' },
+    { key: 'chatEnabled', label: '💬 მონაწილეების ჩატი' },
+    { key: 'questionsEnabled', label: '❓ კითხვები დარბაზიდან' },
+    { key: 'chatAutoShow', label: '⚡ ჩატის ავტო-ჩვენება (მოდერაციის გარეშე)' },
+    { key: 'broadcastEnabled', label: '📹 წამყვანის ვიდეო-ეთერი' },
 ]
 
 const NUM_FIELDS: { key: NumKey; label: string; min: number; max: number; step: number; fmt: (v: number) => string }[] = [
-    { key: 'graceSec', label: 'Пауза перед авто-показом', min: 0, max: 60, step: 1, fmt: (v) => `${v} сек` },
-    { key: 'gateRatio', label: 'Порог показа результатов', min: 0, max: 1, step: 0.1, fmt: (v) => `${Math.round(v * 100)}%` },
-    { key: 'roundTimerSec', label: 'Таймер раунда', min: 0, max: 600, step: 5, fmt: (v) => (v ? `${v} сек` : 'из шаблона') },
-    { key: 'studentPollMs', label: 'Опрос телефонов', min: 1000, max: 10000, step: 500, fmt: (v) => `${v} мс` },
-    { key: 'textWallLimit', label: 'Лимит ответов на стене', min: 10, max: 500, step: 10, fmt: (v) => `${v}` },
-    { key: 'maxParticipants', label: 'Лимит участников', min: 0, max: 500, step: 1, fmt: (v) => (v ? `${v}` : '∞') },
-    { key: 'codeLength', label: 'Длина кода', min: 4, max: 6, step: 1, fmt: (v) => `${v}` },
-    { key: 'onlineWindowSec', label: 'Окно «онлайн»', min: 5, max: 60, step: 1, fmt: (v) => `${v} сек` },
-    { key: 'hostVolume', label: 'Громкость проектора', min: 0, max: 100, step: 5, fmt: (v) => `${v}` },
-    { key: 'studentVolume', label: 'Громкость телефона', min: 0, max: 100, step: 5, fmt: (v) => `${v}` },
-    { key: 'teamCount', label: 'Команд', min: 2, max: 6, step: 1, fmt: (v) => `${v}` },
+    { key: 'graceSec', label: 'პაუზა ავტო-ჩვენებამდე', min: 0, max: 60, step: 1, fmt: (v) => `${v} წმ` },
+    { key: 'gateRatio', label: 'შედეგების ჩვენების ზღვარი', min: 0, max: 1, step: 0.1, fmt: (v) => `${Math.round(v * 100)}%` },
+    { key: 'roundTimerSec', label: 'რაუნდის ტაიმერი', min: 0, max: 600, step: 5, fmt: (v) => (v ? `${v} წმ` : 'შაბლონიდან') },
+    { key: 'studentPollMs', label: 'ტელეფონების გამოკითხვა', min: 1000, max: 10000, step: 500, fmt: (v) => `${v} მწმ` },
+    { key: 'textWallLimit', label: 'პასუხების ლიმიტი კედელზე', min: 10, max: 500, step: 10, fmt: (v) => `${v}` },
+    { key: 'maxParticipants', label: 'მონაწილეების ლიმიტი', min: 0, max: 500, step: 1, fmt: (v) => (v ? `${v}` : '∞') },
+    { key: 'codeLength', label: 'კოდის სიგრძე', min: 4, max: 6, step: 1, fmt: (v) => `${v}` },
+    { key: 'onlineWindowSec', label: 'ონლაინ ფანჯარა', min: 5, max: 60, step: 1, fmt: (v) => `${v} წმ` },
+    { key: 'hostVolume', label: 'პროექტორის ხმა', min: 0, max: 100, step: 5, fmt: (v) => `${v}` },
+    { key: 'studentVolume', label: 'ტელეფონის ხმა', min: 0, max: 100, step: 5, fmt: (v) => `${v}` },
+    { key: 'teamCount', label: 'გუნდები', min: 2, max: 6, step: 1, fmt: (v) => `${v}` },
 ]
 
 export function RoomSettingsForm({ busy, onCreate }: RoomSettingsFormProps) {
@@ -72,39 +71,23 @@ export function RoomSettingsForm({ busy, onCreate }: RoomSettingsFormProps) {
                     active={!online}
                     onClick={() => applyPreset('inperson')}
                     icon={<Presentation size={16} />}
-                    title="В зале"
-                    sub="звук только на проекторе"
+                    title="დარბაზში"
+                    sub="ხმა მხოლოდ პროექტორზე"
                 />
                 <PresetCard
                     active={online}
                     onClick={() => applyPreset('online')}
                     icon={<Wifi size={16} />}
-                    title="Онлайн"
-                    sub="+ звук на телефонах студентов"
+                    title="ონლაინ"
+                    sub="+ ხმა სტუდენტების ტელეფონებზე"
                 />
             </div>
 
             <details className="group rounded-xl border border-border bg-card">
                 <summary className="flex cursor-pointer select-none items-center gap-2 px-4 py-2.5 text-sm font-medium text-foreground">
-                    <span className="transition-transform group-open:rotate-90">▸</span> Расширенные настройки
+                    <span className="transition-transform group-open:rotate-90">▸</span> დამატებითი პარამეტრები
                 </summary>
                 <div className="space-y-5 px-4 pb-4 pt-1">
-                    <div className="flex items-center justify-between gap-3">
-                        <span className="text-sm text-foreground">Язык контента</span>
-                        <Select
-                            value={settings.language}
-                            onValueChange={(v) => setField('language', v === 'ru' ? 'ru' : 'ka')}
-                        >
-                            <SelectTrigger className="w-40">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="ka">ქართული</SelectItem>
-                                <SelectItem value="ru">Русский</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
                     <div className="grid gap-2 sm:grid-cols-2">
                         {BOOL_FIELDS.map((f) => (
                             <div
@@ -146,16 +129,16 @@ export function RoomSettingsForm({ busy, onCreate }: RoomSettingsFormProps) {
 
             <div className="flex gap-2">
                 <Button onClick={() => onCreate(false, settings)} disabled={busy} className="gap-2">
-                    <Plus size={16} /> Создать {online ? '(онлайн)' : '(в зале)'}
+                    <Plus size={16} /> შექმნა {online ? '(ონლაინ)' : '(დარბაზში)'}
                 </Button>
                 <Button
                     onClick={() => onCreate(true, settings)}
                     disabled={busy}
                     variant="secondary"
                     className="gap-2"
-                    title="Комната с 8 фейковыми участниками и готовыми ответами — чтобы посмотреть как всё работает"
+                    title="ოთახი 8 ფეიქ მონაწილით და მზა პასუხებით, რომ ნახო როგორ მუშაობს"
                 >
-                    <FlaskConical size={16} /> Демо
+                    <FlaskConical size={16} /> დემო
                 </Button>
             </div>
         </div>
