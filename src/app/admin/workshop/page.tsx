@@ -12,7 +12,7 @@ export default function AdminWorkshopPage() {
             <header>
                 <h1 className="text-2xl font-bold text-foreground">ვორქშოპის ოთახები</h1>
                 <p className="text-muted-foreground mt-1">
-                    Live-комнаты: QR-вход, раунды, голосования. Экран шаришь в Meet, управляешь с пульта.
+                    ლაივ-ოთახები: QR-შესვლა, რაუნდები, გამოკითხვები. ეკრანს უზიარებ Meet-ში, მართავ პულტიდან.
                 </p>
             </header>
             <CreateRoomPanel />

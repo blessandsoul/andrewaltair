@@ -1,0 +1,917 @@
+
+> andrewaltair.ge@0.1.0 start
+> next start
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+
+ ✓ Starting...
+ ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+ ✓ Ready in 956ms
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11)
+    at async l (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\5089.js:1:838)
+    at async y (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\5089.js:1:15096) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11)
+    at async l (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\5089.js:1:838)
+    at async y (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\5089.js:1:15096) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11)
+    at async l (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\5089.js:1:838)
+    at async y (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\5089.js:1:15096) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+[seo-migrations] Mongo unreachable after 3 attempts — skipping this boot MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11)
+    at async l (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\5089.js:1:838)
+    at async y (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\5089.js:1:15096) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+ ⨯ Error: failed to pipe response
+    at pipeToNodeResponse (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\pipe-readable.js:126:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async sendResponse (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\send-response.js:44:13)
+    at async doRender (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1396:25)
+    at async cacheEntry.responseCache.get.routeKind (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1588:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1496:28)
+    at async NextNodeServer.renderPageComponent (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1924:24)
+    at async NextNodeServer.renderToResponseImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1962:32)
+    at async NextNodeServer.pipeImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\next-server.js:272:17) {
+  [cause]: TypeError: Invalid URL
+      at new URL (node:internal/url:828:25)
+      at fileURLToPath (node:internal/url:1609:12)
+      at file:///C:/Users/User/Desktop/AGENT/andrewaltair.ge_project/node_modules/next/dist/compiled/@vercel/og/index.node.js:18988:32
+      at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+      at async Object.start (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\app\api\og\route.js:4:4397) {
+    code: 'ERR_INVALID_URL',
+    input: '.\\file:\\C:\\Users\\User\\Desktop\\AGENT\\andrewaltair.ge_project\\node_modules\\next\\dist\\compiled\\@vercel\\og\\noto-sans-v27-latin-regular.ttf'
+  }
+}
+ ⨯ Error: failed to pipe response
+    at pipeToNodeResponse (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\pipe-readable.js:126:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async sendResponse (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\send-response.js:44:13)
+    at async doRender (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1396:25)
+    at async cacheEntry.responseCache.get.routeKind (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1588:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1496:28)
+    at async NextNodeServer.renderPageComponent (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1924:24)
+    at async NextNodeServer.renderToResponseImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1962:32)
+    at async NextNodeServer.pipeImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\next-server.js:272:17) {
+  [cause]: TypeError: Invalid URL
+      at new URL (node:internal/url:828:25)
+      at fileURLToPath (node:internal/url:1609:12)
+      at file:///C:/Users/User/Desktop/AGENT/andrewaltair.ge_project/node_modules/next/dist/compiled/@vercel/og/index.node.js:18988:32
+      at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+      at async Object.start (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\app\api\og\route.js:4:4397) {
+    code: 'ERR_INVALID_URL',
+    input: '.\\file:\\C:\\Users\\User\\Desktop\\AGENT\\andrewaltair.ge_project\\node_modules\\next\\dist\\compiled\\@vercel\\og\\noto-sans-v27-latin-regular.ttf'
+  }
+}
+ ⨯ Error: failed to pipe response
+    at pipeToNodeResponse (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\pipe-readable.js:126:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async sendResponse (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\send-response.js:44:13)
+    at async doRender (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1396:25)
+    at async cacheEntry.responseCache.get.routeKind (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1588:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1496:28)
+    at async NextNodeServer.renderPageComponent (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1924:24)
+    at async NextNodeServer.renderToResponseImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1962:32)
+    at async NextNodeServer.pipeImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\next-server.js:272:17) {
+  [cause]: TypeError: Invalid URL
+      at new URL (node:internal/url:828:25)
+      at fileURLToPath (node:internal/url:1609:12)
+      at file:///C:/Users/User/Desktop/AGENT/andrewaltair.ge_project/node_modules/next/dist/compiled/@vercel/og/index.node.js:18988:32
+      at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+      at async Object.start (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\app\api\og\route.js:4:4397) {
+    code: 'ERR_INVALID_URL',
+    input: '.\\file:\\C:\\Users\\User\\Desktop\\AGENT\\andrewaltair.ge_project\\node_modules\\next\\dist\\compiled\\@vercel\\og\\noto-sans-v27-latin-regular.ttf'
+  }
+}
+ ⨯ Error: failed to pipe response
+    at pipeToNodeResponse (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\pipe-readable.js:126:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async sendResponse (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\send-response.js:44:13)
+    at async doRender (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1396:25)
+    at async cacheEntry.responseCache.get.routeKind (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1588:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1496:28)
+    at async NextNodeServer.renderPageComponent (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1924:24)
+    at async NextNodeServer.renderToResponseImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1962:32)
+    at async NextNodeServer.pipeImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\next-server.js:272:17) {
+  [cause]: TypeError: Invalid URL
+      at new URL (node:internal/url:828:25)
+      at fileURLToPath (node:internal/url:1609:12)
+      at file:///C:/Users/User/Desktop/AGENT/andrewaltair.ge_project/node_modules/next/dist/compiled/@vercel/og/index.node.js:18988:32
+      at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+      at async Object.start (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\app\api\og\route.js:4:4397) {
+    code: 'ERR_INVALID_URL',
+    input: '.\\file:\\C:\\Users\\User\\Desktop\\AGENT\\andrewaltair.ge_project\\node_modules\\next\\dist\\compiled\\@vercel\\og\\noto-sans-v27-latin-regular.ttf'
+  }
+}
+ ⨯ Error: failed to pipe response
+    at pipeToNodeResponse (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\pipe-readable.js:126:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async sendResponse (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\send-response.js:44:13)
+    at async doRender (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1396:25)
+    at async cacheEntry.responseCache.get.routeKind (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1588:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1496:28)
+    at async NextNodeServer.renderPageComponent (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1924:24)
+    at async NextNodeServer.renderToResponseImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1962:32)
+    at async NextNodeServer.pipeImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\next-server.js:272:17) {
+  [cause]: TypeError: Invalid URL
+      at new URL (node:internal/url:828:25)
+      at fileURLToPath (node:internal/url:1609:12)
+      at file:///C:/Users/User/Desktop/AGENT/andrewaltair.ge_project/node_modules/next/dist/compiled/@vercel/og/index.node.js:18988:32
+      at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+      at async Object.start (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\app\api\og\route.js:4:4397) {
+    code: 'ERR_INVALID_URL',
+    input: '.\\file:\\C:\\Users\\User\\Desktop\\AGENT\\andrewaltair.ge_project\\node_modules\\next\\dist\\compiled\\@vercel\\og\\noto-sans-v27-latin-regular.ttf'
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Visitor tracking error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Visitor tracking error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Online count error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Activity recording error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Activity recording error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Activity fetch error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11)
+    at async A (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\8772.js:1:2498)
+    at async r (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\app\api\tracking\activities\route.js:1:1760)
+    at async C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:38411
+    at async e_.execute (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:27880)
+    at async e_.handle (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:39943)
+    at async doRender (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1588:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1496:28) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Activity fetch error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11)
+    at async A (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\chunks\8772.js:1:2498)
+    at async r (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\.next\server\app\api\tracking\activities\route.js:1:1760)
+    at async C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:38411
+    at async e_.execute (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:27880)
+    at async e_.handle (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:39943)
+    at async doRender (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1588:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\next\dist\server\base-server.js:1496:28) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+MongoDB Connection Error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Activity fetch error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Visitor tracking error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}
+Online count error: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1169:11)
+    at NativeConnection.openUri (C:\Users\User\Desktop\AGENT\andrewaltair.ge_project\node_modules\mongoose\lib\connection.js:1100:11) {
+  errorLabelSet: Set(0) {},
+  reason: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  },
+  code: undefined,
+  cause: TopologyDescription {
+    type: 'Unknown',
+    servers: Map(1) { 'localhost:27017' => [ServerDescription] },
+    stale: false,
+    compatible: true,
+    heartbeatFrequencyMS: 10000,
+    localThresholdMS: 15,
+    setName: null,
+    maxElectionId: null,
+    maxSetVersion: null,
+    commonWireVersion: 0,
+    logicalSessionTimeoutMinutes: null
+  }
+}

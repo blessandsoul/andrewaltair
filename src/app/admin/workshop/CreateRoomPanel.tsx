@@ -44,10 +44,10 @@ export default function CreateRoomPanel() {
                 setTemplates(json.data.templates)
                 setRooms(json.data.rooms)
             } else {
-                setError('Не авторизован — залогинься в админку')
+                setError('ავტორიზებული არ ხარ, შედი ადმინში')
             }
         } catch {
-            setError('Ошибка загрузки')
+            setError('ჩატვირთვის შეცდომა')
         }
     }
 
@@ -66,9 +66,9 @@ export default function CreateRoomPanel() {
             })
             const json = await res.json()
             if (json.success) await load()
-            else setError(json.error?.message ?? 'Не удалось создать')
+            else setError(json.error?.message ?? 'ვერ შეიქმნა')
         } catch {
-            setError('Ошибка сети')
+            setError('ქსელის შეცდომა')
         } finally {
             setBusy(false)
         }
@@ -102,7 +102,7 @@ export default function CreateRoomPanel() {
                 <CardContent className="space-y-3">
                     {templates.length > 1 && (
                         <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">
-                            Выберите воркшоп
+                            აირჩიე ვორქშოპი
                         </p>
                     )}
                     <div role="radiogroup" className="space-y-2">
@@ -123,7 +123,7 @@ export default function CreateRoomPanel() {
                                 >
                                     <p className="font-semibold text-foreground truncate">{t.title}</p>
                                     <p className="text-muted-foreground text-sm">
-                                        {t.id} · {t.roundsTotal} раундов
+                                        {t.id} · {t.roundsTotal} რაუნდი
                                     </p>
                                 </button>
                             )
@@ -145,7 +145,7 @@ export default function CreateRoomPanel() {
                     <CardTitle className="text-base">ოთახები</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                    {rooms.length === 0 && <p className="text-muted-foreground text-sm">Пока нет</p>}
+                    {rooms.length === 0 && <p className="text-muted-foreground text-sm">ჯერ ცარიელია</p>}
                     {rooms.map((r) => {
                         const badge = STATUS_BADGE[r.status] ?? STATUS_BADGE.ended
                         return (
