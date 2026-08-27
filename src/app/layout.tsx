@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Manrope, Noto_Sans_Georgian } from "next/font/google";
 import "./globals.css";
-import Script from "next/script";
 import { LayoutWrapper } from "@/components/layout/LayoutWrapper";
 import { AuthProvider } from "@/lib/auth";
 import { ToastProvider } from "@/components/ui/toast";
 import { ConfirmDialogProvider } from "@/components/ui/confirm-dialog";
 import { CookieBanner } from "@/components/ui/CookieBanner";
+import { FamilyAnalytics } from "@/components/analytics/FamilyAnalytics";
 import { Agentation } from "agentation";
 import { siteMetadata, siteViewport } from "@/config/metadata";
 import { personSchema, organizationSchema, aiNowOrganizationSchema, websiteSchema, faqPageSchema } from "@/config/json-ld";
@@ -47,6 +47,7 @@ export default function RootLayout({
   return (
     <html lang="ka" suppressHydrationWarning>
       <head>
+        <meta name="ainow-ga4-destination" content="G-LHWNXVZ9B9" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -98,25 +99,15 @@ export default function RootLayout({
             <ConfirmDialogProvider>
               <LayoutWrapper>{children}</LayoutWrapper>
               <CookieBanner />
+              <FamilyAnalytics
+                measurementIds={["G-LHWNXVZ9B9", "G-7YH89CPYF7"]}
+                consentStorageKey="cookie_consent"
+                renderBanner={false}
+              />
               {process.env.NODE_ENV === "development" && <Agentation />}
             </ConfirmDialogProvider>
           </ToastProvider>
         </AuthProvider>
-
-        {/* Google Analytics (gtag.js) — single analytics loader.
-            GTM-P4T74Z4G was loading IN ADDITION to gtag (double-tagging, double
-            main-thread cost). If GTM is ever needed for extra pixels, route GA4
-            through the container and remove this gtag block instead. */}
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-7YH89CPYF7" strategy="afterInteractive" />
-        <Script id="google-analytics">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-
-            gtag('config', 'G-7YH89CPYF7');
-          `}
-        </Script>
 
         {/* aiSTAFF support-chat widget removed on request: the aiNOW support bot
             does not belong on the personal brand site (Andrew personal is not
