@@ -45,13 +45,15 @@ export const personSchema = {
     worksFor: [
         {
             '@type': 'Organization',
-            '@id': 'https://andrewaltair.ge/#organization'
+            '@id': 'https://andrewaltair.ge/#organization',
+            name: 'Andrew Altair'
         },
         {
             // aiNOW sister brand (ainow.ge). Andrew is the founder-bridge; this
             // edge, plus aiNowOrganizationSchema.founder below, links the two graphs.
             '@type': 'Organization',
-            '@id': 'https://ainow.ge#organization'
+            '@id': 'https://ainow.ge#organization',
+            name: 'aiNOW'
         }
     ]
 };
@@ -73,11 +75,13 @@ export const organizationSchema = {
     description: 'AI-ფოკუსირებული პლატფორმა განათლების, მისტიური ინსტრუმენტებისა და ტექნოლოგიური სიახლეებისთვის',
     founder: {
         '@type': 'Person',
-        '@id': 'https://andrewaltair.ge/#person'
+        '@id': 'https://andrewaltair.ge/#person',
+        name: 'Andrew Altair'
     },
     founders: [{
         '@type': 'Person',
-        '@id': 'https://andrewaltair.ge/#person'
+        '@id': 'https://andrewaltair.ge/#person',
+        name: 'Andrew Altair'
     }],
     foundingLocation: {
         '@type': 'Place',
@@ -164,7 +168,8 @@ export const websiteSchema = {
     description: 'AI ინოვატორი და კონტენტ კრეატორი - ხელოვნური ინტელექტის ექსპერტი',
     publisher: {
         '@type': 'Organization',
-        '@id': 'https://andrewaltair.ge/#organization'
+        '@id': 'https://andrewaltair.ge/#organization',
+        name: 'Andrew Altair'
     },
     inLanguage: ['ka', 'en'],
     potentialAction: [

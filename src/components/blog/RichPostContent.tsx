@@ -553,6 +553,8 @@ function SectionRenderer({ section: rawSection, index }: { section: Section; ind
                 <img
                     src={section.content}
                     alt={section.title || 'Post image'}
+                    width={1600}
+                    height={900}
                     className="w-full h-auto object-cover"
                 />
                 {section.title && (
