@@ -109,9 +109,11 @@ interface Payload {
         sourceUrl: string;
         slug?: string;
         headline?: string;
+        imageUrl?: string;
         language: 'ka' | 'en';
         tags?: string[];
         status: 'draft' | 'published';
+        publishedAt?: string;
     };
 }
 
@@ -129,21 +131,35 @@ function collectKa(): Payload[] {
         if (!fs.existsSync(longPath)) { console.warn(`  SKIP ${name}: no long.md`); continue; }
         const content = fs.readFileSync(longPath, 'utf8').trim();
         const meta = fs.existsSync(metaPath) ? parseFrontmatter(fs.readFileSync(metaPath, 'utf8')) : {};
-        const sources: string[] = Array.isArray(meta.sources) ? meta.sources : [];
-        const sourceUrl = sources[0];
-        if (!sourceUrl) { console.warn(`  SKIP ${name}: no sources[0] in meta.md`); continue; }
+        const rawSlug = meta.slug ? String(meta.slug) : name.split('_').slice(2).join('_');
+        const sourceUrl = `https://andrewaltair.ge/insight/${rawSlug}`;
         const headline = (Array.isArray(meta.headline_alt) && meta.headline_alt[0])
             ? String(meta.headline_alt[0]).trim()
             : stripLeadingEmoji(firstNonEmptyLine(content));
+        
+        const dateMatch = name.match(/^(20\d{6})/);
+        const publishedAt = dateMatch ? `${dateMatch[1].slice(0,4)}-${dateMatch[1].slice(4,6)}-${dateMatch[1].slice(6,8)}T12:00:00.000Z` : undefined;
+
+        let imageUrl: string | undefined = undefined;
+        const coverJpg = path.join(dir, 'cover.jpg');
+        if (fs.existsSync(coverJpg)) {
+            const publicCoversDir = path.join(__dirname, '../public/covers');
+            if (!fs.existsSync(publicCoversDir)) fs.mkdirSync(publicCoversDir, { recursive: true });
+            fs.copyFileSync(coverJpg, path.join(publicCoversDir, `${rawSlug}.jpg`));
+            imageUrl = `https://andrewaltair.ge/uploads/${rawSlug}.jpg`;
+        }
+
         out.push({
             lane: 'KA', folder: name,
             body: {
                 content, sourceUrl,
                 slug: meta.slug ? String(meta.slug) : undefined,
                 headline,
+                imageUrl,
                 language: 'ka',
                 tags: Array.isArray(meta.entity_tokens) ? meta.entity_tokens : undefined,
                 status: STATUS,
+                publishedAt,
             },
         });
     }
@@ -172,6 +188,10 @@ function collectEn(): Payload[] {
             if (!sourceUrl) { console.warn(`  SKIP reddit/${day}/${item}: no Source: URL in short_en.md`); continue; }
             const base = item.replace(/^\d+[_-]/, '');
             const headline = firstNonEmptyLine(content);
+            
+            const dateMatch = day.match(/^(20\d{6})/);
+            const publishedAt = dateMatch ? `${dateMatch[1].slice(0,4)}-${dateMatch[1].slice(4,6)}-${dateMatch[1].slice(6,8)}T12:05:00.000Z` : undefined;
+
             out.push({
                 lane: 'EN', folder: `reddit/${day}/${item}`,
                 body: {
@@ -196,7 +216,11 @@ function mintToken(): string {
 async function post(p: Payload, token: string): Promise<string> {
     const res = await fetch(`${BASE}/api/insights`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+        },
         body: JSON.stringify(p.body),
     });
     const text = await res.text();

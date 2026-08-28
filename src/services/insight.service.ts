@@ -32,10 +32,14 @@ export interface InsightCreateData {
     language?: 'ka' | 'en';
     /** Explicit slug override. When omitted the slug is derived from the source OG title. */
     slug?: string;
+    /** Explicit publication date override. */
+    publishedAt?: Date | string;
     /** Explicit H1 / metaTitle override. When omitted the OG title is used.
      *  Needed because /short sources are perplexity aggregators whose OG title is
      *  English — a KA insight must carry its own Georgian headline (meta.headline_alt). */
     headline?: string;
+    /** Cover image URL override (e.g. from generated cover poster). */
+    imageUrl?: string;
 }
 
 export interface InsightUpdateData {
@@ -166,6 +170,13 @@ export class InsightService {
         if (data.sourceUrl) {
             const existing = await Insight.findOne({ sourceUrl: data.sourceUrl, language: langMatch });
             if (existing) {
+                if (data.imageUrl && existing.sourceImage !== data.imageUrl) {
+                    existing.sourceImage = data.imageUrl;
+                    if (existing.seo) {
+                        existing.seo.ogImage = data.imageUrl;
+                    }
+                    await existing.save();
+                }
                 const plain = JSON.parse(JSON.stringify(existing));
                 return { ...plain, id: plain._id?.toString?.() ?? String(plain._id) };
             }
@@ -221,6 +232,8 @@ export class InsightService {
         const cleanTitle = ogTitleClean || headlineOverride;
         const basePath = language === 'en' ? '/en/insights' : '/insights';
 
+        const coverImg = data.imageUrl || ogData.image || '';
+
         const insightData = {
             slug,
             content: data.content,
@@ -228,7 +241,7 @@ export class InsightService {
             sourceUrl: data.sourceUrl,
             sourceTitle: stripLoneSurrogates(ogTitleClean || headlineOverride),
             sourceDomain: ogData.domain,
-            sourceImage: ogData.image,
+            sourceImage: coverImg,
             tags: finalTags,
             autoTags,
             categories: data.categories || ['ai', 'tech-insights'],
@@ -241,6 +254,7 @@ export class InsightService {
                 role: 'AI Innovator',
             },
             status: data.status || 'published',
+            publishedAt: data.publishedAt ? new Date(data.publishedAt) : new Date(),
             numericId,
             seo: {
                 // Override headline used verbatim (capped). The " — ინსაითი" suffix
@@ -249,7 +263,7 @@ export class InsightService {
                     ? headlineOverride.slice(0, 70)
                     : (cleanTitle ? `${cleanTitle.slice(0, 50)} — ინსაითი` : excerpt.slice(0, 60))),
                 metaDescription: excerpt,
-                ogImage: ogData.image || '',
+                ogImage: coverImg,
                 canonicalUrl: `${siteUrl}${basePath}/${slug}`,
             },
         };
