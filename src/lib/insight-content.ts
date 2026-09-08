@@ -56,7 +56,8 @@ function unwrapMarkdownLinks(s: string): string {
 function looksLikeHeadline(line: string, seoTitle?: string): boolean {
     if (!line) return false;
 
-    // (a) Emoji-prefixed (very reliable for v4.0+)
+    // (a) Markdown heading (# Title) or Emoji-prefixed
+    if (/^#+\s*/.test(line)) return true;
     if (/^\s*\p{Extended_Pictographic}/u.test(line)) return true;
 
     // (b) Short + title overlap
@@ -103,7 +104,7 @@ export function getHeadline(content: string): string {
     if (!content) return '';
     for (const line of content.split(/\r?\n/)) {
         const t = line.trim();
-        if (t && !SOURCE_LINE_RE.test(t)) return t;
+        if (t && !SOURCE_LINE_RE.test(t)) return t.replace(/^#+\s*/, '').trim();
     }
     return '';
 }
@@ -152,7 +153,7 @@ export function parseInsightBody(content: string, seoTitle?: string): ParsedInsi
     const joined = kept.join('\n').trim();
     const paragraphs = joined
         .split(/\n{2,}/)
-        .map((p) => unwrapMarkdownLinks(p.trim()))
+        .map((p) => unwrapMarkdownLinks(p.trim()).replace(/^#+\s*/, '').trim())
         .filter(Boolean);
 
     const chars = paragraphs.reduce((sum, p) => sum + p.length, 0);

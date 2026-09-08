@@ -97,8 +97,8 @@ function firstNonEmptyLine(text: string): string {
     return '';
 }
 
-function stripLeadingEmoji(s: string): string {
-    return s.replace(/^\s*\p{Extended_Pictographic}️?\s*/u, '').trim();
+function cleanHeadline(s: string): string {
+    return s.replace(/^#+\s*/, '').replace(/^\s*\p{Extended_Pictographic}️?\s*/u, '').replace(/^#+\s*/, '').trim();
 }
 
 interface Payload {
@@ -129,13 +129,14 @@ function collectKa(): Payload[] {
         const longPath = path.join(dir, 'long.md');
         const metaPath = path.join(dir, 'meta.md');
         if (!fs.existsSync(longPath)) { console.warn(`  SKIP ${name}: no long.md`); continue; }
-        const content = fs.readFileSync(longPath, 'utf8').trim();
+        const rawContent = fs.readFileSync(longPath, 'utf8').trim();
+        const content = rawContent.replace(/^#+\s*/, '');
         const meta = fs.existsSync(metaPath) ? parseFrontmatter(fs.readFileSync(metaPath, 'utf8')) : {};
         const rawSlug = meta.slug ? String(meta.slug) : name.split('_').slice(2).join('_');
         const sourceUrl = `https://andrewaltair.ge/insight/${rawSlug}`;
         const headline = (Array.isArray(meta.headline_alt) && meta.headline_alt[0])
-            ? String(meta.headline_alt[0]).trim()
-            : stripLeadingEmoji(firstNonEmptyLine(content));
+            ? cleanHeadline(String(meta.headline_alt[0]))
+            : cleanHeadline(firstNonEmptyLine(rawContent));
         
         const dateMatch = name.match(/^(20\d{6})/);
         const publishedAt = dateMatch ? `${dateMatch[1].slice(0,4)}-${dateMatch[1].slice(4,6)}-${dateMatch[1].slice(6,8)}T12:00:00.000Z` : undefined;
@@ -182,12 +183,13 @@ function collectEn(): Payload[] {
         for (const item of itemDirs) {
             const f = path.join(dayPath, item, 'short_en.md');
             if (!fs.existsSync(f)) { console.warn(`  SKIP reddit/${day}/${item}: no short_en.md`); continue; }
-            const content = fs.readFileSync(f, 'utf8').trim();
+            const rawContent = fs.readFileSync(f, 'utf8').trim();
+            const content = rawContent.replace(/^#+\s*/, '');
             const srcMatch = content.match(/^Source(?:\(s\))?:\s*(\S+)/im);
             const sourceUrl = srcMatch?.[1];
             if (!sourceUrl) { console.warn(`  SKIP reddit/${day}/${item}: no Source: URL in short_en.md`); continue; }
             const base = item.replace(/^\d+[_-]/, '');
-            const headline = firstNonEmptyLine(content);
+            const headline = cleanHeadline(firstNonEmptyLine(rawContent));
             
             const dateMatch = day.match(/^(20\d{6})/);
             const publishedAt = dateMatch ? `${dateMatch[1].slice(0,4)}-${dateMatch[1].slice(4,6)}-${dateMatch[1].slice(6,8)}T12:05:00.000Z` : undefined;

@@ -227,8 +227,9 @@ export class InsightService {
         // H1/metaTitle: an explicit headline override wins (KA Georgian headline
         // from meta.headline_alt, or the EN reddit headline) because the perplexity
         // source OG title is English and wrong for a KA article. Else fall back to OG.
-        const headlineOverride = data.headline ? decodeHtmlEntities(data.headline).trim() : '';
-        const ogTitleClean = ogData.title ? decodeHtmlEntities(ogData.title).trim() : '';
+        const stripHash = (s?: string) => (s ? s.replace(/^#+\s*/, '').trim() : '');
+        const headlineOverride = data.headline ? stripHash(decodeHtmlEntities(data.headline)) : '';
+        const ogTitleClean = ogData.title ? stripHash(decodeHtmlEntities(ogData.title)) : '';
         const cleanTitle = ogTitleClean || headlineOverride;
         const basePath = language === 'en' ? '/en/insights' : '/insights';
 
@@ -236,10 +237,10 @@ export class InsightService {
 
         const insightData = {
             slug,
-            content: data.content,
-            excerpt,
+            content: (data.content || '').replace(/^#+\s*/, ''),
+            excerpt: stripHash(excerpt),
             sourceUrl: data.sourceUrl,
-            sourceTitle: stripLoneSurrogates(ogTitleClean || headlineOverride),
+            sourceTitle: stripHash(stripLoneSurrogates(ogTitleClean || headlineOverride)),
             sourceDomain: ogData.domain,
             sourceImage: coverImg,
             tags: finalTags,

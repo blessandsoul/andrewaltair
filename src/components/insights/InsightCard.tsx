@@ -90,8 +90,12 @@ export function InsightCard({ insight, basePath = '/insights', dateLocale = 'ka-
     // Split the bot body into a bold headline (line 1) + the rest, so grid cards
     // read like news cards instead of a wall of text.
     const cleaned = stripSourceLines(insight.content);
-    const headline = getHeadline(insight.content);
-    const body = cleaned.startsWith(headline) ? cleaned.slice(headline.length).trim() : cleaned;
+    const rawHeadline = getHeadline(insight.content);
+    const headline = rawHeadline.replace(/^#+\s*/, '').trim();
+    const body = (cleaned.startsWith(rawHeadline)
+        ? cleaned.slice(rawHeadline.length).trim()
+        : (cleaned.startsWith(headline) ? cleaned.slice(headline.length).trim() : cleaned)
+    ).replace(/^#+\s*/, '').trim();
 
     return (
         <article className="bg-card border border-border rounded-2xl overflow-hidden transition-all hover:border-primary/20 hover:shadow-lg h-full flex flex-col">
@@ -161,7 +165,7 @@ export function InsightCard({ insight, basePath = '/insights', dateLocale = 'ka-
                     className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors"
                 >
                     <TbExternalLink className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">{insight.sourceTitle || insight.sourceDomain || insight.sourceUrl}</span>
+                    <span className="truncate">{(insight.sourceTitle || insight.sourceDomain || insight.sourceUrl || '').replace(/^#+\s*/, '')}</span>
                 </a>
 
                 {/* Footer: date, views, reactions — pinned to bottom so cards align */}

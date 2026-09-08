@@ -155,7 +155,7 @@ export function InsightPageClient({ insight, parsedBody, relatedPosts, relatedIn
                     specific story. */}
                 {(insight.seo?.metaTitle || insight.sourceTitle) && (
                     <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4 leading-tight">
-                        {insight.seo?.metaTitle || insight.sourceTitle}
+                        {(insight.seo?.metaTitle || insight.sourceTitle || '').replace(/^#+\s*/, '')}
                     </h1>
                 )}
 
